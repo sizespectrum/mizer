@@ -1,0 +1,30 @@
+Package: mizer
+Imports:
+    plyr,
+    ggplot2
+Maintainer: Finlay Scott <finlay.scott@cefas.co.uk>
+Author: Finlay Scott (Cefas) and Julia Blanchard (Sheffield University)
+Version: 1.0
+License: GPL-3
+Title: Multi-species sIZE-based ecological marine modelling in R
+Type: Package
+Description: A set of classes and methods to set up and run multi-species
+    size-based ecological models, focussed on the marine environment. Although
+    the functional forms are reasonably flexible users should be aware of the
+    underlying default formulations.
+Depends:
+    R (>= 2.15)
+Suggests:
+    testthat,
+    roxygen2
+Collate:
+    'MizerParams-class.r'
+    'MizerSim-class.r'
+    'selectivity_funcs.r'
+    'project_methods.R'
+    'project.r'
+    'help.r'
+    'inter-data.r'
+    'params-data.r'
+    'params_nogears-data.r'
+    'mizer-package.r'
