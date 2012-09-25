@@ -5,13 +5,8 @@
 
 # project can dispatch with effort being different classes
 # But meaty project dispatches with effort being an array (or data.frame?)
-# dim 1 of array is the number of timesteps
-# size of this dimension is the number of timesteps
-# dt is dt
-# so timesteps * dt = tMax - better check it does that
-# dim 2 are the gears. Dimnames need to match gears in catchability and selectivity
 
-#' project method for the size based model
+#' project method for the size based modelling
 #'
 #' Projects the size based model through time.
 #' \code{project()} is called using an object of type \code{MizerParams} and an object that stores the effort of the fishing gears through time. 
