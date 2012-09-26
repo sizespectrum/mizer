@@ -3,7 +3,7 @@
 # Copyright 2012 Finlay Scott and Julia Blanchard. Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS
 
-# Amount of food exposed to each predator by predator size
+# Calculate the amount of food exposed to each predator by predator size
 
 #' getPhiPrey method for the size based model
 #'
