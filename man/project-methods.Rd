@@ -4,7 +4,7 @@
 \alias{project,MizerParams,array-method}
 \alias{project,MizerParams,missing-method}
 \alias{project,MizerParams,numeric-method}
-\title{project method for the size based model}
+\title{project method for the size based modelling}
 \arguments{
   \item{object}{A \code{MizerParams} object}
 
