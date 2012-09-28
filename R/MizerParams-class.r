@@ -476,7 +476,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    # lop off w as that is always the first argument of the selectivity functions
 	    arg <- arg[!(arg %in% "w")]
 	    if(!all(arg %in% colnames(object)))
-		stop("The arguments needed for the selectivity function are notin the object argement")
+		stop("The arguments needed for the selectivity function are not in the parameter dataframe")
 	    # Check that there is only one column in object with the same name
 	    # Check that column of arguments exists
 	    par <- c(w=list(res@w),as.list(object[g,arg]))
