@@ -1,6 +1,5 @@
 \docType{methods}
 \name{getSSB}
-\alias{getBiomass}
 \alias{getSSB}
 \alias{getSSB,MizerSim-method}
 \title{Calculate the SSB of species}

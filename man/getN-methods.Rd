@@ -1,8 +1,8 @@
 \docType{methods}
-\name{getBiomass}
-\alias{getBiomass}
-\alias{getBiomass,MizerSim-method}
-\title{Calculate the biomass of species within a size range}
+\name{getN}
+\alias{getN}
+\alias{getN,MizerSim-method}
+\title{Calculate the total abundance in terms of numbers of species within a size range}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -19,10 +19,10 @@
   calculation}
 }
 \value{
-  An array containing the biomass (time x species)
+  An array containing the total numbers (time x species)
 }
 \description{
-  Calculates the total biomass through time of the species
+  Calculates the total numbers through time of the species
   in the \code{MizerSim} class within user defined size
   limits. The default option is to use the whole size range
   You can specify minimum and maximum weight or lengths for
