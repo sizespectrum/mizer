@@ -29,3 +29,4 @@ Collate:
     'mizer-package.r'
     'project_methods.r'
     'summary_methods.r'
+    'plots.r'
