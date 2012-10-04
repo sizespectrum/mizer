@@ -21,6 +21,13 @@
 #' @export
 #' @docType methods
 #' @rdname plotBiomass-methods
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plotBiomass(sim)
+#' plotBiomass(sim, min_l = 10, max_l = 25)
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
 #' @rdname plotBiomass-methods
@@ -68,11 +75,10 @@ get_time_elements <- function(sim,time_range,slot_name="n"){
     return(time_elements)
 }
 
-
 #' Plot the abundance spectra of each species and the background population
 #'
 #' After running a projection, the spectra of the abundance of each species and the background population can be plotted.
-#' The abundance is averaged over the specified time range. A single value for the time range can be used to explore the spectra at a single point in time.
+#' The abundance is averaged over the specified time range (a single value for the time range can be used).
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a tenth of the minimum size value of the community. 
@@ -86,22 +92,67 @@ setGeneric('plotNSpectra', function(object, ...)
     standardGeneric('plotNSpectra'))
 #' @rdname plotNSpectra-methods
 #' @aliases plotNSpectra,MizerSim-method
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plotNSpectra(sim)
+#' plotNSpectra(sim, min_w = 1e-6)
+#' plotNSpectra(sim, time_range = 10:20)
 setMethod('plotNSpectra', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, ...){
 	time_elements <- get_time_elements(object,time_range)
 	spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
 	background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-	# Need this to be real w not names w - real ugly - can we clean this up?
-	dimnames(spec_n)$w <- object@params@w
-	plot_dat <- rbind(melt(spec_n), cbind(sp = "Background", w = object@params@w_full, value = background_n))
-	plot_dat$w <- as.numeric(plot_dat$w)
-	plot_dat$value <- as.numeric(plot_dat$value)
+#	# Need this to be real w not names w - real ugly - can we clean this up?
+#	dimnames(spec_n)$w <- object@params@w
+#	plot_dat <- rbind(melt(spec_n), cbind(sp = "Background", w = object@params@w_full, value = background_n))
+#	plot_dat$w <- as.numeric(plot_dat$w)
+#	plot_dat$value <- as.numeric(plot_dat$value)
+	plot_dat <- data.frame(value = c(spec_n), Species = dimnames(spec_n)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+	plot_dat <- rbind(plot_dat, data.frame(value = c(background_n), Species = "Background", w = object@params@w_full))
 	# lop off 0s in background and apply min_w
 	plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
-	names(plot_dat)[names(plot_dat)=="sp"] <- "Species"
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Abundance", trans="log10")
 	print(p)
 	return(p)
     })
 
+
+#' Plot the feeding level of each species by size 
+#'
+#' After running a projection, plot the feeding level of each species by size.
+#' The feeding level is averaged over the specified time range (a single value for the time range can be used).
+#' 
+#' @param object An object of class \code{MizerSim}
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#'
+#' @return A ggplot2 object
+#' @export
+#' @docType methods
+#' @rdname plotFeedingLevel-methods
+setGeneric('plotFeedingLevel', function(object, ...)
+    standardGeneric('plotFeedingLevel'))
+#' @rdname plotFeedingLevel-methods
+#' @aliases plotFeedingLevel,MizerSim-method
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plotFeedingLevel(sim)
+#' plotFeedingLevel(sim, time_range = 10:20)
+setMethod('plotFeedingLevel', signature(object='MizerSim'),
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, ...){
+	time_elements <- get_time_elements(object,time_range)
+	feed_time <- aaply(which(time_elements), 1, function(x){
+			    feed <- getFeedingLevel(object@params, n=sim@n[x,,], n_pp = sim@n_pp[x,])
+			      return(feed)})
+	feed <- apply(feed_time, c(2,3), mean)
+	plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+	print(p)
+	return(p)
+    })
 
