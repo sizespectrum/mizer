@@ -54,5 +54,15 @@ test_that("get_size_range_array",{
     }
 })
 
-
-
+test_that("get_time_elements",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=10, dt = 0.5, t_save = 0.5)
+    expect_that(length(get_time_elements(sim,as.character(3:4))), equals(dim(sim@n)[1]))
+    expect_that(length(get_time_elements(sim,3:4)), equals(dim(sim@n)[1]))
+    expect_that(sum(get_time_elements(sim,3:4)), equals(3))
+    expect_that(sum(get_time_elements(sim,3:50)), throws_error())
+    expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(7,8,9)))
+    expect_that(length(get_time_elements(sim,seq(from=3,to=4,by = 0.1), slot_name="effort")), equals(dim(sim@effort)[1]))
+})
