@@ -113,7 +113,7 @@ test_that("getPhiPrey",{
     expect_that(pp1, is_equivalent_to(pp[1,]))
 })
 
-test_that("getFeedingLevel",{
+test_that("getFeedingLevel for MizerParams",{
     data(species_params_gears)
     data(inter)
     params <- MizerParams(species_params_gears, inter)
@@ -130,6 +130,19 @@ test_that("getFeedingLevel",{
     encount <- params@search_vol * phi_prey
     f <- encount/(encount + params@intake_max)
     expect_that(fl, is_equivalent_to(f))
+})
+
+test_that("getFeedingLevel for MizerSim",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    time_range <- 15:20
+    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), is_equal_to(3))
+    time_range <- 20
+    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(2))
+    expect_that(getFeedingLevel(sim, time_range=time_range), equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+
 })
 
 test_that("getPredRate",{

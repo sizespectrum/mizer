@@ -51,9 +51,11 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' getFeedingLevel method for the size based model
 #'
 #' Calculates the amount of food consumed by a predator by predator size based on food availability, search volume and maximum intake
-#' @param object An \code{MizerParams} object
-#' @param n A matrix of species abundance (species x size)
-#' @param n_pp A vector of the background abundance by size
+#' @param object A MizerParams or MizerSim object
+#' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type MizerParam.
+#' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type MizerParam.
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step. Only used if \code{object} argument is of type MizerSim.
+#' @param .drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @return A two dimensional array (predator species x predator size) 
 #' @export
@@ -74,6 +76,16 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
 	return(f)
 })
 
+#' @rdname getFeedingLevel-methods
+#' @aliases getFeedingLevel,MizerParams,missing,missing-method
+setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing'),
+    function(object, time_range=max(as.numeric(dimnames(object@n)$time)), .drop=TRUE, ...){
+	time_elements <- get_time_elements(object,time_range)
+	feed_time <- aaply(which(time_elements), 1, function(x){
+			feed <- getFeedingLevel(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+			return(feed)}, .drop=.drop)
+	return(feed_time)
+})
 
 # Predation rate
 
@@ -421,4 +433,23 @@ setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 	return(rdd)
 })
 
+
+# get_time_elements
+# internal function to get the array element references of the time dimension for the time based slots of a MizerSim object
+# time_range can be character or numeric
+# Necessary to include a slot_name argument because the effort and abundance slots have different time dimensions
+get_time_elements <- function(sim,time_range,slot_name="n"){
+    if (!(slot_name %in% c("n","effort")))
+	stop("'slot_name' argument should be 'n' or 'effort'")
+    if (!is(sim,"MizerSim"))
+	stop("First argument to get_time_elements function must be of class MizerSim")
+    time_range <- range(as.numeric(time_range))
+    # Check that time range is even in object
+    sim_time_range <- range(as.numeric(dimnames(slot(sim,slot_name))$time))
+    if ((time_range[1] < sim_time_range[1]) | (time_range[2] > sim_time_range[2]))
+	stop("Time range is outside the time range of the modell")
+    time_elements <- (as.numeric(dimnames(slot(sim,slot_name))$time) >= time_range[1]) & (as.numeric(dimnames(slot(sim,slot_name))$time) <= time_range[2])
+    names(time_elements) <- dimnames(slot(sim,slot_name))$time
+    return(time_elements)
+}
 
