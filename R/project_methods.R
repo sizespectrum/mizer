@@ -77,7 +77,7 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
 })
 
 #' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerParams,missing,missing-method
+#' @aliases getFeedingLevel,MizerSim,missing,missing-method
 setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing'),
     function(object, time_range=max(as.numeric(dimnames(object@n)$time)), .drop=TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
@@ -144,6 +144,17 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix', n_pp='numeric')
 	m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
 	return(m2)
 })
+#' @rdname getM2-methods
+#' @aliases getM2,MizerSim,missing,missing-method
+setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing'),
+    function(object, time_range=max(as.numeric(dimnames(object@n)$time)), .drop=TRUE, ...){
+	time_elements <- get_time_elements(object,time_range)
+	m2_time <- aaply(which(time_elements), 1, function(x){
+			m2 <- getM2(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+			return(m2)}, .drop=.drop)
+	return(m2_time)
+})
+
 
 #' getM2Background method for the size based model
 #'

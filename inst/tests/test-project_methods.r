@@ -138,11 +138,10 @@ test_that("getFeedingLevel for MizerSim",{
     params <- MizerParams(species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     time_range <- 15:20
-    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), is_equal_to(3))
+    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(3))
     time_range <- 20
     expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(2))
     expect_that(getFeedingLevel(sim, time_range=time_range), equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
-
 })
 
 test_that("getPredRate",{
@@ -191,6 +190,18 @@ test_that("getM2",{
 	m22[i] <- sum(params@interaction[,1] * m2_temp[,w_offset+i])
     expect_that(m22, is_equivalent_to(m2[1,]))
 })
+test_that("getM2 for MizerSim",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    time_range <- 15:20
+    expect_that(length(dim(getM2(sim, time_range=time_range))), equals(3))
+    time_range <- 20
+    expect_that(length(dim(getM2(sim, time_range=time_range))), equals(2))
+    expect_that(getM2(sim, time_range=time_range), equals(getM2(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+})
+
 
 test_that("getM2Background",{
     data(species_params_gears)
