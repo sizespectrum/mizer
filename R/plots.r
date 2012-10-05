@@ -56,25 +56,6 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 # Rules: time period has to be contiguous, i.e. cannot do c(1:5, 8:10)
 # Argument can be character, or numeric. But always forced as.character.
 
-# get_time_elements
-# internal function to get the array element references of the time dimension for the time based slots of a MizerSim object
-# time_range can be character or numeric
-# Necessary to include a slot_name argument because the effort and abundance slots have different time dimensions
-get_time_elements <- function(sim,time_range,slot_name="n"){
-    if (!(slot_name %in% c("n","effort")))
-	stop("'slot_name' argument should be 'n' or 'effort'")
-    if (!is(sim,"MizerSim"))
-	stop("First argument to get_time_elements function must be of class MizerSim")
-    time_range <- range(as.numeric(time_range))
-    # Check that time range is even in object
-    sim_time_range <- range(as.numeric(dimnames(slot(sim,slot_name))$time))
-    if ((time_range[1] < sim_time_range[1]) | (time_range[2] > sim_time_range[2]))
-	stop("Time range is outside the time range of the modell")
-    time_elements <- (as.numeric(dimnames(slot(sim,slot_name))$time) >= time_range[1]) & (as.numeric(dimnames(slot(sim,slot_name))$time) <= time_range[2])
-    names(time_elements) <- dimnames(slot(sim,slot_name))$time
-    return(time_elements)
-}
-
 #' Plot the abundance spectra of each species and the background population
 #'
 #' After running a projection, the spectra of the abundance of each species and the background population can be plotted.
@@ -141,17 +122,80 @@ setGeneric('plotFeedingLevel', function(object, ...)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
-#' plotFeedingLevel(sim)
-#' plotFeedingLevel(sim, time_range = 10:20)
+#' #plotFeedingLevel(sim)
+#' #plotFeedingLevel(sim, time_range = 10:20)
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, ...){
-	time_elements <- get_time_elements(object,time_range)
-	feed_time <- aaply(which(time_elements), 1, function(x){
-			    feed <- getFeedingLevel(object@params, n=sim@n[x,,], n_pp = sim@n_pp[x,])
-			      return(feed)})
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+	feed_time <- getFeedingLevel(object, time_range=time_range, .drop=FALSE, ...)
 	feed <- apply(feed_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+	print(p)
+	return(p)
+    })
+
+#' Plot M2 of each species by size 
+#'
+#' After running a projection, plot M2 of each species by size.
+#' M2 is averaged over the specified time range (a single value for the time range can be used).
+#' 
+#' @param object An object of class \code{MizerSim}
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#'
+#' @return A ggplot2 object
+#' @export
+#' @docType methods
+#' @rdname plotM2-methods
+setGeneric('plotM2', function(object, ...)
+    standardGeneric('plotM2'))
+#' @rdname plotM2-methods
+#' @aliases plotM2,MizerSim-method
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' #plotM2(sim)
+#' #plotM2(sim, time_range = 10:20)
+setMethod('plotM2', signature(object='MizerSim'),
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+	m2_time <- getM2(object, time_range=time_range, .drop=FALSE, ...)
+	m2 <- apply(m2_time, c(2,3), mean)
+	plot_dat <- data.frame(value = c(m2), Species = dimnames(m2)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "M2", lim=c(0,max(plot_dat$value)))
+	print(p)
+	return(p)
+    })
+
+#' Plot total fishing mortality of each species by size 
+#'
+#' After running a projection, plot the total fishing mortality of each species by size.
+#' The total fishing mortality is averaged over the specified time range (a single value for the time range can be used).
+#' 
+#' @param object An object of class \code{MizerSim}
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#'
+#' @return A ggplot2 object
+#' @export
+#' @docType methods
+#' @rdname plotFMort-methods
+setGeneric('plotFMort', function(object, ...)
+    standardGeneric('plotFMort'))
+#' @rdname plotFMort-methods
+#' @aliases plotFMort,MizerSim-method
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' #plotFMort(sim)
+#' #plotFMort(sim, time_range = 10:20)
+setMethod('plotFMort', signature(object='MizerSim'),
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+	f_time <- getFMort(object, time_range=time_range, .drop=FALSE, ...)
+	f <- apply(f_time, c(2,3), mean)
+	plot_dat <- data.frame(value = c(f), Species = dimnames(f)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
 	print(p)
 	return(p)
     })

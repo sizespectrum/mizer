@@ -54,7 +54,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @param object A MizerParams or MizerSim object
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type MizerParam.
 #' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type MizerParam.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step. Only used if \code{object} argument is of type MizerSim.
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type MizerSim.
 #' @param .drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @return A two dimensional array (predator species x predator size) 
@@ -79,7 +79,7 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @rdname getFeedingLevel-methods
 #' @aliases getFeedingLevel,MizerSim,missing,missing-method
 setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing'),
-    function(object, time_range=max(as.numeric(dimnames(object@n)$time)), .drop=TRUE, ...){
+    function(object, time_range=dimnames(object@n)$time, .drop=TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
 	feed_time <- aaply(which(time_elements), 1, function(x){
 			feed <- getFeedingLevel(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
@@ -124,6 +124,8 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @param object An \code{MizerParams} object
 #' @param n A matrix of species abundance (species x size)
 #' @param n_pp A vector of the background abundance by size
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type MizerSim.
+#' @param .drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
@@ -147,7 +149,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix', n_pp='numeric')
 #' @rdname getM2-methods
 #' @aliases getM2,MizerSim,missing,missing-method
 setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing'),
-    function(object, time_range=max(as.numeric(dimnames(object@n)$time)), .drop=TRUE, ...){
+    function(object, time_range=dimnames(object@n)$time, .drop=TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
 	m2_time <- aaply(which(time_elements), 1, function(x){
 			m2 <- getM2(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
@@ -250,6 +252,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #'
 #' @param object A \code{MizerParams} object or an \code{MizerSim} object
 #' @param effort The effort of each fishing gear. Only needed if the object argument is of class \code{MizerParams}. Can be an two dimensional array (time x gear), a vector of length equal to the number of gears, or a single numeric value (each gear has the same effort). If the object argument is of class \code{MizerSim} then the effort slot of the \code{MizerSim} object is used and this argument is not used. 
+#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type MizerSim.
 #'
 #' @return An array. If effort argument has a time dimension, output array has three dimensions (time x species x size). If effort argument does not have a time dimension, output array has two dimensions (species x size).
 #' @export
@@ -279,10 +282,12 @@ setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
 #' @rdname getFMort-methods
 #' @aliases getFMort,MizerSim,missing-method
 setMethod('getFMort', signature(object='MizerSim', effort='missing'),
-    function(object, effort, ...){
+    function(object, effort, time_range=dimnames(object@effort)$time, .drop=TRUE, ...){
+	time_elements <- get_time_elements(object,time_range, slot="effort")
 	fMort <- getFMort(object@params, object@effort, ...)
-	return(fMort)
+	return(fMort[time_elements,,,drop=.drop])
 })
+
 
 # get total Z
 #' getZ method for the size based model
