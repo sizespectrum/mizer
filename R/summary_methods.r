@@ -12,7 +12,7 @@
 #' Calculate the SSB of species
 #'
 #' Calculates the spawning stock biomass (SSB) through time of the species in the \code{MizerSim} class.
-#' SSB is calculated as the total mass of all mature individuals
+#' SSB is calculated as the total mass of all mature individuals.
 #'
 #' @param object An object of class \code{MizerSim}
 #'
@@ -34,8 +34,8 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' Calculate the biomass of species within a size range
 #'
 #' Calculates the total biomass through time of the species in the \code{MizerSim} class within user defined size limits.
-#' The default option is to use the whole size range
-#' You can specify minimum and maximum weight or lengths for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
+#' The default option is to use the whole size range.
+#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #'
 #' @param object An object of class \code{MizerSim}
 #' @param min_w minimum weight of species to be used in the calculation
@@ -102,9 +102,9 @@ setMethod('getN', signature(object='MizerSim'),
 # If min_l or max_l are supplied they take precendence over the min_w and max_w
 # But you can mix min_l and max_w etc
 # Not exported
-get_size_range_array <- function(params, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL){
+get_size_range_array <- function(params, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL, ...){
     no_sp <- nrow(params@species_params)
-    if(is.null(min_w) | is.null(min_w))
+    if(!is.null(min_l) | !is.null(max_l))
 	if (any(!c("a","b") %in% names(params@species_params)))
 	    stop("species_params slot must have columns 'a' and 'b' for length-weight conversion")
     if(!is.null(min_l))
@@ -113,7 +113,8 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
     if(!is.null(max_l))
 	max_w <- params@species_params$a * max_l ^ params@species_params$b
     else max_w <- rep(max_w,no_sp)
-
+    if (!all(min_w < max_w))
+	stop("min_w must be less than max_w")
     min_n <- aaply(min_w, 1, function(x) params@w >= x)
     max_n <- aaply(max_w, 1, function(x) params@w <= x)
     size_n <- min_n & max_n
@@ -180,4 +181,54 @@ setMethod("summary", signature(object="MizerSim"),
 	cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep="")
 })
 
+
+#' Calculate the proportion of large fish
+#'
+#' Calculates the proportion of large fish through time in the \code{MizerSim} class within user defined size limits.
+#' The default option is to use the whole size range.
+#' You can specify minimum and maximum size ranges for the species and also the threshold size for large fish. 
+#' Sizes can be expressed as weight or size. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' This method can be used to calculate the Large Fish Index.
+#' The proportion is based on either abundance or biomass.
+#'
+#' @param object An object of class \code{MizerSim}
+#' @param min_w minimum weight of species to be used in the calculation.
+#' @param max_w maximum weight of species to be used in the calculation.
+#' @param min_l minimum length of species to be used in the calculation.
+#' @param max_l maximum length of species to be used in the calculation.
+#' @param threshold_w the size used as the cutoff between large and small fish. Default value is 100.
+#' @param threshold_l the size used as the cutoff between large and small fish.
+#' @param biomass_proportion a boolean value. If TRUE the proportion calculated is based on biomass, if FALSE it is based on numbers of individuals. Default is TRUE.
+#'
+#' @return An array containing the proportion of large fish through time
+#' @export
+#' @docType methods
+#' @rdname getProportionOfLargeFish-methods
+# @examples
+# data(species_params_gears)
+# data(inter)
+# params <- MizerParams(species_params_gears, inter)
+# sim <- project(params, effort=1, t_max=10)
+# n <- getN(sim, min_l = 10)
+setGeneric('getProportionOfLargeFish', function(object, ...)
+    standardGeneric('getProportionOfLargeFish'))
+#' @rdname getProportionOfLargeFish-methods
+#' @aliases getProportionOfLargeFish,MizerSim-method
+setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
+#function(object, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL, threshold_w = 100, threshold_l = NULL, ...){
+    function(object, threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
+	# This args stuff is pretty ugly - couldn't work out another way of using ...
+	args <- list(...)
+	args[["params"]] <- object@params
+	total_size_range <- do.call("get_size_range_array",args=args)
+	args[["max_w"]] <- threshold_w
+	args[["max_l"]] <- threshold_l
+	large_size_range <- do.call("get_size_range_array",args=args)
+	w <- object@params@w
+	if(!biomass_proportion) # based on biomass
+	    w[] <- 1
+	total_measure <- apply(sweep(sweep(object@n,c(2,3),total_size_range,"*"),3,w * object@params@dw, "*"),1,sum)
+	upto_threshold_measure <- apply(sweep(sweep(object@n,c(2,3),large_size_range,"*"),3,w * object@params@dw, "*"),1,sum)
+	return(1-(upto_threshold_measure / total_measure))
+})
 
