@@ -18,6 +18,12 @@
   \code{MizerSim} then the effort slot of the
   \code{MizerSim} object is used and this argument is not
   used.}
+
+  \item{time_range}{The time range (either a vector of
+  values, a vector of min and max time, or a single value)
+  to average the abundances over. Default is the whole time
+  range. Only used if \code{object} argument is of type
+  MizerSim.}
 }
 \value{
   An array. If effort argument has a time dimension, output

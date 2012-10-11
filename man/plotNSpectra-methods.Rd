@@ -22,7 +22,16 @@
   After running a projection, the spectra of the abundance
   of each species and the background population can be
   plotted. The abundance is averaged over the specified
-  time range. A single value for the time range can be used
-  to explore the spectra at a single point in time.
+  time range (a single value for the time range can be
+  used).
+}
+\examples{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+sim <- project(params, effort=1, t_max=20, t_save = 2)
+plotNSpectra(sim)
+plotNSpectra(sim, min_w = 1e-6)
+plotNSpectra(sim, time_range = 10:20)
 }
 

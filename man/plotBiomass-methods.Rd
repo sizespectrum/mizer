@@ -31,4 +31,12 @@
   colours and linetypes etc. Just look at the source code
   for details.
 }
+\examples{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+sim <- project(params, effort=1, t_max=20, t_save = 2)
+plotBiomass(sim)
+plotBiomass(sim, min_l = 10, max_l = 25)
+}
 
