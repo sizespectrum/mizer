@@ -91,10 +91,62 @@ test_that("getProportionOfLargeFish works",{
     # using a size range
     prop <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
     range_w <- (sim@params@w >= 10) & (sim@params@w <= 5000)
-    threshold_w <- w > 500
+    threshold_w <- sim@params@w > 500
     total_biomass <- sum(sweep(sim@n[t,,],2, range_w * sim@params@w * sim@params@dw, "*"))
     larger_biomass <- sum(sweep(sim@n[t,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
     expect_that(prop[t] , is_equivalent_to(larger_biomass / total_biomass))
 })
+
+
+test_that("check_species works",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    expect_that(check_species(sim,c("Cod","Haddock")), is_true())
+    expect_that(check_species(sim,c(10,11)), is_true())
+    expect_that(check_species(sim,c("Arse","Balls")), throws_error())
+    expect_that(check_species(sim,c(10,666)), throws_error())
+
+})
+
+test_that("getMeanWeight works",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    # all species, all size range
+    total_biomass <- apply(sweep(sim@n, 3, sim@params@w * sim@params@dw, "*"),1,sum)
+    total_n  <- apply(sweep(sim@n, 3, sim@params@dw, "*"),1,sum)
+    mw1 <- total_biomass / total_n
+    mw <- getMeanWeight(sim)
+    expect_that(mw, equals(mw1))
+    # select species
+    species <- c("Cod","Haddock")
+    total_biomass <- apply(sweep(sim@n[,species,], 3, sim@params@w * sim@params@dw, "*"),1,sum)
+    total_n  <- apply(sweep(sim@n[,species,], 3, sim@params@dw, "*"),1,sum)
+    mw2 <- total_biomass / total_n
+    mw <- getMeanWeight(sim, species = species)
+    expect_that(mw, equals(mw2))
+    # select size range
+    min_w <- 10
+    max_w <- 10000
+    size_n <- get_size_range_array(sim@params, min_w = min_w, max_w = max_w)
+    total_biomass <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*"), 3, sim@params@w * sim@params@dw, "*"),1,sum)
+    total_n <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*"), 3, sim@params@dw, "*"),1,sum)
+    mw3 <- total_biomass / total_n
+    mw <- getMeanWeight(sim, min_w = min_w, max_w=max_w)
+    expect_that(mw, equals(mw3))
+    # select size range and species
+    total_biomass <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*")[,species,], 3, sim@params@w * sim@params@dw, "*"),1,sum)
+    total_n <- apply(sweep(sweep(sim@n, c(2,3), size_n, "*")[,species,], 3, sim@params@dw, "*"),1,sum)
+    mw4 <- total_biomass / total_n
+    mw <- getMeanWeight(sim, species=species, min_w = min_w, max_w=max_w)
+    expect_that(mw, equals(mw4))
+    # errors
+    expect_that(getMeanWeight(sim,species=c("Dougal","Ted")), throws_error())
+})
+
+
 
 

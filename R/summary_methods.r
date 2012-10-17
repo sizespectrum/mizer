@@ -4,11 +4,6 @@
 # Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
 
-# SSB
-# Biomass
-# N
-# Yield
-
 #' Calculate the SSB of species
 #'
 #' Calculates the spawning stock biomass (SSB) through time of the species in the \code{MizerSim} class.
@@ -188,10 +183,12 @@ setMethod("summary", signature(object="MizerSim"),
 #' The default option is to use the whole size range.
 #' You can specify minimum and maximum size ranges for the species and also the threshold size for large fish. 
 #' Sizes can be expressed as weight or size. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' You can also specify the species to be used in the calculation.
 #' This method can be used to calculate the Large Fish Index.
 #' The proportion is based on either abundance or biomass.
 #'
 #' @param object An object of class \code{MizerSim}
+#' @param species numeric or character vector of species to include in the calculation
 #' @param min_w minimum weight of species to be used in the calculation.
 #' @param max_w maximum weight of species to be used in the calculation.
 #' @param min_l minimum length of species to be used in the calculation.
@@ -205,18 +202,14 @@ setMethod("summary", signature(object="MizerSim"),
 #' @docType methods
 #' @rdname getProportionOfLargeFish-methods
 # @examples
-# data(species_params_gears)
-# data(inter)
-# params <- MizerParams(species_params_gears, inter)
-# sim <- project(params, effort=1, t_max=10)
-# n <- getN(sim, min_l = 10)
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
 #' @rdname getProportionOfLargeFish-methods
 #' @aliases getProportionOfLargeFish,MizerSim-method
 setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #function(object, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL, threshold_w = 100, threshold_l = NULL, ...){
-    function(object, threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
+    function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
+	check_species(object,species)
 	# This args stuff is pretty ugly - couldn't work out another way of using ...
 	args <- list(...)
 	args[["params"]] <- object@params
@@ -227,8 +220,101 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 	w <- object@params@w
 	if(!biomass_proportion) # based on biomass
 	    w[] <- 1
-	total_measure <- apply(sweep(sweep(object@n,c(2,3),total_size_range,"*"),3,w * object@params@dw, "*"),1,sum)
-	upto_threshold_measure <- apply(sweep(sweep(object@n,c(2,3),large_size_range,"*"),3,w * object@params@dw, "*"),1,sum)
+	total_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
+	upto_threshold_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
 	return(1-(upto_threshold_measure / total_measure))
 })
+
+#' Calculate the mean weight of the community
+#'
+#' Calculates the mean weight of the community through time.
+#' This is simply the total biomass of the community divided by the abundance in numbers.
+#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' You can also specify the species to be used in the calculation.
+#'
+#' @param object An object of class \code{MizerSim}
+#' @param min_w minimum weight of species to be used in the calculation
+#' @param max_w maximum weight of species to be used in the calculation
+#' @param min_l minimum length of species to be used in the calculation
+#' @param max_l maximum length of species to be used in the calculation
+#' @param species numeric or character vector of species to include in the calculation
+#'
+#' @return A vector containing the mean weight of the community through time
+#' @export
+#' @docType methods
+#' @rdname getMeanWeight-methods
+# @examples
+setGeneric('getMeanWeight', function(object, ...)
+    standardGeneric('getMeanWeight'))
+#' @rdname getMeanWeight-methods
+#' @aliases getMeanWeight,MizerSim-method
+setMethod('getMeanWeight', signature(object='MizerSim'),
+    function(object, species = 1:nrow(object@params@species_params),...){
+	check_species(object,species)
+	n_species <- getN(object,...)
+	biomass_species <- getBiomass(object,...)
+	n_total <- apply(n_species[,species,drop=FALSE],1,sum)
+	biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
+	return(biomass_total / n_total)
+})
+
+#' Calculate the mean maximum weight of the community
+#'
+#' Calculates the mean maximum weight of the community through time.
+#' This can be calculated by numbers or biomass.
+#' The calculation is the sum of the w_inf * abundance of each species, divided by the total abundance community, where abundance is either in biomass or numbers.
+#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' You can also specify the species to be used in the calculation.
+#'
+#' @param object An object of class \code{MizerSim}
+#' @param min_w minimum weight of species to be used in the calculation
+#' @param max_w maximum weight of species to be used in the calculation
+#' @param min_l minimum length of species to be used in the calculation
+#' @param max_l maximum length of species to be used in the calculation
+#' @param species numeric or character vector of species to include in the calculation.
+#'
+#' @return An vector containing the mean maximum weight of the community through time
+#' @export
+#' @docType methods
+#' @rdname getMeanMaximumWeight-methods
+# @examples
+setGeneric('getMeanMaximumWeight', function(object, ...)
+    standardGeneric('getMeanMaximumWeight'))
+#' @rdname getMeanMaximumWeight-methods
+#' @aliases getMeanMaximumWeight,MizerSim-method
+setMethod('getMeanMaximumWeight', signature(object='MizerSim'),
+    function(object, species = 1:nrow(object@params@species_params),...){
+	check_species(object,species)
+	#n_species <- getN(object,...)
+	#biomass_species <- getBiomass(object,...)
+	#n_total <- apply(n_species[,species,drop=FALSE],1,sum)
+	#biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
+	#return(biomass_total / n_total)
+    # Get total abundance of each species
+#    Nall <- sweep(model$N,c(2,3),sweep(Wallmat,2,model$dw,"*"),"*")
+#
+#    speciesN <- apply(Nall, c(1,2), sum)
+#    speciesB <- rowSums(sweep(Nall,3,model$w,"*"),dims=2)
+#    totalN <- apply(Nall[,species,],1,sum)
+#    totalB <- apply(speciesB[,species], 1, sum)
+#    speciesNWmax <- sweep(speciesN,2,model$param$species$Winf,"*")[,species]
+#    speciesBWmax <- sweep(speciesB,2,model$param$species$Winf,"*")[,species]
+#
+#    MMWabundance <- apply(speciesNWmax,1,sum) / totalN
+#    MMWmass <- apply(speciesBWmax,1,sum) / totalB
+
+})
+
+# internal
+check_species <- function(object,species){
+    if (!(is(species,"character") | is(species,"numeric")))
+	stop("species argument must be either a numeric or character vector")
+    if (is(species,"character"))
+       check <- all(species %in% dimnames(object@n)$sp)  
+    if (is(species,"numeric"))
+       check <- all(species %in% 1:dim(object@n)[2])
+    if(!check)
+	stop("species argument not in the model species. species must be a character vector of names in the model, or a numeric vector referencing the species")
+    return(check)
+}
 
