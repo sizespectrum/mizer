@@ -66,7 +66,7 @@
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
 \title{Multi-species size-based ecological modelling in R (\pkg{mizer}): An Introductory Vignette}
-\author{F Scott, J Blanchard, K Andersen}
+\author{F. Scott, J. Blanchard, K. H. Andersen}
 \date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
 \maketitle
 
@@ -160,8 +160,8 @@ Reference the North Sea paper
 Using \pkg{mizer} is relatively simple.  There are two main stages:
 
 \begin{itemize}
-    \item Setting the model parameters (probably the most complicated part).
-    \item Running a simulation.
+    \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}.
+    \item Running a simulation. This is done by calling the \code{project()} method with the model parameters.
 \end{itemize}
 
 After a simulation has been run, the results can be explored using
@@ -271,7 +271,7 @@ The fishing mortality $F$ at size $w$ imposed by gear $g$ on species $s$ is calc
 
 where $Sel$ is the selectivity by species, gear and size, $Q$ is the catchability by species
 and gear and $E$ is the fishing effort by gear.
-The selectivity at size has a range of 0 (not selected at that size) to 1 (fully selected at
+The selectivity at size has a range between 0 (not selected at that size) to 1 (fully selected at
 that size).
 Catchability can be used as a scalar so that an effort of 1 gives a desired fishing mortality
 i.e. effort can then be specified as relative effort with catchability acting as a scaling
@@ -311,13 +311,18 @@ The values for the other arguments can be found in the species parameters data.f
 If they were not there an error would be thrown when the model is run.
 In this way a user can write their size based selectivity function.
 
-
-
-
 \subsection{Making the \class{MizerParams} object}
 
 The \class{MizerParams} object is created by calling the \code{MizerParams()} method.
-This has arguments blah blah blah
+Pass in the species parameters data.frame
+Pass in the interaction
+Pass in other model environment parameters: n, p, q, r\_pp, kappa, lambda, w\_pp\_cutoff
+Pass in model structure parameters: w ranges
+
+Table
+
+%function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, ...){
+%function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = round(no_w)*0.3, species_names=1:object, gear_names=species_names){
 
 Can see default values for alpha and erepro filled in
 
