@@ -272,38 +272,74 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' @param min_l minimum length of species to be used in the calculation
 #' @param max_l maximum length of species to be used in the calculation
 #' @param species numeric or character vector of species to include in the calculation.
+#' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #'
-#' @return An vector containing the mean maximum weight of the community through time
+#' @return A matrix or vector containing the mean maximum weight of the community through time
 #' @export
 #' @docType methods
-#' @rdname getMeanMaximumWeight-methods
+#' @rdname getMeanMaxWeight-methods
 # @examples
-setGeneric('getMeanMaximumWeight', function(object, ...)
-    standardGeneric('getMeanMaximumWeight'))
-#' @rdname getMeanMaximumWeight-methods
-#' @aliases getMeanMaximumWeight,MizerSim-method
-setMethod('getMeanMaximumWeight', signature(object='MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params),...){
+setGeneric('getMeanMaxWeight', function(object, ...)
+    standardGeneric('getMeanMaxWeight'))
+#' @rdname getMeanMaxWeight-methods
+#' @aliases getMeanMaxWeight,MizerSim-method
+setMethod('getMeanMaxWeight', signature(object='MizerSim'),
+    function(object, species = 1:nrow(object@params@species_params), measure = "both",...){
+	if (!(measure %in% c("both","numbers","biomass")))
+	    stop("measure must be one of 'both', 'numbers' or 'biomass'")
 	check_species(object,species)
-	#n_species <- getN(object,...)
-	#biomass_species <- getBiomass(object,...)
-	#n_total <- apply(n_species[,species,drop=FALSE],1,sum)
-	#biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
-	#return(biomass_total / n_total)
-    # Get total abundance of each species
-#    Nall <- sweep(model$N,c(2,3),sweep(Wallmat,2,model$dw,"*"),"*")
-#
-#    speciesN <- apply(Nall, c(1,2), sum)
-#    speciesB <- rowSums(sweep(Nall,3,model$w,"*"),dims=2)
-#    totalN <- apply(Nall[,species,],1,sum)
-#    totalB <- apply(speciesB[,species], 1, sum)
-#    speciesNWmax <- sweep(speciesN,2,model$param$species$Winf,"*")[,species]
-#    speciesBWmax <- sweep(speciesB,2,model$param$species$Winf,"*")[,species]
-#
-#    MMWabundance <- apply(speciesNWmax,1,sum) / totalN
-#    MMWmass <- apply(speciesBWmax,1,sum) / totalB
-
+	n_species <- getN(object,...)
+	biomass_species <- getBiomass(object,...)
+	n_winf <- apply(sweep(n_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
+	biomass_winf <- apply(sweep(biomass_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
+	mmw_numbers <- n_winf / apply(n_species, 1, sum)
+	mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
+	if (measure == "numbers")
+	    return(mmw_numbers)
+	if (measure == "biomass")
+	    return(mmw_biomass)
+	if (measure == "both")
+	    return(cbind(mmw_numbers, mmw_biomass)) 
 })
+
+#' Calculate the slope of the community abundance
+#'
+#' Calculates the slope of the community abundance through time by perfomring a linear regression on the logged total numerical abundance at weight and logged weights.
+#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' You can also specify the species to be used in the calculation.
+#'
+#' @param object An object of class \code{MizerSim}
+#' @param min_w minimum weight of species to be used in the calculation
+#' @param max_w maximum weight of species to be used in the calculation
+#' @param min_l minimum length of species to be used in the calculation
+#' @param max_l maximum length of species to be used in the calculation
+#' @param species numeric or character vector of species to include in the calculation.
+#'
+#' @return A data frame with time step, slope, intercept and R2 values.
+#' @export
+#' @docType methods
+#' @rdname getCommunitySlope-methods
+# @examples
+setGeneric('getCommunitySlope', function(object, ...)
+    standardGeneric('getCommunitySlope'))
+#' @rdname getCommunitySlope-methods
+#' @aliases getCommunitySlope,MizerSim-method
+setMethod('getCommunitySlope', signature(object='MizerSim'),
+    function(object, species = 1:nrow(object@params@species_params), ...){
+	check_species(object,species)
+	size_range <- get_size_range_array(object@params,...)
+	total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,],c(1,3),sum)
+	total_n[total_n<=0] <- NA
+	slope <- adply(total_n,1,function(x,w){
+			summary_fit <- summary(lm(log(x) ~ log(w)))
+			out_df <- data.frame(
+			    slope = summary_fit$coefficients[2,1],
+			    intercept = summary_fit$coefficients[1,1],
+			    r2 = summary_fit$r.squared)
+			    }, w = object@params@w)
+	return(slope)
+})
+
 
 # internal
 check_species <- function(object,species){
