@@ -10,7 +10,7 @@ Title: Multi-species sIZE-based ecological marine modelling in R
 Type: Package
 Description: A set of classes and methods to set up and run multi-species
     size-based ecological models, focussed on the marine environment. Although
-    the functional forms are reasonably flexible users should be aware of the
+    the functional forms are reasonably flexible, users should be aware of the
     underlying default formulations.
 Depends:
     R (>= 2.15)
