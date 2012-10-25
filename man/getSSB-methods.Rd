@@ -12,6 +12,6 @@
 \description{
   Calculates the spawning stock biomass (SSB) through time
   of the species in the \code{MizerSim} class. SSB is
-  calculated as the total mass of all mature individuals
+  calculated as the total mass of all mature individuals.
 }
 

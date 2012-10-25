@@ -1,0 +1,346 @@
+% mizer/inst/doc
+% RCMD build mizer - zips the package to make mizer_1.0.tar.gz that includes the pdf
+% No pdf in original source directory
+
+% TODO
+% Add units to the parameter table
+
+
+% put it in
+% mizer/vignettes
+% Same behaviour as above - eh?
+%By default R CMD build will run Sweave on all files in Sweave format in vignettes, or if that does not exist, inst/doc (but not in sub-directories). 
+
+% SO have to run Sweave by itself
+
+% setwd("c:/Projects/sizeBMR/mizer/vignettes")
+% Sweave("mizer_vignette.rnw", syntax="SweaveSyntaxNoweb")
+% shell("pdflatex mizer_vignette.tex")
+% pdflatex defineit_multispecies_tradeoffs.tex
+% bibtex defineit_multispecies_tradeoffs
+% pdflatex defineit_multispecies_tradeoffs.tex
+
+
+\documentclass{article}
+\setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
+\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
+\usepackage[round,sort]{natbib}
+\usepackage{fixltx2e}
+\usepackage{graphicx}	% To manage external pictures
+\usepackage{float}
+%\usepackage{subfig}	% To add subfigures within figures, with labels (see WikiBooks)
+\usepackage{tabularx}
+\usepackage{verbatim}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{amssymb,amsbsy,amsmath}
+\usepackage{epsfig}
+\usepackage[left=3cm,top=3cm,bottom=3.5cm,right=3cm]{geometry}	% For easy management of document margins
+\usepackage{fancyhdr} % To customize the header/footer (see WikiBooks)
+%\usepackage{rotating}
+\numberwithin{equation}{section}	% Equation numbers relative to sections
+
+% ---------------------------------------------------------------------------------------------------------------------------------------
+
+%\VignetteIndexEntry{Introduction to mizer}
+%\VignetteDepends{quantreg,nnet,locfit}
+%\VignettePackage{mizer}
+%\documentclass{amsart}
+\newcommand{\code}[1]{{\texttt{#1}}}
+\newcommand{\pkg}[1]{{\texttt{#1}}}
+\newcommand{\class}[1]{{\textit{#1}}}
+\newcommand{\R}{{\normalfont\textsf{R }}{}}
+
+\begin{document}
+
+% This stuff came from abc vignette
+% <<label=R options,echo=FALSE>>=
+% options(width = 60)
+% options(SweaveHooks = list(fig = function() par(mar=c(3,3,1,0.5),mgp = c(2,1,0))))
+% @
+
+%\SweaveOpts{prefix.string=fig,include=F,keep.source=T,eps=FALSE}
+
+% <<echo=false>>=
+% options(continue="  ")
+% @
+% %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
+
+\title{Multi-species size-based ecological modelling in R (\pkg{mizer}): An Introductory Vignette}
+\author{F Scott, J Blanchard, K Andersen}
+\date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
+\maketitle
+
+\tableofcontents
+\setcounter{footnote}{1} \footnotetext{This document is included as a
+  vignette (a \LaTeX\ document created using the \R function
+  \code{Sweave}) of the package \pkg{mizer}. It is automatically
+  dowloaded together with the package and can be accessed through \R
+  typing \code{vignette("mizer\_vignette")}.}  \newpage
+\setlength{\parskip}{4pt} % Space between paragraphs
+
+<<echo=FALSE>>=
+rm(list=ls())
+@ 
+
+\section{Summary}
+
+We made a model.
+It's really good.
+
+\section{Introduction}
+
+\subsection{Installation}
+% Freely borrowed from abc Vignette - ask the authors
+\R is a open source software project and can be freely downloaded from
+the CRAN website. There are already several resources for an
+introduction to \R.  The CRAN website link to contributed
+documentation also offers excellent introductions in several
+languages. Once \R is running the installation of additional packages
+is quite straightforward.  To install the \pkg{mizer} package from \R
+simply type:
+
+%\vspace{2mm}
+%\noindent
+%\texttt{> install.packages("mizer")}
+
+<<eval=FALSE>>=
+install.packages("mizer")
+@
+
+%\vspace{2mm}
+%\noindent
+Once the \pkg{mizer} package is installed, it needs to be made
+accessible to the current \R session by the command:
+<<results = hide>>=
+library(mizer)
+@
+
+For an overview of the package documentation or the details of a particular command
+(such as the function \texttt{project}) you can type:
+<<eval=FALSE>>=
+help(package="mizer")
+help(project)
+@ 
+
+The first command gives a brief summary of the available commands in
+the package, the second give more detailed information about a
+specific command.
+%\R help files can also be used to illustrate how commands
+%are executed, so they can be pasted into an \R session, or run as a whole with
+%the following command:
+%<<eval=FALSE>>=
+%example(abc)
+%@ 
+
+\subsection{Methods and classes in \R}
+
+This is only a brief reminder that expressions in \R manipulate
+objects, which may be data (a scalar or a matrix for example), but
+objects may also be functions, or more complex collections of objects.
+All objects have a class, which enables functions to act on them
+appropriately. Thus, for example, when the function \code{summary}
+is applied on an object of class \class{MizerParams} (the class
+that stores the model parameters), it would act
+differently than on a simple matrix.
+
+\section{The principles of size-based modelling}
+\label{sec:principles}
+
+Equations used
+Interaction matrix
+Assumptions
+etc
+
+JB to write?
+
+Reference the North Sea paper
+
+\section{Using \pkg{mizer}}
+
+Using \pkg{mizer} is relatively simple.  There are two main stages:
+
+\begin{itemize}
+    \item Setting the model parameters (probably the most complicated part).
+    \item Running a simulation.
+\end{itemize}
+
+After a simulation has been run, the results can be explored using
+a range of plots and summaries.
+These stages are explained in the following sections.
+
+\section{Setting the model parameters}
+
+Before any simulations can be run it is necessary to set the parameters
+of the model. The parameters of a model are stored as an object of
+a particular class: \class{MizerParams}.
+This class stores the life history parameters of the species in the model,
+such as $W_{\infty}$, the interaction matrix, and also general model
+parameters such as the range of the sizes in the model.
+
+% Include?
+%\subsection{The \class{MizerParams} class}
+
+To understand what the model parameters are and how they are related
+to the equations given in \ref{sec:principles} we will create a
+parameter object using example data that comes with the package.
+
+\subsection{The species parameters}
+
+Although there are many options available when creaing the parameter
+object, there is one argument that is not optional: you must have
+parameters for the species in the model.
+These species parameters must all be stored in a single data.frame object.
+Although it is possible to create the data.frame by hand in \R, it is
+easier to create the data as a csv file (perhaps using a suitable
+open source spreadsheet such as LibreOffice) and then read the data
+into \R.
+
+% Can we see the csv file from inside R?
+
+There are some compulsory columns that you must include in the parameter data.frame.
+There are also some essential columns that have default values so that if you do not
+include them in the original parameter data.frame, they will be automatically added
+when the \class{MizerParams} object is made.
+A description of the columns and their default values can be seen Table~\ref{tab:species_params}.
+Additionally, there are some columns that specify parameter values for the chosen
+fishing selectivity function and the stock-recruitment function.
+For example, the default stock-recruitment function is a Beverton-Holt
+type formulation which uses a parameter called $r_{max}$. Therefore, if the default
+stock-recruitment function is used, a column of values called $r_{max}$ needs to
+be included in the parameters data.frame.
+
+%\begin{sidewaystable}[ht]
+\begin{table}[ht]
+    \begin{center}
+	%\begin{tabular}{r|p{7cm}|p{7cm}}
+	%\begin{tabularx}{r|X|X}
+	    %\begin{tabularx}{\linewidth}{r|p{7cm}|X}
+	    \begin{tabularx}{\linewidth}{r|X|X}
+	    \hline
+	    Column name & Description & Default value \\
+	    \hline
+	    species & Name of the species & Compulsory (no default)\\
+	    w\_inf & The asymptotic mass of the species & Compulsory (no default)\\
+	    w\_mat & Maturation mass. Used to calculate values for $\psi$. WHAT IS WMAT IN TERMS OF BIOLOGY? Is it the mass at first maturity? & Compulsory (no default)\\
+	    h & Maximum food intake rate & Compulsory (no default) \\
+	    gamma & Volumetric search rate & Compulsory (no default)\\
+	    k & Activity coefficient & Compulsory (no default)\\
+	    ks & Standard metabolism coefficient & Compulsory (no default)\\
+	    beta & Preferred predator prey mass ratio & Compulsory (no default)\\
+	    sigma & Width of prey size preference & Compulsory (no default)\\
+	    z0 & Background mortality (constant for all sizes) & Compulsory (no default)\\
+	    alpha & Assimilation efficiency & Default = 0.6 \\
+	    erepro & Reproductive efficiency & Default = 1 \\
+	    a & Length-weight conversion coefficient & Necessary if length-weight conversion is used (e.g. if specifying length ranges when calculating indicators, or in the fishing selectivity function) \\
+	    b & Length-weight conversion power & See notes for column $a$\\
+	    sel\_func & The name of the selectivity function to be used. See Section~\ref{sec:fishing_gear} for more details. & Default = "sigmoid\_length". However, if this default is used then the selectivity parameters for this selectivity function ("l25","l50","a" and "b") must also be specified as columns.\\
+	    gear & The name of the fishing gear that selects the species. At the moment a species can only be selected by one gear. & Default = name of the species \\
+	    w\_min & The size class that recruits are placed in. & Smallest size class \\
+	    catchability & The catchability of the fishing gear. Fishing mortality = catchability x effort. The catchability can therefore be set so that an effort of 1 gives a particular fishing mortality. See Section~\ref{sec:fishing_gear} for more details. & Default = 1\\
+	%\end{tabular}
+	\end{tabularx}
+	\caption{Columns of the species parameters data.frame}
+	\label{tab:species_params}
+    \end{center}
+%\end{sidewaystable}
+\end{table}
+
+We can take a look at an example species parameters data.frame.
+First we load the object:
+
+<<results=hide>>=
+data(species_params_nogears)
+species_params_nogears
+@
+
+As you can see, there are columns of all the compulsory parameters as well those
+that relate to the selectivity function and stock-recruitment relationship function.
+WHICH ONES?
+
+%Some notes on how to estimate some of the values in Table species\_params (e.g. how is h calculated in paramNSModel)
+
+\subsection{Fishing gears and selectivity}
+\label{sec:fishing_gear}
+
+In \pkg{mizer} fishing mortality is imposed on species by fishing gears.
+The fishing mortality $F$ at size $w$ imposed by gear $g$ on species $s$ is calculated as:
+
+\begin{equation}
+    F_{s,g,w} = Sel_{s,g,w} Q_{s,g} E_{g}
+\end{equation}
+
+where $Sel$ is the selectivity by species, gear and size, $Q$ is the catchability by species
+and gear and $E$ is the fishing effort by gear.
+The selectivity at size has a range of 0 (not selected at that size) to 1 (fully selected at
+that size).
+Catchability can be used as a scalar so that an effort of 1 gives a desired fishing mortality
+i.e. effort can then be specified as relative effort with catchability acting as a scaling
+coefficient.
+Fishing effort is set when the simulation is run (see Section~\ref{sec:projection}).
+
+At the moment a species can only be selected by one fishing gear, although each
+gear can select more than one species
+(this is a limitation with the current package that will be developed in future releases).
+
+The selectivity at size of each gear is given by a selectivity function. Some selectivity
+functions are included in the package. New functions can be defined by the user. 
+Each gear has the same selectivity function for all the species it selects, but the parameter
+values for each species may be different.
+
+The name of the selectivity function is given by the $sel_func$ column in the species parameters
+data.frame.
+The name of the fishing gear is given in the $gear$ column. If this column is not specified
+the default name is simply the name of the species, i.e. each species is fished by a
+different gear.
+Each selectivity function will have a range of arguments. Values for these arguments
+must be given in the species parameters data.frame. The names of the columns must exactly
+match the names of the arguments.
+For example, in the example data set $species_params_nogears$ the selectivity function
+for each species is \code{sigmoid\_length}. The arguments for this selectivity function can
+be seen by typing in:
+
+<<results=hide>>=
+sigmoid_length
+@
+
+It can be seen that the \code{sigmoid\_length} function has arguments \code{w}, \code{l25},
+\code{l50}, \code{a} and \code{b}.
+The first argument, \code{w}, is size (the function calculates selectivity at size).
+All selectivity functions must have \code{w} as the first argument.
+The values for the other arguments can be found in the species parameters data.frame.
+If they were not there an error would be thrown when the model is run.
+In this way a user can write their size based selectivity function.
+
+
+
+
+\subsection{Making the \class{MizerParams} object}
+
+The \class{MizerParams} object is created by calling the \code{MizerParams()} method.
+This has arguments blah blah blah
+
+Can see default values for alpha and erepro filled in
+
+\section{Running a simulation}
+\label{sec:projection}
+
+\subsection{Setting fishing effort}
+
+\section{Exploring the results}
+
+\subsection{Plots}
+
+\subsection{Indicators}
+
+\section{Under the hood of \pkg{mizer}: notes for developers}
+
+Classes and whatnot
+
+\section{Acknowledgements}
+
+The authors of the \pkg{mizer} package would like to thank the authors
+of the \pkg{abc} package for allowing them to use some of the introductory
+text from their vignette.
+
+\end{document}
+
