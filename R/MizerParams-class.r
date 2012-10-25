@@ -395,11 +395,27 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 
 	# Check species_params dataframe (with a function) for essential cols
 	check_species_params_dataframe(object)
-	# Essential columns: species (name) # wInf # wMat # h # gamma - search Volume # k # ks # beta # sigma # alpha
+	# Check essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # sigma 
+	# And set defaults for others
 	# If no gear_name column in object, then named after species
 	if(!("gear" %in% colnames(object)))
 	    object$gear <- object$species
 	no_gear <- length(unique(object$gear))
+	# If no k column (activity coefficient) in object, then set to 0
+	if(!("k" %in% colnames(object)))
+	    object$k <- 0
+	# If no alpha column in object, then set to 0.6
+	if(!("alpha" %in% colnames(object)))
+	    object$alpha <- 0.6
+	# If no erepro column in object, then set to 1
+	if(!("erepro" %in% colnames(object)))
+	    object$erepro <- 1
+	# If no sel_func column in species_params, set to 'sigmoid_length'
+	if(!("sel_func" %in% colnames(object)))
+	    object$sel_func <- 'sigmoid_length'
+	# If no sel_func column in species_params, set to 'sigmoid_length'
+	if(!("catchability" %in% colnames(object)))
+	    object$catchability <- 1
 
 	no_sp <- nrow(object)
 
@@ -421,9 +437,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Add w_min_idx column which has the reference index of the size class closest to w_min - this is a short cut for later on and prevents repetition
 	object$w_min_idx <- as.vector(tapply(object$w_min,1:length(object$w_min),function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
 
-	# If no sel_func column in species_params, set to 'sigmoid_length'
-	if(!("sel_func" %in% colnames(object)))
-	    object$sel_func <- 'sigmoid_length'
 	# Start filling the slots
 	res@species_params <- object
 	# Check dims of interaction argument - make sure it's right
@@ -505,8 +518,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='missing'),
 # internal only
 check_species_params_dataframe <- function(species_params){
     # Check species_params dataframe (with a function) for essential cols
-    # Essential columns: species (name) # wInf # wMat # h # gamma - search Volume # k # ks # beta # sigma # alpha
-    essential_cols <- c("species","w_inf","w_mat","h","gamma","k","ks","beta","sigma","alpha", "erepro")
+    # Essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # z0
+    essential_cols <- c("species","w_inf","w_mat","h","gamma","ks","beta","sigma", "z0")
     missing_cols <- !(essential_cols %in% colnames(species_params))
     if(any(missing_cols))
     {
@@ -517,3 +530,4 @@ check_species_params_dataframe <- function(species_params){
     }
     return(TRUE)
 }
+
