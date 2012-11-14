@@ -45,9 +45,9 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' n <- getN(sim, min_l = 10)
+# params <- MizerParams(species_params_gears, inter)
+# sim <- project(params, effort=1, t_max=10)
+# n <- getN(sim, min_l = 10)
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 #' @rdname getBiomass-methods
@@ -88,7 +88,7 @@ setGeneric('getN', function(object, ...)
 setMethod('getN', signature(object='MizerSim'),
     function(object, ...){
 	size_range <- get_size_range_array(object@params,...)
-	n <- apply(sweep(sweep(sim@n,c(2,3),size_range,"*"),3,sim@params@dw, "*"),c(1,2),sum)
+	n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
 	return(n)
     })
 
