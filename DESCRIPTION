@@ -4,7 +4,7 @@ Imports:
     ggplot2
 Maintainer: Finlay Scott <finlay.scott@cefas.co.uk>
 Author: Finlay Scott (Cefas) and Julia Blanchard (Sheffield University)
-Version: 1.0
+Version: 0.0
 License: GPL-3
 Title: Multi-species sIZE-based ecological marine modelling in R
 Type: Package
