@@ -2,8 +2,14 @@
 % RCMD build mizer - zips the package to make mizer_1.0.tar.gz that includes the pdf
 % No pdf in original source directory
 
+%Yes, an Rnw file inside pkgName/inst/doc will be compiled and the pdf available with vignette() You might need to declare the vignette somwhere, maybe DESCRIPTION, I can check
+ 
+
 % TODO
 % Add units to the parameter table
+% Example with gears
+% Improve all examples
+% Add section on how to choose MizerParams argument values
 
 
 % put it in
@@ -21,8 +27,8 @@
 \documentclass{article}
 \setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
 %\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
-\setcounter{secnumdepth}{2}	% Elimate the section numbering starting from a specific depth (see WikiBook)
-\usepackage[round,sort]{natbib}
+\setcounter{secnumdepth}{3}	% Elimate the section numbering starting from a specific depth (see WikiBook)
+\usepackage[round,sort]{natbib} 
 \usepackage{fixltx2e}
 \usepackage{graphicx}	% To manage external pictures
 \usepackage{float}
@@ -35,6 +41,7 @@
 \usepackage[left=3cm,top=3cm,bottom=3.5cm,right=3cm]{geometry}	% For easy management of document margins
 \usepackage{fancyhdr} % To customize the header/footer (see WikiBooks)
 \usepackage{rotating}
+\usepackage{authblk}
 \numberwithin{equation}{section}	% Equation numbers relative to sections
 
 % ---------------------------------------------------------------------------------------------------------------------------------------
@@ -64,7 +71,14 @@
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
 \title{Multi-species size-based ecological modelling in \R (\pkg{mizer}): An introductory vignette}
-\author{F. Scott, J. Blanchard, K. H. Andersen}
+%\author{F. Scott, J. Blanchard, K. H. Andersen}
+\author[*]{F. Scott}
+\author[**]{J. Blanchard}
+\author[***]{K. H. Andersen}
+\affil[*]{Cefas, Lowestoft, UK}
+\affil[**]{University of Sheffield, UK}
+\affil[***]{DTU Aqua, Copenhagen, DK}
+\renewcommand\Authands{ and }
 \date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
 \maketitle
 
@@ -82,8 +96,17 @@ rm(list=ls())
 
 \section{Summary}
 
-We made a model.
-It's really good.
+\pkg{mizer} is a package for \R that implements size-based ecological models.
+The package has been developed to model marine ecosystems that are subject
+to fishing.
+However, it may also be appropriate for other ecosystems.
+The package contains routines and methods to allow users to set up the model
+community,
+and then project it through time under different fishing strategies.
+Methods are included to explore the results, including plots and 
+calculation of community indicators such as the slope of the size spectrum.
+Size-based models can be complicated so \pkg{mizer} contains many default
+options that can be easily changed by the user.
 
 \section{Introduction}
 
@@ -144,7 +167,74 @@ differently than on a simple matrix.
 \section{The principles of size-based modelling}
 \label{sec:principles}
 
-Equations used
+Check equation notation - subscripts etc
+
+\begin{equation}
+\label{eqtn:prey_size_selection}
+\phi \left(\frac{w_{prey}}{w} \right) = exp \left[-\left(ln\left(\frac{\beta w_{prey}}{w}\right)\right)^2 / (2 \sigma^2 )\right]
+\end{equation}
+
+\begin{equation}
+\label{eqtn:search_rate}
+V(w) = \gamma w^n
+\end{equation}
+
+\begin{equation}
+\label{eqtn:encountered_food}
+E(w) = V(w) \sum_{j} \theta_{ij} \int_0^\infty N_j(w_p)w_p dw_p
+\end{equation}
+
+\begin{equation}
+\label{eqtn:max_consumption}
+I_{max} = h_i w^n
+\end{equation}
+
+\begin{equation}
+\label{eqtn:feeding_level}
+f_i(w) = \frac{E_i(w)}{E_i(w) + I_{max}}
+\end{equation}
+
+\begin{equation}
+\label{eqtn:maturation}
+\psi(w) = \left[1 + \left(\frac{w}{w^*_i} \right)^{-10}\right]^{-1} \left( \frac{w}{W_i}\right)^{1-n}
+\end{equation}
+
+\begin{equation}
+\label{eqtn:somatic_growth}
+g_i(w) = (\alpha f_i(w) h_i w^n - k_i w^p)(1 - \psi(w))
+\end{equation}
+
+\begin{equation}
+\label{eqtn:gonadal_growth}
+g_r(w) = (\alpha f_i(w) h_i w^n - k_i w^p) \psi(w)
+\end{equation}
+
+\begin{equation}
+\label{eqtn:di_recruitment}
+\varepsilon / (2w_0N_i(w_0)g(w_0))\int_{w_i^*}^{w_i}N_i(w)g_{r}(w)dw
+\end{equation}
+
+\begin{equation}
+\label{eqtn:background_mortality}
+\mu_0 = Z_0 W^Z
+\end{equation}
+
+\begin{equation}
+\label{eqtn:predation_mortality}
+\mu_{p,i}(w) = \sum_j \int_{w_0}^\infty \phi \left(\frac{w^{'}}{w} \right) (1 - f_j(w^{'})) V(w^{'}) \theta_{i,j} N_j(w^{'})dw^{'}
+\end{equation}
+
+\begin{equation}
+\label{eqtn:resource_growth}
+\frac{\delta N_r(w)}{\delta t} = r_0 w^{n-1}(k(w) - N_r(w)) - \mu_{p,r}(w) N_r(w)
+\end{equation}
+
+\begin{equation}
+\label{eqtn:carrying_capacity}
+k(w) = k_r^{-\lambda}
+\end{equation}
+
+
 Interaction matrix
 Assumptions
 etc
@@ -153,14 +243,16 @@ JB to write?
 
 Reference the North Sea paper
 
+Initial work done~\citep{andersen_damped_2010}.
+
 \section{Using \pkg{mizer}}
 
 Using \pkg{mizer} is relatively simple.  There are two main stages:
 
 \begin{itemize}
     \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}.
-    \item Runa simulation. This is done by calling the \code{project()} method on the model parameters
-	which produces an object of \class{MizerSim}.
+    \item Running a simulation. This is done by calling the \code{project()} method on the model parameters.
+	This produces an object of \class{MizerSim} which contains the results of the simulation.
 \end{itemize}
 
 After a simulation has been run, the results can be explored using
@@ -177,12 +269,12 @@ we will take it slowly.
 The \pkg{mizer} package has its own class for storing model parameters: \class{MizerParams}.
 This class stores the:
 \begin{itemize}
-    \item life-history parameters of the species, such as $W_{\infty}$
-    \item size-based biological parameters for the species, such as the search volume
-    \item stock-recruitment relationship functions and parameters of the species
-    \item interaction matrix
-    \item parameters relating to the background spectrum
-    \item fishing gear parameters: selectivty and catchability
+    \item life-history parameters of the species in the community, such as $W_{\infty}$;
+    \item size-based biological parameters for the species, such as the search volume;
+    \item stock-recruitment relationship functions and parameters of the species;
+    \item interaction matrix to describe the spatial overlap of pairs of species;
+    \item parameters relating to the growth and dynamics of the background resource spectrum;
+    \item fishing gear parameters: selectivty and catchability.
 \end{itemize}
 
 Note that the \class{MizerParams} class does not store any parameters that can vary through time,
@@ -192,37 +284,40 @@ we will come to later in Section~\ref{sec:projection}.
 Although the \class{MizerParams} class seems complicated, it is relatively straightforward
 to set up and use.
 Objects of class \class{MizerParams} are created using the constructor method \code{MizerParams()}.
-This constructor method can take many arguments. However, creation is simplified because 
+This constructor method can take many arguments. However, creation is simplified 
 because many of the arguments have default values.
 
 In the rest of this section we look at the main arguments to the \code{MizerParams()}
-method.
+constructor method.
 To help understand how the constructor is used and how the \class{MizerParams} class
-relates to the equations given in Section~\ref{sec:principles} there is an example
-section where we create a parameter object using example data that comes with the
-package.
+relates to the equations given in Section~\ref{sec:principles}, there is an example
+section where we create example parameter objects using data that comes with the
+\pkg{mizer} package.
 
 \subsection{The species parameters}
 \label{sec:species_parameters_dataframe}
 
-Although many of the arguments used when creaing the \class{MizerParams} parameter
-object are optional, there is one argument that is not optional: the species specific parameters. 
-For each species you must supply the life-history parameters, the selectivity function
-parameters and the stock-recruitment function parameters.
+Although many of the arguments used when creaing a \class{MizerParams} 
+object are optional, there is one argument that must be supplied by
+the user: the species specific parameters. 
+For each species in the model community you must supply the life-history
+parameters, the selectivity function parameters and the stock-recruitment
+function parameters.
 
-These parameters must all be stored in a single data.frame object.
-Each row of the parameter data.frame has the parameters for one of the species in the model.
+The species parameters must all be stored in a single data.frame object.
+Each column of the parameter data.frame is a parameter and 
+each row has the parameters for one of the species in the model.
 Although it is possible to create the data.frame by hand in \R, it is
-probably easier to create the data as a csv file (perhaps using a suitable
+probably easier to create the data as a .csv file (perhaps using a suitable
 open source spreadsheet such as LibreOffice) and then read the data
 into \R.
 
-There are some essential columns that you must include in the parameter data.frame
-as these do not have default values.
+There are some essential columns that you must include in the parameter data.frame.
 Some columns have default values, so that if you do not
-include them in the original species parameter data.frame, they will be automatically added
+include them in the species parameter data.frame, they will be automatically added
 when the \class{MizerParams} object is created. 
-A description of the columns and their default values can be seen Table~\ref{tab:species_params}.
+A description of the columns of the species parameter data.frame
+and any default values can be seen Table~\ref{tab:species_params}.
 
 
 %\begin{sidewaystable}[ht]
@@ -249,18 +344,18 @@ A description of the columns and their default values can be seen Table~\ref{tab
 	    z0 & Background mortality (constant for all sizes) & Compulsory (no default)\\
 	    alpha & Assimilation efficiency & 0.6 \\
 	    erepro & Reproductive efficiency & 1 \\
-	    w\_min & The size class that recruits are placed in. & smallest size class of species size spectrum \\
+	    w\_min & The size class that recruits are placed in. & smallest size class of the species size spectrum \\
 	    \hline
-	    \multicolumn{3}{c}{Fishing gear parameters. See Section~\ref{sec:fishing_gear} for more details.} \\
+	    \multicolumn{3}{c}{Fishing gear parameters (see Section~\ref{sec:fishing_gear} for more details).} \\
 	    \hline
 	    sel\_func & The name of the selectivity function to be used.  & "sigmoid\_length".\\
 	    gear & The name of the fishing gear that selects the species. At the moment a species can only be selected by one gear. & Name of the species \\
-	    catchability & The catchability of the fishing gear. Fishing mortality = catchability x effort. The catchability can therefore be set so that an effort of 1 gives a particular fishing mortality. See Section~\ref{sec:fishing_gear} for more details. & 1\\
+	    catchability & The catchability of the fishing gear. & 1\\
 	    %a & Length-weight conversion coefficient & Only necessary if length-weight conversion is used (e.g. if specifying length ranges when calculating indicators, or in the fishing selectivity function) \\
 	    %b & Length-weight conversion power & See notes for column $a$\\
 	    other columns & Other parameters used by the selectivity function. For example, if the default "sigmoid\_length" function is used then the parameters "l25","l50","a" and "b" must also be specified as columns (see Section~\ref{sec:fishing_gear}). & \\ 
 	    \hline
-	    \multicolumn{3}{c}{Stock recruitment parameters. See Section~\ref{sec:srr}} \\
+	    \multicolumn{3}{c}{Stock recruitment parameters (see Section~\ref{sec:srr} for more details).} \\
 	    \hline
 	    other columns & Any arguments that appear in the stock-recruitment function must also have a column of values (see Section~\ref{sec:srr}) & \\
 	%\end{tabular}
@@ -288,25 +383,27 @@ These are explained further in Sections~\ref{sec:fishing_gear} and \ref{sec:srr}
 %\code{a} and \code{b}. This means that if the default selectivity function is being used then
 %these must also be included in the parameter data.frame.
 
-Here we take a look at how fishing is implemented and set up within
+In this section we take a look at how fishing is implemented and how fishing gears are set up within
 \pkg{mizer}.
 
-In \pkg{mizer} fishing mortality is imposed on species by fishing gears.
-The fishing mortality $F$ at size $w$ imposed by gear $g$ on species $s$ is calculated as:
+In \pkg{mizer}, fishing mortality is imposed on species by fishing gears.
+The fishing mortality $F$ imposed by gear $g$ on species $s$ at size $w$ is calculated as:
 
 \begin{equation}
-    F_{s,g,w} = Sel_{s,g,w} Q_{s,g} E_{g}
+    F_{s,g,w} = S_{s,g,w} Q_{s,g} E_{g}
 \end{equation}
 
-where $Sel$ is the selectivity by species, gear and size, $Q$ is the catchability by species
+where $S$ is the selectivity by species, gear and size, $Q$ is the catchability by species
 and gear and $E$ is the fishing effort by gear.
 The selectivity at size has a range between 0 (not selected at that size) to 1 (fully selected at
 that size).
-Catchability can be used as a scalar for fishing mortality. For example, it can be
-set so that an effort of 1 gives a desired fishing mortality
-i.e. effort can then be specified as relative effort with catchability acting as a scaling
-coefficient.
-Fishing effort is set when the simulation is run (see Section~\ref{sec:projection}).
+Catchability is used as an additional scalar to make the link between gear selectivity, fishing
+effort and fishing mortality. 
+For example, it can be set so that an effort of 1 gives a desired fishing mortality.
+In this way effort can then be specified relative to a 'base effort', e.g. the effort
+in a particular year.
+Fishing effort is set when the simulation is run and can vary through time
+(see Section~\ref{sec:projection}).
 
 At the moment a species can only be selected by one fishing gear, although each
 gear can select more than one species
@@ -319,29 +416,32 @@ values for each species may be different.
 
 The name of the selectivity function is given by the $sel\_func$ column in the species parameters
 data.frame.
-The name of the fishing gear is given in the $gear$ column. If the $gear$
-column is not specified,
-the default gear name is simply the name of the species, i.e. each species is fished by a
-different gear.
-
-Each selectivity function will have a range of arguments. Values for these arguments
-must be given in the species parameters data.frame. The names of the columns must exactly
+Each selectivity function has a range of arguments. Values for these arguments
+must be included as columns in the species parameters data.frame. The names of the columns must exactly
 match the names of the arguments. 
 For example, the default selectivity function is \code{sigmoid\_length}.
 The arguments for this selectivity function can be seen in the help page
-for this function (type \code{?sigmoid\_length} to see this).
+for this function. To see them enter:
+
+<<eval=FALSE>>=
+?sigmoid_length
+@
 
 It can be seen that the \code{sigmoid\_length} function has arguments \code{w}, \code{l25},
 \code{l50}, \code{a} and \code{b}.
 The first argument, \code{w}, is size (the function calculates selectivity at size).
 All selectivity functions must have \code{w} as the first argument.
 The values for the other arguments must be found in the species parameters data.frame.
-This can be seen in the exampl in Section~\ref{sec:params_example}.
+This can be seen in the example in Section~\ref{sec:params_example}.
 If they are not there, an error is thrown when the \class{MizerParams} object is created.
 
-Users are able to write their size based selectivity function. The first argument to the
+Users are able to write their own size based selectivity function. The first argument to the
 function must be \code{w} and the function must return a vector of the selectivity
 (between 0 and 1) at size.
+
+The name of the fishing gear is given in the $gear$ column of the species parameter
+data.frame. If the $gear$ column is not specified, the default gear name is simply
+the name of the species, i.e. each species is fished by a different gear.
 
 \subsection{The stock-recruitment relationship}
 \label{sec:srr}
@@ -355,36 +455,43 @@ function must be \code{w} and the function must return a vector of the selectivi
 %stock-recruitment function is used, a column of values called $r_{max}$ needs to
 %be included in the parameters data.frame.
 
-The stock-recruitment relationship in \pkg{mizer} means something different
-to the standard fisheries terminology.
-In standard fisheries science, recruitment is predicted by some measure
-of the reproductive potential of the stock such as spawning stock biomass.
-As can be seen in Section~\ref{sec:principles}, in \pkg{mizer}
-recruitment by calculating the density independent recrutiment, $RDI$ EQUATION
-NUMBER.
-The $RDI$ is then modified by a stock-recruitment relationship
-to impose some form of density-dependence to give the density-dependent
-recruitment, $RDD$.
+The stock-recruitment relationship in \pkg{mizer} means something slightly
+different to the standard fisheries terminology.
+In standard fisheries science, 
+recruitment means the abundance of new recruits entering the fishery
+(e.g. the number of age 1 added to the population each year).
+This recruitment is calculated by the stock-recruitment
+relationship, based on some measure of the reproductive potential of the stock,
+such as spawning stock biomass.
 
+In \pkg{mizer} recruitment means the number of individuals that enter
+the size-spectrum at the smallest size group of that species (given by the
+parameter $w\_min$ in the species parameter data.frame).
+As can be seen in Section~\ref{sec:principles}, 
+calculating the recruitment involves calculating the 'density independent'
+recruitment, $RDI$ (equation~\ref{eqtn:di_recruitment}).
+The $RDI$ is then modified by a stock-recruitment relationship
+to impose some form of density-dependence. This then results in the
+density-dependent recruitment, $RDD$.
 Without this density dependence, the realised recruitment
-to the smallest size class (given by the parameter $w\_min$
-in the species parameter data.frame) will be determined only
+to the smallest size class is determined only
 by $RDI$.
 
 The default stock-recruitment relationship is a Beverton-Holt type function
 which has the form:
 
 \begin{equation}
+\label{eqtn:default_srr}    
     RDD = \frac{R_{max}.RDI}{R_{max}+RDI}
 \end{equation}
 
-Where $R_{max}$ is a parameter which determines the maximum recruitment.
+where $R_{max}$ is a parameter which determines the maximum recruitment.
 
 % Add a figure
 
 Similar to the fishing selectivity functions, any parameter used in the
-stock-recruitment function, other than $RDI$ must be in the species
-parameter data.frame with the exact name.
+stock-recruitment function, other than $RDI$, must be in the species
+parameter data.frame and the column must have the same name as the function argument.
 For example, if the above default stock-recruitment function is to be
 used then the species parameter data.frame must have a $R_{max}$ column.
 
@@ -396,17 +503,21 @@ argument to the function must be \code{rdi}.
 \label{sec:interaction_matrix}
 
 The interaction matrix describes the interaction of each pair of species
-in the model. This can be viewed as a proxy for spatial interaction.
-predator preference for prey that is not simply size based.
+in the model. This can be viewed as a proxy for spatial interaction
+e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the size-based predation pressure.
-The matrix is two-dimensional with values between 0 (species do not overlap and do not feed on each other) to 1 (species overlap perfectly).
+The matrix is square with every element being the interaction between a pair
+of species. The dimensions, nrows and ncolumns, therefore equal the number of species.
+The values are between 0 (species do not overlap and
+do not feed on each other) to 1 (species overlap perfectly).
+If all the values in the interaction are set to 1 then predator-prey
+interactions are determined entirely by size-preference.
 
-When creating your own interaction matrix, it must be an object of type 
-\code{array} or \code{matrix}. 
-One way of setting one up is to enter the data using a spreadsheet 
+The interaction matrix must be of type \code{array} or \code{matrix}. 
+One way of creating your own is to enter the data using a spreadsheet 
 (such as LibreOffice) and saving it as a .csv file. 
 The data can be read into \R using the commmand \code{read.csv()}. This reads
-in the data as a data.frame. To convert the data.frame to a matrix we then need
+in the data as a data.frame. We then need
 to convert this to a matrix using the \code{as()} function. 
 An example of how to do this is given in Section~\ref{sec:params_example}.
 
@@ -414,20 +525,18 @@ It should be noted that the order of species in the interaction
 matrix has to be the same as the order in the species parameters data.frame.
 
 If an interaction matrix is not specified to the \code{MizerParams()}
-contructor then all of the the values in the matrix are set to 1 by default.
+contructor the default interation matrix is used. This all values set to 1. 
 
 \subsection{The other \code{MizerParams()} arguments}
 \label{sec:other_mizerparams_arguments}
 
-As well as the essential species parameters data.frame, there
-are several arguments to the \code{MizerParams} constructor
-method that have default values.
-Although it is tempting to just charge on and use the default
-values, many of the values came from a particular model for the
+As well as the essential species parameters data.frame and the interaction
+matrix, there are several other arguments to the \code{MizerParams} constructor.
+These have default values.  Although it is tempting to just charge on and use the default
+values, many of the values come from a particular model for the
 North Sea and so may not be appropriate for what you are doing.
 We'll look at these arguments here, describe what they do and
-discuss how to choose appropriate ones for your model.
-
+discuss how to choose appropriate ones for your model (TODO).
 The arguments can be seen in Table~\ref{tab:other_params}.
 
 \begin{table}[ht]
@@ -436,23 +545,25 @@ The arguments can be seen in Table~\ref{tab:other_params}.
 	\hline
 	Argument & Description & Default value \\
 	\hline
-	min\_w & The smallest size of the species size spectrum. Note that this a different w\_min to the one in the species parameter data.frame & 0.001 \\
-	max\_w & The largest size of the species size spectrum & The laegest w\_inf in the species parameters data.frame * 1.1 \\
-	no\_w & The number of size bins in the species size spectrum & 100 \\
-	min\_w\_pp & The smallest size of the background size spectrum & 1e-10 \\
-	no\_w\_pp & The number of size bins in the background size spectrum & round(no\_w) * 0.3 \\
-	n & The scaling of intake & 2/3 \\
-	p & The scaling of standard metabolism & 0.7 \\
-	q & The search volume exponent & 0.8 \\
-	r\_pp & The growth rate of the primary productivity (the background spectrum) & 10 \\
-	kappa & The carrying capacity of the background spectrum & 1e11 \\
-	lambda & The exponent of the background spectrum & 2+q-n \\
-	w\_pp\_cutoff & The cut off size of the background spectrum & 10 \\
+	min\_w & The smallest size of the species community size spectrum. Note that this a different w\_min to the one in the species parameter data.frame. & 0.001 \\
+	max\_w & The largest size of the species size spectrum. & The laegest w\_inf in the species parameters data.frame * 1.1 \\
+	no\_w & The number of size bins in the species size spectrum. & 100 \\
+	min\_w\_pp & The smallest size of the background size spectrum. & 1e-10 \\
+	no\_w\_pp & The number of size bins in the background size spectrum. & round(no\_w) * 0.3 \\
+	n & The scaling of intake. & 2/3 \\
+	p & The scaling of standard metabolism. & 0.7 \\
+	q & The search volume exponent. & 0.8 \\
+	r\_pp & The growth rate of the primary productivity (the background spectrum). & 10 \\
+	kappa & The carrying capacity of the background spectrum. & 1e11 \\
+	lambda & The exponent of the background spectrum. & 2+q-n \\
+	w\_pp\_cutoff & The cut off size of the background spectrum. & 10 \\
 	\end{tabularx}
 	\caption{Other parameters to the \code{MizerParams()} constructor}
 	\label{tab:other_params}
     \end{center}
 \end{table}
+
+How to choose parameter values.
 
 \subsection{Putting all this together: Making the \class{MizerParams} object: a simple example}
 \label{sec:params_example}
@@ -460,14 +571,14 @@ The arguments can be seen in Table~\ref{tab:other_params}.
 As mentioned in the preceeding sections, an object of \class{MizerParams}
 is created by using the \code{MizerParams()}
 constructor method. This takes the following arguments:
-\begin{itemize}
-    \item{object} The species parameter data.frame (see Section~\ref{sec:species_parameters_dataframe}). This is compulsory with no default value.
-    \item{inter} The interaction matrix described (see Section~\ref{sec:interaction_matrix}).
-    \item{...} The other model parameters (see Section~\ref{sec:other_mizerparams_arguments}).
-\end{itemize}
+\begin{description}
+    \item[object] The species parameter data.frame (see Section~\ref{sec:species_parameters_dataframe}). This is compulsory with no default value.
+    \item[inter] The interaction matrix (see Section~\ref{sec:interaction_matrix}).
+    \item[...] Other model parameters (see Section~\ref{sec:other_mizerparams_arguments}).
+\end{description}
 
 In the rest of this section we demonstrate how to pull these elements together
-to make a \class{MizerParams} object based on the North Sea REFERENCE.
+to make \class{MizerParams} objects. 
 
 The first step is to prepare the species specific parameter data.frame.
 As mentioned above, one way of doing this is to use a spreadsheet
@@ -479,66 +590,93 @@ This can be loaded into \R using the following code:
 
 SORT OUT LOCATION OF FILE
 
-<<echo=FALSE>>=
+<<>>=
 params_data <- read.csv("simple_species_params.csv")
 @ 
 
 This reads the .csv file into \R in the form of a data.frame.
 You can check this with the \code{class}:
 
-<<<echo=FALSE>>=
+<<<>>=
 class(params_data)
 @
 
-The first few lines of the data.frame can be inspected with
-the \code{head()} function.
+%The first few lines of the data.frame can be inspected with
+%the \code{head()} function.
+The example data.frame can be inspected by entering the name
+of the object.
 
-<<<echo=FALSE>>=
-head(params_data)
+<<<>>=
+#head(params_data)
+params_data
 @
 
-As you can see, we have all the essential columns as described in
-Table~\ref{tab:species_params}. We also have columns $a$, $b$, $l25$
-and $l50$ for the default selectivity function ($sel\_func$) and
-$r_max$ for the default stock-recruitment function. The values of
-the other species specific parameters, such as $alpha$ and $erepro$,
-will not be specified here and will use the default values.
+This data set is for a model of the North Sea (REFERENCE).
+There are \Sexpr{nrow(params_data)} species.
+As you can see, we have all the essential life history columns as described in
+Table~\ref{tab:species_params}.
 
-Strictly speaking, this is the minimum we need to create a
+There is no $sel_func$ column to determine the selectivity function.
+This means that the default selectivity function, \code{sigmoid\_length},
+will be used. However, as mentioned in Section~\ref{sec:fishing_gear},
+this function also needs several other arguments. The species data.frame
+therefore already includes the columns $a$, $b$, $l25$
+and $l50$ for the default selectivity function.
+
+Similarly, the column $r\_max$ is the parameter for the default stock-recruitment
+function described in Section~\ref{sec:srr}.
+
+The values of the non-essential species specific parameters $alpha$ and $erepro$,
+are not included in the data.frame. This means that the default values
+will be automatically used when we create the \class{MizerParams} object.
+
+Strictly speaking, this species parameter data.frame is the minimum
+we need to create a
 \class{MizerParams} object. However, the model would be improved
-by including an case study interaction matrix.
+by also including a case study specific interaction matrix.
 
 An example interaction matrix has been included in \pkg{mizer}
 as a .csv file. This can be found in LOCATION.
+Take a look at it in a spreadsheet if you want.
 As mentioned above, to read this file into \R we can make
 use of the \code{read.csv()} function. However, this time
 we want the first column of the .csv file to be the row
-names. We therefore use an additional argument to \code{read.csv()}.
+names. We therefore use an additional argument to the \code{read.csv()}
+function: \code{row.names}.
 
-<<echo=FALSE>>=
+<<>>=
 inter <- read.csv("inter.csv", row.names=1)
 @
 
-The \code{read.csv()} function reads in data into a data.frame.
+The \code{read.csv()} function reads the data into a data.frame.
 We want the interaction matrix to be of class \class{matrix} so
 we need to make use of the \code{as()} function.
 
-<<echo=FALSE>>=
+<<>>=
 inter <- as(inter, "matrix")
 @
 
 We now have the species parameters data.frame and the interaction
-matrix. We will use default values for the remainder of the arguments
-to the \code{MizerParams()} method given in Table~\ref{tab:other_params}.
-This means that the species size spectrum will have 100 size bins with a minimum size of 0.001.
+matrix.
+To make the \class{MizerClass} object you just call the constructor method
+and pass in the arguments.
+We will use default values for the remainder of the arguments
+to the \code{MizerParams()} method. These are given in Table~\ref{tab:other_params}.
+This means that we only need to pass in two arguments to the constructor:
 
-The \code{MizerParams()} constructor method is used like this:
-<<echo=FALSE>>=
+<<>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
 Note that the first argument must be the species parameters data.frame.
 The remaining arguments can be in any order but should be named.
+If we didn't want to use default values for the other arguments we would pass
+them in to the constructor by name. For example, if wanted our species size spectrum
+to have 200 size bins instead of 100 (the default) we would use:
+
+<<eval=FALSE>>=
+params <- MizerParams(params_data, interaction = inter, no_w = 200)
+@
 
 The above command creates an object of class \class{MizerParams}. 
 But what does that mean?
@@ -551,30 +689,75 @@ As mentioned above an object of class
 information is held in what are known as 'slots'.  A description
 of these slots can be found by calling \code{help()} on the class:
 
-<<eval=FALSE,echo=FALSE>>=
+<<eval=FALSE>>=
 help("MizerParams-class")
 @
 
 A list of the slots can also be seen using the \code{slotNames()} method.
 The different slots can be accessed using the \code{@} operator.
 For example, to look at the search volume slot, \code{search\_vol}
-you enter:
+you enter (the results are not shown here as the array is pretty huge):
 
-<<echo=FALSE>>=
+<<results=hide>>=
 params@search_vol
 @
 
-The slot $species_params$ contains the species parameters data.frame
-that was passed in to the constructor. It also contains
+The slot $species\_params$ contains the species parameters data.frame
+that was passed in to the constructor. Now it also contains
 any default values (for example, $alpha$) that may not have been
 included in the original data.frame.
 
-There is also a \code{summary()} method for \class{MizerParams} objects
+<<>>=
+params@species_params
+@
+
+There is a \code{summary()} method for \class{MizerParams} objects
 which prints a useful summary of the model parameters:
 
-<<echo=FALSE>>=
+<<results=hide>>=
 summary(params)
 @
+
+\subsection{Setting different gears}
+
+In the above example, each species is caught by a different gear (named
+after the species it catches). This is the default when there is no $gear$
+column in the species parameter data.frame.
+
+Here, we look at an example where we we do specify the fishing gears.
+We take the original $params_data$ object that was read in and
+bind an additional column, $gear$ to it. This $gear$ column will
+contain the name of the gear that catches the species in that row.
+
+<<>>=
+params_data <- read.csv("simple_species_params.csv")
+params_data$gear <- c("Industrial","Industrial","Industrial",
+		      "Pelagic","Beam Trawl","Otter Trawl",
+		      "Beam Trawl","Otter Trawl","Beam Trawl",
+		      "Otter Trawl","Otter Trawl","Otter Trawl")
+params_gear <- MizerParams(params_data, interaction = inter)
+@
+
+You can see that the gears in the \class{MizerParams} object have
+been set correctly by examining the $catchability$ slot:
+<<>>=
+params_gear@catchability
+@
+
+Note that we are still using the default $sigmoid\_length$
+selectivity function for all the gears in this example.
+
+Why would we want to set up the gears like this?
+In this example the same gear now catches multiple stocks. For
+example, the 'Industrial' gear catches Sprat, Sandeel and Norway Pout.
+
+In the next section we will see that to project the model through time
+you need to specify the fishing effort for each gear through time.
+By setting the gears up in this way you can run different management
+scenarios of changing the efforts of fishing gears rather than on
+individual species.
+It also means that after a simulation has been run you can examine
+the catches by gear.
 
 \section{Running a simulation}
 \label{sec:projection}
@@ -605,21 +788,21 @@ and a simple example.
 \label{sec:time_arguments}
 
 There are three aruments that control in the \code{project()} method:
-$dt$, $t_max$ and $t_save$.
+$dt$, $t\_max$ and $t\_save$.
 
 $dt$ is the time step used by the numerical solver in \code{project()}.
 This is the time step on which the model operates.
-$t_max$ determines the maximum time of the simulation. Note that
+$t\_max$ determines the maximum time of the simulation. Note that
 this is not the same as the number of time steps in the model.
-The number time steps in the model is given by $t_max$ / $dt$.
-For example, a simulation with $dt$ = 0.5 and $t_max$ = 10 will perform
+The number time steps in the model is given by $t\_max$ / $dt$.
+For example, a simulation with $dt$ = 0.5 and $t\_max$ = 10 will perform
 20 time steps.
-The default values for $dt$ and $t_max$ are 1 and 100 respectively.
+The default values for $dt$ and $t\_max$ are 1 and 100 respectively.
 
-Seperate from these two is $t_save$. This sets how frequently 
+Seperate from these two is $t\_save$. This sets how frequently 
 \code{project()} stores the state of the projection.
-$t_save$ must therefore be a multiple of $dt$.
-The default value of $t_save$ is 1.
+$t\_save$ must therefore be a multiple of $dt$.
+The default value of $t\_save$ is 1.
 
 \subsection{Setting fishing effort}
 
@@ -631,7 +814,7 @@ There are three ways of setting the fishing effort.
 The simplest is with a single number. This value is used as the fishing
 effor at each time step for all of the gears, i.e. fishing effort
 is constant throughout the simulation. The length of the simulation
-is determined by the time arguments (see Section~\ref{sec:time_arguments}.
+is determined by the time arguments (see Section~\ref{sec:time_arguments}).
 
 Another way of setting the fishing effort is to use a numeric vector
 of the same length as the number of gears.
@@ -657,7 +840,8 @@ the value of $dt$. If a value for $t_max$ is also supplied it is ignored.
 The initial populations of the species and the background spectrum
 need to be specified. These are specified using the arguments 
 $initial\_n$ and $initial\_n\_pp$ respectively.
-$initial\_n$ is a matrix (species x size) that contains the initial
+$initial\_n$ is a matrix (with dimensions species by size) that
+contains the initial
 abundances of each species at the sizes of the species size spectrum.
 $initial\_n\_pp$ is a vector of the same length as the
 the length of the full spectrum.
@@ -669,45 +853,45 @@ The default value for $initial\_n\_pp$ is the carrying capacity
 of the background spectrum, stored in the $cc\_pp$ slot of the
 \class{MizerParams} parameters object.
 
-\subsection{What do you get from running \code{project()}?
+\subsection{What do you get from running \code{project()}?}
 
 Running \code{project()} returns an object of type \class{MizerSim}.
-Like \class{MizerParams} this has various slots to contain the output
+Like the \class{MizerParams} class this has various slots to contain the output
 of the simulations.
 An object of \class{MizerSim} has four slots. 
 Details of the slots can be seen in the help page.
 The $params$ slot holds the \class{MizerParams} object that was passed
 in to \code{project()}.
-The $effort$ slot holds the fishing effort of each gear through time.
+The effort slot holds the fishing effort of each gear through time.
 Note that the effort slot may not be the same as the one passed in
 as an argument. This is because only the saved effort (determined by
-the argument $t_save$) is stored.
-The $n$ and $n_pp$ hold the abundances of the species and the background
+the argument $t\_save$) is stored.
+The $n$ and $n\_pp$ hold the abundances of the species and the background
 population at size respectively. 
-The $n$ and $n_pp$ slots have one extra row than the effort.
+The $n$ and $n\_pp$ slots have one extra row than the effort.
 This to the store the initial populations.
 
-\subsection{Projection example}
+\subsection{Projection examples}
 
 We will use the $params$ object created in the \class{MizerParams}
 example above.
 
 \subsubsection{Projections with simple effort arguments}
 In this first example we will use constant effort through time
-for each of the fishing gears. The same effort will be used for
+for each of the fishing gears and this effort will be used for
 all the gears. This means we only need to specify the effort argument
 as a single numeric.
 We will project the populations forward until time equals 10, with a
 time step of 1, saving the output every time step.
 
-<<echo=FALSE>>=
+<<>>=
 sim <- project(params, effort = 1, t_max = 10, dt = 1, t_save = 1)
 @
 
 The resulting object is of class \class{MizerSim}.
 The species abundances at size through time can be seen in the $n$ slot.
 This is an array (time x species x size).
-Consequently this array can get very big so inspecting it can be
+Consequently, this array can get very big so inspecting it can be
 annoying.
 A range of summary methods and plots are available to make this job easier.
 We will look at those in Section~\ref{sec:exploring}.
@@ -715,50 +899,379 @@ In the example we have just run the time dimension has 11 rows
 (one for the initial
 population and then one for each time step). There are also 12 species
 and 100 sizes.
-We can check this by running the \code{dim()} function:
+We can check this by running the \code{dim()} function and looking at
+the dimensions of the $n$ array:
 
 <<>>=
 dim(sim@n)
 @
 
 To pull out the abundances of a particular species through time at size
-you can subset the array. For example:
+you can subset the array. For example to look at Cod through time you
+can use:
 
-<<echo=FALSE>>=
+<<results=hide>>=
 sim@n[,"Cod",]
 @
 
-If we decrease $dt$ and $t_save$ but keep $t_max$ the same then
-we can see that the time dimension of the $n$ slot changes accordingly:
+The effort through time can be inspected by looking at the effort
+slot (we use the \code{head()} function to just show the
+first few lines).
+In this example, each species is caught by a seperate gear which has the
+same name as the species:
+
+<<>>=
+head(sim@effort)
+@
+
+If we decrease $dt$ and $t\_save$ but keep $t\_max$ the same then
+we can see that the time dimension of the $effort$ slot changes accordingly.
+Now the model time step is 0.5 and we store the output every 0.5 steps.
+This will also be true of the $n$ and $n\_pp$ slots.
 
 <<>>=
 sim <- project(params, effort = 0.5, t_max = 10, dt = 0.5, t_save = 0.5)
-dim(sim@n)
-@
-
-The effort through time can be inspected by looking at the effort
-slot:
-
-<<echo=FALSE>>=
-sim <- project(params, effort = 0.5, t_max = 10, dt = 1, t_save = 1)
-sim@effort
+head(sim@effort)
 @
 
 By running the above command you can see that the effort is the same
-for all gears and time steps.
+for all gears and time steps. This is because we are setting the $effort$
+argument as a single numeric value.
+As mentioned above we can also set the effort value for each gear seperatley
+using a vector of effort values. This still keeps the efforts constant
+through time.
+%We can see what gears we have by inspecting the
+%$gear$ column of the
+%$species\_params$ slot of the $params$ object.
+%
+%<<>>=
+%params@species_params$gear
+%@
 
-EXAMPLE WITH EFFORT VECTOR
+For example, if we want to switch off fishing on the pelagic species
+(sprat, herring and
+norway pout) and keep fishing effort on demersals at 0.5 we
+can set the effort for each gear using a vector, where the
+positions of elements in the vector match the position of the gears:
+
+<<>>=
+effort <- c(0, 0.5, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+@
+
+We then call \code{project()} with this effort and inspect the resulting
+$effort$ slot (we use the \code{head()} function to just show the
+first few lines):
+
+<<>>=
+sim <- project(params, effort = effort, t_max = 10, dt = 1, t_save = 1)
+head(sim@effort)
+@
+
+\subsubsection{An example of changing effort through time}
+
+In this example we set up a more complicated fishing effort
+structure that allows the fishing effort of each gear to change
+through time.
+As mentioned above, to do this, effort must be supplied as a two dimensional
+array or matrix. The first dimension is time step (determined by the
+$dt$ argument and the second dimension is gear.
+Also, as mentioned above, if effort is passed in as an array or matrix
+then the length of the simulation is effectively determined by the
+number of rows in the effort array and $dt$; the argument $t\_max$ is not used.
+In our example $params$ object we have 
+\Sexpr{length(unique(params@species_params$gear))}
+gears.
+
+In this simple example, all fishing gears have the same effort.
+This effort increases over time from 0 to 0.5 by 0.1.
+First we set up a vector to store this increasing effort.
+Then we set up the effort array using this vector.
+The dimensions of the effort array are set using the \code{dim}
+argument. The array will have as many rows as the length of the effort
+vector, and as many columns as there are gears.
+Each row of the array is the effort at a time step (given by the $dt$
+argument).
+The first few rows of the effort array are shown as an illustration.
+
+<<>>=
+effort_vec <- seq(from = 0, to = 1.0, by = 0.1) 
+effort <- array(effort_vec, dim = c(length(effort_vec), 12))
+head(effort)
+@
+
+When running \code{project()} with an effort array 
+we do not specify the $t\_max$ argument.
+The duration of the projection is given by $dt$ and the number of rows in the
+effort array.
+
+<<>>=
+sim <- project(params,effort=effort, dt=1, t_save = 1)
+@
+
+The effort array does not need to have dimension names because it
+is the order of the columns that is important, not their name.
+The order of the columns must match the order of the gears in the
+\class{MizerParams} object. 
+As you can see in th previous examples, the dimensions of the effort
+array do get named when it is processed by \code{project()}.
+
+It can be quite fiddly to set up a complicated effort array so it may
+be easier to prepare it in advance as a .csv file (perhaps using an open
+source spreadsheet such as LibreOffice) and read it in, similar to how
+we read in the interaction matrix in Section~\ref{sec:params_example}.
+We give an example of this in Section~\ref{sec:north_sea_example}.
 
 \section{Exploring the results}
 \label{sec:exploring}
 
-\subsection{Plots}
+Now we are able to set up a model and project it forward through time
+under our desired fishing scenario.
+The result of running a projection is an object of class \class{MizerSIm}.
+What do we then do?
+How can we explore the results of the simulation?
+In this section we introduce a range of summaries, plots and indicators
+that can be easily produced using methods included in \pkg{mizer}.
+
+\subsection{Summaries}
+\label{sec:summaries}
+
+As well as the \code{summary()} methods that are available for both
+\class{MizerParams} and \class{MizerSim} objects, there are some
+useful summary methods to pull out information object out of
+a \class{MizerSim} object (see Table~\ref{tab:summary_methods}.
+All of these methods have help files to explain how they are used.
+
+It is also possible to use most of these methods with a \class{MizerParams}
+object if you also supply the population abundance as an argument.
+This can be useful for exploring how changes in parameter value or abundance
+can affect summary statistics and indicators.
+See their help files for more details.
+
+\begin{table}[ht]
+    \begin{center}
+	\begin{tabularx}{\linewidth}{r|X|X}
+	\hline
+	Method & Returns & Description \\
+	\hline
+	getSSB() & Two dimensional array (time x species) & Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as EQUATION.\\
+	getBiomass() & Two dimensional array (time x species) & Total biomass of each species through time.\\
+	getN() & Two dimensional array (time x species) & Total abundance of each species through time.\\
+	%getPhiPrey() & & \\
+	getFeedingLevel() & Three dimensional array (time x species x size) & Feeding level of each species by size through time. \\
+	%getPredRate() & &\\
+	%getM2() & & \\
+	getFMort() & Three dimensional array (time x species x size) & Total fishing mortality on each species by size through time.\\
+	getFMortGear() & Four dimensional array (time x gear x species x size) & Fishing mortality on each species by each gear at size through time.\\
+	%getZ() & & \\
+	%getRDI & & \\
+	%getRDD & & \\ % Need to add these
+	\hline
+	\end{tabularx}
+	\caption{Summary methods for \class{MizerSim} objects.}
+	\label{tab:summary_methods}
+    \end{center}
+\end{table}
+
+%size_range
+%Biomass
+%N
+
+The methods \code{getBiomass()} and \code{getN()} have additional arguments
+that allow the user to set the size range over which to calculate the 
+summary statistic.
+This is done by passing in a combination of the arguments \code{min\_l}, 
+code{min\_w}, \code{max\_l} and \code{max\_w} for the minimum and maximum length or weight.
+If \code{min\_l} is specified there is no need to specify \code{min\_w} and
+so on. However, if length is specified (minimum or maximum) then it is
+necessary for the species parameter data.frame (see
+Section~\ref{sec:species_parameters_dataframe}) to include the parameters
+$a$ and $b$ for length-weight conversion.
+It is possible to mix length and weight constraints, e.g. by supplying
+a minimum weight and a maximum length.
+The default values are the minimum and maximum weights of the spectrum.
+
+\subsubsection{Summaries example}
+\label{sec:summaries_example}
+
+Here we show a simple demonstration of using a summary method.
+We first create a \class{MizerSim} object by projecting the parameters
+set up earlier through time. We then use \code{getSSB()} to calculate the
+SSB of each species through time.
+
+<<>>=
+sim <- project(params,effort=0.5, t_max = 10, dt=1, t_save = 1)
+ssb <- getSSB(sim)
+head(ssb)
+@
+
+As you can see, \code{getSSB()} calculates the SSB though time for each
+species.
+
+As mentioned above we specify the size range of some of the methods.
+For example, we calculate the total biomass of each species but only
+include individuals that are longer than 10 cm and shorter than 50 cm.
+
+<<>>=
+biomass <- getBiomass(sim, min_l = 10, max_l = 50)
+head(biomass)
+@
 
 \subsection{Indicators}
 
-\subsection{Example with more complicated gears}
+Methods have been set up to calculate a range of indicators from a
+\class{MizerSim} object after a projection. These
+can be seen in Table~\ref{tab:indicator_methods}.
+You can read the help pages for each of the methods for full instructions
+on how to use them along with examples.
+
+With all of the methods in the table it is possible to specify the size
+range of the community to be used in the calculation (e.g. to exclude very
+small or very large individuals) so that the calculated metrics can be
+compared to empirical data.
+This is done in the same way as the methods \code{getN()} and 
+\code{getBiomass()} in Section~\ref{sec:summaries}.
+It is also possible to specify which species to include in the calculation.
+See the help files for more details.
+
+\begin{table}[ht]
+    \begin{center}
+	\begin{tabularx}{\linewidth}{r|X|X}
+	\hline
+	Method & Returns & Description \\
+	\hline
+	getProportionOfLargeFish() & A vector with values at each time step. & Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \\
+	getMeanWeight() & A vector with values at each saved time step.  & The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance.\\
+	getMeanMaxWeight() & Depends on the $measure$ argument. If $measure$ == $both$ then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If $measure$ = $numbers$ or $biomass$ you get a vector of the respective values at each saved time step. & The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details.\\
+	getCommunitySlope() & A data.frame with four columns: time step, slope, intercept and $R^2$ value. & Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \\
+	\hline
+	\end{tabularx}
+	\caption{Indicator methods for \class{MizerSim} objects.}
+	\label{tab:indicator_methods}
+    \end{center}
+\end{table}
+
+\subsubsection{Indicators example}
+\label{sec:indicators_example}
+
+Here we show a simple demonstration of using indicator methods.
+We first create a \class{MizerSim} object by projecting the parameters
+set up earlier through time. 
+
+<<>>=
+sim <- project(params,effort=0.5, t_max = 10, dt=1, t_save = 1)
+@
+
+The slope of the community can be calculated using the 
+\code{getCommunitySlope()} method. Initially we include all species and
+all sizes in the calculation (only the first five rows are shown):
+
+<<>>=
+head(getCommunitySlope(sim))
+@
+
+We can include only the species we want with the $species$ argument.
+Here we only include demersal species.
+We can also restrict the size range of the community to include in the
+calculation.
+<<>>=
+dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock","Cod","Saithe")
+head(getCommunitySlope(sim, min_w = 10, max_w = 10000, species = dem_species))
+@
+
+\subsection{Plots}
+
+\R is very powerful when it comes to exploring data through plots.
+A useful package for plotting is \pkg{ggplot2}.
+\pkg{ggplot2} uses data.frames for input data. Many of the summary
+methods and slots of the \pkg{mizer} classes are arrays or matrices.
+Fortunately it is straightforward to turn arrays and matrices into
+data.frames using the command \code{melt} which is in the \pkg{reshape2}
+package (this is also used by the \pkg{ggplot2} package).
+It is definately worth your time getting to grips with this to make
+plotting easier.
+
+Inlcuded in \pkg{mizer} are several dedicated plots that use
+\class{MizerSim} objects as inputs (see Table~\ref{tab:plots}).
+These plots all return objects of type \class{ggplot} from the
+\pkg{ggplot2} package.
+See the help page of the plots for more details.
+
+Some of the plots plot values by size (for example \code{plotFeedingLevel()}
+and \code{plotNSpectra()}).
+For these plots, the default is to plot the values by size at the final time
+step of the projection.
+It is possible to specify a time range to average the abundances over before
+plotting the values
+
+\begin{table}[ht]
+    \begin{center}
+	\begin{tabularx}{\linewidth}{r|X}
+	\hline
+	Plot & Description \\
+	\hline
+	plotBiomass() & Plots the total biomass of each species through time. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
+	plotNSpectra() & Plots the abundance spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.\\
+	plotFeedingLevel() & Plots the feeding level of each species against size.\\
+	plotM2() & Plots the predation mortality of each species against size.\\
+	plotFMort() & Plots the total fishing mortality of each species against size.\\
+	\hline
+	\end{tabularx}
+	\caption{Plot methods for \class{MizerSim} objects.}
+	\label{tab:plots}
+    \end{center}
+\end{table}
+
+\subsubsection{Plotting examples}
+\label{sec:plot_examples}
+
+Using the plotting methods is straightforward.
+For example, to plot the total biomass of each species against
+time you use the \code{plotBiomass()} method:
+<<eval=FALSE>>=
+plotBiomass(sim)
+@
+
+The outcome of which can be seen in Figure~\ref{fig:plotBiomass_example}.
+\begin{figure}
+<<label=plotBiomass_example, fig=TRUE, echo=FALSE>>=
+    p <- plotBiomass(sim)
+    print(p)
+@
+\caption{An example of using the \code{plotBiomass()} method.}
+\label{fig:plotBiomass_example}
+\end{figure}
+
+As mentioned above, some of the plot methods plot values against size
+at a point in time (or averaged over a time period).
+For these plots it is possible to specify the time step to plot,
+or the time period to average the values over. The default is to use
+the final time step.
+Here we plot the abundance spectra, averaged over the last 5 time periods
+(the simulation was projected until $t$ = 10; see
+Figure~\ref{fig:plotNSpectra_example}):
+
+<<eval=FALSE>>=
+plotNSpectra(sim, time_range = 5:10)
+@
+
+\begin{figure}
+<<label=plotNSpectra_example, fig=TRUE, echo=FALSE>>=
+    p <- plotNSpectra(sim, time_range = 5:10)
+    print(p)
+@
+\caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
+\label{fig:plotNSpectra_example}
+\end{figure}
+
+
+\section{North Sea example}
+\label{sec:north_sea_example}
+
+Use the data from the North Sea paper?
 
 \section{Under the hood of \pkg{mizer}: notes for developers}
+
+Still to come.
 
 Classes and whatnot
 
@@ -767,6 +1280,17 @@ Classes and whatnot
 The authors of the \pkg{mizer} package would like to thank the authors
 of the \pkg{abc} package for allowing them to use some of the introductory
 text from their vignette.
+
+Finlay Scott would like to thank Cefas Seedcorn Project DP266 for supporting
+this work.
+
+%-------------------------------------------------------------------------
+% References
+%------------------------------------------------------------------------
+
+\bibliography{reflib}{}
+%\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 
 \end{document}
 
