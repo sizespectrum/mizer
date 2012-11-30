@@ -9,10 +9,10 @@
   \item{object}{A \code{MizerParams} object}
 
   \item{effort}{The effort of each fishing gear through
-  time. Can be an array (time x gear), a vector (each gear
-  has a constant effort through time), or a single numeric
-  value (each gear has the same effort, constant through
-  time).}
+  time. Can be an array (time x gear), a vector (of length
+  ngears where each gear has a constant effort through
+  time), or a single numeric value (each gear has the same
+  effort, constant through time).}
 
   \item{t_max}{The maximum time the projection runs for
   params. Not needed if an array is used for the
@@ -21,6 +21,11 @@
   \item{dt}{Time step of the solver}
 
   \item{t_save}{Store the output at every \code{t_save}}
+
+  \item{initial_n}{the initial populations of the species}
+
+  \item{initial_n_pp}{the initial population of the
+  background spectrum}
 }
 \value{
   An object of type of \code{MizerSim}

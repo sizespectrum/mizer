@@ -4,7 +4,9 @@
 \alias{MizerSim,MizerParams-method}
 \title{Constructors for objects of \code{MizerSim} class}
 \arguments{
-  \item{object}{something}
+  \item{object}{a MizerParams object}
+
+  \item{...}{other arguments}
 }
 \value{
   An object of type \code{MizerSim}
@@ -13,12 +15,9 @@
   A range of constructors for the \code{MizerSim} class.
   Some are more user friendly than others and some are
   really only used internally to help construct
-  \code{MizerSim objects of the right dimension
+  \code{MizerSim objects} of the right dimension
 }
 \note{
-  or details or something
-}
-\examples{
-x <- 1 # something here
+  Something on the constructor
 }
 

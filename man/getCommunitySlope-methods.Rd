@@ -27,7 +27,7 @@
 }
 \description{
   Calculates the slope of the community abundance through
-  time by perfomring a linear regression on the logged
+  time by performing a linear regression on the logged
   total numerical abundance at weight and logged weights.
   You can specify minimum and maximum weight or length
   range for the species. Lengths take precedence over

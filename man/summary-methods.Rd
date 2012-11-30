@@ -9,9 +9,13 @@
   the object
 }
 \examples{
-params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears,inter)
 summary(params)
-params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears,inter)
 sim <- project(params, effort=1, t_max=5)
 summary(sim)
 }

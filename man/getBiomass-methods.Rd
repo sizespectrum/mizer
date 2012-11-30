@@ -2,7 +2,7 @@
 \name{getBiomass}
 \alias{getBiomass}
 \alias{getBiomass,MizerSim-method}
-\title{Calculate the biomass of species within a size range}
+\title{Calculate the total biomass of each species within a size range at each time step.}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -33,8 +33,5 @@
 \examples{
 data(species_params_gears)
 data(inter)
-params <- MizerParams(species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-n <- getN(sim, min_l = 10)
 }
 

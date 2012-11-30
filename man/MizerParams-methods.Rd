@@ -43,7 +43,7 @@
   background spectrum. Default value is 10} }}
 }
 \value{
-  An object of type \code{sbm_param}
+  An object of type \code{MizerParams}
 }
 \description{
   A range of constructors for the \code{MizerParams} class.
@@ -52,10 +52,7 @@
   \code{sbm_param} objects of the right dimension
 }
 \note{
-  or details Something on the default formulations of
-  setting psi, intakeMax etc
-}
-\examples{
-params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+  Something on the default formulations of setting psi,
+  intakeMax etc
 }
 
