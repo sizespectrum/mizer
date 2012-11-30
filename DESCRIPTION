@@ -1,6 +1,7 @@
 Package: mizer
 Imports:
     plyr,
+    reshape2,
     ggplot2
 Maintainer: Finlay Scott <finlay.scott@cefas.co.uk>
 Author: Finlay Scott (Cefas) and Julia Blanchard (Sheffield University)
