@@ -130,29 +130,25 @@ setValidity("MizerSim", valid_MizerSim)
 remove(valid_MizerSim)
 
 
-# Constructors!
+# Constructors
 
 #' Constructors for objects of \code{MizerSim} class
 #'
 #' A range of constructors for the \code{MizerSim} class. Some are more user friendly than others and some are really only used 
-#' internally to help construct \code{MizerSim objects of the right dimension
+#' internally to help construct \code{MizerSim objects} of the right dimension
 #' 
-#' @param object something
+#' @param object a MizerParams object 
+#' @param ... other arguments
 #'
 #' @return An object of type \code{MizerSim}
-#' @note or details or something
+#' @note Something on the constructor
 #' @export
 #' @docType methods
 #' @rdname MizerSim-methods
 #'
-#' @examples
-#' x <- 1 # something here
 setGeneric('MizerSim', function(object, ...)
     standardGeneric('MizerSim'))
 
-
-# Set initial population or set in Project()?
-# Set in project
 #' @rdname MizerSim-methods
 #' @aliases MizerSim,MizerParams-method
 setMethod('MizerSim', signature(object='MizerParams'),

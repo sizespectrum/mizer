@@ -318,19 +318,18 @@ setClass("MizerParams",
 #'     \item{\code{w_pp_cutoff} The cut off size of the background spectrum. Default value is 10} 
 #' }
 #'
-#' @return An object of type \code{sbm_param}
-#' @note or details Something on the default formulations of setting psi, intakeMax etc
+#' @return An object of type \code{MizerParams}
+#' @note Something on the default formulations of setting psi, intakeMax etc
 #' @export
 #' @docType methods
 #' @rdname MizerParams-methods
 #'
-#' @examples
-#' params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+# @examples
 setGeneric('MizerParams', function(object, interaction, ...)
     standardGeneric('MizerParams'))
 
 # Basic constructor with only the number of species as dispatching argument
-# Only really used to make MizerParams of the right size
+# Only really used to make MizerParams of the right size and shouldn't be used by user
 
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,numeric,missing-method
@@ -392,8 +391,6 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, ...){
 	args <- list(...)
-
-	# Check species_params dataframe (with a function) for essential cols
 	check_species_params_dataframe(object)
 	# Check essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # sigma 
 	# And set defaults for others
@@ -413,7 +410,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# If no sel_func column in species_params, set to 'sigmoid_length'
 	if(!("sel_func" %in% colnames(object)))
 	    object$sel_func <- 'sigmoid_length'
-	# If no sel_func column in species_params, set to 'sigmoid_length'
+	# If no catchability column in species_params, set to 1
 	if(!("catchability" %in% colnames(object)))
 	    object$catchability <- 1
 

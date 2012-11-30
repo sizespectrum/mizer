@@ -11,7 +11,8 @@
 #' Project forward through time using \code{\link{project}} method
 #' Interrogate with summaries, metrics and plots
 #'
-#' @import plyr ggplot2
+#' @import plyr ggplot2 
+#' @importFrom reshape2 melt
 #' @docType package
 #' @name mizer
 #' @aliases mizer, mizer-package

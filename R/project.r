@@ -12,10 +12,12 @@
 #' \code{project()} is called using an object of type \code{MizerParams} and an object that stores the effort of the fishing gears through time. 
 #'
 #' @param object A \code{MizerParams} object
-#' @param effort The effort of each fishing gear through time. Can be an array (time x gear), a vector (each gear has a constant effort through time), or a single numeric value (each gear has the same effort, constant through time).
+#' @param effort The effort of each fishing gear through time. Can be an array (time x gear), a vector (of length ngears where each gear has a constant effort through time), or a single numeric value (each gear has the same effort, constant through time).
 #' @param t_max The maximum time the projection runs for params. Not needed if an array is used for the \code{effort} argument.
 #' @param dt Time step of the solver
 #' @param t_save Store the output at every \code{t_save} 
+#' @param initial_n the initial populations of the species
+#' @param initial_n_pp the initial population of the background spectrum 
 #'
 #' @return An object of type of \code{MizerSim}
 #' @note details and whatnot about setting up t from effort

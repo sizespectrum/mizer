@@ -26,7 +26,7 @@ setMethod('getSSB', signature(object='MizerSim'),
 	return(ssb)
     })
 
-#' Calculate the biomass of species within a size range
+#' Calculate the total biomass of each species within a size range at each time step.
 #'
 #' Calculates the total biomass through time of the species in the \code{MizerSim} class within user defined size limits.
 #' The default option is to use the whole size range.
@@ -128,7 +128,9 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
 #' @aliases summary,MizerParams-method
 #'
 #' @examples
-#' params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears,inter)
 #' summary(params)
 setMethod("summary", signature(object="MizerParams"),
     function(object, ...){
@@ -161,7 +163,9 @@ setMethod("summary", signature(object="MizerParams"),
 #' @rdname summary-methods
 #' @aliases summary,MizerSim-method
 #' @examples
-#' params <- MizerParams(object=3, species_names = c("cod", "haddock", "whiting"))
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
 setMethod("summary", signature(object="MizerSim"),
@@ -304,7 +308,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 
 #' Calculate the slope of the community abundance
 #'
-#' Calculates the slope of the community abundance through time by perfomring a linear regression on the logged total numerical abundance at weight and logged weights.
+#' Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights.
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
