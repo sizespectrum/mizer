@@ -35,8 +35,9 @@ setGeneric('plotBiomass', function(object, ...)
 setMethod('plotBiomass', signature(object='MizerSim'),
     function(object, ...){
 	b <- getBiomass(object, ...)
+	names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
 	bm <- melt(b)
-	p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=sp, linetype=sp)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") #+ scale_linetype_discrete(name="Species")
+	p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
 	print(p)
 	return(p)
     })
