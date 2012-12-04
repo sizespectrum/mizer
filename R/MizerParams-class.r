@@ -486,7 +486,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    # lop off w as that is always the first argument of the selectivity functions
 	    arg <- arg[!(arg %in% "w")]
 	    if(!all(arg %in% colnames(object)))
-		stop("The arguments needed for the selectivity function are not in the parameter dataframe")
+		stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
 	    # Check that there is only one column in object with the same name
 	    # Check that column of arguments exists
 	    par <- c(w=list(res@w),as.list(object[g,arg]))
@@ -497,6 +497,9 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    res@catchability[as.character(object[g,'gear']), g] <- object[g,"catchability"]
 	}
 
+	# Remove catchabiliy from species data.frame, now stored in slot
+	#params@species_params[,names(params@species_params) != "catchability"]
+	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
 	return(res)
     }
 )
@@ -523,7 +526,7 @@ check_species_params_dataframe <- function(species_params){
 	errors <- character()
 	for (i in essential_cols[missing_cols])
 	    errors <- paste(errors, i, sep=" ")
-	stop("You are missing these columns from the input dataframe: ", errors)
+	stop("You are missing these columns from the input dataframe:\n", errors)
     }
     return(TRUE)
 }
