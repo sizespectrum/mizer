@@ -99,9 +99,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 	# initialise n and nPP
 	n <- sim@n[1,,]
 	n_pp <- sim@n_pp[1,]
-
 	for (i_time in 1:t_steps){
-
 	    # Take this out. No n or npp so fmort could be precalculated
 	    # Also f_mort is already called in z so not needed at all?
 	    #f_mort <- getFMort(sim@params, effort[i_time,])

@@ -201,6 +201,15 @@ valid_MizerParams <- function(object) {
 	errors <- c(errors, msg)
     }
 
+    # species_params data.frame must have columns: 
+    # species, z0, alpha, eRepro
+    species_params_cols <- c("species","z0","alpha","erepro")
+    if (!all(species_params_cols %in% names(object@species_params))){
+	msg <- "species_params data.frame must have 'species', 'z0', 'alpha' and 'erepro' columms"
+	errors <- c(errors,msg)
+    }
+    # must also have SRR params but sorted out yet
+
     # species_params
     # Column check done in constructor
     # If everything is OK
@@ -366,8 +375,13 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	names(vec1) <- signif(w_full,3)
 	
 	# Make an empty data.frame for species_params
-	# This is just to pass validity check. There should be a seperate function to check if the species_params data.frame has all the right columns and dims
-	species_params <- data.frame(species = species_names)
+	# This is just to pass validity check. 
+	# The project method uses the columns species z0 alpha erepro
+	# so these must be in there
+	# There is also a seperate function to check the dataframe that is
+	# passed in by users (not used in validity check)
+	species_params <- data.frame(species = species_names,
+				     z0 = NA, alpha = NA, erepro = NA)
 
 	# Make an empty srr function, just to pass validity check
 	srr <- function(rdi, species_params) return(0)
