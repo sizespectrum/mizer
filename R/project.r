@@ -81,6 +81,9 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 	no_sp <- nrow(sim@params@species_params)
 	no_w <- length(sim@params@w)
 	idx <- 2:no_w
+	# If no w_min_idx column in species_params, add one
+	if (!("w_min_idx" %in% names(sim@params@species_params)))
+	    sim@params@species_params$w_min_idx <- 1
 	# Hacky shortcut to access the correct element of a 2D array using 1D notation
 	w_min_idx_array_ref <- (sim@params@species_params$w_min_idx-1) * no_sp + (1:no_sp)
 
