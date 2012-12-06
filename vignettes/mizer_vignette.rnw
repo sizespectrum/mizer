@@ -1262,7 +1262,7 @@ type \class{ggplot} from the \pkg{ggplot2} package.
 See the help page of the plot methods for more details.
 
 Some of the plots plot values by size (for example \code{plotFeedingLevel()}
-and \code{plotNSpectra()}).
+and \code{plotSpectra()}).
 For these plots, the default is to use the data at the final time
 step of the projection.
 With these plotting methods, it is also possible to specify a different time
@@ -1275,7 +1275,7 @@ step to plot or a time range to average the values over before plotting.
 	Plot & Description \\
 	\hline
 	plotBiomass() & Plots the total biomass of each species through time. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
-	plotNSpectra() & Plots the abundance spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.\\
+	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \\
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
 	plotM2() & Plots the predation mortality of each species against size.\\
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
@@ -1313,21 +1313,21 @@ at a point in time (or averaged over a time period).
 For these plots it is possible to specify the time step to plot,
 or the time period to average the values over. The default is to use
 the final time step.
-Here we plot the abundance spectra, averaged over time = 5 to 10
+Here we plot the abundance spectra (biomass), averaged over time = 5 to 10
 (the simulation was projected until $t$ = 10; see
-Figure~\ref{fig:plotNSpectra_example}):
+Figure~\ref{fig:plotSpectra_example}):
 
 <<eval=FALSE>>=
-plotNSpectra(sim, time_range = 5:10)
+plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 @
 
 \begin{figure}
-<<label=plotNSpectra_example, fig=TRUE, echo=FALSE>>=
-    p <- plotNSpectra(sim, time_range = 5:10)
-    print(p)
+<<label=plotSpectra_example, fig=TRUE, echo=FALSE>>=
+p <- plotSpectra(sim, time_range = 5:10, biomass=TRUE)
+print(p)
 @
 \caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
-\label{fig:plotNSpectra_example}
+\label{fig:plotSpectra_example}
 \end{figure}
 
 

@@ -1,10 +1,12 @@
 Package: mizer
 Imports:
     plyr,
+    methods,
     reshape2,
     ggplot2
 Maintainer: Finlay Scott <finlay.scott@cefas.co.uk>
-Author: Finlay Scott (Cefas) and Julia Blanchard (Sheffield University)
+Author: Finlay Scott (Cefas, UK) and Julia Blanchard (Sheffield University, UK)
+    and Ken Andersen (DTU Aqua, Copenhagen, DK)
 Version: 0.0
 License: GPL-3
 Title: Multi-species sIZE-based ecological marine modelling in R
@@ -27,7 +29,6 @@ Collate:
     'inter-data.r'
     'params-data.r'
     'params_nogears-data.r'
-    'mizer-package.r'
     'project_methods.r'
     'summary_methods.r'
     'plots.r'
