@@ -148,5 +148,32 @@ test_that("getMeanWeight works",{
 })
 
 
+test_that("getYieldGear works",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=10)
+    y <- getYieldGear(sim)
+    # check dims
+    expect_that(dim(y),equals(c(10,dim(params@catchability)[1],dim(params@catchability)[2])))
+    # check a value and assume the others are right
+    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")[-1,,]
+    f_gear <- getFMortGear(sim)
+    expect_that(sum((biomass*f_gear[,1,,])[1,1,]),equals(y[1,1,1]))
+})
+
+test_that("getYield works",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=10)
+    y <- getYield(sim)
+    # check dims
+    expect_that(dim(y),equals(c(10,dim(params@catchability)[2])))
+    # check a value and assume the others are right
+    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")[-1,,]
+    f <- getFMort(sim)
+    expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
+})
 
 

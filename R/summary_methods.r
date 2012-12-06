@@ -92,6 +92,69 @@ setMethod('getN', signature(object='MizerSim'),
 	return(n)
     })
 
+
+#' Calculate the total yield per gear and species
+#'
+#' Calculates the total yield per gear and species at each simulation
+#' time step.
+#'
+#' @param object An object of class \code{MizerSim}
+#'
+#' @return An array containing the total yield (time x gear x species)
+#' @export
+#' @docType methods
+#' @rdname getYieldGear-methods
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=10)
+#' y <- getYieldGear(sim)
+#' }
+setGeneric('getYieldGear', function(object,...)
+    standardGeneric('getYieldGear'))
+#' @rdname getYieldGear-methods
+#' @aliases getYieldGear,MizerSim-method
+setMethod('getYieldGear', signature(object='MizerSim'),
+    function(object,...){
+	# biomass less the first time step
+	biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")[-1,,]
+	f_gear <- getFMortGear(object)
+	yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
+	return(yield_species_gear)
+	  })
+
+#' Calculate the total yield of each species
+#'
+#' Calculates the total yield of each species across all gears at each
+#' simulation time step.
+#'
+#' @param object An object of class \code{MizerSim}
+#'
+#' @return An array containing the total yield (time x species)
+#' @export
+#' @docType methods
+#' @rdname getYield-methods
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=10)
+#' y <- getYield(sim)
+#' }
+setGeneric('getYield', function(object,...)
+    standardGeneric('getYield'))
+#' @rdname getYield-methods
+#' @aliases getYield,MizerSim-method
+setMethod('getYield', signature(object='MizerSim'),
+    function(object,...){
+	# biomass less the first time step
+	yield_gear_species <- getYieldGear(object)
+	return(apply(yield_gear_species,c(1,3),sum))
+    })
+
 # Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
 # the size limits specified by the arguments
 # If min_l or max_l are supplied they take precendence over the min_w and max_w
@@ -211,7 +274,6 @@ setGeneric('getProportionOfLargeFish', function(object, ...)
 #' @rdname getProportionOfLargeFish-methods
 #' @aliases getProportionOfLargeFish,MizerSim-method
 setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
-#function(object, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL, threshold_w = 100, threshold_l = NULL, ...){
     function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
 	check_species(object,species)
 	# This args stuff is pretty ugly - couldn't work out another way of using ...
@@ -222,10 +284,12 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 	args[["max_l"]] <- threshold_l
 	large_size_range <- do.call("get_size_range_array",args=args)
 	w <- object@params@w
-	if(!biomass_proportion) # based on biomass
+	if(!biomass_proportion) # based on abundance numbers
 	    w[] <- 1
 	total_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
 	upto_threshold_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
+	#lfi = data.frame(time = as.numeric(dimnames(object@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
+	#return(lfi)
 	return(1-(upto_threshold_measure / total_measure))
 })
 
