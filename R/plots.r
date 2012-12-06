@@ -8,7 +8,7 @@
  
 #' Plot the biomass of each species through time
 #'
-#' After running a projection, the biomass of each species can plotted against time. The biomass is calculated within user defined limits (see \code{\link{getBiomass}}).
+#' After running a projection, the biomass of each species can be plotted against time. The biomass is calculated within user defined size limits (see \code{\link{getBiomass}}).
 #' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getBiomass}} method and plots using ggplot2. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
@@ -22,12 +22,14 @@
 #' @docType methods
 #' @rdname plotBiomass-methods
 #' @examples
+#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotBiomass(sim)
 #' plotBiomass(sim, min_l = 10, max_l = 25)
+#' }
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
 #' @rdname plotBiomass-methods
@@ -41,21 +43,72 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 	print(p)
 	return(p)
     })
-# Do we need a window() method that returns a truncated MizerSim object?
-# For the instantaneous plots (e.g. spectra, feeding level, F etc) we need to decide what time we are plotting
-# Final time step
-# A single time step
-# Average of last x time steps
-# Average of x time steps
-# One argument needed: time_period
-# Data calculated as mean of that time period (maybe an option for summary function: mean, geomean etc?)
-# If just a single value then mean of that 
-# How does user specify?
-    # Time (as in actual years, not number of time steps)?
-    # Row elements?
-    # start and end time, or full range?
-# Rules: time period has to be contiguous, i.e. cannot do c(1:5, 8:10)
-# Argument can be character, or numeric. But always forced as.character.
+
+#' Plot the total yield of each species through time
+#'
+#' After running a projection, the total yield of each species across all
+#' fishing gears can be plotted against time. 
+#' 
+#' @param object An object of class \code{MizerSim}
+#'
+#' @return A ggplot2 object
+#' @export
+#' @docType methods
+#' @rdname plotYield-methods
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plotYield(sim)
+#' }
+setGeneric('plotYield', function(object, ...)
+    standardGeneric('plotYield'))
+#' @rdname plotYield-methods
+#' @aliases plotYield,MizerSim-method
+setMethod('plotYield', signature(object='MizerSim'),
+    function(object, ...){
+	y <- getYield(object, ...)
+	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
+	ym <- melt(y)
+	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+	print(p)
+	return(p)
+    })
+
+#' Plot the total yield of each species by gear through time
+#'
+#' After running a projection, the total yield of each species by 
+#' fishing gear can be plotted against time. 
+#' 
+#' @param object An object of class \code{MizerSim}
+#'
+#' @return A ggplot2 object
+#' @export
+#' @docType methods
+#' @rdname plotYieldGear-methods
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plotYieldGear(sim)
+#' }
+setGeneric('plotYieldGear', function(object, ...)
+    standardGeneric('plotYieldGear'))
+#' @rdname plotYieldGear-methods
+#' @aliases plotYieldGear,MizerSim-method
+setMethod('plotYieldGear', signature(object='MizerSim'),
+    function(object, ...){
+	y <- getYieldGear(object, ...)
+	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
+	ym <- melt(y)
+	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=gear)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+	print(p)
+	return(p)
+    })
 
 #' Plot the abundance spectra of each species and the background population
 #'

@@ -528,7 +528,7 @@ The matrix is square with every element being the interaction between a pair
 of species. The dimensions, nrows and ncolumns, therefore equal the number of species.
 The values are between 0 (species do not overlap and
 do not feed on each other) to 1 (species overlap perfectly).
-If all the values in the interaction are set to 1 then predator-prey
+If all the values in the interaction matrix are set to 1 then predator-prey
 interactions are determined entirely by size-preference.
 
 The interaction matrix must be of type \code{array} or \code{matrix}. 
@@ -541,6 +541,9 @@ An example of how to do this is given in Section~\ref{sec:params_example}.
 
 It should be noted that the order of species in the interaction
 matrix has to be the same as the order in the species parameters data.frame.
+Although you can specify the dimnames of the interaction matrix, these names
+are overwritten by the species names of the species parameters data.frame
+inside the \class{MizerParams} constructor.
 
 If an interaction matrix is not specified to the \code{MizerParams()}
 contructor the default interation matrix is used. This all values set to 1. 
@@ -1120,6 +1123,8 @@ We won't explore this here but you can see their help files for more details.)
 	%getZ() & & \\
 	%getRDI & & \\
 	%getRDD & & \\ % Need to add these
+	getYieldGear() & Three dimensional array (time x gear x species) & Total yield by gear and species through time. \\
+	getYield() & Two dimensional array (time x species) & Total yield of each species across all gears through time. \\
 	\hline
 	\end{tabularx}
 	\caption{Summary methods for \class{MizerSim} objects.}
@@ -1274,6 +1279,8 @@ step to plot or a time range to average the values over before plotting.
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
 	plotM2() & Plots the predation mortality of each species against size.\\
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
+	plotYield() & Plots the total yield of each species across all fishing gears against time.\\
+	plotYieldGear() & Plots the total yield of each specis by gear against time.\\
 	\hline
 	\end{tabularx}
 	\caption{Plot methods for \class{MizerSim} objects.}
@@ -1340,6 +1347,11 @@ Compare outputs to empirical data.
 Still to come.
 
 Classes and whatnot
+
+% Order of rows and columns in interaction matrix is important.
+% The dimnames are not used so the order must match the order
+% of the species names in the species_params data.frame.
+
 
 \section{Acknowledgements}
 
