@@ -216,41 +216,29 @@ valid_MizerParams <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-# Try some documentation with roxygenize
-# All lines start with single quote
-# First line is title of the class
-# Second line is details about the class (description)
-# @name (override default topic name), @rdname (output filename), @export (for namespace)
-# @slot doesn't work so need ugliness below
-# @param w a numeric vector of size bins - can use this style but not really right
-# Add Methods section?
-# And See Also when there is something also to see
-
 #' MizerParams
 #'
 #' A class to hold the parameters for the size based model. Dynamic simulations are performed using the project() method on this class. Objects of this class are created using the MizerParams() methods
 #'
-#' \section{Slots}{
-#'     \describe{
-#'         \item{w}{A numeric vector of size bins used for the community (i.e. fish) part of the model. These are usually spaced on a log10 scale}
-#'         \item{dw}{The absolute difference between the size bins specified in the w slot. A vector the same length as the w slot. The final value is the same as the second to last value}
-#'         \item{w_full}{A numeric vector of size bins used for the whole (i.e. community and background) model. These are usually spaced on a log10 scale}
-#'         \item{dw_full}{The absolute difference between the size bins specified in the w_full slot. A vector the same length as the w_full slot. The final value is the same as the second to last value}
-#'         \item{psi}{An array (species x size) that holds the allocation to reproduction for each species at size}
-#'         \item{intake_max}{An array (species x size) that holds the maximum intake for each species at size}
-#'         \item{search_vol}{An array (species x size) that holds the search volume for each species at size}
-#'         \item{activity}{An array (species x size) that holds the activity for each species at size}
-#'         \item{std_metab}{An array (species x size) that holds the standard metabolism for each species at size}
-#'         \item{pred_kernel}{An array (species x predator size x prey size) that holds the predation coefficient of each predator at size on each prey size}
-#'         \item{rr_pp}{A vector the same length as the w_full slot. The size specific growth rate of the background spectrum}
-#'         \item{cc_pp}{A vector the same length as the w_full slot. The size specific carrying capacity of the background spectrum}
-#'         \item{species_params}{A data.frame to hold the species specific parameters (see Details)}
-#'         \item{interaction}{The species specific interation matrix PREDATOR OR PREY ON WHICH AXIS}
-#'         \item{srr}{Function to calculate the realised (density dependent) recruitment. Has two arguments which are rdi and species_params}
-#'         \item{selectivity}{An array (gear x species x w) that holds the selectivity of each species by gear and species size}
-#'         \item{catchability}{An array (gear x species) that holds the catchability of each species by each gear}
+#' \describe{
+#'    \item{w}{A numeric vector of size bins used for the community (i.e. fish) part of the model. These are usually spaced on a log10 scale}
+#'    \item{dw}{The absolute difference between the size bins specified in the w slot. A vector the same length as the w slot. The final value is the same as the second to last value}
+#'    \item{w_full}{A numeric vector of size bins used for the whole (i.e. community and background) model. These are usually spaced on a log10 scale}
+#'    \item{dw_full}{The absolute difference between the size bins specified in the w_full slot. A vector the same length as the w_full slot. The final value is the same as the second to last value}
+#'    \item{psi}{An array (species x size) that holds the allocation to reproduction for each species at size}
+#'    \item{intake_max}{An array (species x size) that holds the maximum intake for each species at size}
+#'    \item{search_vol}{An array (species x size) that holds the search volume for each species at size}
+#'    \item{activity}{An array (species x size) that holds the activity for each species at size}
+#'    \item{std_metab}{An array (species x size) that holds the standard metabolism for each species at size}
+#'    \item{pred_kernel}{An array (species x predator size x prey size) that holds the predation coefficient of each predator at size on each prey size}
+#'    \item{rr_pp}{A vector the same length as the w_full slot. The size specific growth rate of the background spectrum}
+#'    \item{cc_pp}{A vector the same length as the w_full slot. The size specific carrying capacity of the background spectrum}
+#'    \item{species_params}{A data.frame to hold the species specific parameters (see Details)}
+#'    \item{interaction}{The species specific interation matrix PREDATOR OR PREY ON WHICH AXIS}
+#'    \item{srr}{Function to calculate the realised (density dependent) recruitment. Has two arguments which are rdi and species_params}
+#'    \item{selectivity}{An array (gear x species x w) that holds the selectivity of each species by gear and species size}
+#'    \item{catchability}{An array (gear x species) that holds the catchability of each species by each gear}
 #'     }
-#' }
 #' @name MizerParams-class
 #' @rdname MizerParams-class
 #' @docType class
@@ -308,6 +296,13 @@ setClass("MizerParams",
 #'
 #' @param object Can either be an integer whose value determines the number of species in the community or a data.frame of species specific parameter values
 #' @param interaction Optional argument to specify the interaction matrix of the species (predator by prey). If missing the a default interaction is used where all interactions are set to 1. 
+#' Note that any dimnames of the interaction matrix argument are ignored by
+#' the constructor. The dimnames of the interaction matrix in the returned 
+#' \code{MizerParams} object are taken from the species names in the
+#' \code{species_params} slot.
+#' This means that the order of the columns and rows of values of the
+#' interaction matrix argument should be the same as the species name in the
+#' \code{species_params} slot.
 #' @param ... Additional arguments used to specify the dimensions and sizes of the model. These include:
 #'
 #' \itemize{
@@ -453,6 +448,14 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Check dims of interaction argument - make sure it's right
 	if (!isTRUE(all.equal(dim(res@interaction), dim(interaction))))
 	    stop("interaction matrix is not of the right dimensions. Must be number of species x number of species")
+	# Check that all values of interaction matrix are 0 - 1. Issue warning if not
+	if(!all((interaction>=0) & (interaction<=1)))
+	    warning("Values in the interaction matrix should be between 0 and 1")
+	# In case user has supplied names to interaction matrix which are wrong order
+	for (dim_check in 1:length(dimnames(res@interaction))){
+	    if (!is.null(dimnames(interaction)[[dim_check]]) & (!(isTRUE(all.equal(dimnames(res@interaction)[[dim_check]],dimnames(interaction)[[dim_check]])))))
+	
+	    warning("Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")}
 	res@interaction[] <- interaction
 
 	# Now fill up the slots using default formulations:
