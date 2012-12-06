@@ -114,42 +114,49 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #'
 #' After running a projection, the spectra of the abundance of each species and the background population can be plotted.
 #' The abundance is averaged over the specified time range (a single value for the time range can be used).
+#' The abundance can be in terms of numbers or biomass, depending on the \code{biomass} argument.
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a tenth of the minimum size value of the community. 
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a tenth of the minimum size value of the community. 
+#' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted or the abundance in numbers (FALSE). Default is TRUE.
 #'
 #' @return A ggplot2 object
 #' @export
 #' @docType methods
-#' @rdname plotNSpectra-methods
-setGeneric('plotNSpectra', function(object, ...)
-    standardGeneric('plotNSpectra'))
-#' @rdname plotNSpectra-methods
-#' @aliases plotNSpectra,MizerSim-method
+#' @rdname plotSpectra-methods
+setGeneric('plotSpectra', function(object, ...)
+    standardGeneric('plotSpectra'))
+#' @rdname plotSpectra-methods
+#' @aliases plotSpectra,MizerSim-method
 #' @examples
+#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
-#' plotNSpectra(sim)
-#' plotNSpectra(sim, min_w = 1e-6)
-#' plotNSpectra(sim, time_range = 10:20)
-setMethod('plotNSpectra', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, ...){
+#' plotSpectra(sim)
+#' plotSpectra(sim, min_w = 1e-6)
+#' plotSpectra(sim, time_range = 10:20)
+#' plotSpectra(sim, time_range = 10:20, biomass = FALSE)
+#' }
+setMethod('plotSpectra', signature(object='MizerSim'),
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, biomass = TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
 	spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
 	background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-#	# Need this to be real w not names w - real ugly - can we clean this up?
-#	dimnames(spec_n)$w <- object@params@w
-#	plot_dat <- rbind(melt(spec_n), cbind(sp = "Background", w = object@params@w_full, value = background_n))
-#	plot_dat$w <- as.numeric(plot_dat$w)
-#	plot_dat$value <- as.numeric(plot_dat$value)
+	y_axis_name = "Abundance"
+	if (biomass){
+	    spec_n <- sweep(spec_n,2,object@params@w,"*")
+	    background_n <- background_n * object@params@w_full
+	    y_axis_name = "Biomass"
+	}
+	# Make data.frame for plot
 	plot_dat <- data.frame(value = c(spec_n), Species = dimnames(spec_n)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	plot_dat <- rbind(plot_dat, data.frame(value = c(background_n), Species = "Background", w = object@params@w_full))
 	# lop off 0s in background and apply min_w
 	plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
-	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Abundance", trans="log10")
+	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = y_axis_name, trans="log10")
 	print(p)
 	return(p)
     })
