@@ -175,74 +175,80 @@ Changes in the size spectrum as an indicator (LFI, MW, slope).
 \label{sec:model_equations}
 
 Describe the model here.
-Assumptions
+See Table~\ref{tab:model_params}.
+Assumptions.
 
 Check equations and notations are correct!
 
-Prey size selection:
+Prey size selection (unitless):
 \begin{equation}
 \label{eqtn:prey_size_selection}
 \phi \left(\frac{w_{prey}}{w} \right) = exp \left[-\left(ln\left(\frac{\beta w_{prey}}{w}\right)\right)^2 / (2 \sigma^2 )\right]
 \end{equation}
 
-Search rate:
+??????
+Search rate or is this search volume? Units:
 \begin{equation}
 \label{eqtn:search_rate}
-V(w) = \gamma w^n
+V(w) = \gamma w^q
 \end{equation}
 
 Encountered food:
+?????? Is this a rate? Or just mass?
 \begin{equation}
 \label{eqtn:encountered_food}
-E(w) = V(w) \sum_{j} \theta_{ij} \int_0^\infty N_j(w_p)w_p dw_p
+%E(w) = V(w) \sum_{j} \theta_{ij} \int_0^\infty N_j(w_p)w_p dw_p
+E(w) = V(w) \int N_{prey}(w_{prey}) w_{prey} \phi(w_{prey}/w) dw_{prey}
 \end{equation}
 
 Maximum consumption:
+RATE OR NOT?
 \begin{equation}
 \label{eqtn:max_consumption}
-I_{max} = h_i w^n
+I_{max} = h w^n
 \end{equation}
 
 Feeding level:
 \begin{equation}
 \label{eqtn:feeding_level}
-f_i(w) = \frac{E_i(w)}{E_i(w) + I_{max}}
+f(w) = \frac{E(w)}{E(w) + I_{max}}
 \end{equation}
 
-Maturation:
+Maturation function:
 \begin{equation}
 \label{eqtn:maturation}
-\psi(w) = \left[1 + \left(\frac{w}{w^*_i} \right)^{-10}\right]^{-1} \left( \frac{w}{W_i}\right)^{1-n}
+\psi(w) = \left[1 + \left(\frac{w}{w_{mat}} \right)^{-10}\right]^{-1} \left( \frac{w}{w_{\infty}}\right)^{1-n}
 \end{equation}
 
 Somatic growth:
+UNIT? RATE?
 \begin{equation}
 \label{eqtn:somatic_growth}
-g_i(w) = (\alpha f_i(w) h_i w^n - k_i w^p)(1 - \psi(w))
+g(w) = (\alpha f(w) I_{max} - k w^p)(1 - \psi(w))
 \end{equation}
 
 Gonadal growth:
 \begin{equation}
 \label{eqtn:gonadal_growth}
-g_r(w) = (\alpha f_i(w) h_i w^n - k_i w^p) \psi(w)
+g_r(w) = (\alpha f_i(w) I_{max} - k w^p) \psi(w)
 \end{equation}
 
 Density independent recruitment:
 \begin{equation}
 \label{eqtn:di_recruitment}
-\varepsilon / (2w_0N_i(w_0)g(w_0))\int_{w_i^*}^{w_i}N_i(w)g_{r}(w)dw
+\varepsilon / (2w_0 N(w_0)g(w_0))\int N(w)g_{r}(w)dw
 \end{equation}
 
 Background mortality:
 \begin{equation}
 \label{eqtn:background_mortality}
-\mu_0 = Z_0 W^Z
+\mu_0 = z_0 w_{\infty}^z
 \end{equation}
 
 Predation mortality:
 \begin{equation}
 \label{eqtn:predation_mortality}
-\mu_{p,i}(w) = \sum_j \int_{w_0}^\infty \phi \left(\frac{w^{'}}{w} \right) (1 - f_j(w^{'})) V(w^{'}) \theta_{i,j} N_j(w^{'})dw^{'}
+\mu_{p}(w) = \sum_{pred} \int_{w_0}^\infty \phi \left(\frac{w^{'}}{w} \right) (1 - f_{pred}(w^{'})) V(w^{'}) \theta_{i,{pred}} N_{pred}(w^{'})dw^{'}
 \end{equation}
 
 Growth of the resource spectrum:
@@ -256,6 +262,48 @@ Carrying capacity of the resource spectrum:
 \label{eqtn:carrying_capacity}
 k(w) = k_r^{-\lambda}
 \end{equation}
+
+\begin{table}[ht]
+    \begin{center}
+	\begin{tabularx}{\linewidth}{r|X|X}
+	    \hline
+	    Parameter & Description & Units \\
+	    \hline
+
+$\phi$ & Size selection of food items. & - \\
+w & Mass of individual. & g \\
+$\beta$ & Preferred predator-prey mass ratio. & - \\
+$\sigma$ & Width of food selection function & - \\
+V & Volumetric search rate OR IS IT VOLUME? & ??? \\
+$\gamma$ & Factor for search volume & - \\
+q & Exponent of search volume & ??? \\
+E & Encountered food. & g ????  \\
+$N_{prey}$ & Abundance of prey available i.e. after the interaction matrix. & \\
+$I_{max}$ & Maximum consumption.& g \\
+h & Factor for maximum intake. & - \\
+n & Exponent of maximum intake. & - \\
+f & Feeding level. & - \\
+$\psi$ & Allocation to reproduction. & - \\
+$w_{mat}$ & Maturation weight. & g \\
+g & Somatic growth. & g ?????\\
+$\alpha$ & Assimilation efficiency. & \\ 
+k & Factor for standard metabolism. & \\
+p & Exponent for standard metabolism. & \\
+$g_r$ Gonadal growth. & ???? \\
+$\varepsilon$ & Density independent recruitment. & ???? \\
+$w_0$ & Size at recruitment.& g \\
+g & ???? from DI recruitment & \\
+$\mu_0$ & Background mortality. & \\ 
+$z_0$ & Factor for background mortality. & \\
+$z$ & Exponent for background mortality. & \\
+
+
+	\end{tabularx}
+	\caption{Parameters in the size-based model.}
+	\label{tab:model_params}
+    \end{center}
+%\end{sidewaystable}
+\end{table}
 
 Interaction matrix
 
