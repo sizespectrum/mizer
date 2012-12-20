@@ -245,12 +245,14 @@ setGeneric('plotFMort', function(object, ...)
 #' @rdname plotFMort-methods
 #' @aliases plotFMort,MizerSim-method
 #' @examples
+#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
-#' #plotFMort(sim)
-#' #plotFMort(sim, time_range = 10:20)
+#' plotFMort(sim)
+#' plotFMort(sim, time_range = 10:20)
+#' }
 setMethod('plotFMort', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
 	f_time <- getFMort(object, time_range=time_range, .drop=FALSE, ...)
@@ -259,5 +261,52 @@ setMethod('plotFMort', signature(object='MizerSim'),
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
 	print(p)
 	return(p)
+    })
+
+
+#' Summary plot for \class{MizerObject}s
+#'
+#' After running a projection, produces 5 plots in the same window:
+#' feeding level, abundance spectra, predation mortality and fishing
+#' mortality of each species by size; and biomass of each species through
+#' time.
+#' This method just uses the other plotting methods and puts them
+#' all in one window.
+#' 
+#' @param object An object of class \code{MizerSim}
+#' @param ...  For additional arguments see the documentation for \code{plotBiomass}, \code{plotFeedingLevel},\code{plotSpectra},\code{plotM2} and \code{plotFMort}.
+#' @return A viewport object
+#' @export
+#' @docType methods
+#' @rdname plot-methods
+#' @aliases plot,MizerSim,missing-method
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' plot(sim)
+#' plot(sim, time_range = 10:20) # change time period for size-based plots
+#' plot(sim, min_l = 10, max_l = 25) # change size range for biomass plot
+#' }
+setMethod("plot", signature(x="MizerSim", y="missing"),
+    function(x, ...){
+	p1 <- plotFeedingLevel(x,...)
+	p2 <- plotSpectra(x,...)
+	p3 <- plotBiomass(x,...)
+	p4 <- plotM2(x,...)
+	p5 <- plotFMort(x,...)
+	grid.newpage()
+	glayout <- grid.layout(3,2) # widths and heights arguments
+	vp <- viewport(layout = glayout)
+	pushViewport(vp)
+	vplayout <- function(x,y)
+	    viewport(layout.pos.row=x, layout.pos.col = y)
+	print(p1+ theme(legend.position="none"), vp = vplayout(1,1))
+	print(p3+ theme(legend.position="none"), vp = vplayout(1,2))
+	print(p4+ theme(legend.position="none"), vp = vplayout(2,1))
+	print(p5+ theme(legend.position="none"), vp = vplayout(2,2))
+	print(p2+ theme(legend.position="right", legend.key.size=unit(0.1,"cm")), vp = vplayout(3,1:2))
     })
 
