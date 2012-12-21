@@ -274,7 +274,7 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' all in one window.
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param ...  For additional arguments see the documentation for \code{plotBiomass}, \code{plotFeedingLevel},\code{plotSpectra},\code{plotM2} and \code{plotFMort}.
+#' @param ...  For additional arguments see the documentation for \code{\link{plotBiomass}}, \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}} and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
 #' @docType methods
