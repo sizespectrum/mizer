@@ -25,7 +25,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
     function(object, n, n_pp, ...){
 	# Check n dims
 	if(dim(n)[1] != dim(object@interaction)[1])
-	    stop("n does not the right number of species (first dimension)")
+	    stop("n does not have the right number of species (first dimension)")
 	if(dim(n)[2] != length(object@w))
 	    stop("n does not have the right number of size groups (second dimension)")
 	if(length(n_pp) != length(object@w_full))

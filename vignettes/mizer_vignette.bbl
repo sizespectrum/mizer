@@ -1,0 +1,17 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Andersen and Pedersen(2010)]{andersen_damped_2010}
+K.~H. Andersen and M.~Pedersen.
+\newblock Damped trophic cascades driven by fishing in model marine ecosystems.
+\newblock \emph{Proceedings of the Royal Society {B-Biological} Sciences},
+  277\penalty0 (1682):\penalty0 795--802, March 2010.
+\newblock ISSN 0962-8452.
+\newblock \doi{10.1098/rspb.2009.1512}.
+\newblock {WOS:000273882800018}.
+
+\end{thebibliography}

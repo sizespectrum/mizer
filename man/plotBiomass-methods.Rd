@@ -1,0 +1,44 @@
+\docType{methods}
+\name{plotBiomass}
+\alias{plotBiomass}
+\alias{plotBiomass,MizerSim-method}
+\title{Plot the biomass of each species through time}
+\arguments{
+  \item{object}{An object of class \code{MizerSim}}
+
+  \item{min_w}{minimum weight of species to be used in the
+  calculation}
+
+  \item{max_w}{maximum weight of species to be used in the
+  calculation}
+
+  \item{min_l}{minimum length of species to be used in the
+  calculation}
+
+  \item{max_l}{maximum length of species to be used in the
+  calculation}
+}
+\value{
+  A ggplot2 object
+}
+\description{
+  After running a projection, the biomass of each species
+  can be plotted against time. The biomass is calculated
+  within user defined size limits (see
+  \code{\link{getBiomass}}). This plot is pretty easy to do
+  by hand. It just gets the biomass using the
+  \code{\link{getBiomass}} method and plots using ggplot2.
+  You can then fiddle about with colours and linetypes etc.
+  Just look at the source code for details.
+}
+\examples{
+\dontrun{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+sim <- project(params, effort=1, t_max=20, t_save = 2)
+plotBiomass(sim)
+plotBiomass(sim, min_l = 10, max_l = 25)
+}
+}
+
