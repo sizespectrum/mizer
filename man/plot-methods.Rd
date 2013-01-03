@@ -2,7 +2,7 @@
 \name{plot}
 \alias{plot}
 \alias{plot,MizerSim,missing-method}
-\title{Summary plot for \class{MizerObject}s}
+\title{Summary plot for \code{MizerSim} objects}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 

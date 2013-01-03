@@ -264,7 +264,7 @@ setMethod('plotFMort', signature(object='MizerSim'),
     })
 
 
-#' Summary plot for \class{MizerObject}s
+#' Summary plot for \code{MizerSim} objects
 #'
 #' After running a projection, produces 5 plots in the same window:
 #' feeding level, abundance spectra, predation mortality and fishing
