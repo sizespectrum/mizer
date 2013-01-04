@@ -71,7 +71,7 @@ test_that("constructor with only species_params signature gives the right dimens
 })
 
 
-test_that("w_min_dx is being set correctly",{
+test_that("w_min_idx is being set correctly",{
     data(species_params_gears)
     data(inter)
     # default - no w_min in params data so set to first size

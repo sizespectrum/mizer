@@ -44,12 +44,20 @@ test_that("getInitialN is working properly",{
 	expect_that(all(n[i,params@w < params@species_params$w_min[i]] == 0), is_true())
     }
     # Check slope of all species is the same
-    #slopes <- rep(NA, no_sp)
-    #for(i in 1:no_sp){
-    #    n_idx <- which(n[i,] != 0)
-    #    slopes[i] <- (log(n[i,min(n_idx)]) - log(n[i,max(n_idx)])) / (log(params@w[min(n_idx)]) - log(params@w[max(n_idx)]))
-    #}
-    #expect_that(all(slopes == slopes[1]), is_true())
+    slopes <- rep(NA, no_sp)
+    for(i in 1:no_sp){
+        n_idx <- which(n[i,] != 0)
+        slopes[i] <- (log(n[i,min(n_idx)]) - log(n[i,max(n_idx)])) / (log(params@w[min(n_idx)]) - log(params@w[max(n_idx)]))
+    }
+    expect_that(slopes, equals(rep(slopes[1],no_sp)))
+    # Check that slopes = slope0
+    n <- getInitialN(params, slope0 = -0.75)
+    slopes <- rep(NA, no_sp)
+    for(i in 1:no_sp){
+        n_idx <- which(n[i,] != 0)
+        slopes[i] <- (log(n[i,min(n_idx)]) - log(n[i,max(n_idx)])) / (log(params@w[min(n_idx)]) - log(params@w[max(n_idx)]))
+    }
+    expect_that(slopes, equals(rep(-0.75,no_sp)))
 })
 
 test_that("w_min array reference is working OK",{
