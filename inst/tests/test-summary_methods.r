@@ -176,4 +176,47 @@ test_that("getYield works",{
     expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
 })
 
-
+test_that("getCommunitySlope works",{
+    data(species_params_gears)
+    data(inter)
+    params <- MizerParams(species_params_gears, inter)
+    sim <- project(params, effort=1, t_max=10)
+    slope_b <- getCommunitySlope(sim)
+    # dims
+    expect_that(dim(slope_b), equals(c(dim(sim@n)[1],4)))
+    # sum biomasses
+    biomass <- apply(sweep(sim@n,3,sim@params@w,"*"),c(1,3),sum)
+    # r2, slope and intercept at last time step
+    lm_res <- lm(log(biomass[dim(sim@n)[1],]) ~ log(sim@params@w))
+    expect_that(slope_b[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
+    expect_that(slope_b[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
+    expect_that(slope_b[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    # Test just numbers not biomass
+    slope_n <- getCommunitySlope(sim, biomass=FALSE)
+    expect_that(dim(slope_n), equals(c(dim(sim@n)[1],4)))
+    # sum numbers
+    numbers <- apply(sim@n,c(1,3),sum)
+    # r2, slope and intercept at last time step
+    lm_res <- lm(log(numbers[dim(sim@n)[1],]) ~ log(sim@params@w))
+    expect_that(slope_n[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
+    expect_that(slope_n[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
+    expect_that(slope_n[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    # Check the sizes
+    slope_b2 <- slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 10000)
+    sizes <- (sim@params@w >= 10) & (sim@params@w <= 10000)
+    biomass <- apply(sweep(sim@n,3,sim@params@w,"*"),c(1,3),sum)
+    # r2, slope and intercept at last time step
+    lm_res <- lm(log(biomass[dim(sim@n)[1],sizes]) ~ log(sim@params@w[sizes]))
+    expect_that(slope_b2[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
+    expect_that(slope_b2[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
+    expect_that(slope_b2[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    # Check the species
+    dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
+    slope_b3 <- getCommunitySlope(sim, species = dem_species)
+    biomass <- apply(sweep(sim@n[,dem_species,],3,sim@params@w,"*"),c(1,3),sum)
+    # r2, slope and intercept at last time step
+    lm_res <- lm(log(biomass[dim(sim@n)[1],]) ~ log(sim@params@w))
+    expect_that(slope_b3[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
+    expect_that(slope_b3[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
+    expect_that(slope_b3[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+})
