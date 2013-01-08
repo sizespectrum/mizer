@@ -15,6 +15,7 @@
 
 % For checking the latex works OK
 % setwd("c:/Projects/sizeBMR/mizer/vignettes")
+% setwd("/media/sf_Projects/sizeBMR/mizer/vignettes")
 % Sweave("mizer_vignette.rnw", syntax="SweaveSyntaxNoweb")
 % shell("pdflatex mizer_vignette.tex")
 %
@@ -41,10 +42,24 @@
 \usepackage{authblk}
 \numberwithin{equation}{section}	% Equation numbers relative to sections
 
+%% Set PDF 1.5 and compression, including object compression
+%% Needed for MiKTeX -- most other distributions default to this
+\ifx\pdfoutput\undefined
+\else
+  \ifx\pdfoutput\relax
+  \else
+    \ifnum\pdfoutput>0
+      % PDF output
+      \pdfminorversion=5
+      \pdfcompresslevel=9
+      \pdfobjcompresslevel=2
+    \fi
+  \fi
+\fi
+
 % ---------------------------------------------------------------------------------------------------------------------------------------
 
 %\VignetteIndexEntry{Introduction to mizer}
-%\VignetteDepends{quantreg,nnet,locfit}
 %\VignettePackage{mizer}
 %\documentclass{amsart}
 \newcommand{\code}[1]{{\texttt{#1}}}
@@ -309,7 +324,6 @@ Interaction matrix
 
 etc
 
-Just checking Bibtex works in vignette~\citep{andersen_damped_2010}.
 
 \section{Using \pkg{mizer}}
 
@@ -1303,11 +1317,14 @@ package.
 It is probably worth your time getting to grips with these packages to make
 plotting easier. PERHAPS INCLUDE EXAMPLE OF USING GGPLOT WITH MIZER BELOW?
 
-Inlcuded in \pkg{mizer} are several dedicated plots that use
+Included in \pkg{mizer} are several dedicated plots that use
 \class{MizerSim} objects as inputs (see Table~\ref{tab:plots}).
 As well as displaying the plots, these methods all return objects of
 type \class{ggplot} from the \pkg{ggplot2} package.
-See the help page of the plot methods for more details.
+See the help page of the individual plot methods for more details.
+The generic \code{plot()} method has also been overloaded for
+\class{MizerSim} objects. This produces several plots in the same window
+to provide a snapshot of the results of the simulation.
 
 Some of the plots plot values by size (for example \code{plotFeedingLevel()}
 and \code{plotSpectra()}).
@@ -1329,6 +1346,7 @@ step to plot or a time range to average the values over before plotting.
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
 	plotYield() & Plots the total yield of each species across all fishing gears against time.\\
 	plotYieldGear() & Plots the total yield of each specis by gear against time.\\
+	plot() & Produces 5 plots (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}) in the same window as a summary.\\
 	\hline
 	\end{tabularx}
 	\caption{Plot methods for \class{MizerSim} objects.}
@@ -1378,15 +1396,151 @@ print(p)
 \label{fig:plotSpectra_example}
 \end{figure}
 
+As mentioned above, the generic \code{plot()} method has also been
+overloaded (see Figure~\ref{fig:plot_example}).
+This produces 5 plots in the same window (\code{plotFeedingLevel()},
+\code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and
+\code{plotSpectra()}). It is possible to pass in the same arguments that
+these plots use, e.g. arguments to change the time period over which the
+data is averaged.
+
+<<eval=FALSE>>=
+plot(sim)
+@
+
+\begin{figure}
+<<label=plot_example, fig=TRUE, echo=FALSE>>=
+p <- plotSpectra(sim)
+print(p)
+@
+\caption{Example output from using the summary \code{plot()} method.}
+\label{fig:plot_example}
+\end{figure}
+
 
 \section{A more detailed example using the North Sea}
 \label{sec:north_sea_example}
 
-A long example.
+Here we give a detailed example of projecting a fishery through time
+using historical levels of fishing effort.
+We use data from the North Sea from 1957 to 2010.
 
-Run to equib at constant earliest fishing mortality on each species.
-Then historical fishing mortality on each species (same as the 
-North Sea paper).
+As before we load the species and interaction parameters for the North Sea.
+Note that we are the using dataset without fishing gears. In this example,
+we want the species to be caught independently of each other:
+
+<<label = load_ns_species_params>>=
+# REMOVE CATCHABILITY FROM BOTH DATASETS
+data(species_params_nogears)
+data(inter)
+@
+
+The historical fishing mortality from 1967 to 2010 for each species is stored
+in the csv file \code{f\_history.csv}.
+As before, we can use the \code{read.csv()} to read in the data. This
+reads the data in as a \class{data.frame}. We ultimately want this to
+be a \class{matrix} so we use the \code{as.matrix()} function:
+
+<<label=load_f_history>>=
+f_history <- as.matrix(read.csv("f_history.csv",row.names=1))
+@
+
+We can take a look at the first years of the data.
+<<label=head_f_history>>=
+head(f_history)
+@
+
+Note that the order of the species in the \code{f\_history} object is
+the same as that of the species parameters.
+
+As mentioned above, fishing mortality is calculated as a combination of
+selectivity, catchability and fishing effort.
+The values in \code{f\_history} are absolute levels of fishing mortality.
+To use the \code{project()} method we need to provide a matrix of fishing
+effort that will result in the historical fishing mortality levels.
+
+One way of doing this is to set the catchability of all species to 1
+and then use the \code{f\_history} matrix as the fishing effort.
+However, it is probably clearer to use the effort relative to a
+particular year.  Here we use the year 1990.
+To do this we set the catchability of each species to be the same as
+fishing mortality in 1990. 
+This means that a relative effort of 1 will result
+in the fishing mortality being what it was in 1990.
+
+The catchability can be set by either adding an extra column
+to the species parameters data.frame, or by creating a \class{MizerParams}
+object and setting the catchability directly.
+Here we use the former method, and then check that catchability has been
+set correctly by inspecting the diagonal of the catchability slot.
+
+HOW IS R0 BEING SET?!?!
+
+<<label=set_catchability>>=
+# Set the catchability of each of these species to 1990 level
+species_params_nogears$catchability <- as.numeric(f_history["1990",])
+params <- MizerParams(species_params_nogears, inter)
+diag(params@catchability)
+@
+
+Now we can make the matrix of relative effort through time to be used with the
+\code{project()} method.
+To do this we want rescale the \code{f\_history} object to 1990 so that
+the relative effort in 1990 = 1.
+We then check a few rows of the effort matrix to see what has happened:
+
+<<label=rescale_effort>>=
+effort <- sweep(f_history,2,f_history["1990",],"/")
+# Check
+effort[as.character(1988:1992),]
+@
+
+We could just project forward with these relative efforts. However,
+the population dynamocs in the early years will be strongly
+determined by the initial population abundances (known as the transient
+behaviour - essentially behaviour before the long term dynamics are reached).
+As this is fisheries science, we don't know what the initial abundance are.
+One way around is this to project forward at the first year of historical
+relative effort level until equilibrium is reached.
+We then can carry on projecting forward using the remaining years of effort.
+This approach reduces the impact of transient dynamics.
+
+Here we make an inital effort matrix of 100 years at the first effort level,
+and then stick it on top of the original matrix of historical relative
+effort:
+
+<<>>=
+initial_effort <- matrix(effort[1,],byrow=TRUE, nrow=100,ncol=ncol(effort))
+effort <- rbind(initial_effort,effort)
+@
+
+We now have our matrix of efforts relative to 1990.
+This includes an initial 100 years of constant relative effort at the
+1957 level, followed by the relative effort from 1957 to 2010
+We can use this effort matrix as an argument to the \code{project()} method.
+We use \code{dt} = 1 and save the results every year.
+
+<<>>=
+sim <- project(params, effort=effort, dt = 1, t_save = 1)
+@
+
+Plotting the results, we can see how the biomasses of the stocks change
+over time (Figure~\ref{fig:plot_ns_biomass}).
+
+<<eval=FALSE>>=
+plotBiomass(sim)
+@
+
+\begin{figure}
+<<label=plot_ns_biomass, fig=TRUE, echo=FALSE>>=
+p <- plotBiomass(sim)
+print(p)
+@
+\caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
+\label{fig:plot_ns_biomass}
+\end{figure}
+
+
 
 Compare outputs to empirical data.
 
