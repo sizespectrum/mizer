@@ -16,6 +16,7 @@
   Set up parameters Set initial population Set fishing
   effort Project forward through time using
   \code{\link{project}} method Interrogate with summaries,
-  metrics and plots
+  metrics and plots import plyr ggplot2 grid importFrom
+  reshape2 melt
 }
 

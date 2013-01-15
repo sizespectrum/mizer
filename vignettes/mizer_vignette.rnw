@@ -354,7 +354,7 @@ This class stores the:
     \item stock-recruitment relationship functions and parameters of the species;
     \item interaction matrix to describe the spatial overlap of pairs of species;
     \item parameters relating to the growth and dynamics of the background resource spectrum;
-    \item fishing gear parameters: selectivty and catchability.
+    \item fishing gear parameters: selectivity and catchability.
 \end{itemize}
 
 Note that the \class{MizerParams} class does not store any parameters that can vary through time,
@@ -541,8 +541,8 @@ In standard fisheries science,
 recruitment means the abundance of new recruits entering the fishery
 (e.g. the number of age 1 added to the population each year).
 This recruitment is calculated by the stock-recruitment
-relationship, based on some measure of the reproductive potential of the stock,
-such as spawning stock biomass.
+relationship, based on some measure of the reproductive potential of
+the stock, such as spawning stock biomass.
 
 In \pkg{mizer} recruitment means the number of individuals that enter
 the size-spectrum at the smallest size group of that species (given by the
@@ -562,10 +562,10 @@ which has the form:
 
 \begin{equation}
 \label{eqtn:default_srr}    
-    RDD = \frac{R_{max}.RDI}{R_{max}+RDI}
+    RDD = \frac{r_{max}.RDI}{r_{max}+RDI}
 \end{equation}
 
-where $R_{max}$ is a parameter which determines the maximum recruitment.
+where $r_{max}$ is a parameter which determines the maximum recruitment.
 
 % Add a figure
 
@@ -573,11 +573,10 @@ Similar to the fishing selectivity functions, any parameter used in the
 stock-recruitment function, other than $RDI$, must be in the species
 parameter data.frame and the column must have the same name as the function argument.
 For example, if the above default stock-recruitment function is to be
-used then the species parameter data.frame must have a $R_{max}$ column.
+used then the species parameter data.frame must have an $r_{max}$ column.
 
 Users are able to write their own stock-recruitment function. The first
 argument to the function must be \code{rdi}.
-%FIX ISSUE WITH NAMING THE OTHER PARAMETES
 
 \subsection{The interaction matrix}
 \label{sec:interaction_matrix}
@@ -696,7 +695,6 @@ The example data.frame can be inspected by entering the name
 of the object.
 
 <<>>=
-#head(params_data)
 params_data
 @
 
@@ -810,13 +808,17 @@ fishing gears.
 Also, the selectivity function for each fishing gear has been set in the
 $sel\_func$ column (function \code{sigmoid\_length()}).
 
-WHY IS CATCHABILITY ALSO IN THERE? REMOVE
-
-PLOT SELECTIVITY - ADD METHOD?
-
 <<>>=
 params@species_params
 @
+
+Note also that the species parameter data.frame we passed in to make to the
+\code{MizerParams} did not have a \code{catchability} column.
+Because of this, the \code{MizerParams()} constructor sets the catchability
+for each gear to 1 for each of the species it catches.
+In this case, each species is only caught by one gear.
+An example of setting the catchability by hand can be seen in
+Section\ref{sec:north_sea_example}.
 
 There is a \code{summary()} method for \class{MizerParams} objects
 which prints a useful summary of the model parameters:
@@ -848,17 +850,19 @@ params_data$gear <- c("Industrial","Industrial","Industrial",
 @
 We then make a new \class{MizerParams} object as before:
 <<>>=
-
 params_gears <- MizerParams(params_data, interaction = inter)
 @
 
-You can see that the gears in the mew \class{MizerParams} object have
+You can see that the gears in the new \class{MizerParams} object have
 been set correctly by examining the $catchability$ slot:
 <<>>=
 params_gears@catchability
 @
 
 A catchability of 0 means that a species is not caught by that gear.
+As we didn't
+include a \code{catchability} column in the species parameter data.frame
+the catchabilities have been set to the default value of 1.
 
 In this example the same gear now catches multiple stocks. For
 example, the 'Industrial' gear catches Sprat, Sandeel and Norway Pout.
@@ -1418,27 +1422,31 @@ print(p)
 \end{figure}
 
 
-\section{A more detailed example using the North Sea}
+\section{A detailed example using the North Sea}
 \label{sec:north_sea_example}
 
 Here we give a detailed example of projecting a fishery through time
 using historical levels of fishing effort.
-We use data from the North Sea from 1957 to 2010.
+We use data from the North Sea from 1957 to 2010 and compare the simulated
+population trajectories to the best estimates of abundance from ICES where
+available.
 
-As before we load the species and interaction parameters for the North Sea.
-Note that we are the using dataset without fishing gears. In this example,
-we want the species to be caught independently of each other:
+\subsection{Setting up the North Sea model}
+
+As before, we load the species and interaction parameters for the North Sea.
+Note that we are the using dataset without fishing gears because in
+this example, we want to control the individual levels of effort on each
+species. 
 
 <<label = load_ns_species_params>>=
-# REMOVE CATCHABILITY FROM BOTH DATASETS
-data(species_params_nogears)
-data(inter)
+params_data <- read.csv("simple_species_params.csv")
+inter <- as(read.csv("inter.csv", row.names=1),"matrix")
 @
 
 The historical fishing mortality from 1967 to 2010 for each species is stored
 in the csv file \code{f\_history.csv}.
 As before, we can use the \code{read.csv()} to read in the data. This
-reads the data in as a \class{data.frame}. We ultimately want this to
+reads the data in as a \class{data.frame}. We want this to
 be a \class{matrix} so we use the \code{as.matrix()} function:
 
 <<label=load_f_history>>=
@@ -1451,13 +1459,15 @@ head(f_history)
 @
 
 Note that the order of the species in the \code{f\_history} object is
-the same as that of the species parameters.
+the same as that in the species parameters data.frame.
+This has to be the case.
 
-As mentioned above, fishing mortality is calculated as a combination of
+As mentioned in Section~\ref{sec:fishing_gear}, fishing mortality is
+calculated as a combination of
 selectivity, catchability and fishing effort.
 The values in \code{f\_history} are absolute levels of fishing mortality.
 To use the \code{project()} method we need to provide a matrix of fishing
-effort that will result in the historical fishing mortality levels.
+effort that will result in these historical fishing mortality levels.
 
 One way of doing this is to set the catchability of all species to 1
 and then use the \code{f\_history} matrix as the fishing effort.
@@ -1465,43 +1475,66 @@ However, it is probably clearer to use the effort relative to a
 particular year.  Here we use the year 1990.
 To do this we set the catchability of each species to be the same as
 fishing mortality in 1990. 
-This means that a relative effort of 1 will result
+This means that a relative effort of 1 in 1990 will result
 in the fishing mortality being what it was in 1990.
 
-The catchability can be set by either adding an extra column
-to the species parameters data.frame, or by creating a \class{MizerParams}
-object and setting the catchability directly.
-Here we use the former method, and then check that catchability has been
-set correctly by inspecting the diagonal of the catchability slot.
-
-HOW IS R0 BEING SET?!?!
+The catchability can be set by either including a 'catchability' column
+in the species parameters data.frame, or by manipulating the catchability
+slot directly after the \class{MizerParams} object has been created.
+Here we use the former method.
 
 <<label=set_catchability>>=
-# Set the catchability of each of these species to 1990 level
-species_params_nogears$catchability <- as.numeric(f_history["1990",])
-params <- MizerParams(species_params_nogears, inter)
+params_data$catchability <- as.numeric(f_history["1990",])
+@
+
+We are going to use the default stock-recruitment function for each of the
+species (see Section~\ref{sec:srr}).
+This uses the parameter \code{r\_max} which means that we need
+to set values of this parameter for all species.
+This can be done by including an 'r\_max' column in the species
+parameters data.frame.
+These values are taken from NS PAPER REFERENCE. The values were found
+through a calibration process which is not covered here but will be added to
+a later version of this manual. 
+
+<<label=set_r_max>>=
+params_data$r_max <- c(5.43e11,3.65e11,1.51e12,4.40e12,3.34e11,
+2.68e10,1.16e09,1.27e10,1.00e18,6.20e10, 5.26e08,1.65e10)
+@
+
+We can now create the \code{MizerParams} object using the species
+parameters data.frame.
+
+<<label=make_ns_params>>=
+params <- MizerParams(params_data, inter)
+@
+
+Here we check that the catchability has been
+set correctly by inspecting the diagonal of the catchability slot.
+<<label=check_catchability>>=
 diag(params@catchability)
 @
 
-Now we can make the matrix of relative effort through time to be used with the
-\code{project()} method.
+Now we can make the matrix of relative effort through time that will
+be used with the \code{project()} method.
 To do this we want rescale the \code{f\_history} object to 1990 so that
 the relative effort in 1990 = 1.
-We then check a few rows of the effort matrix to see what has happened:
+We then check a few rows of the effort matrix to check this has happened:
 
 <<label=rescale_effort>>=
 effort <- sweep(f_history,2,f_history["1990",],"/")
-# Check
 effort[as.character(1988:1992),]
 @
 
 We could just project forward with these relative efforts. However,
-the population dynamocs in the early years will be strongly
+the population dynamics in the early years will be strongly
 determined by the initial population abundances (known as the transient
-behaviour - essentially behaviour before the long term dynamics are reached).
+behaviour - essentially the initial behaviour before the long term dynamics
+are reached).
 As this is fisheries science, we don't know what the initial abundance are.
-One way around is this to project forward at the first year of historical
-relative effort level until equilibrium is reached.
+One way around is this to project forward at a constant fishing effort
+equal to the first year of historical relative effort until equilibrium
+is reached.
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
@@ -1514,7 +1547,9 @@ initial_effort <- matrix(effort[1,],byrow=TRUE, nrow=100,ncol=ncol(effort))
 effort <- rbind(initial_effort,effort)
 @
 
-We now have our matrix of efforts relative to 1990.
+\subsection{Running the simulation}
+
+We now have our parameter object and out matrix of efforts relative to 1990.
 This includes an initial 100 years of constant relative effort at the
 1957 level, followed by the relative effort from 1957 to 2010
 We can use this effort matrix as an argument to the \code{project()} method.
@@ -1526,6 +1561,10 @@ sim <- project(params, effort=effort, dt = 1, t_save = 1)
 
 Plotting the results, we can see how the biomasses of the stocks change
 over time (Figure~\ref{fig:plot_ns_biomass}).
+You can see the 100 year period of transients with constant fishing effort
+as the dynamics approach equilibrium before the historical
+relative effort is used.
+
 
 <<eval=FALSE>>=
 plotBiomass(sim)
@@ -1542,17 +1581,16 @@ print(p)
 
 
 
-Compare outputs to empirical data.
+Compare outputs to ICES data.
 
-\section{Under the hood of \pkg{mizer}: notes for developers}
+Bring in some bits from NS PAPER
 
-Still to come.
+%\section{Under the hood of \pkg{mizer}: notes for developers}
+%
+%Still to come.
+%
+%Classes and whatnot
 
-Classes and whatnot
-
-% Order of rows and columns in interaction matrix is important.
-% The dimnames are not used so the order must match the order
-% of the species names in the species_params data.frame.
 
 
 \section{Acknowledgements}
@@ -1561,8 +1599,8 @@ The authors of the \pkg{mizer} package would like to thank the authors
 of the \pkg{abc} package for allowing them to use some of the introductory
 text from their vignette.
 
-Finlay Scott would like to thank Cefas Seedcorn Project DP266 for supporting
-this work.
+Finlay Scott would like to thank the Cefas Seedcorn Project DP266
+and the Defra project MF1225 for supporting this work.
 
 %-------------------------------------------------------------------------
 % References
