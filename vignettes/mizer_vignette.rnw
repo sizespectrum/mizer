@@ -1388,7 +1388,7 @@ print(p)
 \end{figure}
 
 As mentioned above, the generic \code{plot()} method has also been
-overloaded (see Figure~\ref{fig:plot_example}).
+overloaded.% (see Figure~\ref{fig:plot_example}).
 This produces 5 plots in the same window (\code{plotFeedingLevel()},
 \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and
 \code{plotSpectra()}). It is possible to pass in the same arguments that
@@ -1399,14 +1399,13 @@ data is averaged.
 plot(sim)
 @
 
-\begin{figure}
-<<label=plot_example, fig=TRUE, echo=FALSE>>=
-p <- plot(sim)
-print(p)
-@
-\caption{Example output from using the summary \code{plot()} method.}
-\label{fig:plot_example}
-\end{figure}
+%\begin{figure}
+%<<label=plot_example, fig=TRUE, echo=FALSE>>=
+%p <- plot(sim)
+%@
+%\caption{Example output from using the summary \code{plot()} method.}
+%\label{fig:plot_example}
+%\end{figure}
 
 
 \section{A detailed example using the North Sea}

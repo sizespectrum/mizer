@@ -6,21 +6,20 @@
 \alias{MizerParams,numeric,missing-method}
 \title{Constructors for objects of \code{MizerParams} class}
 \arguments{
-  \item{object}{Can either be an integer whose value
-  determines the number of species in the community or a
-  data.frame of species specific parameter values}
+  \item{object}{A data frame of species specific parameter
+  values (see notes below).}
 
   \item{interaction}{Optional argument to specify the
   interaction matrix of the species (predator by prey). If
-  missing the a default interaction is used where all
-  interactions are set to 1. Note that any dimnames of the
-  interaction matrix argument are ignored by the
-  constructor. The dimnames of the interaction matrix in
-  the returned \code{MizerParams} object are taken from the
-  species names in the \code{species_params} slot. This
-  means that the order of the columns and rows of values of
-  the interaction matrix argument should be the same as the
-  species name in the \code{species_params} slot.}
+  missing a default interaction is used where all
+  interactions between species are set to 1. Note that any
+  dimnames of the interaction matrix argument are ignored
+  by the constructor. The dimnames of the interaction
+  matrix in the returned \code{MizerParams} object are
+  taken from the species names in the \code{species_params}
+  slot. This means that the order of the columns and rows
+  of the interaction matrix argument should be the same as
+  the species name in the \code{species_params} slot.}
 
   \item{...}{Additional arguments used to specify the
   dimensions and sizes of the model. These include:
@@ -34,12 +33,9 @@
   spectrum} \item{\code{no_w_pp} The number of the extra
   size bins in the background spectrum (i.e. the difference
   between the number of sizes bins in the community
-  spectrum and the full spectrum)}
-  \item{\code{species_names} A vector of the species names
-  in the community} \item{\code{gear_names} A vector of the
-  names of the fishing gears} \item{\code{n} Scaling of the
-  intake. Default value is 2/3} \item{\code{p} Scaling of
-  the standard metabolism. Default value is 0.7}
+  spectrum and the full spectrum)} \item{\code{n} Scaling
+  of the intake. Default value is 2/3} \item{\code{p}
+  Scaling of the standard metabolism. Default value is 0.7}
   \item{\code{q} Exponent of the search volume. Default
   value is 0.8} \item{\code{r_pp} Growth rate of the
   primary productivity. Default value is 10}
@@ -53,13 +49,40 @@
   An object of type \code{MizerParams}
 }
 \description{
-  A range of constructors for the \code{MizerParams} class.
-  Some are more user friendly than others and some are
-  really only used internally to help construct
-  \code{sbm_param} objects of the right dimension
+  Constructor method for the \code{\link{MizerParams}}
+  class. Provides the simplest way of making a
+  \code{MizerParams} object to be used in a simulation.
 }
 \note{
-  Something on the default formulations of setting psi,
-  intakeMax etc
+  The only essential argument to the \code{MizerParams}
+  constructor is a data frame which contains the species
+  data. The data frame is arranged species by parameter, so
+  each column of the parameter data frame is a parameter
+  and each row has the parameters for one of the species in
+  the model.
+
+  There are some essential columns that must be included in
+  the parameter data.frame and that do not have default
+  values. Other columns do have default values, so that if
+  they are not included in the species parameter data
+  frame, they will be automatically added when the
+  \code{MizerParams} object is created. See the
+  accompanying vignette for details of these columns.
+
+  An additional constructor method which takes an integer
+  of the number of species in the model. This is only used
+  in internally to set up a \code{MizerParams} object with
+  the correct dimensions. It is not recommended that this
+  method is used by users.
+}
+\examples{
+\dontrun{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+}
+}
+\seealso{
+  \code{\link{project}} \code{\link{MizerSim}}
 }
 

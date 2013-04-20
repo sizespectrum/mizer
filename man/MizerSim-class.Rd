@@ -3,16 +3,28 @@
 \alias{MizerSim-class}
 \title{MizerSim}
 \description{
-  A class that holds the results of a projecting an
-  \code{MizerParams} object through time
+  A class that holds the results of projecting a
+  \code{\link{MizerParams}} object through time.
 }
 \details{
-  \describe{ \item{params}{An object of type
-  \code{MizerParams}} \item{n}{Array to store the projected
-  community populations by time, species and size}
-  \item{effort}{Array that stores the fishing effort
-  through time by time and gear. SEE DETAILS}
-  \item{n_pp}{Array to store the projected background
-  population by time and size} }
+  \code{MizerSim} objects are created by using the
+  \code{\link{project}} method on an object of type
+  \code{MizerParams}.
+
+  There are several plotting methods available to explore
+  the contents of a \code{MizerSim} object. See the package
+  vignette for more details.
+}
+\section{Slots}{
+  \describe{ \item{\code{params}:}{An object of type
+  \code{MizerParams}.} \item{\code{n}:}{Array that stores
+  the projected community population abundances by time,
+  species and size} \item{\code{effort}:}{Array that stores
+  the fishing effort through time by time and gear.}
+  \item{\code{n_pp}:}{Array that stores the projected
+  background population by time and size} }
+}
+\seealso{
+  \code{\link{project}} \code{\link{MizerParams}}
 }
 

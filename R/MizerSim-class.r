@@ -93,20 +93,26 @@ valid_MizerSim <- function(object){
 
 
 
-
+# Soundtrack: Yob - Quantum Mystic
 #' MizerSim
 #' 
-#' A class that holds the results of a projecting an \code{MizerParams} object through time
+#' A class that holds the results of projecting a \code{\link{MizerParams}} object through time.
 #'
+#' \code{MizerSim} objects are created by using the \code{\link{project}} method on an object of type \code{MizerParams}.
+#'
+#' There are several plotting methods available to explore the contents of a \code{MizerSim} object. See the package vignette for more details.
+#' 
+#' @section Slots:
 #' \describe{
-#'     \item{params}{An object of type \code{MizerParams}}
-#'     \item{n}{Array to store the projected community populations by time, species and size}
-#'     \item{effort}{Array that stores the fishing effort through time by time and gear. SEE DETAILS}
-#'     \item{n_pp}{Array to store the projected background population by time and size}
+#'     \item{\code{params}:}{An object of type \code{MizerParams}.}
+#'     \item{\code{n}:}{Array that stores the projected community population abundances by time, species and size}
+#'     \item{\code{effort}:}{Array that stores the fishing effort through time by time and gear.}
+#'     \item{\code{n_pp}:}{Array that stores the projected background population by time and size}
 #' }
 #' @name MizerSim-class
 #' @rdname MizerSim-class
 #' @docType class
+#' @seealso \code{\link{project}} \code{\link{MizerParams}}
 #' @export
 setClass("MizerSim",
     representation(
@@ -130,20 +136,32 @@ remove(valid_MizerSim)
 
 # Constructors
 
-#' Constructors for objects of \code{MizerSim} class
+#' Constructor for the \code{MizerSim} class
 #'
-#' A range of constructors for the \code{MizerSim} class. Some are more user friendly than others and some are really only used 
-#' internally to help construct \code{MizerSim objects} of the right dimension
+#' A constructor for the \code{MizerSim} class. This is used by the \code{project} method to create \code{MizerSim} objects of the right dimensions.
+#' It is not necessary for users to use this constructor.
 #' 
 #' @param object a MizerParams object 
-#' @param ... other arguments
+#' @param ... other arguments including:
+#' 
+#' \itemize{
+#'     \item{\code{t_max} The maximum time step of the simulation.}
+#'     \item{\code{t_save} How often should the results of the simulation be stored.}
+#' }
 #'
 #' @return An object of type \code{MizerSim}
-#' @note Something on the constructor
+#' @seealso \code{\link{project}} \code{\link{MizerParams}} \code{\link{MizerSim-class}}
 #' @export
 #' @docType methods
 #' @rdname MizerSim-methods
-#'
+#' @examples
+#' \dontrun{
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params)
+#' }
+
 setGeneric('MizerSim', function(object, ...)
     standardGeneric('MizerSim'))
 

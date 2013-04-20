@@ -1,10 +1,9 @@
 \docType{data}
 \name{inter}
 \alias{inter}
-\title{Test interaction data set}
+\title{Sample interaction data set}
 \description{
-  Interaction data for the North Sea. Where did these
-  values come from? See NS Paper.
+  Interaction data for 12 species in the North Sea.
 }
 \references{
   The North Sea paper (Blanchard et al)
