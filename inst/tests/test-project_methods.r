@@ -317,7 +317,7 @@ test_that("interaction is right way round in getM2 method",{
     data(inter)
     inter[,"Dab"] <- 0 # Dab not eaten by anything
     params <- MizerParams(species_params_gears, inter)
-    m2 <- getM2(params,getInitialN(params),params@cc_pp)
+    m2 <- getM2(params,get_initial_n(params),params@cc_pp)
     expect_that(all(m2["Dab",] == 0), is_true())
 })
 

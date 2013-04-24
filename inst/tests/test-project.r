@@ -33,11 +33,11 @@ test_that("Can pass in initial species",{
 
 })
 
-test_that("getInitialN is working properly",{
+test_that("get_initial_n is working properly",{
     data(species_params_gears)
     data(inter)
     params <- MizerParams(species_params_gears, inter)
-    n <- getInitialN(params)
+    n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
     for(i in 1:no_sp){
 	expect_that(all(n[i,params@w > params@species_params$w_inf[i]] == 0), is_true())
@@ -51,7 +51,7 @@ test_that("getInitialN is working properly",{
     }
     expect_that(slopes, equals(rep(slopes[1],no_sp)))
     # Check that slopes = slope0
-    n <- getInitialN(params, slope0 = -0.75)
+    n <- get_initial_n(params, slope0 = -0.75)
     slopes <- rep(NA, no_sp)
     for(i in 1:no_sp){
         n_idx <- which(n[i,] != 0)

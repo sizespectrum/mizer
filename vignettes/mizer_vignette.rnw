@@ -958,7 +958,7 @@ the length of the full spectrum.
 
 By default, the $initial\_n$ argument has values
 calculated using the methods described in NORTH SEA PAPER.
-These are implemented in the function \code{getInitialN()}.
+These are implemented in the function \code{get\_initial\_n()}.
 The default value for $initial\_n\_pp$ is the carrying capacity
 of the background spectrum, stored in the $cc\_pp$ slot of the
 \class{MizerParams} parameters object.

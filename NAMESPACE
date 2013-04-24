@@ -1,4 +1,4 @@
-export(getInitialN)
+export(get_initial_n)
 export(sigmoid_length)
 exportClasses(MizerParams)
 exportClasses(MizerSim)
