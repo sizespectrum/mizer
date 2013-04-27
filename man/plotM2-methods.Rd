@@ -17,14 +17,20 @@
 \description{
   After running a projection, plot M2 of each species by
   size. M2 is averaged over the specified time range (a
-  single value for the time range can be used).
+  single value for the time range can be used to plot a
+  single time step).
 }
 \examples{
+/dontrun{
 data(species_params_gears)
 data(inter)
 params <- MizerParams(species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 2)
-#plotM2(sim)
-#plotM2(sim, time_range = 10:20)
+plotM2(sim)
+plotM2(sim, time_range = 10:20)
+}
+}
+\seealso{
+  \code{\link{getM2}}
 }
 

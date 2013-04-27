@@ -246,7 +246,7 @@ test_that("getZ",{
     expect_that(z1, is_equivalent_to(z[1,]))
 })
 
-test_that("getEForReproAndGrowth",{
+test_that("getEReproAndGrowth",{
     data(species_params_gears)
     data(inter)
     params <- MizerParams(species_params_gears, inter)
@@ -255,7 +255,7 @@ test_that("getEForReproAndGrowth",{
     no_w_full <- length(params@w_full)
     n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     n_full <- abs(rnorm(no_w_full))
-    erg <- getEForReproAndGrowth(params,n,n_full)
+    erg <- getEReproAndGrowth(params,n,n_full)
     expect_that(all(erg>=0), is_true())
     # test dim
     expect_that(dim(erg), equals(c(no_sp,no_w)))
@@ -280,7 +280,7 @@ test_that("getESpawning",{
     es <- getESpawning(params,n,n_full)
     # test dim
     expect_that(dim(es), equals(c(no_sp,no_w)))
-    e <- getEForReproAndGrowth(params,n=n,n_pp=n_full)
+    e <- getEReproAndGrowth(params,n=n,n_pp=n_full)
     e_spawning <- params@psi * e 
     expect_that(es, is_equivalent_to(e_spawning))
     e_growth <- getEGrowth(params,n,n_full)

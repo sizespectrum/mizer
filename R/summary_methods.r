@@ -4,18 +4,25 @@
 # Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
 
+# Soundtrack: The Definitive Lead Belly
 #' Calculate the SSB of species
 #'
 #' Calculates the spawning stock biomass (SSB) through time of the species in the \code{MizerSim} class.
 #' SSB is calculated as the total mass of all mature individuals.
 #'
-#' @param object An object of class \code{MizerSim}
+#' @param object An object of class \code{MizerSim}.
 #'
 #' @return An array containing the SSB (time x species)
 #' @export
 #' @docType methods
 #' @rdname getSSB-methods
-# @examples
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' # With constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' getSSB(sim)
 setGeneric('getSSB', function(object, ...)
     standardGeneric('getSSB'))
 #' @rdname getSSB-methods
@@ -32,11 +39,11 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' The default option is to use the whole size range.
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #'
-#' @param object An object of class \code{MizerSim}
-#' @param min_w minimum weight of species to be used in the calculation
-#' @param max_w maximum weight of species to be used in the calculation
-#' @param min_l minimum length of species to be used in the calculation
-#' @param max_l maximum length of species to be used in the calculation
+#' @param object An object of class \code{MizerSim}.
+#' @param min_w minimum weight of species to be used in the calculation.
+#' @param max_w maximum weight of species to be used in the calculation.
+#' @param min_l minimum length of species to be used in the calculation.
+#' @param max_l maximum length of species to be used in the calculation.
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
@@ -45,9 +52,11 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
-# params <- MizerParams(species_params_gears, inter)
-# sim <- project(params, effort=1, t_max=10)
-# n <- getN(sim, min_l = 10)
+#' params <- MizerParams(species_params_gears, inter)
+#' # With constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' getBiomass(sim)
+#' getBiomass(sim, min_w = 10, max_w = 1000)
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 #' @rdname getBiomass-methods
@@ -65,11 +74,11 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' The default option is to use the whole size range
 #' You can specify minimum and maximum weight or lengths for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 #'
-#' @param object An object of class \code{MizerSim}
-#' @param min_w minimum weight of species to be used in the calculation
-#' @param max_w maximum weight of species to be used in the calculation
-#' @param min_l minimum length of species to be used in the calculation
-#' @param max_l maximum length of species to be used in the calculation
+#' @param object An object of class \code{MizerSim}.
+#' @param min_w minimum weight of species to be used in the calculation.
+#' @param max_w maximum weight of species to be used in the calculation.
+#' @param min_l minimum length of species to be used in the calculation.
+#' @param max_l maximum length of species to be used in the calculation.
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
@@ -79,8 +88,10 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' n <- getN(sim, min_l = 10)
+#' # With constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' getN(sim)
+#' getN(sim, min_w = 10, max_w = 1000)
 setGeneric('getN', function(object, ...)
     standardGeneric('getN'))
 #' @rdname getN-methods
@@ -98,20 +109,20 @@ setMethod('getN', signature(object='MizerSim'),
 #' Calculates the total yield per gear and species at each simulation
 #' time step.
 #'
-#' @param object An object of class \code{MizerSim}
+#' @param object An object of class \code{MizerSim}.
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
 #' @docType methods
 #' @rdname getYieldGear-methods
+#' @seealso \code{\link{getYield}}
 #' @examples
-#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=10)
-#' y <- getYieldGear(sim)
-#' }
+#' # With constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' getYieldGear(sim)
 setGeneric('getYieldGear', function(object,...)
     standardGeneric('getYieldGear'))
 #' @rdname getYieldGear-methods
@@ -130,20 +141,19 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' Calculates the total yield of each species across all gears at each
 #' simulation time step.
 #'
-#' @param object An object of class \code{MizerSim}
+#' @param object An object of class \code{MizerSim}.
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
 #' @docType methods
 #' @rdname getYield-methods
+#' @seealso \code{\link{getYieldGear}}
 #' @examples
-#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
-#' }
 setGeneric('getYield', function(object,...)
     standardGeneric('getYield'))
 #' @rdname getYield-methods
@@ -254,8 +264,8 @@ setMethod("summary", signature(object="MizerSim"),
 #' This method can be used to calculate the Large Fish Index.
 #' The proportion is based on either abundance or biomass.
 #'
-#' @param object An object of class \code{MizerSim}
-#' @param species numeric or character vector of species to include in the calculation
+#' @param object An object of class \code{MizerSim}.
+#' @param species numeric or character vector of species to include in the calculation.
 #' @param min_w minimum weight of species to be used in the calculation.
 #' @param max_w maximum weight of species to be used in the calculation.
 #' @param min_l minimum length of species to be used in the calculation.
@@ -268,7 +278,16 @@ setMethod("summary", signature(object="MizerSim"),
 #' @export
 #' @docType methods
 #' @rdname getProportionOfLargeFish-methods
-# @examples
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=10)
+#' getProportionOfLargeFish(sim)
+#' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
+#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
+#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
+#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500, biomass_proportion=FALSE)
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
 #' @rdname getProportionOfLargeFish-methods
@@ -311,7 +330,14 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getMeanWeight-methods
-# @examples
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=10)
+#' getMeanWeight(sim)
+#' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
+#' getMeanWeight(sim, min_w = 10, max_w = 5000)
 setGeneric('getMeanWeight', function(object, ...)
     standardGeneric('getMeanWeight'))
 #' @rdname getMeanWeight-methods
@@ -334,11 +360,11 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
-#' @param object An object of class \code{MizerSim}
-#' @param min_w minimum weight of species to be used in the calculation
-#' @param max_w maximum weight of species to be used in the calculation
-#' @param min_l minimum length of species to be used in the calculation
-#' @param max_l maximum length of species to be used in the calculation
+#' @param object An object of class \code{MizerSim}.
+#' @param min_w minimum weight of species to be used in the calculation.
+#' @param max_w maximum weight of species to be used in the calculation.
+#' @param min_l minimum length of species to be used in the calculation.
+#' @param max_l maximum length of species to be used in the calculation.
 #' @param species numeric or character vector of species to include in the calculation.
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #'
@@ -346,7 +372,14 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getMeanMaxWeight-methods
-# @examples
+#' @examples
+#' data(species_params_gears)
+#' data(inter)
+#' params <- MizerParams(species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=10)
+#' getMeanMaxWeight(sim)
+#' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
+#' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 setGeneric('getMeanMaxWeight', function(object, ...)
     standardGeneric('getMeanMaxWeight'))
 #' @rdname getMeanMaxWeight-methods
@@ -376,13 +409,13 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
-#' @param object An object of class \code{MizerSim}
+#' @param object An object of class \code{MizerSim}.
 #' @param species Numeric or character vector of species to include in the calculation.
 #' @param biomass Boolean. If TRUE (default), the abunance is based on biomass, if FALSE the abundance is based on numbers. 
-#' @param min_w Minimum weight of species to be used in the calculation
-#' @param max_w Maximum weight of species to be used in the calculation
-#' @param min_l Minimum length of species to be used in the calculation
-#' @param max_l Maximum length of species to be used in the calculation
+#' @param min_w Minimum weight of species to be used in the calculation.
+#' @param max_w Maximum weight of species to be used in the calculation.
+#' @param min_l Minimum length of species to be used in the calculation.
+#' @param max_l Maximum length of species to be used in the calculation.
 #'
 #' @return A data frame with time step, slope, intercept and R2 values.
 #' @export

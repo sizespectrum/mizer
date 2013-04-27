@@ -39,7 +39,6 @@
 #' @seealso \code{\link{MizerParams}}
 #' @rdname project-methods
 #' @examples
-#' \dontrun{
 #' # Data set with different fishing gears
 #' data(species_params_gears)
 #' data(inter)
@@ -55,7 +54,6 @@
 #' fishing_effort[,3] <- seq(from=1,to=1,length=20)
 #' fishing_effort[,4] <- seq(from=1,to=0.75,length=20)
 #' sim <- project(params, effort = fishing_effort)
-#' }
 setGeneric('project', function(object, effort, ...)
     standardGeneric('project'))
 

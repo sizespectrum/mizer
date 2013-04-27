@@ -1,8 +1,8 @@
 \docType{methods}
-\name{getESpawning}
-\alias{getESpawning}
-\alias{getESpawning,MizerParams,matrix,numeric-method}
-\title{getESpawning method for the size based model}
+\name{getEReproAndGrowth}
+\alias{getEReproAndGrowth}
+\alias{getEReproAndGrowth,MizerParams,matrix,numeric-method}
+\title{getEReproAndGrowth method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -12,13 +12,13 @@
   size.}
 }
 \value{
-  A two dimensional array (prey species x prey size)
+  A two dimensional array (species x size)
 }
 \description{
   Calculates the energy available by species and size for
-  reproduction after metabolism and movement have been
-  accounted for. Used by the \code{project} method for
-  performing simulations.
+  reproduction and growth after metabolism and movement
+  have been accounted for. Used by the \code{project}
+  method for performing simulations.
 }
 \examples{
 data(species_params_gears)
@@ -27,7 +27,7 @@ params <- MizerParams(species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getESpawning(params,sim@n[21,,],sim@n_pp[21,])
+getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 \seealso{
   \code{\link{project}}

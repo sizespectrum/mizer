@@ -4,10 +4,10 @@
 \alias{getProportionOfLargeFish,MizerSim-method}
 \title{Calculate the proportion of large fish}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 
   \item{species}{numeric or character vector of species to
-  include in the calculation}
+  include in the calculation.}
 
   \item{min_w}{minimum weight of species to be used in the
   calculation.}
@@ -48,5 +48,16 @@
   This method can be used to calculate the Large Fish
   Index. The proportion is based on either abundance or
   biomass.
+}
+\examples{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+sim <- project(params, effort=1, t_max=10)
+getProportionOfLargeFish(sim)
+getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
+getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
+getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
+getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500, biomass_proportion=FALSE)
 }
 

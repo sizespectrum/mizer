@@ -17,11 +17,11 @@
 #'
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and \code{l50} which determine the length at which 25\% and 50\% of the stock is selected respectively. As the size-based model is weight based, and this selectivity function is length based, it is also necessary to supply the length-weight parameters \code{a} and \code{b}.
 #'
-#' @param w the size of the individual
-#' @param l25 the length which gives a selectivity of 25\%
-#' @param l50 the length which gives a selectivity of 50\%
-#' @param a the multiplier of the length-weight function
-#' @param b the exponent of the length-weight function
+#' @param w the size of the individual.
+#' @param l25 the length which gives a selectivity of 25\%.
+#' @param l50 the length which gives a selectivity of 50\%.
+#' @param a the multiplier of the length-weight function.
+#' @param b the exponent of the length-weight function.
 #' @export
 sigmoid_length <- function(w,l25,l50,a,b)
 {

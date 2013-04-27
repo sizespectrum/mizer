@@ -4,19 +4,19 @@
 \alias{getBiomass,MizerSim-method}
 \title{Calculate the total biomass of each species within a size range at each time step.}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 
   \item{min_w}{minimum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_w}{maximum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{min_l}{minimum length of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_l}{maximum length of species to be used in the
-  calculation}
+  calculation.}
 }
 \value{
   An array containing the biomass (time x species)
@@ -33,5 +33,10 @@
 \examples{
 data(species_params_gears)
 data(inter)
+params <- MizerParams(species_params_gears, inter)
+# With constant fishing effort for all gears for 20 time steps
+sim <- project(params, t_max = 20, effort = 0.5)
+getBiomass(sim)
+getBiomass(sim, min_w = 10, max_w = 1000)
 }
 

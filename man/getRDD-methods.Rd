@@ -14,12 +14,24 @@
   female. Default value is 0.5}
 }
 \value{
-  A numeric vector the length of the number of species
+  A numeric vector the length of the number of species.
 }
 \description{
   Calculates the density dependent recruitment (flux
   entering the smallest size class of each species) for
-  each species. The density independent recruitment after
-  it has been put through the density dependence function.
+  each species. The density dependent recruiment is the
+  density independent recruitment after it has been put
+  through the density dependent stock-recruitment
+  relationship function. This method is used by the
+  \code{project} method for performing simulations.
+}
+\examples{
+data(species_params_gears)
+data(inter)
+params <- MizerParams(species_params_gears, inter)
+# Project with constant fishing effort for all gears for 20 time steps
+sim <- project(params, t_max = 20, effort = 0.5)
+# Get the energy at a particular time step
+getRDD(params,sim@n[21,,],sim@n_pp[21,])
 }
 

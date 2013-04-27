@@ -4,19 +4,19 @@
 \alias{getN,MizerSim-method}
 \title{Calculate the total abundance in terms of numbers of species within a size range}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 
   \item{min_w}{minimum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_w}{maximum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{min_l}{minimum length of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_l}{maximum length of species to be used in the
-  calculation}
+  calculation.}
 }
 \value{
   An array containing the total numbers (time x species)
@@ -34,7 +34,9 @@
 data(species_params_gears)
 data(inter)
 params <- MizerParams(species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-n <- getN(sim, min_l = 10)
+# With constant fishing effort for all gears for 20 time steps
+sim <- project(params, t_max = 20, effort = 0.5)
+getN(sim)
+getN(sim, min_w = 10, max_w = 1000)
 }
 

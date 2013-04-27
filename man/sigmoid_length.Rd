@@ -5,15 +5,15 @@
   sigmoid_length(w, l25, l50, a, b)
 }
 \arguments{
-  \item{w}{the size of the individual}
+  \item{w}{the size of the individual.}
 
-  \item{l25}{the length which gives a selectivity of 25\%}
+  \item{l25}{the length which gives a selectivity of 25\%.}
 
-  \item{l50}{the length which gives a selectivity of 50\%}
+  \item{l50}{the length which gives a selectivity of 50\%.}
 
-  \item{a}{the multiplier of the length-weight function}
+  \item{a}{the multiplier of the length-weight function.}
 
-  \item{b}{the exponent of the length-weight function}
+  \item{b}{the exponent of the length-weight function.}
 }
 \description{
   A sigmoid shaped selectivity function. Based on two

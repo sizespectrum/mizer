@@ -4,7 +4,7 @@
 \alias{getCommunitySlope,MizerSim-method}
 \title{Calculate the slope of the community abundance}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 
   \item{species}{Numeric or character vector of species to
   include in the calculation.}
@@ -14,16 +14,16 @@
   numbers.}
 
   \item{min_w}{Minimum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_w}{Maximum weight of species to be used in the
-  calculation}
+  calculation.}
 
   \item{min_l}{Minimum length of species to be used in the
-  calculation}
+  calculation.}
 
   \item{max_l}{Maximum length of species to be used in the
-  calculation}
+  calculation.}
 }
 \value{
   A data frame with time step, slope, intercept and R2

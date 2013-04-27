@@ -4,7 +4,7 @@
 \alias{plotSpectra,MizerSim-method}
 \title{Plot the abundance spectra of each species and the background population}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 
   \item{time_range}{The time range (either a vector of
   values, a vector of min and max time, or a single value)
@@ -26,9 +26,10 @@
   After running a projection, the spectra of the abundance
   of each species and the background population can be
   plotted. The abundance is averaged over the specified
-  time range (a single value for the time range can be
-  used). The abundance can be in terms of numbers or
-  biomass, depending on the \code{biomass} argument.
+  time range (a single value for the time range can be used
+  to plot a single time step). The abundance can be in
+  terms of numbers or biomass, depending on the
+  \code{biomass} argument.
 }
 \examples{
 \dontrun{

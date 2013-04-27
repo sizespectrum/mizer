@@ -4,7 +4,7 @@
 \alias{getYieldGear,MizerSim-method}
 \title{Calculate the total yield per gear and species}
 \arguments{
-  \item{object}{An object of class \code{MizerSim}}
+  \item{object}{An object of class \code{MizerSim}.}
 }
 \value{
   An array containing the total yield (time x gear x
@@ -15,12 +15,14 @@
   simulation time step.
 }
 \examples{
-\dontrun{
 data(species_params_gears)
 data(inter)
 params <- MizerParams(species_params_gears, inter)
-sim <- project(params, effort=1, t_max=10)
-y <- getYieldGear(sim)
+# With constant fishing effort for all gears for 20 time steps
+sim <- project(params, t_max = 20, effort = 0.5)
+getYieldGear(sim)
 }
+\seealso{
+  \code{\link{getYield}}
 }
 
