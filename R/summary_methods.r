@@ -223,9 +223,10 @@ setMethod("summary", signature(object="MizerParams"),
 	# no species and names and wInf,  - not all these wMat, beta, sigma
 	# no gears, gear names catching what
 	cat("Species details:\n")
-	cat("\tSpecies\t\tw_inf\n")
-	for (i in 1:nrow(object@species_params))
-	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep="")
+	#cat("\tSpecies\t\tw_inf\n")
+#	for (i in 1:nrow(object@species_params))
+#	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep="")
+	print(object@species_params[,c("species","w_inf","w_mat","beta")])
 	cat("Fishing gear details:\n")
 	cat("\tGear\t\t\tTarget species\n")
 	for (i in 1:dim(object@catchability)[1]){
