@@ -50,7 +50,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# predKernal is predator x predator size x prey size
 	# So multiply 3rd dimension of predKernal by the prey abundance
 	# Then sum over 3rd dimension to get total eaten by each predator by predator size
-	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp],c(1,3),n_eff_prey,"*"),dims=2)
+	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*"),dims=2)
 	# Eating the background
 	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*"),dims=2)
 	return(phi_prey_species+phi_prey_background)
@@ -257,7 +257,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @param effort The effort of each fishing gear. Only needed if the object argument is of class \code{MizerParams}. See notes below. 
 #' @param time_range Subset the returned fishing mortalities by time. The time range is either a vector of values, a vector of min and max time, or a single value. Default is the whole time range. Only used if the \code{object} argument is of type \code{MizerSim}.
 #'
-#' @return An array. If the effort argument has a time dimension, the output array has four dimensions (time x gear x species x size). If the effort argument does not have a time dimension (i.e. it is a vector or a single numeric), the output array has three dimensions (gear x species x size).
+#' @return An array. If the effort argument has a time dimension, or a \code{MizerSim} is passed in, the output array has four dimensions (time x gear x species x size). If the effort argument does not have a time dimension (i.e. it is a vector or a single numeric), the output array has three dimensions (gear x species x size).
 #' @note Here: fishing mortality = catchability x selectivity x effort.
 #'
 #' The \code{effort} argument is only used if a \code{MizerParams} object is passed in. The \code{effort} argument can be a two dimensional array (time x gear), a vector of length equal to the number of gears (each gear has a different effort that is constant in time), or a single numeric value (each gear has the same effort that is constant in time). The order of gears in the \code{effort} argument must be the same the same as in the \code{MizerParams} object.
