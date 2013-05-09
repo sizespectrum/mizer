@@ -474,13 +474,13 @@ setGeneric('getEReproAndGrowth', function(object, n, n_pp, ...)
 #' @aliases getEReproAndGrowth,MizerParams,matrix,numeric-method
 setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'),
     function(object, n, n_pp){
-	f <- getFeedingLevel(object, n=n, n_pp=n_pp)
-	# assimilated intake
-	e <- sweep(f * object@intake_max,1,object@species_params$alpha,"*")
-	# Subtract basal metabolism and activity 
-	e <- e - object@std_metab - object@activity
-	e[e<0] <- 0 # Do not allow negative growth
-	return(e)
+        f <- getFeedingLevel(object, n=n, n_pp=n_pp)
+        # assimilated intake
+        e <- sweep(f * object@intake_max,1,object@species_params$alpha,"*")
+        # Subtract basal metabolism and activity 
+        e <- e - object@std_metab - object@activity
+        e[e<0] <- 0 # Do not allow negative growth
+        return(e)
 })
 
 # Energy left fot reproduction
