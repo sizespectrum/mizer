@@ -140,8 +140,8 @@ test_that("getFeedingLevel for MizerSim",{
     time_range <- 15:20
     expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(3))
     time_range <- 20
-    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(2))
-    expect_that(getFeedingLevel(sim, time_range=time_range), equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+    expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(3))
+    expect_that(getFeedingLevel(sim, time_range=time_range)[1,,], equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
 })
 
 test_that("getPredRate",{

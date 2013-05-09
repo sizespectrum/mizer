@@ -106,10 +106,14 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @rdname getFeedingLevel-methods
 #' @aliases getFeedingLevel,MizerSim,missing,missing-method
 setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing'),
-    function(object, time_range=dimnames(object@n)$time, .drop=TRUE, ...){
-	time_elements <- get_time_elements(object,time_range)
-	feed_time <- aaply(which(time_elements), 1, function(x){
-			feed <- getFeedingLevel(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+    function(object, time_range=dimnames(object@n)$time, .drop=FALSE, ...){
+        time_elements <- get_time_elements(object,time_range)
+        feed_time <- aaply(which(time_elements), 1, function(x){
+            # Necessary as we only want single time step but may only have 1 species which makes using drop impossible
+            n <- array(object@n[x,,],dim=dim(object@n)[2:3])
+            dimnames(n) <- dimnames(object@n)[2:3]
+			#feed <- getFeedingLevel(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+			feed <- getFeedingLevel(object@params, n=n, n_pp = object@n_pp[x,])
 			return(feed)}, .drop=.drop)
 	return(feed_time)
 })
@@ -208,7 +212,10 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing'),
 	function(object, time_range=dimnames(object@n)$time, .drop=TRUE, ...){
 		time_elements <- get_time_elements(object,time_range)
 		m2_time <- aaply(which(time_elements), 1, function(x){
-			m2 <- getM2(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+            n <- array(object@n[x,,],dim=dim(object@n)[2:3])
+            dimnames(n) <- dimnames(object@n)[2:3]
+			#m2 <- getM2(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
+			m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
 			return(m2)}, .drop=.drop)
 	return(m2_time)
 })

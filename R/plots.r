@@ -195,12 +195,12 @@ setGeneric('plotFeedingLevel', function(object, ...)
 #' }
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
-	feed_time <- getFeedingLevel(object, time_range=time_range, .drop=FALSE, ...)
-	feed <- apply(feed_time, c(2,3), mean)
-	plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
-	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
-	print(p)
-	return(p)
+        feed_time <- getFeedingLevel(object=object, time_range=time_range, .drop=FALSE, ...)
+        feed <- apply(feed_time, c(2,3), mean)
+        plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+        print(p)
+        return(p)
     })
 
 #' Plot M2 of each species by size 
