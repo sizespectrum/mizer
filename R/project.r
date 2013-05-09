@@ -124,7 +124,9 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 	S <- matrix(0,nrow=no_sp,ncol=no_w)
 
 	# initialise n and nPP
-	n <- sim@n[1,,]
+    # We want the first time step only but cannot use drop as there may only be a single species
+    n <- array(sim@n[1,,],dim=dim(sim@n)[2:3])
+    dimnames(n) <- dimnames(sim@n)[2:3]
 	n_pp <- sim@n_pp[1,]
 	for (i_time in 1:t_steps){
 	    # Take this out. No n or npp so fmort could be precalculated
@@ -137,9 +139,9 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 
 	    # Iterate species one time step forward:
 	    # See Ken's PDF
-	    A[,idx] <- sweep(-e_growth[,idx-1]*dt, 2, sim@params@dw[idx], "/")
-	    B[,idx] <- 1 + sweep(e_growth[,idx]*dt,2,sim@params@dw[idx],"/") + z[,idx]*dt
-	    S[,idx] <- n[,idx]
+	    A[,idx] <- sweep(-e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
+	    B[,idx] <- 1 + sweep(e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + z[,idx,drop=FALSE]*dt
+	    S[,idx] <- n[,idx,drop=FALSE]
 	    # Boundary condition upstream end (recruitment)
 	    B[w_min_idx_array_ref] <- 1+e_growth[w_min_idx_array_ref]*dt/sim@params@dw[sim@params@species_params$w_min_idx]+z[w_min_idx_array_ref]*dt
 	    # Update first size group of n

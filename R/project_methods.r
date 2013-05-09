@@ -331,7 +331,7 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 #' @rdname getFMortGear-methods
 #' @aliases getFMortGear,MizerSim,missing-method
 setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
-    function(object,effort, time_range=dimnames(object@effort)$time, .drop=TRUE, ...){
+    function(object,effort, time_range=dimnames(object@effort)$time, .drop=FALSE, ...){
 	time_elements <- get_time_elements(object,time_range, slot="effort")
 	f_mort_gear <- getFMortGear(object@params, object@effort, ...)
 	return(f_mort_gear[time_elements,,,,drop=.drop])

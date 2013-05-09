@@ -25,6 +25,7 @@
 #' getSSB(sim)
 setGeneric('getSSB', function(object, ...)
     standardGeneric('getSSB'))
+
 #' @rdname getSSB-methods
 #' @aliases getSSB,MizerSim-method
 setMethod('getSSB', signature(object='MizerSim'),
@@ -63,9 +64,9 @@ setGeneric('getBiomass', function(object, ...)
 #' @aliases getBiomass,MizerSim-method
 setMethod('getBiomass', signature(object='MizerSim'),
     function(object, ...){
-	size_range <- get_size_range_array(object@params,...)
-	biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
-	return(biomass)
+        size_range <- get_size_range_array(object@params,...)
+        biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
+        return(biomass)
     })
 
 #' Calculate the total abundance in terms of numbers of species within a size range
@@ -125,16 +126,17 @@ setMethod('getN', signature(object='MizerSim'),
 #' getYieldGear(sim)
 setGeneric('getYieldGear', function(object,...)
     standardGeneric('getYieldGear'))
+
 #' @rdname getYieldGear-methods
 #' @aliases getYieldGear,MizerSim-method
 setMethod('getYieldGear', signature(object='MizerSim'),
     function(object,...){
-	# biomass less the first time step
-	biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")[-1,,]
-	f_gear <- getFMortGear(object)
-	yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
-	return(yield_species_gear)
-	  })
+        # biomass less the first time step
+        biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")[-1,,,drop=FALSE]
+        f_gear <- getFMortGear(object)
+        yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
+        return(yield_species_gear)
+})
 
 #' Calculate the total yield of each species
 #'
@@ -173,18 +175,18 @@ setMethod('getYield', signature(object='MizerSim'),
 get_size_range_array <- function(params, min_w = min(params@w), max_w = max(params@w), min_l = NULL, max_l = NULL, ...){
     no_sp <- nrow(params@species_params)
     if(!is.null(min_l) | !is.null(max_l))
-	if (any(!c("a","b") %in% names(params@species_params)))
-	    stop("species_params slot must have columns 'a' and 'b' for length-weight conversion")
+        if (any(!c("a","b") %in% names(params@species_params)))
+            stop("species_params slot must have columns 'a' and 'b' for length-weight conversion")
     if(!is.null(min_l))
-	min_w <- params@species_params$a * min_l ^ params@species_params$b
+        min_w <- params@species_params$a * min_l ^ params@species_params$b
     else min_w <- rep(min_w,no_sp)
     if(!is.null(max_l))
-	max_w <- params@species_params$a * max_l ^ params@species_params$b
+        max_w <- params@species_params$a * max_l ^ params@species_params$b
     else max_w <- rep(max_w,no_sp)
     if (!all(min_w < max_w))
-	stop("min_w must be less than max_w")
-    min_n <- aaply(min_w, 1, function(x) params@w >= x)
-    max_n <- aaply(max_w, 1, function(x) params@w <= x)
+        stop("min_w must be less than max_w")
+    min_n <- aaply(min_w, 1, function(x) params@w >= x, .drop=FALSE)
+    max_n <- aaply(max_w, 1, function(x) params@w <= x, .drop=FALSE)
     size_n <- min_n & max_n
     # Add dimnames?
     dimnames(size_n) <- list(sp = params@species_params$species, w = signif(params@w,3)) 
@@ -230,7 +232,7 @@ setMethod("summary", signature(object="MizerParams"),
 	cat("Fishing gear details:\n")
 	cat("\tGear\t\t\tTarget species\n")
 	for (i in 1:dim(object@catchability)[1]){
-	    cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(params@catchability)$sp[params@catchability[i,]>0], "\n", sep=" ") 
+	    cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
 	}
 })
 
@@ -443,14 +445,14 @@ setGeneric('getCommunitySlope', function(object, ...)
 setMethod('getCommunitySlope', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), 
 	     biomass = TRUE, ...){
-	check_species(object,species)
-	size_range <- get_size_range_array(object@params,...)
-	total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,],c(1,3),sum)
-	# numbers or biomass?
-	if (biomass)
-	    total_n <- sweep(total_n,2,object@params@w,"*") 
-	total_n[total_n<=0] <- NA
-	slope <- adply(total_n,1,function(x,w){
+        check_species(object,species)
+        size_range <- get_size_range_array(object@params,...)
+        total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop=FALSE],c(1,3),sum)
+        # numbers or biomass?
+        if (biomass)
+            total_n <- sweep(total_n,2,object@params@w,"*") 
+        total_n[total_n<=0] <- NA
+        slope <- adply(total_n,1,function(x,w){
 			summary_fit <- summary(lm(log(x) ~ log(w)))
 			out_df <- data.frame(
 			    slope = summary_fit$coefficients[2,1],
