@@ -411,8 +411,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,data.frame,matrix-method
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
-    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, ...){
-	args <- list(...)
+    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, ...){
 	check_species_params_dataframe(object)
 	# Check essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # sigma 
 	# And set defaults for others
@@ -437,12 +436,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    object$catchability <- 1
 
 	no_sp <- nrow(object)
-
-	# if max_w not passed in by user , set from w_inf in data_fram
-	if ("max_w" %in% names(args))
-	    max_w <- args[["max_w"]]
-	else max_w <- max(object$w_inf)*1.1
-
 	# Make an empty object of the right dimensions
 	res <- MizerParams(no_sp, species_names=object$species, gear_names=unique(object$gear), max_w=max_w,...)
 
