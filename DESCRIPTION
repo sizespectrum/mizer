@@ -31,3 +31,4 @@ Collate:
     'summary_methods.r'
     'plots.r'
     'species_params-data.r'
+    'wrapper_functions.R'
