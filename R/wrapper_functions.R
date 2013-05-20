@@ -16,7 +16,8 @@
 #' selectivity is 0.25 and 0.5 respectively. Lengths are converted to weights using the default parameters a = 0.001 and b = 3.0.
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
-#' @param z0 The background mortality of the community. The default value is 1.0.
+#' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
+#' @param z0 The background mortality of the community. The default value is 0.2.
 #' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2009).
 #' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum.
 #' @param f0 The average feeding level of individuals who feed mainly on the resource. This value is to used to calculate the search rate parameter \code{ga,,a} (see the package Vignette). The default value is 0.7.
@@ -38,14 +39,14 @@
 #' @seealso \code{\link{MizerParams}}
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and individual efficiencies of size-structured communities, Proceedings of the Royal Society, 276, 109-114
 #' @examples
-#' params <- set_community_model(f0=0.3, z0=0.9, recruitment=1e7)
-#' sim <- project(params, effort = 0, t_max = 100)
+#' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+#' sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
 set_community_model <- function(max_w = 1e6,
                                 min_w = 1e-3,
-                                z0 = 1,
-                                recruitment = 1e7,
+                                z0 = 0.2,
+                                recruitment = 3e7,
                                 alpha = 0.2,
                                 h = 10,
                                 beta = 100,

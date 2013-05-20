@@ -1677,13 +1677,15 @@ and \code{z0} should be adjusted to get a reasonable spectrum.
 For example, a community can be set up as:
 
 <<label=set_up_community_model>>=
-comm_params <- set_community_model(z0 = 1.0, recruitment = 1e7, alpha = 0.2, f0 = 0.4)
+comm_params <- set_community_model(z0 = 0.2, recruitment = 3e7, alpha = 0.2, f0 = 0.7)
 @
 
-This can then be projected through time in the ususal way. For example, to project it forward without any fishing pressure:
+This can then be projected through time in the ususal way. It may be necessary to reduce \code{dt} (for example, to 0.1) to reduce any instabilities with the solver.
+
+For example, to project it forward without any fishing pressure:
 
 <<label=project_community_model>>=
-comm_sim <- project(comm_params, effort = 0)
+comm_sim <- project(comm_params, effort = 0, t_max = 50, dt = 0.1)
 @
 
 The resulting abundance spectra can be seen in Figure~\ref{fig:plotSpectra_community_example}

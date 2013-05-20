@@ -2,15 +2,15 @@
 \alias{set_community_model}
 \title{Sets up parameters for a community-type model}
 \usage{
-  set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 1,
-    recruitment = 1e+07, alpha = 0.2, h = 10, beta = 100,
-    sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
+  set_community_model(max_w = 1e+06, min_w = 0.001,
+    z0 = 0.2, recruitment = 3e+07, alpha = 0.2, h = 10,
+    beta = 100, sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
     lambda = 2 + q - n, f0 = 0.7, a = 0.001, b = 3,
     l25 = 10, l50 = 40, ...)
 }
 \arguments{
   \item{z0}{The background mortality of the community. The
-  default value is 1.0.}
+  default value is 0.2.}
 
   \item{alpha}{The assimilation efficiency of the
   community. The default value is 0.2 (from Andersen et.
@@ -102,11 +102,15 @@
 
   The resulting \code{MizerParams} object can be projected
   forward using \code{project()} like any other
-  \code{MizerParams} object.
+  \code{MizerParams} object. When projecting the community
+  model it may be necessary to reduce \code{dt} to 0.1 to
+  avoid any instabilities with the solver. You can check
+  this by plotting the biomass or abundance through time
+  after the projection.
 }
 \examples{
-params <- set_community_model(f0=0.3, z0=0.9, recruitment=1e7)
-sim <- project(params, effort = 0, t_max = 100)
+params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 plotBiomass(sim)
 plotSpectra(sim)
 }
