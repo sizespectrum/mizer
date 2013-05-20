@@ -10,14 +10,14 @@
 #' Standard metabolism has been turned off (the parameter \code{ks} is set to 0).
 #' Consequently, the growth rate is now determined solely by the assimilated food (see the package Vignette for more details).
 #'
-#' The function has many arguments, all of which have default values. The main arguments that the users should be concerned with are \code{z0}, \code{recruitment}, \code{f0} and \code{alpha} as these determine the average growth rate of the community.
+#' The function has many arguments, all of which have default values. The main arguments that the users should be concerned with are \code{z0}, \code{recruitment}, \code{alpha} and \code{f0} as these determine the average growth rate of the community.
 #'
 #' Fishing selectivity is modelled as a sigmoid function with two parameters: \code{l25} and \code{l50} which determine the lengths at which
 #' selectivity is 0.25 and 0.5 respectively. Lengths are converted to weights using the default parameters a = 0.001 and b = 3.0.
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' @param z0 The background mortality of the community. The default value is 1.0.
-#' @param alpha The assimilation efficiency of the community. The default valye is 0.2.
+#' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2009).
 #' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum.
 #' @param f0 The average feeding level of individuals who feed mainly on the resource. This value is to used to calculate the search rate parameter \code{ga,,a} (see the package Vignette). The default value is 0.7.
 #' @param h The maximum food intake rate. The default value is 10.
@@ -36,9 +36,10 @@
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
+#' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and individual efficiencies of size-structured communities, Proceedings of the Royal Society, 276, 109-114
 #' @examples
-#' params <- set_community_model(alpha = 0.1, f0=0.4, z0=0.8, recruitment=1e7)
-#' sim <- project(params, effort = 0, t_max = 200)
+#' params <- set_community_model(f0=0.3, z0=0.9, recruitment=1e7)
+#' sim <- project(params, effort = 0, t_max = 100)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
 set_community_model <- function(max_w = 1e6,

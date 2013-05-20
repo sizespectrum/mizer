@@ -379,14 +379,28 @@ where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic
 The trait-based size spectrum model can be derived as a simplification of the general model outline above. The idea is that all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species.  Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$.  For the trait-based model the number of species is not important. For applications of the trait-based model see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}.
 
 \subsection{Community model}
-The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}. The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.  In this model only one ``species'' is resolved. Reproduction is not resolved, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant. Growth is therefore given by the simpler equation:
+\label{sec:community_model_intro}
+The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}. The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.  In this model only one ``species'' is resolved. Reproduction is not resolved, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant.
+Standard metabolism is turned off by setting $k_{s}$ to 0.
+Growth is therefore given by the simpler equation:
+\begin{equation}
+    \label{eq:comm_growth}
+    g(w) = \alpha f_(w) h w^n
+\end{equation}
+
+where $f_(w) h w^n$ is the consumed food and $\alpha$ is the efficiency with which the consumed food is transformed into growth.
+The growth rate can also be written as:
+
 \begin{equation}
   \label{eq:2}
   g(w) = \overline{\epsilon}_I E_a
 \end{equation}
 where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model, see \citet{andersen_trophic_2009} or \cite{zhang_trait_2013}.
 
+Setting up a community model is explored in Section~\ref{sec:community_example}.
+
 \section{Parameters}
+\label{sec:parameters}
 The parameters for the model have been derived on the basis of meta-analyses of data on marine fish (Table \ref{tab:parameters}). Two parameters deserving special mention in the following is the initial and critical feeding levels which are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
 
 The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$:
@@ -1627,6 +1641,61 @@ plot(sim)
 %\caption{Example output from using the summary \code{plot()} method.}
 %\label{fig:plot_example}
 %\end{figure}
+
+\section{Setting up and running a community type model}
+\label{sec:community_example}
+
+It is possible to use \pkg{Mizer} to implement a simple community model as described in
+Section~\ref{sec:community_model_intro}.
+By using the wrapper function \code{set\_community\_model()} it is possible to create 
+a \class{MizerParams} object that sets up a community model.
+This can be projected through time in the ususal way using the \code{project()} method.
+The community model has the following features that distinguish it from the food web models described earlier:
+\begin{itemize}
+    \item There is only one 'species' in the community.
+    \item The recruitment function has been set to give constant recruitment.
+    \item The \code{psi} slot is set to 0 so that no energy is used for reproduction.
+    \item Standard metabolism has been turned off (the parameter \code{ks} has been set to 0).
+    \item The growth rate is a product of the ingested food and the assimilation efficiency.
+    \item The resource spectrum extends only up to the start of the community spectrum.
+    \item The \code{gamma} species parameter is calculated using equation~\ref{eq:gamma} and the argument \code{f0}.
+\end{itemize}
+
+The arguments to \code{set\_community\_model()} are described in the help page. Many
+of the arguments are the same as those for the \class{MizerParams} constructor.
+The two parameters which are new are \code{f0} and \code{recruitment}.
+\code{f0} is the initial feeding level (described in Section~\ref{sec:parameters}) and used to calculate $\gamma$.
+\code{recruitment} is the level of constant recruitment.
+
+Although \code{set\_community\_model()} has many parameters, the dynamics of the community can be broadly controlled through the parameters
+\code{recruitment}, \code{f0}, \code{alpha} and \code{z0}. 
+As a guideline, \code{recruitment} should be set so that the community spectrum continues the background spectrum
+and \code{z0} should be adjusted to get a reasonable spectrum.
+
+%SOMETHING ON CYCLIC BEHAVIOUR?
+
+For example, a community can be set up as:
+
+<<label=set_up_community_model>>=
+comm_params <- set_community_model(z0 = 1.0, recruitment = 1e7, alpha = 0.2, f0 = 0.4)
+@
+
+This can then be projected through time in the ususal way. For example, to project it forward without any fishing pressure:
+
+<<label=project_community_model>>=
+comm_sim <- project(comm_params, effort = 0)
+@
+
+The resulting abundance spectra can be seen in Figure~\ref{fig:plotSpectra_community_example}
+
+\begin{figure}
+<<label=plotSpectra_community_model, fig=TRUE, echo=FALSE>>=
+p <- plotSpectra(comm_sim, biomass=FALSE)
+print(p)
+@
+    \caption{An example background and community abundance spectra of a simple community model created using the \code{set\_community\_model()} function.}
+\label{fig:plotSpectra_community_example}
+\end{figure}
 
 
 \section{A detailed example using the North Sea}

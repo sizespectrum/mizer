@@ -13,10 +13,13 @@
   default value is 1.0.}
 
   \item{alpha}{The assimilation efficiency of the
-  community. The default valye is 0.2.}
+  community. The default value is 0.2 (from Andersen et.
+  al., 2009).}
 
   \item{recruitment}{The constant recruitment in the
-  smallest size class of the community spectrum.}
+  smallest size class of the community spectrum. This
+  should be set so that the community spectrum continues
+  the background spectrum.}
 
   \item{f0}{The average feeding level of individuals who
   feed mainly on the resource. This value is to used to
@@ -64,6 +67,9 @@
   \item{min_w}{The minimum size of the community. The
   default value is 1e-3.}
 }
+\value{
+  An object of type \code{MizerParams}
+}
 \description{
   This functions creates a \code{MizerParams} object so
   that community-type models can be easily set up and run.
@@ -85,7 +91,7 @@
   The function has many arguments, all of which have
   default values. The main arguments that the users should
   be concerned with are \code{z0}, \code{recruitment},
-  \code{f0} and \code{alpha} as these determine the average
+  \code{alpha} and \code{f0} as these determine the average
   growth rate of the community.
 
   Fishing selectivity is modelled as a sigmoid function
@@ -93,5 +99,24 @@
   determine the lengths at which selectivity is 0.25 and
   0.5 respectively. Lengths are converted to weights using
   the default parameters a = 0.001 and b = 3.0.
+
+  The resulting \code{MizerParams} object can be projected
+  forward using \code{project()} like any other
+  \code{MizerParams} object.
+}
+\examples{
+params <- set_community_model(f0=0.3, z0=0.9, recruitment=1e7)
+sim <- project(params, effort = 0, t_max = 100)
+plotBiomass(sim)
+plotSpectra(sim)
+}
+\references{
+  K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic
+  and individual efficiencies of size-structured
+  communities, Proceedings of the Royal Society, 276,
+  109-114
+}
+\seealso{
+  \code{\link{MizerParams}}
 }
 
