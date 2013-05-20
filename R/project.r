@@ -184,8 +184,6 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 get_initial_n<- function(params, n0_mult = 1e10, slope0 = -2/3 - 0.5){
     if (!is(params,"MizerParams"))
 	stop("params argument must of type MizerParams")
-#    if (slope0 > 0)
-#	stop("slope0 must be less than or equal to 0")
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
 
