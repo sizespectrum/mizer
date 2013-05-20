@@ -20,12 +20,12 @@
   argument is of type \code{MizerSim}.}
 }
 \value{
-  An array. If the effort argument has a time dimension,
-  the output array has four dimensions (time x gear x
-  species x size). If the effort argument does not have a
-  time dimension (i.e. it is a vector or a single numeric),
-  the output array has three dimensions (gear x species x
-  size).
+  An array. If the effort argument has a time dimension, or
+  a \code{MizerSim} is passed in, the output array has four
+  dimensions (time x gear x species x size). If the effort
+  argument does not have a time dimension (i.e. it is a
+  vector or a single numeric), the output array has three
+  dimensions (gear x species x size).
 }
 \description{
   Calculates the fishing mortality by gear, species and

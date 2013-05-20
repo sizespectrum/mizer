@@ -13,7 +13,7 @@
 
   \item{min_w}{Minimum weight to be plotted (useful for
   truncating the background spectrum). Default value is a
-  tenth of the minimum size value of the community.}
+  hundredth of the minimum size value of the community.}
 
   \item{biomass}{A boolean value. Should the biomass
   spectrum (TRUE) be plotted or the abundance in numbers
