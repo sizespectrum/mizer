@@ -40,6 +40,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 	b <- getBiomass(object, ...)
 	names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
 	bm <- melt(b)
+    # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
+    bm$Species <- as.character(bm$Species)
 	p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
 	print(p)
 	return(p)
@@ -123,7 +125,7 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}.
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
-#' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a tenth of the minimum size value of the community. 
+#' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a hundredth of the minimum size value of the community. 
 #' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted or the abundance in numbers (FALSE). Default is TRUE.
 #'
 #' @return A ggplot2 object
@@ -146,7 +148,7 @@ setGeneric('plotSpectra', function(object, ...)
 #' plotSpectra(sim, time_range = 10:20, biomass = FALSE)
 #' }
 setMethod('plotSpectra', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/10, biomass = TRUE, ...){
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
 	spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
 	background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
