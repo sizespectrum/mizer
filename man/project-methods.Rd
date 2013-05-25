@@ -18,7 +18,7 @@
   notes below.}
 
   \item{dt}{Time step of the solver. The default value is
-  1.}
+  0.1.}
 
   \item{t_save}{The frequency with which the output is
   stored. The default value is 1.}

@@ -2,8 +2,8 @@
 \alias{get_initial_n}
 \title{Calculate initial population abundances for the community populations}
 \usage{
-  get_initial_n(params, n0_mult = 1e+10,
-    slope0 = -2/3 - 0.5)
+  get_initial_n(params, n0_mult = 1e+10, a = 0.35,
+    slope = -2/3 - 0.5)
 }
 \arguments{
   \item{params}{The model parameters. An object of type

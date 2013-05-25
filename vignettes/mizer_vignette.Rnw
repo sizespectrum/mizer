@@ -399,8 +399,13 @@ where $\overline{\epsilon}_I$ is the average growth efficiency which can be deri
 
 Setting up a community model is explored in Section~\ref{sec:community_example}.
 
+
 \section{Parameters}
 \label{sec:parameters}
+%DOES THIS SECTION ONLY APPLY TO COMMUNITY AND TRAIT BASED MODELS?
+%IN NS MODEL GAMMA IS SET HOW?
+%CAN ADD TO MIZERPARAMS CONSTRUCTOR OTHERWISE
+
 The parameters for the model have been derived on the basis of meta-analyses of data on marine fish (Table \ref{tab:parameters}). Two parameters deserving special mention in the following is the initial and critical feeding levels which are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
 
 The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$:

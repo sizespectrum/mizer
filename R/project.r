@@ -16,7 +16,7 @@
 #' @param object A \code{MizerParams} object
 #' @param effort The effort of each fishing gear through time. See notes below. 
 #' @param t_max The maximum time the projection runs for params. The default value is 100. However, this argument is not needed if an array is used for the \code{effort} argument, in which case this argument is ignored. See notes below.
-#' @param dt Time step of the solver. The default value is 1.
+#' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default value is 1.
 #' @param initial_n The initial populations of the species. See the notes below.
 #' @param initial_n_pp The initial population of the background spectrum. It should be a numeric vector of the same length as the \code{w_full} slot of the \code{MizerParams} argument. By default the \code{cc_pp} slot of the \code{\link{MizerParams}} argument is used.
@@ -71,7 +71,7 @@ setMethod('project', signature(object='MizerParams', effort='missing'),
 #' @rdname project-methods
 #' @aliases project,MizerParams,numeric-method
 setMethod('project', signature(object='MizerParams', effort='numeric'),
-    function(object, effort,  t_max = 100, dt = 1, ...){
+    function(object, effort,  t_max = 100, dt = 0.1, ...){
 	if (!all.equal(t_max %% dt, 0))
 	    stop("t_max must be divisible by dt with no remainder")
 	no_gears <- dim(object@catchability)[1]
@@ -86,7 +86,7 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 #' @rdname project-methods
 #' @aliases project,MizerParams,array-method
 setMethod('project', signature(object='MizerParams', effort='array'),
-    function(object, effort, t_save=1, dt=1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
+    function(object, effort, t_save=1, dt=0.1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
 	validObject(object)
 	#args <- list(...)
 	# Use the effort array to pull out time info
@@ -181,18 +181,27 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 #' data(species_params_gears)
 #' params <- MizerParams(species_params_gears)
 #' init_n <- get_initial_n(params)
-get_initial_n<- function(params, n0_mult = 1e10, slope0 = -2/3 - 0.5){
+get_initial_n<- function(params, n0_mult = 1e10, a = 0.35, slope=-2/3-0.5){
     if (!is(params,"MizerParams"))
-	stop("params argument must of type MizerParams")
+        stop("params argument must of type MizerParams")
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
-
+    # Where does this come from?
     n0 <- params@species_params$w_inf^(0.7-3+0.5+1)*n0_mult # From original NS model. Ask Ken!
     initial_n <- array(NA, dim=c(no_sp,no_w))
     dimnames(initial_n) <- dimnames(params@intake_max)
+    # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
+    # Reverse calc n and q from intake_max and search_vol slots (could add get_n as method)
+    n <- (log(params@intake_max[,1] / params@species_params$h) / log(params@w[1]))[1]
+    q <- (log(params@search_vol[,1] / params@species_params$gamma) / log(params@w[1]))[1]
+    # Proposed
+    #initial_n[] <- unlist(tapply(params@w,1:no_w,function(wx,n0,w_inf,a,n,q)
+    #    n0 * w_inf^(2*n-q-2+a) * wx^(-n-a),
+    #    n0=n0, w_inf=params@species_params$w_inf, a=a, n=n, q=q))
+    # Original
     initial_n[] <- unlist(tapply(params@w,1:no_w,function(wx,n0,w0,slope0)
-	n0 * (wx/w0)^slope0, n0=n0, w0=min(params@w), slope0=slope0))
-    # set densities at w > w_inf to 0
+        n0 * (wx/w0)^slope0, n0=n0, w0=min(params@w), slope0=slope0))
+     #set densities at w > w_inf to 0
     initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
     # Also any densities at w < w_min set to 0
     initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_min)w_min>wx, w_min=params@species_params$w_min))] <- 0    
