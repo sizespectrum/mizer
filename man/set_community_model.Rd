@@ -3,14 +3,14 @@
 \title{Sets up parameters for a community-type model}
 \usage{
   set_community_model(max_w = 1e+06, min_w = 0.001,
-    z0 = 0.2, recruitment = 3e+07, alpha = 0.2, h = 10,
+    z0 = 0.1, recruitment = 4e+07, alpha = 0.2, h = 10,
     beta = 100, sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
-    lambda = 2 + q - n, f0 = 0.7, a = 0.001, b = 3,
+    lambda = 2 + q - n, f0 = 0.7, a = 0.01, b = 3,
     l25 = 10, l50 = 40, ...)
 }
 \arguments{
   \item{z0}{The background mortality of the community. The
-  default value is 0.2.}
+  default value is 0.1.}
 
   \item{alpha}{The assimilation efficiency of the
   community. The default value is 0.2 (from Andersen et.
@@ -48,7 +48,7 @@
   The default value is 2 + q - n.}
 
   \item{a}{The length-weight coefficient. The default value
-  is 0.001.}
+  is 0.01.}
 
   \item{b}{The length-weight exponent. The default value is
   3.0.}

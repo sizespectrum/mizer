@@ -17,7 +17,7 @@
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
-#' @param z0 The background mortality of the community. The default value is 0.2.
+#' @param z0 The background mortality of the community. The default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2009).
 #' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum.
 #' @param f0 The average feeding level of individuals who feed mainly on the resource. This value is to used to calculate the search rate parameter \code{ga,,a} (see the package Vignette). The default value is 0.7.
@@ -28,7 +28,7 @@
 #' @param n The scaling of the intake. The default value is 2/3.
 #' @param kappa The carrying capacity of the background spectrum. The default value is 1000.
 #' @param lambda The exponent of the background spectrum. The default value is 2 + q - n.
-#' @param a The length-weight coefficient. The default value is 0.001.
+#' @param a The length-weight coefficient. The default value is 0.01.
 #' @param b The length-weight exponent. The default value is 3.0.
 #' @param l25 The size at which fishing selectivity is 25%. The default value is 10.
 #' @param l50 The size at which fishing selectivity is 50%. The default value is 40.
@@ -45,8 +45,8 @@
 #' plotSpectra(sim)
 set_community_model <- function(max_w = 1e6,
                                 min_w = 1e-3,
-                                z0 = 0.2,
-                                recruitment = 3e7,
+                                z0 = 0.1,
+                                recruitment = 4e7,
                                 alpha = 0.2,
                                 h = 10,
                                 beta = 100,
@@ -56,7 +56,7 @@ set_community_model <- function(max_w = 1e6,
                                 kappa = 1000,
                                 lambda = 2+q-n,
                                 f0 = 0.7,
-                                a = 0.001, b = 3.0, l25 = 10, l50 = 40,
+                                a = 0.01, b = 3.0, l25 = 10, l50 = 40,
                                 ...
                                 ){
     w_inf <- max_w * 0.9

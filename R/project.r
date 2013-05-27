@@ -181,7 +181,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 #' data(species_params_gears)
 #' params <- MizerParams(species_params_gears)
 #' init_n <- get_initial_n(params)
-get_initial_n<- function(params, n0_mult = 1e10, a = 0.35, slope=-2/3-0.5){
+get_initial_n<- function(params, n0_mult = 1e10, a = 0.35, slope0=-2/3-0.5){
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")
     no_sp <- nrow(params@species_params)
