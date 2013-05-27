@@ -6,17 +6,20 @@
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
-  \item{min_w}{minimum weight of species to be used in the
+  \item{min_w}{Minimum weight of species to be used in the
   calculation.}
 
-  \item{max_w}{maximum weight of species to be used in the
+  \item{max_w}{Maximum weight of species to be used in the
   calculation.}
 
-  \item{min_l}{minimum length of species to be used in the
+  \item{min_l}{Minimum length of species to be used in the
   calculation.}
 
-  \item{max_l}{maximum length of species to be used in the
+  \item{max_l}{Maximum length of species to be used in the
   calculation.}
+
+  \item{print_it}{Display the plot, or just return the
+  ggplot2 object}
 }
 \value{
   A ggplot2 object

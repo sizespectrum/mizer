@@ -5,6 +5,9 @@
 \title{Plot the total yield of each species through time}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
+
+  \item{print_it}{Display the plot, or just return the
+  ggplot2 object}
 }
 \value{
   A ggplot2 object

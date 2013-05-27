@@ -10,6 +10,9 @@
   values, a vector of min and max time, or a single value)
   to average the abundances over. Default is the final time
   step.}
+
+  \item{print_it}{Display the plot, or just return the
+  ggplot2 object}
 }
 \value{
   A ggplot2 object

@@ -12,10 +12,11 @@
 #' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getBiomass}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param min_w minimum weight of species to be used in the calculation.
-#' @param max_w maximum weight of species to be used in the calculation.
-#' @param min_l minimum length of species to be used in the calculation.
-#' @param max_l maximum length of species to be used in the calculation.
+#' @param min_w Minimum weight of species to be used in the calculation.
+#' @param max_w Maximum weight of species to be used in the calculation.
+#' @param min_l Minimum length of species to be used in the calculation.
+#' @param max_l Maximum length of species to be used in the calculation.
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -36,14 +37,15 @@ setGeneric('plotBiomass', function(object, ...)
 #' @rdname plotBiomass-methods
 #' @aliases plotBiomass,MizerSim-method
 setMethod('plotBiomass', signature(object='MizerSim'),
-    function(object, ...){
+    function(object, print_it=TRUE,...){
 	b <- getBiomass(object, ...)
 	names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
 	bm <- melt(b)
     # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
     bm$Species <- as.character(bm$Species)
 	p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -54,6 +56,7 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getYield}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -73,12 +76,13 @@ setGeneric('plotYield', function(object, ...)
 #' @rdname plotYield-methods
 #' @aliases plotYield,MizerSim-method
 setMethod('plotYield', signature(object='MizerSim'),
-    function(object, ...){
+    function(object, print_it = TRUE, ...){
 	y <- getYield(object, ...)
 	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
 	ym <- melt(y)
 	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -89,6 +93,7 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getYieldGear}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -108,12 +113,13 @@ setGeneric('plotYieldGear', function(object, ...)
 #' @rdname plotYieldGear-methods
 #' @aliases plotYieldGear,MizerSim-method
 setMethod('plotYieldGear', signature(object='MizerSim'),
-    function(object, ...){
+    function(object, print_it=TRUE, ...){
 	y <- getYieldGear(object, ...)
 	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
 	ym <- melt(y)
 	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=gear)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -127,6 +133,7 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
 #' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a hundredth of the minimum size value of the community. 
 #' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted or the abundance in numbers (FALSE). Default is TRUE.
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -148,7 +155,7 @@ setGeneric('plotSpectra', function(object, ...)
 #' plotSpectra(sim, time_range = 10:20, biomass = FALSE)
 #' }
 setMethod('plotSpectra', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, ...){
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...){
 	time_elements <- get_time_elements(object,time_range)
 	spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
 	background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
@@ -164,7 +171,8 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 	# lop off 0s in background and apply min_w
 	plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = y_axis_name, trans="log10")
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -176,6 +184,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}.
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -196,12 +205,13 @@ setGeneric('plotFeedingLevel', function(object, ...)
 #' plotFeedingLevel(sim, time_range = 10:20)
 #' }
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
         feed_time <- getFeedingLevel(object=object, time_range=time_range, .drop=FALSE, ...)
         feed <- apply(feed_time, c(2,3), mean)
         plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
         p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
-        print(p)
+        if (print_it)
+            print(p)
         return(p)
     })
 
@@ -212,6 +222,7 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -232,12 +243,13 @@ setGeneric('plotM2', function(object, ...)
 #' plotM2(sim, time_range = 10:20)
 #' }
 setMethod('plotM2', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	m2_time <- getM2(object, time_range=time_range, .drop=FALSE, ...)
 	m2 <- apply(m2_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(m2), Species = dimnames(m2)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "M2", lim=c(0,max(plot_dat$value)))
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -248,6 +260,7 @@ setMethod('plotM2', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}.
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
@@ -268,12 +281,13 @@ setGeneric('plotFMort', function(object, ...)
 #' plotFMort(sim, time_range = 10:20)
 #' }
 setMethod('plotFMort', signature(object='MizerSim'),
-    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), ...){
+    function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	f_time <- getFMort(object, time_range=time_range, .drop=FALSE, ...)
 	f <- apply(f_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(f), Species = dimnames(f)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
-	print(p)
+    if (print_it)
+        print(p)
 	return(p)
     })
 
@@ -306,11 +320,11 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' }
 setMethod("plot", signature(x="MizerSim", y="missing"),
     function(x, ...){
-	p1 <- plotFeedingLevel(x,...)
-	p2 <- plotSpectra(x,...)
-	p3 <- plotBiomass(x,...)
-	p4 <- plotM2(x,...)
-	p5 <- plotFMort(x,...)
+	p1 <- plotFeedingLevel(x,print_it = FALSE,...)
+	p2 <- plotSpectra(x,print_it = FALSE,...)
+	p3 <- plotBiomass(x,print_it = FALSE,...)
+	p4 <- plotM2(x,print_it = FALSE,...)
+	p5 <- plotFMort(x,print_it = FALSE,...)
 	grid.newpage()
 	glayout <- grid.layout(3,2) # widths and heights arguments
 	vp <- viewport(layout = glayout)
