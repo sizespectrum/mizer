@@ -6,11 +6,6 @@
 % In R, load the library then
 % vignette("mizer_vignette") to open the vignette
 
-% TODO
-% Add units to the parameter table
-% Improve all examples
-% Add section on how to choose MizerParams argument values
-
 
 % For checking the latex works OK
 % setwd("c:/Projects/sizeBMR/mizer/vignettes")
@@ -441,62 +436,61 @@ However, it is probably easier to learn the basics of \pkg{mizer} through exampl
 %------------------------------------------------------
 \section{Implementing a community-type model}
 
-A size-structured community model is the simplest type of model that can be created with \pkg{mizer}. In this section we descibe how a community model can be set up and projected through time. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer}. We try to avoid too many details here. Further information on many of the functions and details of the package can be found later on.
+A size-structured community model is the simplest type of model that can be created with \pkg{mizer}. In this section we descibe how a community model can be set up and projected through time. We then use them to illustrate the idea of a 'tophic cascade'. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer} and some of the main classes and methods, but avoids too many details. Further information and more details of the package can be found later on.
 
- The concept of the community model was introduced in Section \ref{sec:community_model_intro}. There are several key concepts behind the community model that differentiate it from the other model types. Only one 'species' is resolved, i.e. one 'species' is used to represent the whole community. Recruitment to the smallest size in the community spectrum is constant, i.e. there is no relationship between species abundance and recruitment. The proportion of energy invested in reproduction is set to 0 and standard metabolism has been turned off. This means that the growth rate of species is determined solely by the assimilated food. The resource spectrum only extends to the start of the community spectrum. 
+ The concept of the community model was introduced in Section \ref{sec:community_model_intro}. There are several key features of the community model that differentiate it from the other model types. Only one 'species' is resolved, i.e. one 'species' is used to represent the whole community. Recruitment to the smallest size in the community spectrum is constant, i.e. there is no relationship between species abundance and recruitment. The proportion of energy invested in reproduction is set to 0 and standard metabolism has been turned off. This means that the growth rate of species is determined solely by the assimilated food. The resource spectrum only extends to the start of the community spectrum. 
 
 As mentioned above, the first stage in using \pkg{mizer} is to create an object of class \class{MizerParams}. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the harvesting selectivity functions and the parameters of the resource spectrum. The class is fully described in Section~\ref{sec:MizerParams}.
 
-For convenience, a wrapper function, \code{set\_community\_model()}, has been provided that creates a \class{MizerParams} object for specifially modelling a community model. The documentation for the function can be seen by entering:
+To avoid having to make a \class{MizerParams} object directly, a wrapper function, \code{set\_community\_model()}, has been provided that conveniently creates a \class{MizerParams} object specifially for a community model. The documentation for the function can be seen by entering:
 
 <<label=help_set_community_model, eval=FALSE>>=
 ?set_community_model
 @
 
-The function can take many parameters which are passed on to the \class{MizerParams} constructor. We can ignore most of these parameters for the moment as they almost all come with default values. Full details of those arguments can be seen in Section~\ref{sec:MizerParams}.
-The parameters that you should pay attention to are: $z0$ (the level of background mortality), $alpha$ (the assimilation efficiency of the community), $f0$(the average feeding level of the community which is used to calculate $\gamma$ in equation~\ref{eq:gamma}) and $recruitment$ (the level of constant recruitment).
+As can be seen in the help page, the function can take many arguments. These are passed on to the \class{MizerParams} constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen in Section~\ref{sec:MizerParams}.
 
-Although default values for these parameters are provided, the user is encouraged to explore how changing the values affects the simulated community. For example, the default value of $z0$ is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
+The parameters that you should pay attention to are: $z0$ (the level of background mortality), $alpha$ (the assimilation efficiency of the community), $f0$ (the average feeding level of the community which is used to calculate $\gamma$ in equation~\ref{eq:gamma}) and $recruitment$ (the level of constant recruitment).
+
+Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of $z0$ is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
 The value of the recruitment should be set so that community spectrum is a continuation of the background spectrum. This can be done with trial error.
 A reasonable value for \code{alpha} is 0.2 \citep{andersen_life-history_2008}. 
 
-The \code{set\_community\_model()} function can be called like this (any parameter that is not passed in is set to the default value):
+The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value:
 <<label=demo_comm_model_params>>=
-params <- set_community_model(z = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
 @
 
-Calling the function creates and returns an object is of type \class{MizerParams}. We can check this using the \code{class()} function.
+Calling the function creates and returns an object of type \class{MizerParams}. We can check this using the \code{class()} function.
 <<label=class_comm_params>>=
 class(params)
 @
 
-If you reading through this for the first time, it is likely that you have no idea what an \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is made up of 'slots'. Slots are essentially containers that can store different types of information. These slots can be seen by running:
+If you reading this for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by running:
 
 <<label=slots_MP>>=
 slotNames(params)
 @
 
-As you can see, the \code{params} object is made up of lots of slots. These slots are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams}. These slots are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
 
 <<label=demo_slot_accessor, results=hide>>=
 params@w
 @
 
-Don't worry about this for the moment. I'm only telling you for your own interest.
-
-Rather than picking through the slots to find out what is in a \class{MizerParams} object, a summary of the object can be seen by calling the \code{summary()} method on it:
+Don't worry about this for the moment. It is unlikely that you will need to access the slots directly at this stage. Rather than picking through the slots to find out what is in a particular \class{MizerParams} object, a summary of the object can be seen by calling the \code{summary()} method on it:
 
 <<label=summary_comm_params>>=
 summary(params)
 @
-% Set Wmat to 0 afterwards?
-You can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
-The community is made up of one species which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
+
+In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
+Additionally, the community is made up of one species which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The $w\_mat$ parameter has been set to NA as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
 
 We now have a \class{MizerParams} object that contains all the information we need about the community. We can use this to perform a simulation and project the community through time.
-In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for more detail and it is described fully in Section~\ref{sec:projection}.
-We will ignore the details for the moment and use \code{project()} to run some simple projections.
-The parameters we need to be concerned with are $effort$, which determines the fishing effort and therefore fishing mortality through time, and $t\_max$ which is the length of the simulation.
+In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for \code{project()} for more details and it is described fully in Section~\ref{sec:projection}.
+We will ignore the details for the moment and just use \code{project()} to run some simple projections.
+The arguments for \code{project()} that we need to be concerned with are $effort$, which determines the fishing effort through time and therefore fishing mortality through time, and $t\_max$, which is the length of the simulation.
 Initial population abundances are set automatically by the \code{get\_initial\_n()} function. It is possible to set your own initial abundances but we will not do this here.
 
 To run a projection for 50 time steps, with no fishing effort (i.e. we want to model an unexploited community) we run:
@@ -504,27 +498,62 @@ To run a projection for 50 time steps, with no fishing effort (i.e. we want to m
 sim <- project(params, t_max=50, effort = 0)
 @
 
-The resulting object is of type \class{MizerSim}. This class the results of the simulation, as well as the model parameters. It is explained in detail in Section~\ref{sec:projection}.
-After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\ref{sec:exploring}.
+The resulting object is of type \class{MizerSim}. This class holds the results of the simulation, including the community and background resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\ref{sec:projection}.
 
-To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\ref{fig:plot_comm_demo}).
+After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\ref{sec:exploring}. To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\ref{fig:plot_comm_demo}).
+
+<<plot_comm_sim, eval=FALSE>>=
+plot(sim)
+@
 
 \begin{figure}
 <<label=print_plot_comm_sim, fig=TRUE, echo=FALSE>>=
-plot(sim)
+<<plot_comm_sim>>
 @
 \caption{Example plot of the community model}
 \label{fig:plot_comm_demo}
 \end{figure}
 
-Here, of course, fishing mortality is 0 because we set the $effort$ argument to 0 when running the simulation.
+In Figure~\ref{fig:plot_comm_demo} there are several things going on that are worth talking about. Looking at how the total biomass of the community changes with time, you can see that the biomass reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
+Fishing mortality is 0 because we set the $effort$ argument to 0 when running the simulation.
+The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
+The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the $f0$ and $alpha$ arguments passed to the \code{set\_community\_model()} function.
+The background resource and community sprectra are shown in the bottom panel of the plot (the plotted background resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
+You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the $recruitment$ argument passed to \code{set\_community\_model()}).
+
+Note the 'spike' in biomass at the largest end of the community spectrum. This is because the size-based model can be broadly described as 'big things eating little things'. If this is true, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality, $z0$. The mortality from predation is almost 0. This is difficult to see in the plot due to the $M2$ being so high for the smaller individuals. Consequently, there is a spike in abundance of the largest individuals.
+%This leads to a corresponding lower decrease in predation mortality on the prey of the largest individuals, and therefore their abundance declines (the dip in biomass you can see near the end community spectrum).  
+We can see this by extracting the predation mortality information from the \class{MizerSim} object, \code{sim}, that we created above.
+This is easily done by using the \code{getM2()} method (See the help page for more details. There are several methods that can be used for extracting information from a \class{MizerSim} object, e.g. \code{getFeedingLevel()} and \code{getFMort()}. For more information see Section~\ref{sec:exploring}.):
+
+<<label=get_m2_comm>>=
+m2 <- getM2(sim)
+@
+
+This \code{m2} object is a array that contains the predation mortality at time by species by size. Here we only have one species so the species dimension is dropped, leaving us with a two dimensional array of time by size. We projected the model for \Sexpr{dim(m2)[1]-1} time steps but the length of the time dimension is \Sexpr{dim(m2)[1]} as the initial population is also included as a time step.
+
+To pull out the predation mortality at size in the final time step we use:
+<<label=m2_comm_final_time_step, results=hide>>=
+m2[51,]
+@
+
+If you plot this predation mortality on log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}). There is also a kink in the predation mortality for sizes that are the prey of the largest sizes - an illustration of a mild tropic cascade which we shall discuss next.
+
+\begin{figure}
+<<label=print_plot_comm_m2, fig=TRUE, echo=FALSE>>=
+plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
+@
+\caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
+\label{fig:plot_comm_m2}
+\end{figure}
+
 
 \subsection{Example of a trophic cascade with the community model}
 
-It is possible to use the community model to simulate a trophic cascade, similar to those seen in \citep{andersen_damped_2010}.
-To do this we need two simulations, one with fishing and one without.
-This means we need to consider the fishing selectivity function. By default, the fishing gear selectivty function is a sigmoid function based on length. It has two parameters \code{l25} and \code{l50} which are the lengths at 25 and 50\% selectivity respectively. These lengths are converted to weights using default length-weight conversion parameters of $a$ = 0.01 and $b$ = 3.0.
-In this example we would like to simulate a knife-edge type of fishing selectivty, with species larger than 1 kg being selected. This means we have to calculate values for  and \code{l50}.
+It is possible to use the community model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
+To do this we need to perform two simulations, one with fishing and one without.
+This means we need to consider the fishing selectivity function. By default, the fishing gear selectivty function is a sigmoid function based on length (see Section~\ref{sec:fishing_gear} and the help page for the function \code{sigmoid\_length()}). The shape of this selectivity pattern is determined by two parameters: $l25$ and $l50$, which are the lengths at 25 and 50\% selectivity respectively. These lengths are converted to weights using the default length-weight conversion parameters of $a$ = 0.01 and $b$ = 3.0 (the values of these parameters can be changed by passing arguments to the \code{set\_community\_model()} function).
+In this example we would like to simulate a knife-edge type of fishing selectivity, with only species larger than 1 kg being selected. This means we have to calculate values for $l25$ and $l50$:
 
 <<label=calc_sel_for_comm>>=
 a <- 0.01
@@ -534,29 +563,39 @@ l50 <- (selected_weight/a)^(1/b)
 @
 
 Setting \code{l25} to be only slightly smaller than \code{l50} approximates a knife-edge selectivity function.
-We add these parameters to the wrapper function to get our \class{MizerParams} object:
+We add these parameters to the wrapper function to get our \class{MizerParams} with knife-edge selectivity:
 
 <<label='set_comm_fishing'>>=
-comm_params <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, l50 = l50, l25 = l50*0.99)
+params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, l50 = l50, l25 = l50*0.99)
 @
 
-First we simulation without fishing in the same way we did above:
+First we perform a simulation without fishing in the same way we did above by setting the $effort$ argument to 0:
 
 <<label=sim_comm_no_fish>>=
-sim0 <- project(comm_params, effort = 0, t_max = 50)
+sim0 <- project(params_knife, effort = 0, t_max = 50)
 @
 
-Now we want to simulate again, this time with fishing. This is done by setting the fishing effort argument in \code{project()}. In the simulations, fishing mortality is calculated as the product of the fishing selectivity, effort and catchability (see Section~\ref{sec:MizerParams} for more details). By default catchability is set to 1. This means that a fishing effort of 1 will result in a fishing mortality of 1 for fully selected sizes.
-
-Here we run a simulation with fishing turned on:
+Now we want to simulate again, this time with fishing. In the simulations, fishing mortality is calculated as the product of the fishing selectivity, effort and catchability (see Section~\ref{sec:fishing_gear} for more details). By default catchability is set to 1. This means that a fishing effort of 1 will result in a fishing mortality of 1 for fully selected sizes. Here we run a simulation with fishing effort set to 1 for the duration of the simulation:
 
 <<label=sim_comm_with_fish>>=
-sim1 <- project(comm_params, effort = 1, t_max = 50)
+sim1 <- project(params_knife, effort = 1, t_max = 50)
 @
 
-You can compare the difference between these scenarios by using the \code{plot()} method as before.
+You can compare the difference between these scenarios by using the \code{plot()} method as before. Of particular interest is the fishing mortality at size. This can be plotted using the \code{plotFMort()} method (Figure~\ref{fig:plot_comm_fmort}). The knife-edge selectivity at 1000g can be clearly seen.
 
-Here we are interested in looking at the relative change in abundance when the community is fished. To do this we need to get the resulting abundances at size from the simulation objects. The abundances are store in the \code{n} slot of the \class{MizerSim} objects. The \code{n} slot returns a three dimensinoal array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which is the initial population), 1 species and 100 sizes:
+<<label=plot_comm_fmort, eval=FALSE>>=
+plotFMort(sim1)
+@
+
+\begin{figure}
+<<label=print_plot_comm_fmort, fig=TRUE, echo=FALSE>>=
+<<plot_comm_fmort>>
+@
+\caption{Fishing mortality at size for the community model with knife-edge selectivity at size = 1000 g.}
+\label{fig:plot_comm_fmort}
+\end{figure}
+
+To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the resulting abundances at size from the simulation objects. The abundances are store in the \code{n} slot of the \class{MizerSim} objects. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
 
 <<label='dim_n'>>=
 dim(sim0@n)
@@ -568,8 +607,6 @@ We want the abundances in the final time step, and we can use these to calculate
 relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 @
 
-This can then be plotted (Figure~\ref{fig:plot_relative_comm_abund}). The impact of fishing on species larger than 1000g can be clearly seen.
-As described in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish. This then relieves the predation pressure on their smaller prey, leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.
 
 \begin{figure}
 <<label=plot_relative_comm_abund, fig=TRUE>>=
@@ -581,18 +618,27 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 \label{fig:plot_relative_comm_abund}
 \end{figure}
 
-The impact can also be seen in the predation mortality. This can be seen using the \code{getM2()} method for \class{MizerSim} objects (see the help page for more details). Only a selected size range is plotted to illustrate the impact (Figure ~\ref{fig:plot_m2_comm}).
+This can then be plotted (Figure~\ref{fig:plot_relative_comm_abund}).
+The impact of fishing on species larger than 1000g can be clearly seen.
+As described in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish. This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
+This impact can be seen by plotting the predation mortality (Figure~\ref{fig:plot_m2_comm}).
+%This can be seen using the \code{getM2()} method for \class{MizerSim} objects (see the help page for more details).
+%Only a selected size range is plotted to illustrate the impact (Figure ~\ref{fig:plot_m2_comm}).
 
 <<label='get_M2_comm'>>=
 m2_no_fishing <- getM2(sim0)[51,]
 m2_with_fishing <- getM2(sim1)[51,]
 @
 
-\begin{figure}
-<<label=plot_relative_comm_abund, fig=TRUE>>=
+<<label=plot_relative_comm_m2, eval=FALSE>>=
 w_idx <- sim0@params@w >= 1
 plot(x=sim0@params@w, y=m2_with_fishing, log="x", type="l", xlab = "Size (g)", ylab="Predation mortality", ylim=c(0,2))
 lines(x=sim0@params@w, y=m2_no_fishing, lty=2)
+@
+
+\begin{figure}
+<<label=print_plot_relative_comm_m2, fig=TRUE>>=
+<<plot_relative_comm_m2>>
 @
 \caption{Predation mortalities from the unfished (dashed line) and fished (solid line) community model.}
 \label{fig:plot_m2_comm}
