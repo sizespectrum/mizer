@@ -322,4 +322,38 @@ test_that("interaction is right way round in getM2 method",{
 })
 
 
+test_that("project methods return objects of correct dimension when community only has one species",{
+    params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+    t_max <- 50
+    sim <- project(params, t_max=t_max, effort = 0)
+    n <- array(sim@n[t_max+1,,],dim=dim(sim@n)[2:3])
+    dimnames(n) <- dimnames(sim@n)[2:3]
+	n_pp <- sim@n_pp[1,]
+    nw <- length(params@w)
+    # MizerParams methods
+    expect_that(dim(getPhiPrey(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getFeedingLevel(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getPredRate(params,n,n_pp)), equals(c(1,nw,length(params@w_full))))
+    expect_that(dim(getM2(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(length(getM2Background(params,n,n_pp)), equals(length(params@w_full)))
+    expect_that(dim(getFMortGear(params,0)), equals(c(1,1,nw))) # 3D time x species x size
+    expect_that(dim(getFMortGear(params,matrix(c(0,0),nrow=2))), equals(c(2,1,1,nw))) # 4D time x gear x species x size
+    expect_that(dim(getFMort(params,0)), equals(c(1,nw))) # 2D species x size
+    expect_that(dim(getFMort(params,matrix(c(0,0),nrow=2))), equals(c(2,1,nw))) # 3D time x species x size
+    expect_that(dim(getZ(params,n,n_pp,0)), equals(c(1,nw)))
+    expect_that(dim(getEReproAndGrowth(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getESpawning(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getEGrowth(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(length(getRDI(params,n,n_pp)), equals(1))
+    expect_that(length(getRDD(params,n,n_pp)), equals(1))
 
+    # MizerSim methods
+    expect_that(dim(getFeedingLevel(sim)), equals(c(t_max+1,1,nw))) # time x species x size
+    expect_that(dim(getM2(sim)), equals(c(t_max+1,nw))) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
+    expect_that(dim(getM2(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
+    expect_that(dim(getFMortGear(sim)), equals(c(t_max,1,1,nw))) # time x gear x species x size
+    expect_that(dim(getFMort(sim)), equals(c(t_max,nw))) # time x species x size - note drop = TRUE
+    expect_that(dim(getFMort(sim, drop=FALSE)), equals(c(t_max,1,nw))) # time x species x size 
+
+
+})

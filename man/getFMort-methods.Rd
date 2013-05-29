@@ -18,13 +18,19 @@
   vector of min and max time, or a single value. Default is
   the whole time range. Only used if the \code{object}
   argument is of type \code{MizerSim}.}
+
+  \item{drop}{Only used when object is of type
+  \code{MizerSim}. Should dimensions of length 1 be
+  dropped, e.g. if your community only has one species it
+  might make presentation of results easier. Default is
+  TRUE}
 }
 \value{
-  An array. If the effort argument has a time dimension,
-  the output array has three dimensions (time x species x
-  size). If the effort argument does not have a time
-  dimension, the output array has two dimensions (species x
-  size).
+  An array. If the effort argument has a time dimension, or
+  object is of class \code{MizerSim}, the output array has
+  three dimensions (time x species x size). If the effort
+  argument does not have a time dimension, the output array
+  has two dimensions (species x size).
 }
 \description{
   Calculates the fishing mortality from all gears by

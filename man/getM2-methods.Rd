@@ -22,12 +22,10 @@
   range. Only used if \code{object} argument is of type
   \code{MizerSim}.}
 
-  \item{.drop}{should extra dimensions of length 1 in the
+  \item{drop}{Only used when object is of type
+  \code{MizerSim}. Should dimensions of length 1 in the
   output be dropped, simplifying the output. Defaults to
   TRUE}
-}
-\value{
-  A two dimensional array (prey species x prey size)
 }
 \description{
   Calculates the total predation mortality on each prey

@@ -22,7 +22,7 @@
   range. Only used if \code{object} argument is of type
   \code{MizerSim}.}
 
-  \item{.drop}{should extra dimensions of length 1 in the
+  \item{drop}{should extra dimensions of length 1 in the
   output be dropped, simplifying the output. Defaults to
   TRUE}
 }

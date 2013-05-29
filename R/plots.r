@@ -206,7 +206,7 @@ setGeneric('plotFeedingLevel', function(object, ...)
 #' }
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
-        feed_time <- getFeedingLevel(object=object, time_range=time_range, .drop=FALSE, ...)
+        feed_time <- getFeedingLevel(object=object, time_range=time_range, drop=FALSE, ...)
         feed <- apply(feed_time, c(2,3), mean)
         plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
         p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
@@ -244,7 +244,7 @@ setGeneric('plotM2', function(object, ...)
 #' }
 setMethod('plotM2', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
-	m2_time <- getM2(object, time_range=time_range, .drop=FALSE, ...)
+	m2_time <- getM2(object, time_range=time_range, drop=FALSE, ...)
 	m2 <- apply(m2_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(m2), Species = dimnames(m2)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "M2", lim=c(0,max(plot_dat$value)))
@@ -282,7 +282,7 @@ setGeneric('plotFMort', function(object, ...)
 #' }
 setMethod('plotFMort', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
-	f_time <- getFMort(object, time_range=time_range, .drop=FALSE, ...)
+	f_time <- getFMort(object, time_range=time_range, drop=FALSE, ...)
 	f <- apply(f_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(f), Species = dimnames(f)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
