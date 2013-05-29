@@ -68,7 +68,7 @@ set_community_model <- function(max_w = 1e6,
     com_params_df <- data.frame(
         species = "Community",
         w_inf = w_inf,
-        w_mat = 1e12, # Has no affect as psi set to 0
+        w_mat = 1e12, # Has no affect as psi set to 0 but we set it to something to help the constructor
         h = h, # max food intake
         gamma = gamma,# vol. search rate,
         ks = ks,# standard metabolism coefficient,
@@ -90,6 +90,8 @@ set_community_model <- function(max_w = 1e6,
     com_params <- MizerParams(com_params_df, p=p, n=n,q=q, lambda = lambda, kappa = kappa, min_w = min_w, max_w = max_w, w_pp_cutoff = w_pp_cutoff, ...)
     com_params@srr <- constant_recruitment
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but due to slope still not 0
+    # Set w_mat to NA for clarity - it is not actually being used
+    com_params@species_params$w_mat[] <- NA
     return(com_params)
 }
 
