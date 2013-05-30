@@ -171,6 +171,7 @@ Roughly speaking there are three versions of the size spectrum modelling framewo
 \citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}. The focus of this section is on the food-web type of model where each species is characterized by its own set of parameters. \pkg{mizer} is able implement all three versions. IS IT?
 
 \section{Assumptions, concepts and processes}
+\label{sec:size_based_assumptions}
 
 Size spectrum models are a subset of physiologically structured models \citep{metz_dynamics_1986,de_roos_physiologically_2001} as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.  All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters (Table~\ref{tab:parameters}), which has prompted the label ``charmingly simple'' to the model framework \citep{pope_modelling_2006}.
 
@@ -435,11 +436,14 @@ However, it is probably easier to learn the basics of \pkg{mizer} through exampl
 
 %------------------------------------------------------
 \section{Implementing a community-type model}
+\label{sec:comm_model}
 
 A size-structured community model is the simplest type of model that can be created with \pkg{mizer}. In this section we descibe how a community model can be set up and projected through time. We then use them to illustrate the idea of a 'tophic cascade'. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer} and some of the main classes and methods, but avoids too many details. Further information and more details of the package can be found later on.
 
  The concept of the community model was introduced in Section \ref{sec:community_model_intro}. There are several key features of the community model that differentiate it from the other model types. Only one 'species' is resolved, i.e. one 'species' is used to represent the whole community. Recruitment to the smallest size in the community spectrum is constant, i.e. there is no relationship between species abundance and recruitment. The proportion of energy invested in reproduction is set to 0 and standard metabolism has been turned off. This means that the growth rate of species is determined solely by the assimilated food. The resource spectrum only extends to the start of the community spectrum. 
 
+\subsection{Setting up a community model}
+\label{sec:set_up_comm_model}
 As mentioned above, the first stage in using \pkg{mizer} is to create an object of class \class{MizerParams}. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the harvesting selectivity functions and the parameters of the resource spectrum. The class is fully described in Section~\ref{sec:MizerParams}.
 
 To avoid having to make a \class{MizerParams} object directly, a wrapper function, \code{set\_community\_model()}, has been provided that conveniently creates a \class{MizerParams} object specifially for a community model. The documentation for the function can be seen by entering:
@@ -487,6 +491,8 @@ summary(params)
 In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
 Additionally, the community is made up of one species which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The $w\_mat$ parameter has been set to NA as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
 
+\subsection{Running the community model}
+\label{sec:running_comm_model}
 We now have a \class{MizerParams} object that contains all the information we need about the community. We can use this to perform a simulation and project the community through time.
 In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for \code{project()} for more details and it is described fully in Section~\ref{sec:projection}.
 We will ignore the details for the moment and just use \code{project()} to run some simple projections.
@@ -549,7 +555,7 @@ plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "P
 
 
 \subsection{Example of a trophic cascade with the community model}
-
+\label{sec:trophic_cascade_comm_model}
 It is possible to use the community model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
 To do this we need to perform two simulations, one with fishing and one without.
 This means we need to consider the fishing selectivity function. By default, the fishing gear selectivty function is a sigmoid function based on length (see Section~\ref{sec:fishing_gear} and the help page for the function \code{sigmoid\_length()}). The shape of this selectivity pattern is determined by two parameters: $l25$ and $l50$, which are the lengths at 25 and 50\% selectivity respectively. These lengths are converted to weights using the default length-weight conversion parameters of $a$ = 0.01 and $b$ = 3.0 (the values of these parameters can be changed by passing arguments to the \code{set\_community\_model()} function).
@@ -607,7 +613,6 @@ We want the abundances in the final time step, and we can use these to calculate
 relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 @
 
-
 \begin{figure}
 <<label=plot_relative_comm_abund, fig=TRUE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="x", type="n", xlab = "Size (g)", ylab="Relative abundance")
@@ -644,7 +649,47 @@ lines(x=sim0@params@w, y=m2_no_fishing, lty=2)
 \label{fig:plot_m2_comm}
 \end{figure}
 
+\subsection{The impact of changing $\sigma$}
+\label{sec:comm_model_change_sigma}
 
+As described above, the $\sigma$ parameter determines the width of the predator prey size preference. Here we take a look at how changing the value of $\sigma$ can affect the dynamics of the community.
+In the examples above, $\sigma$ is set in the \code{set\_community\_model()} function by default to a value of \Sexpr{params_knife@species_params$sigma[1]}.
+When projected through time, the community abundances converge to a stable equilibrium.
+What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into \code{set\_community\_model()}.
+
+<<label=comm_params_sigma1>>=
+params_sigma1 <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
+@
+
+We want to project this new model through time using the \code{project()} method. However, note here that we are projecting the model by 100 time steps. More importantly note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of \code{project()} that performs the projection. 
+As you can see in the underlying model equations in Section~\ref{sec:size_based_assumptions}, the model runs in continuous time. Therefore, to project it forward, \code{project()} must solve the system of equations using approximations. The quality of these approximations is strongly affected by $dt$. 
+The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
+Here we project the new parameters object for 100 time steps without fishing:
+
+<<label=comm_project_sigma1>>=
+sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 100, dt=0.01)
+@
+
+Let's take a look at how the abundances change through time. We can do this with the \code{plotBiomass()} method:
+
+<<label=plot_comm_biomass_sigma1, eval=FALSE>>=
+plotBiomass(sim_sigma1)
+@
+
+\begin{figure}
+<<plot_comm_biomass_sigma1, fig=TRUE>>=
+<<plot_comm_biomass_sigma1>>
+@
+\caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
+\label{fig:plot_comm_biomass_sigma1}
+\end{figure}
+
+Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see Section~\ref{sec:trait_based_model}) is implemented, the magnitude of the oscillations are much smaller.
+
+\section{Implementing a trait-based model}
+\label{sec:trait_based_model}
+
+%---------------------------------------------------
 \section{The \class{MizerParams} class}
 \label{sec:MizerParams}
 
