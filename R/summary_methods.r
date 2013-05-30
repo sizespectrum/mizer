@@ -228,7 +228,7 @@ setMethod("summary", signature(object="MizerParams"),
 	#cat("\tSpecies\t\tw_inf\n")
 #	for (i in 1:nrow(object@species_params))
 #	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep="")
-	print(object@species_params[,c("species","w_inf","w_mat","beta")])
+	print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
 	cat("Fishing gear details:\n")
 	cat("\tGear\t\t\tTarget species\n")
 	for (i in 1:dim(object@catchability)[1]){
