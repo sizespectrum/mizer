@@ -176,27 +176,27 @@ valid_MizerParams <- function(object) {
     }
     # Check the vector slots
     if(length(object@rr_pp) != length(object@w_full)){
-	msg <- "rr_pp must be the same length as w_full"
-	errors <- c(errors, msg)
+        msg <- "rr_pp must be the same length as w_full"
+        errors <- c(errors, msg)
     }
     if(!isTRUE(all.equal(names(object@rr_pp),dimnames(object@pred_kernel)[[3]]))){
-	msg <- "Names of rr_pp and third dimension of pred_kernel must be consistent"
-	errors <- c(errors, msg)
+        msg <- "Names of rr_pp and third dimension of pred_kernel must be consistent"
+        errors <- c(errors, msg)
     }
     if(length(object@cc_pp) != length(object@w_full)){
-	msg <- "cc_pp must be the same length as w_full"
-	errors <- c(errors, msg)
+        msg <- "cc_pp must be the same length as w_full"
+        errors <- c(errors, msg)
     }
     if(!isTRUE(all.equal(names(object@cc_pp),dimnames(object@pred_kernel)[[3]]))){
-	msg <- "Names of cc_pp and third dimension of pred_kernel must be consistent"
-	errors <- c(errors, msg)
+        msg <- "Names of cc_pp and third dimension of pred_kernel must be consistent"
+        errors <- c(errors, msg)
     }
 
     # SRR
     # Must have two arguments: rdi amd species_params
     if(!isTRUE(all.equal(names(formals(object@srr)), c("rdi", "species_params")))){
-	msg <- "Arguments of srr function must be 'rdi' and 'species_params'"
-	errors <- c(errors, msg)
+        msg <- "Arguments of srr function must be 'rdi' and 'species_params'"
+        errors <- c(errors, msg)
     }
 
     # species_params data.frame must have columns: 

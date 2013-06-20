@@ -1,5 +1,6 @@
 export(get_initial_n)
 export(set_community_model)
+export(set_trait_model)
 export(sigmoid_length)
 exportClasses(MizerParams)
 exportClasses(MizerSim)
