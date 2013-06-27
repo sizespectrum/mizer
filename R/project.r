@@ -167,40 +167,40 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 
 #' Calculate initial population abundances for the community populations
 #'
-#' This function uses the model parameters and other parameters to calculate an initial population abundance for the
+#' This function uses the model parameters and other parameters to calculate initial population abundances for the
 #' community populations. 
-#' The default parameters are based on the North Sea model.
+#' These initial abundances should be reasonable guesses at the equilibrium values.
 #' The returned population can be passed to the \code{project} method.
 #'
-#' @param params The model parameters. An object of type \code{MizerParams}
-#' @param n0_mult Multiplier for the abundance at size 0. Default value is 1e10
-#' @param slope0 The estimated initial slope of the size spectra. Default value is -(2/3) - 0.5
+#' @param params The model parameters. An object of type \code{MizerParams}.
+#' @param a A parameter with a default value of 0.35.
+#' @param n0_mult Multiplier for the abundance at size 0. Default value is kappa / 1000.
 #' @export
 #' @return A matrix (species x size) of population abundances.
 #' @examples
 #' data(species_params_gears)
 #' params <- MizerParams(species_params_gears)
 #' init_n <- get_initial_n(params)
-get_initial_n<- function(params, n0_mult = 1e10, a = 0.35, slope0=-2/3-0.5){
+get_initial_n<- function(params, n0_mult = NULL, a = 0.35){
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
-    # Where does this come from?
-    n0 <- params@species_params$w_inf^(0.7-3+0.5+1)*n0_mult # From original NS model. Ask Ken!
     initial_n <- array(NA, dim=c(no_sp,no_w))
     dimnames(initial_n) <- dimnames(params@intake_max)
     # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
     # Reverse calc n and q from intake_max and search_vol slots (could add get_n as method)
     n <- (log(params@intake_max[,1] / params@species_params$h) / log(params@w[1]))[1]
     q <- (log(params@search_vol[,1] / params@species_params$gamma) / log(params@w[1]))[1]
-    # Proposed
-    #initial_n[] <- unlist(tapply(params@w,1:no_w,function(wx,n0,w_inf,a,n,q)
-    #    n0 * w_inf^(2*n-q-2+a) * wx^(-n-a),
-    #    n0=n0, w_inf=params@species_params$w_inf, a=a, n=n, q=q))
-    # Original
-    initial_n[] <- unlist(tapply(params@w,1:no_w,function(wx,n0,w0,slope0)
-        n0 * (wx/w0)^slope0, n0=n0, w0=min(params@w), slope0=slope0))
+    # Guessing at a suitable n0 value based on kappa - this was figured out using trial and error and should be updated
+    if (is.null(n0_mult)){
+        lambda <- 2+q-n
+        kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))
+        n0_mult <- kappa / 1000
+    }
+    initial_n[] <- unlist(tapply(params@w,1:no_w,function(wx,n0_mult,w_inf,a,n,q)
+        n0_mult * w_inf^(2*n-q-2+a) * wx^(-n-a),
+        n0_mult=n0_mult, w_inf=params@species_params$w_inf, a=a, n=n, q=q))
      #set densities at w > w_inf to 0
     initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_inf) w_inf<wx, w_inf=params@species_params$w_inf))] <- 0
     # Also any densities at w < w_min set to 0
