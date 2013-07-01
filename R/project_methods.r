@@ -150,10 +150,10 @@ setGeneric('getPredRate', function(object, n, n_pp,...)
 #' @aliases getPredRate,MizerParams,matrix,numeric-method
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
     function(object, n, n_pp, ...){
-	n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
-	f <- getFeedingLevel(object, n=n, n_pp=n_pp)
-	pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
-	return(pred_rate)
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
+        f <- getFeedingLevel(object, n=n, n_pp=n_pp)
+        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
+        return(pred_rate)
 })
 
 
