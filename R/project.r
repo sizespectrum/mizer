@@ -132,6 +132,13 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 	    # Take this out. No n or npp so fmort could be precalculated
 	    # Also f_mort is already called in z so not needed at all?
 	    #f_mort <- getFMort(sim@params, effort[i_time,])
+
+        # Do it piece by piece to save repeatedly calling methods
+        phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
+        feeding_level <- getFeedingLevel(sim@params, n=n, n_pp=n_pp, phi_prey=phi_prey)
+        pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
+
+
 	    e_growth <- getEGrowth(sim@params, n=n, n_pp=n_pp)
 	    z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort[i_time,])
 	    rdd <- getRDD(sim@params, n=n, n_pp=n_pp, sex_ratio=sex_ratio)

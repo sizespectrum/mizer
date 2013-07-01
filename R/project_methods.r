@@ -35,6 +35,7 @@ setGeneric('getPhiPrey', function(object, n, n_pp,...)
 #' @aliases getPhiPrey,MizerParams,matrix,numeric-method
 setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
     function(object, n, n_pp, ...){
+        cat("In getPhiPrey\n")
 	# Check n dims
 	if(dim(n)[1] != dim(object@interaction)[1])
 	    stop("n does not have the right number of species (first dimension)")
@@ -67,12 +68,14 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @param object A \code{MizerParams} or \code{MizerSim} object
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type \code{MizerParams}.
+#' @param phi_prey The PhiPrey matrix (optional) of dimension no. species x no. size bins. If not passed in, it is calculated internally using the \code{getPhiPrey()} method. Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @note
 #' If a \code{MizerParams} object is passed in, the method returns a two dimensional array (predator species x predator size) based on the abundances also passed in.
 #' If a \code{MizerSim} object is passed in, the method returns a three dimensional array (time step x predator species x predator size) with the feeding level calculated at every time step in the simulation.
+#' @seealso \code{\link{getPhiPrey}}
 #' @export
 #' @docType methods
 #' @rdname getFeedingLevel-methods
@@ -88,31 +91,45 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' getFeedingLevel(params,n,n_pp)
 #' # Get the feeding level at all saved time steps
 #' getFeedingLevel(sim)
-setGeneric('getFeedingLevel', function(object, n, n_pp, ...)
+setGeneric('getFeedingLevel', function(object, n, n_pp, phi_prey, ...)
     standardGeneric('getFeedingLevel'))
 
 #' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerParams,matrix,numeric-method
-setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
+#' @aliases getFeedingLevel,MizerParams,matrix,numeric,matrix-method
+setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='matrix'),
+    function(object, n, n_pp, phi_prey, ...){
+    # Check dims of phi_prey
+        if (!all(dim(phi_prey) == c(nrow(object@species_params),length(object@w)))){
+            stop("phi_prey argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
+        }
+        # encountered food = available food * search volume
+        encount <- object@search_vol * phi_prey
+        # calculate feeding level
+        f <- encount/(encount + object@intake_max)
+        return(f)
+    })
+#' @rdname getFeedingLevel-methods
+#' @aliases getFeedingLevel,MizerParams,matrix,numeric,missing-method
+setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='missing'),
     function(object, n, n_pp, ...){
 	phi_prey <- getPhiPrey(object, n=n, n_pp=n_pp)
 	# encountered food = available food * search volume
-	encount <- object@search_vol * phi_prey
+	#encount <- object@search_vol * phi_prey
 	# calculate feeding level
-	f <- encount/(encount + object@intake_max)
+	#f <- encount/(encount + object@intake_max)
+    f <- getFeedingLevel(object=object, n=n, n_pp=n_pp, phi_prey=phi_prey)
 	return(f)
 })
 
 #' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerSim,missing,missing-method
-setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing'),
+#' @aliases getFeedingLevel,MizerSim,missing,missing,missing-method
+setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing', phi_prey='missing'),
     function(object, time_range=dimnames(object@n)$time, drop=FALSE, ...){
         time_elements <- get_time_elements(object,time_range)
         feed_time <- aaply(which(time_elements), 1, function(x){
             # Necessary as we only want single time step but may only have 1 species which makes using drop impossible
             n <- array(object@n[x,,],dim=dim(object@n)[2:3])
             dimnames(n) <- dimnames(object@n)[2:3]
-			#feed <- getFeedingLevel(object@params, n=object@n[x,,], n_pp = object@n_pp[x,])
 			feed <- getFeedingLevel(object@params, n=n, n_pp = object@n_pp[x,])
 			return(feed)}, .drop=drop)
 	return(feed_time)
@@ -127,10 +144,11 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
+#' @param feeding_level The current feeding level (optional). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{getFeedingLevel()} method.
 #'
 #' @return A three dimensional array (predator species x predator size x prey size) 
 #' @export
-#' @seealso \code{\link{project}}, \code{\link{getM2}} and \code{\link{MizerParams}}
+#' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @docType methods
 #' @rdname getPredRate-methods
 #' @examples
@@ -143,16 +161,29 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
 #' getPredRate(params,n,n_pp)
-setGeneric('getPredRate', function(object, n, n_pp,...)
+setGeneric('getPredRate', function(object, n, n_pp, feeding_level,...)
     standardGeneric('getPredRate'))
 
 #' @rdname getPredRate-methods
 #' @aliases getPredRate,MizerParams,matrix,numeric-method
-setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
+setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'matrix'),
+    function(object, n, n_pp, feeding_level, ...){
+        if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
+            stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
+        }
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
+        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*")
+        return(pred_rate)
+})
+
+#' @rdname getPredRate-methods
+#' @aliases getPredRate,MizerParams,matrix,numeric-method
+setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp, ...){
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
-        f <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
+        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+        #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
+        pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
         return(pred_rate)
 })
 
