@@ -587,17 +587,19 @@ Now we want to simulate again, this time with fishing. In the simulations, fishi
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 @
 
-You can compare the difference between these scenarios by using the \code{plot()} method as before. Of particular interest is the fishing mortality at size. This can be plotted using the \code{plotFMort()} method (Figure~\ref{fig:plot_comm_fmort}). The knife-edge selectivity at 1000g can be clearly seen.
+You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\ref{fig:plot_comm_fmort}). Of particular interest is the fishing mortality at size.
+%This can be plotted using the \code{plotFMort()} method .
+The knife-edge selectivity at 1000g can be clearly seen.
 
 <<label=plot_comm_fmort, eval=FALSE>>=
-plotFMort(sim1)
+plot(sim1)
 @
 
 \begin{figure}
 <<label=print_plot_comm_fmort, fig=TRUE, echo=FALSE>>=
 <<plot_comm_fmort>>
 @
-\caption{Fishing mortality at size for the community model with knife-edge selectivity at size = 1000 g.}
+\caption{Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.}
 \label{fig:plot_comm_fmort}
 \end{figure}
 
