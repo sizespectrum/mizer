@@ -38,15 +38,21 @@ setGeneric('plotBiomass', function(object, ...)
 #' @aliases plotBiomass,MizerSim-method
 setMethod('plotBiomass', signature(object='MizerSim'),
     function(object, print_it=TRUE,...){
-	b <- getBiomass(object, ...)
-	names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
-	bm <- melt(b)
-    # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
-    bm$Species <- as.character(bm$Species)
-	p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
-    if (print_it)
-        print(p)
-	return(p)
+        b <- getBiomass(object, ...)
+        names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
+        bm <- melt(b)
+        # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
+        bm$Species <- as.character(bm$Species)
+        # Due to log10, need to set a minimum value, seems like a feature in ggplot
+        min_value <- 1e-300
+        bm <- bm[bm$value >= min_value,]
+        p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
+        if (nrow(object@params@species_params)>12){
+        p <- ggplot(bm) + geom_line(aes(x=time,y=value, group=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
+        }
+        if (print_it)
+            print(p)
+        return(p)
     })
 
 #' Plot the total yield of each species through time
@@ -81,6 +87,9 @@ setMethod('plotYield', signature(object='MizerSim'),
 	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
 	ym <- melt(y)
 	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+    if (nrow(object@params@species_params)>12){
+        p <- ggplot(ym) + geom_line(aes(x=time,y=value, group=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+    }
     if (print_it)
         print(p)
 	return(p)
@@ -118,6 +127,9 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
 	ym <- melt(y)
 	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=gear)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+    if (nrow(object@params@species_params)>12){
+        p <- ggplot(ym) + geom_line(aes(x=time,y=value, group=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
+    }
     if (print_it)
         print(p)
 	return(p)
@@ -156,24 +168,27 @@ setGeneric('plotSpectra', function(object, ...)
 #' }
 setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...){
-	time_elements <- get_time_elements(object,time_range)
-	spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
-	background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-	y_axis_name = "Abundance"
-	if (biomass){
-	    spec_n <- sweep(spec_n,2,object@params@w,"*")
-	    background_n <- background_n * object@params@w_full
-	    y_axis_name = "Biomass"
-	}
-	# Make data.frame for plot
-	plot_dat <- data.frame(value = c(spec_n), Species = dimnames(spec_n)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
-	plot_dat <- rbind(plot_dat, data.frame(value = c(background_n), Species = "Background", w = object@params@w_full))
-	# lop off 0s in background and apply min_w
-	plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
-	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = y_axis_name, trans="log10")
-    if (print_it)
-        print(p)
-	return(p)
+        time_elements <- get_time_elements(object,time_range)
+        spec_n <- apply(object@n[time_elements,,,drop=FALSE],c(2,3), mean)
+        background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
+        y_axis_name = "Abundance"
+        if (biomass){
+            spec_n <- sweep(spec_n,2,object@params@w,"*")
+            background_n <- background_n * object@params@w_full
+            y_axis_name = "Biomass"
+        }
+        # Make data.frame for plot
+        plot_dat <- data.frame(value = c(spec_n), Species = dimnames(spec_n)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
+        plot_dat <- rbind(plot_dat, data.frame(value = c(background_n), Species = "Background", w = object@params@w_full))
+        # lop off 0s in background and apply min_w
+        plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
+        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = y_axis_name, trans="log10")
+        if (nrow(object@params@species_params)>12){
+            p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = y_axis_name, trans="log10")
+        }
+        if (print_it)
+            print(p)
+        return(p)
     })
 
 
@@ -210,6 +225,9 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
         feed <- apply(feed_time, c(2,3), mean)
         plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
         p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+    if (nrow(object@params@species_params)>12){
+        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+    }
         if (print_it)
             print(p)
         return(p)
@@ -248,6 +266,9 @@ setMethod('plotM2', signature(object='MizerSim'),
 	m2 <- apply(m2_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(m2), Species = dimnames(m2)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "M2", lim=c(0,max(plot_dat$value)))
+    if (nrow(object@params@species_params)>12){
+        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "M2", lim=c(0,max(plot_dat$value)))
+    }
     if (print_it)
         print(p)
 	return(p)
@@ -286,6 +307,9 @@ setMethod('plotFMort', signature(object='MizerSim'),
 	f <- apply(f_time, c(2,3), mean)
 	plot_dat <- data.frame(value = c(f), Species = dimnames(f)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
 	p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
+    if (nrow(object@params@species_params)>12){
+        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Total fishing mortality", lim=c(0,max(plot_dat$value)))
+    }
     if (print_it)
         print(p)
 	return(p)
