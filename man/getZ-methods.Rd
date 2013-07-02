@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getZ}
 \alias{getZ}
-\alias{getZ,MizerParams,matrix,numeric,numeric-method}
+\alias{getZ,MizerParams,matrix,numeric,numeric,matrix-method}
+\alias{getZ,MizerParams,matrix,numeric,numeric,missing-method}
 \title{getZ method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
@@ -13,6 +14,11 @@
 
   \item{effort}{A numeric vector of the effort by gear or a
   single numeric effort value which is used for all gears.}
+
+  \item{m2}{A two dimensional array of predation mortality
+  (optional). Has dimensions no. sp x no. size bins in the
+  community. If not supplied is calculated using the
+  \code{getM2()} method.}
 }
 \value{
   A two dimensional array (prey species x prey size).

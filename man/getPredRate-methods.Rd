@@ -10,6 +10,11 @@
 
   \item{n_pp}{A vector of the background abundance by
   size.}
+
+  \item{feeding_level}{The current feeding level
+  (optional). A matrix of size no. species x no. size bins.
+  If not supplied, is calculated internally using the
+  \code{getFeedingLevel()} method.}
 }
 \value{
   A three dimensional array (predator species x predator
@@ -35,7 +40,8 @@ n_pp <- sim@n_pp[21,]
 getPredRate(params,n,n_pp)
 }
 \seealso{
-  \code{\link{project}}, \code{\link{getM2}} and
+  \code{\link{project}}, \code{\link{getM2}},
+  \code{\link{getFeedingLevel}} and
   \code{\link{MizerParams}}
 }
 

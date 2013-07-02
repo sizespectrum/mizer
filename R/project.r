@@ -129,6 +129,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
     dimnames(n) <- dimnames(sim@n)[2:3]
 	n_pp <- sim@n_pp[1,]
 	for (i_time in 1:t_steps){
+        #cat("i_time: ", i_time, "\n")
 	    # Take this out. No n or npp so fmort could be precalculated
 	    # Also f_mort is already called in z so not needed at all?
 	    #f_mort <- getFMort(sim@params, effort[i_time,])
@@ -137,12 +138,14 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
         feeding_level <- getFeedingLevel(sim@params, n=n, n_pp=n_pp, phi_prey=phi_prey)
         pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
-
-
-	    e_growth <- getEGrowth(sim@params, n=n, n_pp=n_pp)
-	    z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort[i_time,])
-	    rdd <- getRDD(sim@params, n=n, n_pp=n_pp, sex_ratio=sex_ratio)
-	    m2_background <- getM2Background(sim@params, n=n, n_pp=n_pp)
+        m2 <- getM2(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+	    z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort[i_time,], m2=m2)
+	    m2_background <- getM2Background(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+        e <- getEReproAndGrowth(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
+        e_spawning <- getESpawning(sim@params, n=n, n_pp=n_pp, e=e)
+	    e_growth <- getEGrowth(sim@params, n=n, n_pp=n_pp, e_spawning=e_spawning, e=e)
+	    rdi <- getRDI(sim@params, n=n, n_pp=n_pp, e_spawning=e_spawning, sex_ratio=sex_ratio)
+	    rdd <- getRDD(sim@params, n=n, n_pp=n_pp, rdi=rdi, sex_ratio=sex_ratio)
 
 	    # Iterate species one time step forward:
 	    # See Ken's PDF

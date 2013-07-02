@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getEReproAndGrowth}
 \alias{getEReproAndGrowth}
-\alias{getEReproAndGrowth,MizerParams,matrix,numeric-method}
+\alias{getEReproAndGrowth,MizerParams,matrix,numeric,matrix-method}
+\alias{getEReproAndGrowth,MizerParams,matrix,numeric,missing-method}
 \title{getEReproAndGrowth method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
@@ -10,6 +11,11 @@
 
   \item{n_pp}{A vector of the background abundance by
   size.}
+
+  \item{feeding_level}{The current feeding level
+  (optional). A matrix of size no. species x no. size bins.
+  If not supplied, is calculated internally using the
+  \code{getFeedingLevel()} method.}
 }
 \value{
   A two dimensional array (species x size)
@@ -30,6 +36,7 @@ sim <- project(params, t_max = 20, effort = 0.5)
 getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 \seealso{
-  \code{\link{project}}
+  \code{\link{project()}} and
+  \code{\link{getFeedingLevel()}.
 }
 

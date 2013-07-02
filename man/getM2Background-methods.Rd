@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getM2Background}
 \alias{getM2Background}
-\alias{getM2Background,MizerParams,matrix,numeric-method}
+\alias{getM2Background,MizerParams,matrix,numeric,array-method}
+\alias{getM2Background,MizerParams,matrix,numeric,missing-method}
 \title{getM2Background method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
@@ -10,6 +11,12 @@
 
   \item{n_pp}{A vector of the background abundance by
   size.}
+
+  \item{pred_rate}{An array of predation rates of dimension
+  no. sp x no. community size bins x no. of size bins in
+  whole spectra (i.e. community + background, the w_full
+  slot). The array is optional. If it is not provided it is
+  calculated by the \code{getPredRate()} method.}
 }
 \value{
   A vector of predation mortalities by background prey

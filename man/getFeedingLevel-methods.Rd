@@ -1,8 +1,9 @@
 \docType{methods}
 \name{getFeedingLevel}
 \alias{getFeedingLevel}
-\alias{getFeedingLevel,MizerParams,matrix,numeric-method}
-\alias{getFeedingLevel,MizerSim,missing,missing-method}
+\alias{getFeedingLevel,MizerParams,matrix,numeric,matrix-method}
+\alias{getFeedingLevel,MizerParams,matrix,numeric,missing-method}
+\alias{getFeedingLevel,MizerSim,missing,missing,missing-method}
 \title{getFeedingLevel method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} or \code{MizerSim}
@@ -14,6 +15,12 @@
 
   \item{n_pp}{A vector of the background abundance by size.
   Only used if \code{object} argument is of type
+  \code{MizerParams}.}
+
+  \item{phi_prey}{The PhiPrey matrix (optional) of
+  dimension no. species x no. size bins. If not passed in,
+  it is calculated internally using the \code{getPhiPrey()}
+  method. Only used if \code{object} argument is of type
   \code{MizerParams}.}
 
   \item{time_range}{The time range (either a vector of
@@ -53,5 +60,8 @@ n_pp <- sim@n_pp[21,]
 getFeedingLevel(params,n,n_pp)
 # Get the feeding level at all saved time steps
 getFeedingLevel(sim)
+}
+\seealso{
+  \code{\link{getPhiPrey}}
 }
 

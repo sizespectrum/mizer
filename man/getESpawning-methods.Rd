@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getESpawning}
 \alias{getESpawning}
-\alias{getESpawning,MizerParams,matrix,numeric-method}
+\alias{getESpawning,MizerParams,matrix,numerica,matrix-method}
+\alias{getESpawning,MizerParams,matrix,numerica,missing-method}
 \title{getESpawning method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
@@ -10,6 +11,11 @@
 
   \item{n_pp}{A vector of the background abundance by
   size.}
+
+  \item{e}{The energy available for reproduction and growth
+  (optional). A matrix of size no. species x no. size bins.
+  If not supplied, is calculated internally using the
+  \code{getEReproAndGrowth()} method.}
 }
 \value{
   A two dimensional array (prey species x prey size)
@@ -30,6 +36,7 @@ sim <- project(params, t_max = 20, effort = 0.5)
 getESpawning(params,sim@n[21,,],sim@n_pp[21,])
 }
 \seealso{
-  \code{\link{project}}
+  \code{\link{project}} and
+  \code{\link{getEReproAndGrowth}}.
 }
 

@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getRDD}
 \alias{getRDD}
-\alias{getRDD,MizerParams,matrix,numeric-method}
+\alias{getRDD,MizerParams,matrix,numeric,matrix-method}
+\alias{getRDD,MizerParams,matrix,numeric,missing-method}
 \title{getRDD method for the size based model}
 \arguments{
   \item{object}{An \code{MizerParams} object}
@@ -9,6 +10,11 @@
   \item{n}{A matrix of species abundance (species x size)}
 
   \item{n_pp}{A vector of the background abundance by size}
+
+  \item{rdi}{A matrix of density independent recruitment
+  (optional) with dimensions no. sp x 1. If not specified
+  rdi is calculated internally using the \code{getRDI()}
+  method.}
 
   \item{sex_ratio}{Proportion of the population that is
   female. Default value is 0.5}
