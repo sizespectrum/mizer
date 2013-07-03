@@ -531,7 +531,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #' @export
 #' @docType methods
 #' @rdname getEReproAndGrowth-methods
-#' @seealso \code{\link{project()}} and \code{\link{getFeedingLevel()}.
+#' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
