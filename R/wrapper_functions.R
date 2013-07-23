@@ -101,7 +101,7 @@ set_community_model <- function(max_w = 1e6,
 
 #' Sets up parameters for a trait-based model
 #'
-#' This functions creates a \code{MizerParams} object so that community-type models can be easily set up and run.
+#' This functions creates a \code{MizerParams} object so that trait-based-type models can be easily set up and run.
 #' The trait-based size spectrum model can be derived as a simplification of the general size-based model used in \code{mizer}.
 #' All the species-specific parameters are the same, except for the asymptotic size, which is considered the most important trait characterizing a species.
 #' Other parameters are related to the asymptotic size.
