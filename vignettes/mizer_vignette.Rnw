@@ -374,6 +374,8 @@ where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic
 \subsection{Trait-based model}
 The trait-based size spectrum model can be derived as a simplification of the general model outline above. The idea is that all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species.  Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$.  For the trait-based model the number of species is not important. For applications of the trait-based model see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}.
 
+Setting up a trait-based model is explored in Section~\ref{sec:trait_based_model}.
+
 \subsection{Community model}
 \label{sec:community_model_intro}
 The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}. The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.  In this model only one ``species'' is resolved. Reproduction is not resolved, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant.
@@ -394,7 +396,6 @@ The growth rate can also be written as:
 where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model, see \citet{andersen_trophic_2009} or \cite{zhang_trait_2013}.
 
 Setting up a community model is explored in Section~\ref{sec:community_example}.
-
 
 \section{Parameters}
 \label{sec:parameters}
@@ -690,6 +691,56 @@ Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community
 
 \section{Implementing a trait-based model}
 \label{sec:trait_based_model}
+
+As mentioned above, the trait-based size spectrum model is a simplification of the general size spectrum model (see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}). Unlike the community model described above, more than one species is resolved. However, all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species. Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$, i.e. the life history parameters of each species in the model is determined by the most important trait.  The number of species is not important and does not affect the general dynamics of the model.
+
+To help set up a trait-based model, there is a wrapper function, \code{set\_trait\_model()}. Like the \code{set\_community\_model()} function described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
+
+<<label=help_set_trait_model, eval=FALSE>>=
+?set_trait_model
+@
+
+The main parameters of interest are the number of the species in the model (\code{no\_sp}) and the minimum and maximum asymptotic sizes (\code{min\_w\_inf} and \code{max\_w\_inf} respectively). Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 to 1e05 g (the sizes are spread evenly on a logarithmic scale).
+
+<<label=demo_trait_model_params>>=
+params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+@
+
+This function returns an object of type \class{MizerParams}.
+
+<<label=class_trait_params>>=
+class(params)
+@
+
+This object can therefore be interrogated in the same way as described in the COMMUNITY SECTION above, either by inspecting the individual slots or by using the \code{summary()} function.
+
+SUMMARY
+
+As with the community model described above, we can project the model through time using the \code{project()} method.
+Here we project the model for 100 time steps, without any fishing, and using the default initial population abundances given by the \code{get\_initial\_n()} function (see Section \ref{sec:setting_initial_abundances}).
+
+ARE INITIAL ABUNDANCES MENTIONED IN COMMUNITY SECTION ?
+
+<<label=trait_project_no_fishing>>=
+sim <- project(params, t_max=100, effort = 0)
+@
+
+<<plot_comm_sim, eval=FALSE>>=
+plot(sim)
+@
+
+\begin{figure}
+<<label=print_plot_trait_sim, fig=TRUE, echo=FALSE>>=
+<<plot_comm_sim>>
+@
+\caption{Example plot of the trait-based model}
+\label{fig:plot_trait_demo}
+\end{figure}
+
+
+SRR?
+
+
 
 %---------------------------------------------------
 \section{The \class{MizerParams} class}
@@ -1303,6 +1354,7 @@ number of the time steps in the effort array (the first dimension) and
 the value of $dt$. If a value for $t\_max$ is also supplied it is ignored.
 
 \subsection{Setting the initial population abundance}
+\label{sec:setting_initial_abundances}
 
 When running a simulation with the \code{project()} method,
 the initial populations of the species and the background spectrum
