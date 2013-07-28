@@ -24,10 +24,9 @@
   A numeric vector the length of the number of species
 }
 \description{
-  Calculates the density independent recruitment (flux
-  entering the smallest size class of each species) before
-  density dependence, by species. Used by the
-  \code{project} method for performing simulations.
+  Calculates the density independent recruitment (total egg
+  production) before density dependence, by species. Used
+  by the \code{project} method for performing simulations.
 }
 \examples{
 data(species_params_gears)
