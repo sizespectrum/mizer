@@ -8,9 +8,8 @@
 
 
 % For checking the latex works OK
-% setwd("c:/Projects/sizeBMR/mizer/vignettes")
-% setwd("/media/sf_Projects/sizeBMR/mizer/vignettes")
-% Sweave("mizer_vignette.rnw", syntax="SweaveSyntaxNoweb")
+% setwd("~/Work/size_based_modelling/mizer/vignettes")
+% Sweave("mizer_vignette.Rnw", syntax="SweaveSyntaxNoweb")
 % shell("pdflatex mizer_vignette.tex")
 %
 % shell("bibtex mizer_vignette")
@@ -105,16 +104,20 @@ rm(list=ls())
 \pkg{mizer} is a package for \R that implements size-based ecological models.
 The package has been developed to model marine ecosystems that are subject
 to fishing.
-However, it may also be appropriate for other ecosystems.
 The package contains routines and methods to allow users to set up the model
-community,
-and then project it through time under different fishing strategies.
-Methods are included to explore the results, including plots and 
+community, and then project it through time under different fishing strategies.
+Methods are included to explore the results of the simulations, including plots and 
 calculation of community indicators such as the slope of the size spectrum.
-Size-based models can be complicated so \pkg{mizer} contains many default
-options that can be easily changed by the user.
+Size-based models can be complicated so \pkg{mizer} contains many default options that can be easily changed by the user.
+For example, easy to use ''wrapper'' functions are provided so users can easily set up trait-based and community-based size-based models.
 
-\section{Introduction}
+This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based model, the community and trait-based model. This gives a basic overview of the structure of the classes used by \pkg{mizer}, as well as showing how a trophic-cascade can be simulated.
+
+There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example.
+Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+
+
+\section{Package installation and R}
 
 \subsection{Installation}
 % Freely borrowed from abc Vignette - ask the authors
@@ -137,7 +140,7 @@ library(mizer)
 @
 
 For an overview of the package documentation or the details of a particular command
-(such as the function \texttt{project}) you can type:
+(such as the function \texttt{project()}) you can type:
 <<eval=FALSE>>=
 help(package="mizer")
 help(project)
@@ -149,16 +152,10 @@ specific command.
 
 \subsection{Methods and classes in \R}
 
-This is only a brief reminder that expressions in \R manipulate
-objects, which may be data (a scalar or a matrix for example), but
-objects may also be functions, or more complex collections of objects.
-All objects have a class, which enables functions to act on them
-appropriately. Thus, for example, when the function \code{summary}
-is applied on an object of class \class{MizerParams} (the class
-that stores the model parameters), it would act
-differently than on a simple matrix.
+This is only a brief reminder that expressions in \R manipulate objects, which may be data (a scalar or a matrix for example), but objects may also be functions, or more complex collections of objects.  All objects have a class, which enables functions to act on them appropriately. Thus, for example, when the function \code{summary} is applied on an object of class \class{MizerParams} (the class that stores the model parameters), it would act differently than on a simple matrix.
+\pkg{mizer} only introduces two new classes, \class{MizerParams} and \class{MizerSim}.
 
-\section{Introduction to size-based modelling}
+\section{Introduction to size-based modelling - assumptions, concepts and processes}
 \label{sec:principles}
 
 Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
@@ -168,14 +165,12 @@ and their application, mostly in a marine context, to understand how marine comm
 \citep{andersen_asymptotic_2006, andersen_trophic_2009,blanchard_how_2009} and how they respond to fishing \citep{andersen_direct_2010, andersen_damped_2010}. This section introduces the central assumptions, concepts, processes, equations and parameters of a size-based model.
 
 Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} size spectrum model
-\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}. The focus of this section is on the food-web type of model where each species is characterized by its own set of parameters. \pkg{mizer} is able implement all three versions. IS IT?
+\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}. The focus of this section is on the food-web type of model where each species is characterized by its own set of parameters. The community and trait-based models can be considered as simplifications of the food-web type model and hence \pkg{mizer} is able implement all three versions.
 
-\section{Assumptions, concepts and processes}
-\label{sec:size_based_assumptions}
-
-Size spectrum models are a subset of physiologically structured models \citep{metz_dynamics_1986,de_roos_physiologically_2001} as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.  All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters (Table~\ref{tab:parameters}), which has prompted the label ``charmingly simple'' to the model framework \citep{pope_modelling_2006}.
 
 \subsection{Central concepts and assumptions}
+Size spectrum models are a subset of physiologically structured models \citep{metz_dynamics_1986,de_roos_physiologically_2001} as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.  All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters (Table~\ref{tab:parameters}), which has prompted the label ``charmingly simple'' to the model framework \citep{pope_modelling_2006}.
+
 The model framework builds on two central assumption and a number of lesser standard assumption.  
 
 The first central assumption is that an individual can be characterized by its weight $w$ and its species number $i$ only. The aim of the model is to calculate the size- and trait-spectrum ${\cal N}_i(w)$ which is the density of individuals such that ${\cal N}_i(w)dw$ is the number of individuals in the interval $[w:w+dw]$. The dimensions of the size spectrum are numbers per weight per volume.  Scaling from individual-level processes of growth and mortality to the size spectrum of each trait group is achieved by means of the McKendrik-von Foerster equation, which is simply a conservation equation:
@@ -288,7 +283,8 @@ One of the fundamental assumptions in fisheries science is that marine fish popu
   \label{fig:equ}
 \end{figure}
 
-THOUGHT THAT TRAIT BASED USED HOCKEY STICK
+THOUGHT THAT TRAIT BASED USED HOCKEY STICK. WORK ON THIS SECTION WHEN TRAIT-BASED MODEL HAS BEEN AGREED
+
 In the trait-based model, density dependence is modelled as a compensation on the egg production such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.  The compensation can be modelled mathematically analogous to the Holling type II function response as a ``Beverton-Holt'' type of stock-recruitment function:
 
 \begin{equation}
@@ -296,6 +292,8 @@ In the trait-based model, density dependence is modelled as a compensation on th
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
 \end{equation}
 where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Fig.~\ref{fig:recruitment}). 
+
+MIZER IS ABLE TO USE A RANGE OF SRRS - users can write their own.
 
 \subsection{Mortality}
 The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$ , starvation mortality $\mu_{s.i}(w)$, and a constant background mortality $\mu_{b.i}(w)$. The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citep[App.~A]{hartvig_food_2011-1} for derivation):
@@ -398,13 +396,13 @@ where $\overline{\epsilon}_I$ is the average growth efficiency which can be deri
 
 Setting up a community model is explored in Section~\ref{sec:community_example}.
 
-\section{Parameters}
+\subsection{Parameters}
 \label{sec:parameters}
 %DOES THIS SECTION ONLY APPLY TO COMMUNITY AND TRAIT BASED MODELS?
 %IN NS MODEL GAMMA IS SET HOW?
 %CAN ADD TO MIZERPARAMS CONSTRUCTOR OTHERWISE
 
-The parameters for the model have been derived on the basis of meta-analyses of data on marine fish (Table \ref{tab:parameters}). Two parameters deserving special mention in the following is the initial and critical feeding levels which are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
+The default parameter values for the model have been derived on the basis of meta-analyses of data on marine fish (Table \ref{tab:parameters}). Two parameters deserving special mention in the following is the initial and critical feeding levels which are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
 
 The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$:
 
@@ -422,14 +420,14 @@ The free parameter $\kappa$ may in principle be determined analytically as was d
 \section{Introducing \pkg{mizer}}
 
 The \pkg{mizer} package can be used to implement size-based ecological models.
-With \pkg{mizer} is is possible to implement the three types of model described above (with increasing complexity): community, trait-based and food-web.
-In this Vignette we present examples of all three types of model.
+With \pkg{mizer} is is possible to implement the three types of model described above (with increasing complexity): community, trait-based and food-web, using the same basic tools and methods.
+In this vignette we present examples of how to set up, project and analyse all three types of model.
 
 Using the package is relatively simple.  There are three main stages:
 
 \begin{itemize}
-    \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}. This includes model parameters such as the life history parameters of each species, and the range of the size spectrum. It is possible to create \class{MizerParams} directly using the class constructor or by using one of the convenient wrapper functions provided in the package.
-    \item Running a simulation. This is done by calling the \code{project()} method on the model parameters. This produces an object of \class{MizerSim} which contains the results of the simulation.
+    \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}. This includes model parameters such as the life history parameters of each species, and the range of the size spectrum. It is possible to create a \class{MizerParams} object directly using the class constructor or by using one of the convenient wrapper functions provided in the package.
+    \item Running a simulation. This is done by calling the \code{project()} method on the model parameters. This produces an object of \class{MizerSim} which contains the results of the simulation. The \code{project()} method controls the length and time-step of the simulation, as well as the levels of fishing effort.
     \item After a simulation has been run, the results can be explored using a range of plots and summaries.
 \end{itemize}
 
@@ -459,10 +457,10 @@ As can be seen in the help page, the function can take many arguments. These are
 The parameters that you should pay attention to are: $z0$ (the level of background mortality), $alpha$ (the assimilation efficiency of the community), $f0$ (the average feeding level of the community which is used to calculate $\gamma$ in equation~\ref{eq:gamma}) and $recruitment$ (the level of constant recruitment).
 
 Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of $z0$ is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
-The value of the recruitment should be set so that community spectrum is a continuation of the background spectrum. This can be done with trial error.
-A reasonable value for \code{alpha} is 0.2 \citep{andersen_life-history_2008}. 
+The value of the constant recruitment should be set so that the community spectrum is a continuation of the background spectrum. This can be done with trial and error.  A reasonable value for \code{alpha} is 0.2 \citep{andersen_life-history_2008}. 
 
-The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value:
+The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with $z0$ = 1, $f0$ = 0.7, $alpha$ = 0.2 and the constant recruitment ($recruitment$) = 4e7. All other parameters will have their default value:
+
 <<label=demo_comm_model_params>>=
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
 @
@@ -472,13 +470,13 @@ Calling the function creates and returns an object of type \class{MizerParams}. 
 class(params)
 @
 
-If you reading this vignette for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by running:
+If you are going through this vignette for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is an object made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by calling the \code{slotNames()} method on the object:
 
 <<label=slots_MP>>=
 slotNames(params)
 @
 
-As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams}. These slots are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams} and summarised in TABLE X. These slots are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
 
 <<label=demo_slot_accessor, results=hide>>=
 params@w
@@ -491,11 +489,11 @@ summary(params)
 @
 
 In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
-Additionally, the community is made up of one species which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The $w\_mat$ parameter has been set to NA as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
+Additionally, the community is made up of one species, called ''Community'', which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The $w\_mat$ parameter has been set to NA as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
 
 \subsection{Running the community model}
 \label{sec:running_comm_model}
-We now have a \class{MizerParams} object that contains all the information we need about the community. We can use this to perform a simulation and project the community through time.
+By using the \code{set\_community\_model()} method we now have a \class{MizerParams} object that contains all the information we need about the community. We can use this to perform a simulation and project the community through time.
 In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for \code{project()} for more details and it is described fully in Section~\ref{sec:projection}.
 We will ignore the details for the moment and just use \code{project()} to run some simple projections.
 The arguments for \code{project()} that we need to be concerned with are $effort$, which determines the fishing effort through time and therefore fishing mortality through time, and $t\_max$, which is the length of the simulation.
@@ -652,13 +650,13 @@ What happens if we reduce the value of $\sigma$, for example by setting it to 1.
 params_sigma1 <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
 @
 
-We want to project this new model through time using the \code{project()} method. However, note here that we are projecting the model by 100 time steps. More importantly note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of \code{project()} that performs the projection. 
-As you can see in the underlying model equations in Section~\ref{sec:size_based_assumptions}, the model runs in continuous time. Therefore, to project it forward, \code{project()} must solve the system of equations using approximations. The quality of these approximations is strongly affected by $dt$. 
+We want to project this new model through time using the \code{project()} method. However, note here that we are projecting the model by 50 time steps. More importantly note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of \code{project()} that performs the projection. 
+As you can see in the underlying model equations in Section~\ref{sec:principles}, the model runs in continuous time. Therefore, to project it forward, \code{project()} must solve the system of equations using approximations. The quality of these approximations is strongly affected by $dt$. 
 The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
 Here we project the new parameters object for 100 time steps without fishing:
 
 <<label=comm_project_sigma1>>=
-sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 100, dt=0.01)
+sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
 @
 
 Let's take a look at how the abundances change through time. We can do this with the \code{plotBiomass()} method:
@@ -800,7 +798,7 @@ SOMETHING IS GOING EXTINCT!
 \end{figure}
 
 The trophic cascade can be explored by looking at the change in total abundances of all species at size when the community is fished and unfished.
-As mentioned above, the abundances are stored in the \code{n) slot of the \class{MizerSim} object. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
+As mentioned above, the abundances are stored in the \code{n} slot of the \class{MizerSim} object. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
 
 <<label='dim_n'>>=
 dim(sim0@n)
@@ -888,8 +886,24 @@ CHECK WITH KEN
 %You can see Section~\ref{sec:fishing_gear} for more details).
 
 %---------------------------------------------------
+\section{Food-web models}
+
+The previous sections have used the wrapper functions to set up \class{MizerParams} objects that are appropriate for community and trait-based simulations.
+We now turn our attention to food-web models. These are potentially more complicated than the community and trait-based models and use the full power of the \pkg{mizer} package.
+
+SOME INTRODUCTORY STUFF TO THE FOOD-WEB MODEL
+WHAT ARE MAIN STEPS FROM TRAIT BASED AND COMMUNITY MODELS TO FOOD WEB? WHY DO WE USE THEM? THEY CAN MODEL SPECIFIC ECOSYSTEMS?
+
+For example, each species may have different life history parameters; there may be multiple gear types with different selectivities targetting different groups of species (and some species may be targeted by more than one gear); the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
+
+This means that to effectively use \pkg{mizer} for a food-web model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
+In the following sections we build up a food-web model for the North Sea.
+
+We also take a closer look at some of summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
+
 \section{The \class{MizerParams} class}
 \label{sec:MizerParams}
+
 
 Before any simulations can be run it is necessary to set the parameters
 of the model.
@@ -1419,6 +1433,9 @@ the catches by gear.
 \section{Running a simulation}
 \label{sec:projection}
 
+In Sections COMM and TRAIT we used the \code{project()} method to perform simple simulations where the fishing effort was held constant through the duration of the simulation.
+Here we take a more detailed look at the \code{project()} method.
+
 In \pkg{mizer} simulations are performed using the \code{project()}
 method. This method takes a \class{MizerParams} object and projects it
 forward through time, starting from an initital population abundance
@@ -1511,7 +1528,7 @@ size spectrum). $initial\_n\_pp$ is a vector of the same length as the
 the length of the full spectrum.
 
 By default, the $initial\_n$ argument has values
-calculated using the methods described in NORTH SEA PAPER.
+calculated using KEN ANDERSEN MAGIC.
 These are implemented in the function \code{get\_initial\_n()}.
 The default value for $initial\_n\_pp$ is the carrying capacity
 of the background spectrum, stored in the $cc\_pp$ slot of the
@@ -1961,64 +1978,7 @@ plot(sim)
 \label{fig:plot_example}
 \end{figure}
 
-\section{Setting up and running a community type model}
-\label{sec:community_example}
-
-It is possible to use \pkg{Mizer} to implement a simple community model as described in
-Section~\ref{sec:community_model_intro}.
-By using the wrapper function \code{set\_community\_model()} it is possible to create 
-a \class{MizerParams} object that sets up a community model.
-This can be projected through time in the ususal way using the \code{project()} method.
-The community model has the following features that distinguish it from the food web models described earlier:
-\begin{itemize}
-    \item There is only one 'species' in the community.
-    \item The recruitment function has been set to give constant recruitment.
-    \item The \code{psi} slot is set to 0 so that no energy is used for reproduction.
-    \item Standard metabolism has been turned off (the parameter \code{ks} has been set to 0).
-    \item The growth rate is a product of the ingested food and the assimilation efficiency.
-    \item The resource spectrum extends only up to the start of the community spectrum.
-    \item The \code{gamma} species parameter is calculated using equation~\ref{eq:gamma} and the argument \code{f0}.
-\end{itemize}
-
-The arguments to \code{set\_community\_model()} are described in the help page. Many
-of the arguments are the same as those for the \class{MizerParams} constructor.
-The two parameters which are new are \code{f0} and \code{recruitment}.
-\code{f0} is the initial feeding level (described in Section~\ref{sec:parameters}) and used to calculate $\gamma$.
-\code{recruitment} is the level of constant recruitment.
-
-Although \code{set\_community\_model()} has many parameters, the dynamics of the community can be broadly controlled through the parameters
-\code{recruitment}, \code{f0}, \code{alpha} and \code{z0}. 
-As a guideline, \code{recruitment} should be set so that the community spectrum continues the background spectrum
-and \code{z0} should be adjusted to get a reasonable spectrum.
-
-%SOMETHING ON CYCLIC BEHAVIOUR?
-
-For example, a community can be set up as:
-
-<<label=set_up_community_model>>=
-comm_params <- set_community_model(z0 = 0.2, recruitment = 3e7, alpha = 0.2, f0 = 0.7)
-@
-
-This can then be projected through time in the ususal way. It may be necessary to reduce \code{dt} (for example, to 0.1) to reduce any instabilities with the solver.
-
-For example, to project it forward without any fishing pressure:
-
-<<label=project_community_model>>=
-comm_sim <- project(comm_params, effort = 0, t_max = 50, dt = 0.1)
-@
-
-The resulting abundance spectra can be seen in Figure~\ref{fig:plotSpectra_community_example}
-
-\begin{figure}
-<<label=plotSpectra_community_model, fig=TRUE, echo=FALSE>>=
-p <- plotSpectra(comm_sim, biomass=FALSE)
-print(p)
-@
-    \caption{An example background and community abundance spectra of a simple community model created using the \code{set\_community\_model()} function.}
-\label{fig:plotSpectra_community_example}
-\end{figure}
-
-
+%------------------------------------------------------------------------------------
 \section{A detailed example using the North Sea}
 \label{sec:north_sea_example}
 
