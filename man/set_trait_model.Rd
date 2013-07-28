@@ -9,7 +9,7 @@
     n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
     kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
     z0 = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    knife_edge_size = 1000, ...)
+    knife_edge_size = 1000, knife_is_min = TRUE, ...)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -88,6 +88,10 @@
 
   \item{knife_edge_size}{The size at the edge of the
   knife-selectivity function.}
+
+  \item{knife_is_min}{Is the knife-edge selectivity
+  function selecting above (TRUE) or below (FALSE) the
+  edge.}
 }
 \value{
   An object of type \code{MizerParams}

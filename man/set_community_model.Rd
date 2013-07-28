@@ -6,7 +6,7 @@
     z0 = 0.1, recruitment = 4e+07, alpha = 0.2, h = 10,
     beta = 100, sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
     lambda = 2 + q - n, f0 = 0.7, knife_edge_size = 1000,
-    ...)
+    knife_is_min = TRUE, ...)
 }
 \arguments{
   \item{z0}{The background mortality of the community. The
@@ -49,6 +49,10 @@
 
   \item{knife_edge_size}{The size at the edge of the
   knife-selectivity function.}
+
+  \item{knife_is_min}{Is the knife-edge selectivity
+  function selecting above (TRUE) or below (FALSE) the
+  edge.}
 
   \item{max_w}{The maximum size of the community. The
   \code{w_inf} of the species used to represent the

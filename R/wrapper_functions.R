@@ -28,6 +28,7 @@
 #' @param kappa The carrying capacity of the background spectrum. The default value is 1000.
 #' @param lambda The exponent of the background spectrum. The default value is 2 + q - n.
 #' @param knife_edge_size The size at the edge of the knife-selectivity function.
+#' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the species used to represent the community is set to 0.9 * this value. The default value is 1e6.
 #' @param min_w The minimum size of the community. The default value is 1e-3.
 #' @export
@@ -53,6 +54,7 @@ set_community_model <- function(max_w = 1e6,
                                 lambda = 2+q-n,
                                 f0 = 0.7,
                                 knife_edge_size = 1000,
+                                knife_is_min = TRUE,
                                 ...
                                 ){
     w_inf <- max_w * 0.9
@@ -75,6 +77,7 @@ set_community_model <- function(max_w = 1e6,
         erepro = 1, # not used
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
+        knife_is_min = knife_is_min,
         constant_recruitment = recruitment # to be used in the SRR
     )
     # Set the recruitment function for constant recruitment
@@ -144,6 +147,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume.
 #' @param knife_edge_size The size at the edge of the knife-selectivity function.
+#' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -178,6 +182,7 @@ set_trait_model <- function(no_sp = 10,
                             sigma = 1.3,
                             f0 = 0.5,
                             knife_edge_size = 1000,
+                            knife_is_min = TRUE,
                             ...){
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
@@ -198,6 +203,7 @@ set_trait_model <- function(no_sp = 10,
             alpha = alpha,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
+            knife_is_min = knife_is_min,
             gear = "knife_edge_gear",
             erepro = 1 # not used but included out of necessity
     )
