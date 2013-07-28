@@ -12,8 +12,7 @@
 #'
 #' The function has many arguments, all of which have default values. The main arguments that the users should be concerned with are \code{z0}, \code{recruitment}, \code{alpha} and \code{f0} as these determine the average growth rate of the community.
 #'
-#' Fishing selectivity is modelled as a sigmoid function with two parameters: \code{l25} and \code{l50} which determine the lengths at which
-#' selectivity is 0.25 and 0.5 respectively. Lengths are converted to weights using the default parameters a = 0.001 and b = 3.0.
+#' Fishing selectivity is modelled as a knife-edge selectivity function.
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
@@ -28,10 +27,7 @@
 #' @param n The scaling of the intake. The default value is 2/3.
 #' @param kappa The carrying capacity of the background spectrum. The default value is 1000.
 #' @param lambda The exponent of the background spectrum. The default value is 2 + q - n.
-#' @param a The length-weight coefficient. The default value is 0.01.
-#' @param b The length-weight exponent. The default value is 3.0.
-#' @param l25 The size at which fishing selectivity is 25%. The default value is 10.
-#' @param l50 The size at which fishing selectivity is 50%. The default value is 40.
+#' @param knife_edge_size The size at the edge of the knife-selectivity function.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the species used to represent the community is set to 0.9 * this value. The default value is 1e6.
 #' @param min_w The minimum size of the community. The default value is 1e-3.
 #' @export
@@ -56,7 +52,7 @@ set_community_model <- function(max_w = 1e6,
                                 kappa = 1000,
                                 lambda = 2+q-n,
                                 f0 = 0.7,
-                                a = 0.01, b = 3.0, l25 = 10, l50 = 40,
+                                knife_edge_size = 1000,
                                 ...
                                 ){
     w_inf <- max_w * 0.9
@@ -76,11 +72,9 @@ set_community_model <- function(max_w = 1e6,
         sigma = sigma,
         z0 = z0, # background mortality
         alpha = alpha,
-        l25 = l25, 
-        l50 = l50, 
-        a = a, 
-        b = b, 
         erepro = 1, # not used
+        sel_func = "knife_edge",
+        knife_edge_size = knife_edge_size,
         constant_recruitment = recruitment # to be used in the SRR
     )
     # Set the recruitment function for constant recruitment
@@ -115,7 +109,7 @@ set_community_model <- function(max_w = 1e6,
 #' The asymptotic sizes of the species are spread evenly on a logarithmic scale within this range.
 #'
 #' The stock recruitment relationship in the trait-based model is a 'hockey-stick' (following Andersen and Pedersen, 2009).
-#' The maximum value the recruitment can be controlled using the \code{k0} parameter.
+#' The maximum value of the recruitment can be controlled using the \code{k0} parameter.
 #' Users should adjust this value to get the spectra they want.
 #'
 #' The factor for the search volume, \code{gamma}, is calculated using the expected feeding level, \code{f0}.
@@ -149,10 +143,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume.
-#' @param l25 The size at which fishing selectivity is 25%. The default value is 10.
-#' @param l50 The size at which fishing selectivity is 50%. The default value is 40.
-#' @param a The length-weight coefficient. The default value is 0.01.
-#' @param b The length-weight exponent. The default value is 3.0.
+#' @param knife_edge_size The size at the edge of the knife-selectivity function.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -164,7 +155,7 @@ set_community_model <- function(max_w = 1e6,
 #' plot(sim)
 set_trait_model <- function(no_sp = 10,
                             min_w_inf = 10,
-                            max_w_inf = 1e5,
+                            max_w_inf = 1e6,
                             no_w = 100,
                             min_w = 0.001,
                             max_w = max_w_inf * 1.1,
@@ -186,10 +177,7 @@ set_trait_model <- function(no_sp = 10,
                             beta = 100,
                             sigma = 1.3,
                             f0 = 0.5,
-                            l25 = 10,
-                            l50 = 40,
-                            a = 0.001, 
-                            b = 3, 
+                            knife_edge_size = 1000,
                             ...){
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
@@ -208,10 +196,9 @@ set_trait_model <- function(no_sp = 10,
             sigma = sigma,
             z0 = z0 * w_inf^(n-1), # background mortality
             alpha = alpha,
-            l25 = l25,
-            l50 = l50,
-            a = a, 
-            b = b, 
+            sel_func = "knife_edge",
+            knife_edge_size = knife_edge_size,
+            gear = "knife_edge_gear",
             erepro = 1 # not used but included out of necessity
     )
     # Make the MizerParams

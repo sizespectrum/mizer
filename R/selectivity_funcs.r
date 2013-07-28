@@ -26,19 +26,13 @@ sigmoid_length <- function(w,l25,l50,a,b)
 
 #' Size based knife-edge selectivity function
 #'
-#' A knife-edge selectivity function. The direction of the knife-edge is determined by the \code{is_min} argument. If \code{is_min} is TRUE, then all sizes equal to or greater than \code{w_limit} are selected. If \code{is_min} is FALSE, then all sizes equal to or less than \code{w_limit} are selected.
+#' A knife-edge selectivity function. All sizes equal to or greater than \code{knife_edge_size} are selected.
 #'
 #' @param w The size of the individual.
-#' @param w_limit The size at which the knife-edge operates.
-#' @param is_min TRUE or FALSE. Sizes equal to or greater than (TRUE) or less than (FALSE) are selected.
+#' @param knife_edge_size The size at which the knife-edge operates.
 #' @export
-knife_edge <- function(w, w_limit, is_min = TRUE){
+knife_edge <- function(w, knife_edge_size){
     sel <- rep(0, length(w))
-    if (is_min == TRUE){
-        sel[w >= w_limit] <- 1
-    }
-    if (is_min == FALSE){
-        sel[w <= w_limit] <- 1
-    }
+    sel[w >= knife_edge_size] <- 1
     return(sel)
 } 

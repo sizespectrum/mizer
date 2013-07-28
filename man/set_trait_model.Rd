@@ -3,13 +3,13 @@
 \title{Sets up parameters for a trait-based model}
 \usage{
   set_trait_model(no_sp = 10, min_w_inf = 10,
-    max_w_inf = 1e+05, no_w = 100, min_w = 0.001,
+    max_w_inf = 1e+06, no_w = 100, min_w = 0.001,
     max_w = max_w_inf * 1.1, min_w_pp = 1e-10,
     no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1, k0 = 100,
     n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
     kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
     z0 = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    l25 = 10, l50 = 40, a = 0.001, b = 3, ...)
+    knife_edge_size = 1000, ...)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -86,32 +86,23 @@
   \item{f0}{Expected average feeding level. Used to set
   \code{gamma}, the factor for the search volume.}
 
-  \item{l25}{The size at which fishing selectivity is 25%.
-  The default value is 10.}
-
-  \item{l50}{The size at which fishing selectivity is 50%.
-  The default value is 40.}
-
-  \item{a}{The length-weight coefficient. The default value
-  is 0.01.}
-
-  \item{b}{The length-weight exponent. The default value is
-  3.0.}
+  \item{knife_edge_size}{The size at the edge of the
+  knife-selectivity function.}
 }
 \value{
   An object of type \code{MizerParams}
 }
 \description{
   This functions creates a \code{MizerParams} object so
-  that community-type models can be easily set up and run.
-  The trait-based size spectrum model can be derived as a
-  simplification of the general size-based model used in
-  \code{mizer}. All the species-specific parameters are the
-  same, except for the asymptotic size, which is considered
-  the most important trait characterizing a species. Other
-  parameters are related to the asymptotic size. For
-  example, the size at maturity is given by w_inf * eta,
-  where eta is the same for all species. For the
+  that trait-based-type models can be easily set up and
+  run. The trait-based size spectrum model can be derived
+  as a simplification of the general size-based model used
+  in \code{mizer}. All the species-specific parameters are
+  the same, except for the asymptotic size, which is
+  considered the most important trait characterizing a
+  species. Other parameters are related to the asymptotic
+  size. For example, the size at maturity is given by w_inf
+  * eta, where eta is the same for all species. For the
   trait-based model the number of species is not important.
   For applications of the trait-based model see Andersen &
   Pedersen (2010). See the \code{mizer} vignette for more
@@ -127,8 +118,8 @@
 
   The stock recruitment relationship in the trait-based
   model is a 'hockey-stick' (following Andersen and
-  Pedersen, 2009). The maximum value the recruitment can be
-  controlled using the \code{k0} parameter. Users should
+  Pedersen, 2009). The maximum value of the recruitment can
+  be controlled using the \code{k0} parameter. Users should
   adjust this value to get the spectra they want.
 
   The factor for the search volume, \code{gamma}, is

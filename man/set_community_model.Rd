@@ -5,8 +5,8 @@
   set_community_model(max_w = 1e+06, min_w = 0.001,
     z0 = 0.1, recruitment = 4e+07, alpha = 0.2, h = 10,
     beta = 100, sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
-    lambda = 2 + q - n, f0 = 0.7, a = 0.01, b = 3,
-    l25 = 10, l50 = 40, ...)
+    lambda = 2 + q - n, f0 = 0.7, knife_edge_size = 1000,
+    ...)
 }
 \arguments{
   \item{z0}{The background mortality of the community. The
@@ -47,17 +47,8 @@
   \item{lambda}{The exponent of the background spectrum.
   The default value is 2 + q - n.}
 
-  \item{a}{The length-weight coefficient. The default value
-  is 0.01.}
-
-  \item{b}{The length-weight exponent. The default value is
-  3.0.}
-
-  \item{l25}{The size at which fishing selectivity is 25%.
-  The default value is 10.}
-
-  \item{l50}{The size at which fishing selectivity is 50%.
-  The default value is 40.}
+  \item{knife_edge_size}{The size at the edge of the
+  knife-selectivity function.}
 
   \item{max_w}{The maximum size of the community. The
   \code{w_inf} of the species used to represent the
@@ -94,11 +85,8 @@
   \code{alpha} and \code{f0} as these determine the average
   growth rate of the community.
 
-  Fishing selectivity is modelled as a sigmoid function
-  with two parameters: \code{l25} and \code{l50} which
-  determine the lengths at which selectivity is 0.25 and
-  0.5 respectively. Lengths are converted to weights using
-  the default parameters a = 0.001 and b = 3.0.
+  Fishing selectivity is modelled as a knife-edge
+  selectivity function.
 
   The resulting \code{MizerParams} object can be projected
   forward using \code{project()} like any other
