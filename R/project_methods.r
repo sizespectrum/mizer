@@ -670,7 +670,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 
 #' getRDI method for the size based model
 #'
-#' Calculates the density independent recruitment (flux entering the smallest size class of each species) before density dependence, by species.
+#' Calculates the density independent recruitment (total egg production) before density dependence, by species.
 #' Used by the \code{project} method for performing simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
@@ -722,7 +722,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 
 #' getRDD method for the size based model
 #'
-#' Calculates the density dependent recruitment (flux entering the smallest size class of each species) for each species.
+#' Calculates the density dependent recruitment (total egg production) for each species.
+#' This is the flux entering the smallest size class of each species. 
 #' The density dependent recruiment is the density independent recruitment after it has been put through the density dependent stock-recruitment relationship function. 
 #' This method is used by the \code{project} method for performing simulations.
 #' @param object An \code{MizerParams} object
