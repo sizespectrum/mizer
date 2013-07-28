@@ -288,6 +288,7 @@ One of the fundamental assumptions in fisheries science is that marine fish popu
   \label{fig:equ}
 \end{figure}
 
+THOUGHT THAT TRAIT BASED USED HOCKEY STICK
 In the trait-based model, density dependence is modelled as a compensation on the egg production such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.  The compensation can be modelled mathematically analogous to the Holling type II function response as a ``Beverton-Holt'' type of stock-recruitment function:
 
 \begin{equation}
@@ -471,7 +472,7 @@ Calling the function creates and returns an object of type \class{MizerParams}. 
 class(params)
 @
 
-If you reading this for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by running:
+If you reading this vignette for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by running:
 
 <<label=slots_MP>>=
 slotNames(params)
@@ -544,7 +545,7 @@ To pull out the predation mortality at size in the final time step we use:
 m2[51,]
 @
 
-If you plot this predation mortality on log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}). There is also a kink in the predation mortality for sizes that are the prey of the largest sizes - an illustration of a mild tropic cascade which we shall discuss next.
+If you plot this predation mortality on log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}).
 
 \begin{figure}
 <<label=print_plot_comm_m2, fig=TRUE, echo=FALSE>>=
@@ -554,26 +555,15 @@ plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "P
 \label{fig:plot_comm_m2}
 \end{figure}
 
-
 \subsection{Example of a trophic cascade with the community model}
 \label{sec:trophic_cascade_comm_model}
 It is possible to use the community model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
-To do this we need to perform two simulations, one with fishing and one without.
-This means we need to consider the fishing selectivity function. By default, the fishing gear selectivty function is a sigmoid function based on length (see Section~\ref{sec:fishing_gear} and the help page for the function \code{sigmoid\_length()}). The shape of this selectivity pattern is determined by two parameters: $l25$ and $l50$, which are the lengths at 25 and 50\% selectivity respectively. These lengths are converted to weights using the default length-weight conversion parameters of $a$ = 0.01 and $b$ = 3.0 (the values of these parameters can be changed by passing arguments to the \code{set\_community\_model()} function).
-In this example we would like to simulate a knife-edge type of fishing selectivity, with only species larger than 1 kg being selected. This means we have to calculate values for $l25$ and $l50$:
+To do this we need to perform two simulations, one with fishing and one without.  This means we need to consider the fishing selectivity function.
 
-<<label=calc_sel_for_comm>>=
-a <- 0.01
-b <- 3.0
-selected_weight <- 1000
-l50 <- (selected_weight/a)^(1/b)
-@
-
-Setting \code{l25} to be only slightly smaller than \code{l50} approximates a knife-edge selectivity function.
-We add these parameters to the wrapper function to get our \class{MizerParams} with knife-edge selectivity:
+The \code{set\_community\_model()} automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the $knife\_edge\_size$ argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity.
 
 <<label='set_comm_fishing'>>=
-params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, l50 = l50, l25 = l50*0.99)
+params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
 @
 
 First we perform a simulation without fishing in the same way we did above by setting the $effort$ argument to 0:
@@ -588,9 +578,7 @@ Now we want to simulate again, this time with fishing. In the simulations, fishi
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 @
 
-You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\ref{fig:plot_comm_fmort}). Of particular interest is the fishing mortality at size.
-%This can be plotted using the \code{plotFMort()} method .
-The knife-edge selectivity at 1000g can be clearly seen.
+You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\ref{fig:plot_comm_fmort}). Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000g can be clearly seen. An effort of 1 results in a fishing mortality of 1 for fully selected sizes.
 
 <<label=plot_comm_fmort, eval=FALSE>>=
 plot(sim1)
@@ -617,7 +605,7 @@ relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 @
 
 \begin{figure}
-<<label=plot_relative_comm_abund, fig=TRUE>>=
+<<label=plot_relative_comm_abund, fig=TRUE, echo=FALSE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="x", type="n", xlab = "Size (g)", ylab="Relative abundance")
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
@@ -689,10 +677,13 @@ plotBiomass(sim_sigma1)
 
 Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see Section~\ref{sec:trait_based_model}) is implemented, the magnitude of the oscillations are much smaller.
 
+%-----------------------------------------------------------------------
 \section{Implementing a trait-based model}
 \label{sec:trait_based_model}
 
-As mentioned above, the trait-based size spectrum model is a simplification of the general size spectrum model (see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}). Unlike the community model described above, more than one species is resolved. However, all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species. Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$, i.e. the life history parameters of each species in the model is determined by the most important trait.  The number of species is not important and does not affect the general dynamics of the model.
+\subsection{Setting up a trait-based model}
+\label{sec:set_up_trait_model}
+As mentioned in the introduction, the trait-based size spectrum model is a simplification of the general size spectrum model (see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}). Unlike the community model described in Section \ref{sec:comm_model}, more than one species is resolved. In the trait-based model, the asymptotic size is considered to be the most important ``trait'' characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size. For example, $w_m = \eta_m W$, where $\eta_m = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
 
 To help set up a trait-based model, there is a wrapper function, \code{set\_trait\_model()}. Like the \code{set\_community\_model()} function described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
 
@@ -700,30 +691,49 @@ To help set up a trait-based model, there is a wrapper function, \code{set\_trai
 ?set_trait_model
 @
 
-The main parameters of interest are the number of the species in the model (\code{no\_sp}) and the minimum and maximum asymptotic sizes (\code{min\_w\_inf} and \code{max\_w\_inf} respectively). Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 to 1e05 g (the sizes are spread evenly on a logarithmic scale).
+The main parameters of interest are the number of the species in the model (\code{no\_sp}) and the minimum and maximum asymptotic sizes (\code{min\_w\_inf} and \code{max\_w\_inf} respectively). Here we set up the model to have 10 species, with asymptotic sizes ranging from 4g to 100 kg (the sizes are spread evenly on a logarithmic scale).
+
+One of the key differences between the community type model described above and the trait-based model is the stock-recruitment relationship (SRR).
+In the community model, recruitment is constant and there is no relationship between the abundance in the community and the recruitment.
+In the trait-based model, the SRR is modeled using a ''hockey-stick'' type function, where the realised numbers entering the smallest size group are linearly related to the density-independent egg production (Equation \ref{eq:Rp}), but capped my a maximum value (for more details see Appendix 1 in \citep{andersen_damped_2010}).
+This maximum value is controlled by a scalar parameter, $k0$. This should be adjusted by the user so that the community spectra roughly forms a continuation of the resource spectrum. The default value of $k0$ is 100.
+For further information on how SRRs are dealt with in \pkg{mizer} see Section \ref{sec:srr}.
+
+CAREFUL - RECRUITMENT SECTION MENTIONS BH SRR
+ALSO CHECK A and P 2010 to see if SRR is implemented properly in wrapper function
 
 <<label=demo_trait_model_params>>=
-params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+params <- set_trait_model(no_sp = 10, min_w_inf = 4, max_w_inf = 1e6, k0 = 100)
 @
 
-This function returns an object of type \class{MizerParams}.
+This function returns an object of type \class{MizerParams}, which holds all the model information including species paramaters.
 
 <<label=class_trait_params>>=
 class(params)
 @
 
-This object can therefore be interrogated in the same way as described in the COMMUNITY SECTION above, either by inspecting the individual slots or by using the \code{summary()} function.
+This object can therefore be interrogated in the same way as described in Section \ref{sec:comm_model} above, either by inspecting the individual slots or by using the \code{summary()} function.
 
-SUMMARY
+<<label=summary_comm_params>>=
+summary(params)
+@
+
+The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from \Sexpr{min(params@species_params$w_inf)}
+to \Sexpr{max(params@species_params$w_inf)}. Each species has the same preferred predator-prey mass ratio parameter values ($beta$ and $sigma$, see Equation \ref{eq4}). There are \Sexpr{length(params@w)} size bins in the community.
+Ignore the summary section on fishing gear for the moment. This is explained below.
+
+\subsection{Running the trait-based model}
+\label{sec:running_trait_model}
 
 As with the community model described above, we can project the model through time using the \code{project()} method.
-Here we project the model for 100 time steps, without any fishing, and using the default initial population abundances given by the \code{get\_initial\_n()} function (see Section \ref{sec:setting_initial_abundances}).
-
-ARE INITIAL ABUNDANCES MENTIONED IN COMMUNITY SECTION ?
+Here we project the model for 50 time steps and without any fishing (the $effort$ argument is set to 0). We use the default initial population abundances given by the \code{get\_initial\_n()} function (see Section \ref{sec:setting_initial_abundances}).
 
 <<label=trait_project_no_fishing>>=
-sim <- project(params, t_max=100, effort = 0)
+sim <- project(params, t_max=50, effort = 0)
 @
+
+This results in a \class{MizerSim} object which contains the original \class{MizerParams} object, as well as the abundances of the spcecies and the background spectra through time.
+We can get a quick overview of the simulation by calling the generic \code{plot()} method:
 
 <<plot_comm_sim, eval=FALSE>>=
 plot(sim)
@@ -737,10 +747,145 @@ plot(sim)
 \label{fig:plot_trait_demo}
 \end{figure}
 
+The summary plot has the same panels as the one generated by the community model, but here all the species in the community are plotted (Figure \ref{fig:plot_trait_demo}). The panels show the situation in the final time step of the simulation, apart from the biomass through time plot.
 
-SRR?
+As this is a trait-based model where all species fully interact with each other, the predation mortality (M2) and feeding level by size is the same for each species.
+The biomass quickly settles down to equilibria. In this simulation we turned fishing off so the fishing mortality is 0.
+The size-spectra show the abundances at size to be evenly spaced by asymptotic size.
+
+\subsection{Example of a trophic cascade with the trait-based model}
+\label{sec:trophic_cascade_trait_model}
+
+As with the community model, it is possible to use the trait-based model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
+Again, we perform two simulations, one with fishing and one without. We therefore need to consider how fishing gears and selectivity have been set up by the \code{set\_trait\_model()} function. 
+
+The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1 kg. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the \code{summary()} method on the $params$ argument we set up above. At the bottom of the summary there is a section on ''Fishing gear details''. You can see that the there is only gear, called ''knife\_edge\_gear'' and that it selects species 1 to 10.
+
+It is possible to include more than one fishing gear in the model and for different species to be caught by different gears. It is also possible for a species to be caught by more than one fishing gear. We will ignore this now, but will explore it further below. 
+
+We set up the \class{MizerParams} object in the same way as we did before. The $knife\_edge\_size$ parameter is explicitly passed in for clarity.
+
+<<label=set_trait_fishing>>=
+params_knife <- set_trait_model(no_sp = 10, min_w_inf = 4, max_w_inf = 1e6, k0 = 100, knife_edge_size = 1000)
+#params_knife@species_params$erepro[] <- 0.01
+@
+
+First we perform a simulation without fishing in the same way we did above by setting the $effort$ argument to 0:
+
+<<label=sim_trait_no_fish>>=
+sim0 <- project(params_knife, effort = 0, t_max = 50)
+@
+
+Now we simulate with fishing. Here, we use an effort of 1. As mentioned earlier, the fishing mortality on a species is the product of effort, catchability and selectivity (see Section~\ref{sec:fishing_gear} for more details). Selectivity ranges between 0 and 1. By default catchability is 1. Therfore, in this simulation the maximum fishing mortality is given by the effort. This effort is constant throughout the duration of the simulation (however, this is not necessarily the case, see Section\ref{sec:projection}).
+
+<<label=sim_trait_with_fish>>=
+sim1 <- project(params_knife, effort = 0.5, t_max = 50)
+@
+
+%This can be plotted using the \code{plotFMort()} method .
+By plotting a summary of fished community, the knife-edge selectivity at 1000g can be clearly seen (Figure \ref{fig:plot_trait_fmort}):
+
+<<label=plot_trait_fmort, eval=FALSE>>=
+plot(sim1)
+@
+
+SOMETHING IS GOING EXTINCT!
+
+\begin{figure}
+<<label=print_plot_trait_fmort, fig=TRUE, echo=FALSE>>=
+<<plot_trait_fmort>>
+@
+\caption{Summary plot for the trait-based model when fishing with knife-edge selectivity at size = 1000 g.}
+\label{fig:plot_trait_fmort}
+\end{figure}
+
+The trophic cascade can be explored by looking at the change in total abundances of all species at size when the community is fished and unfished.
+As mentioned above, the abundances are stored in the \code{n) slot of the \class{MizerSim} object. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
+
+<<label='dim_n'>>=
+dim(sim0@n)
+@
+
+As with the community model, we are interested in the relative total abundances by size in the final time step. We can use the \code{apply()} function to help us:
+
+<<lable = total_abund_trait>>=
+total_abund0 <- apply(sim0@n[51,,],2,sum)
+total_abund1 <- apply(sim1@n[51,,],2,sum)
+@
+
+We can use these vectors to calculate the relative abundances:
+
+<<label='relative_comm_abundance'>>=
+relative_abundance <- total_abund1 / total_abund0
+@
+
+This can be plotted using:
+
+<<label=plot_relative_comm_abund, eval=FALSE>>=
+plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)", ylab="Relative abundance", ylim = c(0.1,10))
+lines(x=sim0@params@w, y=relative_abundance)
+lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
+@
+
+\begin{figure}
+<<label=show_plot_relative_comm_abund, fig=TRUE, eval=FALSE>>=
+<<plot_relative_comm_abund>>
+@
+\caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model.}
+\label{fig:plot_relative_comm_abund}
+\end{figure}
+
+The impact of fishing on species larger than 1000g can be clearly seen (Figure~\ref{fig:plot_relative_comm_abund}).
+As described above and in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish. This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
+
+This impact can also be seen by looking at the predation mortality by size. 
+The predation mortalities are retrieved using the \code{getM2()} method for \class{MizerSim} objects. This returns a 3D array of predation mortalities by time x species x size (see the help page for more details). As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species. 
+
+<<label='get_M2_trait'>>=
+m2_no_fishing <- getM2(sim0)[51,1,]
+m2_with_fishing <- getM2(sim1)[51,1,]
+@
+
+These can then be plotted (see Figure \ref{fig:plot_m2_comm}).
+LOOKS EXACTLY THE SAME - HMMMM
+
+<<label=plot_relative_trait_m2, eval=FALSE>>=
+w_idx <- sim0@params@w >= 1
+plot(x=sim0@params@w, y=m2_with_fishing, log="x", type="l", xlab = "Size (g)", ylab="Predation mortality", ylim=c(0,2))
+lines(x=sim0@params@w, y=m2_no_fishing, lty=2)
+@
+
+\begin{figure}
+<<label=print_plot_relative_comm_m2, fig=TRUE>>=
+<<plot_relative_comm_m2>>
+@
+\caption{Predation mortalities from the unfished (dashed line) and fished (solid line) community model.}
+\label{fig:plot_m2_comm}
+\end{figure}
 
 
+\subsection{Setting up an industrial fishing gear}
+\label{sec:trait_additional_gear}
+
+TRYING TO REPLICATE FIGURE 4 OF AP 2010 but not sure of selectivity pattern.
+
+In this section we look a little more closely at how the fishing gears, selectivities and catchabilities are set up with \pkg{mizer}.
+
+In these simulations we only want to operate an ''industrial'' fishery. Industrial fishing targets the small zooplanktivorous species that are typically used for fishmeal production. In the previous simulations we have had only fishing gear and that this has targetted all the species in the community.
+Now we only want to have an industrial gear that only selects species which have an asymptotic size less than or equal to 500 g.
+These species will be fully selected from their smallest size, i.e. for a knife-edge selectivity WHAT IS THE KNIFE-EDGE SIZE?
+
+First of all we will set up a \class{MizerParams} object as before and look at what is going on.
+
+<<label=set_trait_fishing_again>>=
+params <- set_trait_model(no_sp = 10, min_w_inf = 4, max_w_inf = 1e6, k0 = 100, knife_edge_size = 1000)
+@
+
+SO ARE WE EFFECTIVELY ADDING IN A REVERSE KNIFE EDGE FOR SPECIES WITH WINF <= 500?
+CHECK WITH KEN
+
+
+%You can see Section~\ref{sec:fishing_gear} for more details).
 
 %---------------------------------------------------
 \section{The \class{MizerParams} class}
