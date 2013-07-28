@@ -1,17 +1,9 @@
 # Selectivity functions for size based model
-# First argument has to be w
+# First argument to the function has to be w
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. Distributed under the GPL 2 or later
+# Copyright 2012 Finlay Scott, Julia Blanchard and Ken Andersen.
+# Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS
-
-# Based on length
-#sigmoidLength <- function(L,L25,L50)
-#{
-#  SR <- L50 - L25
-#  S1 <- L50*log(3)/SR
-#  S2 <- S1 / L50
-#  return(1 / (1 + exp(S1 - S2*L)))
-#}
 
 #' Length based sigmoid selectivity function
 #'
@@ -32,3 +24,21 @@ sigmoid_length <- function(w,l25,l50,a,b)
     return(1 / (1 + exp(s1 - s2*l)))
 }
 
+#' Size based knife-edge selectivity function
+#'
+#' A knife-edge selectivity function. The direction of the knife-edge is determined by the \code{is_min} argument. If \code{is_min} is TRUE, then all sizes equal to or greater than \code{w_limit} are selected. If \code{is_min} is FALSE, then all sizes equal to or less than \code{w_limit} are selected.
+#'
+#' @param w The size of the individual.
+#' @param w_limit The size at which the knife-edge operates.
+#' @param is_min TRUE or FALSE. Sizes equal to or greater than (TRUE) or less than (FALSE) are selected.
+#' @export
+knife_edge <- function(w, w_limit, is_min = TRUE){
+    sel <- rep(0, length(w))
+    if (is_min == TRUE){
+        sel[w >= w_limit] <- 1
+    }
+    if (is_min == FALSE){
+        sel[w <= w_limit] <- 1
+    }
+    return(sel)
+} 
