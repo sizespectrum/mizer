@@ -98,25 +98,29 @@
 <<echo=FALSE>>=
 rm(list=ls())
 @ 
-
+%-----------------------------------------------------------------------------------
 \section{Summary}
+Size-based ecological models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
+A key feature of size-based ecological is that of a \emph{size spectrum}, where the total abundance of individuals at size scales negatively with size: there are more small things than big things.
 
-\pkg{mizer} is a package for \R that implements size-based ecological models.
-The package has been developed to model marine ecosystems that are subject
-to fishing.
-The package contains routines and methods to allow users to set up the model
-community, and then project it through time under different fishing strategies.
-Methods are included to explore the results of the simulations, including plots and 
-calculation of community indicators such as the slope of the size spectrum.
-Size-based models can be complicated so \pkg{mizer} contains many default options that can be easily changed by the user.
-For example, easy to use ''wrapper'' functions are provided so users can easily set up trait-based and community-based size-based models.
+\pkg{mizer} is a software package for implementing size-based ecological models using the \R statistical programming environment.
+The package has been developed to model marine ecosystems that are subject to fishing.
 
-This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based model, the community and trait-based model. This gives a basic overview of the structure of the classes used by \pkg{mizer}, as well as showing how a trophic-cascade can be simulated.
+Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} size spectrum model, in which only one ''species'' is resolved; 
+the \emph{trait-based} size spectrum model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
+and the \emph{food-web} spectrum model in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
+The community and trait-based models can be considered as simplifications of the food-web type model and \pkg{mizer} is able implement all three versions, using the same set of tools.
 
-There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example.
-Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+\pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
+The results of the simulations can be then explored using a range of plots and summary methods, including plots of community size spectra and the calculation of community indicators such as the slope of the size spectrum.
 
+The models created using \pkg{mizer} can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships for the species can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 
+However, \pkg{mizer} aims to make setting up size-based models relatively simple.  For example, easy to use ''wrapper'' functions are provided so users can easily set up community and trait-based models which are based on a specific set of assumptions.  Additionally, most of the methods and functions in the package have default options and assumptions that can be easily changed by the user once they are familiar with the models 
+
+This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based models, the community and trait-based model. This gives a basic overview of the structure of the classes and methods used by \pkg{mizer}. Simple examples are given by demonstrating how a trophic-cascade can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example. Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+
+%-------------------------------------------------------------------------------
 \section{Package installation and R}
 
 \subsection{Installation}
@@ -155,6 +159,7 @@ specific command.
 This is only a brief reminder that expressions in \R manipulate objects, which may be data (a scalar or a matrix for example), but objects may also be functions, or more complex collections of objects.  All objects have a class, which enables functions to act on them appropriately. Thus, for example, when the function \code{summary} is applied on an object of class \class{MizerParams} (the class that stores the model parameters), it would act differently than on a simple matrix.
 \pkg{mizer} only introduces two new classes, \class{MizerParams} and \class{MizerSim}.
 
+%----------------------------------------------------------------------------------
 \section{Introduction to size-based modelling - assumptions, concepts and processes}
 \label{sec:principles}
 
