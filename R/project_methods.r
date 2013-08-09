@@ -63,7 +63,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 
 #' getFeedingLevel method for the size based model
 #'
-#' Calculates the amount of food consumed by a predator by predator size based on food availability, search volume and maximum intake
+#' Calculates the amount of food consumed by a predator by predator size based on food availability, search volume and maximum intake.
 #' This method is used by the \code{\link{project}} method for performing simulations.
 #' @param object A \code{MizerParams} or \code{MizerSim} object
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.

@@ -36,7 +36,7 @@
 \description{
   Calculates the amount of food consumed by a predator by
   predator size based on food availability, search volume
-  and maximum intake This method is used by the
+  and maximum intake. This method is used by the
   \code{\link{project}} method for performing simulations.
 }
 \note{

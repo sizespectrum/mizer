@@ -243,7 +243,7 @@ valid_MizerParams <- function(object) {
 #'    \item{\code{selectivity}:}{An array (gear x species x w) that holds the selectivity of each species by gear and species size}
 #'    \item{\code{catchability}:}{An array (gear x species) that holds the catchability of each species by each gear}
 #'     }
-#' @note The \code{MizerParams} class is fairly complex with a large number of slots, many of which are multidimensioal arrays. The dimensions of these arrays is strictly enforced so that \code{MizerParam} objects are consistent in terms of number of species and number of size classes.
+#' @note The \code{MizerParams} class is fairly complex with a large number of slots, many of which are multidimensional arrays. The dimensions of these arrays is strictly enforced so that \code{MizerParam} objects are consistent in terms of number of species and number of size classes.
 #'
 #' Although it is possible to build a \code{MizerParams} object by hand it is not recommended and several constructors are available.
 #'

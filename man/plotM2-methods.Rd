@@ -24,7 +24,7 @@
   single time step).
 }
 \examples{
-/dontrun{
+\dontrun{
 data(species_params_gears)
 data(inter)
 params <- MizerParams(species_params_gears, inter)

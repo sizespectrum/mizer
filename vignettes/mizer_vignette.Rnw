@@ -123,41 +123,43 @@ This vignette starts by summarising the principles and assumptions of size-based
 %-------------------------------------------------------------------------------
 \section{Package installation and R}
 
-\subsection{Installation}
-% Freely borrowed from abc Vignette - ask the authors
-\R is a open source software project and can be freely downloaded from the CRAN website. There are already several resources for an introduction to \R.  The CRAN website link to contributed documentation also offers excellent introductions in several languages. Once \R is running, the installation of additional packages is quite straightforward.  To install the \pkg{mizer} package from \R simply type:
+\subsection{Installing \pkg{mizer}}
 
-%\vspace{2mm}
-%\noindent
-%\texttt{> install.packages("mizer")}
+\pkg{mizer} is a package for the \R open-source statistical programming language. \R is available from the CRAN website, which is also an excellent source of documentation and tutorials.
+
+The easiest way to install \pkg{mizer} (assuming you have an active internet connection) is to start an \R session and then type:
 
 <<eval=FALSE>>=
 install.packages("mizer")
 @
 
-%\vspace{2mm}
-%\noindent
-Once the \pkg{mizer} package is installed, it needs to be made
-accessible to the current \R session by the command:
+After installing \pkg{mizer}, to actually use it you need to load the package using the \code{library()} function. Note that whilst you only need to install the package once, it will need to be loaded everytime you start a new \R session.
 <<results = hide>>=
 library(mizer)
 @
 
-For an overview of the package documentation or the details of a particular command
-(such as the function \texttt{project()}) you can type:
-<<eval=FALSE>>=
+The source code for \pkg{mizer} is currently hosted at Github (\url{https://github.com/drfinlayscott/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here, using the library \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
+
+\subsection{Getting help}
+
+As you probably know, to access documention \R you use the \code{help()} function. This can use to access help in a range of ways. For example:
+
+<<label=help_demo, eval=FALSE>>=
 help(package="mizer")
+help(mizer)
 help(project)
-@ 
+@
 
-The first command gives a brief summary of the available commands in
-the package, the second give more detailed information about a
-specific command.
+The first command gives a technical summary of the package, including the available functions.
+The second command gives a brief introduction to \pkg{mizer}.
+The third gives the documentation page for the function \code{project()}.
 
-\subsection{Methods and classes in \R}
+Some methods are associated with several \R classes. For example, the \code{plot()} method is generic and can be used on a wide range on objects in \R.
+To select the help page for the appropriate plotting method you also need to supply the package name. For example, the \code{plot()} method is used in \pkg{mizer} to plot \class{MizerSim} objects. To see the help page you then use:
 
-This is only a brief reminder that expressions in \R manipulate objects, which may be data (a scalar or a matrix for example), but objects may also be functions, or more complex collections of objects.  All objects have a class, which enables functions to act on them appropriately. Thus, for example, when the function \code{summary} is applied on an object of class \class{MizerParams} (the class that stores the model parameters), it would act differently than on a simple matrix.
-\pkg{mizer} only introduces two new classes, \class{MizerParams} and \class{MizerSim}.
+<<label=help_plot, eval=FALSE>>=
+help(plot, package="mizer")
+@
 
 %----------------------------------------------------------------------------------
 \section{Introduction to size-based modelling - assumptions, concepts and processes}
@@ -517,8 +519,17 @@ After running the projection, it is possible to explore the results using a rang
 plot(sim)
 @
 
+% \SweaveOpts{width = 7, height = 10}
+% Or use the width and height option in the <<>>= bit
+% Whar is the difference and how to make them universal?
+	
+%The Sweave options width and height influence the dimensions of the PDF file but not the size of the figures in the document. Put something like
+%\setkeys{Gin}{width=0.4\textwidth}
+%after \begin{document} to get smaller plots.
+
+% Putting it in <<>>= bit makes the figure the right size in the document, without making the text bigger or anything.
 \begin{figure}
-<<label=print_plot_comm_sim, fig=TRUE, echo=FALSE>>=
+<<label=print_plot_comm_sim, fig=TRUE, echo=FALSE, width = 7, height = 10>>=
 <<plot_comm_sim>>
 @
 \caption{Example plot of the community model}

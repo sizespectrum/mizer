@@ -16,7 +16,7 @@
 }
 \note{
   The \code{MizerParams} class is fairly complex with a
-  large number of slots, many of which are multidimensioal
+  large number of slots, many of which are multidimensional
   arrays. The dimensions of these arrays is strictly
   enforced so that \code{MizerParam} objects are consistent
   in terms of number of species and number of size classes.

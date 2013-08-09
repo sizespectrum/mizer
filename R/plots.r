@@ -252,7 +252,7 @@ setGeneric('plotM2', function(object, ...)
 #' @rdname plotM2-methods
 #' @aliases plotM2,MizerSim-method
 #' @examples
-#' /dontrun{
+#' \dontrun{
 #' data(species_params_gears)
 #' data(inter)
 #' params <- MizerParams(species_params_gears, inter)
