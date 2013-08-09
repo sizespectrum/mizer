@@ -89,8 +89,9 @@
   \code{alpha} and \code{f0} as these determine the average
   growth rate of the community.
 
-  Fishing selectivity is modelled as a knife-edge
-  selectivity function.
+  Fishing selectivity is modelled as a knife-edge function
+  with one parameter, \code{knife_edge_size}, which
+  determines the size at which species are selected.
 
   The resulting \code{MizerParams} object can be projected
   forward using \code{project()} like any other

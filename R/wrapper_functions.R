@@ -12,7 +12,7 @@
 #'
 #' The function has many arguments, all of which have default values. The main arguments that the users should be concerned with are \code{z0}, \code{recruitment}, \code{alpha} and \code{f0} as these determine the average growth rate of the community.
 #'
-#' Fishing selectivity is modelled as a knife-edge selectivity function.
+#' Fishing selectivity is modelled as a knife-edge function with one parameter, \code{knife_edge_size}, which determines the size at which species are selected.
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
@@ -111,14 +111,13 @@ set_community_model <- function(max_w = 1e6,
 #' Of particular interest to the user are the number of species in the model and the minimum and maximum asymptotic sizes.
 #' The asymptotic sizes of the species are spread evenly on a logarithmic scale within this range.
 #'
-#' The stock recruitment relationship in the trait-based model is a 'hockey-stick' (following Andersen and Pedersen, 2009).
-#' The maximum value of the recruitment can be controlled using the \code{k0} parameter.
-#' Users should adjust this value to get the spectra they want.
+#' The stock recruitment relationship in the trait-based model is the default Beverton-Holt style.
+#' The maximum value of the recruitment is determined by the asymptotic size and can be controlled using the \code{r_max_slope} and \code{r_max_mult} parameters, where r_max = r_max_mult * w_inf ^ (r_max_slope).
+#' Users should adjust these parameters to get the spectra they want.
 #'
 #' The factor for the search volume, \code{gamma}, is calculated using the expected feeding level, \code{f0}.
 #' 
-#' Fishing selectivity is modelled as a sigmoid function with two parameters: \code{l25} and \code{l50} which determine the lengths at which
-#' selectivity is 0.25 and 0.5 respectively. Lengths are converted to weights using the default parameters a = 0.001 and b = 3.0.
+#' Fishing selectivity is modelled as a knife-edge function with one parameter, \code{knife_edge_size}, which the size at which species are selected.
 #'
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
@@ -131,7 +130,8 @@ set_community_model <- function(max_w = 1e6,
 #' @param min_w_pp The smallest size of the background spectrum.
 #' @param no_w_pp The number of the extra size bins in the background spectrum (i.e. the difference between the number of sizes bins in the community spectrum and the full spectrum).
 #' @param w_pp_cutoff The cut off size of the background spectrum. Default value is 1.
-#' @param k0 Scaling parameter for the maximum recruitment.
+#' @param r_max_slope Slope for calculating the maximum recruitment. Default value = -1.
+#' @param r_max_mult Multiplier for calculating the maximum recruitment. Default value = 1000.
 #' @param n Scaling of the intake. Default value is 2/3. 
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
@@ -166,7 +166,9 @@ set_trait_model <- function(no_sp = 10,
                             min_w_pp = 1e-10,
                             no_w_pp = round(no_w)*0.3,
                             w_pp_cutoff = 1,
-                            k0 = 100, # recruiment adjustment parameter
+                            #k0 = 100, # recruiment adjustment parameter
+                            r_max_slope = -2,
+                            r_max_mult = 1000,
                             n = 2/3,
                             p = 0.75,
                             q = 0.9, 
@@ -189,6 +191,9 @@ set_trait_model <- function(no_sp = 10,
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
 
+    # Need to set r_max parameter in data_frame
+    r_max <- r_max_mult * w_inf ^(r_max_slope)
+
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
             species = 1:no_sp,
@@ -201,6 +206,7 @@ set_trait_model <- function(no_sp = 10,
             sigma = sigma,
             z0 = z0 * w_inf^(n-1), # background mortality
             alpha = alpha,
+            r_max = r_max,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
             knife_is_min = knife_is_min,
@@ -209,19 +215,21 @@ set_trait_model <- function(no_sp = 10,
     )
     # Make the MizerParams
     trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 
+
     # Sort out maximum recruitment - see A&P 2009
-    a_rec <- (f0* h) / (alpha * f0 * h - ks) * beta ^(2*n-q-1) * exp(2*n*(q-1)-q^2+1) * sigma^2 / 2
-    dm_idx <- aaply(w_inf, 1, function(x) max(which(x >= trait_params@w)))
-    dm <- trait_params@dw[dm_idx]
-    # k0 is passed in by the user
-    N0 <- k0 * w_inf^(2*n-q-2+a_rec)/ dm
-    # Add to data frame so we can use it in the SRR
-    trait_params@species_params$max_rec <- N0 #* 1e4
-    hockey_stick_recruitment <- function(rdi, species_params){
-        rdd <- pmin(rdi,species_params$max_rec) 
-        return(rdd)
-    }
-    trait_params@srr <- hockey_stick_recruitment
+    #a_rec <- (f0* h) / (alpha * f0 * h - ks) * beta ^(2*n-q-1) * exp(2*n*(q-1)-q^2+1) * sigma^2 / 2
+    #dm_idx <- aaply(w_inf, 1, function(x) max(which(x >= trait_params@w)))
+    #dm <- trait_params@dw[dm_idx]
+    ## k0 is passed in by the user
+    #N0 <- k0 * w_inf^(2*n-q-2+a_rec)/ dm
+    ## Add to data frame so we can use it in the SRR
+    #trait_params@species_params$max_rec <- N0 #* 1e4
+    #hockey_stick_recruitment <- function(rdi, species_params){
+    #    rdd <- pmin(rdi,species_params$max_rec) 
+    #    return(rdd)
+    #}
+    #trait_params@srr <- hockey_stick_recruitment
+
     return(trait_params)
 }
 
