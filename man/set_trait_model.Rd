@@ -3,14 +3,13 @@
 \title{Sets up parameters for a trait-based model}
 \usage{
   set_trait_model(no_sp = 10, min_w_inf = 10,
-    max_w_inf = 1e+06, no_w = 100, min_w = 0.001,
+    max_w_inf = 1e+05, no_w = 100, min_w = 0.001,
     max_w = max_w_inf * 1.1, min_w_pp = 1e-10,
-    no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1,
-    r_max_slope = -2, r_max_mult = 1000, n = 2/3, p = 0.75,
-    q = 0.9, eta = 0.25, r_pp = 4, kappa = 0.005,
-    lambda = 2 + q - n, alpha = 0.6, ks = 4, z0 = 0.6,
-    h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    knife_edge_size = 1000, knife_is_min = TRUE, ...)
+    no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1, k0 = 50,
+    n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
+    kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
+    z0 = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
+    knife_edge_size = 1000, knife_is_min = TRUE)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -44,11 +43,8 @@
   \item{w_pp_cutoff}{The cut off size of the background
   spectrum. Default value is 1.}
 
-  \item{r_max_slope}{Slope for calculating the maximum
-  recruitment. Default value = -1.}
-
-  \item{r_max_mult}{Multiplier for calculating the maximum
-  recruitment. Default value = 1000.}
+  \item{k0}{Multiplier for the maximum recruitment. Default
+  value is 50.}
 
   \item{n}{Scaling of the intake. Default value is 2/3.}
 
@@ -89,7 +85,8 @@
   is 1.3.}
 
   \item{f0}{Expected average feeding level. Used to set
-  \code{gamma}, the factor for the search volume.}
+  \code{gamma}, the factor for the search volume. The
+  default value is 0.5.}
 
   \item{knife_edge_size}{The size at the edge of the
   knife-selectivity function.}
@@ -125,19 +122,17 @@
   species are spread evenly on a logarithmic scale within
   this range.
 
-  The stock recruitment relationship in the trait-based
-  model is the default Beverton-Holt style. The maximum
-  value of the recruitment is determined by the asymptotic
-  size and can be controlled using the \code{r_max_slope}
-  and \code{r_max_mult} parameters, where r_max =
-  r_max_mult * w_inf ^ (r_max_slope). Users should adjust
-  these parameters to get the spectra they want.
+  The stock recruitment relationship is the default
+  Beverton-Holt style. The maximum recruitment is
+  calculated using equilibrium theory (see Andersen &
+  Pederson, 2010) and a multiplier, \code{k0}. Users should
+  adjust \code{k0} to get the spectra they want.
 
   The factor for the search volume, \code{gamma}, is
   calculated using the expected feeding level, \code{f0}.
 
   Fishing selectivity is modelled as a knife-edge function
-  with one parameter, \code{knife_edge_size}, which the
+  with one parameter, \code{knife_edge_size}, which is the
   size at which species are selected.
 
   The resulting \code{MizerParams} object can be projected

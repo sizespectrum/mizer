@@ -111,13 +111,13 @@ set_community_model <- function(max_w = 1e6,
 #' Of particular interest to the user are the number of species in the model and the minimum and maximum asymptotic sizes.
 #' The asymptotic sizes of the species are spread evenly on a logarithmic scale within this range.
 #'
-#' The stock recruitment relationship in the trait-based model is the default Beverton-Holt style.
-#' The maximum value of the recruitment is determined by the asymptotic size and can be controlled using the \code{r_max_slope} and \code{r_max_mult} parameters, where r_max = r_max_mult * w_inf ^ (r_max_slope).
-#' Users should adjust these parameters to get the spectra they want.
+#' The stock recruitment relationship is the default Beverton-Holt style.
+#' The maximum recruitment is calculated using equilibrium theory (see Andersen & Pederson, 2010) and a multiplier, \code{k0}.
+#' Users should adjust \code{k0} to get the spectra they want.
 #'
 #' The factor for the search volume, \code{gamma}, is calculated using the expected feeding level, \code{f0}.
 #' 
-#' Fishing selectivity is modelled as a knife-edge function with one parameter, \code{knife_edge_size}, which the size at which species are selected.
+#' Fishing selectivity is modelled as a knife-edge function with one parameter, \code{knife_edge_size}, which is the size at which species are selected.
 #'
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
@@ -130,8 +130,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param min_w_pp The smallest size of the background spectrum.
 #' @param no_w_pp The number of the extra size bins in the background spectrum (i.e. the difference between the number of sizes bins in the community spectrum and the full spectrum).
 #' @param w_pp_cutoff The cut off size of the background spectrum. Default value is 1.
-#' @param r_max_slope Slope for calculating the maximum recruitment. Default value = -1.
-#' @param r_max_mult Multiplier for calculating the maximum recruitment. Default value = 1000.
+#' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3. 
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
@@ -145,7 +144,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param h Maximum food intake rate. Default value is 30.
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
-#' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume.
+#' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
 #' @param knife_edge_size The size at the edge of the knife-selectivity function.
 #' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @export
@@ -159,16 +158,14 @@ set_community_model <- function(max_w = 1e6,
 #' plot(sim)
 set_trait_model <- function(no_sp = 10,
                             min_w_inf = 10,
-                            max_w_inf = 1e6,
+                            max_w_inf = 1e5,
                             no_w = 100,
                             min_w = 0.001,
                             max_w = max_w_inf * 1.1,
                             min_w_pp = 1e-10,
                             no_w_pp = round(no_w)*0.3,
                             w_pp_cutoff = 1,
-                            #k0 = 100, # recruiment adjustment parameter
-                            r_max_slope = -2,
-                            r_max_mult = 1000,
+                            k0 = 50, # recruitment adjustment parameter
                             n = 2/3,
                             p = 0.75,
                             q = 0.9, 
@@ -184,15 +181,12 @@ set_trait_model <- function(no_sp = 10,
                             sigma = 1.3,
                             f0 = 0.5,
                             knife_edge_size = 1000,
-                            knife_is_min = TRUE,
-                            ...){
+                            knife_is_min = TRUE){
+    # Calculate gamma using equation 2.1 in A&P 2010
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
-
-    # Need to set r_max parameter in data_frame
-    r_max <- r_max_mult * w_inf ^(r_max_slope)
 
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
@@ -206,7 +200,7 @@ set_trait_model <- function(no_sp = 10,
             sigma = sigma,
             z0 = z0 * w_inf^(n-1), # background mortality
             alpha = alpha,
-            r_max = r_max,
+            #r_max = r_max,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
             knife_is_min = knife_is_min,
@@ -215,20 +209,25 @@ set_trait_model <- function(no_sp = 10,
     )
     # Make the MizerParams
     trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 
-
     # Sort out maximum recruitment - see A&P 2009
-    #a_rec <- (f0* h) / (alpha * f0 * h - ks) * beta ^(2*n-q-1) * exp(2*n*(q-1)-q^2+1) * sigma^2 / 2
-    #dm_idx <- aaply(w_inf, 1, function(x) max(which(x >= trait_params@w)))
-    #dm <- trait_params@dw[dm_idx]
-    ## k0 is passed in by the user
-    #N0 <- k0 * w_inf^(2*n-q-2+a_rec)/ dm
-    ## Add to data frame so we can use it in the SRR
-    #trait_params@species_params$max_rec <- N0 #* 1e4
-    #hockey_stick_recruitment <- function(rdi, species_params){
-    #    rdd <- pmin(rdi,species_params$max_rec) 
-    #    return(rdd)
-    #}
-    #trait_params@srr <- hockey_stick_recruitment
+    # Get max flux at recruitment boundary, N0_max
+    # Actual flux at recruitment boundary = N0 = RDD / g0 (where g0 is growth rate at smallest size)
+    # So in our BH SRR we need R_max comparable to RDI (to get RDD)
+    # R_max = N0_max * g0
+    # N0 given by Appendix A of A&P 2010 - see Ken's email 12/08/13
+    # Taken from Ken's code 12/08/13 - equation in paper is wrong!
+    alpha_p <- f0 * h * beta^(2 * n - q - 1) * exp((2 * n * (q - 1) - q^2 + 1) * sigma^2 / 2)
+    alpha_rec <- alpha_p / (alpha * h * f0 - ks)
+    # Calculating dw using Ken's code - see Ken's email 12/08/13
+    tmpA <- w_inf[1]
+    tmpB <- (log10(w_inf[length(w_inf)]) - log10(w_inf[1])) / (no_sp - 1) # Difference between logged w_infs, fine
+    dw_winf <- tmpB * tmpA *10^(tmpB*((1:no_sp)-1)) # ?
+    N0_max <- k0 * w_inf^(n*2-q-3+alpha_rec) * dw_winf  # Why * dw_winf, not / ? Ken confirms * in email
+    # No need to include (1 - psi) in growth equation because allocation to reproduction at this size = 0, so 1 - psi = 1
+    g0 <- (alpha * f0 * h * trait_params@w[1]^n - ks * trait_params@w[1]^p)
+    r_max <- N0_max * g0
+
+    trait_params@species_params$r_max <- r_max
 
     return(trait_params)
 }
