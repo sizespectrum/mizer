@@ -273,6 +273,9 @@ The total production of eggs $R_{p.i}$ (numbers per time) is found by integratin
 
 where $w_0$ is the egg weight, $\epsilon$ is the efficiency of reproduction, and the factor $1/2$ takes into account that only females reproduce.
 
+\subsection{Recruitment}
+\label{sec:recruitment}
+
 \begin{figure}[t]
   \centering
   \includegraphics{recruitment.eps}
@@ -280,27 +283,20 @@ where $w_0$ is the egg weight, $\epsilon$ is the efficiency of reproduction, and
   \label{fig:recruitment}
 \end{figure}
 
-\subsection{Recruitment}
 One of the fundamental assumptions in fisheries science is that marine fish populations experience a significant density dependence early in life  \citep{ricker_stock_1954}.  This assumption has some empirical backing for selected, well-studied stocks \citep{myers_density-dependent_1993} and is also supported by the general observation that marine fish do not experience strong food-dependent growth.  This is in contrast to fish in lakes where stunted growth is not uncommon. From a technical point of view, an additional density dependence is needed to stabilize the community to avoid some of the trait classes going extinct \citep{hartvig_food_2011}. An alternative way to ensure coexistence of many species is to introduce a random food web matrix describing species-specific food preference \citep{hartvig_food_2011-1} or an abstract notion of space \citep{hartvig_food_2011}.
 
-\begin{figure}[t]
-  \centering
-\includegraphics[width=0.8\textwidth]{Spectrum.eps}
-  \caption{A solution of the model under the assumption of a constant feeding level $f(w) = 0.6$, showing community spectrum $N_c(w)$ (thick line) and trait class spectra $N_i(w)$ (thin lines). The dashed line is the theoretically expected community spectrum $\propto w^{-2-q+n}$ ,which is lifted up for visibility. }
-  \label{fig:equ}
-\end{figure}
-
-THOUGHT THAT TRAIT BASED USED HOCKEY STICK. WORK ON THIS SECTION WHEN TRAIT-BASED MODEL HAS BEEN AGREED
-
-In the trait-based model, density dependence is modelled as a compensation on the egg production such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.  The compensation can be modelled mathematically analogous to the Holling type II function response as a ``Beverton-Holt'' type of stock-recruitment function:
+In \pkg{mizer}, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR).
+The default functional form is such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a ``Beverton-Holt'' type of SRR:
 
 \begin{equation}
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
 \end{equation}
-where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Fig.~\ref{fig:recruitment}). 
+where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
 
-MIZER IS ABLE TO USE A RANGE OF SRRS - users can write their own.
+This requires the parameter $R_{\max.i}$ to be set for each species in the model.
+
+The ''Beverton-Holt'' type of SRR is not the only density dependence model that \pkg{mizer} can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or ''hockey-stick''. This is explored in more detail in Section~\ref{sec:srr}.
 
 \subsection{Mortality}
 The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$ , starvation mortality $\mu_{s.i}(w)$, and a constant background mortality $\mu_{b.i}(w)$. The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citep[App.~A]{hartvig_food_2011-1} for derivation):
@@ -420,7 +416,8 @@ The system is driven by the production of the resource. The ratio between the pr
 
 Similar to the way the initial feeding level $f_0$ is used to describe the relation between the production and the maximum consumption, the critical feeding level $f_c$ (\ref{eq:fc}) is used to describe the relation between the factors for standard metabolism $k_s$ and maximum consumption $h$. A critical feeding level of $f_c \approx 0.2$ seems to be reasonable \citep{hartvig_food_2011-1}.
 
-The free parameter $\kappa$ may in principle be determined analytically as was done in Fig.~\ref{fig:equ}. However, that was based on an assumption that all species had maximum recruitment, $R_i = R_{\mathrm{max}.i}$. The depletion of resources makes it difficult to find an analytical approximation of $\kappa$ and until that has been achieved, $\kappa$ has to be adjusted manually such that the resulting community spectrum forms a continuation of the resource spectrum.
+The free parameter $\kappa$ may in principle be determined analytically, based on an assumption that all species have maximum recruitment, $R_i = R_{\mathrm{max}.i}$.
+However, the depletion of resources makes it difficult to find an analytical approximation of $\kappa$ and until that has been achieved, $\kappa$ has to be adjusted manually such that the resulting community spectrum forms a continuation of the resource spectrum.
 
 
 %--------------------------------------------------------------------
@@ -697,7 +694,7 @@ Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community
 
 \subsection{Setting up a trait-based model}
 \label{sec:set_up_trait_model}
-As mentioned in the introduction, the trait-based size spectrum model is a simplification of the general size spectrum model (see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}). Unlike the community model described in Section \ref{sec:comm_model}, more than one species is resolved. In the trait-based model, the asymptotic size is considered to be the most important ``trait'' characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size. For example, $w_m = \eta_m W$, where $\eta_m = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
+As mentioned in the introduction, the trait-based size spectrum model is a simplification of the general size spectrum model (see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}). Unlike the community model described in Section \ref{sec:comm_model}, more than one species is resolved in the trait-based model. Here, the asymptotic size is considered to be the most important ``trait'' characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size. For example, $w_m = \eta_m W$, where $\eta_m = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
 
 To help set up a trait-based model, there is a wrapper function, \code{set\_trait\_model()}. Like the \code{set\_community\_model()} function described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
 
@@ -705,19 +702,17 @@ To help set up a trait-based model, there is a wrapper function, \code{set\_trai
 ?set_trait_model
 @
 
-The main parameters of interest are the number of the species in the model (\code{no\_sp}) and the minimum and maximum asymptotic sizes (\code{min\_w\_inf} and \code{max\_w\_inf} respectively). Here we set up the model to have 10 species, with asymptotic sizes ranging from 4g to 100 kg (the sizes are spread evenly on a logarithmic scale).
+The main parameters of interest are the number of the species in the model (\code{no\_sp}) and the minimum and maximum asymptotic sizes (\code{min\_w\_inf} and \code{max\_w\_inf} respectively, the asymptotic sizes are spread evenly on a logarithmic scale).
 
 One of the key differences between the community type model described above and the trait-based model is the stock-recruitment relationship (SRR).
-In the community model, recruitment is constant and there is no relationship between the abundance in the community and the recruitment.
-In the trait-based model, the SRR is modeled using a ''hockey-stick'' type function, where the realised numbers entering the smallest size group are linearly related to the density-independent egg production (Equation \ref{eq:Rp}), but capped my a maximum value (for more details see Appendix 1 in \citep{andersen_damped_2010}).
-This maximum value is controlled by a scalar parameter, $k0$. This should be adjusted by the user so that the community spectra roughly forms a continuation of the resource spectrum. The default value of $k0$ is 100.
-For further information on how SRRs are dealt with in \pkg{mizer} see Section \ref{sec:srr}.
+In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production.
+In the trait-based model, the SRR is modeled using a ''Beverton-Holt'' type function (the default in \pkg{mizer}, see Section~\ref{sec:recruitment}) where recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
+This maximum recruitment value for each species is linearly related to its asymptotic size on a log-log scale using the relationship $r\_{max} = r\_{max_mult} * w\_{inf} ^(r\_{max_slope})$, where $r\_{max_slope}$ and $r\_{max_mult}$ are the same for each species and are arguments that can be passed to the \code{set\_trait\_model()} function (there are default values).
 
-CAREFUL - RECRUITMENT SECTION MENTIONS BH SRR
-ALSO CHECK A and P 2010 to see if SRR is implemented properly in wrapper function
+Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 
 <<label=demo_trait_model_params>>=
-params <- set_trait_model(no_sp = 10, min_w_inf = 4, max_w_inf = 1e6, k0 = 100)
+params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
 @
 
 This function returns an object of type \class{MizerParams}, which holds all the model information including species paramaters.
@@ -726,27 +721,27 @@ This function returns an object of type \class{MizerParams}, which holds all the
 class(params)
 @
 
-This object can therefore be interrogated in the same way as described in Section \ref{sec:comm_model} above, either by inspecting the individual slots or by using the \code{summary()} function.
+This object can therefore be interrogated in the same way as described in Section~\ref{sec:comm_model} above, either by inspecting the individual slots or by using the \code{summary()} function.
 
 <<label=summary_comm_params>>=
 summary(params)
 @
 
 The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from \Sexpr{min(params@species_params$w_inf)}
-to \Sexpr{max(params@species_params$w_inf)}. Each species has the same preferred predator-prey mass ratio parameter values ($beta$ and $sigma$, see Equation \ref{eq4}). There are \Sexpr{length(params@w)} size bins in the community.
+to \Sexpr{max(params@species_params$w_inf)}. The size at maturity ($w\_{mat}$) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values ($beta$ and $sigma$, see Equation \ref{eq4}). There are \Sexpr{length(params@w)} size bins in the community and \Sexpr{length(params@w_full)} size bins including the background community.
 Ignore the summary section on fishing gear for the moment. This is explained below.
 
 \subsection{Running the trait-based model}
 \label{sec:running_trait_model}
 
 As with the community model described above, we can project the model through time using the \code{project()} method.
-Here we project the model for 50 time steps and without any fishing (the $effort$ argument is set to 0). We use the default initial population abundances given by the \code{get\_initial\_n()} function (see Section \ref{sec:setting_initial_abundances}).
+Here we project the model for 50 time steps and without any fishing (the $effort$ argument is set to 0). We use the default initial population abundances given by the \code{get\_initial\_n()} function so there is no need to pass in any population values (see Section \ref{sec:setting_initial_abundances}).
 
 <<label=trait_project_no_fishing>>=
 sim <- project(params, t_max=50, effort = 0)
 @
 
-This results in a \class{MizerSim} object which contains the original \class{MizerParams} object, as well as the abundances of the spcecies and the background spectra through time.
+This results in a \class{MizerSim} object which contains the original \class{MizerParams} object, as well as the abundances of the community and the background spectra through time.
 We can get a quick overview of the simulation by calling the generic \code{plot()} method:
 
 <<plot_comm_sim, eval=FALSE>>=
@@ -757,11 +752,11 @@ plot(sim)
 <<label=print_plot_trait_sim, fig=TRUE, echo=FALSE>>=
 <<plot_comm_sim>>
 @
-\caption{Example plot of the trait-based model}
+\caption{Example plot of the trait-based model with no fishing.}
 \label{fig:plot_trait_demo}
 \end{figure}
 
-The summary plot has the same panels as the one generated by the community model, but here all the species in the community are plotted (Figure \ref{fig:plot_trait_demo}). The panels show the situation in the final time step of the simulation, apart from the biomass through time plot.
+The summary plot has the same panels as the one generated by the community model, but here all the species in the community are plotted (Figure~\ref{fig:plot_trait_demo}). The panels show the situation in the final time step of the simulation, apart from the biomass through time plot.
 
 As this is a trait-based model where all species fully interact with each other, the predation mortality (M2) and feeding level by size is the same for each species.
 The biomass quickly settles down to equilibria. In this simulation we turned fishing off so the fishing mortality is 0.
@@ -773,15 +768,15 @@ The size-spectra show the abundances at size to be evenly spaced by asymptotic s
 As with the community model, it is possible to use the trait-based model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
 Again, we perform two simulations, one with fishing and one without. We therefore need to consider how fishing gears and selectivity have been set up by the \code{set\_trait\_model()} function. 
 
-The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1 kg. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the \code{summary()} method on the $params$ argument we set up above. At the bottom of the summary there is a section on ''Fishing gear details''. You can see that the there is only gear, called ''knife\_edge\_gear'' and that it selects species 1 to 10.
+The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1 kg. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the \code{summary()} method on the $params$ argument we set up above. At the bottom of the summary there is a section on ''Fishing gear details''. You can see that the there is only one gear, called ''knife\_edge\_gear'' and that it selects species 1 to 10.
+To control the size at which individuals are selected there is a \code{knife\_edge\_size} argument to the \code{set\_trait\_model()} function. This has a default value of 1 kg.
 
-It is possible to include more than one fishing gear in the model and for different species to be caught by different gears. It is also possible for a species to be caught by more than one fishing gear. We will ignore this now, but will explore it further below. 
+In \pkg{mizer} it is possible to include more than one fishing gear in the model and for different species to be caught by different gears. We will ignore this for now, but will explore it further below when we discuss food web models. 
 
-We set up the \class{MizerParams} object in the same way as we did before. The $knife\_edge\_size$ parameter is explicitly passed in for clarity.
+To set up the trait-model with fishing we set up the \class{MizerParams} object in exactly the same way as we did before but here the $knife\_edge\_size$ parameter is explicitly passed in for clarity.
 
 <<label=set_trait_fishing>>=
-params_knife <- set_trait_model(no_sp = 10, min_w_inf = 4, max_w_inf = 1e6, k0 = 100, knife_edge_size = 1000)
-#params_knife@species_params$erepro[] <- 0.01
+params_knife <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5, knife_edge_size = 1000)
 @
 
 First we perform a simulation without fishing in the same way we did above by setting the $effort$ argument to 0:
@@ -790,20 +785,17 @@ First we perform a simulation without fishing in the same way we did above by se
 sim0 <- project(params_knife, effort = 0, t_max = 50)
 @
 
-Now we simulate with fishing. Here, we use an effort of 1. As mentioned earlier, the fishing mortality on a species is the product of effort, catchability and selectivity (see Section~\ref{sec:fishing_gear} for more details). Selectivity ranges between 0 and 1. By default catchability is 1. Therfore, in this simulation the maximum fishing mortality is given by the effort. This effort is constant throughout the duration of the simulation (however, this is not necessarily the case, see Section\ref{sec:projection}).
+Now we simulate with fishing. Here, we use an effort of 1. As mentioned earlier, the fishing mortality on a species is the product of effort, catchability and selectivity (see Section~\ref{sec:fishing_gear} for more details). Selectivity ranges between 0 (not selected) and 1 (fully selected). By default catchability has a value of 1. Therfore, in this simulation the fishing mortality of a fully selected individual is simply given by the effort. This effort is constant throughout the duration of the simulation (however, this is does not necessarily have to be the case, see Section\ref{sec:projection}).
 
 <<label=sim_trait_with_fish>>=
-sim1 <- project(params_knife, effort = 0.5, t_max = 50)
+sim1 <- project(params_knife, effort = 1, t_max = 50)
 @
 
-%This can be plotted using the \code{plotFMort()} method .
-By plotting a summary of fished community, the knife-edge selectivity at 1000g can be clearly seen (Figure \ref{fig:plot_trait_fmort}):
+We can plot the summary of the fished community using the default \code{plot()} function (Figure \ref{fig:plot_trait_fmort}). The knife-edge selectivity at 1000g can be clearly seen in the fishing mortality panel:
 
 <<label=plot_trait_fmort, eval=FALSE>>=
 plot(sim1)
 @
-
-SOMETHING IS GOING EXTINCT!
 
 \begin{figure}
 <<label=print_plot_trait_fmort, fig=TRUE, echo=FALSE>>=
@@ -813,27 +805,28 @@ SOMETHING IS GOING EXTINCT!
 \label{fig:plot_trait_fmort}
 \end{figure}
 
-The trophic cascade can be explored by looking at the change in total abundances of all species at size when the community is fished and unfished.
+The trophic cascade can be explored by comparing the total abundances of all species at size when the community is fished and unfished.
 As mentioned above, the abundances are stored in the \code{n} slot of the \class{MizerSim} object. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
 
 <<label='dim_n'>>=
 dim(sim0@n)
 @
 
-As with the community model, we are interested in the relative total abundances by size in the final time step. We can use the \code{apply()} function to help us:
+As with the community model, we are interested in the relative total abundances by size in the final time step  so we want to pull out the 51st time step from the abundances and sum over the species.
+We can use the \code{apply()} function to help us:
 
 <<lable = total_abund_trait>>=
 total_abund0 <- apply(sim0@n[51,,],2,sum)
 total_abund1 <- apply(sim1@n[51,,],2,sum)
 @
 
-We can use these vectors to calculate the relative abundances:
+We can then use these vectors to calculate the relative abundances:
 
 <<label='relative_comm_abundance'>>=
 relative_abundance <- total_abund1 / total_abund0
 @
 
-This can be plotted using:
+Which can be plotted using:
 
 <<label=plot_relative_comm_abund, eval=FALSE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)", ylab="Relative abundance", ylim = c(0.1,10))
