@@ -181,12 +181,30 @@ set_trait_model <- function(no_sp = 10,
                             sigma = 1.3,
                             f0 = 0.5,
                             knife_edge_size = 1000,
-                            knife_is_min = TRUE){
+                            knife_is_min = TRUE,
+                            selectivity_w_inf = max_w_inf){
     # Calculate gamma using equation 2.1 in A&P 2010
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
+
+    # Sort out gears
+    if ((length(selectivity_w_inf) != length(knife_is_min)) | (length(selectivity_w_inf) != length(knife_edge_size)))
+        stop("Arguments knife_edge_size, knife_is_min and selectivity_w_inf must all be of the same length.")
+    # Put all the data in a data.frame for easy sorting and access
+    gear_data <- data.frame(knife_edge_size = knife_edge_size, knife_is_min = knife_is_min, selectivity_w_inf = selectivity_w_inf)
+    # Sort by asymptotic size, biggest first
+    gear_data <- gear_data[order(gear_data$selectivity_w_inf, decreasing = TRUE),]
+    knife_edge_size_species <- rep(NA, no_sp)
+    knife_is_min_species <- rep(NA, no_sp)
+    gear_name <- rep(NA, no_sp)
+    for (gear in 1:nrow(gear_data)){
+        species_selected <- w_inf <= gear_data[gear,"selectivity_w_inf"]
+        knife_edge_size_species[species_selected] <- gear_data[gear,"knife_edge_size"]
+        knife_is_min_species[species_selected] <- gear_data[gear,"knife_is_min"]
+        gear_name[species_selected] <- paste("knife_edge_",gear_data[gear,"knife_edge_size"],sep="")
+    }
 
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
@@ -202,18 +220,20 @@ set_trait_model <- function(no_sp = 10,
             alpha = alpha,
             #r_max = r_max,
             sel_func = "knife_edge",
-            knife_edge_size = knife_edge_size,
-            knife_is_min = knife_is_min,
-            gear = "knife_edge_gear",
+            knife_edge_size = knife_edge_size_species,
+            knife_is_min = knife_is_min_species,
+            gear = gear_name,
             erepro = 1 # not used but included out of necessity
     )
     # Make the MizerParams
     trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 
     # Sort out maximum recruitment - see A&P 2009
-    # Get max flux at recruitment boundary, N0_max
-    # Actual flux at recruitment boundary = N0 = RDD / g0 (where g0 is growth rate at smallest size)
+    # Get max flux at recruitment boundary, R_max
+    # R -> | -> g0 N0
+    # R is egg flux, in numbers per time
+    # Actual flux at recruitment boundary = RDD = NDD * g0 (where g0 is growth rate)
     # So in our BH SRR we need R_max comparable to RDI (to get RDD)
-    # R_max = N0_max * g0
+    # R_max = N0_max * g0 (g0 is the average growth rate of smallest size, i.e. at f0 = 0.5)
     # N0 given by Appendix A of A&P 2010 - see Ken's email 12/08/13
     # Taken from Ken's code 12/08/13 - equation in paper is wrong!
     alpha_p <- f0 * h * beta^(2 * n - q - 1) * exp((2 * n * (q - 1) - q^2 + 1) * sigma^2 / 2)
