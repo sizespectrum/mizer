@@ -129,7 +129,12 @@
 
   Fishing selectivity is modelled as a knife-edge function
   with one parameter, \code{knife_edge_size}, which is the
-  size at which species are selected.
+  size at which species are selected. Each species can
+  either be fished by the same gear (\code{knife_edge_size}
+  has a length of 1) or by a different gear (the length of
+  \code{knife_edge_size} has the same length as the number
+  of species and the order of selectivity size is that of
+  the asymptotic size).
 
   The resulting \code{MizerParams} object can be projected
   forward using \code{project()} like any other

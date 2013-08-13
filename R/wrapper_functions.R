@@ -118,6 +118,7 @@ set_community_model <- function(max_w = 1e6,
 #' The factor for the search volume, \code{gamma}, is calculated using the expected feeding level, \code{f0}.
 #' 
 #' Fishing selectivity is modelled as a knife-edge function with one parameter, \code{knife_edge_size}, which is the size at which species are selected.
+#' Each species can either be fished by the same gear (\code{knife_edge_size} has a length of 1) or by a different gear (the length of \code{knife_edge_size} has the same length as the number of species and the order of selectivity size is that of the asymptotic size).
 #'
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
