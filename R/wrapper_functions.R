@@ -145,8 +145,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
-#' @param knife_edge_size The size at the edge of the knife-selectivity function.
-#' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
+#' @param knife_edge_size The minimum size at which the gear or gears select species. Must be of length 1 or no_sp.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -180,31 +179,21 @@ set_trait_model <- function(no_sp = 10,
                             beta = 100,
                             sigma = 1.3,
                             f0 = 0.5,
-                            knife_edge_size = 1000,
-                            knife_is_min = TRUE,
-                            selectivity_w_inf = max_w_inf){
+                            knife_edge_size = 1000){
     # Calculate gamma using equation 2.1 in A&P 2010
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
 
-    # Sort out gears
-    if ((length(selectivity_w_inf) != length(knife_is_min)) | (length(selectivity_w_inf) != length(knife_edge_size)))
-        stop("Arguments knife_edge_size, knife_is_min and selectivity_w_inf must all be of the same length.")
-    # Put all the data in a data.frame for easy sorting and access
-    gear_data <- data.frame(knife_edge_size = knife_edge_size, knife_is_min = knife_is_min, selectivity_w_inf = selectivity_w_inf)
-    # Sort by asymptotic size, biggest first
-    gear_data <- gear_data[order(gear_data$selectivity_w_inf, decreasing = TRUE),]
-    knife_edge_size_species <- rep(NA, no_sp)
-    knife_is_min_species <- rep(NA, no_sp)
-    gear_name <- rep(NA, no_sp)
-    for (gear in 1:nrow(gear_data)){
-        species_selected <- w_inf <= gear_data[gear,"selectivity_w_inf"]
-        knife_edge_size_species[species_selected] <- gear_data[gear,"knife_edge_size"]
-        knife_is_min_species[species_selected] <- gear_data[gear,"knife_is_min"]
-        gear_name[species_selected] <- paste("knife_edge_",gear_data[gear,"knife_edge_size"],sep="")
+    # Check gears
+    if (length(knife_edge_size) > no_sp){
+        stop("There cannot be more gears than species in the model")
     }
+    if ((length(knife_edge_size) > 1) & (length(knife_edge_size) != no_sp)){
+        warning("Number of gears is less than number of species so gear information is being recycled. Is this what you want?")
+    }
+    gear_name <- paste("knife_edge_",signif(knife_edge_size,digits=2),sep="")
 
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
@@ -220,8 +209,7 @@ set_trait_model <- function(no_sp = 10,
             alpha = alpha,
             #r_max = r_max,
             sel_func = "knife_edge",
-            knife_edge_size = knife_edge_size_species,
-            knife_is_min = knife_is_min_species,
+            knife_edge_size = knife_edge_size,
             gear = gear_name,
             erepro = 1 # not used but included out of necessity
     )
