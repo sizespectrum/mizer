@@ -381,7 +381,7 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 	# F = sel * q * effort
 	sel_q <- sweep(object@selectivity, c(1,2), object@catchability, "*")
 	# Kinda nasty! ends up with 4D array 
-	fmort_gear <- aaply(effort, 1, function(x,sel_q) sweep(sel_q, c(2,3), x, "*"), sel_q=sel_q, .drop=FALSE)
+	fmort_gear <- aaply(effort, 1, function(x,sel_q) sweep(sel_q, c(1), x, "*"), sel_q=sel_q, .drop=FALSE)
 	return(fmort_gear)
     }
 )
