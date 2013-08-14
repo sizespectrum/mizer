@@ -16,6 +16,7 @@
 #' @export
 #' @docType methods
 #' @rdname getSSB-methods
+#' @aliases getSSB-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -50,6 +51,7 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getBiomass-methods
+#' @aliases getBiomass-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -85,6 +87,7 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getN-methods
+#' @aliases getN-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -116,6 +119,7 @@ setMethod('getN', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getYieldGear-methods
+#' @aliases getYieldGear-method
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' data(species_params_gears)
@@ -149,6 +153,7 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getYield-methods
+#' @aliases getYield-method
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' data(species_params_gears)
@@ -281,6 +286,7 @@ setMethod("summary", signature(object="MizerSim"),
 #' @export
 #' @docType methods
 #' @rdname getProportionOfLargeFish-methods
+#' @aliases getProportionOfLargeFish-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -333,6 +339,7 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getMeanWeight-methods
+#' @aliases getMeanWeight-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -375,6 +382,7 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getMeanMaxWeight-methods
+#' @aliases getMeanMaxWeight-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -424,6 +432,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getCommunitySlope-methods
+#' @aliases getCommunitySlope-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)

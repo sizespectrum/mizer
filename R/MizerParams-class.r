@@ -333,6 +333,7 @@ setClass("MizerParams",
 #' @export
 #' @docType methods
 #' @rdname MizerParams-methods
+#' @aliases MizerParams-method
 #' @examples
 #' \dontrun{
 #' data(species_params_gears)

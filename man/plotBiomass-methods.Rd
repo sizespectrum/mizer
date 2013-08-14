@@ -2,6 +2,7 @@
 \name{plotBiomass}
 \alias{plotBiomass}
 \alias{plotBiomass,MizerSim-method}
+\alias{plotBiomass-method}
 \title{Plot the biomass of each species through time}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

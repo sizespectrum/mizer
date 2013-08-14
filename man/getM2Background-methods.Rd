@@ -3,6 +3,7 @@
 \alias{getM2Background}
 \alias{getM2Background,MizerParams,matrix,numeric,array-method}
 \alias{getM2Background,MizerParams,matrix,numeric,missing-method}
+\alias{getM2Background-method}
 \title{getM2Background method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

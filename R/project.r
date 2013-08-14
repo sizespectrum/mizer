@@ -38,6 +38,7 @@
 #' @docType methods
 #' @seealso \code{\link{MizerParams}}
 #' @rdname project-methods
+#' @aliases project-method
 #' @examples
 #' # Data set with different fishing gears
 #' data(species_params_gears)

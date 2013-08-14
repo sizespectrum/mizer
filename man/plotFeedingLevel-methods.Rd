@@ -2,6 +2,7 @@
 \name{plotFeedingLevel}
 \alias{plotFeedingLevel}
 \alias{plotFeedingLevel,MizerSim-method}
+\alias{plotFeedingLevel-method}
 \title{Plot the feeding level of each species by size}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

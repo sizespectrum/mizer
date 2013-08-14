@@ -154,6 +154,7 @@ remove(valid_MizerSim)
 #' @export
 #' @docType methods
 #' @rdname MizerSim-methods
+#' @aliases MizerSim-method
 #' @examples
 #' \dontrun{
 #' data(species_params_gears)

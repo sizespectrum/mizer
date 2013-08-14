@@ -2,6 +2,7 @@
 \name{getMeanWeight}
 \alias{getMeanWeight}
 \alias{getMeanWeight,MizerSim-method}
+\alias{getMeanWeight-method}
 \title{Calculate the mean weight of the community}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}

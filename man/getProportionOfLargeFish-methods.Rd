@@ -2,6 +2,7 @@
 \name{getProportionOfLargeFish}
 \alias{getProportionOfLargeFish}
 \alias{getProportionOfLargeFish,MizerSim-method}
+\alias{getProportionOfLargeFish-method}
 \title{Calculate the proportion of large fish}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

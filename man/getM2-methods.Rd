@@ -4,6 +4,7 @@
 \alias{getM2,MizerParams,matrix,numeric,array-method}
 \alias{getM2,MizerParams,matrix,numeric,missing-method}
 \alias{getM2,MizerSim,missing,missing,missing-method}
+\alias{getM2-method}
 \title{getM2 method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} or \code{MizerSim}
@@ -23,11 +24,11 @@
   slot). The array is optional. If it is not provided it is
   calculated by the \code{getPredRate()} method.}
 
-  \item{time_range}{The time range (either a vector of
-  values, a vector of min and max time, or a single value)
-  to average the abundances over. Default is the whole time
-  range. Only used if \code{object} argument is of type
-  \code{MizerSim}.}
+  \item{time_range}{Subset the returned fishing mortalities
+  by time. The time range is either a vector of values, a
+  vector of min and max time, or a single value. Default is
+  the whole time range. Only used if the \code{object}
+  argument is of type \code{MizerSim}.}
 
   \item{drop}{Only used when object is of type
   \code{MizerSim}. Should dimensions of length 1 in the
@@ -60,6 +61,8 @@ n_pp <- sim@n_pp[21,]
 getM2(params,n,n_pp)
 # Get M2 at all saved time steps
 getM2(sim)
+# Get M2 over the time 15 - 20
+getM2(sim, time_range = c(15,20))
 }
 \seealso{
   \code{\link{getPredRate}} and \code{\link{project}}.

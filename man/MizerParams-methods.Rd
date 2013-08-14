@@ -4,6 +4,7 @@
 \alias{MizerParams,data.frame,matrix-method}
 \alias{MizerParams,data.frame,missing-method}
 \alias{MizerParams,numeric,missing-method}
+\alias{MizerParams-method}
 \title{Constructors for objects of \code{MizerParams} class}
 \arguments{
   \item{object}{A data frame of species specific parameter

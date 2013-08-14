@@ -3,6 +3,7 @@
 \alias{getEGrowth}
 \alias{getEGrowth,MizerParams,matrix,numeric,matrix,matrix-method}
 \alias{getEGrowth,MizerParams,matrix,numeric,missing,missing-method}
+\alias{getEGrowth-method}
 \title{getEGrowth method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

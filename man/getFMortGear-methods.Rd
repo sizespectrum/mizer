@@ -4,6 +4,7 @@
 \alias{getFMortGear,MizerParams,matrix-method}
 \alias{getFMortGear,MizerParams,numeric-method}
 \alias{getFMortGear,MizerSim,missing-method}
+\alias{getFMortGear-method}
 \title{Get the fishing mortality by time, gear, species and size}
 \arguments{
   \item{object}{A \code{MizerParams} object or a

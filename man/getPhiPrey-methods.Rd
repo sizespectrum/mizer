@@ -2,6 +2,7 @@
 \name{getPhiPrey}
 \alias{getPhiPrey}
 \alias{getPhiPrey,MizerParams,matrix,numeric-method}
+\alias{getPhiPrey-method}
 \title{getPhiPrey method for the size based model}
 \arguments{
   \item{object}{An \code{MizerParams} object}

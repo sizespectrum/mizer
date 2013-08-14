@@ -4,6 +4,7 @@
 \alias{getFeedingLevel,MizerParams,matrix,numeric,matrix-method}
 \alias{getFeedingLevel,MizerParams,matrix,numeric,missing-method}
 \alias{getFeedingLevel,MizerSim,missing,missing,missing-method}
+\alias{getFeedingLevel-method}
 \title{getFeedingLevel method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} or \code{MizerSim}
@@ -23,11 +24,11 @@
   method. Only used if \code{object} argument is of type
   \code{MizerParams}.}
 
-  \item{time_range}{The time range (either a vector of
-  values, a vector of min and max time, or a single value)
-  to average the abundances over. Default is the whole time
-  range. Only used if \code{object} argument is of type
-  \code{MizerSim}.}
+  \item{time_range}{Subset the returned fishing mortalities
+  by time. The time range is either a vector of values, a
+  vector of min and max time, or a single value. Default is
+  the whole time range. Only used if the \code{object}
+  argument is of type \code{MizerSim}.}
 
   \item{drop}{should extra dimensions of length 1 in the
   output be dropped, simplifying the output. Defaults to
@@ -57,9 +58,11 @@ sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
 n <- sim@n[21,,]
 n_pp <- sim@n_pp[21,]
-getFeedingLevel(params,n,n_pp)
+fl <- getFeedingLevel(params,n,n_pp)
 # Get the feeding level at all saved time steps
-getFeedingLevel(sim)
+fl <- getFeedingLevel(sim)
+# Get the feeding level for time 15 - 20
+fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 \seealso{
   \code{\link{getPhiPrey}}

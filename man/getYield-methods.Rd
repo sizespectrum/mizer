@@ -2,6 +2,7 @@
 \name{getYield}
 \alias{getYield}
 \alias{getYield,MizerSim-method}
+\alias{getYield-method}
 \title{Calculate the total yield of each species}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

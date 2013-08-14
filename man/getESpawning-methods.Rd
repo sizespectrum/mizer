@@ -3,6 +3,7 @@
 \alias{getESpawning}
 \alias{getESpawning,MizerParams,matrix,numerica,matrix-method}
 \alias{getESpawning,MizerParams,matrix,numerica,missing-method}
+\alias{getESpawning-method}
 \title{getESpawning method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

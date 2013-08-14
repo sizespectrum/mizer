@@ -2,6 +2,7 @@
 \name{MizerSim}
 \alias{MizerSim}
 \alias{MizerSim,MizerParams-method}
+\alias{MizerSim-method}
 \title{Constructor for the \code{MizerSim} class}
 \arguments{
   \item{object}{a MizerParams object}

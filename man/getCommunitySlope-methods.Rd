@@ -2,6 +2,7 @@
 \name{getCommunitySlope}
 \alias{getCommunitySlope}
 \alias{getCommunitySlope,MizerSim-method}
+\alias{getCommunitySlope-method}
 \title{Calculate the slope of the community abundance}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

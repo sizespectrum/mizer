@@ -2,6 +2,7 @@
 \name{getPredRate}
 \alias{getPredRate}
 \alias{getPredRate,MizerParams,matrix,numeric-method}
+\alias{getPredRate-method}
 \title{getPredRate method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

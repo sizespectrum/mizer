@@ -2,6 +2,7 @@
 \name{getYieldGear}
 \alias{getYieldGear}
 \alias{getYieldGear,MizerSim-method}
+\alias{getYieldGear-method}
 \title{Calculate the total yield per gear and species}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

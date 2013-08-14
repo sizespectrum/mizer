@@ -3,6 +3,7 @@
 \alias{getZ}
 \alias{getZ,MizerParams,matrix,numeric,numeric,matrix-method}
 \alias{getZ,MizerParams,matrix,numeric,numeric,missing-method}
+\alias{getZ-method}
 \title{getZ method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

@@ -2,6 +2,7 @@
 \name{plotSpectra}
 \alias{plotSpectra}
 \alias{plotSpectra,MizerSim-method}
+\alias{plotSpectra-method}
 \title{Plot the abundance spectra of each species and the background population}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

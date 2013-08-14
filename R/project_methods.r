@@ -18,6 +18,7 @@
 #' @export
 #' @docType methods
 #' @rdname getPhiPrey-methods
+#' @aliases getPhiPrey-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -69,7 +70,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param phi_prey The PhiPrey matrix (optional) of dimension no. species x no. size bins. If not passed in, it is calculated internally using the \code{getPhiPrey()} method. Only used if \code{object} argument is of type \code{MizerParams}.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type \code{MizerSim}.
+#' @param time_range Subset the returned fishing mortalities by time. The time range is either a vector of values, a vector of min and max time, or a single value. Default is the whole time range. Only used if the \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @note
@@ -79,6 +80,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @export
 #' @docType methods
 #' @rdname getFeedingLevel-methods
+#' @aliases getFeedingLevel-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -88,9 +90,11 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' # Get the feeding level at one time step
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getFeedingLevel(params,n,n_pp)
+#' fl <- getFeedingLevel(params,n,n_pp)
 #' # Get the feeding level at all saved time steps
-#' getFeedingLevel(sim)
+#' fl <- getFeedingLevel(sim)
+#' # Get the feeding level for time 15 - 20
+#' fl <- getFeedingLevel(sim, time_range = c(15,20))
 setGeneric('getFeedingLevel', function(object, n, n_pp, phi_prey, ...)
     standardGeneric('getFeedingLevel'))
 
@@ -151,6 +155,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @docType methods
 #' @rdname getPredRate-methods
+#' @aliases getPredRate-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -200,7 +205,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type \code{MizerParams}.
 #' @param pred_rate An array of predation rates of dimension no. sp x no. community size bins x no. of size bins in whole spectra (i.e. community + background, the w_full slot). The array is optional. If it is not provided it is calculated by the \code{getPredRate()} method.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the whole time range. Only used if \code{object} argument is of type \code{MizerSim}.
+#' @param time_range Subset the returned fishing mortalities by time. The time range is either a vector of values, a vector of min and max time, or a single value. Default is the whole time range. Only used if the \code{object} argument is of type \code{MizerSim}.
 #' @param drop Only used when object is of type \code{MizerSim}. Should dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
 #' @note
@@ -210,6 +215,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @export
 #' @docType methods
 #' @rdname getM2-methods
+#' @aliases getM2-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -222,6 +228,8 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' getM2(params,n,n_pp)
 #' # Get M2 at all saved time steps
 #' getM2(sim)
+#' # Get M2 over the time 15 - 20
+#' getM2(sim, time_range = c(15,20))
 setGeneric('getM2', function(object, n, n_pp, pred_rate,...)
     standardGeneric('getM2'))
 
@@ -274,6 +282,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 #' @export
 #' @docType methods
 #' @rdname getM2Background-methods
+#' @aliases getM2Background-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -325,6 +334,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @export
 #' @docType methods
 #' @rdname getFMortGear-methods
+#' @aliases getFMortGear-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -418,6 +428,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' @export
 #' @docType methods
 #' @rdname getFMort-methods
+#' @aliases getFMort-method
 #' @seealso \code{getFMortGear}, \code{project}
 #' @examples
 #' data(species_params_gears)
@@ -484,6 +495,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #' @seealso \code{\link{getM2}}, \code{\link{getFMort}}
 #' @docType methods
 #' @rdname getZ-methods
+#' @aliases getZ-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)
@@ -531,6 +543,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #' @export
 #' @docType methods
 #' @rdname getEReproAndGrowth-methods
+#' @aliases getEReproAndGrowth-method
 #' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
 #' @examples
 #' data(species_params_gears)
@@ -583,6 +596,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 #' @export
 #' @docType methods
 #' @rdname getESpawning-methods
+#' @aliases getESpawning-method
 #' @seealso \code{\link{project}} and \code{\link{getEReproAndGrowth}}.
 #' @examples
 #' data(species_params_gears)
@@ -629,6 +643,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 #' @export
 #' @docType methods
 #' @rdname getEGrowth-methods
+#' @aliases getEGrowth-method
 #' @seealso \code{\link{project}}
 #' @examples
 #' data(species_params_gears)
@@ -682,6 +697,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 #' @export
 #' @docType methods
 #' @rdname getRDI-methods
+#' @aliases getRDI-method
 #' @seealso \code{\link{project}}
 #' @examples
 #' data(species_params_gears)
@@ -736,6 +752,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 #' @export
 #' @docType methods
 #' @rdname getRDD-methods
+#' @aliases getRDD-method
 #' @examples
 #' data(species_params_gears)
 #' data(inter)

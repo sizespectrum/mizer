@@ -2,6 +2,7 @@
 \name{getSSB}
 \alias{getSSB}
 \alias{getSSB,MizerSim-method}
+\alias{getSSB-method}
 \title{Calculate the SSB of species}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

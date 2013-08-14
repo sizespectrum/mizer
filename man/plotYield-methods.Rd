@@ -2,6 +2,7 @@
 \name{plotYield}
 \alias{plotYield}
 \alias{plotYield,MizerSim-method}
+\alias{plotYield-method}
 \title{Plot the total yield of each species through time}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}

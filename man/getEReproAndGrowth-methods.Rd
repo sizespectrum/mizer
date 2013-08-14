@@ -3,6 +3,7 @@
 \alias{getEReproAndGrowth}
 \alias{getEReproAndGrowth,MizerParams,matrix,numeric,matrix-method}
 \alias{getEReproAndGrowth,MizerParams,matrix,numeric,missing-method}
+\alias{getEReproAndGrowth-method}
 \title{getEReproAndGrowth method for the size based model}
 \arguments{
   \item{object}{A \code{MizerParams} object.}

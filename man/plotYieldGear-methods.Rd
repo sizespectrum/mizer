@@ -2,6 +2,7 @@
 \name{plotYieldGear}
 \alias{plotYieldGear}
 \alias{plotYieldGear,MizerSim-method}
+\alias{plotYieldGear-method}
 \title{Plot the total yield of each species by gear through time}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}

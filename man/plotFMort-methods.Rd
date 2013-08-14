@@ -2,6 +2,7 @@
 \name{plotFMort}
 \alias{plotFMort}
 \alias{plotFMort,MizerSim-method}
+\alias{plotFMort-method}
 \title{Plot total fishing mortality of each species by size}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

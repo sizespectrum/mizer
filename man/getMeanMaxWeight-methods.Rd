@@ -2,6 +2,7 @@
 \name{getMeanMaxWeight}
 \alias{getMeanMaxWeight}
 \alias{getMeanMaxWeight,MizerSim-method}
+\alias{getMeanMaxWeight-method}
 \title{Calculate the mean maximum weight of the community}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

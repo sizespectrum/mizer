@@ -2,6 +2,7 @@
 \name{getN}
 \alias{getN}
 \alias{getN,MizerSim-method}
+\alias{getN-method}
 \title{Calculate the total abundance in terms of numbers of species within a size range}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}

@@ -2,6 +2,7 @@
 \name{plotM2}
 \alias{plotM2}
 \alias{plotM2,MizerSim-method}
+\alias{plotM2-method}
 \title{Plot M2 of each species by size}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
@@ -34,6 +35,8 @@ plotM2(sim, time_range = 10:20)
 }
 }
 \seealso{
+  \code{\link{getM2}}
+
   \code{\link{getM2}}
 }
 

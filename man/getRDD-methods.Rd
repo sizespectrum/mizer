@@ -3,6 +3,7 @@
 \alias{getRDD}
 \alias{getRDD,MizerParams,matrix,numeric,matrix-method}
 \alias{getRDD,MizerParams,matrix,numeric,missing-method}
+\alias{getRDD-method}
 \title{getRDD method for the size based model}
 \arguments{
   \item{object}{An \code{MizerParams} object}

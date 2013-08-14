@@ -2,6 +2,7 @@
 \name{getBiomass}
 \alias{getBiomass}
 \alias{getBiomass,MizerSim-method}
+\alias{getBiomass-method}
 \title{Calculate the total biomass of each species within a size range at each time step.}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
