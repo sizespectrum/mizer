@@ -14,12 +14,20 @@
 %
 % shell("bibtex mizer_vignette")
 
+% \SweaveOpts{width = 7, height = 10}
+% Or use the width and height option in the <<>>= bit
+% Whar is the difference and how to make them universal?
+	
+%The Sweave options width and height influence the dimensions of the PDF file but not the size of the figures in the document. Put something like
+%\setkeys{Gin}{width=0.4\textwidth}
+%after \begin{document} to get smaller plots.
 
 \documentclass{article}
 \setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
 %\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \setcounter{secnumdepth}{3}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \usepackage[round,sort]{natbib} 
+\usepackage[english]{babel} % No idea what this is but stops the et~al problem from natbib
 \usepackage{fixltx2e}
 \usepackage{graphicx}	% To manage external pictures
 \usepackage{float}
@@ -59,8 +67,16 @@
 \newcommand{\pkg}[1]{{\texttt{#1}}}
 \newcommand{\class}[1]{{\textit{#1}}}
 \newcommand{\R}{{\normalfont\textsf{R }}{}}
+\newcommand{\args}[1]{{\texttt{#1}}}
 
 \begin{document}
+% Makes the ACTUAL images the same width as the text
+\setkeys{Gin}{width=0.95\textwidth}
+% width = x, in the <<>>= affects the R plot (i.e. label size) but not the actual image width
+% so width = 2 or width = 10 would give same image width in document, but labels and points etc would be different
+% height = x, the acutal image height is given by the width / height ratio and the actual image width
+% so image is always blown up to fit Gin width
+\SweaveOpts{width = 7}
 
 % This stuff came from abc vignette
 % <<label=R options,echo=FALSE>>=
@@ -106,22 +122,22 @@ A key feature of size-based ecological is that of a \emph{size spectrum}, where 
 \pkg{mizer} is a software package for implementing size-based ecological models using the \R statistical programming environment.
 The package has been developed to model marine ecosystems that are subject to fishing.
 
-Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} size spectrum model, in which only one ''species'' is resolved; 
-the \emph{trait-based} size spectrum model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
-and the \emph{food-web} spectrum model in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
-The community and trait-based models can be considered as simplifications of the food-web type model and \pkg{mizer} is able implement all three versions, using the same set of tools.
+Roughly speaking there are three versions of the size-based modelling framework of increasing complexity: The \emph{community} model, in which only one ''species'' is resolved; 
+the \emph{trait-based} model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
+and the \emph{food-web} in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
+The community and trait-based models can be considered as simplifications of the food-web type model.
+\pkg{mizer} is able implement all three model versions using the same set of tools.
 
 \pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
-The results of the simulations can be then explored using a range of plots and summary methods, including plots of community size spectra and the calculation of community indicators such as the slope of the size spectrum.
+The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such mean weight in the community and the the slope of the size spectrum.
 
 The models created using \pkg{mizer} can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships for the species can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
+However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
 
-However, \pkg{mizer} aims to make setting up size-based models relatively simple.  For example, easy to use ''wrapper'' functions are provided so users can easily set up community and trait-based models which are based on a specific set of assumptions.  Additionally, most of the methods and functions in the package have default options and assumptions that can be easily changed by the user once they are familiar with the models 
-
-This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based models, the community and trait-based model. This gives a basic overview of the structure of the classes and methods used by \pkg{mizer}. Simple examples are given by demonstrating how a trophic-cascade can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example. Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example. Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
 
 %-------------------------------------------------------------------------------
-\section{Package installation and R}
+\section{Package installation and getting help}
 
 \subsection{Installing \pkg{mizer}}
 
@@ -138,11 +154,11 @@ After installing \pkg{mizer}, to actually use it you need to load the package us
 library(mizer)
 @
 
-The source code for \pkg{mizer} is currently hosted at Github (\url{https://github.com/drfinlayscott/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here, using the library \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
+The source code for \pkg{mizer} is currently hosted at Github (\url{https://github.com/drfinlayscott/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here using the \R package \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
 
 \subsection{Getting help}
 
-As you probably know, to access documention \R you use the \code{help()} function. This can use to access help in a range of ways. For example:
+As you probably know, to access documention in \R you can use the \code{help()} function. This can be used to access package documentation in a range of ways. For example:
 
 <<label=help_demo, eval=FALSE>>=
 help(package="mizer")
@@ -152,31 +168,50 @@ help(project)
 
 The first command gives a technical summary of the package, including the available functions.
 The second command gives a brief introduction to \pkg{mizer}.
-The third gives the documentation page for the function \code{project()}.
+The third gives the documentation page for the method \code{project()}.
 
-Some methods are associated with several \R classes. For example, the \code{plot()} method is generic and can be used on a wide range on objects in \R.
-To select the help page for the appropriate plotting method you also need to supply the package name. For example, the \code{plot()} method is used in \pkg{mizer} to plot \class{MizerSim} objects. To see the help page you then use:
+Some methods are associated with several \R classes. For example, the \code{plot()} method is generic and can be used on a wide range of \R objects.
+The \code{plot()} method has been overloaded in \pkg{mizer} to plot \class{MizerSim} objects. 
+To select the help page for the appropriate plotting method you can either just use \code{help(plot)} and then select from a menu of packages or you can supply the package name in the \code{help()} command:
 
 <<label=help_plot, eval=FALSE>>=
 help(plot, package="mizer")
 @
 
+There are other ways of accessing package documentation that you may not be familiar with. To access the the help page of a particular method you can use: \code{method ? method-name}. For example, to access the help page of the \code{getFeedingLevel()} method you can use:
+
+<<label=help_FL, eval=FALSE>>=
+method ? getFeedingLevel
+@
+
+This also works for getting information on a class. For example, to get the help page on the \class{MizerParams} class you can use:
+
+<<label=help_MP_class, eval=FALSE>>=
+class ? MizerParams
+@
+
+These two ways of getting help can be useful when a class and a method have the same name. For example, \class{MizerParams} is a class and also the name of the method for creating \class{MizerParams} objects.
+
 %----------------------------------------------------------------------------------
-\section{Introduction to size-based modelling - assumptions, concepts and processes}
+\section{Size-based modelling - concepts, processes and assumptions}
 \label{sec:principles}
 
-Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
+Size-based, or size spectrum, models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
 There is now a growing literature describing different types of size spectrum models
-\citep{benoit_continuous_2004, andersen_asymptotic_2006, andersen_life-history_2008, law_size-spectra_2009, hartvig_food_2011, hartvig_food_2011-1}
-and their application, mostly in a marine context, to understand how marine communities are organised
-\citep{andersen_asymptotic_2006, andersen_trophic_2009,blanchard_how_2009} and how they respond to fishing \citep{andersen_direct_2010, andersen_damped_2010}. This section introduces the central assumptions, concepts, processes, equations and parameters of a size-based model.
+\citep[e.g.]{benoit_continuous_2004, andersen_asymptotic_2006, andersen_life-history_2008, law_size-spectra_2009, hartvig_food_2011, hartvig_food_2011-1}.
+The models can be used to understand how marine communities are organised
+\citep{andersen_asymptotic_2006, andersen_trophic_2009,blanchard_how_2009} and how they respond to fishing
+\citep{andersen_direct_2010, andersen_damped_2010}.
+This section introduces the central assumptions, concepts, processes, equations and parameters of a size-based model.
 
 Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} size spectrum model
-\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}. The focus of this section is on the food-web type of model where each species is characterized by its own set of parameters. The community and trait-based models can be considered as simplifications of the food-web type model and hence \pkg{mizer} is able implement all three versions.
-
+\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}.
+The community and trait-based models can be considered as simplifications of the food-web type model.
+This section focuses on the food-web type of model but is also applicable to the community and trait-based models.
+\pkg{mizer} is able implement all three types of model using similar commands.
 
 \subsection{Central concepts and assumptions}
-Size spectrum models are a subset of physiologically structured models \citep{metz_dynamics_1986,de_roos_physiologically_2001} as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.  All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters (Table~\ref{tab:parameters}), which has prompted the label ``charmingly simple'' to the model framework \citep{pope_modelling_2006}.
+Size spectrum models are a subset of physiologically structured models \citep{metz_dynamics_1986, de_roos_physiologically_2001} as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.  All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters (Table~\ref{tab:parameters}), which has prompted the label ``charmingly simple'' to the model framework \citep{pope_modelling_2006}.
 
 The model framework builds on two central assumption and a number of lesser standard assumption.  
 
@@ -187,7 +222,7 @@ The first central assumption is that an individual can be characterized by its w
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
 \end{equation}
 
-where individual growth $g_i(w)$ and mortality $\mu_i(w)$ are both determined by the availability of food from the other species and a resource $N_R(w)$, and predation by the other species. The conservation equation is supplemented by a boundary condition at the right boundary at weight $w_0$ where the flux of individuals (numbers per time) $g_i(w_0) N_i(w_0)$ is determined by the reproduction of offspring by mature individuals in the population $R_i$:
+where individual growth $g_i(w)$ and mortality $\mu_i(w)$ are both determined by the availability of food from the other species plus a background resource, $N_R(w)$, and predation by the other species. The conservation equation is supplemented by a boundary condition at the boundary at weight $w_0$ where the flux of individuals (numbers per time) $g_i(w_0) N_i(w_0)$ is determined by the reproduction of offspring by mature individuals in the population $R_i$:
 
 \begin{equation}
   \label{eq:3}
@@ -203,11 +238,12 @@ The second central assumption is that the preference of food is determined by in
 where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the width of the weight selection function.
 
 The rest of the formulation of the model rests on a number of ``standard'' assumptions from ecology and fisheries science about how encounters between predators and prey leads to growth $g_i(w)$ and recruitment $R_i$ of the predators, and mortality of the prey $\mu_i(w)$.
+The remainder of this section looks in detail at these assumptions.
 
 \subsection{Predator-prey encounter}
-The encounter of food is based on the ``Andersen-Ursin'' encounter model which was developed as a part of the North-Sea ecosystem model \citep{andersen_multispecies_1977}, see also \citep{andersen_asymptotic_2006}.  
+The encounter of food is based on the ``Andersen-Ursin'' encounter model which was developed as part of a North-Sea ecosystem model \citep[][see also]{andersen_multispecies_1977, andersen_asymptotic_2006}.  
 
-The available food (mass per volume) for a predator of weight $w$ is determined by integrating over all species and the resource weighted by the size selection function (\ref{eq:4}): 
+The available food (mass per volume) for a predator of weight $w$ is determined by integrating over all species and the background resource weighted by the size selection function (Equation~\ref{eq:4}): 
 
 \begin{equation}
   \label{eq:1}
@@ -222,7 +258,7 @@ where $\theta_{ij}$ is the preference of species $i$ for species $j$. The food a
 \end{equation}
 
 \subsection{Consumption}
-The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level} $f_i(w)$ which is a dimensionless number between 0 (no food) and 1 (fully satiated):
+The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 (no food) and 1 (fully satiated):
 
 \begin{equation}
   \label{eq:f}
@@ -230,14 +266,6 @@ The encountered food is consumed subjected to a standard Holling functional resp
 \end{equation}
 
 where $h_i w^n$ is the maximum consumption rate.
-
-\begin{figure}[t]
-  \centering
- \includegraphics[width=0.8\textwidth]{Growth_curve.eps}
-  \caption{The growth curve of an individual found by solving (\protect\ref{eq:growth}) with a constant feeding level $f_0 = 0.6$ (solid line), compared to a von Bertalanffy growth curve with the von Bertalanffy growth parameter $K = (\alpha f_0 h w^n - k_{s} w^n) W^{n-1}/3$ \protect\citep{andersen_how_2009} (dashed line).}
-  \label{fig:growth}
-\end{figure}
-
 
 \subsection{Growth}
 The consumed food $f_i(w) h_i w^n$ is assimilated by an efficiency $\alpha$ and used to fuel the needs for standard metabolism and activity $k_{s.i} w^p$. The remaining available energy, $\alpha f_i(w) h_i w^n - k_{s.i} w^p$, is divided between growth and reproduction by a function of weight changing between zero around the weight of maturation to one at the asymptotic weight where all available energy is used for reproduction:
@@ -254,14 +282,21 @@ where $w_{m.i}$ is the weight at maturation and $W_i$ is the asymptotic (maximum
   g_i(w) = (\alpha f_i(w) h_i w^n - k_{s.i} w^p)(1-\psi(w)).
 \end{equation}
 
-The form of the allocation function (\ref{eq:psi}) is chosen such that the growth curve approximates a von Bertalanffy growth curve if the feeding level is constant (see \citep{hartvig_food_2011-1} for details about the derivation). The actual emerging growth curves from the model will depend on the feeding level, and may even result in stunted growth curves if the feeding level drops below the \emph{critical feeding level} where the assimilated food is just enough to satisfy standard metabolism:
+\begin{figure}[t]
+  \centering
+ \includegraphics[width=0.8\textwidth]{Growth_curve.eps}
+  \caption{The growth curve of an individual found by solving (Equation~\protect\ref{eq:growth}) with a constant feeding level $f_0 = 0.6$ (solid line), compared to a von Bertalanffy growth curve with the von Bertalanffy growth parameter $K = (\alpha f_0 h w^n - k_{s} w^n) W^{n-1}/3$ (dashed line) \protect\citep{andersen_how_2009}.}
+  \label{fig:growth}
+\end{figure}
+
+The form of the allocation function (\ref{eq:psi}) is chosen such that the growth curve approximates a von Bertalanffy growth curve if the feeding level is constant (see Figure~\ref{fig:growth} and \citet{hartvig_food_2011-1} for details about the derivation). The actual emerging growth curves from the model will depend on the feeding level, and may even result in stunted growth curves if the feeding level drops below the \emph{critical feeding level} where the assimilated food is just enough to satisfy standard metabolism:
 
 \begin{equation}
   \label{eq:fc}
   f_{c.i}(w) = k_{s.i} w^n/(\alpha h_i) w^p.
 \end{equation}
 
-If $n=p$ (which is the case for the set of parameters chosen here), $f_c$ is independent of $w$.
+If $n=p$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
 
 \subsection{Reproduction}
 The total production of eggs $R_{p.i}$ (numbers per time) is found by integrating the energy allocated to reproduction over all individuals:
@@ -279,11 +314,11 @@ where $w_0$ is the egg weight, $\epsilon$ is the efficiency of reproduction, and
 \begin{figure}[t]
   \centering
   \includegraphics{recruitment.eps}
-  \caption{The Beverton-Holt recruitment function (thick line) which determines the recruitment $R$ as a function of the egg production (the ``physiological recruitment'') $R_p$ via (\protect\ref{eq:R}).}
+  \caption{The Beverton-Holt recruitment function (thick line) which determines the recruitment $R$ as a function of the egg production (the ``physiological recruitment'') $R_p$ via (Equation~\protect\ref{eq:R}).}
   \label{fig:recruitment}
 \end{figure}
 
-One of the fundamental assumptions in fisheries science is that marine fish populations experience a significant density dependence early in life  \citep{ricker_stock_1954}.  This assumption has some empirical backing for selected, well-studied stocks \citep{myers_density-dependent_1993} and is also supported by the general observation that marine fish do not experience strong food-dependent growth.  This is in contrast to fish in lakes where stunted growth is not uncommon. From a technical point of view, an additional density dependence is needed to stabilize the community to avoid some of the trait classes going extinct \citep{hartvig_food_2011}. An alternative way to ensure coexistence of many species is to introduce a random food web matrix describing species-specific food preference \citep{hartvig_food_2011-1} or an abstract notion of space \citep{hartvig_food_2011}.
+One of the fundamental assumptions in fisheries science is that marine fish populations experience significant density dependence early in life \citep{ricker_stock_1954}.  This assumption has some empirical backing for selected, well-studied stocks \citep{myers_density-dependent_1993} and is also supported by the general observation that marine fish do not experience strong, food-dependent growth. This is in contrast to fish in lakes where stunted growth is not uncommon. From a technical point of view, additional density dependence is needed to stabilize the model community to avoid some of the trait classes going extinct \citep{hartvig_food_2011}. An alternative way to ensure coexistence of many species is to introduce a random food web matrix describing species-specific food preference \citep{hartvig_food_2011-1} or an abstract notion of space \citep{hartvig_food_2011}.
 
 In \pkg{mizer}, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR).
 The default functional form is such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a ``Beverton-Holt'' type of SRR:
@@ -294,19 +329,17 @@ The default functional form is such that the recruitment flux $R_i$ (numbers per
 \end{equation}
 where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
 
-This requires the parameter $R_{\max.i}$ to be set for each species in the model.
-
-The ''Beverton-Holt'' type of SRR is not the only density dependence model that \pkg{mizer} can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or ''hockey-stick''. This is explored in more detail in Section~\ref{sec:srr}.
+The ``Beverton-Holt'' type of SRR is not the only density dependence model that \pkg{mizer} can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or ``hockey-stick''. This is explored in more detail in Section~\ref{sec:srr}.
 
 \subsection{Mortality}
-The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$ , starvation mortality $\mu_{s.i}(w)$, and a constant background mortality $\mu_{b.i}(w)$. The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citep[App.~A]{hartvig_food_2011-1} for derivation):
+The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$ , starvation mortality $\mu_{s.i}(w)$, and a constant background mortality $\mu_{b.i}(w)$. The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citet[Appendix~A]{hartvig_food_2011-1} for derivation):
 
 \begin{equation}
   \label{eq:mup}
-  \mu_{p.i}(w_p) = \sum_j \int \phi(w_p/w) (1-f_i(w)) \gamma_j w^q \theta{ji} N_j(w) \, dw.
+  \mu_{p.i}(w_p) = \sum_j \int \phi(w_p/w) (1-f_i(w)) \gamma_j w^q \theta_{ji} N_j(w) \, dw.
 \end{equation}
 
-When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth stops, i.e.~no negative growth, and the individual is subjected to a starvation mortality.  Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
+When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth stops, i.e.~there is no negative growth, and the individual is subjected to a starvation mortality.  Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
 \begin{equation}
   \label{eq:mu_s}
   \mu_{s.i}(w) = \left\{ \begin{array}{lc}
@@ -317,20 +350,36 @@ When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth sto
 
 Starvation is usually not an important process in the food-web model with Beverton-Holt recruitment.
 
-Mortality from other sources than predation and starvation is assumed constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
+Mortality from sources other than predation and starvation is assumed to be constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
 \begin{equation}
   \label{eq:mu_b}
   \mu_{b.i} = \mu_0 W_i^{n-1}.
 \end{equation}
-The background mortality is needed to remove the largest individuals which do not experience predation mortality.
 
 \subsection{Resource dynamics}
-The resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
+The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
 \begin{equation}
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa_R w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
 \end{equation}
 where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa_R w^{-\lambda} = \kappa_R w^{-2-q+n}$ the carrying capacity.
+
+\subsection{Parameters}
+\label{sec:parameters}
+
+The default parameter values for the model have been derived on the basis of meta-analyses of data on marine fish (Table~\ref{tab:parameters}). Two parameters deserving special mention are the initial and critical feeding levels. These are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
+
+The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the background resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$:
+
+\begin{equation}
+  \label{eq:gamma}
+  \gamma_i(f_0) = \frac{f_0 h_i \beta_i^{2-\lambda}}{(1-f_0)\sqrt{2\pi}\kappa \sigma_i}.
+\end{equation}
+
+Similar to the way the initial feeding level $f_0$ is used to describe the relation between the production and the maximum consumption, the critical feeding level $f_c$ (Equation~\ref{eq:fc}) is used to describe the relation between the factors for standard metabolism $k_s$ and maximum consumption $h$. A critical feeding level of $f_c \approx 0.2$ seems to be reasonable \citep{hartvig_food_2011-1}.
+
+The free parameter $\kappa$ may in principle be determined analytically, based on an assumption that all species have maximum recruitment, $R_i = R_{\mathrm{max}.i}$.
+However, the depletion of resources makes it difficult to find an analytical approximation of $\kappa$ and until that has been achieved, $\kappa$ has to be adjusted manually such that the resulting community spectrum forms a continuation of the resource spectrum.
 
 \begin{table}[t]
   \centering
@@ -373,82 +422,59 @@ where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic
   \end{tabular}
 \end{table}
 
-\subsection{Trait-based model}
-The trait-based size spectrum model can be derived as a simplification of the general model outline above. The idea is that all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species.  Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$.  For the trait-based model the number of species is not important. For applications of the trait-based model see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}.
 
-Setting up a trait-based model is explored in Section~\ref{sec:trait_based_model}.
+%--------------------------------------------------------------------
+\section{Introducing \pkg{mizer}}
 
-\subsection{Community model}
+With \pkg{mizer} is is possible to implement the three types of model mentioned above (with increasing complexity): community, trait-based and food-web, using the same basic tools and methods.
+For the remaineder of this vignette we present examples of how to set up, project and analyse all three types of model.
+
+Using the package is relatively simple.  There are three main stages to implementing a model:
+
+\begin{itemize}
+    \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a \class{MizerParams} object directly using the class constructor or by using one of the convenient wrapper functions provided in the package.
+    \item Running a simulation. This is done by calling the \code{project()} method on the model parameters. This produces an object of \class{MizerSim} which contains the results of the simulation. The \code{project()} method controls the length and time-step of the simulation, as well as the levels of fishing effort.
+    \item Exploring the results. After a simulation has been run, the results can be examined using a range of plots and summaries.
+\end{itemize}
+
+These stages and the accompanying classes and methods are explained in detail in the rest of the document.
+
+It is probably easier to learn the basics of \pkg{mizer} through examples.
+We start by looking at the simplest type of size-based model, the community model. We then move on to a more complex type of model, the trait-based model.
+Finally we look at the most complex type of model, the food-web model.
+
+%------------------------------------------------------
+\section{Implementing a community-type model}
+\label{sec:comm_model}
+
+\subsection{Introduction}
 \label{sec:community_model_intro}
-The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}. The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.  In this model only one ``species'' is resolved. Reproduction is not resolved, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant.
-Standard metabolism is turned off by setting $k_{s}$ to 0.
+The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}.
+%The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.
+In this model only one ``species'' is resolved. Reproduction is not considered, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant.
+The resource spectrum only extends to the start of the community spectrum.
+Standard metabolism is turned off by setting $k_{s}$ to 0. 
 Growth is therefore given by the simpler equation:
 \begin{equation}
     \label{eq:comm_growth}
-    g(w) = \alpha f_(w) h w^n
+    g(w) = \alpha f(w) h w^n
 \end{equation}
 
-where $f_(w) h w^n$ is the consumed food and $\alpha$ is the efficiency with which the consumed food is transformed into growth.
+where $f(w) h w^n$ is the consumed food and $\alpha$ is the efficiency with which the consumed food is transformed into growth.
 The growth rate can also be written as:
 
 \begin{equation}
   \label{eq:2}
   g(w) = \overline{\epsilon}_I E_a
 \end{equation}
-where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model, see \citet{andersen_trophic_2009} or \cite{zhang_trait_2013}.
+where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model \citep[see][or]{andersen_trophic_2009, zhang_trait_2013}.
 
-Setting up a community model is explored in Section~\ref{sec:community_example}.
-
-\subsection{Parameters}
-\label{sec:parameters}
-%DOES THIS SECTION ONLY APPLY TO COMMUNITY AND TRAIT BASED MODELS?
-%IN NS MODEL GAMMA IS SET HOW?
-%CAN ADD TO MIZERPARAMS CONSTRUCTOR OTHERWISE
-
-The default parameter values for the model have been derived on the basis of meta-analyses of data on marine fish (Table \ref{tab:parameters}). Two parameters deserving special mention in the following is the initial and critical feeding levels which are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
-
-The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$:
-
-\begin{equation}
-  \label{eq:gamma}
-  \gamma_i(f_0) = \frac{f_0 h_i \beta_i^{2-\lambda}}{(1-f_0)\sqrt{2\pi}\kappa \sigma_i}.
-\end{equation}
-
-Similar to the way the initial feeding level $f_0$ is used to describe the relation between the production and the maximum consumption, the critical feeding level $f_c$ (\ref{eq:fc}) is used to describe the relation between the factors for standard metabolism $k_s$ and maximum consumption $h$. A critical feeding level of $f_c \approx 0.2$ seems to be reasonable \citep{hartvig_food_2011-1}.
-
-The free parameter $\kappa$ may in principle be determined analytically, based on an assumption that all species have maximum recruitment, $R_i = R_{\mathrm{max}.i}$.
-However, the depletion of resources makes it difficult to find an analytical approximation of $\kappa$ and until that has been achieved, $\kappa$ has to be adjusted manually such that the resulting community spectrum forms a continuation of the resource spectrum.
-
-
-%--------------------------------------------------------------------
-\section{Introducing \pkg{mizer}}
-
-The \pkg{mizer} package can be used to implement size-based ecological models.
-With \pkg{mizer} is is possible to implement the three types of model described above (with increasing complexity): community, trait-based and food-web, using the same basic tools and methods.
-In this vignette we present examples of how to set up, project and analyse all three types of model.
-
-Using the package is relatively simple.  There are three main stages:
-
-\begin{itemize}
-    \item Setting the model parameters. This is done by creating an object of class \class{MizerParams}. This includes model parameters such as the life history parameters of each species, and the range of the size spectrum. It is possible to create a \class{MizerParams} object directly using the class constructor or by using one of the convenient wrapper functions provided in the package.
-    \item Running a simulation. This is done by calling the \code{project()} method on the model parameters. This produces an object of \class{MizerSim} which contains the results of the simulation. The \code{project()} method controls the length and time-step of the simulation, as well as the levels of fishing effort.
-    \item After a simulation has been run, the results can be explored using a range of plots and summaries.
-\end{itemize}
-
-These stages and the accompanying classes and methods are explained in detail in later sections.
-However, it is probably easier to learn the basics of \pkg{mizer} through examples. The next few sections show how to implement different types of size based model.
-
-%------------------------------------------------------
-\section{Implementing a community-type model}
-\label{sec:comm_model}
-
-A size-structured community model is the simplest type of model that can be created with \pkg{mizer}. In this section we descibe how a community model can be set up and projected through time. We then use them to illustrate the idea of a 'tophic cascade'. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer} and some of the main classes and methods, but avoids too many details. Further information and more details of the package can be found later on.
-
- The concept of the community model was introduced in Section \ref{sec:community_model_intro}. There are several key features of the community model that differentiate it from the other model types. Only one 'species' is resolved, i.e. one 'species' is used to represent the whole community. Recruitment to the smallest size in the community spectrum is constant, i.e. there is no relationship between species abundance and recruitment. The proportion of energy invested in reproduction is set to 0 and standard metabolism has been turned off. This means that the growth rate of species is determined solely by the assimilated food. The resource spectrum only extends to the start of the community spectrum. 
+In this section we descibe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a 'tophic cascade'. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer} and some of the main classes and methods.
 
 \subsection{Setting up a community model}
 \label{sec:set_up_comm_model}
-As mentioned above, the first stage in using \pkg{mizer} is to create an object of class \class{MizerParams}. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the harvesting selectivity functions and the parameters of the resource spectrum. The class is fully described in Section~\ref{sec:MizerParams}.
+
+As mentioned above, the first stage in implementing a model using \pkg{mizer} is to create an object of class \class{MizerParams}. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the fishing selectivity functions and the parameters of the resource spectrum. The class is fully described in Section~\ref{sec:MizerParams}.
 
 To avoid having to make a \class{MizerParams} object directly, a wrapper function, \code{set\_community\_model()}, has been provided that conveniently creates a \class{MizerParams} object specifially for a community model. The documentation for the function can be seen by entering:
 
@@ -458,12 +484,12 @@ To avoid having to make a \class{MizerParams} object directly, a wrapper functio
 
 As can be seen in the help page, the function can take many arguments. These are passed on to the \class{MizerParams} constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen in Section~\ref{sec:MizerParams}.
 
-The parameters that you should pay attention to are: $z0$ (the level of background mortality), $alpha$ (the assimilation efficiency of the community), $f0$ (the average feeding level of the community which is used to calculate $\gamma$ in equation~\ref{eq:gamma}) and $recruitment$ (the level of constant recruitment).
+The arguments that you should pay attention to are: \args{z0} (the level of background mortality), \args{alpha} (the assimilation efficiency of the community), \args{f0} (the average feeding level of the community which is used to calculate $\gamma$ in equation~\ref{eq:gamma}) and \args{recruitment} (the level of constant recruitment).
 
-Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of $z0$ is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
-The value of the constant recruitment should be set so that the community spectrum is a continuation of the background spectrum. This can be done with trial and error.  A reasonable value for \code{alpha} is 0.2 \citep{andersen_life-history_2008}. 
+Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of \args{z0} is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
+The value of the constant recruitment should be set so that the community spectrum is a continuation of the background spectrum. This can be done with trial and error.  A reasonable value for \args{alpha} is 0.2 \citep{andersen_life-history_2008}. 
 
-The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with $z0$ = 1, $f0$ = 0.7, $alpha$ = 0.2 and the constant recruitment ($recruitment$) = 4e7. All other parameters will have their default value:
+The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with \args{z0} = 1, \args{f0} = 0.7, \args{alpha} = 0.2 and \args{recruitment} = 4e7. All other parameters will have their default value:
 
 <<label=demo_comm_model_params>>=
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
@@ -474,33 +500,33 @@ Calling the function creates and returns an object of type \class{MizerParams}. 
 class(params)
 @
 
-If you are going through this vignette for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In 'R-speak' it is an \code{S4} object, which means it is an object made up of 'slots'. Slots are essentially containers that store the object data. These slots can be seen by calling the \code{slotNames()} method on the object:
+If you are going through this vignette for the first time, it is likely that you have no idea what a \class{MizerParams} object actually is. In ``R-speak'' it is an \code{S4} object, which means it is an object made up of ``slots''. Slots are essentially containers that store the object data. The names of these slots can be seen by calling the \code{slotNames()} method on the object:
 
 <<label=slots_MP>>=
 slotNames(params)
 @
 
-As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams} and summarised in TABLE X. These slots are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams}. A quick description can be found in the \class{MizerParams} help page (run \code{class ? MizerParams}. The slots of an object are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
 
 <<label=demo_slot_accessor, results=hide>>=
 params@w
 @
 
-Don't worry about this for the moment. It is unlikely that you will need to access the slots directly at this stage. Rather than picking through the slots to find out what is in a particular \class{MizerParams} object, a summary of the object can be seen by calling the \code{summary()} method on it:
+Rather than picking through the slots to find out what is in a particular \class{MizerParams} object, a summary of the object can be seen by calling the \code{summary()} method on it:
 
 <<label=summary_comm_params>>=
 summary(params)
 @
 
 In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
-Additionally, the community is made up of one species, called ''Community'', which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The $w\_mat$ parameter has been set to NA as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function with the desired values. 
+Additionally, the community is made up of only one species, called ``Community'', which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The \args{w\_mat} parameter has been set to \code{NA} as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function and pass in the the desired argument values. 
 
 \subsection{Running the community model}
 \label{sec:running_comm_model}
-By using the \code{set\_community\_model()} method we now have a \class{MizerParams} object that contains all the information we need about the community. We can use this to perform a simulation and project the community through time.
+By using the \code{set\_community\_model()} method we now have a \class{MizerParams} object that contains all the information we need about the model community. We can use this to perform a simulation and project the community through time.
 In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for \code{project()} for more details and it is described fully in Section~\ref{sec:projection}.
 We will ignore the details for the moment and just use \code{project()} to run some simple projections.
-The arguments for \code{project()} that we need to be concerned with are $effort$, which determines the fishing effort through time and therefore fishing mortality through time, and $t\_max$, which is the length of the simulation.
+The arguments for \code{project()} that we need to be concerned with are \args{effort}, which determines the fishing effort (and therefore fishing mortality) through time, and $t\_max$, which is the length of the simulation.
 Initial population abundances are set automatically by the \code{get\_initial\_n()} function. It is possible to set your own initial abundances but we will not do this here.
 
 To run a projection for 50 time steps, with no fishing effort (i.e. we want to model an unexploited community) we run:
@@ -508,42 +534,33 @@ To run a projection for 50 time steps, with no fishing effort (i.e. we want to m
 sim <- project(params, t_max=50, effort = 0)
 @
 
-The resulting object is of type \class{MizerSim}. This class holds the results of the simulation, including the community and background resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\ref{sec:projection}.
+The resulting object, \code{sim}, is of type \class{MizerSim}. This class holds the results of the simulation, including the community and background resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\ref{sec:projection}.
 
-After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\ref{sec:exploring}. To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\ref{fig:plot_comm_demo}).
+After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\ref{sec:exploring}. To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\ref{fig:plot_comm_demo}) Each of the plots can be show individually if desired.
 
 <<plot_comm_sim, eval=FALSE>>=
 plot(sim)
 @
 
-% \SweaveOpts{width = 7, height = 10}
-% Or use the width and height option in the <<>>= bit
-% Whar is the difference and how to make them universal?
-	
-%The Sweave options width and height influence the dimensions of the PDF file but not the size of the figures in the document. Put something like
-%\setkeys{Gin}{width=0.4\textwidth}
-%after \begin{document} to get smaller plots.
-
-% Putting it in <<>>= bit makes the figure the right size in the document, without making the text bigger or anything.
 \begin{figure}
-<<label=print_plot_comm_sim, fig=TRUE, echo=FALSE, width = 7, height = 10>>=
+<<label=print_plot_comm_sim, fig=TRUE, echo=FALSE, height = 9>>=
 <<plot_comm_sim>>
 @
-\caption{Example plot of the community model}
+\caption{Example plot of the community model.}
 \label{fig:plot_comm_demo}
 \end{figure}
 
-In Figure~\ref{fig:plot_comm_demo} there are several things going on that are worth talking about. Looking at how the total biomass of the community changes with time, you can see that the biomass reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
-Fishing mortality is 0 because we set the $effort$ argument to 0 when running the simulation.
+In Figure~\ref{fig:plot_comm_demo} there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
+Fishing mortality is 0 because we set the \args{effort} argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
-The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the $f0$ and $alpha$ arguments passed to the \code{set\_community\_model()} function.
+The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the \args{f0} and \args{alpha} arguments passed to the \code{set\_community\_model()} function.
 The background resource and community sprectra are shown in the bottom panel of the plot (the plotted background resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
-You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the $recruitment$ argument passed to \code{set\_community\_model()}).
+You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the \args{recruitment} argument passed to \code{set\_community\_model()}).
 
-Note the 'spike' in biomass at the largest end of the community spectrum. This is because the size-based model can be broadly described as 'big things eating little things'. If this is true, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality, $z0$. The mortality from predation is almost 0. This is difficult to see in the plot due to the $M2$ being so high for the smaller individuals. Consequently, there is a spike in abundance of the largest individuals.
-%This leads to a corresponding lower decrease in predation mortality on the prey of the largest individuals, and therefore their abundance declines (the dip in biomass you can see near the end community spectrum).  
-We can see this by extracting the predation mortality information from the \class{MizerSim} object, \code{sim}, that we created above.
-This is easily done by using the \code{getM2()} method (See the help page for more details. There are several methods that can be used for extracting information from a \class{MizerSim} object, e.g. \code{getFeedingLevel()} and \code{getFMort()}. For more information see Section~\ref{sec:exploring}.):
+Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size-based model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the \args{z0} argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
+
+We can see this more clearly by extracting the predation mortality information from the \class{MizerSim} object, \code{sim}, that we created above.
+This is easily done by using the \code{getM2()} method (see the help page for more details. There are several methods that can be used for extracting information from a \class{MizerSim} object, e.g. \code{getFeedingLevel()} and \code{getFMort()}. For more information see Section~\ref{sec:exploring}.):
 
 <<label=get_m2_comm>>=
 m2 <- getM2(sim)
@@ -556,10 +573,10 @@ To pull out the predation mortality at size in the final time step we use:
 m2[51,]
 @
 
-If you plot this predation mortality on log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}).
+If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}).
 
 \begin{figure}
-<<label=print_plot_comm_m2, fig=TRUE, echo=FALSE>>=
+<<label=print_plot_comm_m2, fig=TRUE, echo=FALSE, height = 4>>=
 plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 @
 \caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
@@ -569,15 +586,16 @@ plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "P
 \subsection{Example of a trophic cascade with the community model}
 \label{sec:trophic_cascade_comm_model}
 It is possible to use the community model to simulate a trophic cascade, similar to those seen in \citet{andersen_damped_2010}.
-To do this we need to perform two simulations, one with fishing and one without.  This means we need to consider the fishing selectivity function.
+To do this we need to perform two simulations, one with fishing and one without.
 
-The \code{set\_community\_model()} automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the $knife\_edge\_size$ argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity.
+This means we need to consider how fishing is handled in \pkg{mizer}.
+The \code{set\_community\_model()} automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
 
 <<label='set_comm_fishing'>>=
 params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
 @
 
-First we perform a simulation without fishing in the same way we did above by setting the $effort$ argument to 0:
+First we perform a simulation without fishing in the same way we did above by setting the \args{effort} argument to 0:
 
 <<label=sim_comm_no_fish>>=
 sim0 <- project(params_knife, effort = 0, t_max = 50)
@@ -589,21 +607,21 @@ Now we want to simulate again, this time with fishing. In the simulations, fishi
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 @
 
-You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\ref{fig:plot_comm_fmort}). Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000g can be clearly seen. An effort of 1 results in a fishing mortality of 1 for fully selected sizes.
+You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\ref{fig:plot_comm_fmort}). Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
 <<label=plot_comm_fmort, eval=FALSE>>=
 plot(sim1)
 @
 
 \begin{figure}
-<<label=print_plot_comm_fmort, fig=TRUE, echo=FALSE>>=
+<<label=print_plot_comm_fmort, fig=TRUE, echo=FALSE, height = 9>>=
 <<plot_comm_fmort>>
 @
 \caption{Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.}
 \label{fig:plot_comm_fmort}
 \end{figure}
 
-To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the resulting abundances at size from the simulation objects. The abundances are store in the \code{n} slot of the \class{MizerSim} objects. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
+To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are store in the \code{n} slot of the \class{MizerSim} objects. The \code{n} slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
 
 <<label='dim_n'>>=
 dim(sim0@n)
@@ -615,41 +633,25 @@ We want the abundances in the final time step, and we can use these to calculate
 relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 @
 
-\begin{figure}
-<<label=plot_relative_comm_abund, fig=TRUE, echo=FALSE>>=
+This can then be plotted (Figure~\ref{fig:plot_relative_comm_abund}) using basic \R plotting commands.
+The sizes are stored in the \code{params@w} slot (a slot of a slot!).
+
+<<label=plot_relative_comm_abund, eval=FALSE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="x", type="n", xlab = "Size (g)", ylab="Relative abundance")
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
+@
+
+\begin{figure}
+<<label=print_plot_relative_comm_abund, fig=TRUE, echo=FALSE, height = 4>>=
+<<plot_relative_comm_abund>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) community model.}
 \label{fig:plot_relative_comm_abund}
 \end{figure}
 
-This can then be plotted (Figure~\ref{fig:plot_relative_comm_abund}).
 The impact of fishing on species larger than 1000g can be clearly seen.
-As described in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish. This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
-This impact can be seen by plotting the predation mortality (Figure~\ref{fig:plot_m2_comm}).
-%This can be seen using the \code{getM2()} method for \class{MizerSim} objects (see the help page for more details).
-%Only a selected size range is plotted to illustrate the impact (Figure ~\ref{fig:plot_m2_comm}).
-
-<<label='get_M2_comm'>>=
-m2_no_fishing <- getM2(sim0)[51,]
-m2_with_fishing <- getM2(sim1)[51,]
-@
-
-<<label=plot_relative_comm_m2, eval=FALSE>>=
-w_idx <- sim0@params@w >= 1
-plot(x=sim0@params@w, y=m2_with_fishing, log="x", type="l", xlab = "Size (g)", ylab="Predation mortality", ylim=c(0,2))
-lines(x=sim0@params@w, y=m2_no_fishing, lty=2)
-@
-
-\begin{figure}
-<<label=print_plot_relative_comm_m2, fig=TRUE>>=
-<<plot_relative_comm_m2>>
-@
-\caption{Predation mortalities from the unfished (dashed line) and fished (solid line) community model.}
-\label{fig:plot_m2_comm}
-\end{figure}
+As described in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish (the decrease in relative abundance at 1000 g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
 
 \subsection{The impact of changing $\sigma$}
 \label{sec:comm_model_change_sigma}
@@ -660,13 +662,14 @@ When projected through time, the community abundances converge to a stable equil
 What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into \code{set\_community\_model()}.
 
 <<label=comm_params_sigma1>>=
-params_sigma1 <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
+params_sigma1 <- set_community_model(z0 = 0.1,
+     f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
 @
 
-We want to project this new model through time using the \code{project()} method. However, note here that we are projecting the model by 50 time steps. More importantly note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of \code{project()} that performs the projection. 
-As you can see in the underlying model equations in Section~\ref{sec:principles}, the model runs in continuous time. Therefore, to project it forward, \code{project()} must solve the system of equations using approximations. The quality of these approximations is strongly affected by $dt$. 
+We want to project this new model through time using the \code{project()} method. Note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of \code{project()} that performs the projection. 
+As you can see in the underlying model equations in Section~\ref{sec:principles}, the model runs in continuous time. Therefore, to project it forward, \code{project()} must solve the system of equations using numerical methods. The quality of these methods is strongly affected by $dt$. 
 The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
-Here we project the new parameters object for 100 time steps without fishing:
+Here we project the new parameters object for 50 time steps without fishing:
 
 <<label=comm_project_sigma1>>=
 sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
@@ -679,7 +682,7 @@ plotBiomass(sim_sigma1)
 @
 
 \begin{figure}
-<<plot_comm_biomass_sigma1, fig=TRUE>>=
+<<plot_comm_biomass_sigma1, fig=TRUE, height = 4>>=
 <<plot_comm_biomass_sigma1>>
 @
 \caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
@@ -691,6 +694,9 @@ Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community
 %-----------------------------------------------------------------------
 \section{Implementing a trait-based model}
 \label{sec:trait_based_model}
+
+\subsection{Introduction}
+The trait-based size spectrum model can be derived as a simplification of the general model outline above. The idea is that all the species-specific parameters are the same, except for the asymptotic size, which is considered the most important ``trait'' characterizing a species.  Other parameters are related to the asymptotic size, i.e.~$w_m = \eta_m W$, where $\eta_m = 0.25$.  For the trait-based model the number of species is not important. For applications of the trait-based model see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}.
 
 \subsection{Setting up a trait-based model}
 \label{sec:set_up_trait_model}
@@ -861,8 +867,8 @@ lines(x = sim0@params@w, y = m2_with_fishing)
 @
 
 \begin{figure}
-<<label=print_plot_relative_comm_m2, fig=TRUE>>=
-<<plot_relative_comm_m2>>
+<<label=print_plot_relative_trait_m2, fig=TRUE, height = 4>>=
+<<plot_relative_trait_m2>>
 @
 \caption{Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model.}
 \label{fig:plot_m2_comm}
