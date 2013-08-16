@@ -319,6 +319,7 @@ setClass("MizerParams",
 #'     \item{\code{kappa} Carrying capacity of the resource spectrum. Default value is 1e11} 
 #'     \item{\code{lambda} Exponent of the resource spectrum. Default value is (2+q-n)} 
 #'     \item{\code{w_pp_cutoff} The cut off size of the background spectrum. Default value is 10} 
+#'     \item{\code{f0} Average feeding level. Used to calculated \code{h} and \code{gamma} if those are not columns in the species data frame. Also requires \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species data frame. If \code{h} and \code{gamma} are supplied then this argument is ignored. Default is 0.6.
 #' }
 #'
 #' @return An object of type \code{MizerParams}
@@ -348,7 +349,6 @@ setGeneric('MizerParams', function(object, interaction, ...)
 
 # Basic constructor with only the number of species as dispatching argument
 # Only really used to make MizerParams of the right size and shouldn't be used by user
-# Not included in the man pages
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,numeric,missing-method
 setMethod('MizerParams', signature(object='numeric', interaction='missing'),
@@ -412,10 +412,9 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,data.frame,matrix-method
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
-    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, ...){
-	check_species_params_dataframe(object)
-	# Check essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # sigma 
-	# And set defaults for others
+    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, ...){
+
+	# Set default values for column values if missing
 	# If no gear_name column in object, then named after species
 	if(!("gear" %in% colnames(object)))
 	    object$gear <- object$species
@@ -424,6 +423,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	if(!("k" %in% colnames(object)))
 	    object$k <- 0
 	# If no alpha column in object, then set to 0.6
+    # Should this be a column? Or just an argument?
 	if(!("alpha" %in% colnames(object)))
 	    object$alpha <- 0.6
 	# If no erepro column in object, then set to 1
@@ -435,6 +435,24 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# If no catchability column in species_params, set to 1
 	if(!("catchability" %in% colnames(object)))
 	    object$catchability <- 1
+    # Sort out h column
+    # If not passed in directly, is calculated from f0 and k_vb if they are also passed in
+    if(!("h" %in% colnames(object))){
+        cat("No h column in species data frame so using f0 and k_vb to calculate it.\n")
+        if(!("k_vb" %in% colnames(object))){
+            stop("Except I can't because there is no k_vb column in the species data frame")
+        }
+        object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
+    }
+    # Sorting out gamma column
+    if(!("gamma" %in% colnames(object))){
+        cat("No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.\n")
+        ae <- sqrt(2*pi) * object$sigma * object$beta^(lambda-2) * exp((lambda-2)^2 * object$sigma^2 / 2)
+        object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
+    }
+
+	# Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
+	check_species_params_dataframe(object)
 
 	no_sp <- nrow(object)
 	# Make an empty object of the right dimensions
