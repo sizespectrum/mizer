@@ -319,7 +319,9 @@ setClass("MizerParams",
 #'     \item{\code{kappa} Carrying capacity of the resource spectrum. Default value is 1e11} 
 #'     \item{\code{lambda} Exponent of the resource spectrum. Default value is (2+q-n)} 
 #'     \item{\code{w_pp_cutoff} The cut off size of the background spectrum. Default value is 10} 
-#'     \item{\code{f0} Average feeding level. Used to calculated \code{h} and \code{gamma} if those are not columns in the species data frame. Also requires \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species data frame. If \code{h} and \code{gamma} are supplied then this argument is ignored. Default is 0.6.
+#'     \item{\code{f0} Average feeding level. Used to calculated \code{h} and \code{gamma} if those are not columns in the species data frame. Also requires \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species data frame. If \code{h} and \code{gamma} are supplied then this argument is ignored. Default is 0.6.}
+#'     \item{\code{z0pre}} If \code{z0} is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is 0.6.}
+#'     \item{\code{z0exp}} If \code{z0} is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is -1/3.}
 #' }
 #'
 #' @return An object of type \code{MizerParams}
@@ -412,7 +414,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,data.frame,matrix-method
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
-    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, ...){
+    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, z0pre = 0.6, z0exp = -1/3, ...){
 
 	# Set default values for column values if missing
 	# If no gear_name column in object, then named after species
@@ -449,6 +451,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
         cat("No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.\n")
         ae <- sqrt(2*pi) * object$sigma * object$beta^(lambda-2) * exp((lambda-2)^2 * object$sigma^2 / 2)
         object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
+    }
+    # Sort out z0 column
+    if(!("z0" %in% colnames(object))){
+        cat("No z0 in species data frame so using z0 = z0pre * w_inf ^ z0exp.\n")
+        object$z0 = z0pre*object$w_inf^z0exp    # background natural mortality
     }
 
 	# Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
@@ -501,9 +508,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@pred_kernel <- exp(-0.5*sweep(log(sweep(sweep(res@pred_kernel,3,res@w_full,"*")^-1,2,res@w,"*")),1,object$sigma,"/")^2)
 	res@pred_kernel <- sweep(res@pred_kernel,c(2,3),combn(res@w_full,1,function(x,w)x<w,w=res@w),"*") # find out the untrues and then multiply
 
-	# How to choose which z0 function? z0 set before
-	#res@z0 = z0pre*object$wInf^z0exp    # background natural mortality
-	#Z0= (param$Z0pre*sp$k_vb)   # background mortality of Pope et al. 2006
 
 	# Background spectrum
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##

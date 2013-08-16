@@ -1101,12 +1101,13 @@ LINK THESE PARAMETERS TO THE EQUATIONS IN SECTION 3
 	    species & Name of the species & Compulsory (no default)\\
 	    w\_inf & The asymptotic mass of the species & Compulsory (no default)\\
 	    w\_mat & Maturation mass. Used to calculate values for $\psi$. WHAT IS WMAT IN TERMS OF BIOLOGY? Is it the mass at first maturity? & Compulsory (no default)\\
-	    h & Maximum food intake rate & Compulsory (no default) \\
-	    gamma & Volumetric search rate & Compulsory (no default)\\
+        h & Maximum food intake rate. If this is not provided, it is calculated using the \code{k\_vb} column. Therefore, either \code{h} or \code{k\_vb} must be [rovided. & Optional (no default) \\
+        k\_vb & The von Bertalanffy $K$ paramter. Used to calculate \args{h} if that column is not provided & Optional (no default)\\
+	    gamma & Volumetric search rate. If this is not provided, it is calculated using the \code{h} column and other parameters. & Optional (no default)\\
 	    ks & Standard metabolism coefficient & Compulsory (no default)\\
 	    beta & Preferred predator prey mass ratio & Compulsory (no default)\\
 	    sigma & Width of prey size preference & Compulsory (no default)\\
-	    z0 & Background mortality (constant for all sizes) & Compulsory (no default)\\
+        z0 & Background mortality (constant for all sizes). If this is not provided then \args{z0} is calculated as \args{z0pre} * \args{w\_inf} \^ \args{z0exp}. \args{z0pre} and \args{z0exp} have default values of 0.6 and -1/3 respectively.  & Optional (no default)\\
 	    k & Activity coefficient & 0.0\\
 	    alpha & Assimilation efficiency & 0.6 \\
 	    erepro & Reproductive efficiency & 1 \\

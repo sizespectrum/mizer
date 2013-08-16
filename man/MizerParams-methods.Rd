@@ -44,7 +44,18 @@
   spectrum. Default value is 1e11} \item{\code{lambda}
   Exponent of the resource spectrum. Default value is
   (2+q-n)} \item{\code{w_pp_cutoff} The cut off size of the
-  background spectrum. Default value is 10} }}
+  background spectrum. Default value is 10} \item{\code{f0}
+  Average feeding level. Used to calculated \code{h} and
+  \code{gamma} if those are not columns in the species data
+  frame. Also requires \code{k_vb} (the von Bertalanffy K
+  parameter) to be a column in the species data frame. If
+  \code{h} and \code{gamma} are supplied then this argument
+  is ignored. Default is 0.6.} \item{\code{z0pre}} If
+  \code{z0} is not a column in the species data frame, it
+  is calculated as z0pre * w_inf ^ z0exp. Default value is
+  0.6.} \item{\code{z0exp}} If \code{z0} is not a column in
+  the species data frame, it is calculated as z0pre * w_inf
+  ^ z0exp. Default value is -1/3.} }}
 }
 \value{
   An object of type \code{MizerParams}
