@@ -26,8 +26,8 @@
 #' The \code{effort} argument specifies the level of fishing effort during the simulation. It can be specified in three different ways:
 #' \itemize{
 #' \item A single numeric value. This specifies the effort of all fishing gears which is constant through time (i.e. all the gears have the same constant effort).
-#' \item A numerical vector which has the same length as the number of fishing gears. The values in the vector specify the constant fishing effort of each of the fishing gears, i.e. the effort is constant through time but each gear may have a different fishing effort.
-#' \item A numerical array with dimensions time step x gear. This specifies the fishing effort of each gear at each time step. The order of gears in the array should be same as the order of gears in the \code{MizerParams} argument.
+#' \item A numerical vector which has the same length as the number of fishing gears. The vector must be named and the names must correspond to the gear names in the \code{MizerParams} object. The values in the vector specify the constant fishing effort of each of the fishing gears, i.e. the effort is constant through time but each gear may have a different fishing effort.
+#' \item A numerical array with dimensions time step x gear. This specifies the fishing effort of each gear at each time step.  The second dimension of the array must be named and the names must correspond to the gear names in the \code{MizerParams} argument.
 #'}
 #'
 #' If effort is specified as an array then the \code{t_max} argument is ignored and the maximum simulation time is calculated using the number of time steps in the effort array and the value of the \code{dt} argument.
@@ -78,8 +78,19 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 	no_gears <- dim(object@catchability)[1]
 	if ((length(effort)>1) & (length(effort) != no_gears))
 	    stop("Effort vector must be the same length as the number of fishing gears\n")
+    # If more than 1 gear need to check gear names match
+	gear_names <- dimnames(object@catchability)[[1]]
+    effort_gear_names <- names(effort)
+
+    if (length(effort) == 1 & is.null(effort_gear_names)){
+        effort_gear_names <- gear_names
+    }
+    if(!all(gear_names %in% effort_gear_names)){
+        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse=", "), ") do not match those in the effort vector.", sep="")
+        stop(gear_names_error_message)
+    }
 	# Set it up transposed so we can use the recycling rules
-	effort_array <- t(array(effort, dim=c(no_gears,t_max / dt), dimnames=list(gear=dimnames(object@catchability)$gear,t_step=signif(seq(from=dt,to=t_max,by=dt),3))))
+	effort_array <- t(array(effort, dim=c(no_gears,t_max / dt), dimnames=list(gear=effort_gear_names,t_step=signif(seq(from=dt,to=t_max,by=dt),3))))
 	res <- project(object,effort_array, dt=dt, ...)
 	return(res)
 })
@@ -90,6 +101,20 @@ setMethod('project', signature(object='MizerParams', effort='array'),
     function(object, effort, t_save=1, dt=0.1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
 	validObject(object)
 	#args <- list(...)
+    # Check that number and names of gears in effort array is same as in MizerParams object
+	no_gears <- dim(object@catchability)[1]
+    if(dim(effort)[2] != no_gears){
+        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep="")
+        stop(no_gears_error_message)
+    }
+	gear_names <- dimnames(object@catchability)[[1]]
+    if(!all(gear_names %in% dimnames(effort)[[2]])){
+        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse=", "), ") do not match those in the effort array.", sep="")
+        stop(gear_names_error_message)
+    }
+    # Sort effort array to match order in MizerParams
+    effort <- effort[,gear_names, drop=FALSE]
+
 	# Use the effort array to pull out time info
 	t_steps <- dim(effort)[1]
 	t_max <- t_steps * dt

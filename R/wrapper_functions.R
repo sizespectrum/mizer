@@ -147,6 +147,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
 #' @param knife_edge_size The minimum size at which the gear or gears select species. Must be of length 1 or no_sp.
+#' @param gear_names The names of the fishing gears. A character vector, the same length as the number of species. Default is 1 - no_sp.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -180,7 +181,8 @@ set_trait_model <- function(no_sp = 10,
                             beta = 100,
                             sigma = 1.3,
                             f0 = 0.5,
-                            knife_edge_size = 1000){
+                            knife_edge_size = 1000,
+                            gear_names = as.character(1:no_sp)){
     # Calculate gamma using equation 2.1 in A&P 2010
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
@@ -194,7 +196,10 @@ set_trait_model <- function(no_sp = 10,
     if ((length(knife_edge_size) > 1) & (length(knife_edge_size) != no_sp)){
         warning("Number of gears is less than number of species so gear information is being recycled. Is this what you want?")
     }
-    gear_name <- paste("knife_edge_",signif(knife_edge_size,digits=2),sep="")
+    #gear_name <- paste("knife_edge_",signif(knife_edge_size,digits=2),sep="")
+    if (length(gear_names) != no_sp){
+        stop("Length of gear_names argument must equal the number of species.")
+    }
 
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
@@ -211,7 +216,7 @@ set_trait_model <- function(no_sp = 10,
             #r_max = r_max,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
-            gear = gear_name,
+            gear = gear_names,
             erepro = 1 # not used but included out of necessity
     )
     # Make the MizerParams

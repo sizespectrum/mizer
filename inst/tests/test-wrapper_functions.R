@@ -18,7 +18,9 @@ test_that("trait-based model multiple gears",{
         expect_that(all(fmg[10,i,i,params@w >= knife_edges[i]] == 1), is_true())
     }
     # Only the 4th gear fires
-    sim2 <- project(params, t_max = 10, effort = c(0,0,0,1,0,0,0,0,0,0))
+    effort <- c(0,0,0,1,0,0,0,0,0,0)
+    names(effort) = 1:no_sp
+    sim2 <- project(params, t_max = 10, effort = effort)
     fmg <- getFMortGear(sim2)
     expect_that(all(fmg[10,c(1:3,5:10),c(1:3,5:10),] == 0), is_true())
         expect_that(all(fmg[10,4,4,params@w < knife_edges[4]] == 0), is_true())

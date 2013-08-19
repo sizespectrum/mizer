@@ -91,3 +91,6 @@ test_that("w_min_idx is being set correctly",{
     expect_error(MizerParams(species_params_gears,inter, min_w = 1))
 })
 
+test_that("h and gamma and z0 are being set properly if not passed in",{
+
+})

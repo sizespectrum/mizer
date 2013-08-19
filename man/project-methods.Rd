@@ -55,14 +55,16 @@
   which is constant through time (i.e. all the gears have
   the same constant effort). \item A numerical vector which
   has the same length as the number of fishing gears. The
-  values in the vector specify the constant fishing effort
-  of each of the fishing gears, i.e. the effort is constant
-  through time but each gear may have a different fishing
-  effort. \item A numerical array with dimensions time step
-  x gear. This specifies the fishing effort of each gear at
-  each time step. The order of gears in the array should be
-  same as the order of gears in the \code{MizerParams}
-  argument. }
+  vector must be named and the names must correspond to the
+  gear names in the \code{MizerParams} object. The values
+  in the vector specify the constant fishing effort of each
+  of the fishing gears, i.e. the effort is constant through
+  time but each gear may have a different fishing effort.
+  \item A numerical array with dimensions time step x gear.
+  This specifies the fishing effort of each gear at each
+  time step.  The second dimension of the array must be
+  named and the names must correspond to the gear names in
+  the \code{MizerParams} argument. }
 
   If effort is specified as an array then the \code{t_max}
   argument is ignored and the maximum simulation time is

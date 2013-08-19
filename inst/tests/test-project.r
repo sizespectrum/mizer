@@ -63,4 +63,60 @@ test_that("w_min array reference is working OK",{
     expect_that(all(sim@n[6,1,1:(sim@params@species_params$w_min_idx[1]-1)]==0),is_true())
 })
 
+test_that("Gear checking and sorting is OK",{
+    # Set up trait based model for easy testing ground
+    no_sp <- 10
+    min_w_inf <- 10
+    max_w_inf <- 1e5
+    w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
+    knife_edges <- w_inf * 0.05
+    industrial_gears <- w_inf <= 500
+    other_gears <- w_inf > 500
+    gear_names <- rep("Industrial", no_sp)
+    gear_names[other_gears] <- "Other"
+    params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+	gear_names <- dimnames(params_gear@catchability)[[1]]
+    # Single vector of effort
+    sim <- project(params_gear, effort=0.3, t_max = 10)
+    expect_that(all(sim@effort==0.3), is_true())
+    expect_that(all(dimnames(sim@effort)$gear == gear_names), is_true()) # Also checks order of gear names in resulting effort matches catchability
+    # Effort vector
+    # Should give same result
+    effort_vec <- c(Other = 1, Industrial = 0)
+    effort_vec2 <- c(Industrial = 0, Other = 1)
+    sim <- project(params_gear, effort = effort_vec, t_max = 10)
+    sim2 <- project(params_gear, effort = effort_vec2, t_max = 10)
+    expect_that(all(sim@effort[,"Industrial"] == 0), is_true())
+    expect_that(all(sim@effort[,"Other"] == 1), is_true())
+    expect_that(all(sim2@effort[,"Industrial"] == 0), is_true())
+    expect_that(all(sim2@effort[,"Other"] == 1), is_true())
+    expect_that(all(dimnames(sim@effort)$gear == gear_names), is_true()) 
+    expect_that(all(dimnames(sim2@effort)$gear == gear_names), is_true()) 
+    # Should fail - number of gears wrong
+    effort_vec3 <- c(Industrial = 0, Other = 1, Dummy = 0.5)
+    expect_that(project(params_gear, effort = effort_vec3, t_max = 10), throws_error())
+    effort_vec4 <- c(Industrial = 0) # Is OK because length is 1
+    expect_that(sim <- project(params_gear, effort = effort_vec4, t_max = 10) , throws_error())
+    # Should fail - names of gears wrong
+    effort_vec5 <- c(Industrial = 0, Dummy = 1)
+    expect_that(project(params_gear, effort = effort_vec5, t_max = 10), throws_error())
+    # Array effort
+    t_steps <- 10
+    effort1 <- array(1,dim=c(t_steps,2))
+    expect_that(project(params_gear, effort = effort1), throws_error())
+    # Different order - should give same result
+    effort2 <- array(rep(c(1,0), each = t_steps),dim=c(t_steps,2), dimnames=list(NULL,gear = c("Other","Industrial")))
+    effort3 <- array(rep(c(0,1), each = t_steps),dim=c(t_steps,2), dimnames=list(NULL,gear = c("Industrial","Other")))
+    sim2 <- project(params_gear, effort=effort2)
+    sim3 <- project(params_gear, effort=effort3)
+    expect_that(sim2, is_identical_to(sim3))
+    # These should all fail - gears incorrectly specified
+    effort4 <- array(rep(c(0,1,0.5), each = t_steps),dim=c(t_steps,3), dimnames=list(NULL,gear = c("Industrial","Other","Dummy")))
+    effort5 <- array(rep(c(0,1), each = t_steps),dim=c(t_steps,2), dimnames=list(NULL,gear = c("Industrial","Dummy")))
+    effort6 <- array(rep(c(1), each = t_steps),dim=c(t_steps,1), dimnames=list(NULL,gear = c("Industrial")))
+    expect_that(project(params_gear, effort = effort4), throws_error())
+    expect_that(project(params_gear, effort = effort5), throws_error())
+    expect_that(project(params_gear, effort = effort6), throws_error())
+})
+
 
