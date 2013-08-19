@@ -878,30 +878,26 @@ lines(x = sim0@params@w, y = m2_with_fishing)
 \label{fig:plot_m2_comm}
 \end{figure}
 
-
 \subsection{Setting up an industrial fishing gear}
 \label{sec:trait_additional_gear}
 
 In this section we only want to operate an ``industrial'' fishery, like in \citet{andersen_damped_2010}. Industrial fishing targets the small zooplanktivorous species that are typically used for fishmeal production.
 
-In the previous simulations we have had only one fishing gear and it targetted all the species in the community. Here we expand the model to include multiple fishing gears.
+In the previous simulations we had only one fishing gear and it targetted all the species in the community. This gear had a knife-edge selectivity that only selected species larger than 1 kg. Here we expand the model to include multiple fishing gears.
 This requires us to look more closely at how fishing gears are handled in \pkg{mizer}.
-In the previous trait-based model examples we have only considered a single fishing gear that catches all species. This gear had a knife-edge selectivity that only selected species larger than 1 kg.
-In \pkg{mizer} it is possible for a fishing gear to catch only a subset of the species in the model, or even for each species to be caught by a seperate gear.
-This is useful because when running a simulation with \code{project()} you can specify the effort per gear.
- 
-Here we implement an industrial type fishery. The industrial fishery will only target species that have an asymptotic size less than or equal to 500 g.
-We will still use a knife-edge selectivity but here we want the position of the knife-edge to depend on the asymptotic size of the species it fishes.
-The position of the knife-edge will occur at 0.05 x the asymptotic size i.e. the selectivity pattern will be different for each species and will depend on the asymptotic size.
-This means that we must set up the model so that each species is fished by a different fishing gear, and that fishing gears will have different selectivities given by the asymptotic size of the species.
-This might sound complicated but is straight forward to do.
+In \pkg{mizer} it is possible for a fishing gear to catch only a subset of the species in the model. This is useful because when running a simulation with \code{project()} you can specify the effort per gear and so you can turn gears on or off as you want. The shape of the selectivity function of each gear will be the same for all of the species it catches but the selectivity parameter values for each species may be different. For example, we can set up an ``industrial'' gear to catch only a subset of species. Each species it catches will be caught with knife-edge selectivity but they may have a different knife-edge positions.
 
-In the previous examples, we passed an argument \args{knife\_edge\_size} to the \code{set\_trait\_model()} function.
-\args{knife\_edge\_size} was passed in as a single value which was used for all the species. This effectively set up a single gear, that caught all species using the same selectivity pattern.
+Using the trait-based model wrapper function it is only possible to have a knife-edge selectivity.
+Each species in the model must be given the position of the knife edge and the name of the fishing gear. This is done using the \code{knife\_edge\_size} argument (which we have already seen) and the \code{gear\_names} argument of the \code{set\_trait\_model()} function.
+In the previous examples, we passed in the \args{knife\_edge\_size} argument as a single value which was used for all the species. This effectively set up a single gear, that caught all species using the same selectivity pattern. The \code{gear\_names} argument was not used.
 Now we are going to pass the \args{knife\_edge\_size} argument as a vector with the same length as the number of species in the model. The values in the vector will be the positions of the knife-edge for each species.
-This will set up a single gear for each species in the model.
+We are also going to pass in a new argument, \code{gear\_names} which is a vector of the names of the gears. The vector must have the same length as the number of species in the model.
 
-To start with we need to know what the asymptotic sizes of the species in the model are. As mentioned above, the \code{set\_trait\_model()} function spaces the asymptotic sizes equally on a logarithmic scale. This means we can calculate them by hand.
+We will set up the model to include two fishing gears: an ``industrial'' gear that only catches species with an asymptotic size less than or equal to 500g, and a second gear, ``other'', that catches everything else.
+The position of the knife-edge for both gears will occur at 0.05 x the asymptotic size i.e. the selectivity parameters will be different for each species and will depend on the asymptotic size.
+
+To start with we need to know what the asymptotic sizes of the species in the model are so we can determine the knife-edge positions for each species.
+As mentioned above, the \code{set\_trait\_model()} function spaces the asymptotic sizes equally on a logarithmic scale. This means we can calculate them by hand.
 
 <<label=calc_trait_winf>>=
 no_sp <- 10
@@ -916,11 +912,20 @@ We can then use these asymptotic sizes to set a vector of knife-edges that are 0
 knife_edges <- w_inf * 0.05
 @
 
-Finally, we can create our \class{MizerParams} object by passing in the $knife\_edge\_sizes$ argument. ALl the other arguments are the same as before:
+Now we want to assign each species to either the ``industrial'' or ``other'' gear,
+We want to create a vector of gear names. This vector must be the same length as the number of species in the model.
+
+<<label=trait_industrial_gear_names>>=
+other_gears <- w_inf > 500
+gear_names <- rep("Industrial", no_sp)
+gear_names[other_gears] <- "Other"
+@
+
+Finally, we can create our \class{MizerParams} object by passing in the \code{knife\_edge\_sizes} and \code{gear\_names} argument. All the other arguments are the same as before:
 
 <<label=set_trait_multiple_gears>>=
 params_multi_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
-    max_w_inf = max_w_inf, knife_edge_size = knife_edges)
+    max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
 @
 
 To check what has just happened we can take a look inside the \class{MizerParams} object. There is a slot in the object called \code{species\_params}. This is a \class{data.frame} that contains the life-history parameters of the species in the model (the results of running this command are not shown):
@@ -930,7 +935,7 @@ params_multi_gear@species_params
 @
 
 This \class{data.frame} is pretty interesting as it allows you to investigate the parameters for each species. For example, you can see that the predator-prey mass ratio parameters, \args{beta} and \args{sigma}, are indeed the same for each species.
-The columns of the \code{species\_params} \class{data.frame} that we are interested in here are \args{species} (the name of the species, here just numerical identifiers), \args{w\_inf} (the asymptotic size), \args{sel\_func} (the name of the selectivity function for that species), \args{knife\_edge\_size} (the position of the knife-edge of the selectivity) and \args{gear} (the name of the fishing gear, note that here each name is unique signifying that each species is caught by a different gear).
+The columns of the \code{species\_params} \class{data.frame} that we are interested in here are \args{species} (the name of the species, here just numerical identifiers), \args{w\_inf} (the asymptotic size), \args{sel\_func} (the name of the selectivity function for that species), \args{knife\_edge\_size} (the position of the knife-edge of the selectivity) and \args{gear} (the name of the fishing gear). You can see that two gears have been set up, ``Industrial'' and ``Other'' and that they catch different species depending on their asymptotic size.
 
 Having created our \class{MizerParams} object with multiple gears, we can now turn our attention to running a projection with multiple gears.
 In our previous examples of calling \code{project()} we have specified the fishing effort with the \args{effort} argument using a single value. This fixes the fishing effort for all gears in the model, for all time steps. We can do this with our multi-gear parameter object:
@@ -954,26 +959,15 @@ plot(sim_multi_gear)
 \end{figure}
 
 For the industrial fishery we said that we only wanted species with an asymptotic size of 500 g or less to be fished.
-When specifying the \args{effort} argument for \code{project()} there are several ways of doing it. Above we specified a single value that was used for all gears, for all time steps. It is also possible to specify a separate effort for each gear. This means that we can ``turn off'' the effort for the gears that are fishing on species with an asymptotic size greater than 500 g by setting the effort to 0.
-To do this we can create a vector of the gears that we want to be operational (those that fish species with an asymptotic size less than or equal to 500 g) and then multiply this by the desired effort value:
-
-<<label = setting_effort_trait_multigear>>=
-operating_gears <- w_inf <= 500
-effort <- operating_gears * 0.5
-@
-
-This gives us an effort vector, the same length as the number of gears in the model:
-<<label=show_trait_effort_multigear>>=
-effort
-@
-
-By passing this vector into \code{project()} as the \args{effort} argument we can effectively switch on and off the gears we want:
+There are several ways of specifying the \args{effort} argument for \code{project()} .
+Above we specified a single value that was used for all gears, for all time steps. It is also possible to specify a separate effort for each gear that will be used for all time steps.
+To do this we pass in effort as a named vector. Here we set the effort for the ``Industrial'' gear to 0.75, and the effort of the ``Other'' gear to 0 (effectively turning it off).
 
 <<label=project_trait_multigear>>=
-sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = effort)
+sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = c(Industrial = 0.75, Other = 0))
 @
 
-Now you can see that the fishing mortality for species larger than 500 g is 0 (Figure~\ref{fig_trait_multi_gear}).
+Now you can see that the ``Industrial'' gear has been operating and that fishing mortality for species larger than 500 g is 0 (Figure~\ref{fig_trait_multi_gear}).
 
 <<label=plot_multi_gear_trait, eval=FALSE>>=
 plot(sim_multi_gear)
@@ -983,7 +977,7 @@ plot(sim_multi_gear)
 <<label=print_plot_trait_multi_gear, fig=TRUE, echo=FALSE, height = 9>>=
 <<plot_multi_gear_trait>>
 @
-\caption{Summary plot for the trait-based model with multiple gears when only gears fishing on species with asymptotic size of 500 g or less are operational.}
+\caption{Summary plot for the trait-based model with multiple gears when only the industrial gear that fishes on species with asymptotic size of 500 g or less is operational.}
 \label{fig_trait_multi_gear}
 \end{figure}
 
@@ -995,7 +989,7 @@ We can again compare abundances of the fished ($sim\_industrial1$) and unfished 
 
 <<label = industrial_fishery_simulation>>=
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
-sim_industrial1 <- project(params_multi_gear, t_max = 75, effort = effort)
+sim_industrial1 <- project(params_multi_gear, t_max = 75, effort = c(Industrial = 0.75, Other = 0))
 total_abund0 <- apply(sim_industrial0@n[76,,],2,sum)
 total_abund1 <- apply(sim_industrial1@n[76,,],2,sum)
 relative_abundance <- total_abund1 / total_abund0
@@ -1020,32 +1014,36 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 This shows another trophic cascade (Figure~\ref{fig:plot_relative_comm_abund_industrial}), although this time one driven by fishing the species at the midrange part of the spectrum, not the largest individuals as before. This trophic cascade acts in both directions. The cascade upwards is driven by the lack of food for predators leading to smaller realised maximum sizes. The cascade downwards has the same mechanism as fishing on large fish, a combination of predation mortality and food limitation.
 
 %---------------------------------------------------
-\section{Food-web models}
+\section{Introducing food-web models}
 
-The previous sections have used the wrapper functions to set up \class{MizerParams} objects that are appropriate for community and trait-based simulations.
-We now turn our attention to food-web models. These are potentially more complicated than the community and trait-based models and use the full power of the \pkg{mizer} package.
+The previous sections have used wrapper functions to set up \class{MizerParams} objects that are appropriate for community and trait-based simulations.
+We now turn our attention to food-web, or species-specific, models.
+These are potentially more complicated than the community and trait-based models and use the full power of the \pkg{mizer} package.
 
-SOME INTRODUCTORY STUFF TO THE FOOD-WEB MODEL
-WHAT ARE MAIN STEPS FROM TRAIT BASED AND COMMUNITY MODELS TO FOOD WEB? WHY DO WE USE THEM? THEY CAN MODEL SPECIFIC ECOSYSTEMS?
+In food-web type models multiple species are resolved. However, unlike in the trait-based model which also resolves multiple species, explicit species are represented.
+There are several advantages to this approach. As well investigating the community as whole (as was done for the community and trait-based models), we are able to investigate the dynamics of individual species. For example, species specific management rules can be tested and species specific metrics, such as MSY, can be compared to reference levels.
 
-For example, each species may have different life history parameters; there may be multiple gear types with different selectivities targetting different groups of species (and some species may be targeted by more than one gear); the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
+In a food-web model each species will have different life-history parameters. This means that this type of model can be harder to set up
+Additionally, there may be multiple gear types with different selectivities targetting different groups of species (and some species may be targeted by more than one gear); the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
 
-This means that to effectively use \pkg{mizer} for a food-web model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
-In the following sections we build up a food-web model for the North Sea.
+For the remainder of this vignette we build up a food-web model for the North Sea.
+To effectively use \pkg{mizer} for a food-web model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
+This will all be done in the context of examples so hoperfully everything will be clear.
 
-We also take a closer look at some of summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
+We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
 
 \section{The \class{MizerParams} class}
 \label{sec:MizerParams}
 
+\subsection{Overview}
+The \class{MizerParams} class is used for storing model parameters.
+We have already met the \class{MizerParams} class when we looked at community and trait-based models.
+However, direct handling of the class was largely hidden by the use of the wrapper functions.
+To set up a food-web model we need to directly create and use the \class{MizerParams} class.
+This is probably the most complicated part of the using the \pkg{mizer} package so we will take it slowly.
+You can also the help page for the class by entering \code{class ? MizerParams}
 
-Before any simulations can be run it is necessary to set the parameters
-of the model.
-This is probably the most complicated part of the using the \pkg{mizer} package so
-we will take it slowly.
-
-The \pkg{mizer} package has its own class for storing model parameters: \class{MizerParams}.
-This class stores the:
+The \class{MizerParams} class stores the:
 \begin{itemize}
     \item life-history parameters of the species in the community, such as $W_{\infty}$;
     \item size-based biological parameters for the species, such as the search volume, $V(w)$;
@@ -1115,12 +1113,12 @@ LINK THESE PARAMETERS TO THE EQUATIONS IN SECTION 3
 	    \hline
 	    \multicolumn{3}{c}{Fishing gear parameters (see Section~\ref{sec:fishing_gear} for more details).} \\
 	    \hline
-	    sel\_func & The name of the selectivity function to be used.  & "sigmoid\_length".\\
+	    sel\_func & The name of the selectivity function to be used.  & "knife\_edge".\\
 	    gear & The name of the fishing gear that selects the species. At the moment a species can only be selected by one gear. & Name of the species \\
 	    catchability & The catchability of the fishing gear. & 1\\
 	    %a & Length-weight conversion coefficient & Only necessary if length-weight conversion is used (e.g. if specifying length ranges when calculating indicators, or in the fishing selectivity function) \\
 	    %b & Length-weight conversion power & See notes for column $a$\\
-	    other columns & Other parameters used by the selectivity function. For example, if the default "sigmoid\_length" function is used then the parameters "l25","l50","a" and "b" must also be specified as columns (see Section~\ref{sec:fishing_gear}). & \\ 
+	    other columns & Other parameters used by the selectivity function. For example, if the default "knife\_edge" function is used then the parameters "knife\_edge\_size" must also be specified as columns (see Section~\ref{sec:fishing_gear}). & \\ 
 	    \hline
 	    \multicolumn{3}{c}{Stock recruitment parameters (see Section~\ref{sec:srr} for more details).} \\
 	    \hline

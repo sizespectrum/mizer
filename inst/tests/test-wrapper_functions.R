@@ -14,10 +14,11 @@ test_that("trait-based model multiple gears",{
     sim1 <- project(params, t_max = 10, effort = 1)
     fmg <- getFMortGear(sim1)
     for (i in 1:no_sp){
-        expect_that(all(fmg[10,i,i,params@w < knife_edges[i]] == 0), is_true())
-        expect_that(all(fmg[10,i,i,params@w >= knife_edges[i]] == 1), is_true())
+        expect_that(all(fmg[10,1,i,params@w < knife_edges[i]] == 0), is_true())
+        expect_that(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1), is_true())
     }
     # Only the 4th gear fires
+    params <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = 1:no_sp)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
     names(effort) = 1:no_sp
     sim2 <- project(params, t_max = 10, effort = effort)
