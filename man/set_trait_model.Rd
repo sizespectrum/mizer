@@ -8,7 +8,7 @@
     no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1, k0 = 50,
     n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
     kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
-    z0 = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
+    z0pre = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
     knife_edge_size = 1000, gear_names = "knife_edge_gear")
 }
 \arguments{
@@ -73,8 +73,9 @@
   \item{ks}{Standard metabolism coefficient. Default value
   is 4.}
 
-  \item{z0}{The background mortality of the community. The
-  default value is 0.6.}
+  \item{z0pre}{The coefficient of the background mortality
+  of the community. z0 = z0pre * w_inf ^ (n-1). The default
+  value is 0.6.}
 
   \item{h}{Maximum food intake rate. Default value is 30.}
 

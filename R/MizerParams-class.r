@@ -320,8 +320,8 @@ setClass("MizerParams",
 #'     \item{\code{lambda} Exponent of the resource spectrum. Default value is (2+q-n)} 
 #'     \item{\code{w_pp_cutoff} The cut off size of the background spectrum. Default value is 10} 
 #'     \item{\code{f0} Average feeding level. Used to calculated \code{h} and \code{gamma} if those are not columns in the species data frame. Also requires \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species data frame. If \code{h} and \code{gamma} are supplied then this argument is ignored. Default is 0.6.}
-#'     \item{\code{z0pre}} If \code{z0} is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is 0.6.}
-#'     \item{\code{z0exp}} If \code{z0} is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is -1/3.}
+#'     \item{\code{z0pre} If \code{z0}, the mortality from other sources, is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is 0.6.}
+#'     \item{\code{z0exp} If \code{z0}, the mortality from other sources, is not a column in the species data frame, it is calculated as z0pre * w_inf ^ z0exp. Default value is n-1.}
 #' }
 #'
 #' @return An object of type \code{MizerParams}
@@ -414,7 +414,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 #' @rdname MizerParams-methods
 #' @aliases MizerParams,data.frame,matrix-method
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
-    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, z0pre = 0.6, z0exp = -1/3, ...){
+    function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, z0pre = 0.6, z0exp = n-1, ...){
 
 	# Set default values for column values if missing
 	# If no gear_name column in object, then named after species
@@ -432,8 +432,15 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	if(!("erepro" %in% colnames(object)))
 	    object$erepro <- 1
 	# If no sel_func column in species_params, set to 'sigmoid_length'
-	if(!("sel_func" %in% colnames(object)))
-	    object$sel_func <- 'sigmoid_length'
+	if(!("sel_func" %in% colnames(object))){
+        cat("No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.\n")
+	    object$sel_func <- 'knife_edge'
+        # Set default selectivity size
+        if(!("knife_edge_size" %in% colnames(object))){
+            cat("No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.\n")
+            object$knife_edge_size <- object$w_mat
+        }
+    }
 	# If no catchability column in species_params, set to 1
 	if(!("catchability" %in% colnames(object)))
 	    object$catchability <- 1
@@ -454,8 +461,13 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     }
     # Sort out z0 column
     if(!("z0" %in% colnames(object))){
-        cat("No z0 in species data frame so using z0 = z0pre * w_inf ^ z0exp.\n")
+        cat("No z0 column in species data frame so using z0 = z0pre * w_inf ^ z0exp.\n")
         object$z0 = z0pre*object$w_inf^z0exp    # background natural mortality
+    }
+    # Sort out ks column
+    if(!("ks" %in% colnames(object))){
+        cat("No ks column in species data frame so using ks = h * 0.2.\n")
+        object$ks <- object$h * 0.2
     }
 
 	# Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 

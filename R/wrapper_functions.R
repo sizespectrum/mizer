@@ -141,7 +141,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param lambda Exponent of the resource spectrum. Default value is (2+q-n). 
 #' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2010).
 #' @param ks Standard metabolism coefficient. Default value is 4.
-#' @param z0 The background mortality of the community. The default value is 0.6.
+#' @param z0pre The coefficient of the background mortality of the community. z0 = z0pre * w_inf ^ (n-1). The default value is 0.6.
 #' @param h Maximum food intake rate. Default value is 30.
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
@@ -190,7 +190,7 @@ set_trait_model <- function(no_sp = 10,
                             lambda = 2+q-n,
                             alpha = 0.6,
                             ks = 4,
-                            z0 = 0.6,
+                            z0pre = 0.6,
                             h = 30,
                             beta = 100,
                             sigma = 1.3,
@@ -224,7 +224,7 @@ set_trait_model <- function(no_sp = 10,
             ks = ks,# standard metabolism coefficient,
             beta = beta,
             sigma = sigma,
-            z0 = z0 * w_inf^(n-1), # background mortality
+            z0 = z0pre * w_inf^(n-1), # background mortality
             alpha = alpha,
             #r_max = r_max,
             sel_func = "knife_edge",
