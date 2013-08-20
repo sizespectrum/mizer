@@ -1229,45 +1229,19 @@ This approach can be used to explore the impacts of changing fishing mortality o
 
 \subsection{The stock-recruitment relationship}
 \label{sec:srr}
-%The parameter data.frame may also have columns that relate to the stock-recruitment function.
-%This is covered in Section~\ref{sec:srr}.
-%In brief, any parameter that is used
-%by the stock-recruitment function (apart from the density independent recruitment value)
-%must be included in the parameter data.frame.
-%For example, the default stock-recruitment function is a Beverton-Holt
-%type formulation which uses a parameter called $r_{max}$. Therefore, if the default
-%stock-recruitment function is used, a column of values called $r_{max}$ needs to
-%be included in the parameters data.frame.
-
-The stock-recruitment relationship in \pkg{mizer} means something slightly
-different to the standard fisheries terminology.
-In standard fisheries science, 
-recruitment means the abundance of new recruits entering the fishery
-(e.g. the number of age 1 fish added to the population each year).
-This recruitment is calculated by the stock-recruitment
-relationship, based on some measure of the reproductive potential of
-the stock, such as spawning stock biomass.
 
 In size-based modelling recruitment refers to the flux of individuals that enter
 the size-spectrum at the smallest size group of that species (given by the
 parameter \args{w\_min} in the species parameter data.frame).
-As can be seen in Section~\ref{sec:principles}, 
-calculating the recruitment flux involves calculating the 'density independent'
+As can be seen in Section~\ref{sec:principles}, calculating the recruitment flux involves calculating the ``density independent''
 recruitment, $R_{p.i}$ (see Section~\ref{sec:reproduction}).
-The $R_{p.i}$ is then modified by a stock-recruitment relationship
-to impose some form of density-dependence. This then results in the
+The $R_{p.i}$ is then modified by a stock-recruitment relationship (SRR) to impose some form of density-dependence. This then results in the
 density-dependent recruitment, $R_i$ (see Section~\ref{sec:recruitment}).
-Without this density dependence, the realised recruitment
-to the smallest size class is determined only
-by $R_{p.i}$.
+Without this density dependence, the realised recruitment flux to the smallest size class is determined only by $R_{p.i}$.
+The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 
-The default stock-recruitment relationship is a Beverton-Holt type function (see Equation~\ref{eq:R}).
-
-Similar to the fishing selectivity functions, any parameter used in the
-stock-recruitment function, other than $R_{p.i}$, must be in the species
-parameter data.frame and the column must have the same name as the function argument.
-For example, if the above default stock-recruitment function is to be
-used then the species parameter data.frame must have an \args{r\_max} column.
+Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
+For example, the default stock-recruitment function has a second argument to it, \args{r\_max}. Therefore the species parameter data.frame must have an \args{r\_max} column.
 
 Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment, $R_{p.i}$.
 
@@ -1339,7 +1313,13 @@ The default value \args{kappa} is for the North Sea model.
 \label{sec:params_example}
 
 As mentioned in the preceeding sections, an object of \class{MizerParams} is created by using the \code{MizerParams()}
-constructor method. This takes the following arguments:
+constructor method. You can see the help page for the constructor:
+
+<<label=help_MP_constructor, eval=FALSE>>=
+help(MizerParams)
+@
+
+This shows that the constructor takes the following arguments:
 \begin{description}
     \item[object] The species parameter data.frame (see Section~\ref{sec:species_parameters_dataframe}). This is compulsory with no default value.
     \item[inter] The interaction matrix (see Section~\ref{sec:interaction_matrix}). The default is a matrix of 1s.
@@ -1350,7 +1330,7 @@ In the rest of this section we demonstrate how to pull these elements together t
 
 The first step is to prepare the species specific parameter data.frame.
 As mentioned above, one way of doing this is to use a spreadsheet and save it as a .csv file. We will use this approach here.
-An example .csv file has been included in the package.
+An example .csv file has been included in the package. This contains the species parameters for a North Sea model (REFERENCE).
 This file is placed in the \code{doc} folder of the package installation.
 The location of the file can be found by running:
 
@@ -1375,71 +1355,87 @@ class(params_data)
 
 The example data.frame can be inspected by entering the name of the object.
 
-<<>>=
+<<label=show_simple_params_data>>=
 params_data
 @
 
-This data set is for a model of the North Sea (REFERENCE).
-There are \Sexpr{nrow(params_data)} species.
-There are \Sexpr{ncol(params_data)} columns of parameters: \args{species}, \args{w\_inf},\args{w\_mat},\args{beta},\args{sigma},\args{r\_max} and \args{k\_vb}.
+You can see that there are \Sexpr{nrow(params_data)} species and \Sexpr{ncol(params_data)} columns of parameters: \args{species}, \args{w\_inf},\args{w\_mat},\args{beta},\args{sigma},\args{r\_max} and \args{k\_vb}.
 
-Of these \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta} and \args{sigma} are essential and have no default values (as described in Section~\ref{sec:species_parameters_dataframe}).
+Of these parameters, \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta} and \args{sigma} are essential and have no default values (as described in Section~\ref{sec:species_parameters_dataframe}).
 \args{r\_max} is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has \args{r\_max} as an argument (see Section~\ref{sec:srr}), making this column also essential.
-The final column, \args{k\_vb}, will be used to calculate values for \args{h} and then \args{gamma}. This column is only essential here because the \args{h} and \args{gamma} are not included in the data.frame.
+The final column, \args{k\_vb}, will be used to calculate values for \args{h} and then \args{gamma}. This column is only essential here because the \args{h} and \args{gamma} are not included in the data.frame. It would also have been possible to include \args{h} and \args{gamma} columns in the data.frame and not include the \args{k\_vb} column.
+
+The values of the non-essential species specific parameters \args{alpha}, \args{k}, \args{ks}, \args{z0}, \args{w\_min} and \args{erepro} are not included in the data.frame. This means that the default values will be automatically used when we create the \class{MizerParams} object.
 
 Note that there are no columns describing the fishing selectivity. There is no \args{sel\_func} column to determine the selectivity function.
 This means that the default selectivity function, \code{knife\_edge}, will be used. As mentioned in Section~\ref{sec:fishing_gear},
-this function also needs another argument, \args{knife\_edge\_size}. This is not present in the data.frame and so it will be set to the default value of \args{w\_mat}.
+this function also needs another argument, \args{knife\_edge\_size}. This is not present in the data.frame and so it will be set to the default value of \args{w\_mat}. Also, there is no \args{catchability} column so a default value for \args{catchability} of 1 will be used for all gears and species.
 
-The values of the non-essential species specific parameters \args{alpha}, \args{k}, \args{ks}, \args{z0}, \args{w\_min} and \args{erepro}
-are not included in the data.frame. This means that the default values will be automatically used when we create the \class{MizerParams} object.
-
-This species parameter data.frame is the minimum we need to create a \class{MizerParams} object. To create it, we pass the data.frame into the \code{MizerParams()} constructor method:
+This species parameter data.frame is the minimum we need to create a \class{MizerParams} object as it contains only essential columns. To create the \class{MizerParams} object we pass the data.frame into the \code{MizerParams()} constructor method:
 
 <<label=first_MP>>=
 params <- MizerParams(params_data)
 @
 
-FIX KAPPA!
-EXAMPLE WITHOUT INTER
-SHOW HOW DEFAULTS HAVE BEEN SET
+We have just created a \class{MizerParams} object:
 
- However, the model would be improved
-by also including a case study specific interaction matrix.
+<<label=class_MP>>=
+class(params)
+@
 
-An example interaction matrix has been included in \pkg{mizer}
-as a .csv file.  The location of the file can be found by running:
+As has been mentioned in Sections~\ref{sec:comm_model} and~\ref{sec:trait_based_model}, a \class{MizerParams} object is made up of ``slots'' that store a wide range of model parameters. Each of these slots contains information on the parameters in the model. A description of these slots can be found by calling \code{help()} on the class: \code{help("MizerParams-class")}.
+The different slots can be accessed using the \code{@} operator.
+
+The slot \args{species\_params} contains the species parameters data.frame that was passed in to the constructor. We can inspect this slot with:
+
+<<label=looking_at_params_slot>>=
+params@species_params
+@
+
+We can see that this contains the original species data.frame (with \args{w\_inf} and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are no columns for \args{alpha} and \args{h} and \args{gamma} etc.
+
+Also note how the default fishing gears have been set up. Because we did not specify gear names in the original species parameter data.frame, each species is fished by a unique gear named after the species.  This can be seen in the new \args{gear} column which holds the names of the fishing gears.
+Also, the selectivity function for each fishing gear has been set in the \args{sel\_func} column to the default function, \code{knife\_edge()}.
+A \args{catchability} column has been added with a default value of 1 for each of the species that the gear catches.
+An example of setting the catchability by hand can be seen in Section\ref{sec:north_sea_example}.
+
+As has been shown in Sections~\ref{sec:comm_model} and~\ref{sec:trait_based_model}, there is a \code{summary()} method for \class{MizerParams} objects which prints a useful summary of the model parameters:
+
+<<label=summary_params, results=hide>>=
+summary(params)
+@
+
+As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are \Sexpr{length(params@w)} size classes in the community, ranging from \Sexpr{signif(min(params@w),3)} to \Sexpr{round(max(params@w),signif=3)}. These values is controlled by the arguments \args{no\_w}, \args{\min\_w} and \args{max\_w} respectively. For example, if we wanted 200 size classes in the model we would use:
+
+<<label=MP_200, eval=FALSE>>=
+params200 <- MizerParams(params_data, no_w=200)
+summary(params200)
+@
+
+So far we have created a \class{MizerParams} object using only the species parameter data.frame.
+However, the model would be improved by also including an interaction matrix which describes the spatial overlap between species (see Section~\ref{sec:interaction_matrix}).
+
+An example interaction matrix for the North Sea has been included in \pkg{mizer} as a .csv file.  The location of the file can be found by running:
 
 <<eval=FALSE>>=
 system.file("doc/inter.csv",package="mizer")
 @
 
-Take a look at it in a spreadsheet if you want.
-As mentioned above, to read this file into \R we can make
-use of the \code{read.csv()} function. However, this time
-we want the first column of the .csv file to be the row
-names. We therefore use an additional argument to the \code{read.csv()}
-function: \code{row.names}.
-
+Take a look at it in a spreadsheet if you want.  As mentioned above, to read this file into \R we can make use of the \code{read.csv()} function. However, this time we want the first column of the .csv file to be the row names. We therefore use an additional argument to the \code{read.csv()} function: \args{row.names}.
 
 <<>>=
 inter <- read.csv("inter.csv", row.names=1)
 @
 
-The \code{read.csv()} function reads the data into a data.frame.
-We want the interaction matrix to be of class \class{matrix} so
-we need to make use of the \code{as()} function.
+The \code{read.csv()} function reads the data into a data.frame.  We want the interaction matrix to be of class \class{matrix} so we need to make use of the \code{as()} function.
 
-<<>>=
+<<label=inter_df_to_matrix>>=
 inter <- as(inter, "matrix")
 @
 
-We now have the species parameters data.frame and the interaction
-matrix.
-To make the \class{MizerClass} object you just call the constructor method
-and pass in the arguments.
-We will use default values for the remainder of the arguments
-to the \code{MizerParams()} method. These are given in Table~\ref{tab:other_params}.
+We now have an interaction matrix that can be passed to the \class{MizerParams} constructor along with the species parameter data.frame.
+To make the \class{MizerClass} object you just call the constructor method and pass in the arguments.
+We will use default values for the remainder of the arguments to the \code{MizerParams()} method (see Section~\ref{sec:other_mizerparams_arguments} and Table~\ref{tab:other_params}).
 This means that we only need to pass in two arguments to the constructor:
 
 <<>>=
@@ -1448,72 +1444,7 @@ params <- MizerParams(params_data, interaction = inter)
 
 Note that the first argument must be the species parameters data.frame.
 The remaining arguments can be in any order but should be named.
-If we didn't want to use default values for the other arguments we would pass
-them in to the constructor by name. For example, if wanted our species size spectrum
-to have 200 size bins instead of 100 (the default) we would use:
-
-<<eval=FALSE>>=
-params <- MizerParams(params_data, interaction = inter, no_w = 200)
-@
-
-The above command creates an object of class \class{MizerParams}. 
-But what does that mean?
-The method uses the parameters specified in the arguments
-and the default values to implement some of the equations described in 
-Section~\ref{sec:principles} and calculate parameters for the model. 
-
-As mentioned above, an object of class
-\class{MizerParams} stores a wide range of model parameters. This 
-information is held in what are known as 'slots'.  A description
-of these slots can be found by calling \code{help()} on the class:
-
-<<eval=FALSE>>=
-help("MizerParams-class")
-@
-
-A list of the slots can also be seen using the \code{slotNames()} method.
-The different slots can be accessed using the \code{@} operator.
-For example, to look at the search volume slot, \code{search\_vol}
-you enter:
-
-<<results=hide>>=
-params@search_vol
-@
-
-(the results are not shown here as the array is pretty huge)
-
-The slot $species\_params$ contains the species parameters data.frame
-that was passed in to the constructor. Now it also contains
-any default values (for example, $alpha$) that may not have been
-included in the original data.frame.
-
-Also note how the default fishing gears have been set up.
-Because we did not specify gear names in the original species parameter
-data.frame, each species is fished by a unique gear named after the species.
-This can be seen in the new $gear$ column which holds the names of the
-fishing gears.
-Also, the selectivity function for each fishing gear has been set in the
-$sel\_func$ column (function \code{sigmoid\_length()}).
-
-<<>>=
-params@species_params
-@
-
-Note also that the species parameter data.frame we passed in to make to the
-\code{MizerParams} did not have a \code{catchability} column.
-Because of this, the \code{MizerParams()} constructor sets the catchability
-for each gear to 1 for each of the species it catches.
-
-In this case, each species is only caught by one gear.
-An example of setting the catchability by hand can be seen in
-Section\ref{sec:north_sea_example}.
-
-There is a \code{summary()} method for \class{MizerParams} objects
-which prints a useful summary of the model parameters:
-
-<<results=hide>>=
-summary(params)
-@
+If we didn't want to use default values for the other arguments we would pass them in to the constructor by name.
 
 \subsection{Setting different gears}
 
