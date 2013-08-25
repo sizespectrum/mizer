@@ -12,9 +12,9 @@
   \item{effort}{The effort of each fishing gear through
   time. See notes below.}
 
-  \item{t_max}{The maximum time the projection runs for
-  params. The default value is 100. However, this argument
-  is not needed if an array is used for the \code{effort}
+  \item{t_max}{The maximum time the projection runs for.
+  The default value is 100. However, this argument is not
+  needed if an array is used for the \code{effort}
   argument, in which case this argument is ignored. See
   notes below.}
 
@@ -62,14 +62,14 @@
   time but each gear may have a different fishing effort.
   \item A numerical array with dimensions time step x gear.
   This specifies the fishing effort of each gear at each
-  time step.  The second dimension of the array must be
-  named and the names must correspond to the gear names in
-  the \code{MizerParams} argument. }
+  time step.  The first dimension, time, must be named
+  numerically and contiguously. The second dimension of the
+  array must be named and the names must correspond to the
+  gear names in the \code{MizerParams} argument. }
 
   If effort is specified as an array then the \code{t_max}
   argument is ignored and the maximum simulation time is
-  calculated using the number of time steps in the effort
-  array and the value of the \code{dt} argument.
+  the taken from the dimension names.
 
   The \code{initial_n} argument is a matrix with dimensions
   species x size. The order of species must be the same as

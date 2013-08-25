@@ -9,9 +9,13 @@
 
   \item{...}{other arguments including:
 
-  \itemize{ \item{\code{t_max} The maximum time step of the
-  simulation.} \item{\code{t_save} How often should the
-  results of the simulation be stored.} }}
+  \itemize{ \item{\code{t_dimnames} Numeric vector that is
+  used for the time dimensions of the slots. Default = NA.}
+  \item{\code{t_max} The maximum time step of the
+  simulation. Only used if t_dimnames = NA. Default value =
+  100.} \item{\code{t_save} How often should the results of
+  the simulation be stored. Only used if t_dimnames = NA.
+  Default value = 1.} }}
 }
 \value{
   An object of type \code{MizerSim}

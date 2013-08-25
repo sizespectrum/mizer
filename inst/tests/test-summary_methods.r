@@ -71,7 +71,7 @@ test_that("get_time_elements",{
     expect_that(length(get_time_elements(sim,3:4)), equals(dim(sim@n)[1]))
     expect_that(sum(get_time_elements(sim,3:4)), equals(3))
     expect_that(sum(get_time_elements(sim,3:50)), throws_error())
-    expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(7,8,9)))
+    expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(6,7,8)))
     expect_that(length(get_time_elements(sim,seq(from=3,to=4,by = 0.1), slot_name="effort")), equals(dim(sim@effort)[1]))
 })
 
@@ -83,18 +83,18 @@ test_that("getProportionOfLargeFish works",{
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
     prop <- getProportionOfLargeFish(sim, threshold_w = 500)
-    t <- 41
+    time_idx <- 40
     threshold_w <- sim@params@w > 500
-    total_biomass <- sum(sweep(sim@n[t,,],2, sim@params@w * sim@params@dw, "*"))
-    larger_biomass <- sum(sweep(sim@n[t,,],2, threshold_w * sim@params@w * sim@params@dw, "*"))
-    expect_that(prop[t] , is_equivalent_to(larger_biomass / total_biomass))
+    total_biomass <- sum(sweep(sim@n[time_idx,,],2, sim@params@w * sim@params@dw, "*"))
+    larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * sim@params@w * sim@params@dw, "*"))
+    expect_that(prop[time_idx] , is_equivalent_to(larger_biomass / total_biomass))
     # using a size range
     prop <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
     range_w <- (sim@params@w >= 10) & (sim@params@w <= 5000)
     threshold_w <- sim@params@w > 500
-    total_biomass <- sum(sweep(sim@n[t,,],2, range_w * sim@params@w * sim@params@dw, "*"))
-    larger_biomass <- sum(sweep(sim@n[t,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
-    expect_that(prop[t] , is_equivalent_to(larger_biomass / total_biomass))
+    total_biomass <- sum(sweep(sim@n[time_idx,,],2, range_w * sim@params@w * sim@params@dw, "*"))
+    larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
+    expect_that(prop[time_idx] , is_equivalent_to(larger_biomass / total_biomass))
 })
 
 

@@ -145,8 +145,9 @@ remove(valid_MizerSim)
 #' @param ... other arguments including:
 #' 
 #' \itemize{
-#'     \item{\code{t_max} The maximum time step of the simulation.}
-#'     \item{\code{t_save} How often should the results of the simulation be stored.}
+#'     \item{\code{t_dimnames} Numeric vector that is used for the time dimensions of the slots. Default = NA.}
+#'     \item{\code{t_max} The maximum time step of the simulation. Only used if t_dimnames = NA. Default value = 100.}
+#'     \item{\code{t_save} How often should the results of the simulation be stored. Only used if t_dimnames = NA. Default value = 1.}
 #' }
 #'
 #' @return An object of type \code{MizerSim}
@@ -169,31 +170,39 @@ setGeneric('MizerSim', function(object, ...)
 #' @rdname MizerSim-methods
 #' @aliases MizerSim,MizerParams-method
 setMethod('MizerSim', signature(object='MizerParams'),
-    function(object, t_max = 100, t_save=1, ...){
-	if((t_max %% t_save) != 0)
-	    stop("t_max must be divisible by t_save with no remainder")
-	no_sp <- nrow(object@species_params)
-	species_names <- dimnames(object@psi)$sp
-	no_w <- length(object@w)
-	w_names <- dimnames(object@psi)$w
-	t_dim_n <- 1 + (t_max / t_save) # N is 1 bigger because it holds the initial population
-	t_dim_effort <- (t_max / t_save)
-	array_n <- array(NA, dim = c(t_dim_n, no_sp, no_w), dimnames = list(time = seq(from = 0, to = t_max, by = t_save), sp = species_names, w = w_names))
+    function(object, t_dimnames = NA, t_max = 100, t_save=1, ...){
+        # If the dimnames for the time dimension not passed in, calculate them from t_max and t_save 
+        if (any(is.na(t_dimnames))){
+            if((t_max %% t_save) != 0)
+                stop("t_max must be divisible by t_save with no remainder")
+            t_dimnames <- seq(from = t_save, to = t_max, by = t_save)
+        }
+        if (is.character(t_dimnames)){
+            stop("The t_dimnames argument must be numeric.")
+        }
+        no_sp <- nrow(object@species_params)
+        species_names <- dimnames(object@psi)$sp
+        no_w <- length(object@w)
+        w_names <- dimnames(object@psi)$w
+        t_dimnames_n <- c(t_dimnames[1] - (t_dimnames[2]-t_dimnames[1]),t_dimnames) # N is 1 bigger because it holds the initial population
+        t_dim_n <- length(t_dimnames_n) 
+        t_dim_effort <- length(t_dimnames)
+        array_n <- array(NA, dim = c(t_dim_n, no_sp, no_w), dimnames = list(time = t_dimnames_n, sp = species_names, w = w_names))
 
-	no_gears <- dim(object@selectivity)[1]
-	gear_names <- dimnames(object@selectivity)$gear
-	array_effort <- array(NA, dim = c(t_dim_effort, no_gears), dimnames = list(time = seq(from = t_save, to = t_max, by = t_save), gear = gear_names))
+        no_gears <- dim(object@selectivity)[1]
+        gear_names <- dimnames(object@selectivity)$gear
+        array_effort <- array(NA, dim = c(t_dim_effort, no_gears), dimnames = list(time = t_dimnames, gear = gear_names))
 
-	no_w_full <- length(object@w_full)
-	w_full_names <- names(object@rr_pp)
-	array_n_pp <- array(NA, dim = c(t_dim_n, no_w_full), dimnames = list(time=seq(from=0, to = t_max, by = t_save), w = w_full_names))
+        no_w_full <- length(object@w_full)
+        w_full_names <- names(object@rr_pp)
+        array_n_pp <- array(NA, dim = c(t_dim_n, no_w_full), dimnames = list(time=t_dimnames_n, w = w_full_names))
 
-	sim <- new('MizerSim',
-		   n = array_n, 
-		   effort = array_effort,
-		   n_pp = array_n_pp,
-		   params = object)
-	return(sim)
-    }
+        sim <- new('MizerSim',
+               n = array_n, 
+               effort = array_effort,
+               n_pp = array_n_pp,
+               params = object)
+        return(sim)
+        }
 )
 

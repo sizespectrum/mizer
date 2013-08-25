@@ -23,7 +23,7 @@ test_that("knife-edge selectivity function is working properly",{
     expect_that(all(params@selectivity["otter_trawl",otter_trawl_species,params@w >= 1000] == 1), is_true())
     expect_that(all(params@selectivity["otter_trawl",otter_trawl_species,params@w < 1000] == 0), is_true())
 
-    sim <- project(params,t_max=10)
+    sim <- project(params,t_max=10, effort = 1)
     fm <- getFMortGear(sim)
     expect_that(all(fm[10,"industrial",industrial_species,sim@params@w < 500] == 0), is_true())
     expect_that(all(fm[10,"industrial",industrial_species,sim@params@w >= 500] > 0), is_true())
