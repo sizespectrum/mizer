@@ -26,9 +26,9 @@
 #' @seealso \code{\link{getBiomass}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotBiomass(sim)
 #' plotBiomass(sim, min_l = 10, max_l = 25)
@@ -73,9 +73,9 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotYield(sim)
 #' }
@@ -114,9 +114,9 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotYieldGear(sim)
 #' }
@@ -157,9 +157,9 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' @aliases plotSpectra-method
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotSpectra(sim)
 #' plotSpectra(sim, min_w = 1e-6)
@@ -213,9 +213,9 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' @seealso \code{\link{getFeedingLevel}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20)
@@ -256,9 +256,9 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #' @seealso \code{\link{getM2}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotM2(sim)
 #' plotM2(sim, time_range = 10:20)
@@ -298,9 +298,9 @@ setMethod('plotM2', signature(object='MizerSim'),
 #' @seealso \code{\link{getFMort}}
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotFMort(sim)
 #' plotFMort(sim, time_range = 10:20)
@@ -342,9 +342,9 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' @aliases plot,MizerSim,missing-method
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots

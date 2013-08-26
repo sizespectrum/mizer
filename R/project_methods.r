@@ -20,9 +20,9 @@
 #' @rdname getPhiPrey-methods
 #' @aliases getPhiPrey-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@@n[21,,]
@@ -82,9 +82,9 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @rdname getFeedingLevel-methods
 #' @aliases getFeedingLevel-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
@@ -157,9 +157,9 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' @rdname getPredRate-methods
 #' @aliases getPredRate-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
@@ -217,9 +217,9 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @rdname getM2-methods
 #' @aliases getM2-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get M2 at one time step
@@ -284,9 +284,9 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 #' @rdname getM2Background-methods
 #' @aliases getM2Background-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get M2 of the background spectrum at one time step
@@ -336,9 +336,9 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @rdname getFMortGear-methods
 #' @aliases getFMortGear-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Get the fishing mortality when effort is constant for all gears and time:
 #' getFMortGear(params, effort = 1)
 #' # Get the fishing mortality when effort is different between the four gears but constant in time:
@@ -431,9 +431,9 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' @aliases getFMort-method
 #' @seealso \code{getFMortGear}, \code{project}
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Get the total fishing mortality when effort is constant for all gears and time:
 #' getFMort(params, effort = 1)
 #' # Get the total fishing mortality when effort is different between the four gears but constant in time:
@@ -497,9 +497,9 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #' @rdname getZ-methods
 #' @aliases getZ-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
@@ -546,9 +546,9 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #' @aliases getEReproAndGrowth-method
 #' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -599,9 +599,9 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 #' @aliases getESpawning-method
 #' @seealso \code{\link{project}} and \code{\link{getEReproAndGrowth}}.
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -646,9 +646,9 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 #' @aliases getEGrowth-method
 #' @seealso \code{\link{project}}
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -700,9 +700,9 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 #' @aliases getRDI-method
 #' @seealso \code{\link{project}}
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the recruitment at a particular time step
@@ -754,9 +754,9 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 #' @rdname getRDD-methods
 #' @aliases getRDD-method
 #' @examples
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step

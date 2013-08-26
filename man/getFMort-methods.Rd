@@ -58,9 +58,9 @@
   the \code{effort} argument is not used.
 }
 \examples{
-data(species_params_gears)
+data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(species_params_gears, inter)
+params <- MizerParams(NS_species_params_gears, inter)
 # Get the total fishing mortality when effort is constant for all gears and time:
 getFMort(params, effort = 1)
 # Get the total fishing mortality when effort is different between the four gears but constant in time:

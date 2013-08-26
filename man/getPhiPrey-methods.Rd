@@ -21,9 +21,9 @@
   \code{\link{project}} method for performing simulations.
 }
 \examples{
-data(species_params_gears)
+data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(species_params_gears, inter)
+params <- MizerParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 n <- sim@n[21,,]

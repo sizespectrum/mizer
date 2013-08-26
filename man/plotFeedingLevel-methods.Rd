@@ -26,9 +26,9 @@
 }
 \examples{
 \dontrun{
-data(species_params_gears)
+data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(species_params_gears, inter)
+params <- MizerParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=20, t_save = 2)
 plotFeedingLevel(sim)
 plotFeedingLevel(sim, time_range = 10:20)

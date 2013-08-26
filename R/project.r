@@ -41,9 +41,9 @@
 #' @aliases project-method
 #' @examples
 #' # Data set with different fishing gears
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # With constant fishing effort which is different for each gear
@@ -228,8 +228,8 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 #' @export
 #' @return A matrix (species x size) of population abundances.
 #' @examples
-#' data(species_params_gears)
-#' params <- MizerParams(species_params_gears)
+#' data(NS_species_params_gears)
+#' params <- MizerParams(NS_species_params_gears)
 #' init_n <- get_initial_n(params)
 get_initial_n<- function(params, n0_mult = NULL, a = 0.35){
     if (!is(params,"MizerParams"))

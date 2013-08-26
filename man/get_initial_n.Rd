@@ -25,8 +25,8 @@
   \code{project} method.
 }
 \examples{
-data(species_params_gears)
-params <- MizerParams(species_params_gears)
+data(NS_species_params_gears)
+params <- MizerParams(NS_species_params_gears)
 init_n <- get_initial_n(params)
 }
 

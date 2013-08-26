@@ -158,9 +158,9 @@ remove(valid_MizerSim)
 #' @aliases MizerSim-method
 #' @examples
 #' \dontrun{
-#' data(species_params_gears)
+#' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(species_params_gears, inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params)
 #' }
 

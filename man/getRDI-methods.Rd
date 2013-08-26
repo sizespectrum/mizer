@@ -30,9 +30,9 @@
   by the \code{project} method for performing simulations.
 }
 \examples{
-data(species_params_gears)
+data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(species_params_gears, inter)
+params <- MizerParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the recruitment at a particular time step
