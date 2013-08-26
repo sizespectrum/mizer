@@ -50,10 +50,10 @@ sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 slope_biomass <- getCommunitySlope(sim)
 # Slope based on numbers, using all species and sizes
 slope_numbers <- getCommunitySlope(sim, biomass=FALSE)
-# Slope based on biomass, using all species and sizes between 10cm and 100cm
-slope_biomass <- getCommunitySlope(sim, min_l = 10, max_l = 100)
-# Slope based on biomass, using only demersal species and sizes between 10cm and 100cm
+# Slope based on biomass, using all species and sizes between 10g and 1000g
+slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
+# Slope based on biomass, using only demersal species and sizes between 10g and 1000g
 dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
-slope_biomass <- getCommunitySlope(sim, species = dem_species, min_l = 10, max_l = 100)
+slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 }
 

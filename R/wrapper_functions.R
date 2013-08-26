@@ -31,6 +31,7 @@
 #' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the species used to represent the community is set to 0.9 * this value. The default value is 1e6.
 #' @param min_w The minimum size of the community. The default value is 1e-3.
+#' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -148,6 +149,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
 #' @param knife_edge_size The minimum size at which the gear or gears select species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the same length as the number of species. Default is 1 - no_sp.
+#' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \code{\link{MizerParams}}
@@ -196,7 +198,8 @@ set_trait_model <- function(no_sp = 10,
                             sigma = 1.3,
                             f0 = 0.5,
                             knife_edge_size = 1000,
-                            gear_names = "knife_edge_gear"){
+                            gear_names = "knife_edge_gear",
+                            ...){
     # Calculate gamma using equation 2.1 in A&P 2010
     alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
     gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 

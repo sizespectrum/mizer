@@ -31,7 +31,7 @@
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotBiomass(sim)
-#' plotBiomass(sim, min_l = 10, max_l = 25)
+#' plotBiomass(sim, min_w = 10, max_w = 1000)
 #' }
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
@@ -348,7 +348,7 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots
-#' plot(sim, min_l = 10, max_l = 25) # change size range for biomass plot
+#' plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
 #' }
 setMethod("plot", signature(x="MizerSim", y="missing"),
     function(x, ...){

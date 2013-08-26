@@ -61,6 +61,9 @@
 
   \item{min_w}{The minimum size of the community. The
   default value is 1e-3.}
+
+  \item{...}{Other arguments to pass to the
+  \code{MizerParams} constructor.}
 }
 \value{
   An object of type \code{MizerParams}

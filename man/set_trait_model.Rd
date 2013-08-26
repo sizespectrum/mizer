@@ -9,7 +9,8 @@
     n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
     kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
     z0pre = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    knife_edge_size = 1000, gear_names = "knife_edge_gear")
+    knife_edge_size = 1000, gear_names = "knife_edge_gear",
+    ...)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -95,6 +96,9 @@
   \item{gear_names}{The names of the fishing gears. A
   character vector, the same length as the number of
   species. Default is 1 - no_sp.}
+
+  \item{...}{Other arguments to pass to the
+  \code{MizerParams} constructor.}
 }
 \value{
   An object of type \code{MizerParams}

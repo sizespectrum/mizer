@@ -1,7 +1,8 @@
 \docType{methods}
 \name{getPredRate}
 \alias{getPredRate}
-\alias{getPredRate,MizerParams,matrix,numeric-method}
+\alias{getPredRate,MizerParams,matrix,numeric,matrix-method}
+\alias{getPredRate,MizerParams,matrix,numeric,missing-method}
 \alias{getPredRate-method}
 \title{getPredRate method for the size based model}
 \arguments{

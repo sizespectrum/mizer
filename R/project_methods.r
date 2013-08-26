@@ -170,7 +170,7 @@ setGeneric('getPredRate', function(object, n, n_pp, feeding_level,...)
     standardGeneric('getPredRate'))
 
 #' @rdname getPredRate-methods
-#' @aliases getPredRate,MizerParams,matrix,numeric-method
+#' @aliases getPredRate,MizerParams,matrix,numeric,matrix-method
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'matrix'),
     function(object, n, n_pp, feeding_level, ...){
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
@@ -182,7 +182,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 })
 
 #' @rdname getPredRate-methods
-#' @aliases getPredRate,MizerParams,matrix,numeric-method
+#' @aliases getPredRate,MizerParams,matrix,numeric,missing-method
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp, ...){
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
@@ -610,7 +610,7 @@ setGeneric('getESpawning', function(object, n, n_pp, e, ...)
     standardGeneric('getESpawning'))
 
 #' @rdname getESpawning-methods
-#' @aliases getESpawning,MizerParams,matrix,numerica,matrix-method
+#' @aliases getESpawning,MizerParams,matrix,numeric,matrix-method
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e = 'matrix'),
     function(object, n, n_pp, e){
         if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
@@ -621,7 +621,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
     }
 )
 #' @rdname getESpawning-methods
-#' @aliases getESpawning,MizerParams,matrix,numerica,missing-method
+#' @aliases getESpawning,MizerParams,matrix,numeric,missing-method
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e = 'missing'),
     function(object, n, n_pp){
 	e <- getEReproAndGrowth(object,n=n,n_pp=n_pp)

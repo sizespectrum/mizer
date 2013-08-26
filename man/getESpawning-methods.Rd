@@ -1,8 +1,8 @@
 \docType{methods}
 \name{getESpawning}
 \alias{getESpawning}
-\alias{getESpawning,MizerParams,matrix,numerica,matrix-method}
-\alias{getESpawning,MizerParams,matrix,numerica,missing-method}
+\alias{getESpawning,MizerParams,matrix,numeric,matrix-method}
+\alias{getESpawning,MizerParams,matrix,numeric,missing-method}
 \alias{getESpawning-method}
 \title{getESpawning method for the size based model}
 \arguments{

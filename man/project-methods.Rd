@@ -86,14 +86,17 @@ params <- MizerParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear
-sim <- project(params, t_max = 20, effort = c(1,0.5,0,2))
+effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
+sim <- project(params, t_max = 20, effort = effort)
 # With fishing effort that varies through time for each gear
-fishing_effort <- array(NA,dim=c(20,4))
-fishing_effort[,1] <- seq(from=0,to=1,length=20)
-fishing_effort[,2] <- seq(from=2,to=1,length=20)
-fishing_effort[,3] <- seq(from=1,to=1,length=20)
-fishing_effort[,4] <- seq(from=1,to=0.75,length=20)
-sim <- project(params, effort = fishing_effort)
+gear_names <- c("Industrial","Pelagic","Beam","Otter")
+times <- seq(from = 1, to = 10, by = 1)
+effort_array <- array(NA, dim = c(length(times), length(gear_names)), dimnames = list(time = times, gear = gear_names))
+effort_array[,"Industrial"] <- 0.5
+effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
+effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
+effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
+sim <- project(params, effort = effort_array)
 }
 \seealso{
   \code{\link{MizerParams}}
