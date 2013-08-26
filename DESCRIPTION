@@ -32,3 +32,4 @@ Collate:
     'plots.r'
     'species_params-data.r'
     'wrapper_functions.R'
+    'NS_species_params-data.R'
