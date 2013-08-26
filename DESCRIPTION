@@ -26,7 +26,6 @@ Collate:
     'selectivity_funcs.r'
     'project.r'
     'help.r'
-    'inter-data.r'
     'project_methods.r'
     'summary_methods.r'
     'plots.r'
