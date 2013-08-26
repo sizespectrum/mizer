@@ -1058,7 +1058,7 @@ The \class{MizerParams} class stores the:
 
 Note that the \class{MizerParams} class does not store any parameters that can vary through time,
 such as fishing effort or population abundance. These are stored in the \class{MizerSim} class which
-we will come to later in Section \ref{sec:projection}.
+we will come to later in Section~\ref{sec:projection}.
 
 Although the \class{MizerParams} class seems complicated, it is relatively straightforward to set up and use.
 Objects of class \class{MizerParams} are created using the constructor method \code{MizerParams()}.
@@ -1275,7 +1275,7 @@ If an interaction matrix is not specified to the \code{MizerParams()} contructor
 As well as the essential species parameters data.frame and the interaction
 matrix, there are several other arguments to the \code{MizerParams} constructor.
 These have default values. 
-The arguments can be seen in Table \ref{tab:other_params}.
+The arguments can be seen in Table~\ref{tab:other_params}.
 
 \begin{table}[ht]
     \begin{center}
@@ -1398,7 +1398,7 @@ We can see that this contains the original species data.frame (with \args{w\_inf
 Also note how the default fishing gears have been set up. Because we did not specify gear names in the original species parameter data.frame, each species is fished by a unique gear named after the species.  This can be seen in the new \args{gear} column which holds the names of the fishing gears.
 Also, the selectivity function for each fishing gear has been set in the \args{sel\_func} column to the default function, \code{knife\_edge()}.
 A \args{catchability} column has been added with a default value of 1 for each of the species that the gear catches.
-An example of setting the catchability by hand can be seen in Section\ref{sec:north_sea_example}.
+An example of setting the catchability by hand can be seen in Section~\ref{sec:north_sea_example}.
 
 As has been shown in Sections~\ref{sec:comm_model} and~\ref{sec:trait_based_model}, there is a \code{summary()} method for \class{MizerParams} objects which prints a useful summary of the model parameters:
 
@@ -1582,6 +1582,7 @@ The examples will focus on fishing effort can be specified in different ways.
 The results of the simulations will not be explored in detail. We will leave that for Section~\ref{sec:summaries}.
 
 %We will use the \args{params\_gears} object with four gears that was created in the \class{MizerParams} example above.
+Remember that the fishing mortality by size on a species is the product of the selectivity, the catchability and the effort of the gear that caught it (see Equation~\ref{eq:sel}). We have not specified any catchability values in the species parameter data.frame so the default value of 1 is used. The selectivity ranges between 0 and 1. This means that in these examples the fishing mortality of a fully selected species is given by the effort of the gear that catches it.
 
 \subsubsection{Projections with single, simple constant effort}
 
@@ -1625,23 +1626,6 @@ Without fishing the community settles down to equilbria at about t = 50 (Figure~
 
 You can also see in Figure~\ref{fig:plot_food_demo} that each species is has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species \args{w\_mat} parameter.
 
-MOVE THIS BIT TO EXPLORATION?
-
-The projected species abundances at size through time can be seen in the \args{n} slot.  This is a three-dimensional array (time x species x size).
-Consequently, this array can get very big so inspecting it can be difficult.
-A range of summary methods and plots are available to make this job easier.  We will look at those in Section~\ref{sec:exploring}.
-In the example we have just run the time dimension of the \args{n} slot has \Sexpr{dim(sim@n)[1]} rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the \code{dim()} function and looking at the dimensions of the \args{n} array:
-
-<<label=show_dim_n>>=
-dim(sim@n)
-@
-
-To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:
-
-<<results=hide>>=
-sim@n[,"Cod",]
-@
-
 The effort through time can be inspected by looking at the \args{effort} slot (we use the \code{head()} function to just show the first few lines).
 The \args{effort} slot shows the effort by time and gear.
 You can see here that each species is caught by a separate gear, and the gear is named after the species.
@@ -1674,10 +1658,11 @@ As mentioned above, we can also set the effort values for each gear separatley u
 Here we will use the \class{MizerParams} object with four gears, \args{params\_gears}, that we created in Section~\ref{sec:setting_different_gears}.
 The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 We need to create a named vector of effort, where the names match the gears.
-For example, if we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, and set the effort of both the trawl gears at 0.5 we set the \args{effort} like this: 
+For example, here we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, set the effort of the beam trawl gears to 0.3 and the effort of the otter trawl gear to 0.7.
+We set the \args{effort} like this: 
 
 <<label=set_effort_vector>>=
-effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
+effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.3, Otter = 0.7)
 @
 
 We then call \code{project()} with this effort and inspect the resulting \args{effort} slot (again we use the \code{head()} function to just show the first few lines):
@@ -1688,6 +1673,21 @@ head(sim@effort)
 @
 
 You can see that the effort for each gear is constant but each gear has the effort that was specified in the \args{effort} argument.
+
+This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, \code{plotFMort()}, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step).
+The fishing mortality on each of the species is determined by the effort of the gear that caught it (Figure~\ref{fig:plotFmort_example}).
+
+<<label=plotFMort, eval=FALSE>>=
+plotFMort(sim)
+@
+
+\begin{figure}
+<<label=print_plotFMort, fig=TRUE, echo=FALSE, height = 4>>=
+<<plotFMort>>
+@
+\caption{An example of using the \code{plotFMort()} method to show how different efforts for different gears can be specified.}
+\label{fig:plotFmort_example}
+\end{figure}
 
 \subsubsection{An example of changing effort through time}
 
@@ -1738,27 +1738,41 @@ Note that in this example we set up the effort array so that the effort was set 
 \section{Exploring the simulation results}
 \label{sec:exploring}
 
-In the previous sections we saw how to set up a model and project it
-forward through time under our desired fishing scenario.
-The result of running a projection is an object of class \class{MizerSim}.
-What do we then do?  How can we explore the results of the simulation?
-In this section we introduce a range of summaries, plots and indicators
-that can be easily produced using methods included in \pkg{mizer}.
+In the previous sections we saw how to set up a model and project it forward through time under our desired fishing scenario. The result of running a projection is an object of class \class{MizerSim}. What do we then do?  How can we explore the results of the simulation? In this section we introduce a range of summaries, plots and indicators that can be easily produced using methods included in \pkg{mizer}.
+
+We will use the same \class{MizerSim} object for these examples:
+
+<<label = exploration_simulation>>=
+sim <- project(params_gears,effort=effort_array, dt=0.1, t_save = 1)
+@
+
+\subsection{Directly accessing the slots of \class{MizerSim} objects}
+
+We have seen in previous sections that a \class{MizerSim} object is made up of various ``slots'' that contain the original parameters (\args{species\_params}), the population abundances (\args{n}), the abundance of the background resource spectrum (\args{n\_pp}) and the fishing effort (\args{effort}).
+
+The projected species abundances at size through time can be seen in the \args{n} slot.  This is a three-dimensional array (time x species x size).
+Consequently, this array can get very big so inspecting it can be difficult.
+In the example we have just run the time dimension of the \args{n} slot has \Sexpr{dim(sim@n)[1]} rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the \code{dim()} function and looking at the dimensions of the \args{n} array:
+
+<<label=show_dim_n>>=
+dim(sim@n)
+@
+
+To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:
+
+<<results=hide>>=
+sim@n[,"Cod",]
+@
+
+This returns a two-dimensional array: time x size, containing the cod abundances. The time dimension depends on the value of the argument \args{t\_save} when \code{project()} was run. You can see that even though we specified \args{dt} to be 0.1 when we called \code{project()}, the \args{t\_save} argument had means that the output is only saved every time step.
+
+The \args{n\_pp} slot can be accessed in the same way.
 
 \subsection{Summary methods for \class{MizerSim} objects}
 \label{sec:summaries}
 
-As well as the \code{summary()} methods that are available for both
-\class{MizerParams} and \class{MizerSim} objects, there are some
-useful summary methods to pull information out of
-a \class{MizerSim} object (see Table~\ref{tab:summary_methods}).
-All of these methods have help files to explain how they are used.
-
-(It is also possible to use most of these methods with a \class{MizerParams}
-object if you also supply the population abundance as an argument.
-This can be useful for exploring how changes in parameter value or abundance
-can affect summary statistics and indicators.
-We won't explore this here but you can see their help files for more details.)
+As well as the \code{summary()} methods that are available for both \class{MizerParams} and \class{MizerSim} objects, there are some useful summary methods to pull information out of a \class{MizerSim} object (see Table~\ref{tab:summary_methods}). All of these methods have help files to explain how they are used.
+(It is also possible to use most of these methods with a \class{MizerParams} object if you also supply the population abundance as an argument. This can be useful for exploring how changes in parameter value or abundance can affect summary statistics and indicators. We won't explore this here but you can see their help files for more details.)
 
 \begin{table}[ht]
     \begin{center}
@@ -1766,13 +1780,13 @@ We won't explore this here but you can see their help files for more details.)
 	\hline
 	Method & Returns & Description \\
 	\hline
-	getSSB() & Two dimensional array (time x species) & Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as EQUATION.\\
+	getSSB() & Two dimensional array (time x species) & Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals.\\
 	getBiomass() & Two dimensional array (time x species) & Total biomass of each species through time.\\
 	getN() & Two dimensional array (time x species) & Total abundance of each species through time.\\
 	%getPhiPrey() & & \\
 	getFeedingLevel() & Three dimensional array (time x species x size) & Feeding level of each species by size through time. \\
 	%getPredRate() & &\\
-	%getM2() & & \\
+	getM2() & Three dimensional array (time x species x size) & The predation mortality imposed on each species by size throught time.\\
 	getFMort() & Three dimensional array (time x species x size) & Total fishing mortality on each species by size through time.\\
 	getFMortGear() & Four dimensional array (time x gear x species x size) & Fishing mortality on each species by each gear at size through time.\\
 	%getZ() & & \\
@@ -1787,65 +1801,39 @@ We won't explore this here but you can see their help files for more details.)
     \end{center}
 \end{table}
 
-%size_range
-%Biomass
-%N
+The methods \code{getBiomass()} and \code{getN()} have additional arguments that allow the user to set the size range over which to calculate the summary statistic.  This is done by passing in a combination of the arguments \args{min\_l}, \args{min\_w}, \args{max\_l} and \args{max\_w} for the minimum and maximum length or weight.
 
-The methods \code{getBiomass()} and \code{getN()} have additional arguments
-that allow the user to set the size range over which to calculate the 
-summary statistic.
-This is done by passing in a combination of the arguments \code{min\_l}, 
-\code{min\_w}, \code{max\_l} and \code{max\_w} for the minimum and maximum length or weight.
-If \code{min\_l} is specified there is no need to specify \code{min\_w} and
-so on. However, if a length is specified (minimum or maximum) then it is
-necessary for the species parameter data.frame (see
-Section~\ref{sec:species_parameters_dataframe}) to include the parameters
-$a$ and $b$ for length-weight conversion.
-It is possible to mix length and weight constraints, e.g. by supplying
-a minimum weight and a maximum length.
-The default values are the minimum and maximum weights of the spectrum.
+If \args{min\_l} is specified there is no need to specify \args{min\_w} and so on. However, if a length is specified (minimum or maximum) then it is necessary for the species parameter data.frame (see Section~\ref{sec:species_parameters_dataframe}) to include the parameters \args{a} and \args{b} for length-weight conversion.
+It is possible to mix length and weight constraints, e.g. by supplying a minimum weight and a maximum length. The default values are the minimum and maximum weights of the spectrum, i.e. the full range of the size spectrum is used.
+
 
 \subsubsection{Examples of using the summary methods}
 \label{sec:summaries_example}
 
-Here we show a simple demonstration of using a summary method.
-We first create a \class{MizerSim} object by projecting the parameters
-set up earlier through time. We then use \code{getSSB()} to calculate the
-SSB of each species through time.
+Here we show a simple demonstration of using a summary method using the \code{sim} object we created earlier.
+Here, we use \code{getSSB()} to calculate the SSB of each species through time (note the use of the \code{head()} function to only display the first few rows).
 
-<<>>=
-#sim <- project(params,effort=0.5, t_max = 10, dt=1, t_save = 1)
-#ssb <- getSSB(sim)
-#head(ssb)
+<<label = getSSB_demo>>=
+ssb <- getSSB(sim)
+dim(ssb)
+head(ssb)
 @
 
-As you can see, \code{getSSB()} calculates the SSB for each species though time. The time dimension depends on the value of the argument $t_save$ when \code{project()} was run.
+As mentioned above, we can specify the size range for the \code{getBiomass()} and \code{getN()} methods. For example, here we calculate the total biomass of each species but only include individuals that are larger than 10 g and smaller than 1000 g.
 
-As mentioned above, we can specify the size range of some of the methods.
-For example, here we calculate the total biomass of each species but only
-include individuals that are longer than 10 cm and shorter than 50 cm.
-
-<<>>=
-#biomass <- getBiomass(sim, min_l = 10, max_l = 50)
-#head(biomass)
+<<label = getBiomass_demo>>=
+biomass <- getBiomass(sim, min_w = 10, max_w = 1000)
+head(biomass)
 @
 
 \subsection{Methods for calculating indicators}
 
-Methods have been set up to calculate a range of indicators from a
-\class{MizerSim} object after a projection. These
-can be seen in Table~\ref{tab:indicator_methods}.
-You can read the help pages for each of the methods for full instructions
-on how to use them, along with examples.
+Methods are available to calculate a range of indicators from a \class{MizerSim} object after a projection.
+These can be seen in Table~\ref{tab:indicator_methods}.
+You can read the help pages for each of the methods for full instructions on how to use them, along with examples.
 
-With all of the methods in the table it is possible to specify the size
-range of the community to be used in the calculation (e.g. to exclude very
-small or very large individuals) so that the calculated metrics can be
-compared to empirical data.
-This is used in the same way that we saw with the method
-\code{getBiomass()} in Section~\ref{sec:summaries}.
-It is also possible to specify which species to include in the calculation.
-See the help files for more details.
+With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method \code{getBiomass()} in Section~\ref{sec:summaries}.
+It is also possible to specify which species to include in the calculation.  See the help files for more details.
 
 \begin{table}[ht]
     \begin{center}
@@ -1855,7 +1843,7 @@ See the help files for more details.
 	\hline
 	getProportionOfLargeFish() & A vector with values at each time step. & Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \\
 	getMeanWeight() & A vector with values at each saved time step.  & The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance.\\
-	getMeanMaxWeight() & Depends on the $measure$ argument. If $measure$ == $both$ then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If $measure$ = $numbers$ or $biomass$ you get a vector of the respective values at each saved time step. & The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details.\\
+	getMeanMaxWeight() & Depends on the \args{measure} argument. If \args{measure} = ``both'' then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If \args{measure} = ``numbers'' or ``biomass'' you get a vector of the respective values at each saved time step. & The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details.\\
 	getCommunitySlope() & A data.frame with four columns: time step, slope, intercept and $R^2$ value. & Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \\
 	\hline
 	\end{tabularx}
@@ -1867,67 +1855,41 @@ See the help files for more details.
 \subsubsection{Examples of calculating indicators}
 \label{sec:indicators_example}
 
-Here we show a simple demonstration of using indicator methods.
-We first create a \class{MizerSim} object by projecting the parameters
-set up earlier through time. 
+For these examples we use the \code{sim} object we created earlier.
 
-<<>>=
-#sim <- project(params,effort=0.5, t_max = 10, dt=1, t_save = 1)
+The slope of the community can be calculated using the \code{getCommunitySlope()} method. Initially we include all species and all sizes in the calculation (only the first five rows are shown):
+
+<<label=getCommunitySlope_demo>>=
+slope <- getCommunitySlope(sim)
+head(slope)
 @
 
-The slope of the community can be calculated using the 
-\code{getCommunitySlope()} method. Initially we include all species and
-all sizes in the calculation (only the first five rows are shown):
+This gives the slope, intercept and $R^2$ value through time (see the help file for \code{getCommunitySlope} for more details).
 
-<<>>=
-#slope <- getCommunitySlope(sim)
-#head(slope)
-@
+We can include only the species we want with the \args{species} argument. Here we only include demersal species.  We also restrict the size range of the community that is used in the calculation to between 10 g and 5 kg.
+The \args{species} is a character vector of the names of the species that we want to include in the calculation.
 
-See the help file for \code{getCommunitySlope} for an explanation of what the columns are.
-
-We can include only the species we want with the $species$ argument.
-Here we only include demersal species.
-We also restrict the size range of the community that is used in the
-calculation to between 10 g and 5 kg.
-
-<<>>=
-#dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock",
-#    "Cod","Saithe")
-#slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000, 
-#    species = dem_species)
-#head(slope)
+<<label = getCommunitySlope_with_args>>=
+dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock",
+    "Cod","Saithe")
+slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000, 
+    species = dem_species)
+head(slope)
 @
 
 \subsection{Plotting the results}
 
-\R is very powerful when it comes to exploring data through plots.
-A useful package for plotting is \pkg{ggplot2}.
-\pkg{ggplot2} uses data.frames for input data. Many of the summary
-methods and slots of the \pkg{mizer} classes are arrays or matrices.
-Fortunately it is straightforward to turn arrays and matrices into
-data.frames using the command \code{melt} which is in the \pkg{reshape}
-package.
-It is probably worth your time getting to grips with these packages to make
-plotting easier.
+\R is very powerful when it comes to exploring data through plots.  A useful package for plotting is \pkg{ggplot2}.  \pkg{ggplot2} uses data.frames for input data. Many of the summary methods and slots of the \pkg{mizer} classes are arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the command \code{melt} which is in the \pkg{reshape} package.
+Although \pkg{mizer} does include some dedicated plots, it is definately worth your time getting to grips with these \pkg{ggplot2} and other plotting packages. This will make it possible for you to make your own plots.
 
-%PERHAPS INCLUDE EXAMPLE OF USING GGPLOT WITH MIZER BELOW?
-
-Included in \pkg{mizer} are several dedicated plots that use
-\class{MizerSim} objects as inputs (see Table~\ref{tab:plots}).
-As well as displaying the plots, these methods all return objects of
-type \class{ggplot} from the \pkg{ggplot2} package.
+Included in \pkg{mizer} are several dedicated plots that use \class{MizerSim} objects as inputs (see Table~\ref{tab:plots}).
+As well as displaying the plots, these methods all return objects of type \class{ggplot} from the \pkg{ggplot2} package meaning that they can be further modified by the user (e.g. by changing the plotting theme).
 See the help page of the individual plot methods for more details.
-The generic \code{plot()} method has also been overloaded for
-\class{MizerSim} objects. This produces several plots in the same window
-to provide a snapshot of the results of the simulation.
+The generic \code{plot()} method has also been overloaded for \class{MizerSim} objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.
 
-Some of the plots plot values by size (for example \code{plotFeedingLevel()}
-and \code{plotSpectra()}).
-For these plots, the default is to use the data at the final time
-step of the projection.
-With these plotting methods, it is also possible to specify a different time
-step to plot or a time range to average the values over before plotting. 
+Some of the plots plot values by size (for example \code{plotFeedingLevel()} and \code{plotSpectra()}).
+For these plots, the default is to use the data at the final time step of the projection.
+With these plotting methods, it is also possible to specify a different time step or a time range to average the values over before plotting. 
 
 \begin{table}[ht]
     \begin{center}
@@ -1953,64 +1915,49 @@ step to plot or a time range to average the values over before plotting.
 \subsubsection{Plotting examples}
 \label{sec:plot_examples}
 
-Using the plotting methods is straightforward.
-For example, to plot the total biomass of each species against
-time you use the \code{plotBiomass()} method:
-%<<eval=FALSE>>=
-%#plotBiomass(sim)
-%@
+Using the plotting methods is straightforward. For example, to plot the total biomass of each species against time you use the \code{plotBiomass()} method:
 
-The outcome of which can be seen in Figure~\ref{fig:plotBiomass_example}.
-%\begin{figure}
-%<<label=plotBiomass_example, fig=TRUE, echo=FALSE>>=
-%#    p <- plotBiomass(sim)
-%#    print(p)
-%@
-%\caption{An example of using the \code{plotBiomass()} method.}
-%\label{fig:plotBiomass_example}
-%\end{figure}
+<<label=plotBiomass, eval=FALSE>>=
+plotBiomass(sim)
+@
 
-As mentioned above, some of the plot methods plot values against size
-at a point in time (or averaged over a time period).
-For these plots it is possible to specify the time step to plot,
-or the time period to average the values over. The default is to use
-the final time step.
-Here we plot the abundance spectra (biomass), averaged over time = 5 to 10
-(the simulation was projected until $t$ = 10; see
-Figure~\ref{fig:plotSpectra_example}):
+\begin{figure}
+<<label=print_plotBiomass, fig=TRUE, echo=FALSE, height = 4>>=
+<<plotBiomass>>
+@
+\caption{An example of using the \code{plotBiomass()} method.}
+\label{fig:plotBiomass_example}
+\end{figure}
 
-%<<eval=FALSE>>=
-%#plotSpectra(sim, time_range = 5:10, biomass=TRUE)
-%@
+As mentioned above, some of the plot methods plot values against size at a point in time (or averaged over a time period).
+For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step.
+Here we plot the abundance spectra (biomass), averaged over time = 5 to 10 (see Figure~\ref{fig:plotSpectra_example}):
 
-%\begin{figure}
-%<<label=plotSpectra_example, fig=TRUE, echo=FALSE>>=
-%#p <- plotSpectra(sim, time_range = 5:10, biomass=TRUE)
-%#print(p)
-%@
-%\caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
-%\label{fig:plotSpectra_example}
-%\end{figure}
+<<label=plotSpectra_example,eval=FALSE>>=
+plotSpectra(sim, time_range = 5:10, biomass=TRUE)
+@
 
-As mentioned above, the generic \code{plot()} method has also been
-overloaded.% (see Figure~\ref{fig:plot_example}).
-This produces 5 plots in the same window (\code{plotFeedingLevel()},
-\code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and
-\code{plotSpectra()}). It is possible to pass in the same arguments that
-these plots use, e.g. arguments to change the time period over which the
-data is averaged.
+\begin{figure}
+<<label=print_plotSpectra_example, fig=TRUE, echo=FALSE, height = 4>>=
+<<plotSpectra_example>>
+@
+\caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
+\label{fig:plotSpectra_example}
+\end{figure}
 
-%<<label=demo_summary_plot,eval=FALSE>>=
-%#plot(sim)
-%@
+As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\ref{fig:plot_example}). It is possible to pass in the same arguments that these plots use, e.g. arguments to change the time period over which the data is averaged.
 
-%\begin{figure}
-%<<label=plot_example, fig=TRUE, echo=FALSE>>=
-%<<demo_summary_plot>>
-%@
-%\caption{Example output from using the summary \code{plot()} method.}
-%\label{fig:plot_example}
-%\end{figure}
+<<label=demo_summary_plot,eval=FALSE>>=
+plot(sim)
+@
+
+\begin{figure}
+<<label=plot_example, fig=TRUE, echo=FALSE, height = 9>>=
+<<demo_summary_plot>>
+@
+\caption{Example output from using the summary \code{plot()} method.}
+\label{fig:plot_example}
+\end{figure}
 
 %------------------------------------------------------------------------------------
 \section{A detailed example using the North Sea}
@@ -2029,10 +1976,10 @@ Note that we are the using dataset without fishing gears because in
 this example, we want to control the individual levels of effort on each
 species. 
 
-<<label = load_ns_species_params>>=
-params_data <- read.csv("simple_species_params.csv")
-inter <- as(read.csv("inter.csv", row.names=1),"matrix")
-@
+%<<label = load_ns_species_params>>=
+%#params_data <- read.csv("simple_species_params.csv")
+%#inter <- as(read.csv("inter.csv", row.names=1),"matrix")
+%@
 
 The historical fishing mortality from 1967 to 2010 for each species is stored
 in the csv file \code{f\_history.csv}.
@@ -2040,14 +1987,14 @@ As before, we can use the \code{read.csv()} to read in the data. This
 reads the data in as a \class{data.frame}. We want this to
 be a \class{matrix} so we use the \code{as.matrix()} function:
 
-<<label=load_f_history>>=
-f_history <- as.matrix(read.csv("f_history.csv",row.names=1))
-@
+%<<label=load_f_history>>=
+%f_history <- as.matrix(read.csv("f_history.csv",row.names=1))
+%@
 
 We can take a look at the first years of the data.
-<<label=head_f_history>>=
-head(f_history)
-@
+%<<label=head_f_history>>=
+%head(f_history)
+%@
 
 Note that the order of the species in the \code{f\_history} object is
 the same as that in the species parameters data.frame.
@@ -2074,9 +2021,9 @@ in the species parameters data.frame, or by manipulating the catchability
 slot directly after the \class{MizerParams} object has been created.
 Here we use the former method.
 
-<<label=set_catchability>>=
-params_data$catchability <- as.numeric(f_history["1990",])
-@
+%<<label=set_catchability>>=
+%params_data$catchability <- as.numeric(f_history["1990",])
+%@
 
 We are going to use the default stock-recruitment function for each of the
 species (see Section~\ref{sec:srr}).
@@ -2088,23 +2035,23 @@ These values are taken from NS PAPER REFERENCE. The values were found
 through a calibration process which is not covered here but will be added to
 a later version of this manual. 
 
-<<label=set_r_max>>=
-params_data$r_max <- c(5.43e11,3.65e11,1.51e12,4.40e12,3.34e11,
-2.68e10,1.16e09,1.27e10,1.00e18,6.20e10, 5.26e08,1.65e10)
-@
+%<<label=set_r_max>>=
+%params_data$r_max <- c(5.43e11,3.65e11,1.51e12,4.40e12,3.34e11,
+%2.68e10,1.16e09,1.27e10,1.00e18,6.20e10, 5.26e08,1.65e10)
+%@
 
 We can now create the \code{MizerParams} object using the species
 parameters data.frame.
 
-<<label=make_ns_params>>=
-params <- MizerParams(params_data, inter)
-@
+%<<label=make_ns_params>>=
+%params <- MizerParams(params_data, inter)
+%@
 
 Here we check that the catchability has been
 set correctly by inspecting the diagonal of the catchability slot.
-<<label=check_catchability>>=
-diag(params@catchability)
-@
+%<<label=check_catchability>>=
+%diag(params@catchability)
+%@
 
 Now we can make the matrix of relative effort through time that will
 be used with the \code{project()} method.
@@ -2112,10 +2059,10 @@ To do this we want rescale the \code{f\_history} object to 1990 so that
 the relative effort in 1990 = 1.
 We then check a few rows of the effort matrix to check this has happened:
 
-<<label=rescale_effort>>=
-effort <- sweep(f_history,2,f_history["1990",],"/")
-effort[as.character(1988:1992),]
-@
+%<<label=rescale_effort>>=
+%effort <- sweep(f_history,2,f_history["1990",],"/")
+%effort[as.character(1988:1992),]
+%@
 
 We could just project forward with these relative efforts. However,
 the population dynamics in the early years will be strongly
@@ -2133,10 +2080,10 @@ Here we make an inital effort matrix of 100 years at the first effort level,
 and then stick it on top of the original matrix of historical relative
 effort:
 
-<<>>=
-initial_effort <- matrix(effort[1,],byrow=TRUE, nrow=100,ncol=ncol(effort))
-effort <- rbind(initial_effort,effort)
-@
+%<<>>=
+%initial_effort <- matrix(effort[1,],byrow=TRUE, nrow=100,ncol=ncol(effort))
+%effort <- rbind(initial_effort,effort)
+%@
 
 \subsection{Running the simulation}
 
@@ -2146,12 +2093,12 @@ This includes an initial 100 years of constant relative effort at the
 We can use this effort matrix as an argument to the \code{project()} method.
 We use \code{dt} = 1 and save the results every year.
 
-<<>>=
-#sim <- project(params, effort=effort, dt = 1, t_save = 1)
-@
+%<<>>=
+%#sim <- project(params, effort=effort, dt = 1, t_save = 1)
+%@
 
 Plotting the results, we can see how the biomasses of the stocks change
-over time (Figure~\ref{fig:plot_ns_biomass}).
+%over time (Figure~\ref{fig:plot_ns_biomass}).
 You can see the 100 year period of transients with constant fishing effort
 as the dynamics approach equilibrium before the historical
 relative effort is used.
