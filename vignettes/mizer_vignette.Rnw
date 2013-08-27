@@ -91,12 +91,13 @@
 % @
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
-\title{Multi-species size-based ecological modelling in \R (\pkg{mizer}): An introductory vignette}
+\title{Multispecies size spectrum ecological modelling in \R (\pkg{mizer}): An introductory vignette}
 %\author{F. Scott, J. Blanchard, K. H. Andersen}
-\author[*]{F. Scott}
+\author[*\dag]{F. Scott}
 \author[**]{J. Blanchard}
 \author[***]{K. H. Andersen}
 \affil[*]{Cefas, Lowestoft, UK}
+\affil[\dag]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
 \affil[**]{University of Sheffield, UK}
 \affil[***]{DTU Aqua, Copenhagen, DK}
 \renewcommand\Authands{ and }
@@ -116,25 +117,25 @@ rm(list=ls())
 @ 
 %-----------------------------------------------------------------------------------
 \section{Summary}
-Size-based ecological models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
-A key feature of size-based ecological is that of a \emph{size spectrum}, where the total abundance of individuals at size scales negatively with size: there are more small things than big things.
+Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
+A key feature is that of a \emph{size spectrum}, where the total abundance of individuals at size scales negatively with size: there are more small things than big things.
 
-\pkg{mizer} is a software package for implementing size-based ecological models using the \R statistical programming environment.
+\pkg{mizer} is a software package for implementing size spectrum ecological models using the \R statistical programming environment.
 The package has been developed to model marine ecosystems that are subject to fishing.
 
-Roughly speaking there are three versions of the size-based modelling framework of increasing complexity: The \emph{community} model, in which only one ''species'' is resolved; 
+Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} model, in which only one ''species'' is resolved; 
 the \emph{trait-based} model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
-and the \emph{food-web} in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
-The community and trait-based models can be considered as simplifications of the food-web type model.
+and the \emph{multispecies} model in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
+The community and trait-based models can be considered as simplifications of the multispecies model.
 \pkg{mizer} is able implement all three model versions using the same set of tools.
 
 \pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
 The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such mean weight in the community and the the slope of the size spectrum.
 
 The models created using \pkg{mizer} can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships for the species can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
-However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
+However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
 
-This vignette starts by summarising the principles and assumptions of size-based models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size-based models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a food-web model of the North Sea as an example. Finally, there is a detailed example of a size-based model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Finally, there is a detailed example of a multispecies size spectrum model of the North Sea, including a recreation of historical fishing patterns and biomasses.
 
 %-------------------------------------------------------------------------------
 \section{Package installation and getting help}
@@ -193,21 +194,21 @@ class ? MizerParams
 These two ways of getting help can be useful when a class and a method have the same name. For example, \class{MizerParams} is a class and also the name of the method for creating \class{MizerParams} objects.
 
 %----------------------------------------------------------------------------------
-\section{Size-based modelling - concepts, processes and assumptions}
+\section{Size spectrum modelling - concepts, processes and assumptions}
 \label{sec:principles}
 
-Size-based, or size spectrum, models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
+Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
 There is now a growing literature describing different types of size spectrum models
 \citep[e.g.]{benoit_continuous_2004, andersen_asymptotic_2006, andersen_life-history_2008, law_size-spectra_2009, hartvig_food_2011, hartvig_food_2011-1}.
 The models can be used to understand how marine communities are organised
 \citep{andersen_asymptotic_2006, andersen_trophic_2009,blanchard_how_2009} and how they respond to fishing
 \citep{andersen_direct_2010, andersen_damped_2010}.
-This section introduces the central assumptions, concepts, processes, equations and parameters of a size-based model.
+This section introduces the central assumptions, concepts, processes, equations and parameters of size spectrum models.
 
 Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} size spectrum model
-\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{food-web} spectrum model \citep{hartvig_food_2011-1}.
-The community and trait-based models can be considered as simplifications of the food-web type model.
-This section focuses on the food-web type of model but is also applicable to the community and trait-based models.
+\citep{benoit_continuous_2004, maury_modeling_2007,blanchard_how_2009,law_size-spectra_2009}, the \emph{trait-based} size spectrum model \citep{andersen_asymptotic_2006, andersen_damped_2010}, and the \emph{multispecies} spectrum model \citep{hartvig_food_2011-1}.
+The community and trait-based models can be considered as simplifications of the multispecies model.
+This section focuses on the multispecies model but is also applicable to the community and trait-based models.
 \pkg{mizer} is able implement all three types of model using similar commands.
 
 \subsection{Central concepts and assumptions}
@@ -351,7 +352,7 @@ When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth sto
 \end{array} \right. .
 \end{equation}
 
-Starvation is usually not an important process in the food-web model with Beverton-Holt recruitment.
+Starvation is usually not an important process in the multispecies model with Beverton-Holt recruitment.
 
 Mortality from sources other than predation and starvation is assumed to be constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
 \begin{equation}
@@ -429,8 +430,8 @@ However, the depletion of resources makes it difficult to find an analytical app
 %--------------------------------------------------------------------
 \section{Introducing \pkg{mizer}}
 
-With \pkg{mizer} is is possible to implement the three types of model mentioned above (with increasing complexity): community, trait-based and food-web, using the same basic tools and methods.
-For the remaineder of this vignette we present examples of how to set up, project and analyse all three types of model.
+With \pkg{mizer} is is possible to implement the three types of model mentioned above (with increasing complexity): community, trait-based and multispecies, using the same basic tools and methods.
+For the remainder of this vignette we present examples of how to set up, project and analyse all three types of model.
 
 Using the package is relatively simple.  There are three main stages to implementing a model:
 
@@ -443,8 +444,8 @@ Using the package is relatively simple.  There are three main stages to implemen
 These stages and the accompanying classes and methods are explained in detail in the rest of the document.
 
 It is probably easier to learn the basics of \pkg{mizer} through examples.
-We start by looking at the simplest type of size-based model, the community model. We then move on to a more complex type of model, the trait-based model.
-Finally we look at the most complex type of model, the food-web model.
+We start by looking at the simplest type of size spectrum model, the community model. We then move on to a more complex type of model, the trait-based model.
+Finally we look at the most complex type of model, the multispecies model.
 
 %------------------------------------------------------
 \section{Implementing a community-type model}
@@ -452,7 +453,7 @@ Finally we look at the most complex type of model, the food-web model.
 
 \subsection{Introduction}
 \label{sec:community_model_intro}
-The simplest version of the size-based model is the community model, originally introduced by \citep{benoit_continuous_2004}.
+The simplest version of the size spectrum model is the community model, originally introduced by \citep{benoit_continuous_2004}.
 %The community model can be derived as a simplification of the trait-based model \citep{zhang_trait_2013}.
 In this model only one ``species'' is resolved. Reproduction is not considered, so $\psi(w)=0$ and the recruitment flux $R$ is set to be constant.
 The resource spectrum only extends to the start of the community spectrum.
@@ -560,10 +561,10 @@ The feeding level describes how satiated an individual is, with 0 being unfed, a
 The background resource and community sprectra are shown in the bottom panel of the plot (the plotted background resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
 You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the \args{recruitment} argument passed to \code{set\_community\_model()}).
 
-Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size-based model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the \args{z0} argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
+Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the \args{z0} argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
 
 We can see this more clearly by extracting the predation mortality information from the \class{MizerSim} object, \code{sim}, that we created above.
-This is easily done by using the \code{getM2()} method (see the help page for more details. There are several methods that can be used for extracting information from a \class{MizerSim} object, e.g. \code{getFeedingLevel()} and \code{getFMort()}. For more information see Section~\ref{sec:exploring}.):
+This is easily done by using the \code{getM2()} method (see the help page for more details). There are several methods that can be used for extracting information from a \class{MizerSim} object, e.g. \code{getFeedingLevel()} and \code{getFMort()}. For more information see Section~\ref{sec:exploring}. Here we just call \code{getM2()} using the \code{sim} object:
 
 <<label=get_m2_comm>>=
 m2 <- getM2(sim)
@@ -594,8 +595,9 @@ To do this we need to perform two simulations, one with fishing and one without.
 This means we need to consider how fishing is handled in \pkg{mizer}.
 The \code{set\_community\_model()} automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
 
-<<label='set_comm_fishing'>>=
-params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7, alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
+<<label=set_comm_fishing>>=
+params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7,
+    alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
 @
 
 First we perform a simulation without fishing in the same way we did above by setting the \args{effort} argument to 0:
@@ -640,7 +642,8 @@ This can then be plotted (Figure~\ref{fig:plot_relative_comm_abund}) using basic
 The sizes are stored in the \code{params@w} slot (a slot of a slot!).
 
 <<label=plot_relative_comm_abund, eval=FALSE>>=
-plot(x=sim0@params@w, y=relative_abundance, log="x", type="n", xlab = "Size (g)", ylab="Relative abundance")
+plot(x=sim0@params@w, y=relative_abundance, log="x", type="n",
+    xlab = "Size (g)", ylab="Relative abundance")
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
@@ -1017,32 +1020,32 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 This shows another trophic cascade (Figure~\ref{fig:plot_relative_comm_abund_industrial}), although this time one driven by fishing the species at the midrange part of the spectrum, not the largest individuals as before. This trophic cascade acts in both directions. The cascade upwards is driven by the lack of food for predators leading to smaller realised maximum sizes. The cascade downwards has the same mechanism as fishing on large fish, a combination of predation mortality and food limitation.
 
 %---------------------------------------------------
-\section{Introducing food-web models}
+\section{Introducing multispecies models}
 
 The previous sections have used wrapper functions to set up \class{MizerParams} objects that are appropriate for community and trait-based simulations.
-We now turn our attention to food-web, or species-specific, models.
+We now turn our attention to multispecies, or species-specific, models.
 These are potentially more complicated than the community and trait-based models and use the full power of the \pkg{mizer} package.
 
-In food-web type models multiple species are resolved. However, unlike in the trait-based model which also resolves multiple species, explicit species are represented.
-There are several advantages to this approach. As well as investigating the community as a whole (as was done for the community and trait-based models), we are able to investigate the dynamics of individual species. This means that species specific management rules can be tested and species specific metrics, such as MSY, can be compared to reference levels.
+In multispecies type models multiple species are resolved. However, unlike in the trait-based model which also resolves multiple species, explicit species are represented.
+There are several advantages to this approach. As well as investigating the community as a whole (as was done for the community and trait-based models), we are able to investigate the dynamics of individual species. This means that species specific management rules can be tested and species specific metrics, such as yield, can be compared to reference levels.
 
-A food-web model can be harder to set up.
+A multispecies model can take more effort to set up.
 For example, each species will have different life-history parameters; there may be multiple gear types with different selectivities targetting different groups of species; the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
 
-For the remainder of this vignette we build up a food-web model for the North Sea.
-To effectively use \pkg{mizer} for a food-web model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
+For the remainder of this vignette we build up a multispecies model for the North Sea.
+To effectively use \pkg{mizer} for a multispecies model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
 This will all be done in the context of examples so hopefully everything will be clear.
 
 We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
 
-\section{Setting up the model with the class{MizerParams} class}
+\section{Setting up a multispecies model}
 \label{sec:MizerParams}
 
 \subsection{Overview}
 The \class{MizerParams} class is used for storing model parameters.
 We have already met the \class{MizerParams} class when we looked at community and trait-based models.
 However, direct handling of the class was largely hidden by the use of the wrapper functions.
-To set up a food-web model we need to directly create and use the \class{MizerParams} class.
+To set up a multispecies model we need to directly create and use the \class{MizerParams} class.
 This is probably the most complicated part of the using the \pkg{mizer} package so we will take it slowly.
 For additional help you can look at the help page for the class by entering \code{class ? MizerParams}.
 
@@ -1231,13 +1234,9 @@ This approach can be used to explore the impacts of changing fishing mortality o
 \subsection{The stock-recruitment relationship}
 \label{sec:srr}
 
-In size-based modelling recruitment refers to the flux of individuals that enter
-the size-spectrum at the smallest size group of that species (given by the
-parameter \args{w\_min} in the species parameter data.frame).
-As can be seen in Section~\ref{sec:principles}, calculating the recruitment flux involves calculating the ``density independent''
-recruitment, $R_{p.i}$ (see Section~\ref{sec:reproduction}).
-The $R_{p.i}$ is then modified by a stock-recruitment relationship (SRR) to impose some form of density-dependence. This then results in the
-density-dependent recruitment, $R_i$ (see Section~\ref{sec:recruitment}).
+In size spectrum modelling recruitment refers to the flux of individuals that enter the size-spectrum at the smallest size group of that species (given by the parameter \args{w\_min} in the species parameter data.frame).
+As can be seen in Section~\ref{sec:principles}, calculating the recruitment flux involves calculating the ``density independent'' recruitment, $R_{p.i}$ (see Section~\ref{sec:reproduction}).
+The $R_{p.i}$ is then modified by a stock-recruitment relationship (SRR) to impose some form of density-dependence. This then results in the density-dependent recruitment, $R_i$ (see Section~\ref{sec:recruitment}).
 Without this density dependence, the realised recruitment flux to the smallest size class is determined only by $R_{p.i}$.
 The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 
@@ -1310,7 +1309,7 @@ This means that depending on which columns have been provided in the species par
 Determining a value for the \args{kappa} argument can be difficult and may need to be estimated through some kind calibration process.
 The default value \args{kappa} is for the North Sea model.
 
-\subsection{Putting all this together: an example of making a simple \class{MizerParams} object}
+\subsection{Examples of making a \class{MizerParams} objects}
 \label{sec:params_example}
 
 As mentioned in the preceeding sections, an object of \class{MizerParams} is created by using the \code{MizerParams()}
@@ -1331,7 +1330,7 @@ In the rest of this section we demonstrate how to pull these elements together t
 
 The first step is to prepare the species specific parameter data.frame.
 As mentioned above, one way of doing this is to use a spreadsheet and save it as a .csv file. We will use this approach here.
-An example .csv file has been included in the package. This contains the species parameters for a North Sea model (REFERENCE).
+An example .csv file has been included in the package. This contains the species parameters for a multispecies North Sea model \citep{blanchard_multispecies_2013}.
 This file is placed in the \code{doc} folder of the package installation.
 The location of the file can be found by running:
 
@@ -1592,7 +1591,7 @@ This method can be particularly useful for quickly projecting forward without fi
 We will use the \args{params} object that was created above in the \class{MizerParams} example above in which each species is caught by a separate gear.
 Here we make the object again:
 
-<<label = remaking_simple_food_params>>=
+<<label = remaking_simple_ms_params>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
@@ -1610,19 +1609,19 @@ sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
 The resulting \args{sim} object is of class \class{MizerSim}.
 At this point we won't explore how the results can be investigated in detail. However, we will use the basic summary plot that you have seen before:
 
-<<label=plot_basic_food_sim, eval=FALSE>>=
+<<label=plot_basic_ms_sim, eval=FALSE>>=
 plot(sim)
 @
 
 \begin{figure}
-<<label=print_plot_basic_food_sim, fig=TRUE, echo=FALSE, height = 9>>=
-<<plot_basic_food_sim>>
+<<label=print_plot_basic_ms_sim, fig=TRUE, echo=FALSE, height = 9>>=
+<<plot_basic_ms_sim>>
 @
-\caption{Plot of the North Sea multi-species model with no default fishing gears and constant effort of 1.}
+\caption{Plot of the North Sea multispecies model with no default fishing gears and constant effort of 1.}
 \label{fig:plot_food_demo}
 \end{figure}
 
-Without fishing the community settles down to equilbria at about t = 50 (Figure~\ref{fig:plot_food_demo}). The big difference between this multi-species model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the ``species'' had the same M2 and feeding level patterns (see Figure~\ref{fig:plot_trait_demo}). Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
+Without fishing the community settles down to equilbria at about t = 50 (Figure~\ref{fig:plot_food_demo}). The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the ``species'' had the same M2 and feeding level patterns (see Figure~\ref{fig:plot_trait_demo}). Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
 
 You can also see in Figure~\ref{fig:plot_food_demo} that each species is has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species \args{w\_mat} parameter.
 
@@ -1963,127 +1962,129 @@ plot(sim)
 \section{A detailed example using the North Sea}
 \label{sec:north_sea_example}
 
-Here we give a detailed example of projecting a fishery through time
-using historical levels of fishing effort.
-We use data from the North Sea from 1957 to 2010 and compare the simulated
-population trajectories to the best estimates of abundance from ICES where
-available.
+In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
+We will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
+This example is based on the multispecies model in \citet{blanchard_multispecies_2013}.
+
+%We use data from the North Sea from 1957 to 2010 and compare the simulated population trajectories to the best estimates of abundance from ICES where available.
 
 \subsection{Setting up the North Sea model}
 
-As before, we load the species and interaction parameters for the North Sea.
-Note that we are the using dataset without fishing gears because in
-this example, we want to control the individual levels of effort on each
-species. 
+The first job is to set up the \class{MizerParams} object for the North Sea model.
+In the previous examples we have already been using the life-history parameters and the interaction matrix for the North Sea model used in \citet{blanchard_multispecies_2013}.
+We will use them again here. The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the \code{system.file()} function to tell us the location of the files.
+Remember that we need to convert the interaction file into a matrix.
 
-%<<label = load_ns_species_params>>=
-%#params_data <- read.csv("simple_species_params.csv")
-%#inter <- as(read.csv("inter.csv", row.names=1),"matrix")
-%@
+<<label = load_ns_species_params>>=
+params_location <- system.file("doc/NS_species_params.csv",package="mizer")
+params_data <- read.csv(params_location)
+inter_location <- system.file("doc/inter.csv",package="mizer")
+inter <- as(read.csv(inter_location, row.names=1),"matrix")
+@
 
-The historical fishing mortality from 1967 to 2010 for each species is stored
-in the csv file \code{f\_history.csv}.
-As before, we can use the \code{read.csv()} to read in the data. This
-reads the data in as a \class{data.frame}. We want this to
-be a \class{matrix} so we use the \code{as.matrix()} function:
+We have seen before that the species in the model are \Sexpr{paste(params_data$species, collapse=", ")} and
+that the \args{params\_data} object is a data.frame with columns \Sexpr{paste(colnames(params_data),collapse=", ")}.
+We have also seen before that only having these columns is sufficient to make a \class{MizerParams} object. Any missing columns will be supplied by the default values.
+For example, the data.frame does not include columns for \args{h} or \args{gamma}. This means that they will be estimated using the \args{k\_vb} column (see Section~\ref{sec:species_parameters_dataframe}).
 
-%<<label=load_f_history>>=
-%f_history <- as.matrix(read.csv("f_history.csv",row.names=1))
-%@
+We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we have seen earlire, this requires a value of \args{r\_max} to be set for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2013}.
+The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
 
-We can take a look at the first years of the data.
-%<<label=head_f_history>>=
-%head(f_history)
-%@
+Here, we want to take a look at the selectivity of the species. By default, the selectivity function is a knife-edge which only takes a single argument, \args{knife\_edge\_size}.
+In this model we want the selectivity pattern to be a sigmoid shape. This can be written in terms of \args{l25} and \args{l50}, which are the lengths at which 25\% and 50\% of the stock is selected. The length based sigmoid selectivity looks like:
 
-Note that the order of the species in the \code{f\_history} object is
-the same as that in the species parameters data.frame.
-This has to be the case.
+\begin{equation}
+    \label{eq:trawl_sel}
+    S_l = \frac{1}{1 + exp(S1 - S2 l)}
+\end{equation}
 
-As mentioned in Section~\ref{sec:fishing_gear}, fishing mortality is
-calculated as a combination of
-selectivity, catchability and fishing effort.
+where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = log(3) / (l50 - l25)$ and $S1$ = $l50 S2$.
+
+This selectivity function is implemented in \pkg{mizer} as \code{sigmoid\_length()}.
+As well as the arguments \args{l25} and \args{l50}, this function also has arguments \args{a} and \args{b} to convert between length and weight: $w = a l^b$
+This is becauser the sigmoid selectivity function is defined in terms of length, and the size spectrum model works in terms of weight.
+As explained in Section~\ref{sec:fishing_gear}, all arguments of the selectivity function need to be in the species parameter data.frame.
+Therefore, columns for \args{l25}, \args{l50}, \args{a} and \args{b} need to be added to the species parameter data.frame.
+We also add a column specifying the name of the selectivity function we wish to use.
+The data is taken from \citet{blanchard_multispecies_2013}. Note it would probably easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
+
+<<label=adding_sel_params>>=
+params_data$sel_func <- "sigmoid_length"
+params_data$l25 <- c(7.6, 9.8, 8.7, 10.1, 11.5, 19.8, 16.4, 19.8, 11.5, 19.1, 13.2, 35.3)
+params_data$l50 <- c(8.1, 11.8, 12.2, 20.8, 17.0, 29.0, 25.8, 29.0, 17.0, 24.3, 22.9, 43.6)
+params_data$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004, 0.007, 0.005, 0.005, 0.007)
+params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198, 3.101, 3.160, 3.173, 3.075)
+@
+
+Note that we don't set up any gear names here, so each species will be caught by separate gear named after the species.
+
+In this model we are interested in projecting forward using historical fishing mortalities.
+
+GET UPDATED Fs from JB
+AND ALSO SOMETHING ABOUT GOING FROM FBAR TO FMAX OF SEL FUNCTION
+
+The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file \code{NS\_f\_history.csv}.
+As before, we can use the \code{read.csv()} to read in the data. This reads the data in as a \class{data.frame}.
+We want this to be a \class{matrix} so we use the \code{as.matrix()} function:
+
+<<label=load_f_history>>=
+f_location <- system.file("doc/NS_f_history.csv",package="mizer")
+f_history <- as(read.csv(f_location, row.names=1), "matrix")
+@
+
+We can take a look at the first years of the data:
+<<label=head_f_history>>=
+head(f_history)
+@
+
+%Note that the order of the species in the \code{f\_history} object is the same as that in the species parameters data.frame.
+
+As mentioned in Section~\ref{sec:fishing_gear}, fishing mortality is calculated as the product of selectivity, catchability and fishing effort (see Equation~\ref{eq:sel}).
 The values in \code{f\_history} are absolute levels of fishing mortality.
-To use the \code{project()} method we need to provide a matrix of fishing
-effort that will result in these historical fishing mortality levels.
+We have seen that the fishing mortality in the \code{project()} function is driven by the fishing effort.
+Therefore if we want to project forward with historical fishing levels, we need to provide \code{project()} with effort values that will result in these historical fishing mortality levels.
 
-One way of doing this is to set the catchability of all species to 1
-and then use the \code{f\_history} matrix as the fishing effort.
-However, it is probably clearer to use the effort relative to a
-particular year.  Here we use the year 1990.
-To do this we set the catchability of each species to be the same as
-fishing mortality in 1990. 
-This means that a relative effort of 1 in 1990 will result
-in the fishing mortality being what it was in 1990.
+One aspect of the model parameters that we have not considered so far is the catchability. Catchability is a scalar parameter used to calculate the fishing mortality at size given the selectivity and effort of the gear.
+By default catchability has a value of 1, meaning that an effort of 1 results in a fishing mortality of 1 for a fully selected species.
+We could therefore leave catchability at 1 for all species and then use the \code{f\_history} matrix as the fishing effort.
+However, an alternative method which is probably clearer is to use the effort relative to a chosen reference year.
+Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then a relative effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort 1990.
 
-The catchability can be set by either including a 'catchability' column
-in the species parameters data.frame, or by manipulating the catchability
-slot directly after the \class{MizerParams} object has been created.
-Here we use the former method.
+The catchability can be set by including a \args{catchability} column in the species parameters data.frame. Doing this overwrites the default values when the \class{MizerParams} constructor is called.
 
-%<<label=set_catchability>>=
-%params_data$catchability <- as.numeric(f_history["1990",])
-%@
+<<label=set_catchability>>=
+params_data$catchability <- as.numeric(f_history["1990",])
+@
 
-We are going to use the default stock-recruitment function for each of the
-species (see Section~\ref{sec:srr}).
-This uses the parameter \code{r\_max} which means that we need
-to set values of this parameter for all species.
-This can be done by including an 'r\_max' column in the species
-parameters data.frame.
-These values are taken from NS PAPER REFERENCE. The values were found
-through a calibration process which is not covered here but will be added to
-a later version of this manual. 
+We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
 
-%<<label=set_r_max>>=
-%params_data$r_max <- c(5.43e11,3.65e11,1.51e12,4.40e12,3.34e11,
-%2.68e10,1.16e09,1.27e10,1.00e18,6.20e10, 5.26e08,1.65e10)
-%@
+<<label=make_ns_params>>=
+params <- MizerParams(params_data, inter)
+@
 
-We can now create the \code{MizerParams} object using the species
-parameters data.frame.
-
-%<<label=make_ns_params>>=
-%params <- MizerParams(params_data, inter)
-%@
-
-Here we check that the catchability has been
-set correctly by inspecting the diagonal of the catchability slot.
-%<<label=check_catchability>>=
-%diag(params@catchability)
-%@
-
-Now we can make the matrix of relative effort through time that will
-be used with the \code{project()} method.
-To do this we want rescale the \code{f\_history} object to 1990 so that
-the relative effort in 1990 = 1.
+Before we can run a projections we need to rescale the effort matrix to get a matrix of efforts relative to 1990. 
+To do this we want to rescale the \code{f\_history} object to 1990 so that the relative fishing mortality in 1990 = 1.
+This is done using \R function \code{sweep()}.
 We then check a few rows of the effort matrix to check this has happened:
 
-%<<label=rescale_effort>>=
-%effort <- sweep(f_history,2,f_history["1990",],"/")
-%effort[as.character(1988:1992),]
-%@
+<<label=rescale_effort>>=
+relative_effort <- sweep(f_history,2,f_history["1990",],"/")
+relative_effort[as.character(1988:1992),]
+@
 
-We could just project forward with these relative efforts. However,
-the population dynamics in the early years will be strongly
-determined by the initial population abundances (known as the transient
-behaviour - essentially the initial behaviour before the long term dynamics
-are reached).
+We could just project forward with these relative efforts. However, the population dynamics in the early years will be strongly determined by the initial population abundances (known as the transient behaviour - essentially the initial behaviour before the long term dynamics are reached).
 As this is fisheries science, we don't know what the initial abundance are.
-One way around is this to project forward at a constant fishing effort
-equal to the first year of historical relative effort until equilibrium
-is reached.
+One way around is this to project forward at a constant fishing mortality equal to the mortality in the first year until equilibrium is reached.
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
-Here we make an inital effort matrix of 100 years at the first effort level,
-and then stick it on top of the original matrix of historical relative
-effort:
+Here we make an inital effort matrix of 100 years at the first effort level, and then stick it on top of the original matrix of historical relative effort:
 
-%<<>>=
-%initial_effort <- matrix(effort[1,],byrow=TRUE, nrow=100,ncol=ncol(effort))
-%effort <- rbind(initial_effort,effort)
-%@
+<<label=add_transient_years>>=
+initial_effort <- matrix(relative_effort[1,],byrow=TRUE, nrow=100,ncol=ncol(relative_effort))
+relative_effort <- rbind(initial_effort,relative_effort)
+@
+
 
 \subsection{Running the simulation}
 
