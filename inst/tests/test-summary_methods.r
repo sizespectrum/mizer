@@ -192,7 +192,7 @@ test_that("getCommunitySlope works",{
     sim <- project(params, effort=1, t_max=10)
     slope_b <- getCommunitySlope(sim)
     # dims
-    expect_that(dim(slope_b), equals(c(dim(sim@n)[1],4)))
+    expect_that(dim(slope_b), equals(c(dim(sim@n)[1],3)))
     # sum biomasses
     biomass <- apply(sweep(sim@n,3,sim@params@w,"*"),c(1,3),sum)
     # r2, slope and intercept at last time step
@@ -202,7 +202,7 @@ test_that("getCommunitySlope works",{
     expect_that(slope_b[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
     # Test just numbers not biomass
     slope_n <- getCommunitySlope(sim, biomass=FALSE)
-    expect_that(dim(slope_n), equals(c(dim(sim@n)[1],4)))
+    expect_that(dim(slope_n), equals(c(dim(sim@n)[1],3)))
     # sum numbers
     numbers <- apply(sim@n,c(1,3),sum)
     # r2, slope and intercept at last time step

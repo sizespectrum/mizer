@@ -93,13 +93,13 @@
 
 \title{Multispecies size spectrum ecological modelling in \R (\pkg{mizer}): An introductory vignette}
 %\author{F. Scott, J. Blanchard, K. H. Andersen}
-\author[*\dag]{F. Scott}
-\author[**]{J. Blanchard}
-\author[***]{K. H. Andersen}
-\affil[*]{Cefas, Lowestoft, UK}
-\affil[\dag]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
-\affil[**]{University of Sheffield, UK}
-\affil[***]{DTU Aqua, Copenhagen, DK}
+\author[1,4]{F. Scott}
+\author[2]{J. Blanchard}
+\author[3]{K. H. Andersen}
+\affil[1]{Cefas, Lowestoft, UK}
+\affil[2]{University of Sheffield, UK}
+\affil[3]{DTU Aqua, Copenhagen, DK}
+\affil[4]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
 \renewcommand\Authands{ and }
 \date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
 \maketitle
@@ -364,9 +364,9 @@ Mortality from sources other than predation and starvation is assumed to be cons
 The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
 \begin{equation}
   \label{eq:nb}
-  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa_R w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
+  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
 \end{equation}
-where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa_R w^{-\lambda} = \kappa_R w^{-2-q+n}$ the carrying capacity.
+where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ the carrying capacity.
 
 \subsection{Parameters}
 \label{sec:parameters}
@@ -1334,7 +1334,7 @@ An example .csv file has been included in the package. This contains the species
 This file is placed in the \code{doc} folder of the package installation.
 The location of the file can be found by running:
 
-<<eval=FALSE>>=
+<<label = get_location_for_ns_params,eval=FALSE>>=
 system.file("doc/NS_species_params.csv",package="mizer")
 @
 
@@ -1975,15 +1975,24 @@ In the previous examples we have already been using the life-history parameters 
 We will use them again here. The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the \code{system.file()} function to tell us the location of the files.
 Remember that we need to convert the interaction file into a matrix.
 
-<<label = load_ns_species_params>>=
+<<label = show_load_ns_species_params, eval=FALSE>>=
 params_location <- system.file("doc/NS_species_params.csv",package="mizer")
 params_data <- read.csv(params_location)
 inter_location <- system.file("doc/inter.csv",package="mizer")
 inter <- as(read.csv(inter_location, row.names=1),"matrix")
 @
 
-We have seen before that the species in the model are \Sexpr{paste(params_data$species, collapse=", ")} and
-that the \args{params\_data} object is a data.frame with columns \Sexpr{paste(colnames(params_data),collapse=", ")}.
+<<label = load_ns_species_params, echo=FALSE>>=
+params_data <- read.csv("NS_species_params.csv")
+inter <- as(read.csv("inter.csv", row.names=1),"matrix")
+@
+
+We have seen before that the species in the model are \Sexpr{paste(params_data[,"species"], collapse=", ")} and
+% No idea why the following line doesn't work
+that the \args{params\_data} object is a data.frame with columns for \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta}, \args{sigma}, \args{r\_max} and \args{k\_vb}.
+% These don't work for some reason - maybe the underscore?
+%\Sexpr{cat(gsub("_","\\\\_",paste(colnames(params_data),collapse=", "), fixed=TRUE))}
+%\Sexpr{paste(colnames(params_data), collapse=", ")}
 We have also seen before that only having these columns is sufficient to make a \class{MizerParams} object. Any missing columns will be supplied by the default values.
 For example, the data.frame does not include columns for \args{h} or \args{gamma}. This means that they will be estimated using the \args{k\_vb} column (see Section~\ref{sec:species_parameters_dataframe}).
 
@@ -2022,22 +2031,25 @@ In this model we are interested in projecting forward using historical fishing m
 
 GET UPDATED Fs from JB
 AND ALSO SOMETHING ABOUT GOING FROM FBAR TO FMAX OF SEL FUNCTION
+We are using the fishing mortality at full selectivity
 
 The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file \code{NS\_f\_history.csv}.
 As before, we can use the \code{read.csv()} to read in the data. This reads the data in as a \class{data.frame}.
 We want this to be a \class{matrix} so we use the \code{as.matrix()} function:
 
-<<label=load_f_history>>=
+<<label=show_load_f_history, eval = FALSE>>=
 f_location <- system.file("doc/NS_f_history.csv",package="mizer")
 f_history <- as(read.csv(f_location, row.names=1), "matrix")
+@
+
+<<label=load_f_history, echo = FALSE>>=
+f_history <- as(read.csv("NS_f_history.csv", row.names=1), "matrix")
 @
 
 We can take a look at the first years of the data:
 <<label=head_f_history>>=
 head(f_history)
 @
-
-%Note that the order of the species in the \code{f\_history} object is the same as that in the species parameters data.frame.
 
 As mentioned in Section~\ref{sec:fishing_gear}, fishing mortality is calculated as the product of selectivity, catchability and fishing effort (see Equation~\ref{eq:sel}).
 The values in \code{f\_history} are absolute levels of fishing mortality.
@@ -2057,9 +2069,11 @@ params_data$catchability <- as.numeric(f_history["1990",])
 @
 
 We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
+We will use default values for all of the other parameters apart from \args{kappa}, the carrying capacity of the resource spectrum (see Section~\ref{sec:parameters}).
+This was estimated along with the values \args{r\_max} as part of the calibration process described in \citet{blanchard_multispecies_2013}.
 
 <<label=make_ns_params>>=
-params <- MizerParams(params_data, inter)
+params <- MizerParams(params_data, inter, kappa = 9.27e10)
 @
 
 Before we can run a projections we need to rescale the effort matrix to get a matrix of efforts relative to 1990. 
@@ -2078,51 +2092,81 @@ One way around is this to project forward at a constant fishing mortality equal 
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
-Here we make an inital effort matrix of 100 years at the first effort level, and then stick it on top of the original matrix of historical relative effort:
+Here we make an inital effort matrix of 100 years at the first effort level, complete with dimension names for the time dimension.
+We then stick it on top of the original matrix of historical relative effort.
+We also need to some dimnames to the time dimension.
 
 <<label=add_transient_years>>=
-initial_effort <- matrix(relative_effort[1,],byrow=TRUE, nrow=100,ncol=ncol(relative_effort))
+initial_effort <- matrix(relative_effort[1,],byrow=TRUE, nrow=100,
+    ncol=ncol(relative_effort), dimnames = list(1867:1966))
 relative_effort <- rbind(initial_effort,relative_effort)
 @
-
 
 \subsection{Running the simulation}
 
 We now have our parameter object and out matrix of efforts relative to 1990.
-This includes an initial 100 years of constant relative effort at the
-1957 level, followed by the relative effort from 1957 to 2010
+This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010.
 We can use this effort matrix as an argument to the \code{project()} method.
-We use \code{dt} = 1 and save the results every year.
+We use \code{dt} = 0.5 (the simulation will run faster than with the default of 0.1, but tests show that the results are still stable) and save the results every year.
 
-%<<>>=
-%#sim <- project(params, effort=effort, dt = 1, t_save = 1)
-%@
+<<label=project_ns_model>>=
+sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
+@
 
-Plotting the results, we can see how the biomasses of the stocks change
-%over time (Figure~\ref{fig:plot_ns_biomass}).
-You can see the 100 year period of transients with constant fishing effort
-as the dynamics approach equilibrium before the historical
-relative effort is used.
+Plotting the results, we can see how the biomasses of the stocks change over time (Figure~\ref{fig:plot_ns_biomass}).
+You can see the 100 year period of transients with constant fishing fishing mortality as the dynamics approach equilibrium before the historical relative mortality is used.
+
+<<label = plot_ns_biomass, eval=FALSE>>=
+plotBiomass(sim)
+@
+
+\begin{figure}
+<<label=print_plot_ns_biomass, fig=TRUE, echo=FALSE, height = 4>>=
+<<plot_ns_biomass>>
+@
+\caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
+\label{fig:plot_ns_biomass}
+\end{figure}
+
+More usefully, we can plot only the years for which we have fishing mortality data, i.e. without the transients:
+
+<<label = plot_ns_biomass_no_trans, eval=FALSE>>=
+plotBiomass(sim, start_time = 1967)
+@
+
+\begin{figure}
+<<label=print_plot_ns_biomass_no_trans, fig=TRUE, echo=FALSE, height = 4>>=
+<<plot_ns_biomass_no_trans>>
+@
+\caption{Simulated biomasses of stocks in the North Sea without the transients.}
+\label{fig:plot_ns_biomass_no_trans}
+\end{figure}
 
 
-%<<eval=FALSE>>=
-%#plotBiomass(sim)
-%@
 
-%\begin{figure}
-%<<label=plot_ns_biomass, fig=TRUE, echo=FALSE>>=
-%#p <- plotBiomass(sim)
-%#print(p)
-%@
-%\caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
-%\label{fig:plot_ns_biomass}
-%\end{figure}
+Calculate biodiversity target  = 0.1 * B\_F0 (use SSB)
+Community target = 0.8 LFI\_F0 (= 0.32, so is the target in the paper the 'official' one or one we came up with)
 
-
+Growth curves... (S2)
 
 Compare outputs to ICES data.
+SSB time series (Figure 3 in NS paper) - compare to biodiversity targets 
+Yield time series
 
-Bring in some bits from NS PAPER
+Look at change in slope and other metrics over time (Figure 4 in NS paper see page 12 for notes)
+Only sizes 10g to 100 kg (?) were used:w
+Only demersal species included
+Compare to food web indicators: LFI (> 40cm)
+
+
+New section. Get FMSY values Table 1
+Project to 2050 under two scenarios:
+1) F = F2010
+2) F2010 to F2015 = linear change to FMSY, 2015 to 2050 at FMSY
+Not done under stochasticity (here)
+Compare yields under scenarios and whether they hit biodiv and community targets
+
+
 
 %\section{Under the hood of \pkg{mizer}: notes for developers}
 %
@@ -2134,12 +2178,7 @@ Bring in some bits from NS PAPER
 
 \section{Acknowledgements}
 
-The authors of the \pkg{mizer} package would like to thank the authors
-of the \pkg{abc} package for allowing them to use some of the introductory
-text from their vignette.
-
-Finlay Scott would like to thank the Cefas Seedcorn Project DP266
-and the Defra project MF1225 for supporting this work.
+Finlay Scott would like to thank the Cefas Seedcorn Project DP266 and the Defra project MF1225 for supporting this work.
 
 %-------------------------------------------------------------------------
 % References

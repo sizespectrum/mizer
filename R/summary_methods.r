@@ -428,7 +428,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' @param min_l Minimum length of species to be used in the calculation.
 #' @param max_l Maximum length of species to be used in the calculation.
 #'
-#' @return A data frame with time step, slope, intercept and R2 values.
+#' @return A data frame with slope, intercept and R2 values.
 #' @export
 #' @docType methods
 #' @rdname getCommunitySlope-methods
@@ -468,6 +468,8 @@ setMethod('getCommunitySlope', signature(object='MizerSim'),
 			    intercept = summary_fit$coefficients[1,1],
 			    r2 = summary_fit$r.squared)
 			    }, w = object@params@w)
+        dimnames(slope)[[1]] <- slope[,1]
+        slope <- slope[,-1]
 	return(slope)
 })
 

@@ -27,8 +27,7 @@
   calculation.}
 }
 \value{
-  A data frame with time step, slope, intercept and R2
-  values.
+  A data frame with slope, intercept and R2 values.
 }
 \description{
   Calculates the slope of the community abundance through
