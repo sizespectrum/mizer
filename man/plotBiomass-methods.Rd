@@ -19,8 +19,14 @@
   \item{max_l}{Maximum length of species to be used in the
   calculation.}
 
+  \item{start_time}{The first time step to be plotted.
+  Default is the beginning of the time series.}
+
+  \item{end_time}{The first time step to be plotted.
+  Default is the end of the time series.}
+
   \item{print_it}{Display the plot, or just return the
-  ggplot2 object}
+  ggplot2 object. Default value is TRUE.}
 }
 \value{
   A ggplot2 object

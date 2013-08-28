@@ -16,7 +16,9 @@
 #' @param max_w Maximum weight of species to be used in the calculation.
 #' @param min_l Minimum length of species to be used in the calculation.
 #' @param max_l Maximum length of species to be used in the calculation.
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param start_time The first time step to be plotted. Default is the beginning of the time series.
+#' @param end_time The first time step to be plotted. Default is the end of the time series.
+#' @param print_it Display the plot, or just return the ggplot2 object. Default value is TRUE.
 #'
 #' @return A ggplot2 object
 #' @export
@@ -38,9 +40,13 @@ setGeneric('plotBiomass', function(object, ...)
 #' @rdname plotBiomass-methods
 #' @aliases plotBiomass,MizerSim-method
 setMethod('plotBiomass', signature(object='MizerSim'),
-    function(object, print_it=TRUE,...){
+    function(object, print_it=TRUE, start_time=as.numeric(dimnames(object@n)[[1]][1]), end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...){
         b <- getBiomass(object, ...)
         names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
+        if(start_time >= end_time){
+            stop("start_time must be less than end_time")
+        }
+        b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & (as.numeric(dimnames(b)[[1]]) <= end_time),,drop=FALSE]
         bm <- melt(b)
         # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
         bm$Species <- as.character(bm$Species)
