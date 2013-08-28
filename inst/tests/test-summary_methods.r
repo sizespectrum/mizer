@@ -1,9 +1,11 @@
 context("Summary methods")
 
 test_that("get_size_range_array",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    NS_species_params_gears$a <- 0.01
+    NS_species_params_gears$b <- 3
+    params <- MizerParams(NS_species_params_gears, inter)
     size_n <- get_size_range_array(params)
     expect_that(all(size_n), is_true())
     size_n <- get_size_range_array(params, min_w = 1)
@@ -17,40 +19,41 @@ test_that("get_size_range_array",{
     expect_that(!all(size_n[,which(params@w < 1)]), is_true())
     expect_that(all(size_n[,which((params@w >= 1) & (params@w<=100))]), is_true())
     size_n <- get_size_range_array(params, min_l = 1)
+
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-	expect_that(all(size_n[sp,which(params@w >= min_w[sp])]), is_true())
-	expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
+        expect_that(all(size_n[sp,which(params@w >= min_w[sp])]), is_true())
+        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
     }
     size_n <- get_size_range_array(params, max_l = 100)
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-	expect_that(all(size_n[sp,which(params@w <= max_w[sp])]), is_true())
-	expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_that(all(size_n[sp,which(params@w <= max_w[sp])]), is_true())
+        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
     }
     size_n <- get_size_range_array(params, min_l = 1, max_l = 100)
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-	expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-	expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-	expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
+        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
+        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
     }
     size_n <- get_size_range_array(params, min_w = 1, max_l = 100)
     min_w <- rep(1,nrow(params@species_params))
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-	expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-	expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-	expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
+        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
+        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
     }
     size_n <- get_size_range_array(params, min_l = 1, max_w = 100)
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     max_w <- rep(100,nrow(params@species_params))
     for (sp in 1:nrow(params@species_params)){ 
-	expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-	expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-	expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
+        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
+        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
     }
     expect_that(get_size_range_array(params, min_w = 1000, max_w = 1), throws_error())
     expect_that(get_size_range_array(params, min_l = 1000, max_l = 1), throws_error())
@@ -63,9 +66,9 @@ test_that("get_size_range_array",{
 })
 
 test_that("get_time_elements",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=10, dt = 0.5, t_save = 0.5)
     expect_that(length(get_time_elements(sim,as.character(3:4))), equals(dim(sim@n)[1]))
     expect_that(length(get_time_elements(sim,3:4)), equals(dim(sim@n)[1]))
@@ -73,13 +76,19 @@ test_that("get_time_elements",{
     expect_that(sum(get_time_elements(sim,3:50)), throws_error())
     expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(6,7,8)))
     expect_that(length(get_time_elements(sim,seq(from=3,to=4,by = 0.1), slot_name="effort")), equals(dim(sim@effort)[1]))
+    # What if real years are used
+    effort <- array(1, dim = c(19,4), dimnames = list(year = seq(from = 1960, to = 1969, by = 0.5), gear = c("Industrial","Pelagic","Otter","Beam")))
+    sim <- project(params, effort = effort, t_save = 0.5)
+    expect_that(which(get_time_elements(sim,1965)), is_equivalent_to(12))
+    expect_that(which(get_time_elements(sim,"1965")), is_equivalent_to(12))
+    expect_that(which(get_time_elements(sim,1965:1969)), is_equivalent_to(12:20))
 })
 
 
 test_that("getProportionOfLargeFish works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
     prop <- getProportionOfLargeFish(sim, threshold_w = 500)
@@ -99,9 +108,9 @@ test_that("getProportionOfLargeFish works",{
 
 
 test_that("check_species works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     expect_that(check_species(sim,c("Cod","Haddock")), is_true())
     expect_that(check_species(sim,c(10,11)), is_true())
@@ -111,9 +120,9 @@ test_that("check_species works",{
 })
 
 test_that("getMeanWeight works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     # all species, all size range
     total_biomass <- apply(sweep(sim@n, 3, sim@params@w * sim@params@dw, "*"),1,sum)
@@ -149,9 +158,9 @@ test_that("getMeanWeight works",{
 
 
 test_that("getYieldGear works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=10)
     y <- getYieldGear(sim)
     # check dims
@@ -163,9 +172,9 @@ test_that("getYieldGear works",{
 })
 
 test_that("getYield works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=10)
     y <- getYield(sim)
     # check dims
@@ -177,9 +186,9 @@ test_that("getYield works",{
 })
 
 test_that("getCommunitySlope works",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=10)
     slope_b <- getCommunitySlope(sim)
     # dims

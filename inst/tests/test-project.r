@@ -1,9 +1,9 @@
 context("project method")
 
 test_that("time dimension is dealt with properly",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
 
     # Effort is a single numeric
     # If dt and t_save don't match
@@ -35,7 +35,7 @@ test_that("time dimension is dealt with properly",{
     expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
 
     # Effort is an effort vector
-    effort <- c(industrial = 1, pelagic = 0.5, beam_trawl = 0.3, otter_trawl = 0)
+    effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
     # If dt and t_save don't match
     expect_error(project(params,effort=effort,t_save=3,dt=2))
     # If t_max and t_save don't match
@@ -63,7 +63,7 @@ test_that("time dimension is dealt with properly",{
     # Effort is an array
     t_max <- 5
     # time step = 1
-    effort <- array(NA, dim = c(t_max, 4), dimnames=list(time = seq(from = 1, to = t_max, by = 1), gear = c("industrial","pelagic","otter_trawl","beam_trawl")))
+    effort <- array(NA, dim = c(t_max, 4), dimnames=list(time = seq(from = 1, to = t_max, by = 1), gear = c("Industrial","Pelagic","Otter","Beam")))
     effort[,1] <- seq(from=0, to = 1, length = nrow(effort))
     effort[,2] <- 0.5
     effort[,3] <- seq(from=1, to = 0.5, length = nrow(effort))
@@ -87,7 +87,7 @@ test_that("time dimension is dealt with properly",{
     start_year <- 1980
     time_step <- 1
     end_year <- start_year + t_max - 1
-    effort <- array(NA, dim = c(t_max, 4), dimnames=list(time = seq(from = start_year, to = end_year, by = time_step), gear = c("industrial","pelagic","otter_trawl","beam_trawl")))
+    effort <- array(NA, dim = c(t_max, 4), dimnames=list(time = seq(from = start_year, to = end_year, by = time_step), gear = c("Industrial","Pelagic","Otter","Beam")))
     effort[,1] <- seq(from=0, to = 1, length = nrow(effort))
     effort[,2] <- 0.5
     effort[,3] <- seq(from=1, to = 0.5, length = nrow(effort))
@@ -117,7 +117,7 @@ test_that("time dimension is dealt with properly",{
     time_step <- 0.5
     end_year <- start_year + t_max - 1
     time <- seq(from = start_year, to = end_year, by = time_step)
-    effort <- array(NA, dim = c(length(time), 4), dimnames=list(time = time, gear = c("industrial","pelagic","otter_trawl","beam_trawl")))
+    effort <- array(NA, dim = c(length(time), 4), dimnames=list(time = time, gear = c("Industrial","Pelagic","Otter","Beam")))
     effort[,1] <- seq(from=0, to = 1, length = nrow(effort))
     effort[,2] <- 0.5
     effort[,3] <- seq(from=1, to = 0.5, length = nrow(effort))
@@ -149,9 +149,9 @@ test_that("time dimension is dealt with properly",{
 })
 
 test_that("Can pass in initial species",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     max_t_effort <- 10
@@ -172,9 +172,9 @@ test_that("Can pass in initial species",{
 })
 
 test_that("get_initial_n is working properly",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
     for(i in 1:no_sp){
@@ -192,11 +192,11 @@ test_that("get_initial_n is working properly",{
 })
 
 test_that("w_min array reference is working OK",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    species_params_gears$w_min <- 0.001
-    species_params_gears$w_min[1] <- 1
-    params <- MizerParams(species_params_gears, inter)
+    NS_species_params_gears$w_min <- 0.001
+    NS_species_params_gears$w_min[1] <- 1
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=5)
     expect_that(all(sim@n[6,1,1:(sim@params@species_params$w_min_idx[1]-1)]==0),is_true())
 })

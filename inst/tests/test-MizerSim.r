@@ -2,9 +2,9 @@ context("MizerSim constructor dimension checks")
 
 test_that("basic constructor sets dimensions properly",{
     # check dimension against t input arguments
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     # Make MizerSims with t_max and t_save
     t_max <- 50
     t_save <- 1

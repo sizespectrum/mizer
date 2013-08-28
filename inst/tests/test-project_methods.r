@@ -1,9 +1,9 @@
 context("methods used in project")
 
 test_that("getFmortGear",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
@@ -38,9 +38,9 @@ test_that("getFmortGear",{
 })
 
 test_that("getFMort",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
@@ -83,9 +83,9 @@ test_that("getFMort",{
 
 
 test_that("getPhiPrey",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -114,9 +114,9 @@ test_that("getPhiPrey",{
 })
 
 test_that("getFeedingLevel for MizerParams",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -139,9 +139,9 @@ test_that("getFeedingLevel for MizerParams",{
 })
 
 test_that("getFeedingLevel for MizerSim",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     time_range <- 15:20
     expect_that(length(dim(getFeedingLevel(sim, time_range=time_range))), equals(3))
@@ -151,9 +151,9 @@ test_that("getFeedingLevel for MizerSim",{
 })
 
 test_that("getPredRate",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -179,9 +179,9 @@ test_that("getPredRate",{
 })
 
 test_that("getM2 for MizerParams",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -209,9 +209,9 @@ test_that("getM2 for MizerParams",{
 })
 
 test_that("getM2 for MizerSim",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     time_range <- 15:20
     expect_that(length(dim(getM2(sim, time_range=time_range))), equals(3))
@@ -222,9 +222,9 @@ test_that("getM2 for MizerSim",{
 
 
 test_that("getM2Background",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -248,9 +248,9 @@ test_that("getM2Background",{
 
 
 test_that("getZ",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -275,9 +275,9 @@ test_that("getZ",{
 })
 
 test_that("getEReproAndGrowth",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -302,9 +302,9 @@ test_that("getEReproAndGrowth",{
 
 
 test_that("getESpawning",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -327,9 +327,9 @@ test_that("getESpawning",{
 
 
 test_that("getRDI",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -356,18 +356,18 @@ test_that("getRDI",{
 })
 
 test_that("interaction is right way round in getM2 method",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
     inter[,"Dab"] <- 0 # Dab not eaten by anything
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     m2 <- getM2(params,get_initial_n(params),params@cc_pp)
     expect_that(all(m2["Dab",] == 0), is_true())
 })
 
 test_that("getEGrowth is working",{
-    data(species_params_gears)
+    data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(species_params_gears, inter)
+    params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)

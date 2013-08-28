@@ -2,10 +2,10 @@ context("methods work for a single species data set")
 
 test_that("project methods",{
     data(inter)
-    data(species_params_gears)
+    data(NS_species_params_gears)
     # Multiple species params
-    params <- MizerParams(species_params_gears, inter=inter)
-    single_params <- MizerParams(species_params_gears[1,])
+    params <- MizerParams(NS_species_params_gears, inter=inter)
+    single_params <- MizerParams(NS_species_params_gears[1,])
     # Multiple species, single effort sim
     sim1 <- project(params, effort = 1, t_max = 10)
     n_mult <- sim1@n[11,,]
@@ -35,10 +35,10 @@ test_that("project methods",{
 
 test_that("summary methods",{
     data(inter)
-    data(species_params_gears)
+    data(NS_species_params_gears)
     # Multiple species params
-    params <- MizerParams(species_params_gears, inter=inter)
-    single_params <- MizerParams(species_params_gears[1,])
+    params <- MizerParams(NS_species_params_gears, inter=inter)
+    single_params <- MizerParams(NS_species_params_gears[1,])
     # Multiple species, single effort sim
     sim1 <- project(params, effort = 1, t_max = 10)
     n_mult <- sim1@n[11,,]
