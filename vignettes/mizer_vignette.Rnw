@@ -2128,43 +2128,175 @@ plotBiomass(sim)
 \label{fig:plot_ns_biomass}
 \end{figure}
 
-More usefully, we can plot only the years for which we have fishing mortality data, i.e. without the transients:
+%More usefully, we can plot only the years for which we have fishing mortality data, i.e. without the transients:
+%
+%<<label = plot_ns_biomass_no_trans, eval=FALSE>>=
+%plotBiomass(sim, start_time = 1967)
+%@
+%
+%\begin{figure}
+%<<label=print_plot_ns_biomass_no_trans, fig=TRUE, echo=FALSE, height = 4>>=
+%<<plot_ns_biomass_no_trans>>
+%@
+%\caption{Simulated biomasses of stocks in the North Sea without the transients.}
+%\label{fig:plot_ns_biomass_no_trans}
+%\end{figure}
 
-<<label = plot_ns_biomass_no_trans, eval=FALSE>>=
-plotBiomass(sim, start_time = 1967)
+To explore the state of the community it is useful to calculate indicators of the unexploited community.
+Therefore we also project forward for 100 years with 0 fishing effort.
+
+<<label=unexploited_na>>=
+sim0 <- project(params, effort=0, dt = 0.5, t_save = 1, t_max = 100)
+@
+
+\subsection{Exploring the outputs}
+
+Here we explore the results of the simulation.
+%We are going to compare the simulated SSB and yield for each species to the ``official'' values from ICES.
+We calculate the community indicators ``mean maximum weight``, ``mean individual weight``, ``community slope`` and the ''large fish indicator''  and compare the results to a community target.
+The community target is based on achieving a high proportion of the unexploited value of the large fish indicator (LFI) $0.8 LFI_{F=0}$ \citep{rochet_does_2011}.
+
+%Growth curves... (S2)
+
+NEED OFFICIAL DATA FROM ICES
+Compare outputs to ICES data.
+SSB time series (Figure 2 in NS paper) - compare to biodiversity targets 
+Yield time series (Figure 3) These plots go all the way to 2050 after scenarios
+
+Here we calculate the LFI and other community indicators for the unexploited community using the \code{getProportionOfLargeFish()} method. The LFI is based on species larger than 40 cm.
+As in \citet{blanchard_multispecies_2013}, when calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg.
+
+<<label=ns_comm_ref_point>>=
+demersal_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock","Cod","Saithe")
+lfi0 <- getProportionOfLargeFish(sim0, species = demersal_species,
+    min_w = 10, max_w = 100e3, threshold_l = 40)["100"]
+mean_weight0 <- getMeanWeight(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100"]
+mean_max_weight0 <- getMeanMaxWeight(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100","mmw_biomass"]
+slope0 <- getCommunitySlope(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100","slope"]
+@
+% Higher than Blanchards (0.4)
+
+We also calculate the time series of these indicators for the exploited community (we are only interested in the fishing history years, 1967 to 2010, ignoring the transients):
+<<label=ns_comm_indicators>>=
+years <- 1967:2010
+lfi <- getProportionOfLargeFish(sim, species = demersal_species,
+    min_w = 10, max_w = 100e3, threshold_l = 40)[as.character(years)]
+mean_weight <- getMeanWeight(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years)]
+mean_max_weight <- getMeanMaxWeight(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years),"mmw_biomass"]
+slope <- getCommunitySlope(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years),"slope"]
+@
+
+We can plot these up, along with the unexploited levels and the LFI reference level. Here we do it using ggplot by making three data.frames (one for the time series, one for the unexploited levels and one for the reference levels).:
+<<label=plot_ns_indicators, eval = FALSE>>=
+library(ggplot2)
+community_plot_data <- data.frame(year = years, measure = "LFI", data = lfi)
+community_plot_data <- rbind(data.frame(year = years, measure = "LFI", data = lfi),
+                            data.frame(year = years, measure = "Mean Weight", data = mean_weight),
+                            data.frame(year = years, measure = "Mean Max Weight", data = mean_max_weight),
+                            data.frame(year = years, measure = "Slope", data = slope))
+p <- ggplot(community_plot_data) + geom_line(aes(x=year, y = data)) + facet_wrap(~measure, scales="free")
+# Add unfished levels
+community_unfished_data <- rbind(data.frame(year = years, measure = "LFI", data = rep(lfi0, length(years))),
+                            data.frame(year = years, measure = "Mean Weight", data = rep(mean_weight0, length(years))),
+                            data.frame(year = years, measure = "Mean Max Weight", data = rep(mean_max_weight0, length(years))),
+                            data.frame(year = years, measure = "Slope", data = rep(slope0, length(years))))
+p <- p + geom_line(aes(x=year,y=data), linetype="dashed", data = community_unfished_data)
+community_reference_level <- data.frame(year=years, measure = "LFI", data = rep(lfi0 * 0.8, length(years)))
+p + geom_line(aes(x=year,y=data), linetype="dotted", data = community_reference_level)
 @
 
 \begin{figure}
-<<label=print_plot_ns_biomass_no_trans, fig=TRUE, echo=FALSE, height = 4>>=
-<<plot_ns_biomass_no_trans>>
+<<label=print_plot_ns_indicators, fig=TRUE, echo=FALSE, height = 6>>=
+<<plot_ns_indicators>>
 @
-\caption{Simulated biomasses of stocks in the North Sea without the transients.}
-\label{fig:plot_ns_biomass_no_trans}
+\caption{Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model.}
+\label{fig:plot_ns_comm_indicators}
 \end{figure}
 
+According to our simulations, historically the LFI in the North Sea has been below the reference level.
 
 
-Calculate biodiversity target  = 0.1 * B\_F0 (use SSB)
-Community target = 0.8 LFI\_F0 (= 0.32, so is the target in the paper the 'official' one or one we came up with)
+\subsection{Future projections}
 
-Growth curves... (S2)
+As well as investigating the historical simulations, we are also interested in running projections into the future.
+Here we run two projections to 2050 with different fishing scenarios.
+\begin{itemize}
+    \item Continue fishing at 2010 levels (the status quo scenario).
+    \item From 2010 to 2015, linearly approach $F_{MSY}$ and then continue at $F_{MSY}$ until 2050.
+\end{itemize}
 
-Compare outputs to ICES data.
-SSB time series (Figure 3 in NS paper) - compare to biodiversity targets 
-Yield time series
+We will compare the SSB of each species to a biodiversity target based on the reference point $0.1 SSB_{F=0}$ \citep{rochet_does_2011}.
+The $F_{MSY}$ values are also taken from \citet{rochet_does_2011}.
 
-Look at change in slope and other metrics over time (Figure 4 in NS paper see page 12 for notes)
-Only sizes 10g to 100 kg (?) were used:w
-Only demersal species included
-Compare to food web indicators: LFI (> 40cm)
+Here we make build on our existing array of relative to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
+
+<<label = ns_scenario1_relative_effort>>=
+scenario1 <- t(array(relative_effort["2010",], dim=c(12,40), dimnames=list(NULL,year = 2011:2050)))
+scenario1 <- rbind(relative_effort, scenario1)
+@
+
+The relative effort array for the second scenario is more complicated to make and requires a little bit of \R gymnastics (it might be easier for you to prepare this in a spreadsheet and read it in).
+For this one we need values of $F_{MSY}$.  
+<<label = ns_scenario2_relative_effort>>=
+fmsy <- c(Sprat = 0.2, Sandeel = 0.2, N.pout = 0.2, Herring = 0.25, Dab = 0.2, Whiting = 0.2,
+    Sole = 0.22, Gurnard = 0.2, Plaice = 0.25, Haddock = 0.3, Cod = 0.19, Saithe = 0.3)
+scenario2 <- t(array(fmsy, dim=c(12,40), dimnames=list(NULL,year = 2011:2050)))
+scenario2 <- rbind(relative_effort, scenario2)
+for (sp in dimnames(scenario2)[[2]]){
+    scenario2[as.character(2011:2015),sp] <- scenario2["2010",sp] +
+        (((scenario2["2015",sp] - scenario2["2010",sp]) / 5) * 1:5)
+}
+@
+
+Both of our new effort scenarios still include 100 years at the 1967 level to deal with transisent behaviour.
+We are now ready to project the two scenarios.
+<<label = project_ns_future_scenarios>>=
+sim1 <- project(params, effort = scenario1, dt = 0.5, t_save = 1)
+sim2 <- project(params, effort = scenario2, dt = 0.5, t_save = 1)
+@
+
+We can now compare the projected SSB value to the biodiversity reference points.
+First we calculate the biodiversity reference points (from the final time step in the \args{sim0} simulation):
+<<label=ns_biodiv_ref_point>>=
+ssb0 <- getSSB(sim0)["100",]
+@
+% Do these match Table S5 in supplementary material?
+% 71, 3015, 327, 692, 6, 100, 42, 19, 365, 68, 1287, 338 in 000 tonnes
+% unexploited_ssb / 1e9
+% Nope...
+
+Now we build a data.frame of the projected SSB for each species, ignoring the transients.
+We make use of the \code{melt()} function in the very useful \pkg{reshape} package (REF).
+<<label=projected_ssb_ns, eval=FALSE>>=
+library(reshape)
+years <- 1967:2050
+ssb1 <- getSSB(sim1)[as.character(years),]
+ssb2 <- getSSB(sim2)[as.character(years),]
+ssb1_df <- melt(ssb1)
+ssb2_df <- melt(ssb2)
+ssb_df <- rbind(cbind(ssb1_df, scenario = "Scenario 1"),
+                cbind(ssb2_df, scenario = "Scenario 2"))
+ssb_unexploited_df <- cbind(expand.grid(sp = names(ssb0), time = 1967:2050),value = as.numeric(ssb0), scenario = "Unexploited")
+ssb_reference_df <- cbind(expand.grid(sp = names(ssb0), time = 1967:2050),value = as.numeric(ssb0*0.1), scenario = "Reference")
+ssb_all_df <- rbind(ssb_df, ssb_unexploited_df, ssb_reference_df)
+p <- ggplot(ssb_all_df) + geom_line(aes(x = time, y = value, colour = scenario)) + facet_wrap(~sp, scales = "free", nrow = 4)
+p
+@
+
+\begin{figure}
+<<label=print_projected_ssb_ns, fig=TRUE, echo=FALSE, height = 9>>=
+<<projected_ssb_ns>>
+@
+\caption{Historical and projected SSB under two fishing scenarios}
+\label{fig:plot_ns_comm_indicators}
+\end{figure}
+
+% Yields and trade-offs
 
 
-New section. Get FMSY values Table 1
-Project to 2050 under two scenarios:
-1) F = F2010
-2) F2010 to F2015 = linear change to FMSY, 2015 to 2050 at FMSY
-Not done under stochasticity (here)
-Compare yields under scenarios and whether they hit biodiv and community targets
+We could also look at the community indicators using the same procedure as in the previous section.
+
+
 
 
 
