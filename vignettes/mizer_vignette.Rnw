@@ -91,7 +91,7 @@
 % @
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
-\title{Multispecies size spectrum ecological modelling in \R (\pkg{mizer}): An introductory vignette}
+\title{Multispecies size spectrum ecological modelling in \R (\pkg{mizer})}
 %\author{F. Scott, J. Blanchard, K. H. Andersen}
 \author[1,4]{F. Scott}
 \author[2]{J. Blanchard}
@@ -123,19 +123,19 @@ A key feature is that of a \emph{size spectrum}, where the total abundance of in
 \pkg{mizer} is a software package for implementing size spectrum ecological models using the \R statistical programming environment.
 The package has been developed to model marine ecosystems that are subject to fishing.
 
-Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} model, in which only one ''species'' is resolved; 
+Roughly speaking there are three versions of the size spectrum modelling framework of increasing complexity: The \emph{community} model, in which only one ``species'' is resolved; 
 the \emph{trait-based} model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
-and the \emph{multispecies} model in which multiple ''real'' species are resolved, each of which can have differing species-specific traits. 
+and the \emph{multispecies} model in which multiple ``real'' species are resolved, each of which can have differing species-specific traits. 
 The community and trait-based models can be considered as simplifications of the multispecies model.
 \pkg{mizer} is able implement all three model versions using the same set of tools.
 
 \pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
 The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such mean weight in the community and the the slope of the size spectrum.
 
-The models created using \pkg{mizer} can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships for the species can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
+The models created can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
 
-This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Finally, there is a detailed example of a multispecies size spectrum model of the North Sea, including a recreation of historical fishing patterns and biomasses.
+This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Finally, there is a detailed example of a multispecies size spectrum model of the North Sea, including running projections using historical fishing patterns. 
 
 %-------------------------------------------------------------------------------
 \section{Package installation and getting help}
@@ -791,7 +791,8 @@ In \pkg{mizer} it is possible to include more than one fishing gear in the model
 To set up the trait-based model to have fishing we set up the \class{MizerParams} object in exactly the same way as we did before but here the \args{knife\_edge\_size} argument is explicitly passed in for clarity:
 
 <<label=set_trait_fishing>>=
-params_knife <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5, knife_edge_size = 1000)
+params_knife <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+    knife_edge_size = 1000)
 @
 
 First we perform a simulation without fishing in the same way we did above by setting the \args{effort} argument to 0:
@@ -844,7 +845,8 @@ relative_abundance <- total_abund1 / total_abund0
 Which can be plotted using (Figure~\ref{fig:plot_relative_comm_abund}):
 
 <<label=plot_relative_comm_abund, eval=FALSE>>=
-plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)", ylab="Relative abundance", ylim = c(0.1,10))
+plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
+    ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
@@ -871,7 +873,8 @@ m2_with_fishing <- getM2(sim1)[76,1,]
 The predation mortalities can then be plotted (see Figure \ref{fig:plot_m2_comm}).
 
 <<label=plot_relative_trait_m2, eval=FALSE>>=
-plot(x = sim0@params@w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)", ylab = "M2")
+plot(x = sim0@params@w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)",
+    ylab = "M2")
 lines(x = sim0@params@w, y = m2_no_fishing, lty=2)
 lines(x = sim0@params@w, y = m2_with_fishing)
 @
@@ -970,7 +973,8 @@ Above we specified a single value that was used for all gears, for all time step
 To do this we pass in effort as a named vector. Here we set the effort for the ``Industrial'' gear to 0.75, and the effort of the ``Other'' gear to 0 (effectively turning it off).
 
 <<label=project_trait_multigear>>=
-sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = c(Industrial = 0.75, Other = 0))
+sim_multi_gear <- project(params_multi_gear, t_max = 75,
+    effort = c(Industrial = 0.75, Other = 0))
 @
 
 Now you can see that the ``Industrial'' gear has been operating and that fishing mortality for species larger than 500 g is 0 (Figure~\ref{fig_trait_multi_gear}).
@@ -995,7 +999,8 @@ We can again compare abundances of the fished ($sim\_industrial1$) and unfished 
 
 <<label = industrial_fishery_simulation>>=
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
-sim_industrial1 <- project(params_multi_gear, t_max = 75, effort = c(Industrial = 0.75, Other = 0))
+sim_industrial1 <- project(params_multi_gear, t_max = 75,
+    effort = c(Industrial = 0.75, Other = 0))
 total_abund0 <- apply(sim_industrial0@n[76,,],2,sum)
 total_abund1 <- apply(sim_industrial1@n[76,,],2,sum)
 relative_abundance <- total_abund1 / total_abund0
@@ -1004,7 +1009,8 @@ relative_abundance <- total_abund1 / total_abund0
 And plot the relative abundances:
 
 <<label=plot_relative_comm_abund_industrial, eval=FALSE>>=
-plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)", ylab="Relative abundance", ylim = c(0.1,10))
+plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
+    ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
@@ -1373,7 +1379,7 @@ this function also needs another argument, \args{knife\_edge\_size}. This is not
 
 This species parameter data.frame is the minimum we need to create a \class{MizerParams} object as it contains only essential columns. To create the \class{MizerParams} object we pass the data.frame into the \code{MizerParams()} constructor method:
 
-<<label=first_MP>>=
+<<label=first_MP, results = hide>>=
 params <- MizerParams(params_data)
 @
 
@@ -1439,7 +1445,7 @@ To make the \class{MizerClass} object you just call the constructor method and p
 We will use default values for the remainder of the arguments to the \code{MizerParams()} method (see Section~\ref{sec:other_mizerparams_arguments} and Table~\ref{tab:other_params}).
 This means that we only need to pass in two arguments to the constructor:
 
-<<>>=
+<<results = hide>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
@@ -1471,7 +1477,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 If you inspect the \code{params\_data} object you will see a new column, \args{gear}, has been added to it.  
 We then make a new \class{MizerParams} object as before:
 
-<<label=set_params_gears>>=
+<<label=set_params_gears, results = hide>>=
 params_gears <- MizerParams(params_data_gears, interaction = inter)
 @
 
@@ -1591,7 +1597,7 @@ This method can be particularly useful for quickly projecting forward without fi
 We will use the \args{params} object that was created above in the \class{MizerParams} example above in which each species is caught by a separate gear.
 Here we make the object again:
 
-<<label = remaking_simple_ms_params>>=
+<<label = remaking_simple_ms_params, results = hide>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
@@ -1878,7 +1884,7 @@ head(slope)
 
 \subsection{Plotting the results}
 
-\R is very powerful when it comes to exploring data through plots.  A useful package for plotting is \pkg{ggplot2}.  \pkg{ggplot2} uses data.frames for input data. Many of the summary methods and slots of the \pkg{mizer} classes are arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the command \code{melt} which is in the \pkg{reshape} package.
+\R is very powerful when it comes to exploring data through plots.  A useful package for plotting is \pkg{ggplot2}.  \pkg{ggplot2} uses data.frames for input data. Many of the summary methods and slots of the \pkg{mizer} classes are arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the command \code{melt} which is in the \pkg{reshape2} package.
 Although \pkg{mizer} does include some dedicated plots, it is definately worth your time getting to grips with these \pkg{ggplot2} and other plotting packages. This will make it possible for you to make your own plots.
 
 Included in \pkg{mizer} are several dedicated plots that use \class{MizerSim} objects as inputs (see Table~\ref{tab:plots}).
@@ -1944,7 +1950,7 @@ plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 \label{fig:plotSpectra_example}
 \end{figure}
 
-As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\ref{fig:plot_example}). It is possible to pass in the same arguments that these plots use, e.g. arguments to change the time period over which the data is averaged.
+As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\ref{fig:plot_example}). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
 
 <<label=demo_summary_plot,eval=FALSE>>=
 plot(sim)
@@ -1959,21 +1965,22 @@ plot(sim)
 \end{figure}
 
 %------------------------------------------------------------------------------------
-\section{A detailed example using the North Sea}
+\section{A multispecies model of the North Sea}
 \label{sec:north_sea_example}
 
 In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
-We will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
+First we will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
+We then run two different future projection scenarios.
 This example is based on the multispecies model in \citet{blanchard_multispecies_2013}.
-
-%We use data from the North Sea from 1957 to 2010 and compare the simulated population trajectories to the best estimates of abundance from ICES where available.
 
 \subsection{Setting up the North Sea model}
 
 The first job is to set up the \class{MizerParams} object for the North Sea model.
-In the previous examples we have already been using the life-history parameters and the interaction matrix for the North Sea model used in \citet{blanchard_multispecies_2013}.
-We will use them again here. The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the \code{system.file()} function to tell us the location of the files.
-Remember that we need to convert the interaction file into a matrix.
+In the previous multispecies examples we have already been using the life-history parameters and the interaction matrix for the North Sea model used in \citet{blanchard_multispecies_2013}.
+We will use them again here but will make some changes. In particular we set up the fishing gears differently.
+
+The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the \code{system.file()} function to tell us the location of the files.
+Remember that we need to convert the interaction file into a matrix, hence the use of the \code{as()} function.
 
 <<label = show_load_ns_species_params, eval=FALSE>>=
 params_location <- system.file("doc/NS_species_params.csv",package="mizer")
@@ -1987,55 +1994,59 @@ params_data <- read.csv("NS_species_params.csv")
 inter <- as(read.csv("inter.csv", row.names=1),"matrix")
 @
 
-We have seen before that the species in the model are \Sexpr{paste(params_data[,"species"], collapse=", ")} and
-% No idea why the following line doesn't work
-that the \args{params\_data} object is a data.frame with columns for \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta}, \args{sigma}, \args{r\_max} and \args{k\_vb}.
+The species in the model are \Sexpr{paste(params_data[,"species"], collapse=", ")} which account for about 90\% of the total biomass of all species sampeld by research trawl surveys in the North Sea. 
+The \args{params\_data} object is a data.frame with columns for \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta}, \args{sigma}, \args{r\_max} and \args{k\_vb}.
 % These don't work for some reason - maybe the underscore?
 %\Sexpr{cat(gsub("_","\\\\_",paste(colnames(params_data),collapse=", "), fixed=TRUE))}
 %\Sexpr{paste(colnames(params_data), collapse=", ")}
-We have also seen before that only having these columns is sufficient to make a \class{MizerParams} object. Any missing columns will be supplied by the default values.
+We have seen before that only having these columns in the species data.frame is sufficient to make a \class{MizerParams} object. Any missing columns will be added by the default values and relationships in the \class{MizerParams} constructor.
 For example, the data.frame does not include columns for \args{h} or \args{gamma}. This means that they will be estimated using the \args{k\_vb} column (see Section~\ref{sec:species_parameters_dataframe}).
 
-We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we have seen earlire, this requires a value of \args{r\_max} to be set for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2013}.
+We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\ref{sec:srr}, this requires a column \args{r\_max} in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2013}.
 The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
 
-Here, we want to take a look at the selectivity of the species. By default, the selectivity function is a knife-edge which only takes a single argument, \args{knife\_edge\_size}.
-In this model we want the selectivity pattern to be a sigmoid shape. This can be written in terms of \args{l25} and \args{l50}, which are the lengths at which 25\% and 50\% of the stock is selected. The length based sigmoid selectivity looks like:
+At the moment, the species data.frame does not contain any information on the selectivity of the species.
+By default, the selectivity function is a knife-edge which only takes a single argument, \args{knife\_edge\_size}.
+In this model we want the selectivity pattern to be a sigmoid shape which more accurately reflects the selectivity pattern of trawlers in the North Sea.
+The sigmoid selectivity function is expressed in terms of length rather than weight and uses the parameters \args{l25} and \args{l50}, which are the lengths at which 25\% and 50\% of the stock is selected. The length based sigmoid selectivity looks like:
 
 \begin{equation}
     \label{eq:trawl_sel}
     S_l = \frac{1}{1 + exp(S1 - S2 l)}
 \end{equation}
 
-where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = log(3) / (l50 - l25)$ and $S1$ = $l50 S2$.
+where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = log(3) / (l50 - l25)$ and $S1$ = $l50 * S2$.
 
-This selectivity function is implemented in \pkg{mizer} as \code{sigmoid\_length()}.
-As well as the arguments \args{l25} and \args{l50}, this function also has arguments \args{a} and \args{b} to convert between length and weight: $w = a l^b$
-This is becauser the sigmoid selectivity function is defined in terms of length, and the size spectrum model works in terms of weight.
+This selectivity function is included in \pkg{mizer} as \code{sigmoid\_length()}. You can see the help page for more details.
+As well as the arguments \args{l25} and \args{l50}, this function has the arguments \args{a} and \args{b} to convert between length and weight: $w = a l^b$.
+This is because the sigmoid selectivity function is defined in terms of length, and the size spectrum model works in terms of weight.
 As explained in Section~\ref{sec:fishing_gear}, all arguments of the selectivity function need to be in the species parameter data.frame.
-Therefore, columns for \args{l25}, \args{l50}, \args{a} and \args{b} need to be added to the species parameter data.frame.
+Therefore, columns for \args{l25}, \args{l50}, \args{a} and \args{b} need to be added to \args{params\_data}.
 We also add a column specifying the name of the selectivity function we wish to use.
-The data is taken from \citet{blanchard_multispecies_2013}. Note it would probably easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
+The data is taken from \citet{blanchard_multispecies_2013}.
+Note it would probably easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
 
 <<label=adding_sel_params>>=
 params_data$sel_func <- "sigmoid_length"
-params_data$l25 <- c(7.6, 9.8, 8.7, 10.1, 11.5, 19.8, 16.4, 19.8, 11.5, 19.1, 13.2, 35.3)
-params_data$l50 <- c(8.1, 11.8, 12.2, 20.8, 17.0, 29.0, 25.8, 29.0, 17.0, 24.3, 22.9, 43.6)
-params_data$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004, 0.007, 0.005, 0.005, 0.007)
-params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198, 3.101, 3.160, 3.173, 3.075)
+params_data$l25 <- c(7.6, 9.8, 8.7, 10.1, 11.5, 19.8, 16.4, 19.8, 11.5,
+    19.1, 13.2, 35.3)
+params_data$l50 <- c(8.1, 11.8, 12.2, 20.8, 17.0, 29.0, 25.8, 29.0, 17.0,
+    24.3, 22.9, 43.6)
+params_data$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
+0.007, 0.005, 0.005, 0.007)
+params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
+    3.101, 3.160, 3.173, 3.075)
 @
 
-Note that we don't set up any gear names here, so each species will be caught by separate gear named after the species.
+Note that we don't set up a \args{gear} column to give specific gear names. This means that each species will be caught by a separate gear named after the species.
 
 In this model we are interested in projecting forward using historical fishing mortalities.
-
-GET UPDATED Fs from JB
-AND ALSO SOMETHING ABOUT GOING FROM FBAR TO FMAX OF SEL FUNCTION
-We are using the fishing mortality at full selectivity
-
-The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file \code{NS\_f\_history.csv}.
-As before, we can use the \code{read.csv()} to read in the data. This reads the data in as a \class{data.frame}.
-We want this to be a \class{matrix} so we use the \code{as.matrix()} function:
+%GET UPDATED Fs from JB
+%AND ALSO SOMETHING ABOUT GOING FROM FBAR TO FMAX OF SEL FUNCTION
+%We are using the fishing mortality at full selectivity
+The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file \code{NS\_f\_history.csv} included in the package.
+As before, we can use \code{read.csv()} to read in the data. This reads the data in as a \class{data.frame}.
+We want this to be a \class{matrix} so we use the \code{as()} function:
 
 <<label=show_load_f_history, eval = FALSE>>=
 f_location <- system.file("doc/NS_f_history.csv",package="mizer")
@@ -2053,14 +2064,14 @@ head(f_history)
 
 As mentioned in Section~\ref{sec:fishing_gear}, fishing mortality is calculated as the product of selectivity, catchability and fishing effort (see Equation~\ref{eq:sel}).
 The values in \code{f\_history} are absolute levels of fishing mortality.
-We have seen that the fishing mortality in the \code{project()} function is driven by the fishing effort.
+We have seen that the fishing mortality in the \pkg{mizer} simulations is driven by the fishing effort argument passed to the \code{project()} function.
 Therefore if we want to project forward with historical fishing levels, we need to provide \code{project()} with effort values that will result in these historical fishing mortality levels.
 
-One aspect of the model parameters that we have not considered so far is the catchability. Catchability is a scalar parameter used to calculate the fishing mortality at size given the selectivity and effort of the gear.
+One of the model parameters that we have not really considered so far is \args{catchability}. Catchability is a scalar parameter used to modify the fishing mortality at size given the selectivity at size and effort of the fishing gear.
 By default catchability has a value of 1, meaning that an effort of 1 results in a fishing mortality of 1 for a fully selected species.
-We could therefore leave catchability at 1 for all species and then use the \code{f\_history} matrix as the fishing effort.
-However, an alternative method which is probably clearer is to use the effort relative to a chosen reference year.
-Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then a relative effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort 1990.
+When considering the historical fishing mortality, one option is therefore to leave catchability at 1 for each species and then use the \args{f\_history} matrix as the fishing effort.
+However, an alternative method is to use the effort relative to a chosen reference year. This can make the effort levels used in the model more meaningful.
+Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then an effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort 1990.
 
 The catchability can be set by including a \args{catchability} column in the species parameters data.frame. Doing this overwrites the default values when the \class{MizerParams} constructor is called.
 
@@ -2068,16 +2079,19 @@ The catchability can be set by including a \args{catchability} column in the spe
 params_data$catchability <- as.numeric(f_history["1990",])
 @
 
-We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
-We will use default values for all of the other parameters apart from \args{kappa}, the carrying capacity of the resource spectrum (see Section~\ref{sec:parameters}).
+Considering the other model parameters, we will use default values for all of the other parameters apart from \args{kappa}, the carrying capacity of the resource spectrum (see Section~\ref{sec:parameters}).
 This was estimated along with the values \args{r\_max} as part of the calibration process described in \citet{blanchard_multispecies_2013}.
 
-<<label=make_ns_params>>=
+We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
+
+<<label=make_ns_params, results = hide>>=
 params <- MizerParams(params_data, inter, kappa = 9.27e10)
 @
 
-Before we can run a projections we need to rescale the effort matrix to get a matrix of efforts relative to 1990. 
-To do this we want to rescale the \code{f\_history} object to 1990 so that the relative fishing mortality in 1990 = 1.
+\subsection{Settin up and running the simulation}
+
+As we set our catchability to be the level of fishing mortality in 1990, before we can run the projection we need to rescale the effort matrix to get a matrix of efforts relative to 1990. 
+To do this we want to rescale the \code{f\_history} object to 1990 so that the relative fishing effort in 1990 = 1.
 This is done using \R function \code{sweep()}.
 We then check a few rows of the effort matrix to check this has happened:
 
@@ -2087,14 +2101,13 @@ relative_effort[as.character(1988:1992),]
 @
 
 We could just project forward with these relative efforts. However, the population dynamics in the early years will be strongly determined by the initial population abundances (known as the transient behaviour - essentially the initial behaviour before the long term dynamics are reached).
-As this is fisheries science, we don't know what the initial abundance are.
-One way around is this to project forward at a constant fishing mortality equal to the mortality in the first year until equilibrium is reached.
+As this is ecology, we don't know what the initial abundance are.
+One way around is this to project forward at a constant fishing mortality equal to the mortality in the first historical year until equilibrium is reached.
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
-Here we make an inital effort matrix of 100 years at the first effort level, complete with dimension names for the time dimension.
-We then stick it on top of the original matrix of historical relative effort.
-We also need to some dimnames to the time dimension.
+Here we make an inital effort matrix of 100 years at the first effort level. We need to include dimension names for the time dimension.
+We then stick it on top of the original matrix of historical relative effort using \code{rbind()}.
 
 <<label=add_transient_years>>=
 initial_effort <- matrix(relative_effort[1,],byrow=TRUE, nrow=100,
@@ -2102,19 +2115,17 @@ initial_effort <- matrix(relative_effort[1,],byrow=TRUE, nrow=100,
 relative_effort <- rbind(initial_effort,relative_effort)
 @
 
-\subsection{Running the simulation}
-
 We now have our parameter object and out matrix of efforts relative to 1990.
 This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010.
-We can use this effort matrix as an argument to the \code{project()} method.
-We use \code{dt} = 0.5 (the simulation will run faster than with the default of 0.1, but tests show that the results are still stable) and save the results every year.
+We use this effort matrix as the \args{effort} argument to the \code{project()} method.
+We use \code{dt} = 0.5 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.
 
 <<label=project_ns_model>>=
 sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 @
 
 Plotting the results, we can see how the biomasses of the stocks change over time (Figure~\ref{fig:plot_ns_biomass}).
-You can see the 100 year period of transients with constant fishing fishing mortality as the dynamics approach equilibrium before the historical relative mortality is used.
+You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
 <<label = plot_ns_biomass, eval=FALSE>>=
 plotBiomass(sim)
@@ -2149,30 +2160,35 @@ Therefore we also project forward for 100 years with 0 fishing effort.
 sim0 <- project(params, effort=0, dt = 0.5, t_save = 1, t_max = 100)
 @
 
-\subsection{Exploring the outputs}
+\subsection{Exploring the model outputs}
 
-Here we explore the results of the simulation.
+Here we look at some of the way the results of the simulation can be explored.
 %We are going to compare the simulated SSB and yield for each species to the ``official'' values from ICES.
-We calculate the community indicators ``mean maximum weight``, ``mean individual weight``, ``community slope`` and the ''large fish indicator''  and compare the results to a community target.
-The community target is based on achieving a high proportion of the unexploited value of the large fish indicator (LFI) $0.8 LFI_{F=0}$ \citep{rochet_does_2011}.
+We calculate the community indicators ``mean maximum weight``, ``mean individual weight``, ``community slope`` and the ''large fish indicator'' (LFI) over the simulation period, and compare them to the unexploited values.
+We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI $0.8 LFI_{F=0}$ \citep{rochet_does_2011}.
 
 %Growth curves... (S2)
 
-NEED OFFICIAL DATA FROM ICES
-Compare outputs to ICES data.
-SSB time series (Figure 2 in NS paper) - compare to biodiversity targets 
-Yield time series (Figure 3) These plots go all the way to 2050 after scenarios
+%NEED OFFICIAL DATA FROM ICES
+%Compare outputs to ICES data.
+%SSB time series (Figure 2 in NS paper) - compare to biodiversity targets 
+%Yield time series (Figure 3) These plots go all the way to 2050 after scenarios
 
-Here we calculate the LFI and other community indicators for the unexploited community using the \code{getProportionOfLargeFish()} method. The LFI is based on species larger than 40 cm.
-As in \citet{blanchard_multispecies_2013}, when calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg.
+The indicators are calculated using the methods described in see Table~\ref{tab:indicator_methods} and Section~\ref{sec:summaries}.
+Here we calculate the LFI and the other community indicators for the unexploited community. As in \citet{blanchard_multispecies_2013}, when calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
+Each of these methods returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = \args{100}).
 
 <<label=ns_comm_ref_point>>=
-demersal_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock","Cod","Saithe")
+demersal_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock",
+    "Cod","Saithe")
 lfi0 <- getProportionOfLargeFish(sim0, species = demersal_species,
     min_w = 10, max_w = 100e3, threshold_l = 40)["100"]
-mean_weight0 <- getMeanWeight(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100"]
-mean_max_weight0 <- getMeanMaxWeight(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100","mmw_biomass"]
-slope0 <- getCommunitySlope(sim0, species = demersal_species, min_w = 10, max_w = 100e3)["100","slope"]
+mw0 <- getMeanWeight(sim0, species = demersal_species,
+    min_w = 10,max_w = 100e3)["100"]
+mmw0 <- getMeanMaxWeight(sim0, species = demersal_species,
+    min_w = 10, max_w = 100e3)["100","mmw_biomass"]
+slope0 <- getCommunitySlope(sim0, species = demersal_species,
+    min_w = 10, max_w = 100e3)["100","slope"]
 @
 % Higher than Blanchards (0.4)
 
@@ -2181,28 +2197,42 @@ We also calculate the time series of these indicators for the exploited communit
 years <- 1967:2010
 lfi <- getProportionOfLargeFish(sim, species = demersal_species,
     min_w = 10, max_w = 100e3, threshold_l = 40)[as.character(years)]
-mean_weight <- getMeanWeight(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years)]
-mean_max_weight <- getMeanMaxWeight(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years),"mmw_biomass"]
-slope <- getCommunitySlope(sim, species = demersal_species, min_w = 10, max_w = 100e3)[as.character(years),"slope"]
+mw <- getMeanWeight(sim, species = demersal_species,
+    min_w = 10, max_w = 100e3)[as.character(years)]
+mmw <- getMeanMaxWeight(sim, species = demersal_species,
+    min_w = 10, max_w = 100e3)[as.character(years),"mmw_biomass"]
+slope <- getCommunitySlope(sim, species = demersal_species,
+    min_w = 10, max_w = 100e3)[as.character(years),"slope"]
 @
 
-We can plot these up, along with the unexploited levels and the LFI reference level. Here we do it using ggplot by making three data.frames (one for the time series, one for the unexploited levels and one for the reference levels).:
+We can plot the exploited and unexploited indicators, along LFI reference level.
+Here we do it using \pkg{ggplot2} which uses data.frames
+We make three data.frames (one for the time series, one for the unexploited levels and one for the reference level):
+Each data.frame is a data.frame of each of the measures, stacked on top of each other.
 <<label=plot_ns_indicators, eval = FALSE>>=
 library(ggplot2)
-community_plot_data <- data.frame(year = years, measure = "LFI", data = lfi)
-community_plot_data <- rbind(data.frame(year = years, measure = "LFI", data = lfi),
-                            data.frame(year = years, measure = "Mean Weight", data = mean_weight),
-                            data.frame(year = years, measure = "Mean Max Weight", data = mean_max_weight),
-                            data.frame(year = years, measure = "Slope", data = slope))
-p <- ggplot(community_plot_data) + geom_line(aes(x=year, y = data)) + facet_wrap(~measure, scales="free")
-# Add unfished levels
-community_unfished_data <- rbind(data.frame(year = years, measure = "LFI", data = rep(lfi0, length(years))),
-                            data.frame(year = years, measure = "Mean Weight", data = rep(mean_weight0, length(years))),
-                            data.frame(year = years, measure = "Mean Max Weight", data = rep(mean_max_weight0, length(years))),
-                            data.frame(year = years, measure = "Slope", data = rep(slope0, length(years))))
-p <- p + geom_line(aes(x=year,y=data), linetype="dashed", data = community_unfished_data)
-community_reference_level <- data.frame(year=years, measure = "LFI", data = rep(lfi0 * 0.8, length(years)))
-p + geom_line(aes(x=year,y=data), linetype="dotted", data = community_reference_level)
+# Simulated data
+community_plot_data <- rbind(
+    data.frame(year = years, measure = "LFI", data = lfi),
+    data.frame(year = years, measure = "Mean Weight", data = mw),
+    data.frame(year = years, measure = "Mean Max Weight", data = mmw),
+    data.frame(year = years, measure = "Slope", data = slope))
+# Unexploited data
+community_unfished_data <- rbind(
+    data.frame(year = years, measure = "LFI", data = lfi0),
+    data.frame(year = years, measure = "Mean Weight", data = mw0),
+    data.frame(year = years, measure = "Mean Max Weight", data = mmw0),
+    data.frame(year = years, measure = "Slope", data = slope0))
+# Reference level
+community_reference_level <-
+    data.frame(year=years, measure = "LFI", data = lfi0 * 0.8)
+# Build up the plot
+p <- ggplot(community_plot_data) + geom_line(aes(x=year, y = data)) +
+    facet_wrap(~measure, scales="free")
+p <- p + geom_line(aes(x=year,y=data), linetype="dashed",
+    data = community_unfished_data)
+p + geom_line(aes(x=year,y=data), linetype="dotted",
+    data = community_reference_level)
 @
 
 \begin{figure}
@@ -2214,32 +2244,38 @@ p + geom_line(aes(x=year,y=data), linetype="dotted", data = community_reference_
 \end{figure}
 
 According to our simulations, historically the LFI in the North Sea has been below the reference level.
-
+% Duh!
 
 \subsection{Future projections}
 
-As well as investigating the historical simulations, we are also interested in running projections into the future.
+As well as investigating the historical simulations, we can run projections into the future.
 Here we run two projections to 2050 with different fishing scenarios.
-\begin{itemize}
+\begin{enumerate}
     \item Continue fishing at 2010 levels (the status quo scenario).
-    \item From 2010 to 2015, linearly approach $F_{MSY}$ and then continue at $F_{MSY}$ until 2050.
-\end{itemize}
+    \item From 2010 to 2015 linearly change the fishing mortality to approach $F_{MSY}$ and then continue at $F_{MSY}$ until 2050.
+\end{enumerate}
 
-We will compare the SSB of each species to a biodiversity target based on the reference point $0.1 SSB_{F=0}$ \citep{rochet_does_2011}.
+Rather than looking at community indicators here, we will calculate the SSB of each species in the model and compare the projected levels to a biodiversity target based on the reference point $0.1 SSB_{F=0}$ \citep{rochet_does_2011}.
 The $F_{MSY}$ values are also taken from \citet{rochet_does_2011}.
 
+Before we can running the simulations, we need to set up arrays of future effort.
+We will continue to use effort relative to the level in 1990.
 Here we make build on our existing array of relative to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
+We make an array of the future effort, and then bind it underneath the \args{relative\_effort} array used in the previous section.
 
 <<label = ns_scenario1_relative_effort>>=
-scenario1 <- t(array(relative_effort["2010",], dim=c(12,40), dimnames=list(NULL,year = 2011:2050)))
+scenario1 <- t(array(relative_effort["2010",], dim=c(12,40),
+    dimnames=list(NULL,year = 2011:2050)))
 scenario1 <- rbind(relative_effort, scenario1)
 @
 
-The relative effort array for the second scenario is more complicated to make and requires a little bit of \R gymnastics (it might be easier for you to prepare this in a spreadsheet and read it in).
+The relative effort array for the second scenario is more complicated to make and requires a little bit of \R gymnastics
+(it might be easier for you to prepare this in a spreadsheet and read it in).
 For this one we need values of $F_{MSY}$.  
 <<label = ns_scenario2_relative_effort>>=
-fmsy <- c(Sprat = 0.2, Sandeel = 0.2, N.pout = 0.2, Herring = 0.25, Dab = 0.2, Whiting = 0.2,
-    Sole = 0.22, Gurnard = 0.2, Plaice = 0.25, Haddock = 0.3, Cod = 0.19, Saithe = 0.3)
+fmsy <- c(Sprat = 0.2, Sandeel = 0.2, N.pout = 0.2, Herring = 0.25, Dab = 0.2,
+    Whiting = 0.2, Sole = 0.22, Gurnard = 0.2, Plaice = 0.25, Haddock = 0.3,
+    Cod = 0.19, Saithe = 0.3)
 scenario2 <- t(array(fmsy, dim=c(12,40), dimnames=list(NULL,year = 2011:2050)))
 scenario2 <- rbind(relative_effort, scenario2)
 for (sp in dimnames(scenario2)[[2]]){
@@ -2248,15 +2284,15 @@ for (sp in dimnames(scenario2)[[2]]){
 }
 @
 
-Both of our new effort scenarios still include 100 years at the 1967 level to deal with transisent behaviour.
+Both of our new effort scenarios still include 100 years at the 1967 level to reduce the impact of the transisent behaviour.
 We are now ready to project the two scenarios.
 <<label = project_ns_future_scenarios>>=
 sim1 <- project(params, effort = scenario1, dt = 0.5, t_save = 1)
 sim2 <- project(params, effort = scenario2, dt = 0.5, t_save = 1)
 @
 
-We can now compare the projected SSB value to the biodiversity reference points.
-First we calculate the biodiversity reference points (from the final time step in the \args{sim0} simulation):
+We can now compare the projected SSB values in both scenarios to the biodiversity reference points.
+First we calculate the biodiversity reference points (from the final time step in the unexploited \args{sim0} simulation):
 <<label=ns_biodiv_ref_point>>=
 ssb0 <- getSSB(sim0)["100",]
 @
@@ -2266,35 +2302,49 @@ ssb0 <- getSSB(sim0)["100",]
 % Nope...
 
 Now we build a data.frame of the projected SSB for each species, ignoring the transients.
-We make use of the \code{melt()} function in the very useful \pkg{reshape} package (REF).
+We make use of the \code{melt()} function in the very useful \pkg{reshape2} package (REF).
 <<label=projected_ssb_ns, eval=FALSE>>=
-library(reshape)
+library(reshape2)
 years <- 1967:2050
 ssb1 <- getSSB(sim1)[as.character(years),]
 ssb2 <- getSSB(sim2)[as.character(years),]
 ssb1_df <- melt(ssb1)
 ssb2_df <- melt(ssb2)
-ssb_df <- rbind(cbind(ssb1_df, scenario = "Scenario 1"),
-                cbind(ssb2_df, scenario = "Scenario 2"))
-ssb_unexploited_df <- cbind(expand.grid(sp = names(ssb0), time = 1967:2050),value = as.numeric(ssb0), scenario = "Unexploited")
-ssb_reference_df <- cbind(expand.grid(sp = names(ssb0), time = 1967:2050),value = as.numeric(ssb0*0.1), scenario = "Reference")
-ssb_all_df <- rbind(ssb_df, ssb_unexploited_df, ssb_reference_df)
-p <- ggplot(ssb_all_df) + geom_line(aes(x = time, y = value, colour = scenario)) + facet_wrap(~sp, scales = "free", nrow = 4)
-p
+ssb_df <- rbind(
+    cbind(ssb1_df, scenario = "Scenario 1"),
+    cbind(ssb2_df, scenario = "Scenario 2"))
+ssb_unexploited_df <- cbind(expand.grid(
+    sp = names(ssb0),
+    time = 1967:2050),
+    value = as.numeric(ssb0),
+    scenario = "Unexploited")
+ssb_reference_df <- cbind(expand.grid(
+    sp = names(ssb0),
+    time = 1967:2050),
+    value = as.numeric(ssb0*0.1),
+    scenario = "Reference")
+ssb_all_df <- rbind(
+    ssb_df,
+    ssb_unexploited_df,
+    ssb_reference_df)
+p <- ggplot(ssb_all_df) +
+    geom_line(aes(x = time, y = value, colour = scenario)) +
+    facet_wrap(~sp, scales = "free", nrow = 4)
+p + theme(legend.position = "none")
 @
 
 \begin{figure}
 <<label=print_projected_ssb_ns, fig=TRUE, echo=FALSE, height = 9>>=
 <<projected_ssb_ns>>
 @
-\caption{Historical and projected SSB under two fishing scenarios}
+\caption{Historical and projected SSB under two fishing scenarios. Status quo (red), Fmsy (yellow). Unexploited (blue) and reference levels (purple) are also shown. }
 \label{fig:plot_ns_comm_indicators}
 \end{figure}
 
 % Yields and trade-offs
 
 
-We could also look at the community indicators using the same procedure as in the previous section.
+%We could also look at the community indicators using the same procedure as in the previous section.
 
 
 

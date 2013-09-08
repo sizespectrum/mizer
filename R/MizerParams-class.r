@@ -431,11 +431,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    object$erepro <- 1
 	# If no sel_func column in species_params, set to 'sigmoid_length'
 	if(!("sel_func" %in% colnames(object))){
-        cat("No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.\n")
+        cat("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.\n")
 	    object$sel_func <- 'knife_edge'
         # Set default selectivity size
         if(!("knife_edge_size" %in% colnames(object))){
-            cat("No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.\n")
+            cat("Note: \tNo knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.\n")
             object$knife_edge_size <- object$w_mat
         }
     }
@@ -445,26 +445,26 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     # Sort out h column
     # If not passed in directly, is calculated from f0 and k_vb if they are also passed in
     if(!("h" %in% colnames(object))){
-        cat("No h column in species data frame so using f0 and k_vb to calculate it.\n")
+        cat("Note: \tNo h column in species data frame so using f0 and k_vb to calculate it.\n")
         if(!("k_vb" %in% colnames(object))){
-            stop("Except I can't because there is no k_vb column in the species data frame")
+            stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
         }
         object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
     }
     # Sorting out gamma column
     if(!("gamma" %in% colnames(object))){
-        cat("No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.\n")
+        cat("Note: \tNo gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.\n")
         ae <- sqrt(2*pi) * object$sigma * object$beta^(lambda-2) * exp((lambda-2)^2 * object$sigma^2 / 2)
         object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
     }
     # Sort out z0 column
     if(!("z0" %in% colnames(object))){
-        cat("No z0 column in species data frame so using z0 = z0pre * w_inf ^ z0exp.\n")
+        cat("Note: \tNo z0 column in species data frame so using z0 = z0pre * w_inf ^ z0exp.\n")
         object$z0 = z0pre*object$w_inf^z0exp    # background natural mortality
     }
     # Sort out ks column
     if(!("ks" %in% colnames(object))){
-        cat("No ks column in species data frame so using ks = h * 0.2.\n")
+        cat("Note: \tNo ks column in species data frame so using ks = h * 0.2.\n")
         object$ks <- object$h * 0.2
     }
 
