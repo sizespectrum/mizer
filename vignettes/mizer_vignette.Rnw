@@ -91,11 +91,11 @@
 % @
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
-\title{Multispecies size spectrum ecological modelling in \R (\pkg{mizer})}
-%\author{F. Scott, J. Blanchard, K. H. Andersen}
-\author[1,4]{F. Scott}
-\author[2]{J. Blanchard}
-\author[3]{K. H. Andersen}
+\title{Multispecies, trait and community size spectrum ecological modelling in \R (\pkg{mizer})}
+%\author{F. Scott, J. L. Blanchard, K. H. Andersen}
+\author[1,4]{Finlay Scott}
+\author[2]{Julia L. Blanchard}
+\author[3]{Ken. H. Andersen}
 \affil[1]{Cefas, Lowestoft, UK}
 \affil[2]{University of Sheffield, UK}
 \affil[3]{DTU Aqua, Copenhagen, DK}
@@ -530,7 +530,7 @@ Additionally, the community is made up of only one species, called ``Community''
 By using the \code{set\_community\_model()} method we now have a \class{MizerParams} object that contains all the information we need about the model community. We can use this to perform a simulation and project the community through time.
 In the \pkg{mizer} package, projections are performed using the \code{project()} method. You can see the help page for \code{project()} for more details and it is described fully in Section~\ref{sec:projection}.
 We will ignore the details for the moment and just use \code{project()} to run some simple projections.
-The arguments for \code{project()} that we need to be concerned with are \args{effort}, which determines the fishing effort (and therefore fishing mortality) through time, and $t\_max$, which is the length of the simulation.
+The arguments for \code{project()} that we need to be concerned with are \args{effort}, which determines the fishing effort (and therefore fishing mortality) through time, and \args{t\_max}, which is the length of the simulation.
 Initial population abundances are set automatically by the \code{get\_initial\_n()} function. It is possible to set your own initial abundances but we will not do this here.
 
 To run a projection for 50 time steps, with no fishing effort (i.e. we want to model an unexploited community) we run:
@@ -593,7 +593,7 @@ It is possible to use the community model to simulate a trophic cascade, similar
 To do this we need to perform two simulations, one with fishing and one without.
 
 This means we need to consider how fishing is handled in \pkg{mizer}.
-The \code{set\_community\_model()} automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
+The \code{set\_community\_model()} function automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
 
 <<label=set_comm_fishing>>=
 params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7,
@@ -703,7 +703,7 @@ Figure~\ref{fig:plot_comm_biomass_sigma1} shows that abundances of the community
 
 \subsection{Introduction}
 As mentioned above,the trait-based size spectrum model can be derived as a simplification of the general model outline in Section~\ref{sec:principles}.
-It is more complicated than a community model and the most significent different between the two is that while the community model only resolves a single ``species'', the trait-based model resolves many species.
+It is more complicated than a community model and the most significent difference between the two is that while the community model only resolves a single ``species'', the trait-based model resolves many species.
 In a trait-based model the asymptotic size is considered to be the most important ``trait'' characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size.
 For example, the weight at maturation, $w_m = \eta_m W$, where $\eta_m = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
 For applications of the trait-based model see \citet{andersen_damped_2010} and \citet{andersen_direct_2010}.

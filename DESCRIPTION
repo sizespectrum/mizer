@@ -7,14 +7,13 @@ Imports:
 Maintainer: Finlay Scott <finlay.scott@jrc.ec.europa.eu>
 Author: Finlay Scott (JRC, IT) and Julia Blanchard (Sheffield University, UK)
     and Ken Andersen (DTU Aqua, Copenhagen, DK)
-Version: 0.0
+Version: 0.1
 License: GPL-3
 Title: Multi-species sIZE spectrum ecological marine modelling in R
 Type: Package
-Description: A set of classes and methods to set up and run multi-species size
-    spectrum ecological models, focussed on the marine environment. Although
-    the functional forms are reasonably flexible, users should be aware of the
-    underlying default formulations.
+Description: A set of classes and methods to set up and run multispecies, trait
+    based and community size spectrum ecological models, focussed on the marine
+    environment.
 Depends:
     R (>= 3.0)
 Suggests:
