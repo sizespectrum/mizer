@@ -31,6 +31,7 @@
   realised predation mortality (see \code{\link{getM2}}).
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -40,6 +41,7 @@ sim <- project(params, t_max = 20, effort = 0.5)
 n <- sim@n[21,,]
 n_pp <- sim@n_pp[21,]
 getPredRate(params,n,n_pp)
+}
 }
 \seealso{
   \code{\link{project}}, \code{\link{getM2}},

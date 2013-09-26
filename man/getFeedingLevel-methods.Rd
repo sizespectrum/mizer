@@ -50,6 +50,7 @@
   time step in the simulation.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -63,6 +64,7 @@ fl <- getFeedingLevel(params,n,n_pp)
 fl <- getFeedingLevel(sim)
 # Get the feeding level for time 15 - 20
 fl <- getFeedingLevel(sim, time_range = c(15,20))
+}
 }
 \seealso{
   \code{\link{getPhiPrey}}

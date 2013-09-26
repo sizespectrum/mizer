@@ -20,6 +20,7 @@
 #' @rdname getPhiPrey-methods
 #' @aliases getPhiPrey-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -28,6 +29,7 @@
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
 #' getPhiPrey(params,n,n_pp)
+#' }
 
 setGeneric('getPhiPrey', function(object, n, n_pp,...)
     standardGeneric('getPhiPrey'))
@@ -82,6 +84,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' @rdname getFeedingLevel-methods
 #' @aliases getFeedingLevel-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -95,6 +98,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' fl <- getFeedingLevel(sim)
 #' # Get the feeding level for time 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
+#' }
 setGeneric('getFeedingLevel', function(object, n, n_pp, phi_prey, ...)
     standardGeneric('getFeedingLevel'))
 
@@ -157,6 +161,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' @rdname getPredRate-methods
 #' @aliases getPredRate-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -166,6 +171,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
 #' getPredRate(params,n,n_pp)
+#' }
 setGeneric('getPredRate', function(object, n, n_pp, feeding_level,...)
     standardGeneric('getPredRate'))
 
@@ -217,6 +223,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @rdname getM2-methods
 #' @aliases getM2-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -230,6 +237,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' getM2(sim)
 #' # Get M2 over the time 15 - 20
 #' getM2(sim, time_range = c(15,20))
+#' }
 setGeneric('getM2', function(object, n, n_pp, pred_rate,...)
     standardGeneric('getM2'))
 
@@ -284,6 +292,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 #' @rdname getM2Background-methods
 #' @aliases getM2Background-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -293,6 +302,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
 #' getM2Background(params,n,n_pp)
+#' }
 setGeneric('getM2Background', function(object, n, n_pp, pred_rate,...)
     standardGeneric('getM2Background'))
 
@@ -336,14 +346,18 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #' @rdname getFMortGear-methods
 #' @aliases getFMortGear-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
-#' # Get the fishing mortality when effort is constant for all gears and time:
+#' # Get the fishing mortality when effort is constant
+#' # for all gears and time:
 #' getFMortGear(params, effort = 1)
-#' # Get the fishing mortality when effort is different between the four gears but constant in time:
+#' # Get the fishing mortality when effort is different
+#' # between the four gears but constant in time:
 #' getFMortGear(params, effort = c(0.5,1,1.5,0.75))
-#' # Get the fishing mortality when effort is different between the four gears and changes with time:
+#' # Get the fishing mortality when effort is different
+#' # between the four gears and changes with time:
 #' effort <- array(NA, dim = c(20,4))
 #' effort[,1] <- seq(from=0, to = 1, length=20)
 #' effort[,2] <- seq(from=1, to = 0.5, length=20)
@@ -354,6 +368,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getFMortGear(sim)
 #' getFMortGear(sim, time_range=c(10,20))
+#' }
 setGeneric('getFMortGear', function(object, effort, ...)
     standardGeneric('getFMortGear'))
 
@@ -431,6 +446,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' @aliases getFMort-method
 #' @seealso \code{getFMortGear}, \code{project}
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -449,6 +465,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getFMort(sim)
 #' getFMort(sim, time_range = c(10,20))
+#' }
 setGeneric('getFMort', function(object, effort, ...)
     standardGeneric('getFMort'))
 
@@ -497,6 +514,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #' @rdname getZ-methods
 #' @aliases getZ-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -504,6 +522,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
 #' getZ(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
+#' }
 setGeneric('getZ', function(object, n, n_pp, effort, m2, ...)
     standardGeneric('getZ'))
 
@@ -546,6 +565,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #' @aliases getEReproAndGrowth-method
 #' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -553,6 +573,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
+#' }
 setGeneric('getEReproAndGrowth', function(object, n, n_pp, feeding_level, ...)
     standardGeneric('getEReproAndGrowth'))
 
@@ -599,6 +620,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 #' @aliases getESpawning-method
 #' @seealso \code{\link{project}} and \code{\link{getEReproAndGrowth}}.
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -606,6 +628,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
 #' getESpawning(params,sim@@n[21,,],sim@@n_pp[21,])
+#' }
 setGeneric('getESpawning', function(object, n, n_pp, e, ...)
     standardGeneric('getESpawning'))
 
@@ -646,6 +669,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 #' @aliases getEGrowth-method
 #' @seealso \code{\link{project}}
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -653,6 +677,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
+#' }
 setGeneric('getEGrowth', function(object, n, n_pp, e_spawning, e, ...)
     standardGeneric('getEGrowth'))
 
@@ -700,6 +725,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 #' @aliases getRDI-method
 #' @seealso \code{\link{project}}
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -707,6 +733,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the recruitment at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
+#' }
 setGeneric('getRDI', function(object, n, n_pp, e_spawning, ...)
     standardGeneric('getRDI'))
 
@@ -754,6 +781,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 #' @rdname getRDD-methods
 #' @aliases getRDD-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -761,6 +789,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
+#' }
 setGeneric('getRDD', function(object, n, n_pp, rdi, ...)
     standardGeneric('getRDD'))
 

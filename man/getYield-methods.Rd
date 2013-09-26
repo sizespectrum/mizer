@@ -15,11 +15,13 @@
   gears at each simulation time step.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=10)
 y <- getYield(sim)
+}
 }
 \seealso{
   \code{\link{getYieldGear}}

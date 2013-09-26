@@ -25,8 +25,10 @@
   \code{project} method.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 params <- MizerParams(NS_species_params_gears)
 init_n <- get_initial_n(params)
+}
 }
 

@@ -10,7 +10,7 @@
   \item{species}{Numeric or character vector of species to
   include in the calculation.}
 
-  \item{biomass}{Boolean. If TRUE (default), the abunance
+  \item{biomass}{Boolean. If TRUE (default), the abundance
   is based on biomass, if FALSE the abundance is based on
   numbers.}
 
@@ -41,6 +41,7 @@
   calculation.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -54,5 +55,6 @@ slope_biomass <- getCommunitySlope(sim, min_w = 10, max_w = 1000)
 # Slope based on biomass, using only demersal species and sizes between 10g and 1000g
 dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
+}
 }
 

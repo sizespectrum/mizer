@@ -28,6 +28,7 @@
   method for performing simulations.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -35,6 +36,7 @@ params <- MizerParams(NS_species_params_gears, inter)
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
 getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
+}
 }
 \seealso{
   \code{\link{project}} and \code{\link{getFeedingLevel}}.

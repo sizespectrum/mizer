@@ -50,6 +50,7 @@
   time step in the simulation.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -63,6 +64,7 @@ getM2(params,n,n_pp)
 getM2(sim)
 # Get M2 over the time 15 - 20
 getM2(sim, time_range = c(15,20))
+}
 }
 \seealso{
   \code{\link{getPredRate}} and \code{\link{project}}.

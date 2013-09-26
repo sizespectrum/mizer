@@ -58,6 +58,7 @@
   the \code{effort} argument is not used.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -76,6 +77,7 @@ getFMort(params, effort=effort)
 sim <- project(params, t_max = 20, effort = 0.5)
 getFMort(sim)
 getFMort(sim, time_range = c(10,20))
+}
 }
 \seealso{
   \code{getFMortGear}, \code{project}

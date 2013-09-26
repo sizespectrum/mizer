@@ -18,12 +18,14 @@
 #' @rdname getSSB-methods
 #' @aliases getSSB-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
+#' }
 setGeneric('getSSB', function(object, ...)
     standardGeneric('getSSB'))
 
@@ -53,6 +55,7 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' @rdname getBiomass-methods
 #' @aliases getBiomass-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -60,6 +63,7 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getBiomass(sim)
 #' getBiomass(sim, min_w = 10, max_w = 1000)
+#' }
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 #' @rdname getBiomass-methods
@@ -89,6 +93,7 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' @rdname getN-methods
 #' @aliases getN-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -96,6 +101,7 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getN(sim)
 #' getN(sim, min_w = 10, max_w = 1000)
+#' }
 setGeneric('getN', function(object, ...)
     standardGeneric('getN'))
 #' @rdname getN-methods
@@ -122,12 +128,14 @@ setMethod('getN', signature(object='MizerSim'),
 #' @aliases getYieldGear-method
 #' @seealso \code{\link{getYield}}
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
+#' }
 setGeneric('getYieldGear', function(object,...)
     standardGeneric('getYieldGear'))
 
@@ -156,11 +164,13 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' @aliases getYield-method
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
+#' }
 setGeneric('getYield', function(object,...)
     standardGeneric('getYield'))
 #' @rdname getYield-methods
@@ -208,10 +218,12 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
 #' @aliases summary,MizerParams-method
 #'
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears,inter)
 #' summary(params)
+#' }
 setMethod("summary", signature(object="MizerParams"),
     function(object, ...){
 	#cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
@@ -244,11 +256,13 @@ setMethod("summary", signature(object="MizerParams"),
 #' @rdname summary-methods
 #' @aliases summary,MizerSim-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
+#' }
 setMethod("summary", signature(object="MizerSim"),
     function(object, ...){
 	#cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
@@ -288,6 +302,7 @@ setMethod("summary", signature(object="MizerSim"),
 #' @rdname getProportionOfLargeFish-methods
 #' @aliases getProportionOfLargeFish-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -297,6 +312,7 @@ setMethod("summary", signature(object="MizerSim"),
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500, biomass_proportion=FALSE)
+#' }
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
 #' @rdname getProportionOfLargeFish-methods
@@ -341,6 +357,7 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' @rdname getMeanWeight-methods
 #' @aliases getMeanWeight-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -348,6 +365,7 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' getMeanWeight(sim)
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
+#' }
 setGeneric('getMeanWeight', function(object, ...)
     standardGeneric('getMeanWeight'))
 #' @rdname getMeanWeight-methods
@@ -384,6 +402,7 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' @rdname getMeanMaxWeight-methods
 #' @aliases getMeanMaxWeight-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -391,6 +410,7 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' getMeanMaxWeight(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
+#' }
 setGeneric('getMeanMaxWeight', function(object, ...)
     standardGeneric('getMeanMaxWeight'))
 #' @rdname getMeanMaxWeight-methods
@@ -422,7 +442,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #'
 #' @param object An object of class \code{MizerSim}.
 #' @param species Numeric or character vector of species to include in the calculation.
-#' @param biomass Boolean. If TRUE (default), the abunance is based on biomass, if FALSE the abundance is based on numbers. 
+#' @param biomass Boolean. If TRUE (default), the abundance is based on biomass, if FALSE the abundance is based on numbers. 
 #' @param min_w Minimum weight of species to be used in the calculation.
 #' @param max_w Maximum weight of species to be used in the calculation.
 #' @param min_l Minimum length of species to be used in the calculation.
@@ -434,6 +454,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' @rdname getCommunitySlope-methods
 #' @aliases getCommunitySlope-method
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
@@ -447,6 +468,7 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' # Slope based on biomass, using only demersal species and sizes between 10g and 1000g
 #' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 #' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
+#' }
 setGeneric('getCommunitySlope', function(object, ...)
     standardGeneric('getCommunitySlope'))
 #' @rdname getCommunitySlope-methods

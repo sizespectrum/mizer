@@ -105,10 +105,12 @@
   after the projection.
 }
 \examples{
+\dontrun{
 params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
 sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 plotBiomass(sim)
 plotSpectra(sim)
+}
 }
 \references{
   K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic

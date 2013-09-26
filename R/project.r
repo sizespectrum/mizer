@@ -40,6 +40,7 @@
 #' @rdname project-methods
 #' @aliases project-method
 #' @examples
+#' \dontrun{
 #' # Data set with different fishing gears
 #' data(NS_species_params_gears)
 #' data(inter)
@@ -52,12 +53,14 @@
 #' # With fishing effort that varies through time for each gear
 #' gear_names <- c("Industrial","Pelagic","Beam","Otter")
 #' times <- seq(from = 1, to = 10, by = 1)
-#' effort_array <- array(NA, dim = c(length(times), length(gear_names)), dimnames = list(time = times, gear = gear_names))
+#' effort_array <- array(NA, dim = c(length(times), length(gear_names)),
+#'     dimnames = list(time = times, gear = gear_names))
 #' effort_array[,"Industrial"] <- 0.5
 #' effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
 #' effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
+#' }
 setGeneric('project', function(object, effort, ...)
     standardGeneric('project'))
 
@@ -231,9 +234,11 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 #' @export
 #' @return A matrix (species x size) of population abundances.
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' params <- MizerParams(NS_species_params_gears)
 #' init_n <- get_initial_n(params)
+#' }
 get_initial_n<- function(params, n0_mult = NULL, a = 0.35){
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")

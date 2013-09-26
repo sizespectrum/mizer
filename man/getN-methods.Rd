@@ -32,6 +32,7 @@
   used)
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -39,5 +40,6 @@ params <- MizerParams(NS_species_params_gears, inter)
 sim <- project(params, t_max = 20, effort = 0.5)
 getN(sim)
 getN(sim, min_w = 10, max_w = 1000)
+}
 }
 

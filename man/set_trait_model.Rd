@@ -154,6 +154,7 @@
   after the projection.
 }
 \examples{
+\dontrun{
 trait_params <- set_trait_model(no_sp = 15)
 init_pop <- get_initial_n(trait_params, n0_mult = 0.001)
 sim <- project(trait_params, effort = 0, t_max = 50, dt=0.2, initial_n = init_pop, t_save = 1)
@@ -169,9 +170,11 @@ industrial_gears <- w_inf <= 500
 other_gears <- w_inf > 500
 gear_names <- rep("Industrial", no_sp)
 gear_names[other_gears] <- "Other"
-params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
+    max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
 ## Only turn on Industrial fishery. Set effort of the Other gear to 0
 sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
+}
 }
 \references{
   K. H. Andersen and M. Pedersen, 2010, Damped trophic

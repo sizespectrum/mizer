@@ -30,6 +30,7 @@
   and fishing mortality for a single time step.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -37,6 +38,7 @@ params <- MizerParams(NS_species_params_gears, inter)
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the total mortality at a particular time step
 getZ(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
+}
 }
 \seealso{
   \code{\link{getM2}}, \code{\link{getFMort}}

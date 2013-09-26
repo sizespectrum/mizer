@@ -52,14 +52,18 @@
   the \code{effort} argument is not used.
 }
 \examples{
+\dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
-# Get the fishing mortality when effort is constant for all gears and time:
+# Get the fishing mortality when effort is constant
+# for all gears and time:
 getFMortGear(params, effort = 1)
-# Get the fishing mortality when effort is different between the four gears but constant in time:
+# Get the fishing mortality when effort is different
+# between the four gears but constant in time:
 getFMortGear(params, effort = c(0.5,1,1.5,0.75))
-# Get the fishing mortality when effort is different between the four gears and changes with time:
+# Get the fishing mortality when effort is different
+# between the four gears and changes with time:
 effort <- array(NA, dim = c(20,4))
 effort[,1] <- seq(from=0, to = 1, length=20)
 effort[,2] <- seq(from=1, to = 0.5, length=20)
@@ -70,5 +74,6 @@ getFMortGear(params, effort=effort)
 sim <- project(params, t_max = 20, effort = 0.5)
 getFMortGear(sim)
 getFMortGear(sim, time_range=c(10,20))
+}
 }
 

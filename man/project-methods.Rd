@@ -79,6 +79,7 @@
   up for a North Sea model.
 }
 \examples{
+\dontrun{
 # Data set with different fishing gears
 data(NS_species_params_gears)
 data(inter)
@@ -91,12 +92,14 @@ sim <- project(params, t_max = 20, effort = effort)
 # With fishing effort that varies through time for each gear
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
-effort_array <- array(NA, dim = c(length(times), length(gear_names)), dimnames = list(time = times, gear = gear_names))
+effort_array <- array(NA, dim = c(length(times), length(gear_names)),
+    dimnames = list(time = times, gear = gear_names))
 effort_array[,"Industrial"] <- 0.5
 effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
 effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
+}
 }
 \seealso{
   \code{\link{MizerParams}}
