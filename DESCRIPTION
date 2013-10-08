@@ -1,7 +1,7 @@
 Package: mizer
 Imports:
-    plyr,
     methods,
+    plyr,
     reshape2,
     ggplot2
 Maintainer: Finlay Scott <finlay.scott@jrc.ec.europa.eu>

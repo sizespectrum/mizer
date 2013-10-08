@@ -13,7 +13,7 @@
 #' Reference the North Sea paper
 #' @references The North Sea paper (Blanchard et al)
 #'
-#' @import plyr ggplot2 grid
+#' @import plyr ggplot2 grid methods
 #' @importFrom reshape2 melt
 #'
 #' @docType package

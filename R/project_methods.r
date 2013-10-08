@@ -452,9 +452,11 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' # Get the total fishing mortality when effort is constant for all gears and time:
 #' getFMort(params, effort = 1)
-#' # Get the total fishing mortality when effort is different between the four gears but constant in time:
+#' # Get the total fishing mortality when effort is different
+#' # between the four gears but constant in time:
 #' getFMort(params, effort = c(0.5,1,1.5,0.75))
-#' # Get the total fishing mortality when effort is different between the four gears and changes with time:
+#' # Get the total fishing mortality when effort is different
+#' # between the four gears and changes with time:
 #' effort <- array(NA, dim = c(20,4))
 #' effort[,1] <- seq(from=0, to = 1, length=20)
 #' effort[,2] <- seq(from=1, to = 0.5, length=20)
