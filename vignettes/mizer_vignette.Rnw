@@ -1710,7 +1710,8 @@ First we create the empty \args{effort} array:
 <<label=set_empty_effort_array>>=
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
-effort_array <- array(NA, dim = c(length(times), length(gear_names)), dimnames = list(time = times, gear = gear_names))
+effort_array <- array(NA, dim = c(length(times), length(gear_names)),
+    dimnames = list(time = times, gear = gear_names))
 @
 
 Then we fill it up, one gear at a time, making heavy use of the \code{seq()} function to create a sequence:
