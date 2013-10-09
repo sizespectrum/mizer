@@ -1903,7 +1903,7 @@ With these plotting methods, it is also possible to specify a different time ste
 	\hline
 	Plot & Description \\
 	\hline
-	plotBiomass() & Plots the total biomass of each species through time. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
+	plotBiomass() & Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
 	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \\
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
 	plotM2() & Plots the predation mortality of each species against size.\\
