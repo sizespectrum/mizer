@@ -311,7 +311,8 @@ setMethod("summary", signature(object="MizerSim"),
 #' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000)
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
-#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500, biomass_proportion=FALSE)
+#' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
+#'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))

@@ -157,7 +157,8 @@
 \dontrun{
 trait_params <- set_trait_model(no_sp = 15)
 init_pop <- get_initial_n(trait_params, n0_mult = 0.001)
-sim <- project(trait_params, effort = 0, t_max = 50, dt=0.2, initial_n = init_pop, t_save = 1)
+sim <- project(trait_params, effort = 0, t_max = 50, dt=0.2,
+    initial_n = init_pop, t_save = 1)
 plot(sim)
 ## Set up industrial fishery that only fishes on species with w_inf <= 500 g
 ## And where the selectivity of the industrial fishery = w_inf * 0.05

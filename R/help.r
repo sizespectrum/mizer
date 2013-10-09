@@ -10,9 +10,6 @@
 #'
 #' See the accompanying vignette for full details of the principles behind mizer and how the package can be used to peform size-based modelling.
 #'
-#' Reference the North Sea paper
-#' @references The North Sea paper (Blanchard et al)
-#'
 #' @import plyr ggplot2 grid methods
 #' @importFrom reshape2 melt
 #'
