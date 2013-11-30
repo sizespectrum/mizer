@@ -9,8 +9,8 @@
     n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
     kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
     z0pre = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    knife_edge_size = 1000, gear_names = "knife_edge_gear",
-    ...)
+    gamma = NA, knife_edge_size = 1000,
+    gear_names = "knife_edge_gear", ...)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -50,26 +50,25 @@
   \item{n}{Scaling of the intake. Default value is 2/3.}
 
   \item{p}{Scaling of the standard metabolism. Default
-  value is 0.7.}
+  value is 0.75.}
 
   \item{q}{Exponent of the search volume. Default value is
-  0.8.}
+  0.9.}
 
   \item{eta}{Factor to calculate \code{w_mat} from
   asymptotic size.}
 
   \item{r_pp}{Growth rate of the primary productivity.
-  Default value is 10.}
+  Default value is 4.}
 
   \item{kappa}{Carrying capacity of the resource spectrum.
-  Default value is 1e11.}
+  Default value is 0.005.}
 
   \item{lambda}{Exponent of the resource spectrum. Default
   value is (2+q-n).}
 
   \item{alpha}{The assimilation efficiency of the
-  community. The default value is 0.2 (from Andersen et.
-  al., 2010).}
+  community. The default value is 0.6}
 
   \item{ks}{Standard metabolism coefficient. Default value
   is 4.}
@@ -89,6 +88,9 @@
   \item{f0}{Expected average feeding level. Used to set
   \code{gamma}, the factor for the search volume. The
   default value is 0.5.}
+
+  \item{gamma}{Volumetric search rate. Estimated if not
+  supplied.}
 
   \item{knife_edge_size}{The minimum size at which the gear
   or gears select species. Must be of length 1 or no_sp.}

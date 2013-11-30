@@ -17,7 +17,7 @@
 #' The resulting \code{MizerParams} object can be projected forward using \code{project()} like any other \code{MizerParams} object.
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
 #' @param z0 The background mortality of the community. The default value is 0.1.
-#' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2009).
+#' @param alpha The assimilation efficiency of the community. The default value is 0.2
 #' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum.
 #' @param f0 The average feeding level of individuals who feed mainly on the resource. This value is to used to calculate the search rate parameter \code{ga,,a} (see the package Vignette). The default value is 0.7.
 #' @param h The maximum food intake rate. The default value is 10.
@@ -27,6 +27,8 @@
 #' @param n The scaling of the intake. The default value is 2/3.
 #' @param kappa The carrying capacity of the background spectrum. The default value is 1000.
 #' @param lambda The exponent of the background spectrum. The default value is 2 + q - n.
+#' @param r_pp Growth rate of the primary productivity. Default value is 10. 
+#' @param gamma Volumetric search rate. Estimated using \code{h} if not supplied.
 #' @param knife_edge_size The size at the edge of the knife-selectivity function.
 #' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the species used to represent the community is set to 0.9 * this value. The default value is 1e6.
@@ -56,6 +58,8 @@ set_community_model <- function(max_w = 1e6,
                                 kappa = 1000,
                                 lambda = 2+q-n,
                                 f0 = 0.7,
+                                r_pp = 10,
+                                gamma = NA,
                                 knife_edge_size = 1000,
                                 knife_is_min = TRUE,
                                 ...
@@ -64,7 +68,10 @@ set_community_model <- function(max_w = 1e6,
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
     p <- n # But not used as ks = 0
-    gamma <- (f0 * h * beta^(2-lambda)) / ((1-f0)*sqrt(2*pi)*kappa*sigma)
+    # Estimate gamma if not supplied
+    if (is.na(gamma)){
+        gamma <- (f0 * h * beta^(2-lambda)) / ((1-f0)*sqrt(2*pi)*kappa*sigma)
+    }
     # Make the species data.frame
     com_params_df <- data.frame(
         species = "Community",
@@ -87,7 +94,7 @@ set_community_model <- function(max_w = 1e6,
     constant_recruitment <- function(rdi, species_params){
         return(species_params$constant_recruitment)
     }
-    com_params <- MizerParams(com_params_df, p=p, n=n,q=q, lambda = lambda, kappa = kappa, min_w = min_w, max_w = max_w, w_pp_cutoff = w_pp_cutoff, ...)
+    com_params <- MizerParams(com_params_df, p=p, n=n,q=q, lambda = lambda, kappa = kappa, min_w = min_w, max_w = max_w, w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@srr <- constant_recruitment
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used
@@ -136,19 +143,20 @@ set_community_model <- function(max_w = 1e6,
 #' @param w_pp_cutoff The cut off size of the background spectrum. Default value is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3. 
-#' @param p Scaling of the standard metabolism. Default value is 0.7. 
-#' @param q Exponent of the search volume. Default value is 0.8. 
+#' @param p Scaling of the standard metabolism. Default value is 0.75. 
+#' @param q Exponent of the search volume. Default value is 0.9. 
 #' @param eta Factor to calculate \code{w_mat} from asymptotic size.
-#' @param r_pp Growth rate of the primary productivity. Default value is 10. 
-#' @param kappa Carrying capacity of the resource spectrum. Default value is 1e11. 
+#' @param r_pp Growth rate of the primary productivity. Default value is 4. 
+#' @param kappa Carrying capacity of the resource spectrum. Default value is 0.005. 
 #' @param lambda Exponent of the resource spectrum. Default value is (2+q-n). 
-#' @param alpha The assimilation efficiency of the community. The default value is 0.2 (from Andersen et. al., 2010).
+#' @param alpha The assimilation efficiency of the community. The default value is 0.6
 #' @param ks Standard metabolism coefficient. Default value is 4.
 #' @param z0pre The coefficient of the background mortality of the community. z0 = z0pre * w_inf ^ (n-1). The default value is 0.6.
 #' @param h Maximum food intake rate. Default value is 30.
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
+#' @param gamma Volumetric search rate. Estimated if not supplied.
 #' @param knife_edge_size The minimum size at which the gear or gears select species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the same length as the number of species. Default is 1 - no_sp.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
@@ -203,12 +211,15 @@ set_trait_model <- function(no_sp = 10,
                             beta = 100,
                             sigma = 1.3,
                             f0 = 0.5,
+                            gamma = NA,
                             knife_edge_size = 1000,
                             gear_names = "knife_edge_gear",
                             ...){
-    # Calculate gamma using equation 2.1 in A&P 2010
-    alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
-    gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
+    # If not supplied, calculate gamma using equation 2.1 in A&P 2010
+    if(is.na(gamma)){
+        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
+        gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
+    }
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
 
