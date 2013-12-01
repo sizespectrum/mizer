@@ -18,7 +18,6 @@
 #' When projecting the community model it may be necessary to reduce \code{dt} to 0.1 to avoid any instabilities with the solver. You can check this by plotting the biomass or abundance through time after the projection.
 #' @param z0 The background mortality of the community. The default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. The default value is 0.2
-#' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum.
 #' @param f0 The average feeding level of individuals who feed mainly on the resource. This value is to used to calculate the search rate parameter \code{ga,,a} (see the package Vignette). The default value is 0.7.
 #' @param h The maximum food intake rate. The default value is 10.
 #' @param beta The preferred predator prey mass ratio. The default value is 100.
@@ -28,7 +27,9 @@
 #' @param kappa The carrying capacity of the background spectrum. The default value is 1000.
 #' @param lambda The exponent of the background spectrum. The default value is 2 + q - n.
 #' @param r_pp Growth rate of the primary productivity. Default value is 10. 
-#' @param gamma Volumetric search rate. Estimated using \code{h} if not supplied.
+#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and \code{kappa} if not supplied.
+#' @param recruitment The constant recruitment in the smallest size class of the community spectrum. This should be set so that the community spectrum continues the background spectrum. The default value = \code{kappa} * \code{min_w}^-\code{lambda}.
+#' @param rec_mult Additional multiplier for the constant recruitment. Default value is 1.
 #' @param knife_edge_size The size at the edge of the knife-selectivity function.
 #' @param knife_is_min Is the knife-edge selectivity function selecting above (TRUE) or below (FALSE) the edge.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the species used to represent the community is set to 0.9 * this value. The default value is 1e6.
@@ -48,7 +49,6 @@
 set_community_model <- function(max_w = 1e6,
                                 min_w = 1e-3,
                                 z0 = 0.1,
-                                recruitment = 4e7,
                                 alpha = 0.2,
                                 h = 10,
                                 beta = 100,
@@ -62,6 +62,8 @@ set_community_model <- function(max_w = 1e6,
                                 gamma = NA,
                                 knife_edge_size = 1000,
                                 knife_is_min = TRUE,
+                                recruitment = kappa * min_w^-lambda,
+                                rec_mult = 1,
                                 ...
                                 ){
     w_inf <- max_w * 0.9
@@ -88,7 +90,7 @@ set_community_model <- function(max_w = 1e6,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
         knife_is_min = knife_is_min,
-        constant_recruitment = recruitment # to be used in the SRR
+        constant_recruitment = recruitment * rec_mult # to be used in the SRR
     )
     # Set the recruitment function for constant recruitment
     constant_recruitment <- function(rdi, species_params){
@@ -156,7 +158,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the factor for the search volume. The default value is 0.5.
-#' @param gamma Volumetric search rate. Estimated if not supplied.
+#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and \code{kappa} if not supplied.
 #' @param knife_edge_size The minimum size at which the gear or gears select species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the same length as the number of species. Default is 1 - no_sp.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.

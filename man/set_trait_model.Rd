@@ -89,8 +89,8 @@
   \code{gamma}, the factor for the search volume. The
   default value is 0.5.}
 
-  \item{gamma}{Volumetric search rate. Estimated if not
-  supplied.}
+  \item{gamma}{Volumetric search rate. Estimated using
+  \code{h}, \code{f0} and \code{kappa} if not supplied.}
 
   \item{knife_edge_size}{The minimum size at which the gear
   or gears select species. Must be of length 1 or no_sp.}
