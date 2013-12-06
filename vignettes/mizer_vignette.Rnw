@@ -91,7 +91,7 @@
 % @
 % %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
-\title{Multispecies, trait and community size spectrum ecological modelling in \R (\pkg{mizer})}
+\title{Multispecies, trait-based and community size spectrum ecological modelling in \R (\pkg{mizer})}
 %\author{F. Scott, J. L. Blanchard, K. H. Andersen}
 \author[1,4]{Finlay Scott}
 \author[2]{Julia L. Blanchard}
