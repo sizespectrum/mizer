@@ -22,6 +22,7 @@
 %\setkeys{Gin}{width=0.4\textwidth}
 %after \begin{document} to get smaller plots.
 
+
 \documentclass{article}
 \setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
 %\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
@@ -71,6 +72,7 @@
 \newcommand{\args}[1]{{\texttt{#1}}}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 % Makes the ACTUAL images the same width as the text
 \setkeys{Gin}{width=0.95\textwidth}
 % width = x, in the <<>>= affects the R plot (i.e. label size) but not the actual image width
