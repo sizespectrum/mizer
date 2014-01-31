@@ -202,7 +202,7 @@ These two ways of getting help can be useful when a class and a method have the 
 
 Size spectrum models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during life.
 There is now a growing literature describing different types of size spectrum models
-\citep[e.g.]{benoit_continuous_2004, andersen_asymptotic_2006, andersen_life-history_2008, law_size-spectra_2009, hartvig_food_2011, hartvig_food_2011-1}.
+\citep[e.g.][]{benoit_continuous_2004, andersen_asymptotic_2006, andersen_life-history_2008, law_size-spectra_2009, hartvig_food_2011, hartvig_food_2011-1}.
 The models can be used to understand how marine communities are organised
 \citep{andersen_asymptotic_2006, andersen_trophic_2009,blanchard_how_2009} and how they respond to fishing
 \citep{andersen_direct_2010, andersen_damped_2010}.
@@ -246,13 +246,13 @@ The remainder of this section looks in detail at these assumptions.
 
 \subsection{Predator-prey encounter}
 \label{sec:encounter}
-The encounter of food is based on the ``Andersen-Ursin'' encounter model which was developed as part of a North-Sea ecosystem model \citep[][see also]{andersen_multispecies_1977, andersen_asymptotic_2006}.  
+The encounter of food is based on the ``Andersen-Ursin'' encounter model which was developed as part of a North-Sea ecosystem model \citep[see also][]{andersen_multispecies_1977, andersen_asymptotic_2006}.  
 
 The available food (mass per volume) for a predator of weight $w$ is determined by integrating over all species and the background resource weighted by the size selection function (Equation~\ref{eq:4}): 
 
 \begin{equation}
   \label{eq:1}
-  E_{a.i}(w) = \int \left( N_R(w) + \sum_{j} \theta_{ij} N_j(w) \right) \phi(w_p/w) w \, dw_p.
+  E_{a.i}(w) = \int \left( N_R(w) + \sum_{j} \theta_{ij} N_j(w) \right) \phi(w_p/w) w_p \, dw_p.
 \end{equation}
 
 where $\theta_{ij}$ is the preference of species $i$ for species $j$. The food actually encountered $E_{e.i}$ (mass per time) depends on the search rate (volume per time) which is assumed to scale with individual weight as $\gamma_i w^q$:
@@ -300,7 +300,7 @@ The form of the allocation function (\ref{eq:psi}) is chosen such that the growt
 
 \begin{equation}
   \label{eq:fc}
-  f_{c.i}(w) = k_{s.i} w^n/(\alpha h_i) w^p.
+  f_{c.i}(w) = k_{s.i} w^p/(\alpha h_i w^n).
 \end{equation}
 
 If $n=p$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
@@ -369,7 +369,7 @@ Mortality from sources other than predation and starvation is assumed to be cons
 The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
 \begin{equation}
   \label{eq:nb}
-  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
+  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa_R w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
 \end{equation}
 where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ the carrying capacity.
 
@@ -476,7 +476,7 @@ The growth rate can also be written as:
   \label{eq:2}
   g(w) = \overline{\epsilon}_I E_a
 \end{equation}
-where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model \citep[see][or]{andersen_trophic_2009, zhang_trait_2013}.
+where $\overline{\epsilon}_I$ is the average growth efficiency which can be derived from the full model \citep[see][]{andersen_trophic_2009, zhang_trait_2013}.
 
 In this section we describe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a 'trophic cascade'. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the \pkg{mizer} package. Consequently, this section should hopefully serve as an introduction to using \pkg{mizer} and some of the main classes and methods.
 
@@ -598,7 +598,7 @@ It is possible to use the community model to simulate a trophic cascade, similar
 To do this we need to perform two simulations, one with fishing and one without.
 
 This means we need to consider how fishing is handled in \pkg{mizer}.
-The \code{set\_community\_model()} function automatically sets the fishing selectivity to be have knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
+The \code{set\_community\_model()} function automatically sets the fishing selectivity to have a knife-edge shape, with only individuals larger than 1 kg selected (the size at the knife-edge can be changed by setting the \args{knife\_edge\_size} argument). Although it is possible to change the selectivity function, here we will use the default knife-edge selectivity. Here we set up the parameter object exactly as before, but now we are explicitly setting the size at which individuals are selected by the fishing gear.
 
 <<label=set_comm_fishing>>=
 params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7,
@@ -727,7 +727,7 @@ The main parameters of interest are the number of the species in the model (\arg
 One of the key differences between the community type model described above and the trait-based model is that reproduction and egg production are considered.
 In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production.
 In the trait-based model, the egg production is modeled using a ``Beverton-Holt'' type function (the default in \pkg{mizer}, see Section~\ref{sec:recruitment}) where the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
-The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier \citep[see]{andersen_damped_2010}, $\kappa$ (see Equation~\ref{eq:gamma}), which can be passed in as an argument (\args{k0}) to the \code{set\_trait\_model()} function. \args{k0} has a default value of 50. 
+The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier \citep[see][]{andersen_damped_2010}, $\kappa$ (see Equation~\ref{eq:gamma}), which can be passed in as an argument (\args{k0}) to the \code{set\_trait\_model()} function. \args{k0} has a default value of 50. 
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 
@@ -1136,7 +1136,7 @@ Standard metabolism is used in calculation of the growth of individuals as $ks *
 	    w\_mat & Maturation mass. Used to calculate values for $\psi$. WHAT IS WMAT IN TERMS OF BIOLOGY? Is it the mass at first maturity? & Compulsory (no default)\\
 	    beta & Preferred predator prey mass ratio & Compulsory (no default)\\
 	    sigma & Width of prey size preference & Compulsory (no default)\\
-        h & Maximum food intake rate. If this is not provided, it is calculated using the \args{k\_vb} column. Therefore, either \args{h} or \args{k\_vb} must be [rovided. & Optional (no default) \\
+        h & Maximum food intake rate. If this is not provided, it is calculated using the \args{k\_vb} column. Therefore, either \args{h} or \args{k\_vb} must be provided. & Optional (no default) \\
         k\_vb & The von Bertalanffy $K$ parameter. Only used to calculate \args{h} if that column is not provided & Optional (no default)\\
 	    gamma & Volumetric search rate. If this is not provided, it is calculated using the \args{h} column and other parameters. & Optional (no default)\\
         ks & Standard metabolism coefficient & \args{h} * 0.2\\
