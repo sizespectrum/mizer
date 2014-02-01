@@ -80,8 +80,8 @@ setMethod('project', signature(object='MizerParams', effort='missing'),
 setMethod('project', signature(object='MizerParams', effort='numeric'),
     function(object, effort,  t_max = 100, dt = 0.1, ...){
     #if (!all.equal(t_max %% dt, 0))
-	if (!all((t_max %% dt) == 0))
-	    stop("t_max must be divisible by dt with no remainder")
+# 	if (!all((t_max %% dt) == 0))
+# 	    stop("t_max must be divisible by dt with no remainder")
 	no_gears <- dim(object@catchability)[1]
 	if ((length(effort)>1) & (length(effort) != no_gears))
 	    stop("Effort vector must be the same length as the number of fishing gears\n")
@@ -141,8 +141,8 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 
         # Make the MizerSim object with the right size
         # We only save every t_save steps
-        if (!all((t_save %% dt)  == 0))
-            stop("t_save must be divisible by dt with no remainder")
+#         if (!all((t_save %% dt)  == 0))
+#             stop("t_save must be divisible by dt with no remainder")
         t_dimnames_index <- as.integer(seq(from = 1+ ((t_save-1) / dt), to = length(time_effort_dt), by = t_save/dt))
         t_dimnames_index <- t_dimnames_index[t_dimnames_index>0]
         t_dimnames <- time_effort_dt[t_dimnames_index]
