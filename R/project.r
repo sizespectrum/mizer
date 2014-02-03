@@ -80,7 +80,8 @@ setMethod('project', signature(object='MizerParams', effort='missing'),
 setMethod('project', signature(object='MizerParams', effort='numeric'),
     function(object, effort,  t_max = 100, dt = 0.1, ...){
     #if (!all.equal(t_max %% dt, 0))
-	if (!all((t_max %% dt) == 0))
+	#if (!all((t_max %% dt) == 0))
+    if(!all.equal((t_max - floor(t_max / dt) * dt),0))
 	    stop("t_max must be divisible by dt with no remainder")
 	no_gears <- dim(object@catchability)[1]
 	if ((length(effort)>1) & (length(effort) != no_gears))
