@@ -23,8 +23,8 @@ rm(list=ls())
 # In the first row, for each model we plot:
 #     the unfished biomass spectra of each species
 #     the unfished total community biomass spectrum
-#     the unfished background resource spectrum
 #     the fished total community biomass spectrum
+#     the unfished background resource spectrum
 # In the second row, for each model we plot the relative abundances in the fished and unfished case
 # (to simulate trophic cascades).
 
@@ -117,10 +117,10 @@ mean_n_trait0 <- apply(trait_sim0@n[(trait_time_sim-avg_steps+2):(trait_time_sim
 # Mean abundance of the community with fishing
 mean_n_trait1 <- apply(trait_sim1@n[(trait_time_sim-avg_steps+2):(trait_time_sim+1),,],c(2,3),mean)
 # Sum over the community to get the total abundances
-trait_abund0 <- apply(mean_n_trait0,2,sum)
-trait_abund1 <- apply(mean_n_trait1,2,sum)
+mean_total_n_trait0 <- apply(mean_n_trait0,2,sum)
+mean_total_n_trait1 <- apply(mean_n_trait1,2,sum)
 # Calculate the relative abundances
-trait_relative_abundance <-  trait_abund1 / trait_abund0
+trait_relative_abundance <-  mean_total_n_trait1 / mean_total_n_trait0
 
 # Make the multispecies model based on the North Sea parameterisation
 # This has different parameters to the Community and Trait-based models
@@ -154,13 +154,112 @@ mean_n_ms0 <- apply(ms_sim0@n[(ms_time_sim-avg_steps+2):(ms_time_sim+1),,],c(2,3
 # Mean abundance of the community with fishing
 mean_n_ms1 <- apply(ms_sim1@n[(ms_time_sim-avg_steps+2):(ms_time_sim+1),,],c(2,3),mean)
 # Sum over the community to get the total abundances
-ms_abund0 <- apply(mean_n_ms0,2,sum)
-ms_abund1 <- apply(mean_n_ms1,2,sum)
+mean_total_n_ms0 <- apply(mean_n_ms0,2,sum)
+mean_total_n_ms1 <- apply(mean_n_ms1,2,sum)
 # Calculate the relative total abundance
-ms_relative_abundance <-  ms_abund1 / ms_abund0
+ms_relative_abundance <-  mean_total_n_ms1 / mean_total_n_ms0
 
-
+#----------------------------------------------------------
 # Make FIGURE 1 for the paper
+#----------------------------------------------------------
+
+# Biomass
+mean_b_comm0 <- mean_n_comm0 * comm_sim0@params@w
+mean_b_comm1 <- mean_n_comm1 * comm_sim1@params@w
+mean_total_b_trait0 <- mean_total_n_trait0 * trait_sim0@params@w
+mean_total_b_trait1 <- mean_total_n_trait1 * trait_sim1@params@w
+mean_total_b_ms0 <- mean_total_n_ms0 * ms_sim0@params@w
+mean_total_b_ms1 <- mean_total_n_ms1 * ms_sim1@params@w
+# Plot biomass relative to resource carrying capacity at 1e-3g
+comm_base_b <- (comm_sim0@params@w_full * comm_sim0@params@cc_pp)[31]
+trait_base_b <- (trait_sim0@params@w_full * trait_sim0@params@cc_pp)[31]
+ms_base_b <- (ms_sim0@params@w_full * ms_sim0@params@cc_pp)[31]
+
+width <- 14
+height <- 7
+#png(filename = "trophic_cascades.png", width = width, height = height, units="cm", res = 1000, pointsize=8)
+#tiff(filename = "trophic_cascades.tiff", width = width, height = height, units="cm", res=500, pointsize=8)
+postscript(file = "trophic_cascades.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
+
+nf <- layout(matrix(1:6,2,3,byrow=TRUE), rep(width/3,3),c(3/6,3/6)*height,TRUE)
+#layout.show(nf)
+#par(mfrow=c(2,3))
+
+ylim <- c(1e-10,10)
+xlim <- c(1e-3,1e4)
+cascade_ylim <- c(0.1,10)
+fat_lwd <- 2
+fished_lty <- 3
+resource_colour <- "green"
+resource_lwd <- 1
+
+# Community
+par(mar=c(1,5,2,1))
+plot(x=comm_sim0@params@w, y= (mean_b_comm0) / (comm_base_b), log="xy", type="n", ylab="Biomass relative to carrying capacity", xlim=xlim, ylim=ylim, main = "(a)", xlab="")
+# Resource
+lines(x=comm_sim0@params@w_full, y= (mean_npp_comm0 * comm_sim0@params@w_full) / comm_base_b, col=resource_colour, lwd=resource_lwd)
+# Unfished community spectrum relative to unfished biomass in size 1
+lines(x=comm_sim0@params@w, y=(mean_b_comm0) / (comm_base_b), col="red", lwd=fat_lwd)
+# Fished community spectrum relative to unfished biomass in size 1
+lines(x=comm_sim0@params@w, y=(mean_b_comm1) / (comm_base_b), col="blue", lwd=fat_lwd, lty=fished_lty)
+
+# Trait
+plot(x=trait_sim0@params@w, y= (mean_total_b_trait0) / (trait_base_b), log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim, main = "(b)", xlab="")
+# Resource
+lines(x=trait_sim0@params@w_full, y= (mean_npp_trait0 * trait_sim0@params@w_full) / trait_base_b, col=resource_colour, lwd=resource_lwd)
+# Unfished community spectrum relative to unfished biomass in size 1
+lines(x=trait_sim0@params@w, y=(mean_total_b_trait0) / (trait_base_b), col="red", lwd=fat_lwd)
+# Fished community spectrum relative to unfished biomass in size 1
+lines(x=trait_sim1@params@w, y=(mean_total_b_trait1) / (trait_base_b), col="blue", lwd=fat_lwd, lty=fished_lty)
+# Unfished species relative to unfished biomass in size1
+for (i in 1:10){
+    lines(x=trait_sim0@params@w, y=(mean_n_trait0[i,]*trait_sim0@params@w) / (trait_base_b))
+}
+
+# Multispecies
+# Biomass
+plot(x=ms_sim0@params@w, y= (mean_total_b_ms0) / ms_base_b, log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim, main = "(c)", xlab="")
+# Resource
+lines(x=ms_sim0@params@w_full, y=(mean_npp_ms0 * ms_sim0@params@w_full) / ms_base_b, col=resource_colour, lwd=resource_lwd)
+# Unfished community spectrum relative to unfished biomass in size 1
+lines(x=ms_sim0@params@w, y=(mean_total_b_ms0) / ms_base_b, col="red", lwd=fat_lwd)
+# Fished community spectrum relative to unfished biomass in size 1
+lines(x=ms_sim1@params@w, y=(mean_total_b_ms1) / ms_base_b, col="blue", lwd=fat_lwd, lty=3)
+# Unfished species relative to unfished biomass in size1
+for (i in 1:12){
+    lines(x=ms_sim0@params@w, y=(mean_n_ms0[i,]*ms_sim0@params@w) / (ms_base_b))
+}
+
+# Cascades
+# Community
+par(mar=c(5,5,5,1))
+plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="xy", type="n", ylab="Relative abundance", xlim=xlim, ylim=cascade_ylim, main = "(d)", xlab="Body mass (g)")
+lines(x=comm_sim0@params@w, y=comm_relative_abundance)
+lines(x=c(min(comm_sim0@params@w),max(comm_sim0@params@w)), y=c(1,1),lty=2)
+lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
+
+# Trait
+plot(x=trait_sim0@params@w, y=trait_relative_abundance, log="xy", type="n", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(e)", xlab="Body mass (g)")
+lines(x=trait_sim0@params@w, y=trait_relative_abundance)
+lines(x=c(min(trait_sim0@params@w),max(trait_sim0@params@w)), y=c(1,1),lty=2)
+lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
+
+# Multispecies
+plot(x=ms_sim0@params@w, y=ms_relative_abundance, log="xy", type="n", xlab = "Body mass (g)", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(f)")
+lines(x=ms_sim0@params@w, y=ms_relative_abundance)
+lines(x=c(min(ms_sim0@params@w),max(ms_sim0@params@w)), y=c(1,1),lty=2)
+lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
+
+dev.off()
+
+#----------------------------------------------------
+#----------------------------------------------------------
+# Make FIGURE 1 for the paper
+#----------------------------------------------------------
+
+# Abundances
+
+
 width <- 14
 height <- 7
 png(filename = "trophic_cascades.png", width = width, height = height, units="cm", res = 1000, pointsize=8)
