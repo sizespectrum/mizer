@@ -855,7 +855,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=show_plot_relative_comm_abund, fig=TRUE, eval=FALSE, height = 4>>=
+<<label=show_plot_relative_comm_abund, fig=TRUE, echo=FALSE, height = 4>>=
 <<plot_relative_comm_abund>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model.}
@@ -1019,7 +1019,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=show_plot_relative_comm_abund_industrial, fig=TRUE, eval=FALSE>>=
+<<label=show_plot_relative_comm_abund_industrial, fig=TRUE, echo=FALSE, height = 4>>=
 <<plot_relative_comm_abund_industrial>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model with an industrial fishery that targets species with an asymptotic size of 500 g or less.}
@@ -1042,7 +1042,7 @@ A multispecies model can take more effort to set up.
 For example, each species will have different life-history parameters; there may be multiple gear types with different selectivities targeting different groups of species; the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
 
 For the remainder of this vignette we build up a multispecies model for the North Sea.
-To effectively use \pkg{mizer} for a multispecies model we are going to have take a closer look at the \class{MizerParams} class and the \code{project()} method.
+To effectively use \pkg{mizer} for a multispecies model we are going to have to take a closer look at the \class{MizerParams} class and the \code{project()} method.
 This will all be done in the context of examples so hopefully everything will be clear.
 
 We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
@@ -1055,7 +1055,7 @@ The \class{MizerParams} class is used for storing model parameters.
 We have already met the \class{MizerParams} class when we looked at community and trait-based models.
 However, direct handling of the class was largely hidden by the use of the wrapper functions.
 To set up a multispecies model we need to directly create and use the \class{MizerParams} class.
-This is probably the most complicated part of the using the \pkg{mizer} package so we will take it slowly.
+This is probably the most complicated part of using the \pkg{mizer} package so we will take it slowly.
 For additional help you can look at the help page for the class by entering \code{class ? MizerParams}.
 
 The \class{MizerParams} class stores the:
@@ -1092,7 +1092,7 @@ For each species in the model community there are certain parameters that are es
 There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame.
 A description of the columns of the species parameter data.frame and any default values can be seen Table~\ref{tab:species_params}.
 
-The essential columns of the species parameters data.frame that have no default values are: \args{species}, the names of the species in the community; \args{w\_inf}, the asymptotic mass of the species; \args{w\_mat}, the mass at maturation; \args{beta} and \args{sigma}, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation XXX at top); stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a \args{r\_max} column must be provided - see Section~\ref{sec:srr} for more details).
+The essential columns of the species parameters data.frame that have no default values are: \args{species}, the names of the species in the community; \args{w\_inf}, the asymptotic mass of the species; \args{w\_mat}, the mass at maturation; \args{beta} and \args{sigma}, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation~\ref{eq:4}); stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a \args{r\_max} column must be provided - see Section~\ref{sec:srr} for more details).
 
 Essential columns that have default values are: \args{k}, the activity coefficient (default = 0); \args{alpha}, the assimilation efficiency (default = 0.6); \args{erepro}, the reproductive efficiency (default value = 1); \args{w\_min}, the size of recruits (default value is the smallest size of the community size spectrum); \args{sel\_func}, the name of the fishing selectivity function (default value = "knife\_edge"); \args{gear}, the name of the fishing gear that catches the species (default value is the name of the species in the \args{species} column); \args{catchability}, the catchability of the fishing gear on that species (default value = 1). Additionally, columns that contain the selectivity function parameters are needed. As mentioned, the default selectivity function is a ``knife\_edge'' function. This has an argument \args{knife\_edge\_size} that determines the knife-edge position and has a default value of \args{w\_min}.
 If any of these columns are not included in the species parameter data.frame, the default values are used.
