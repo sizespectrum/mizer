@@ -252,152 +252,15 @@ lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
 
 dev.off()
 
-#----------------------------------------------------
-#----------------------------------------------------------
-# Make FIGURE 1 for the paper
-#----------------------------------------------------------
-
-# Abundances
-
-
-width <- 14
-height <- 7
-png(filename = "trophic_cascades.png", width = width, height = height, units="cm", res = 1000, pointsize=8)
-
-nf <- layout(matrix(1:6,2,3,byrow=TRUE), rep(width/3,3),c(3/6,3/6)*height,TRUE)
-#layout.show(nf)
-#par(mfrow=c(2,3))
-
-ylim <- c(1e-10,10)
-ylim_numbers <- c(1e-15,10)
-xlim <- c(1e-3,1e4)
-cascade_ylim <- c(0.1,10)
-fat_lwd <- 2
-# Plot spectra no fishing
-
-# Relative to what?
-n_base <- kappa * xlim[1]^-lambda
-
-# Community
-par(mar=c(1,5,2,2))
-# Biomass
-#plot(x=comm_sim0@params@w, y= (mean_n_comm0 * comm_sim0@params@w) / (mean_n_comm0[1]* comm_sim0@params@w[1]), log="xy", type="n", ylab="Relative biomass", xlim=xlim, ylim=ylim, main = "(a)", xlab="")
-#lines(x=comm_sim0@params@w, y=(mean_n_comm0* comm_sim0@params@w) / (mean_n_comm0[1]* comm_sim0@params@w[1]), col="red", lwd=fat_lwd)
-#lines(x=comm_sim0@params@w, y=(mean_n_comm1* comm_sim0@params@w) / (mean_n_comm0[1]* comm_sim0@params@w[1]), col="blue", lwd=fat_lwd, lty=3)
-# Numbers
-plot(x=comm_sim0@params@w, y= (mean_n_comm0) / n_base, log="xy", type="n", ylab="Abundance", xlim=xlim, ylim=ylim_numbers, main = "(a)", xlab="")
-lines(x=comm_sim0@params@w, y=(mean_n_comm0) / (n_base), col="red", lwd=fat_lwd)
-lines(x=comm_sim0@params@w, y=(mean_n_comm1) / (n_base), col="blue", lwd=fat_lwd, lty=3)
-# Add carrying capacity
-lines(x=xlim, y=(kappa*xlim^-lambda)/n_base, col="green", lwd=fat_lwd)
-
-# Trait
-trait_biomass_cc <- 1e-3 * (kappa * 1e-3 ^(-lambda))
-par(mar=c(1,5,2,2))
-# Biomass
-#plot(x=trait_sim0@params@w, y= (trait_abund0 * trait_sim0@params@w) / (trait_biomass_cc), log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim, main = "(b)", xlab="")
-#lines(x=trait_sim0@params@w, y=(trait_abund0 * trait_sim0@params@w) / (trait_biomass_cc), col="red", lwd=fat_lwd)
-#lines(x=trait_sim0@params@w, y=(trait_abund1 * trait_sim0@params@w) / (trait_biomass_cc), col="blue", lwd=fat_lwd, lty=3)
-#for (i in 1:10){
-#    lines(x=trait_sim0@params@w, y=(mean_n_trait0[i,]*trait_sim0@params@w) / (trait_biomass_cc))
-#}
-## Add the resource spectrum
-#lines(x=trait_sim0@params@w, y=(trait_sim0@n_pp[201,31:130]*trait_sim0@params@w) / (trait_biomass_cc), col="green")
-# Numbers
-plot(x=trait_sim0@params@w, y= (trait_abund0) / (n_base), log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim_numbers, main = "(b)", xlab="")
-lines(x=trait_sim0@params@w, y=(trait_abund0) / (n_base), col="red", lwd=fat_lwd)
-lines(x=trait_sim0@params@w, y=(trait_abund1) / (n_base), col="blue", lwd=fat_lwd, lty=3)
-for (i in 1:10){
-    lines(x=trait_sim0@params@w, y=(mean_n_trait0[i,]) / (n_base))
-}
-# Add the resource spectrum
-lines(x=trait_sim0@params@w, y=(trait_sim0@n_pp[201,31:130]) / (n_base), col="yellow")
-# Add carrying capacity
-lines(x=xlim, y=(kappa*xlim^-lambda)/n_base, col="green", lwd=fat_lwd)
-
-# Multispecies
-n_base_ns <- kappa_ns * xlim[1]^-lambda_ns
-par(mar=c(1,5,2,2))
-# Biomass
-#plot(x=ms_sim0@params@w, y= (ms_comm_abund0 * ms_sim0@params@w) / (ms_comm_abund0[1] * ms_sim0@params@w[1]), log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim, main = "(c)", xlab="")
-#lines(x=ms_sim0@params@w, y=(ms_comm_abund0 * ms_sim0@params@w) / (ms_comm_abund0[1] * ms_sim0@params@w[1]), col="red", lwd=fat_lwd)
-#lines(x=ms_sim0@params@w, y=(ms_comm_abund1 * ms_sim0@params@w) / (ms_comm_abund0[1] * ms_sim0@params@w[1]), col="blue", lwd=fat_lwd, lty=3)
-#for (i in 1:12){
-#    lines(x=ms_sim0@params@w, y=(mean_n_ms0[i,]*ms_sim0@params@w) / (ms_comm_abund0[1]*ms_sim0@params@w[1]))
-#}
-# Numbers
-plot(x=ms_sim0@params@w, y= (ms_abund0) / (n_base_ns), log="xy", type="n",  ylab="", xlim=xlim, ylim=ylim_numbers, main = "(c)", xlab="")
-lines(x=ms_sim0@params@w, y=(ms_abund0) / (n_base_ns), col="red", lwd=fat_lwd)
-lines(x=ms_sim0@params@w, y=(ms_abund1) / (n_base_ns), col="blue", lwd=fat_lwd, lty=3)
-for (i in 1:12){
-    lines(x=ms_sim0@params@w, y=(mean_n_ms0[i,]) / (n_base_ns))
-}
-# Add the resource spectrum
-lines(x=ms_sim0@params@w, y=(ms_sim0@n_pp[151,31:130]) / (n_base_ns), col="yellow")
-# Add carrying capacity
-lines(x=xlim, y=(kappa_ns*xlim^-lambda_ns)/n_base_ns, col="green", lwd=fat_lwd)
-
-# Cascades
-# Community
-par(mar=c(5,5,5,2))
-plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="xy", type="n", ylab="Relative abundance", xlim=xlim, ylim=cascade_ylim, main = "(d)", xlab="Body mass (g)")
-lines(x=comm_sim0@params@w, y=comm_relative_abundance)
-lines(x=c(min(comm_sim0@params@w),max(comm_sim0@params@w)), y=c(1,1),lty=2)
-lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
-
-# Trait
-plot(x=trait_sim0@params@w, y=trait_relative_abundance, log="xy", type="n", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(e)", xlab="Body mass (g)")
-lines(x=trait_sim0@params@w, y=trait_relative_abundance)
-lines(x=c(min(trait_sim0@params@w),max(trait_sim0@params@w)), y=c(1,1),lty=2)
-lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
-
-# Multispecies
-plot(x=ms_sim0@params@w, y=ms_relative_abundance, log="xy", type="n", xlab = "Body mass (g)", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(f)")
-lines(x=ms_sim0@params@w, y=ms_relative_abundance)
-lines(x=c(min(ms_sim0@params@w),max(ms_sim0@params@w)), y=c(1,1),lty=2)
-lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
-
-dev.off()
-
-# What are the unfished community slopes
-getCommunitySlope(comm_sim0, min_w = 10, max_w = 1e3)[comm_time_sim+1,"slope"]
-getCommunitySlope(trait_sim0, min_w = 10, max_w = 1e3)[trait_time_sim+1,"slope"]
-getCommunitySlope(ms_sim0, min_w = 10, max_w = 1e3)[ms_time_sim+1,"slope"]
-
 
 #----------------------------------------------------
-# Model summaries
-
-parameter_summary <- function(params){
-    summ <- c(
-        min_w = params@w[1],
-        max_w = params@w[length(params@w)],
-        no_w = length(params@w),
-        min_w_pp = params@w_full[1],
-        no_w_pp = length(params@w_full) - length(params@w),
-        w_pp_cutoff = as.numeric(names(params@cc_pp)[max(which(params@cc_pp>0))]),
-#        n = ,
-#        p = ,
-#        q = ,
-#        kappa = ,
-#        lambda = ,
-        alpha = params@species_params$alpha[1],
-        ks = params@species_params$ks[1],
-#        z0 = ,
-        # other z0
-        h = params@species_params$h[1],
-        beta = params@species_params$beta[1],
-        sigma = params@species_params$sigma[1],
-        gamma = params@species_params$gamma[1],
-        erepro = params@species_params$erepro[1])
-        #r_max = params@species_params$r_max[1],
-
-    return(summ)
-}
-
+# Code for FIGURE 2
 #----------------------------------------------------
-# Plot 2
-#----------------------------------------------------
+
+# Here we illustrate the performance of the model with fishing effort
+# changing over time.
+# We use the multispecies North Sea model with multiple gears.
+# Initially, only the 
 
 # Set up MS model. To have multiple gears. Run to equib.
 # Project forward with time changing efforts.
@@ -409,33 +272,85 @@ parameter_summary <- function(params){
 data(NS_species_params)
 data(inter)
 
-# Add an extra 'gears' column to the data set to specify the gear name for each species
+# Add an extra 'gears' column to the data set to specify the name of the fishing gear for each species.
+# We have 4 gears: Industrial, Pelagic, Otter and Beam
 NS_species_params$gear <- c("Industrial", "Industrial", "Industrial", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
+# We also set the selectivity parameters - we still use knife edge 
+# selectivty but the position of the 'edge' changes depending on the gear
+NS_species_params$knife_edge_size <- NA
+NS_species_params[NS_species_params$gear == "Industrial", "knife_edge_size"] <- 10
+NS_species_params[NS_species_params$gear == "Pelagic", "knife_edge_size"] <- 20
+NS_species_params[NS_species_params$gear == "Otter", "knife_edge_size"] <- 25 
+NS_species_params[NS_species_params$gear == "Beam", "knife_edge_size"] <- 30
 # Check the gear columns has been set correctly
 NS_species_params
-# Make the MizerParams object
+# Make the parameter object
 ms_params <- MizerParams(NS_species_params, inter)
+
 # Set up fishing effort for each gear through time as two dimensional array 
-# Run for 100 years to get equib
+# Run for 100 years to get equilibrium
 # No industrial fishing
 time_to_equib <- 100
-equib_effort <- array(NA, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-equib_effort[,"Industrial"] <- 0
-equib_effort[,"Pelagic"] <- 0.2
-equib_effort[,"Otter"] <- 0.2
-equib_effort[,"Beam"] <- 0.2
+
+
+# No fishing to start with
+equib_effort <- array(0, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+#equib_effort <- array(NA, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+#equib_effort[,"Industrial"] <- 0
+#equib_effort[,"Pelagic"] <- 0.2
+#equib_effort[,"Otter"] <- 0.2
+#equib_effort[,"Beam"] <- 0.2
+# Project to equilibrium
 ms_equib <- project(ms_params, effort=equib_effort)
 # Plot everything
 plot(ms_equib)
+# Pull out the equilibrium population abundances - we will use them as the initial abundances for the projection
 n_equib <- ms_equib@n[time_to_equib+1,,]
 n_pp_equib <- ms_equib@n_pp[time_to_equib+1,]
+
 # Set up fishing history
+# After 10 years a pelagic fishery starts (increases from 0 to 1 over 10 yrs)
+# After 20 years a beam fishery starts (increases from 0 to 0.5 over 10 yrs)
+# After 30 years an otter fishery starts (increases from 0 to 0.5 over 10 yrs)
+# After 40 years an industrial fishery starts (increases from 0 to 0.5 over 10 yrs)
+
 project_time <- 100
-fishing_effort <- array(NA, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-fishing_effort[,"Industrial"] <- c(rep(0,10),rep(0.8,90))
+fishing_effort <- array(0, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+fishing_effort[,"Pelagic"] <- c(rep(0,10),seq(from = 0, to = 1, length = 10), rep(1,80))
+fishing_effort[,"Beam"] <- c(rep(0,30),seq(from = 0, to = 1, length = 10), rep(1,60))
+fishing_effort[,"Otter"] <- c(rep(0,50),seq(from = 0, to = 1, length = 10), rep(1,40))
+fishing_effort[,"Industrial"] <- c(rep(0,70),seq(from = 0, to = 1, length = 10), rep(1,20))
+# Have a quick look
+plot(x = 1:project_time, y = seq(from=0,to=1,length=project_time), type="n", xlab = "Years", ylab="Fishing effort")
+for (i in 1:4){
+    lines(x=1:project_time, y = fishing_effort[,i], lty=i)
+}
+legend(x="bottomright",legend=c("Industrial", "Pelagic", "Beam", "Otter"), lty=1:4)
+# What happens
+ms_sim <- project(ms_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
+plotBiomass(ms_sim)
+# And Yield?
+yield <- getYieldGear(ms_sim)
+# Melt this down for easy plotting with ggplot2
+library(reshape2)
+yield_melt <- melt(yield)
+ggplot(yield_melt) + geom_line(aes(x=time, y=value, colour = sp)) + scale_y_log10()
+# But remove 0 rows
+yield_melt <- yield_melt[yield_melt$value >0,]
+library(ggplot2)
+ggplot(yield_melt) + geom_line(aes(x=time, y=value, linetype = sp, colour = gear)) + scale_y_log10()
+
 fishing_effort[,"Pelagic"] <- c(rep(0.2,30), rep(0.5,70))
 fishing_effort[,"Otter"] <- 0.2
 fishing_effort[,"Beam"] <- c(rep(0.2,50),rep(0.6,50))
+
+
+
+#fishing_effort <- array(NA, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+#fishing_effort[,"Industrial"] <- c(rep(0,10),rep(0.8,90))
+#fishing_effort[,"Pelagic"] <- c(rep(0.2,30), rep(0.5,70))
+#fishing_effort[,"Otter"] <- 0.2
+#fishing_effort[,"Beam"] <- c(rep(0.2,50),rep(0.6,50))
 ms_sim <- project(ms_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
 
 # Plots
