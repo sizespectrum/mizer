@@ -268,7 +268,8 @@ dev.off()
 # Then turn on demersal fishing
 # Calc indicators: slope, MMW etc through time.
 # Multi panel plot through time: fishing effort of gears, biomass of each species, indicators etc.
-
+rm(list=ls()) # start afresh
+library(mizer)
 data(NS_species_params)
 data(inter)
 
@@ -276,37 +277,34 @@ data(inter)
 # We have 4 gears: Industrial, Pelagic, Otter and Beam
 NS_species_params$gear <- c("Industrial", "Industrial", "Industrial", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
 # We also set the selectivity parameters - we still use knife edge 
-# selectivty but the position of the 'edge' changes depending on the gear
+# selectivty but the position of the 'edge' changes depending on the gear.
+# Size is specified as mass. Assume a L-W relationship 
+# w = a * l ^ b with a = 0.01 and b = 3
 NS_species_params$knife_edge_size <- NA
-NS_species_params[NS_species_params$gear == "Industrial", "knife_edge_size"] <- 10
-NS_species_params[NS_species_params$gear == "Pelagic", "knife_edge_size"] <- 20
-NS_species_params[NS_species_params$gear == "Otter", "knife_edge_size"] <- 25 
-NS_species_params[NS_species_params$gear == "Beam", "knife_edge_size"] <- 30
+NS_species_params[NS_species_params$gear == "Industrial", "knife_edge_size"] <- 10 # l = 10
+NS_species_params[NS_species_params$gear == "Pelagic", "knife_edge_size"] <- 80 # l = 20
+NS_species_params[NS_species_params$gear == "Otter", "knife_edge_size"] <- 270 # l = 30 
+NS_species_params[NS_species_params$gear == "Beam", "knife_edge_size"] <- 155 # l = 25 
 # Check the gear columns has been set correctly
 NS_species_params
 # Make the parameter object
-ms_params <- MizerParams(NS_species_params, inter)
+NS_params <- MizerParams(NS_species_params, inter)
+# Out of interest we can see that the fishing catchability has been correctly set
+NS_params@catchability
 
 # Set up fishing effort for each gear through time as two dimensional array 
 # Run for 100 years to get equilibrium
 # No industrial fishing
 time_to_equib <- 100
-
-
 # No fishing to start with
 equib_effort <- array(0, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-#equib_effort <- array(NA, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-#equib_effort[,"Industrial"] <- 0
-#equib_effort[,"Pelagic"] <- 0.2
-#equib_effort[,"Otter"] <- 0.2
-#equib_effort[,"Beam"] <- 0.2
 # Project to equilibrium
-ms_equib <- project(ms_params, effort=equib_effort)
-# Plot everything
-plot(ms_equib)
+NS_equib <- project(NS_params, effort=equib_effort)
+# Plot everything - check we are at equilibrium
+plot(NS_equib)
 # Pull out the equilibrium population abundances - we will use them as the initial abundances for the projection
-n_equib <- ms_equib@n[time_to_equib+1,,]
-n_pp_equib <- ms_equib@n_pp[time_to_equib+1,]
+n_equib <- NS_equib@n[time_to_equib+1,,]
+n_pp_equib <- NS_equib@n_pp[time_to_equib+1,]
 
 # Set up fishing history
 # After 10 years a pelagic fishery starts (increases from 0 to 1 over 10 yrs)
@@ -317,213 +315,114 @@ n_pp_equib <- ms_equib@n_pp[time_to_equib+1,]
 project_time <- 100
 fishing_effort <- array(0, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
 fishing_effort[,"Pelagic"] <- c(rep(0,10),seq(from = 0, to = 1, length = 10), rep(1,80))
-fishing_effort[,"Beam"] <- c(rep(0,30),seq(from = 0, to = 1, length = 10), rep(1,60))
-fishing_effort[,"Otter"] <- c(rep(0,50),seq(from = 0, to = 1, length = 10), rep(1,40))
-fishing_effort[,"Industrial"] <- c(rep(0,70),seq(from = 0, to = 1, length = 10), rep(1,20))
+fishing_effort[,"Otter"] <- c(rep(0,30),seq(from = 0, to = 1, length = 10), rep(1,60))
+fishing_effort[,"Beam"] <- c(rep(0,50),seq(from = 0, to = 1, length = 10), rep(1,40))
+fishing_effort[,"Industrial"] <- c(rep(0,70),seq(from = 0, to = 1.5, length = 10), rep(1.5,20))
 # Have a quick look
-plot(x = 1:project_time, y = seq(from=0,to=1,length=project_time), type="n", xlab = "Years", ylab="Fishing effort")
+plot(x = 1:project_time, y = seq(from=0,to=1,length=project_time), type="n", xlab = "Years", ylab="Fishing effort", ylim=c(0,1.5))
 for (i in 1:4){
     lines(x=1:project_time, y = fishing_effort[,i], lty=i)
 }
 legend(x="bottomright",legend=c("Industrial", "Pelagic", "Beam", "Otter"), lty=1:4)
 # What happens
-ms_sim <- project(ms_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
-plotBiomass(ms_sim)
+NS_sim <- project(NS_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
+plot(NS_sim)
+plotBiomass(NS_sim)
+
 # And Yield?
-yield <- getYieldGear(ms_sim)
+yield <- getYieldGear(NS_sim)
+# Do some tidying up as not all gears catch all species
+# To help with the plot set yields of non-caught species to NA
+catchability <- NS_sim@params@catchability
+catchability[catchability == 0] <- NA
+yield <- sweep(yield, c(2,3), catchability, "*")
 # Melt this down for easy plotting with ggplot2
 library(reshape2)
-yield_melt <- melt(yield)
-ggplot(yield_melt) + geom_line(aes(x=time, y=value, colour = sp)) + scale_y_log10()
-# But remove 0 rows
-yield_melt <- yield_melt[yield_melt$value >0,]
 library(ggplot2)
+yield_melt <- melt(yield)
+# Do some tidying up because not all gears caught all species
+# But remove 0 rows
 ggplot(yield_melt) + geom_line(aes(x=time, y=value, linetype = sp, colour = gear)) + scale_y_log10()
 
-fishing_effort[,"Pelagic"] <- c(rep(0.2,30), rep(0.5,70))
-fishing_effort[,"Otter"] <- 0.2
-fishing_effort[,"Beam"] <- c(rep(0.2,50),rep(0.6,50))
+# Plot against time
+# a) fishing effort by gear
+# b) SSB - species and gear
+# c) Yield - species and gear
+# d) Maximum weight
+# e) and Mean maximum weight
+# f) Slope
+# g) LFI
 
-
-
-#fishing_effort <- array(NA, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-#fishing_effort[,"Industrial"] <- c(rep(0,10),rep(0.8,90))
-#fishing_effort[,"Pelagic"] <- c(rep(0.2,30), rep(0.5,70))
-#fishing_effort[,"Otter"] <- 0.2
-#fishing_effort[,"Beam"] <- c(rep(0.2,50),rep(0.6,50))
-ms_sim <- project(ms_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
-
-# Plots
-# Get indicators - slope, mean max weight, mean weight, lfi, yield, ssb throught time
-# size range
+# Size range for plots
 min_w <- 10
 max_w <- 5000
 threshold_w <- 100
 
-ssb <- getSSB(ms_sim)
-yield <- getYield(ms_sim)
-lfi <- getProportionOfLargeFish(ms_sim, min_w=min_w, max_w=max_w, threshold_w=threshold_w)
-mw <- getMeanWeight(ms_sim, min_w=min_w, max_w=max_w)
-mmw <- getMeanMaxWeight(ms_sim, min_w=min_w, max_w=max_w, measure="biomass")
-slope <- getCommunitySlope(ms_sim, min_w=min_w, max_w=max_w)[,"slope"]
+ssb <- getSSB(NS_sim)
+#yield <- getYield(NS_sim)
+#yield_gear <- getYieldGear(NS_sim)
+yield <- getYieldGear(NS_sim)
+# Do some tidying up as not all gears catch all species
+# To help with the plot set yields of non-caught species to NA
+catchability <- NS_sim@params@catchability
+catchability[catchability == 0] <- NA
+yield <- sweep(yield, c(2,3), catchability, "*")
+lfi <- getProportionOfLargeFish(NS_sim, min_w=min_w, max_w=max_w, threshold_w=threshold_w)
+mw <- getMeanWeight(NS_sim, min_w=min_w, max_w=max_w)
+mmw <- getMeanMaxWeight(NS_sim, min_w=min_w, max_w=max_w, measure="biomass")
+slope <- getCommunitySlope(NS_sim, min_w=min_w, max_w=max_w)[,"slope"]
 
-#png(filename="time_series.png", width = 7, height = 14, units="cm",res=800)
+png(filename="time_series.png", width = 7, height = 14, units="cm",res=800, pointsize=6)
 #par(mfcol =c(7,1))
 nf <- layout(matrix(1:7,7,1,byrow=TRUE), rep(7,7),c(1.2,rep(1,5),1.8),TRUE)
 #layout.show(nf)
 # Effort of gears
-par(mar=c(0,4,0.5,1))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,1), xlab="", ylab="Effort", xaxt="n")
+right_margin <- 4
+par(mar=c(0,4,0.5,right_margin))
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
 for (i in 1:4){
-    lines(x = 1:project_time, y=ms_sim@effort[,i], col=i)
+    lines(x = 1:project_time, y=NS_sim@effort[,i], col=i)
 }
+legend(x="topleft", legend = dimnames(fishing_effort)$gear, col=1:4, lty=1, bty='n')
 # ssb
-par(mar=c(0,4,0,1))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(ssb),max(ssb)),log="y", ylab="SSB", xlab="", xaxt="n")
+#par(mar=c(0,4,0,1))
+par(mar=c(0,4,0,right_margin))
+gears <- 1:4
+names(gears) <- dimnames(yield)$gear
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(ssb),max(ssb)),log="y", ylab="", xlab="", xaxt="n", yaxt="n")
+axis(4)
+mtext("SSB", side=4, line=3, cex=0.7)
 for (i in 1:12){
-    lines(x = 1:project_time, y=ssb[2:(project_time+1),i])
+    gear <- NS_sim@params@species_params[i,"gear"]
+    lines(x = 1:project_time, y=ssb[2:(project_time+1),i], col=gears[gear])
 }
 # yield
-par(mar=c(0,4,0,1))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(yield[11:100,]),max(yield[11:100,])),log="y", ylab="Yield", xlab="", xaxt="n")
-for (i in 1:12){
-    lines(x = 1:project_time, y=yield[1:project_time,i])
+par(mar=c(0,4,0,right_margin))
+yield_min <- min(yield[yield>0], na.rm=TRUE)
+yield_max <- max(yield[yield>0], na.rm=TRUE)
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(yield_min, yield_max),log="y", ylab="Yield", xlab="", xaxt="n")
+for (gear in 1:4){
+    for (i in 1:12){
+        lines(x = 1:project_time, y=yield[1:project_time,gear,i], col=gear)
+    }
 }
 # lfi
-par(mar=c(0,4,0,1))
-plot(x = 1:project_time, y=lfi[2:(project_time+1)], type="l", ylab="LFI", xlab="", xaxt="n")
+par(mar=c(0,4,0,right_margin))
+plot(x = 1:project_time, y=lfi[2:(project_time+1)], type="l", ylab="", xlab="", xaxt="n", yaxt="n")
+axis(4)
+mtext("LFI", side=4, line=3, cex=0.7)
 # mw
-par(mar=c(0,4,0,1))
+par(mar=c(0,4,0,right_margin))
 plot(x = 1:project_time, y=mw[2:(project_time+1)], type="l", ylab="Mean weight", xlab="", xaxt="n")
 # mmw
-par(mar=c(0,4,0,1))
-plot(x = 1:project_time, y=mmw[2:(project_time+1)], type="l", ylab="Mean max weight", xlab="", xaxt="n")
+par(mar=c(0,4,0,right_margin))
+plot(x = 1:project_time, y=mmw[2:(project_time+1)], type="l", ylab="", xlab="", xaxt="n", yaxt="n")
+axis(4)
+mtext("Mean max. weight", side=4, line=3, cex=0.7)
 # slope
-par(mar=c(5,4,0,1))
+par(mar=c(5,4,0,right_margin))
 plot(x = 1:project_time, y=slope[2:(project_time+1)], type="l", ylab="Slope", xlab="Years")
-#dev.off()
+dev.off()
 
-
-
-
-
-
-
-#----------------------------------------------------
-# COMMUNITY MODEL EXAMPLE
-#----------------------------------------------------
-
-# Create a MizerParams object using the default values
-comm_params <- set_community_model()
-# Project through time with and without fishing effort
-# The time step of the simulations is 1, and the results are
-# stored every time step (default values).
-comm_sim0 <- project(comm_params, t_max=50, effort=0)
-comm_sim1 <- project(comm_params, t_max=50, effort=1)
-# We want the abundances in the final time step
-# Abundances are stored in the 'n' slot
-# which contains a three dimensional array (time by species by size).
-# We can use the abundances to calculate the relative abundances at size:
-comm_relative_abundance <- comm_sim1@n[51,,] / comm_sim0@n[51,,]
-
-# Plot FIGURE 1 - a trophic cascade
-plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="x", type="n", xlab = "Size (g)", ylab="Relative abundance")
-lines(x=comm_sim0@params@w, y=comm_relative_abundance)
-lines(x=c(min(comm_sim0@params@w),max(comm_sim0@params@w)), y=c(1,1),lty=2)
-
-#----------------------------------------------------
-# TRAIT BASED MODEL EXAMPLE
-#----------------------------------------------------
-
-# Set up a trait-based model with 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
-trait_params <- set_trait_model(no_sp=10, min_w_inf=10, max_w_inf=1e5)
-# Project forward for 100 time steps by which time the community has reached equilibrium:
-# Without fishing
-trait_sim0 <- project(trait_params, t_max=100, effort=0)
-# With fishing
-trait_sim1 <- project(trait_params, t_max=100, effort=0.75)
-# Plot the spectra FIGURE 2
-plotSpectra(trait_sim1, biomass=FALSE) 
-# For the paper - some tweaks to the plot
-p <- plotSpectra(trait_sim1, biomass=FALSE)
-p <- p + theme_bw() + theme(legend.position="none")
-ggsave("figure2.png", plot = p, width = 7, height = 7, units = "cm", scale = 2)
-# 
-
-# Calculate the slopes for individuals between 10 g and 10 kg
-slope0 <- getCommunitySlope(trait_sim0, min_w=10, max_w=10e3)
-slope1 <- getCommunitySlope(trait_sim1, min_w=10, max_w=10e3)
-
-#----------------------------------------------------
-# MULTISPECIES EXAMPLE
-#----------------------------------------------------
-
-# Load the multispecies data set and interaction matrix
-data(NS_species_params)
-data(inter)
-
-# Add an extra 'gears' column to the data set to specify the gear name for each species
-NS_species_params$gear <- c("Industrial", "Industrial", "Industrial", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
-# Check the gear columns has been set correctly
-NS_species_params
-# Make the MizerParams object
-ms_params <- MizerParams(NS_species_params, inter)
-# Set up fishing effort for each gear through time as a two dimensional array 
-# This will be used to perform a 40 year projection, with the first 20 years as transients
-fishing_effort <- array(NA, dim=c(40, 4), dimnames=list(time=1:40, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
-# Set the fishing effort of each of the gears through time
-fishing_effort[,"Industrial"] <- c(rep(0.5,20), seq(from=0.5, to=2, length=20))
-fishing_effort[,"Pelagic"] <- c(rep(1,20), seq(from=1, to=2, length=20))
-fishing_effort[,"Beam"] <- c(rep(2,20), seq(from=2, to=0.5, length=20))
-fishing_effort[,"Otter"] <- c(rep(1,20), seq(from=2, to=0.5, length=20))
-# And project
-ms_sim <- project(ms_params, effort=fishing_effort)
-# Plot everything
-plot(ms_sim)
-
-# Plot for FIGURE 3
-# Pull out detail from summary methods
-bm <- getBiomass(ms_sim)
-fl <- getFeedingLevel(ms_sim)[41,,]
-m2 <- getM2(ms_sim)[41,,]
-fm <- getFMort(ms_sim)[40,,]
-# Helpful variables for the plot
-sim_time <- 21:40
-max_bm <- max(bm[sim_time,])
-min_bm <- min(bm[sim_time,])
-size <- ms_sim@params@w
-# Plot formatting variables
-cols <- rep(c("black","blue","red","green"),each = 3)
-ltys <- rep(c(1,3,4),4)
-# Set up the plot layout
-layout_matrix <- matrix(c(1,2,3,4), byrow=TRUE, ncol = 1)
-nf <- layout(layout_matrix, widths = 1, heights = c(1.3,1,0.8,1.2),respect = FALSE)
-# Then figure out  margins: B, L, T, R
-par(mar=c(4,5,2,2))
-plot(x = sim_time, y = rep(1, length(sim_time)), type="n", ylim=c(min_bm,max_bm), log = "y", ylab = "Biomass", xlab = "Time (yr)")
-for (i in 1:dim(bm)[2]){
-    lines(x = sim_time, y = bm[sim_time+1,i], col = cols[i], lty = ltys[i])
-}
-par(mar=c(0,5,2,2))
-plot(x=size, y = rep(1,length(size)), type="n", ylim = c(min(fl), max(fl)), log="x", ylab = "Feeding level", xlab = "", xaxt="n")
-    for (i in 1:dim(fl)[1]){
-        lines(x = size, y = fl[i,], col = cols[i], lty = ltys[i])
-    }
-par(mar=c(0,5,0,2))
-plot(x=size, y = rep(1,length(size)), type="n", ylim = c(min(m2), max(m2)), log="x", ylab = "M2", xlab = "", xaxt="n")
-    for (i in 1:dim(m2)[1]){
-        lines(x = size, y = m2[i,], col = cols[i], lty = ltys[i])
-    }
-par(mar=c(5,5,0,2))
-plot(x=size, y = rep(1,length(size)), type="n", ylim = c(min(fm), max(fm)), log="x", ylab = "Fishing mortality", xlab = "Size (g)")
-    for (i in 1:dim(fm)[1]){
-        lines(x = size, y = fm[i,], col = cols[i], lty = ltys[i])
-    }
-legend(x="left",legend = dimnames(bm)$sp, col = cols, lty=ltys, ncol = 2, bty="n")
-
-
-
-
-
-
-
+# Swap y-axis to right side
+# COlour SSB plot with gear
