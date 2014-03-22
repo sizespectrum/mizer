@@ -298,7 +298,8 @@ NS_params@catchability
 # No industrial fishing
 time_to_equib <- 100
 # No fishing to start with
-equib_effort <- array(0, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+gear_names <- c("Pelagic","Beam","Otter","Industrial")
+equib_effort <- array(0, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=gear_names))
 # Project to equilibrium
 NS_equib <- project(NS_params, effort=equib_effort)
 # Plot everything - check we are at equilibrium
@@ -313,8 +314,9 @@ n_pp_equib <- NS_equib@n_pp[time_to_equib+1,]
 # After 30 years an otter fishery starts (increases from 0 to 0.5 over 10 yrs)
 # After 40 years an industrial fishery starts (increases from 0 to 0.5 over 10 yrs)
 
+# Pelagic, Beam, Otter, Industrial
 project_time <- 100
-fishing_effort <- array(0, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=c("Industrial", "Pelagic", "Beam", "Otter")))
+fishing_effort <- array(0, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=gear_names))
 fishing_effort[,"Pelagic"] <- c(rep(0,10),seq(from = 0, to = 1, length = 10), rep(1,80))
 fishing_effort[,"Beam"] <- c(rep(0,30),seq(from = 0, to = 1, length = 10), rep(1,60))
 fishing_effort[,"Otter"] <- c(rep(0,50),seq(from = 0, to = 1, length = 10), rep(1,40))
@@ -373,9 +375,11 @@ mw <- getMeanWeight(NS_sim, min_w=min_w, max_w=max_w)
 mmw <- getMeanMaxWeight(NS_sim, min_w=min_w, max_w=max_w, measure="biomass")
 slope <- getCommunitySlope(NS_sim, min_w=min_w, max_w=max_w)[,"slope"]
 
+# Pelagic Beam Otter Industrial
 # Some lty and colour information
 gears <- 1:4
-names(gears) <- dimnames(yield)$gear
+#names(gears) <- dimnames(yield)$gear
+names(gears) <- gear_names
 species_gear_colour <- rep(NA,12)
 species_lty <- rep(NA,12)
 for (i in 1:12){
@@ -385,8 +389,108 @@ for (i in names(gears)){
     gear_idx <- (NS_sim@params@species_params$gear == i)
     species_lty[gear_idx] <- 1:sum(gear_idx)
 }
-legend_txt_cex <- 0.8
+legend_txt_cex <- 0.7
 leg_line <-  0.5
+
+#------------------------------------------------------------------
+# FIGURE 2 with 5 panels
+# a) effort by gear
+# b) ssb
+# c) yield
+# d) lfi, mw, mmw, slope
+# e) size distribution before introduction of four fisheries (totals)
+width <- 7
+height <- 20
+add_effort_lines <- function(){
+    lwd <- 0.5
+    lines(x=c(20,20), y=c(1e-20,1e20), col=gears[1], lty=3, lwd=lwd)
+    lines(x=c(40,40), y=c(1e-20,1e20), col=gears[2], lty=3, lwd=lwd)
+    lines(x=c(60,60), y=c(1e-20,1e20), col=gears[3], lty=3, lwd=lwd)
+    lines(x=c(80,80), y=c(1e-20,1e20), col=gears[4], lty=3, lwd=lwd)
+}
+png(filename="Figure21.png", width = width, height = height, units="cm",res=800, pointsize=8)
+rel_heights <- c(1,2,2,2,2,0.5)
+heights = (height / sum(rel_heights)) * rel_heights
+nf <- layout(matrix(1:length(rel_heights),length(rel_heights),1,byrow=TRUE), widths = width, heights=heights,TRUE)
+right_margin <- 1
+
+
+par(mar=c(0,4,0.5,right_margin))
+# Effort of gears
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
+for (i in gears){
+    lines(x = 1:project_time, y=NS_sim@effort[,names(gears)[i]], col=gears[i])
+}
+add_effort_lines()
+legend(x="topleft", legend = names(gears), col=gears, lty=1, bty='o', cex=legend_txt_cex, pt.lwd=leg_line)
+# ssb
+par(mar=c(0,4,0,right_margin))
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(ssb),max(ssb)),log="y", ylab="SSB", xlab="", xaxt="n", yaxt="n")
+for (i in 1:12){
+    gear <- NS_sim@params@species_params[i,"gear"]
+    lines(x = 1:project_time, y=ssb[2:(project_time+1),i], col=species_gear_colour[i], lty=species_lty[i])
+}
+add_effort_lines()
+# yield
+par(mar=c(0,4,0,right_margin))
+yield_min <- min(yield[yield>0], na.rm=TRUE)
+yield_max <- max(yield[yield>0], na.rm=TRUE)
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(yield_min, yield_max),log="y", ylab="Yield", xlab="", xaxt="n")
+for (gear in 1:4){
+    for (i in 1:12){
+        lines(x = 1:project_time, y=yield[1:project_time,gear,i], col=gear, lty=species_lty[i])
+    }
+}
+add_effort_lines()
+# Add species legend here
+legend(x="bottomright", legend=NS_sim@params@species_params$species, lty=species_lty, col = species_gear_colour, bty='o', cex = legend_txt_cex, ncol=2, pt.lwd=leg_line)
+# LFI, MW, MMW, Slope
+# Need to scale these between 0 and 1 (-1 and 0 for slope)
+lfi_scale <- 1 / max(lfi[2:(project_time+1)])
+mw_scale <- 1 / max(mw[2:(project_time+1)])
+mmw_scale <- 1 / max(mmw[2:(project_time+1)])
+#slope_scale <- 1 / max(abs(slope[2:(project_time+1)]))
+slope_plot <- slope[2:(project_time+1)]
+slope_adj <- abs(min(slope_plot))
+slope_plot <- slope_plot + slope_adj
+slope_scale <- 1 / max(slope_plot)
+par(mar=c(4,4,0,right_margin))
+plot(x = 1:project_time, y=1:project_time, type="n", ylab="Scaled metrics", xlab="Years", ylim=c(0,1))
+lines(x = 1:project_time, y = lfi[2:(project_time+1)] * lfi_scale, col=1)
+lines(x = 1:project_time, y = mw[2:(project_time+1)] * mw_scale, col=2)
+lines(x = 1:project_time, y = mmw[2:(project_time+1)] * mmw_scale, col=3)
+#lines(x = 1:project_time, y = slope[2:(project_time+1)] * slope_scale)
+lines(x = 1:project_time, y = slope_plot * slope_scale, col=4)
+add_effort_lines()
+legend(x="bottomright",
+    legend = c(
+        paste("LFI (x ", signif(lfi_scale,2), ")", sep=""),
+        paste("MW (x ", signif(mw_scale,2), ")", sep=""),
+        paste("MMW (x ", signif(mmw_scale,2), ")", sep=""),
+        paste("Slope (+ ", signif(slope_adj,2), " x ", signif(slope_scale,2), ")", sep="")), lty = 1, col=c(1,2,3,4), bty="o", cex = legend_txt_cex, pt.lwd=leg_line)
+# Size distribution at start and end - five lines
+# times of something happening
+# 20, 40, 60, 80
+b0 <- apply(NS_sim@n[1,,],2,sum) * NS_sim@params@w
+b1 <- apply(NS_sim@n[20,,],2,sum) * NS_sim@params@w
+b2 <- apply(NS_sim@n[40,,],2,sum) * NS_sim@params@w
+b3 <- apply(NS_sim@n[60,,],2,sum) * NS_sim@params@w
+b4 <- apply(NS_sim@n[80,,],2,sum) * NS_sim@params@w
+xlim <- c(1e-3,1e4)
+ylim <- c(5e5,max(c(b0,b1,b2,b3,b4)))
+
+par(mar=c(4,4,1,right_margin))
+plot(x=NS_sim@params@w, y = NS_sim@params@w, type="n", ylab="Total biomass", xlab = "Size (g)", log="xy", ylim = ylim, xlim=xlim)
+lines(x=NS_sim@params@w, y = b0, col=1)
+lines(x=NS_sim@params@w, y = b1, col=2)
+lines(x=NS_sim@params@w, y = b2, col=3)
+lines(x=NS_sim@params@w, y = b3, col=4)
+lines(x=NS_sim@params@w, y = b4, col=6)
+legend(x="bottomleft", legend=c("Unfished", "Year 20: pelagic", "Year 40: beam", "Year 60: otter", "Year 80: industrial"), lty=1, col=c(1,2,3,4,6), cex = legend_txt_cex, pt.lwd=leg_line)
+dev.off()
+
+#------------------------------------------------------------------
+# FIGURE 2 with 7 panels
 
 width <- 7
 height <- 20
@@ -401,10 +505,11 @@ nf <- layout(matrix(1:length(rel_heights),length(rel_heights),1,byrow=TRUE), wid
 right_margin <- 4
 par(mar=c(0,4,0.5,right_margin))
 plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
-for (i in 1:4){
-    lines(x = 1:project_time, y=NS_sim@effort[,i], col=i)
+#for (i in 1:4){
+for (i in gears){
+    lines(x = 1:project_time, y=NS_sim@effort[,names(gears)[i]], col=gears[i])
 }
-legend(x="topleft", legend = dimnames(fishing_effort)$gear, col=1:4, lty=1, bty='n', cex=legend_txt_cex, pt.lwd=leg_line)
+legend(x="topleft", legend = names(gears), col=gears, lty=1, bty='n', cex=legend_txt_cex, pt.lwd=leg_line)
 # ssb
 #par(mar=c(0,4,0,1))
 par(mar=c(0,4,0,right_margin))
