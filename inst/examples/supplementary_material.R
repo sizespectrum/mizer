@@ -310,9 +310,9 @@ n_pp_equib <- NS_equib@n_pp[time_to_equib+1,]
 
 # Set up fishing history
 # After 10 years a pelagic fishery starts (increases from 0 to 1 over 10 yrs)
-# After 20 years a beam fishery starts (increases from 0 to 0.5 over 10 yrs)
-# After 30 years an otter fishery starts (increases from 0 to 0.5 over 10 yrs)
-# After 40 years an industrial fishery starts (increases from 0 to 0.5 over 10 yrs)
+# After 30 years a beam fishery starts (increases from 0 to 0.5 over 10 yrs)
+# After 50 years an otter fishery starts (increases from 0 to 0.5 over 10 yrs)
+# After 70 years an industrial fishery starts (increases from 0 to 0.5 over 10 yrs)
 
 # Pelagic, Beam, Otter, Industrial
 project_time <- 100
@@ -326,7 +326,7 @@ plot(x = 1:project_time, y = seq(from=0,to=1,length=project_time), type="n", xla
 for (i in 1:4){
     lines(x=1:project_time, y = fishing_effort[,i], lty=i)
 }
-legend(x="bottomright",legend=c("Industrial", "Pelagic", "Beam", "Otter"), lty=1:4)
+legend(x="bottomright",legend=c("Pelagic", "Beam", "Otter", "Industrial"), lty=1:4)
 # What happens
 NS_sim <- project(NS_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
 plot(NS_sim)
@@ -399,6 +399,20 @@ leg_line <-  0.5
 # c) yield
 # d) lfi, mw, mmw, slope
 # e) size distribution before introduction of four fisheries (totals)
+
+# Notes from Ken and Julia
+# 1. change x scale to have min of 1g
+# Maybe extend x axis to larger sizes - bumps
+# 6. colours in ssb and yield legend do not match the lines 
+# 2. ssb should have a scale (relative to unfished?)
+# 3. replace ssb plot with 4 plots - one for each gear - tricky
+# 4. replace yield plot with 4 plots - one for each gear
+# 5. Or... some other way of distinguishing the species (or leave as it is...) - maybe gear is line type (4 of them), and species is colour (5 of them)
+# Change scaled metrics to community metrics
+# Rescale community metrics to be relative to unfished state
+
+# 
+
 width <- 7
 height <- 20
 add_effort_lines <- function(){
