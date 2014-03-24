@@ -275,10 +275,8 @@ data(inter)
 
 # Add an extra 'gears' column to the data set to specify the name of the fishing gear for each species.
 # We have 4 gears: Industrial, Pelagic, Otter and Beam
-#NS_species_params$gear <- c("Pelagic", "Industrial", "Pelagic", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
-NS_species_params$gear <- c("Industrial", "Industrial", "Pelagic", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
-# We also set the selectivity parameters - we still use knife edge 
-# selectivty but the position of the 'edge' changes depending on the gear.
+NS_species_params$gear <- c("Industrial", "Industrial", "Industrial", "Pelagic", "Beam", "Otter", "Beam", "Otter", "Beam", "Otter", "Otter", "Otter")
+# We also set the selectivity parameters - we still use knife edge selectivty but the position of the 'edge' changes depending on the gear.
 # Size is specified as mass. Assume a L-W relationship 
 # w = a * l ^ b with a = 0.01 and b = 3
 NS_species_params$knife_edge_size <- NA
@@ -286,66 +284,70 @@ NS_species_params[NS_species_params$gear == "Industrial", "knife_edge_size"] <- 
 NS_species_params[NS_species_params$gear == "Pelagic", "knife_edge_size"] <- 80 # l = 20
 NS_species_params[NS_species_params$gear == "Otter", "knife_edge_size"] <- 270 # l = 30 
 NS_species_params[NS_species_params$gear == "Beam", "knife_edge_size"] <- 155 # l = 25 
+# It would be more sophisticated to base the selectivity on working group assumptions and also change
+# the selectivity ogive. But for simplicity here we just use knife-edge.
 # Check the gear columns has been set correctly
 NS_species_params
 # Make the parameter object
 NS_params <- MizerParams(NS_species_params, inter)
 # Out of interest we can see that the fishing catchability has been correctly set
+# i.e. gears that do not catch a species have a catchability of 0
 NS_params@catchability
 
-# Set up fishing effort for each gear through time as two dimensional array 
-# Run for 100 years to get equilibrium
-# No industrial fishing
+# We want our simulation to start at the 'unfished' state so to start with we run for 100 years with no fishing effort to get stocks at equilibrium.
 time_to_equib <- 100
-# No fishing to start with
-gear_names <- c("Pelagic","Beam","Otter","Industrial")
-equib_effort <- array(0, dim=c(time_to_equib, 4), dimnames=list(time=1:time_to_equib, gear=gear_names))
-# Project to equilibrium
-NS_equib <- project(NS_params, effort=equib_effort)
+# Project to equilibrium (with default timestep of 0.1)
+NS_equib <- project(NS_params, effort=0, t_max = time_to_equib)
 # Plot everything - check we are at equilibrium
 plot(NS_equib)
 # Pull out the equilibrium population abundances - we will use them as the initial abundances for the projection
 n_equib <- NS_equib@n[time_to_equib+1,,]
 n_pp_equib <- NS_equib@n_pp[time_to_equib+1,]
 
-# Set up fishing history
-# After 10 years a pelagic fishery starts (increases from 0 to 1 over 10 yrs)
-# After 30 years a beam fishery starts (increases from 0 to 0.5 over 10 yrs)
-# After 50 years an otter fishery starts (increases from 0 to 0.5 over 10 yrs)
-# After 70 years an industrial fishery starts (increases from 0 to 0.5 over 10 yrs)
-
-# Pelagic, Beam, Otter, Industrial
+# Set up fishing effort for each gear.
+# Here, we want the fishing effort of each gear to change through time as additional gears start operating.
+# We therefore set up the fishing effort as a two dimensional array: time by gear
+# Set up fishing history:
+# After 10 years a pelagic fishery starts (effort increases from 0 to 1 over 10 yrs)
+# After 30 years a beam fishery starts (increases from 0 to 0.75 over 10 yrs)
+# After 50 years an otter fishery starts (increases from 0 to 0.9 over 10 yrs)
+# After 70 years an industrial fishery starts (increases from 0 to 1.5 over 10 yrs)
+gear_names <- c("Pelagic","Beam","Otter","Industrial")
+gear_lty <- 1:4
+names(gear_lty) <- gear_names
 project_time <- 100
 fishing_effort <- array(0, dim=c(project_time, 4), dimnames=list(time=1:project_time, gear=gear_names))
 fishing_effort[,"Pelagic"] <- c(rep(0,10),seq(from = 0, to = 1, length = 10), rep(1,80))
-fishing_effort[,"Beam"] <- c(rep(0,30),seq(from = 0, to = 1, length = 10), rep(1,60))
-fishing_effort[,"Otter"] <- c(rep(0,50),seq(from = 0, to = 1, length = 10), rep(1,40))
+fishing_effort[,"Beam"] <- c(rep(0,30),seq(from = 0, to = 0.75, length = 10), rep(0.75,60))
+fishing_effort[,"Otter"] <- c(rep(0,50),seq(from = 0, to = 0.9, length = 10), rep(0.9,40))
 fishing_effort[,"Industrial"] <- c(rep(0,70),seq(from = 0, to = 1.5, length = 10), rep(1.5,20))
-# Have a quick look
+# Have a quick look at the fishing effort by gear
 plot(x = 1:project_time, y = seq(from=0,to=1,length=project_time), type="n", xlab = "Years", ylab="Fishing effort", ylim=c(0,1.5))
-for (i in 1:4){
-    lines(x=1:project_time, y = fishing_effort[,i], lty=i)
+for (i in gear_names){
+    lines(x=1:project_time, y = fishing_effort[,i], lty=gear_lty[i])
 }
-legend(x="bottomright",legend=c("Pelagic", "Beam", "Otter", "Industrial"), lty=1:4)
-# What happens
+legend(x="bottomright",legend=gear_names, lty=gear_lty)
+# Run the simulation, passing in the effort array and the initial population abundances
 NS_sim <- project(NS_params, effort=fishing_effort, initial_n = n_equib, initial_n_pp = n_pp_equib)
+# Plot everything - what happened?
 plot(NS_sim)
+# A closer look at the biomass through time - can we see when the different gears start?
 plotBiomass(NS_sim)
 
-# And Yield?
-yield <- getYieldGear(NS_sim)
-# Do some tidying up as not all gears catch all species
-# To help with the plot set yields of non-caught species to NA
-catchability <- NS_sim@params@catchability
-catchability[catchability == 0] <- NA
-yield <- sweep(yield, c(2,3), catchability, "*")
-# Melt this down for easy plotting with ggplot2
-library(reshape2)
-library(ggplot2)
-yield_melt <- melt(yield)
-# Do some tidying up because not all gears caught all species
-# But remove 0 rows
-ggplot(yield_melt) + geom_line(aes(x=time, y=value, linetype = sp, colour = gear)) + scale_y_log10()
+## And Yield?
+#yield <- getYieldGear(NS_sim)
+## Do some tidying up as not all gears catch all species
+## To help with the plot set yields of non-caught species to NA
+#catchability <- NS_sim@params@catchability
+#catchability[catchability == 0] <- NA
+#yield <- sweep(yield, c(2,3), catchability, "*")
+## Melt this down for easy plotting with ggplot2
+#library(reshape2)
+#library(ggplot2)
+# yield_melt <- melt(yield)
+## Do some tidying up because not all gears caught all species
+## But remove 0 rows
+#ggplot(yield_melt) + geom_line(aes(x=time, y=value, linetype = sp, colour = gear)) + scale_y_log10()
 
 # Plot against time
 # a) fishing effort by gear
@@ -356,216 +358,202 @@ ggplot(yield_melt) + geom_line(aes(x=time, y=value, linetype = sp, colour = gear
 # f) Slope
 # g) LFI
 
-# Size range for plots
+# Size range for calculating community metrics
 min_w <- 10
 max_w <- 5000
-threshold_w <- 100
-
+threshold_w <- 100 # for large fish indicator - what is a large fish?
+# Get the data to be plotted
 ssb <- getSSB(NS_sim)
-#yield <- getYield(NS_sim)
-#yield_gear <- getYieldGear(NS_sim)
+# rescale ssb to be relative to the unfished ssb
+rescale_ssb <- sweep(ssb,2,ssb[1,],"/")
+
 yield <- getYieldGear(NS_sim)
-# Do some tidying up as not all gears catch all species
+# rescale yield relative to the maximum yield over the time series
+max_yield <- apply(yield,c(2,3),max)
+rescale_yield <- sweep(yield,c(2,3), max_yield, "/")
+# Do some tidying up of yield as not all gears catch all species
 # To help with the plot set yields of non-caught species to NA
-catchability <- NS_sim@params@catchability
-catchability[catchability == 0] <- NA
-yield <- sweep(yield, c(2,3), catchability, "*")
+yield[yield==0] <- NA
+rescale_yield[rescale_yield==0] <- NA
+
+# yield[yield==0] <- NA
+#catchability <- NS_sim@params@catchability
+#catchability[catchability == 0] <- NA
+#yield <- sweep(yield, c(2,3), catchability, "*")
+# Community metrics 
 lfi <- getProportionOfLargeFish(NS_sim, min_w=min_w, max_w=max_w, threshold_w=threshold_w)
 mw <- getMeanWeight(NS_sim, min_w=min_w, max_w=max_w)
 mmw <- getMeanMaxWeight(NS_sim, min_w=min_w, max_w=max_w, measure="biomass")
 slope <- getCommunitySlope(NS_sim, min_w=min_w, max_w=max_w)[,"slope"]
 
-# Pelagic Beam Otter Industrial
-# Some lty and colour information
-gears <- 1:4
-#names(gears) <- dimnames(yield)$gear
-names(gears) <- gear_names
-species_gear_colour <- rep(NA,12)
+# Scale these relative to the unfished community
+rescale_lfi <- lfi / lfi[1]
+rescale_mw <- mw / mw[1]
+rescale_mmw <- mmw / mmw[1]
+
+# Set colours and lty for the species
+# Pelagic Beam Otter Industrial  Catching 12 species
+# Each species has same lty as the gear that catches it
+# Each species within a gear has a different colour
+species_names <- as.character(NS_params@species_params$species)
 species_lty <- rep(NA,12)
-for (i in 1:12){
-    species_gear_colour[i] <- c(gears[NS_sim@params@species_params[i,"gear"]])
+names(species_lty) <- species_names
+#cols <- 1:5
+cols <- c("black","blue","magenta","green","red")
+species_col <- rep(NA,12)
+names(species_col) <- species_names
+for (i in gear_names){
+    gear_idx <- (NS_params@species_params$gear == i)
+    species_col[NS_params@species_params$species[gear_idx]] <- cols[1:(sum(gear_idx))]
+    species_lty[NS_params@species_params$species[gear_idx]] <- gear_lty[i]
 }
-for (i in names(gears)){
-    gear_idx <- (NS_sim@params@species_params$gear == i)
-    species_lty[gear_idx] <- 1:sum(gear_idx)
-}
-legend_txt_cex <- 0.7
-leg_line <-  0.5
+
 
 #------------------------------------------------------------------
-# FIGURE 2 with 5 panels
-# a) effort by gear
-# b) ssb
-# c) yield
-# d) lfi, mw, mmw, slope
-# e) size distribution before introduction of four fisheries (totals)
+# FIGURE 2 
 
-# Notes from Ken and Julia
-# 1. change x scale to have min of 1g
-# Maybe extend x axis to larger sizes - bumps
-# 6. colours in ssb and yield legend do not match the lines 
-# 2. ssb should have a scale (relative to unfished?)
-# 3. replace ssb plot with 4 plots - one for each gear - tricky
-# 4. replace yield plot with 4 plots - one for each gear
-# 5. Or... some other way of distinguishing the species (or leave as it is...) - maybe gear is line type (4 of them), and species is colour (5 of them)
-# Change scaled metrics to community metrics
-# Rescale community metrics to be relative to unfished state
-
-# 
-
+# Figure size
 width <- 7
 height <- 20
+
+# Function to add fishing effort lines to the time plots
 add_effort_lines <- function(){
     lwd <- 0.5
-    lines(x=c(20,20), y=c(1e-20,1e20), col=gears[1], lty=3, lwd=lwd)
-    lines(x=c(40,40), y=c(1e-20,1e20), col=gears[2], lty=3, lwd=lwd)
-    lines(x=c(60,60), y=c(1e-20,1e20), col=gears[3], lty=3, lwd=lwd)
-    lines(x=c(80,80), y=c(1e-20,1e20), col=gears[4], lty=3, lwd=lwd)
+    lines(x=c(11,11), y=c(-1e20,1e20), lty=gear_lty[1], lwd=lwd)
+    lines(x=c(31,31), y=c(-1e20,1e20), lty=gear_lty[2], lwd=lwd)
+    lines(x=c(51,51), y=c(-1e20,1e20), lty=gear_lty[3], lwd=lwd)
+    lines(x=c(71,71), y=c(-1e20,1e20), lty=gear_lty[4], lwd=lwd)
 }
-png(filename="Figure21.png", width = width, height = height, units="cm",res=800, pointsize=8)
-rel_heights <- c(1,2,2,2,2,0.5)
+
+png(filename="Figure212.png", width = width, height = height, units="cm",res=800, pointsize=8)
+
+#rel_heights <- c(1,2,2,2,2,0.5) # rel heights of panels
+#rel_heights <- c(1,0.5,0.5,0.5,0.5,2,2,2,0.5) # rel heights of panels
+#rel_heights <- c(1,rep(0.5,8),0.5,1,2,0.5) # rel heights of panels
+rel_heights <- c(0.7,rep(0.5,8),0.5,0.8,1) # rel heights of panels
+
 heights = (height / sum(rel_heights)) * rel_heights
 nf <- layout(matrix(1:length(rel_heights),length(rel_heights),1,byrow=TRUE), widths = width, heights=heights,TRUE)
-right_margin <- 1
+right_margin <- 4
+left_margin <- 4
+# Other plotting parameters
+legend_txt_cex <- 0.7
+leg_line <-  0.3
+seg_len <- 2.5
+leg_bty <- "n"
+leg_box_lwd <- 0
 
-
-par(mar=c(0,4,0.5,right_margin))
-# Effort of gears
+# (a) Effort of gears
+par(mar=c(0,left_margin,0.5,right_margin))
 plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
-for (i in gears){
-    lines(x = 1:project_time, y=NS_sim@effort[,names(gears)[i]], col=gears[i])
+for (i in gear_names){
+    lines(x = 1:project_time, y=NS_sim@effort[,i], lty=gear_lty[i])
 }
 add_effort_lines()
-legend(x="topleft", legend = names(gears), col=gears, lty=1, bty='o', cex=legend_txt_cex, pt.lwd=leg_line)
-# ssb
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(ssb),max(ssb)),log="y", ylab="SSB", xlab="", xaxt="n", yaxt="n")
-for (i in 1:12){
-    gear <- NS_sim@params@species_params[i,"gear"]
-    lines(x = 1:project_time, y=ssb[2:(project_time+1),i], col=species_gear_colour[i], lty=species_lty[i])
-}
-add_effort_lines()
-# yield
-par(mar=c(0,4,0,right_margin))
-yield_min <- min(yield[yield>0], na.rm=TRUE)
-yield_max <- max(yield[yield>0], na.rm=TRUE)
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(yield_min, yield_max),log="y", ylab="Yield", xlab="", xaxt="n")
-for (gear in 1:4){
-    for (i in 1:12){
-        lines(x = 1:project_time, y=yield[1:project_time,gear,i], col=gear, lty=species_lty[i])
+legend(x="bottomright", legend = gear_names, lty=gear_lty, cex=legend_txt_cex, pt.lwd=leg_line, seg.len=seg_len, bty=leg_bty, box.lwd=leg_box_lwd)
+# legend(x="topleft", legend = gear_names, lty=gear_lty, cex=legend_txt_cex, pt.lwd=leg_line, seg.len=seg_len, bty=leg_bty, box.lwd=leg_box_lwd, ncol=2)
+
+# (b) yield
+#par(mar=c(0,left_margin,0,right_margin))
+#yield_min <- min(yield[yield>0], na.rm=TRUE)
+#yield_max <- max(yield[yield>0], na.rm=TRUE)
+#rescale_yield_min <- min(rescale_yield[rescale_yield>0], na.rm=TRUE)
+#rescale_yield_max <- max(rescale_yield[rescale_yield>0], na.rm=TRUE)
+#plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(rescale_yield_min, rescale_yield_max), ylab="Yield", xlab="", xaxt="n")
+#for (gear in gear_names){
+#    for (i in species_names){
+#        lines(x = 1:project_time, y=rescale_yield[1:project_time,gear,i], col=species_col[i], lty=species_lty[i])
+#    }
+#}
+#add_effort_lines()
+
+# (b) alternative yield - each gear has a separate panel
+rescale_yield_min <- min(rescale_yield[rescale_yield>0], na.rm=TRUE)
+rescale_yield_max <- max(rescale_yield[rescale_yield>0], na.rm=TRUE)
+for (gear in gear_names){
+    species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
+    par(mar=c(0,left_margin,0,right_margin))
+    plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(rescale_yield_min, rescale_yield_max), ylab="", xlab="", xaxt="n", yaxt="n")
+    axis(4)
+    mtext(gear, side=2, line=1, cex=0.7)
+    if (gear == gear_names[2]){
+        mtext("Relative Yield", side=4, line=3, cex=0.7, adj=-3)
     }
+    add_effort_lines()
+    for (i in species_in_gear){
+        lines(x = 1:project_time, y=rescale_yield[1:project_time,gear,i], col=species_col[i], lty=species_lty[i])
+    }
+    legend(x="bottomright", legend=species_in_gear, lty=species_lty[species_in_gear], col=species_col[species_in_gear], cex = legend_txt_cex, ncol=1, pt.lwd=leg_line, seg.len = seg_len, bty=leg_bty, box.lwd=leg_box_lwd)
 }
+
+# (c) Relative SSB
+#par(mar=c(0,left_margin,0,right_margin))
+#plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(rescale_ssb),max(rescale_ssb)), ylab="Relative SSB", xlab="", xaxt="n")
+#for (i in species_names){
+#    lines(x = 1:project_time, y=rescale_ssb[2:(project_time+1),i], col=species_col[i], lty=species_lty[i])
+#}
+#add_effort_lines()
+#legend(x="topleft", legend=species_names, lty=species_lty, col = species_col, bty='o', cex = legend_txt_cex, ncol=2, pt.lwd=leg_line, seg.len = seg_len)
+# (c) alternative - each gear has a separate panel
+#par(mfrow=c(4,1))
+for (gear in gear_names){
+    species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
+    par(mar=c(0,left_margin,0,right_margin))
+    plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(rescale_ssb),max(rescale_ssb)), ylab="", xlab="", xaxt="n")
+    if (gear == gear_names[2]){
+        mtext("Relative SSB", side=2, line=3, cex=0.7, adj=-3)
+    }
+    mtext(gear, side=4, line=1, cex=0.7)
+    add_effort_lines()
+        for (i in species_in_gear){
+            lines(x = 1:project_time, y=rescale_ssb[2:(project_time+1),i], col=species_col[i], lty=species_lty[i])
+        }
+}
+
+# (d) Slope
+par(mar=c(0,left_margin,0,right_margin))
+ylim <- range(slope)
+plot(x = 1:project_time, y=1:project_time, type="n", ylab="", xlab="Years", ylim=ylim, yaxt="n", xaxt="n")
+axis(4)
+mtext("Community slope", side=4, line=3, cex=0.7)
 add_effort_lines()
-# Add species legend here
-legend(x="bottomright", legend=NS_sim@params@species_params$species, lty=species_lty, col = species_gear_colour, bty='o', cex = legend_txt_cex, ncol=2, pt.lwd=leg_line)
-# LFI, MW, MMW, Slope
-# Need to scale these between 0 and 1 (-1 and 0 for slope)
-lfi_scale <- 1 / max(lfi[2:(project_time+1)])
-mw_scale <- 1 / max(mw[2:(project_time+1)])
-mmw_scale <- 1 / max(mmw[2:(project_time+1)])
+lines(x = 1:project_time, y = slope[2:(project_time+1)])
+
+# (e) LFI, MW, MMW, 
 #slope_scale <- 1 / max(abs(slope[2:(project_time+1)]))
-slope_plot <- slope[2:(project_time+1)]
-slope_adj <- abs(min(slope_plot))
-slope_plot <- slope_plot + slope_adj
-slope_scale <- 1 / max(slope_plot)
-par(mar=c(4,4,0,right_margin))
-plot(x = 1:project_time, y=1:project_time, type="n", ylab="Scaled metrics", xlab="Years", ylim=c(0,1))
-lines(x = 1:project_time, y = lfi[2:(project_time+1)] * lfi_scale, col=1)
-lines(x = 1:project_time, y = mw[2:(project_time+1)] * mw_scale, col=2)
-lines(x = 1:project_time, y = mmw[2:(project_time+1)] * mmw_scale, col=3)
-#lines(x = 1:project_time, y = slope[2:(project_time+1)] * slope_scale)
-lines(x = 1:project_time, y = slope_plot * slope_scale, col=4)
+#slope_plot <- slope[2:(project_time+1)]
+#slope_adj <- abs(min(slope_plot))
+#slope_plot <- slope_plot + slope_adj
+#slope_scale <- 1 / max(slope_plot)
+par(mar=c(4,left_margin,0,right_margin))
+ylim <- c(0,max(rescale_lfi,rescale_mw, rescale_mmw, slope))
+plot(x = 1:project_time, y=1:project_time, type="n", ylab="Relative metrics", xlab="Years", ylim=ylim)
+lines(x = 1:project_time, y = rescale_lfi[2:(project_time+1)], col=1)
+lines(x = 1:project_time, y = rescale_mw[2:(project_time+1)], col=2)
+lines(x = 1:project_time, y = rescale_mmw[2:(project_time+1)], col=3)
+#lines(x = 1:project_time, y = slope[2:(project_time+1)], col=4)
+# lines(x = 1:project_time, y = slope_plot * slope_scale, col=4)
 add_effort_lines()
-legend(x="bottomright",
-    legend = c(
-        paste("LFI (x ", signif(lfi_scale,2), ")", sep=""),
-        paste("MW (x ", signif(mw_scale,2), ")", sep=""),
-        paste("MMW (x ", signif(mmw_scale,2), ")", sep=""),
-        paste("Slope (+ ", signif(slope_adj,2), " x ", signif(slope_scale,2), ")", sep="")), lty = 1, col=c(1,2,3,4), bty="o", cex = legend_txt_cex, pt.lwd=leg_line)
+legend(x="bottomright", legend = c("LFI", "MW", "MMW"), lty=1, col=c(1,2,3), cex = legend_txt_cex, ncol=1, pt.lwd=leg_line, seg.len = seg_len, bty=leg_bty, box.lwd=leg_box_lwd)
+
+# (f) Spectra at various points in time
 # Size distribution at start and end - five lines
 # times of something happening
 # 20, 40, 60, 80
-b0 <- apply(NS_sim@n[1,,],2,sum) * NS_sim@params@w
-b1 <- apply(NS_sim@n[20,,],2,sum) * NS_sim@params@w
-b2 <- apply(NS_sim@n[40,,],2,sum) * NS_sim@params@w
-b3 <- apply(NS_sim@n[60,,],2,sum) * NS_sim@params@w
-b4 <- apply(NS_sim@n[80,,],2,sum) * NS_sim@params@w
-xlim <- c(1e-3,1e4)
+b0 <- apply(NS_sim@n[2,,],2,sum) * NS_sim@params@w
+b1 <- apply(NS_sim@n[21,,],2,sum) * NS_sim@params@w
+b2 <- apply(NS_sim@n[41,,],2,sum) * NS_sim@params@w
+b3 <- apply(NS_sim@n[61,,],2,sum) * NS_sim@params@w
+b4 <- apply(NS_sim@n[81,,],2,sum) * NS_sim@params@w
+xlim <- c(1,5e4)
 ylim <- c(5e5,max(c(b0,b1,b2,b3,b4)))
-
-par(mar=c(4,4,1,right_margin))
+par(mar=c(4,left_margin,1,right_margin))
 plot(x=NS_sim@params@w, y = NS_sim@params@w, type="n", ylab="Total biomass", xlab = "Size (g)", log="xy", ylim = ylim, xlim=xlim)
 lines(x=NS_sim@params@w, y = b0, col=1)
 lines(x=NS_sim@params@w, y = b1, col=2)
 lines(x=NS_sim@params@w, y = b2, col=3)
 lines(x=NS_sim@params@w, y = b3, col=4)
 lines(x=NS_sim@params@w, y = b4, col=6)
-legend(x="bottomleft", legend=c("Unfished", "Year 20: pelagic", "Year 40: beam", "Year 60: otter", "Year 80: industrial"), lty=1, col=c(1,2,3,4,6), cex = legend_txt_cex, pt.lwd=leg_line)
+legend(x="bottomleft", legend=c("Unfished", "Year 20: Pelagic", "Year 40: Beam", "Year 60: Otter", "Year 80: Industrial"), lty=1, col=c(1,2,3,4,6), cex = legend_txt_cex, pt.lwd=leg_line, seg.len = seg_len, bty=leg_bty, box.lwd=leg_box_lwd)
 dev.off()
 
-#------------------------------------------------------------------
-# FIGURE 2 with 7 panels
-
-width <- 7
-height <- 20
-png(filename="time_series.png", width = width, height = height, units="cm",res=800, pointsize=8)
-#par(mfcol =c(7,1))
-#rel_heights <- c(1,2,2,1,1,1,1)
-rel_heights <- c(1,2,2,1,1,1,1,0.5)
-heights = (height / sum(rel_heights)) * rel_heights
-nf <- layout(matrix(1:length(rel_heights),length(rel_heights),1,byrow=TRUE), widths = width, heights=heights,TRUE)
-#layout.show(nf)
-# Effort of gears
-right_margin <- 4
-par(mar=c(0,4,0.5,right_margin))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
-#for (i in 1:4){
-for (i in gears){
-    lines(x = 1:project_time, y=NS_sim@effort[,names(gears)[i]], col=gears[i])
-}
-legend(x="topleft", legend = names(gears), col=gears, lty=1, bty='n', cex=legend_txt_cex, pt.lwd=leg_line)
-# ssb
-#par(mar=c(0,4,0,1))
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(min(ssb),max(ssb)),log="y", ylab="", xlab="", xaxt="n", yaxt="n")
-axis(4)
-mtext("SSB", side=4, line=3, cex=0.7)
-for (i in 1:12){
-    gear <- NS_sim@params@species_params[i,"gear"]
-    lines(x = 1:project_time, y=ssb[2:(project_time+1),i], col=species_gear_colour[i], lty=species_lty[i])
-}
-# yield
-par(mar=c(0,4,0,right_margin))
-yield_min <- min(yield[yield>0], na.rm=TRUE)
-yield_max <- max(yield[yield>0], na.rm=TRUE)
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(yield_min, yield_max),log="y", ylab="Yield", xlab="", xaxt="n")
-for (gear in 1:4){
-    for (i in 1:12){
-        lines(x = 1:project_time, y=yield[1:project_time,gear,i], col=gear, lty=species_lty[i])
-    }
-}
-# Add species legend here
-legend(x="bottomright", legend=NS_sim@params@species_params$species, lty=species_lty, col = species_gear_colour, bty='n', cex = legend_txt_cex, ncol=2, pt.lwd=leg_line)
-
-# lfi
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=lfi[2:(project_time+1)], type="l", ylab="", xlab="", xaxt="n", yaxt="n")
-axis(4)
-mtext("LFI", side=4, line=3, cex=0.7)
-# mw
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=mw[2:(project_time+1)], type="l", ylab="Mean weight", xlab="", xaxt="n")
-# mmw
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=mmw[2:(project_time+1)], type="l", ylab="", xlab="", xaxt="n", yaxt="n")
-axis(4)
-mtext("Mean max. weight", side=4, line=3, cex=0.7)
-# slope
-par(mar=c(0,4,0,right_margin))
-plot(x = 1:project_time, y=slope[2:(project_time+1)], type="l", ylab="Slope", xlab="Years")
-mtext("Years", side=1, line=3, cex=0.7)
-#par(mar=c(0,4,6,right_margin))
-dev.off()
-
-# Swap y-axis to right side
-# COlour SSB plot with gear
