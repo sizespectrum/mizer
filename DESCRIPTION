@@ -7,7 +7,7 @@ Imports:
 Maintainer: Finlay Scott <finlay.scott@jrc.ec.europa.eu>
 Author: Finlay Scott (JRC, IT) and Julia Blanchard (Sheffield University, UK)
     and Ken Andersen (DTU Aqua, Copenhagen, DK)
-Version: 0.1
+Version: 0.2
 License: GPL-3
 Title: Multi-species sIZE spectrum modelling in R
 Type: Package
