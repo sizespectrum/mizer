@@ -154,6 +154,8 @@ ms1_n_total <- apply(ms1_n,2,sum)
 # Calculate the relative total abundances
 ms_relative_abundance <-  ms1_n_total / ms0_n_total
 
+#save.image(file="fig1_workspace.RData")
+
 #----------------------------------------------------------
 # Make FIGURE 1 for the paper
 #----------------------------------------------------------
@@ -169,8 +171,8 @@ ms_base <- (ms_sim0@params@w_full * ms_sim0@params@cc_pp)[cc_index]
 # Figure dimensions for printing
 width <- 14
 height <- 7
-postscript(file = "Figure1.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
-# png(filename="Figure1.png", width = width, height = height, units="cm",res=800, pointsize=8)
+#postscript(file = "Figure1.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
+png(filename="Figure1.png", width = width, height = height, units="cm",res=800, pointsize=8)
 
 # Figure layput
 nf <- layout(matrix(1:6,2,3,byrow=TRUE), rep(width/3,3),c(3/6,3/6)*height,TRUE)
@@ -198,12 +200,12 @@ plot(x=trait_sim0@params@w, y= trait0_n_total / trait_base, log="xy", type="n", 
 # Resource
 lines(x=trait_sim0@params@w_full, y= trait0_npp / trait_base, col=resource_colour, lwd=resource_lwd)
 # Unfished community spectrum relative to unfished biomass in size 1
-lines(x=trait_sim0@params@w, y=trait0_n_total / trait_base_b, col="red", lwd=fat_lwd)
+lines(x=trait_sim0@params@w, y=trait0_n_total / trait_base, col="red", lwd=fat_lwd)
 # Fished community spectrum relative to unfished biomass in size 1
 lines(x=trait_sim1@params@w, y=trait1_n_total / trait_base, col="blue", lwd=fat_lwd, lty=fished_lty)
 # Unfished species relative to unfished biomass in size1
 for (i in 1:10){
-    lines(x=trait_sim0@params@w, y=trait0_n[i,] / trait_base_b)
+    lines(x=trait_sim0@params@w, y=trait0_n[i,] / trait_base)
 }
 
 # Multispecies
@@ -223,19 +225,23 @@ for (i in 1:12){
 # Cascades
 # Community
 par(mar=c(5,5,5,1))
-plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="xy", type="n", ylab="Relative abundance", xlim=xlim, ylim=cascade_ylim, main = "(d)", xlab="Body mass (g)")
+
+plot(x=comm_sim0@params@w, y=comm_relative_abundance, log="xy", type="n", ylab="Relative abundance", xlim=xlim, ylim=cascade_ylim, main = "", xlab="Body mass (g)", yaxt="n")
+axis(side = 2, at=c(0.2,1,5))
 lines(x=comm_sim0@params@w, y=comm_relative_abundance)
 lines(x=c(min(comm_sim0@params@w),max(comm_sim0@params@w)), y=c(1,1),lty=2)
 lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
 
 # Trait
-plot(x=trait_sim0@params@w, y=trait_relative_abundance, log="xy", type="n", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(e)", xlab="Body mass (g)")
+plot(x=trait_sim0@params@w, y=trait_relative_abundance, log="xy", type="n", ylab="", xlim=xlim, ylim=cascade_ylim, main = "", xlab="Body mass (g)", yaxt="n")
+axis(side = 2, at=c(0.2,1,5))
 lines(x=trait_sim0@params@w, y=trait_relative_abundance)
 lines(x=c(min(trait_sim0@params@w),max(trait_sim0@params@w)), y=c(1,1),lty=2)
 lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
 
 # Multispecies
-plot(x=ms_sim0@params@w, y=ms_relative_abundance, log="xy", type="n", xlab = "Body mass (g)", ylab="", xlim=xlim, ylim=cascade_ylim, main = "(f)")
+plot(x=ms_sim0@params@w, y=ms_relative_abundance, log="xy", type="n", xlab = "Body mass (g)", ylab="", xlim=xlim, ylim=cascade_ylim, main = "", yaxt="n")
+axis(side = 2, at=c(0.2,1,5))
 lines(x=ms_sim0@params@w, y=ms_relative_abundance)
 lines(x=c(min(ms_sim0@params@w),max(ms_sim0@params@w)), y=c(1,1),lty=2)
 lines(x=c(1000,1000),y=c(1e-20,1e20),lty=3)
@@ -346,6 +352,8 @@ rescale_lfi <- lfi / lfi[1]
 rescale_mw <- mw / mw[1]
 rescale_mmw <- mmw / mmw[1]
 
+#save.image(file="fig2_workspace.RData")
+
 #----------------------------------------------------------
 # Make FIGURE 2 for the paper
 #----------------------------------------------------------
@@ -383,15 +391,15 @@ add_effort_lines <- function(){
     lines(x=c(71,71), y=c(-1e20,1e20), lty=gear_lty[4], lwd=lwd)
 }
 
-postscript(file = "Figure2.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
-# png(filename="Figure2.png", width = width, height = height, units="cm",res=800, pointsize=8)
+#postscript(file = "Figure2.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
+png(filename="Figure2.png", width = width, height = height, units="cm",res=800, pointsize=8)
 
 # Figuring out figure panel heights - bit fiddly
 rel_heights <- c(0.7,rep(0.5,8),0.5,0.8,1) # rel heights of panels
 heights = (height / sum(rel_heights)) * rel_heights
 nf <- layout(matrix(1:length(rel_heights),length(rel_heights),1,byrow=TRUE), widths = width, heights=heights,TRUE)
 right_margin <- 4
-left_margin <- 4
+left_margin <- 4.5
 # Other plotting parameters
 legend_txt_cex <- 0.7
 leg_line <- 0.3
@@ -401,7 +409,9 @@ leg_box_lwd <- 0
 
 # (a) Effort of gears
 par(mar=c(0,left_margin,0.5,right_margin))
-plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab="Effort", xaxt="n")
+plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(0,max(fishing_effort)), xlab="", ylab=expression(Effort~(y^{-1})), xaxt="n")
+text(x=5,y=1.4,labels="(a)")
+
 for (i in gear_names){
     lines(x = 1:project_time, y=NS_sim@effort[,i], lty=gear_lty[i])
 }
@@ -411,11 +421,14 @@ legend(x="bottomright", legend = gear_names, lty=gear_lty, cex=legend_txt_cex, p
 # (b) yield - each gear has a separate panel
 rescale_yield_min <- min(rescale_yield[rescale_yield>0], na.rm=TRUE)
 rescale_yield_max <- max(rescale_yield[rescale_yield>0], na.rm=TRUE)
+main_labels <- c("(b)","(c)","(d)","(e)")
+names(main_labels) <- gear_names
 for (gear in gear_names){
     species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
     par(mar=c(0,left_margin,0,right_margin))
     plot(x = 1:project_time, y=1:project_time, type="n", ylim=c(rescale_yield_min, rescale_yield_max), ylab="", xlab="", xaxt="n", yaxt="n")
     axis(4)
+    text(x=5,y=0.9,labels=main_labels[gear])
     mtext(gear, side=2, line=1, cex=0.6)
     if (gear == gear_names[2]){
         mtext("Relative Yield", side=4, line=3, cex=0.6, adj=-3)
@@ -428,6 +441,8 @@ for (gear in gear_names){
 }
 
 # (c) SSB - each gear has a separate panel
+main_labels <- c("(f)","(g)","(h)","(i)")
+names(main_labels) <- gear_names
 for (gear in gear_names){
     species_in_gear <- NS_params@species_params$species[NS_params@species_params$gear==gear]
     par(mar=c(0,left_margin,0,right_margin))
@@ -435,6 +450,7 @@ for (gear in gear_names){
     if (gear == gear_names[2]){
         mtext("Relative SSB", side=2, line=3, cex=0.6, adj=-3)
     }
+    text(x=5,y=1.75,labels=main_labels[gear])
     mtext(gear, side=4, line=1, cex=0.6)
     add_effort_lines()
         for (i in species_in_gear){
@@ -447,6 +463,7 @@ par(mar=c(0,left_margin,0,right_margin))
 ylim <- range(slope)
 plot(x = 1:project_time, y=1:project_time, type="n", ylab="", xlab="Years", ylim=ylim, yaxt="n", xaxt="n")
 axis(4)
+text(x=5,y=-1.5,labels="(j)")
 mtext("Community slope", side=4, line=3, cex=0.6)
 add_effort_lines()
 lines(x = 1:project_time, y = slope[2:(project_time+1)])
@@ -455,6 +472,7 @@ lines(x = 1:project_time, y = slope[2:(project_time+1)])
 par(mar=c(4,left_margin,0,right_margin))
 ylim <- c(0,max(rescale_lfi,rescale_mw, rescale_mmw, slope))
 plot(x = 1:project_time, y=1:project_time, type="n", ylab="Relative metrics", xlab="Years", ylim=ylim)
+text(x=5,y=2.5,labels="(k)")
 lines(x = 1:project_time, y = rescale_lfi[2:(project_time+1)], col=1)
 lines(x = 1:project_time, y = rescale_mw[2:(project_time+1)], col=2)
 lines(x = 1:project_time, y = rescale_mmw[2:(project_time+1)], col=3)
@@ -467,12 +485,13 @@ legend(x="bottomright", legend = c("LFI", "MW", "MMW"), lty=1, col=c(1,2,3), cex
 # 20, 40, 60, 80
 biomass_time <- sweep(apply(NS_sim@n[c(2,21,41,61,81),,],c(1,3),sum),2,NS_sim@params@w,"*")
 xlim <- c(1,5e4)
-ylim <- c(5e5,max(biomass_time))
+ylim <- c(5e5,max(biomass_time))/1000
 par(mar=c(4,left_margin,1,right_margin))
-plot(x=NS_sim@params@w, y = NS_sim@params@w, type="n", ylab="Total biomass", xlab = "Size (g)", log="xy", ylim = ylim, xlim=xlim)
+plot(x=NS_sim@params@w, y = NS_sim@params@w, type="n", ylab="Total biomass (kg)", xlab = "Size (g)", log="xy", ylim = ylim, xlim=xlim)
+text(x=2,y=1e9,labels="(l)")
 cols <- c(1,2,3,4,6)
 for (i in 1:5){
-    lines(x=NS_sim@params@w, y = biomass_time[i,], col=cols[i])
+    lines(x=NS_sim@params@w, y = biomass_time[i,]/1000, col=cols[i])
 }
 legend(x="bottomleft", legend=c("Unfished", "Year 20: Pelagic", "Year 40: Beam", "Year 60: Otter", "Year 80: Industrial"), lty=1, col=cols, cex = legend_txt_cex, pt.lwd=leg_line, seg.len = seg_len, bty=leg_bty, box.lwd=leg_box_lwd)
 dev.off()
