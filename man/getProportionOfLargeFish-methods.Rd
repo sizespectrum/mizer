@@ -4,13 +4,6 @@
 \alias{getProportionOfLargeFish,MizerSim-method}
 \alias{getProportionOfLargeFish-method}
 \title{Calculate the proportion of large fish}
-\usage{
-getProportionOfLargeFish(object, ...)
-
-\S4method{getProportionOfLargeFish}{MizerSim}(object,
-  species = 1:nrow(object@params@species_params), threshold_w = 100,
-  threshold_l = NULL, biomass_proportion = TRUE, ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -40,21 +33,22 @@ getProportionOfLargeFish(object, ...)
   based on numbers of individuals. Default is TRUE.}
 }
 \value{
-An array containing the proportion of large fish through
-time
+  An array containing the proportion of large fish through
+  time
 }
 \description{
-Calculates the proportion of large fish through time in the
-\code{MizerSim} class within user defined size limits. The
-default option is to use the whole size range. You can
-specify minimum and maximum size ranges for the species and
-also the threshold size for large fish. Sizes can be
-expressed as weight or size. Lengths take precedence over
-weights (i.e. if both min_l and min_w are supplied, only
-min_l will be used). You can also specify the species to be
-used in the calculation. This method can be used to
-calculate the Large Fish Index. The proportion is based on
-either abundance or biomass.
+  Calculates the proportion of large fish through time in
+  the \code{MizerSim} class within user defined size
+  limits. The default option is to use the whole size
+  range. You can specify minimum and maximum size ranges
+  for the species and also the threshold size for large
+  fish. Sizes can be expressed as weight or size. Lengths
+  take precedence over weights (i.e. if both min_l and
+  min_w are supplied, only min_l will be used). You can
+  also specify the species to be used in the calculation.
+  This method can be used to calculate the Large Fish
+  Index. The proportion is based on either abundance or
+  biomass.
 }
 \examples{
 \dontrun{

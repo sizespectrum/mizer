@@ -4,12 +4,6 @@
 \alias{getMeanMaxWeight,MizerSim-method}
 \alias{getMeanMaxWeight-method}
 \title{Calculate the mean maximum weight of the community}
-\usage{
-getMeanMaxWeight(object, ...)
-
-\S4method{getMeanMaxWeight}{MizerSim}(object,
-  species = 1:nrow(object@params@species_params), measure = "both", ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -32,19 +26,20 @@ getMeanMaxWeight(object, ...)
   'biomass' or 'both'}
 }
 \value{
-A matrix or vector containing the mean maximum weight of
-the community through time
+  A matrix or vector containing the mean maximum weight of
+  the community through time
 }
 \description{
-Calculates the mean maximum weight of the community through
-time. This can be calculated by numbers or biomass. The
-calculation is the sum of the w_inf * abundance of each
-species, divided by the total abundance community, where
-abundance is either in biomass or numbers. You can specify
-minimum and maximum weight or length range for the species.
-Lengths take precedence over weights (i.e. if both min_l
-and min_w are supplied, only min_l will be used). You can
-also specify the species to be used in the calculation.
+  Calculates the mean maximum weight of the community
+  through time. This can be calculated by numbers or
+  biomass. The calculation is the sum of the w_inf *
+  abundance of each species, divided by the total abundance
+  community, where abundance is either in biomass or
+  numbers. You can specify minimum and maximum weight or
+  length range for the species. Lengths take precedence
+  over weights (i.e. if both min_l and min_w are supplied,
+  only min_l will be used). You can also specify the
+  species to be used in the calculation.
 }
 \examples{
 \dontrun{

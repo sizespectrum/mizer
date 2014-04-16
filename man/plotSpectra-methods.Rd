@@ -4,13 +4,6 @@
 \alias{plotSpectra,MizerSim-method}
 \alias{plotSpectra-method}
 \title{Plot the abundance spectra of each species and the background population}
-\usage{
-plotSpectra(object, ...)
-
-\S4method{plotSpectra}{MizerSim}(object,
-  time_range = max(as.numeric(dimnames(object@n)$time)),
-  min_w = min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -31,15 +24,16 @@ plotSpectra(object, ...)
   ggplot2 object}
 }
 \value{
-A ggplot2 object
+  A ggplot2 object
 }
 \description{
-After running a projection, the spectra of the abundance of
-each species and the background population can be plotted.
-The abundance is averaged over the specified time range (a
-single value for the time range can be used to plot a
-single time step). The abundance can be in terms of numbers
-or biomass, depending on the \code{biomass} argument.
+  After running a projection, the spectra of the abundance
+  of each species and the background population can be
+  plotted. The abundance is averaged over the specified
+  time range (a single value for the time range can be used
+  to plot a single time step). The abundance can be in
+  terms of numbers or biomass, depending on the
+  \code{biomass} argument.
 }
 \examples{
 \dontrun{

@@ -5,15 +5,6 @@
 \alias{getRDI,MizerParams,matrix,numeric,missing-method}
 \alias{getRDI-method}
 \title{getRDI method for the size based model}
-\usage{
-getRDI(object, n, n_pp, e_spawning, ...)
-
-\S4method{getRDI}{MizerParams,matrix,numeric,matrix}(object, n, n_pp,
-  e_spawning, sex_ratio = 0.5)
-
-\S4method{getRDI}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  sex_ratio = 0.5)
-}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -31,12 +22,12 @@ getRDI(object, n, n_pp, e_spawning, ...)
   female. Default value is 0.5.}
 }
 \value{
-A numeric vector the length of the number of species
+  A numeric vector the length of the number of species
 }
 \description{
-Calculates the density independent recruitment (total egg
-production) before density dependence, by species. Used by
-the \code{project} method for performing simulations.
+  Calculates the density independent recruitment (total egg
+  production) before density dependence, by species. Used
+  by the \code{project} method for performing simulations.
 }
 \examples{
 \dontrun{
@@ -50,6 +41,6 @@ getRDI(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{project}}
+  \code{\link{project}}
 }
 

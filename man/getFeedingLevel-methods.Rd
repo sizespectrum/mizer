@@ -6,18 +6,6 @@
 \alias{getFeedingLevel,MizerSim,missing,missing,missing-method}
 \alias{getFeedingLevel-method}
 \title{getFeedingLevel method for the size based model}
-\usage{
-getFeedingLevel(object, n, n_pp, phi_prey, ...)
-
-\S4method{getFeedingLevel}{MizerParams,matrix,numeric,matrix}(object, n, n_pp,
-  phi_prey, ...)
-
-\S4method{getFeedingLevel}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  ...)
-
-\S4method{getFeedingLevel}{MizerSim,missing,missing,missing}(object,
-  time_range = dimnames(object@n)$time, drop = FALSE, ...)
-}
 \arguments{
   \item{object}{A \code{MizerParams} or \code{MizerSim}
   object}
@@ -47,19 +35,19 @@ getFeedingLevel(object, n, n_pp, phi_prey, ...)
   TRUE}
 }
 \description{
-Calculates the amount of food consumed by a predator by
-predator size based on food availability, search volume and
-maximum intake. This method is used by the
-\code{\link{project}} method for performing simulations.
+  Calculates the amount of food consumed by a predator by
+  predator size based on food availability, search volume
+  and maximum intake. This method is used by the
+  \code{\link{project}} method for performing simulations.
 }
 \note{
-If a \code{MizerParams} object is passed in, the method
-returns a two dimensional array (predator species x
-predator size) based on the abundances also passed in. If a
-\code{MizerSim} object is passed in, the method returns a
-three dimensional array (time step x predator species x
-predator size) with the feeding level calculated at every
-time step in the simulation.
+  If a \code{MizerParams} object is passed in, the method
+  returns a two dimensional array (predator species x
+  predator size) based on the abundances also passed in. If
+  a \code{MizerSim} object is passed in, the method returns
+  a three dimensional array (time step x predator species x
+  predator size) with the feeding level calculated at every
+  time step in the simulation.
 }
 \examples{
 \dontrun{
@@ -79,6 +67,6 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 }
 \seealso{
-\code{\link{getPhiPrey}}
+  \code{\link{getPhiPrey}}
 }
 

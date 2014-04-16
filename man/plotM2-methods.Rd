@@ -4,13 +4,6 @@
 \alias{plotM2,MizerSim-method}
 \alias{plotM2-method}
 \title{Plot M2 of each species by size}
-\usage{
-plotM2(object, ...)
-
-\S4method{plotM2}{MizerSim}(object,
-  time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE,
-  ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -23,13 +16,13 @@ plotM2(object, ...)
   ggplot2 object}
 }
 \value{
-A ggplot2 object
+  A ggplot2 object
 }
 \description{
-After running a projection, plot M2 of each species by
-size. M2 is averaged over the specified time range (a
-single value for the time range can be used to plot a
-single time step).
+  After running a projection, plot M2 of each species by
+  size. M2 is averaged over the specified time range (a
+  single value for the time range can be used to plot a
+  single time step).
 }
 \examples{
 \dontrun{
@@ -42,8 +35,8 @@ plotM2(sim, time_range = 10:20)
 }
 }
 \seealso{
-\code{\link{getM2}}
+  \code{\link{getM2}}
 
-\code{\link{getM2}}
+  \code{\link{getM2}}
 }
 

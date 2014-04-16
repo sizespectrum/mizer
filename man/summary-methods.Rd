@@ -1,22 +1,12 @@
 \docType{methods}
-\name{summary,MizerParams-method}
+\name{summary}
+\alias{summary}
 \alias{summary,MizerParams-method}
 \alias{summary,MizerSim-method}
 \title{Summary method}
-\usage{
-\S4method{summary}{MizerParams}(object, ...)
-
-\S4method{summary}{MizerSim}(object, ...)
-}
-\arguments{
-  \item{object}{an object for which a summary is desired.}
-
-  \item{...}{additional arguments affecting the summary
-  produced.}
-}
 \description{
-Outputs a general summary of the structure and content of
-the object
+  Outputs a general summary of the structure and content of
+  the object
 }
 \examples{
 \dontrun{

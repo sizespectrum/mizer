@@ -6,16 +6,6 @@
 \alias{getFMortGear,MizerSim,missing-method}
 \alias{getFMortGear-method}
 \title{Get the fishing mortality by time, gear, species and size}
-\usage{
-getFMortGear(object, effort, ...)
-
-\S4method{getFMortGear}{MizerParams,numeric}(object, effort, ...)
-
-\S4method{getFMortGear}{MizerParams,matrix}(object, effort, ...)
-
-\S4method{getFMortGear}{MizerSim,missing}(object, effort,
-  time_range = dimnames(object@effort)$time, ...)
-}
 \arguments{
   \item{object}{A \code{MizerParams} object or a
   \code{MizerSim} object.}
@@ -31,35 +21,35 @@ getFMortGear(object, effort, ...)
   argument is of type \code{MizerSim}.}
 }
 \value{
-An array. If the effort argument has a time dimension, or a
-\code{MizerSim} is passed in, the output array has four
-dimensions (time x gear x species x size). If the effort
-argument does not have a time dimension (i.e. it is a
-vector or a single numeric), the output array has three
-dimensions (gear x species x size).
+  An array. If the effort argument has a time dimension, or
+  a \code{MizerSim} is passed in, the output array has four
+  dimensions (time x gear x species x size). If the effort
+  argument does not have a time dimension (i.e. it is a
+  vector or a single numeric), the output array has three
+  dimensions (gear x species x size).
 }
 \description{
-Calculates the fishing mortality by gear, species and size
-at each time step in the \code{effort} argument. Used by
-the \code{project} method to perform simulations.
+  Calculates the fishing mortality by gear, species and
+  size at each time step in the \code{effort} argument.
+  Used by the \code{project} method to perform simulations.
 }
 \note{
-Here: fishing mortality = catchability x selectivity x
-effort.
+  Here: fishing mortality = catchability x selectivity x
+  effort.
 
-The \code{effort} argument is only used if a
-\code{MizerParams} object is passed in. The \code{effort}
-argument can be a two dimensional array (time x gear), a
-vector of length equal to the number of gears (each gear
-has a different effort that is constant in time), or a
-single numeric value (each gear has the same effort that is
-constant in time). The order of gears in the \code{effort}
-argument must be the same the same as in the
-\code{MizerParams} object.
+  The \code{effort} argument is only used if a
+  \code{MizerParams} object is passed in. The \code{effort}
+  argument can be a two dimensional array (time x gear), a
+  vector of length equal to the number of gears (each gear
+  has a different effort that is constant in time), or a
+  single numeric value (each gear has the same effort that
+  is constant in time). The order of gears in the
+  \code{effort} argument must be the same the same as in
+  the \code{MizerParams} object.
 
-If the object argument is of class \code{MizerSim} then the
-effort slot of the \code{MizerSim} object is used and the
-\code{effort} argument is not used.
+  If the object argument is of class \code{MizerSim} then
+  the effort slot of the \code{MizerSim} object is used and
+  the \code{effort} argument is not used.
 }
 \examples{
 \dontrun{

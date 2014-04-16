@@ -6,20 +6,6 @@
 \alias{MizerParams,numeric,missing-method}
 \alias{MizerParams-method}
 \title{Constructors for objects of \code{MizerParams} class}
-\usage{
-MizerParams(object, interaction, ...)
-
-\S4method{MizerParams}{numeric,missing}(object, min_w = 0.001, max_w = 1000,
-  no_w = 100, min_w_pp = 1e-10, no_w_pp = round(no_w) * 0.3,
-  species_names = 1:object, gear_names = species_names)
-
-\S4method{MizerParams}{data.frame,matrix}(object, interaction, n = 2/3,
-  p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
-  w_pp_cutoff = 10, max_w = max(object$w_inf) * 1.1, f0 = 0.6,
-  z0pre = 0.6, z0exp = n - 1, ...)
-
-\S4method{MizerParams}{data.frame,missing}(object, ...)
-}
 \arguments{
   \item{object}{A data frame of species specific parameter
   values (see notes below).}
@@ -74,34 +60,34 @@ MizerParams(object, interaction, ...)
   n-1.} }}
 }
 \value{
-An object of type \code{MizerParams}
+  An object of type \code{MizerParams}
 }
 \description{
-Constructor method for the \code{\link{MizerParams}} class.
-Provides the simplest way of making a \code{MizerParams}
-object to be used in a simulation.
+  Constructor method for the \code{\link{MizerParams}}
+  class. Provides the simplest way of making a
+  \code{MizerParams} object to be used in a simulation.
 }
 \note{
-The only essential argument to the \code{MizerParams}
-constructor is a data frame which contains the species
-data. The data frame is arranged species by parameter, so
-each column of the parameter data frame is a parameter and
-each row has the parameters for one of the species in the
-model.
+  The only essential argument to the \code{MizerParams}
+  constructor is a data frame which contains the species
+  data. The data frame is arranged species by parameter, so
+  each column of the parameter data frame is a parameter
+  and each row has the parameters for one of the species in
+  the model.
 
-There are some essential columns that must be included in
-the parameter data.frame and that do not have default
-values. Other columns do have default values, so that if
-they are not included in the species parameter data frame,
-they will be automatically added when the
-\code{MizerParams} object is created. See the accompanying
-vignette for details of these columns.
+  There are some essential columns that must be included in
+  the parameter data.frame and that do not have default
+  values. Other columns do have default values, so that if
+  they are not included in the species parameter data
+  frame, they will be automatically added when the
+  \code{MizerParams} object is created. See the
+  accompanying vignette for details of these columns.
 
-An additional constructor method which takes an integer of
-the number of species in the model. This is only used in
-internally to set up a \code{MizerParams} object with the
-correct dimensions. It is not recommended that this method
-is used by users.
+  An additional constructor method which takes an integer
+  of the number of species in the model. This is only used
+  in internally to set up a \code{MizerParams} object with
+  the correct dimensions. It is not recommended that this
+  method is used by users.
 }
 \examples{
 data(NS_species_params_gears)
@@ -109,6 +95,6 @@ data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
 }
 \seealso{
-\code{\link{project}} \code{\link{MizerSim}}
+  \code{\link{project}} \code{\link{MizerSim}}
 }
 

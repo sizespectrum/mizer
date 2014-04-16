@@ -5,15 +5,6 @@
 \alias{getM2Background,MizerParams,matrix,numeric,missing-method}
 \alias{getM2Background-method}
 \title{getM2Background method for the size based model}
-\usage{
-getM2Background(object, n, n_pp, pred_rate, ...)
-
-\S4method{getM2Background}{MizerParams,matrix,numeric,array}(object, n, n_pp,
-  pred_rate, ...)
-
-\S4method{getM2Background}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  ...)
-}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -29,12 +20,13 @@ getM2Background(object, n, n_pp, pred_rate, ...)
   calculated by the \code{getPredRate()} method.}
 }
 \value{
-A vector of predation mortalities by background prey size.
+  A vector of predation mortalities by background prey
+  size.
 }
 \description{
-Calculates the predation mortality on the background
-spectrum by prey size. Used by the \code{project} method
-for running size based simulations.
+  Calculates the predation mortality on the background
+  spectrum by prey size. Used by the \code{project} method
+  for running size based simulations.
 }
 \examples{
 \dontrun{
@@ -50,6 +42,6 @@ getM2Background(params,n,n_pp)
 }
 }
 \seealso{
-\code{\link{project}} and \code{\link{getM2}}.
+  \code{\link{project}} and \code{\link{getM2}}.
 }
 

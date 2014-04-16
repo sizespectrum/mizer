@@ -5,13 +5,6 @@
 \alias{getESpawning,MizerParams,matrix,numeric,missing-method}
 \alias{getESpawning-method}
 \title{getESpawning method for the size based model}
-\usage{
-getESpawning(object, n, n_pp, e, ...)
-
-\S4method{getESpawning}{MizerParams,matrix,numeric,matrix}(object, n, n_pp, e)
-
-\S4method{getESpawning}{MizerParams,matrix,numeric,missing}(object, n, n_pp)
-}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -26,13 +19,13 @@ getESpawning(object, n, n_pp, e, ...)
   \code{getEReproAndGrowth()} method.}
 }
 \value{
-A two dimensional array (prey species x prey size)
+  A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy available by species and size for
-reproduction after metabolism and movement have been
-accounted for. Used by the \code{project} method for
-performing simulations.
+  Calculates the energy available by species and size for
+  reproduction after metabolism and movement have been
+  accounted for. Used by the \code{project} method for
+  performing simulations.
 }
 \examples{
 \dontrun{
@@ -46,6 +39,7 @@ getESpawning(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{project}} and \code{\link{getEReproAndGrowth}}.
+  \code{\link{project}} and
+  \code{\link{getEReproAndGrowth}}.
 }
 

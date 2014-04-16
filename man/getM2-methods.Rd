@@ -6,17 +6,6 @@
 \alias{getM2,MizerSim,missing,missing,missing-method}
 \alias{getM2-method}
 \title{getM2 method for the size based model}
-\usage{
-getM2(object, n, n_pp, pred_rate, ...)
-
-\S4method{getM2}{MizerParams,matrix,numeric,array}(object, n, n_pp, pred_rate,
-  ...)
-
-\S4method{getM2}{MizerParams,matrix,numeric,missing}(object, n, n_pp, ...)
-
-\S4method{getM2}{MizerSim,missing,missing,missing}(object,
-  time_range = dimnames(object@n)$time, drop = TRUE, ...)
-}
 \arguments{
   \item{object}{A \code{MizerParams} or \code{MizerSim}
   object.}
@@ -47,18 +36,18 @@ getM2(object, n, n_pp, pred_rate, ...)
   TRUE}
 }
 \description{
-Calculates the total predation mortality on each prey
-species by prey size. This method is used by the
-\code{\link{project}} method for performing simulations.
+  Calculates the total predation mortality on each prey
+  species by prey size. This method is used by the
+  \code{\link{project}} method for performing simulations.
 }
 \note{
-If a \code{MizerParams} object is passed in, the method
-returns a two dimensional array (prey species x prey size)
-based on the abundances also passed in. If a
-\code{MizerSim} object is passed in, the method returns a
-three dimensional array (time step x prey species x prey
-size) with the predation mortality calculated at every time
-step in the simulation.
+  If a \code{MizerParams} object is passed in, the method
+  returns a two dimensional array (prey species x prey
+  size) based on the abundances also passed in. If a
+  \code{MizerSim} object is passed in, the method returns a
+  three dimensional array (time step x prey species x prey
+  size) with the predation mortality calculated at every
+  time step in the simulation.
 }
 \examples{
 \dontrun{
@@ -78,6 +67,6 @@ getM2(sim, time_range = c(15,20))
 }
 }
 \seealso{
-\code{\link{getPredRate}} and \code{\link{project}}.
+  \code{\link{getPredRate}} and \code{\link{project}}.
 }
 

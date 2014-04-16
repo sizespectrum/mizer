@@ -5,15 +5,6 @@
 \alias{getRDD,MizerParams,matrix,numeric,missing-method}
 \alias{getRDD-method}
 \title{getRDD method for the size based model}
-\usage{
-getRDD(object, n, n_pp, rdi, ...)
-
-\S4method{getRDD}{MizerParams,matrix,numeric,matrix}(object, n, n_pp, rdi,
-  sex_ratio = 0.5)
-
-\S4method{getRDD}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  sex_ratio = 0.5)
-}
 \arguments{
   \item{object}{An \code{MizerParams} object}
 
@@ -30,17 +21,17 @@ getRDD(object, n, n_pp, rdi, ...)
   female. Default value is 0.5}
 }
 \value{
-A numeric vector the length of the number of species.
+  A numeric vector the length of the number of species.
 }
 \description{
-Calculates the density dependent recruitment (total egg
-production) for each species. This is the flux entering the
-smallest size class of each species. The density dependent
-recruiment is the density independent recruitment after it
-has been put through the density dependent
-stock-recruitment relationship function. This method is
-used by the \code{project} method for performing
-simulations.
+  Calculates the density dependent recruitment (total egg
+  production) for each species. This is the flux entering
+  the smallest size class of each species. The density
+  dependent recruiment is the density independent
+  recruitment after it has been put through the density
+  dependent stock-recruitment relationship function. This
+  method is used by the \code{project} method for
+  performing simulations.
 }
 \examples{
 \dontrun{

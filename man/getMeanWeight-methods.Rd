@@ -4,12 +4,6 @@
 \alias{getMeanWeight,MizerSim-method}
 \alias{getMeanWeight-method}
 \title{Calculate the mean weight of the community}
-\usage{
-getMeanWeight(object, ...)
-
-\S4method{getMeanWeight}{MizerSim}(object,
-  species = 1:nrow(object@params@species_params), ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -29,17 +23,17 @@ getMeanWeight(object, ...)
   include in the calculation}
 }
 \value{
-A vector containing the mean weight of the community
-through time
+  A vector containing the mean weight of the community
+  through time
 }
 \description{
-Calculates the mean weight of the community through time.
-This is simply the total biomass of the community divided
-by the abundance in numbers. You can specify minimum and
-maximum weight or length range for the species. Lengths
-take precedence over weights (i.e. if both min_l and min_w
-are supplied, only min_l will be used). You can also
-specify the species to be used in the calculation.
+  Calculates the mean weight of the community through time.
+  This is simply the total biomass of the community divided
+  by the abundance in numbers. You can specify minimum and
+  maximum weight or length range for the species. Lengths
+  take precedence over weights (i.e. if both min_l and
+  min_w are supplied, only min_l will be used). You can
+  also specify the species to be used in the calculation.
 }
 \examples{
 \dontrun{

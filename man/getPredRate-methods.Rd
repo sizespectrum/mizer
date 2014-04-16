@@ -5,14 +5,6 @@
 \alias{getPredRate,MizerParams,matrix,numeric,missing-method}
 \alias{getPredRate-method}
 \title{getPredRate method for the size based model}
-\usage{
-getPredRate(object, n, n_pp, feeding_level, ...)
-
-\S4method{getPredRate}{MizerParams,matrix,numeric,matrix}(object, n, n_pp,
-  feeding_level, ...)
-
-\S4method{getPredRate}{MizerParams,matrix,numeric,missing}(object, n, n_pp, ...)
-}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -27,16 +19,16 @@ getPredRate(object, n, n_pp, feeding_level, ...)
   \code{getFeedingLevel()} method.}
 }
 \value{
-A three dimensional array (predator species x predator size
-x prey size)
+  A three dimensional array (predator species x predator
+  size x prey size)
 }
 \description{
-Calculates the predation rate of each predator species at
-size on prey size. This method is used by the
-\code{\link{project}} method for performing simulations. In
-the simulations, it is combined with the interaction matrix
-(see \code{\link{MizerParams}}) to calculate the realised
-predation mortality (see \code{\link{getM2}}).
+  Calculates the predation rate of each predator species at
+  size on prey size. This method is used by the
+  \code{\link{project}} method for performing simulations.
+  In the simulations, it is combined with the interaction
+  matrix (see \code{\link{MizerParams}}) to calculate the
+  realised predation mortality (see \code{\link{getM2}}).
 }
 \examples{
 \dontrun{
@@ -52,7 +44,8 @@ getPredRate(params,n,n_pp)
 }
 }
 \seealso{
-\code{\link{project}}, \code{\link{getM2}},
-\code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
+  \code{\link{project}}, \code{\link{getM2}},
+  \code{\link{getFeedingLevel}} and
+  \code{\link{MizerParams}}
 }
 

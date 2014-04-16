@@ -4,13 +4,6 @@
 \alias{plotFeedingLevel,MizerSim-method}
 \alias{plotFeedingLevel-method}
 \title{Plot the feeding level of each species by size}
-\usage{
-plotFeedingLevel(object, ...)
-
-\S4method{plotFeedingLevel}{MizerSim}(object,
-  time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE,
-  ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -23,13 +16,13 @@ plotFeedingLevel(object, ...)
   ggplot2 object}
 }
 \value{
-A ggplot2 object
+  A ggplot2 object
 }
 \description{
-After running a projection, plot the feeding level of each
-species by size. The feeding level is averaged over the
-specified time range (a single value for the time range can
-be used).
+  After running a projection, plot the feeding level of
+  each species by size. The feeding level is averaged over
+  the specified time range (a single value for the time
+  range can be used).
 }
 \examples{
 \dontrun{
@@ -42,6 +35,6 @@ plotFeedingLevel(sim, time_range = 10:20)
 }
 }
 \seealso{
-\code{\link{getFeedingLevel}}
+  \code{\link{getFeedingLevel}}
 }
 

@@ -4,11 +4,6 @@
 \alias{getPhiPrey,MizerParams,matrix,numeric-method}
 \alias{getPhiPrey-method}
 \title{getPhiPrey method for the size based model}
-\usage{
-getPhiPrey(object, n, n_pp, ...)
-
-\S4method{getPhiPrey}{MizerParams,matrix,numeric}(object, n, n_pp, ...)
-}
 \arguments{
   \item{object}{An \code{MizerParams} object}
 
@@ -17,12 +12,13 @@ getPhiPrey(object, n, n_pp, ...)
   \item{n_pp}{A vector of the background abundance by size}
 }
 \value{
-A two dimensional array (predator species x predator size)
+  A two dimensional array (predator species x predator
+  size)
 }
 \description{
-Calculates the amount of food exposed to each predator by
-predator size. This method is used by the
-\code{\link{project}} method for performing simulations.
+  Calculates the amount of food exposed to each predator by
+  predator size. This method is used by the
+  \code{\link{project}} method for performing simulations.
 }
 \examples{
 \dontrun{
@@ -37,6 +33,6 @@ getPhiPrey(params,n,n_pp)
 }
 }
 \seealso{
-\code{\link{project}}
+  \code{\link{project}}
 }
 

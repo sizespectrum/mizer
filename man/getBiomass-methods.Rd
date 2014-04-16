@@ -4,11 +4,6 @@
 \alias{getBiomass,MizerSim-method}
 \alias{getBiomass-method}
 \title{Calculate the total biomass of each species within a size range at each time step.}
-\usage{
-getBiomass(object, ...)
-
-\S4method{getBiomass}{MizerSim}(object, ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -25,15 +20,16 @@ getBiomass(object, ...)
   calculation.}
 }
 \value{
-An array containing the biomass (time x species)
+  An array containing the biomass (time x species)
 }
 \description{
-Calculates the total biomass through time of the species in
-the \code{MizerSim} class within user defined size limits.
-The default option is to use the whole size range. You can
-specify minimum and maximum weight or length range for the
-species. Lengths take precedence over weights (i.e. if both
-min_l and min_w are supplied, only min_l will be used).
+  Calculates the total biomass through time of the species
+  in the \code{MizerSim} class within user defined size
+  limits. The default option is to use the whole size
+  range. You can specify minimum and maximum weight or
+  length range for the species. Lengths take precedence
+  over weights (i.e. if both min_l and min_w are supplied,
+  only min_l will be used).
 }
 \examples{
 \dontrun{

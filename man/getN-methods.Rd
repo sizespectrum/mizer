@@ -4,11 +4,6 @@
 \alias{getN,MizerSim-method}
 \alias{getN-method}
 \title{Calculate the total abundance in terms of numbers of species within a size range}
-\usage{
-getN(object, ...)
-
-\S4method{getN}{MizerSim}(object, ...)
-}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -25,15 +20,16 @@ getN(object, ...)
   calculation.}
 }
 \value{
-An array containing the total numbers (time x species)
+  An array containing the total numbers (time x species)
 }
 \description{
-Calculates the total numbers through time of the species in
-the \code{MizerSim} class within user defined size limits.
-The default option is to use the whole size range You can
-specify minimum and maximum weight or lengths for the
-species. Lengths take precedence over weights (i.e. if both
-min_l and min_w are supplied, only min_l will be used)
+  Calculates the total numbers through time of the species
+  in the \code{MizerSim} class within user defined size
+  limits. The default option is to use the whole size range
+  You can specify minimum and maximum weight or lengths for
+  the species. Lengths take precedence over weights (i.e.
+  if both min_l and min_w are supplied, only min_l will be
+  used)
 }
 \examples{
 \dontrun{
