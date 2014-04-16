@@ -4,6 +4,13 @@
 \alias{plotFMort,MizerSim-method}
 \alias{plotFMort-method}
 \title{Plot total fishing mortality of each species by size}
+\usage{
+plotFMort(object, ...)
+
+\S4method{plotFMort}{MizerSim}(object,
+  time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE,
+  ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -16,14 +23,14 @@
   ggplot2 object}
 }
 \value{
-  A ggplot2 object
+A ggplot2 object
 }
 \description{
-  After running a projection, plot the total fishing
-  mortality of each species by size. The total fishing
-  mortality is averaged over the specified time range (a
-  single value for the time range can be used to plot a
-  single time step).
+After running a projection, plot the total fishing
+mortality of each species by size. The total fishing
+mortality is averaged over the specified time range (a
+single value for the time range can be used to plot a
+single time step).
 }
 \examples{
 \dontrun{
@@ -36,6 +43,6 @@ plotFMort(sim, time_range = 10:20)
 }
 }
 \seealso{
-  \code{\link{getFMort}}
+\code{\link{getFMort}}
 }
 

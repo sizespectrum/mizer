@@ -4,6 +4,11 @@
 \alias{plotYieldGear,MizerSim-method}
 \alias{plotYieldGear-method}
 \title{Plot the total yield of each species by gear through time}
+\usage{
+plotYieldGear(object, ...)
+
+\S4method{plotYieldGear}{MizerSim}(object, print_it = TRUE, ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -11,16 +16,15 @@
   ggplot2 object}
 }
 \value{
-  A ggplot2 object
+A ggplot2 object
 }
 \description{
-  After running a projection, the total yield of each
-  species by fishing gear can be plotted against time. This
-  plot is pretty easy to do by hand. It just gets the
-  biomass using the \code{\link{getYieldGear}} method and
-  plots using the ggplot2 package. You can then fiddle
-  about with colours and linetypes etc. Just look at the
-  source code for details.
+After running a projection, the total yield of each species
+by fishing gear can be plotted against time. This plot is
+pretty easy to do by hand. It just gets the biomass using
+the \code{\link{getYieldGear}} method and plots using the
+ggplot2 package. You can then fiddle about with colours and
+linetypes etc. Just look at the source code for details.
 }
 \examples{
 \dontrun{
@@ -32,6 +36,6 @@ plotYieldGear(sim)
 }
 }
 \seealso{
-  \code{\link{getYieldGear}}
+\code{\link{getYieldGear}}
 }
 

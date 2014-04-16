@@ -2,15 +2,13 @@
 \alias{set_trait_model}
 \title{Sets up parameters for a trait-based model}
 \usage{
-  set_trait_model(no_sp = 10, min_w_inf = 10,
-    max_w_inf = 1e+05, no_w = 100, min_w = 0.001,
-    max_w = max_w_inf * 1.1, min_w_pp = 1e-10,
-    no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1, k0 = 50,
-    n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
-    kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
-    z0pre = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-    gamma = NA, knife_edge_size = 1000,
-    gear_names = "knife_edge_gear", ...)
+set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e+05,
+  no_w = 100, min_w = 0.001, max_w = max_w_inf * 1.1, min_w_pp = 1e-10,
+  no_w_pp = round(no_w) * 0.3, w_pp_cutoff = 1, k0 = 50, n = 2/3,
+  p = 0.75, q = 0.9, eta = 0.25, r_pp = 4, kappa = 0.005, lambda = 2
+  + q - n, alpha = 0.6, ks = 4, z0pre = 0.6, h = 30, beta = 100,
+  sigma = 1.3, f0 = 0.5, gamma = NA, knife_edge_size = 1000,
+  gear_names = "knife_edge_gear", ...)
 }
 \arguments{
   \item{no_sp}{The number of species in the model. The
@@ -103,57 +101,56 @@
   \code{MizerParams} constructor.}
 }
 \value{
-  An object of type \code{MizerParams}
+An object of type \code{MizerParams}
 }
 \description{
-  This functions creates a \code{MizerParams} object so
-  that trait-based-type models can be easily set up and
-  run. The trait-based size spectrum model can be derived
-  as a simplification of the general size-based model used
-  in \code{mizer}. All the species-specific parameters are
-  the same, except for the asymptotic size, which is
-  considered the most important trait characterizing a
-  species. Other parameters are related to the asymptotic
-  size. For example, the size at maturity is given by w_inf
-  * eta, where eta is the same for all species. For the
-  trait-based model the number of species is not important.
-  For applications of the trait-based model see Andersen &
-  Pedersen (2010). See the \code{mizer} vignette for more
-  details and examples of the trait-based model.
+This functions creates a \code{MizerParams} object so that
+trait-based-type models can be easily set up and run. The
+trait-based size spectrum model can be derived as a
+simplification of the general size-based model used in
+\code{mizer}. All the species-specific parameters are the
+same, except for the asymptotic size, which is considered
+the most important trait characterizing a species. Other
+parameters are related to the asymptotic size. For example,
+the size at maturity is given by w_inf * eta, where eta is
+the same for all species. For the trait-based model the
+number of species is not important. For applications of the
+trait-based model see Andersen & Pedersen (2010). See the
+\code{mizer} vignette for more details and examples of the
+trait-based model.
 }
 \details{
-  The function has many arguments, all of which have
-  default values. Of particular interest to the user are
-  the number of species in the model and the minimum and
-  maximum asymptotic sizes. The asymptotic sizes of the
-  species are spread evenly on a logarithmic scale within
-  this range.
+The function has many arguments, all of which have default
+values. Of particular interest to the user are the number
+of species in the model and the minimum and maximum
+asymptotic sizes. The asymptotic sizes of the species are
+spread evenly on a logarithmic scale within this range.
 
-  The stock recruitment relationship is the default
-  Beverton-Holt style. The maximum recruitment is
-  calculated using equilibrium theory (see Andersen &
-  Pederson, 2010) and a multiplier, \code{k0}. Users should
-  adjust \code{k0} to get the spectra they want.
+The stock recruitment relationship is the default
+Beverton-Holt style. The maximum recruitment is calculated
+using equilibrium theory (see Andersen & Pederson, 2010)
+and a multiplier, \code{k0}. Users should adjust \code{k0}
+to get the spectra they want.
 
-  The factor for the search volume, \code{gamma}, is
-  calculated using the expected feeding level, \code{f0}.
+The factor for the search volume, \code{gamma}, is
+calculated using the expected feeding level, \code{f0}.
 
-  Fishing selectivity is modelled as a knife-edge function
-  with one parameter, \code{knife_edge_size}, which is the
-  size at which species are selected. Each species can
-  either be fished by the same gear (\code{knife_edge_size}
-  has a length of 1) or by a different gear (the length of
-  \code{knife_edge_size} has the same length as the number
-  of species and the order of selectivity size is that of
-  the asymptotic size).
+Fishing selectivity is modelled as a knife-edge function
+with one parameter, \code{knife_edge_size}, which is the
+size at which species are selected. Each species can either
+be fished by the same gear (\code{knife_edge_size} has a
+length of 1) or by a different gear (the length of
+\code{knife_edge_size} has the same length as the number of
+species and the order of selectivity size is that of the
+asymptotic size).
 
-  The resulting \code{MizerParams} object can be projected
-  forward using \code{project()} like any other
-  \code{MizerParams} object. When projecting the community
-  model it may be necessary to reduce \code{dt} to 0.1 to
-  avoid any instabilities with the solver. You can check
-  this by plotting the biomass or abundance through time
-  after the projection.
+The resulting \code{MizerParams} object can be projected
+forward using \code{project()} like any other
+\code{MizerParams} object. When projecting the community
+model it may be necessary to reduce \code{dt} to 0.1 to
+avoid any instabilities with the solver. You can check this
+by plotting the biomass or abundance through time after the
+projection.
 }
 \examples{
 \dontrun{
@@ -180,12 +177,12 @@ sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
 }
 }
 \references{
-  K. H. Andersen and M. Pedersen, 2010, Damped trophic
-  cascades driven by fishing in model marine ecosystems.
-  Proceedings of the Royal Society V, Biological Sciences,
-  1682, 795-802.
+K. H. Andersen and M. Pedersen, 2010, Damped trophic
+cascades driven by fishing in model marine ecosystems.
+Proceedings of the Royal Society V, Biological Sciences,
+1682, 795-802.
 }
 \seealso{
-  \code{\link{MizerParams}}
+\code{\link{MizerParams}}
 }
 

@@ -6,6 +6,17 @@
 \alias{project,MizerParams,numeric-method}
 \alias{project-method}
 \title{project method for the size based modelling}
+\usage{
+project(object, effort, ...)
+
+\S4method{project}{MizerParams,missing}(object, ...)
+
+\S4method{project}{MizerParams,numeric}(object, effort, t_max = 100,
+  dt = 0.1, ...)
+
+\S4method{project}{MizerParams,array}(object, effort, t_save = 1, dt = 0.1,
+  initial_n = get_initial_n(object), initial_n_pp = object@cc_pp, ...)
+}
 \arguments{
   \item{object}{A \code{MizerParams} object}
 
@@ -34,49 +45,49 @@
   slot of the \code{\link{MizerParams}} argument is used.}
 }
 \value{
-  An object of type of \code{MizerSim}
+An object of type of \code{MizerSim}
 
-  An object of type \code{MizerSim}.
+An object of type \code{MizerSim}.
 }
 \description{
-  Runs the size-based model simulation and projects the
-  size based model through time. \code{project} is called
-  using an object of type \code{MizerParams} and an object
-  that contains the effort of the fishing gears through
-  time. The method returns an object of type
-  \code{\link{MizerSim}} which can then be explored with a
-  range of summary and plotting methods.
+Runs the size-based model simulation and projects the size
+based model through time. \code{project} is called using an
+object of type \code{MizerParams} and an object that
+contains the effort of the fishing gears through time. The
+method returns an object of type \code{\link{MizerSim}}
+which can then be explored with a range of summary and
+plotting methods.
 }
 \note{
-  The \code{effort} argument specifies the level of fishing
-  effort during the simulation. It can be specified in
-  three different ways: \itemize{ \item A single numeric
-  value. This specifies the effort of all fishing gears
-  which is constant through time (i.e. all the gears have
-  the same constant effort). \item A numerical vector which
-  has the same length as the number of fishing gears. The
-  vector must be named and the names must correspond to the
-  gear names in the \code{MizerParams} object. The values
-  in the vector specify the constant fishing effort of each
-  of the fishing gears, i.e. the effort is constant through
-  time but each gear may have a different fishing effort.
-  \item A numerical array with dimensions time step x gear.
-  This specifies the fishing effort of each gear at each
-  time step.  The first dimension, time, must be named
-  numerically and contiguously. The second dimension of the
-  array must be named and the names must correspond to the
-  gear names in the \code{MizerParams} argument. }
+The \code{effort} argument specifies the level of fishing
+effort during the simulation. It can be specified in three
+different ways: \itemize{ \item A single numeric value.
+This specifies the effort of all fishing gears which is
+constant through time (i.e. all the gears have the same
+constant effort). \item A numerical vector which has the
+same length as the number of fishing gears. The vector must
+be named and the names must correspond to the gear names in
+the \code{MizerParams} object. The values in the vector
+specify the constant fishing effort of each of the fishing
+gears, i.e. the effort is constant through time but each
+gear may have a different fishing effort. \item A numerical
+array with dimensions time step x gear. This specifies the
+fishing effort of each gear at each time step.  The first
+dimension, time, must be named numerically and
+contiguously. The second dimension of the array must be
+named and the names must correspond to the gear names in
+the \code{MizerParams} argument. }
 
-  If effort is specified as an array then the \code{t_max}
-  argument is ignored and the maximum simulation time is
-  the taken from the dimension names.
+If effort is specified as an array then the \code{t_max}
+argument is ignored and the maximum simulation time is the
+taken from the dimension names.
 
-  The \code{initial_n} argument is a matrix with dimensions
-  species x size. The order of species must be the same as
-  in the \code{MizerParams} argument. If the initial
-  population is not specified, the argument is set by
-  default by the \code{get_initial_n} function which is set
-  up for a North Sea model.
+The \code{initial_n} argument is a matrix with dimensions
+species x size. The order of species must be the same as in
+the \code{MizerParams} argument. If the initial population
+is not specified, the argument is set by default by the
+\code{get_initial_n} function which is set up for a North
+Sea model.
 }
 \examples{
 \dontrun{
@@ -102,6 +113,6 @@ sim <- project(params, effort = effort_array)
 }
 }
 \seealso{
-  \code{\link{MizerParams}}
+\code{\link{MizerParams}}
 }
 

@@ -3,17 +3,17 @@
 \alias{MizerSim-class}
 \title{MizerSim}
 \description{
-  A class that holds the results of projecting a
-  \code{\link{MizerParams}} object through time.
+A class that holds the results of projecting a
+\code{\link{MizerParams}} object through time.
 }
 \details{
-  \code{MizerSim} objects are created by using the
-  \code{\link{project}} method on an object of type
-  \code{MizerParams}.
+\code{MizerSim} objects are created by using the
+\code{\link{project}} method on an object of type
+\code{MizerParams}.
 
-  There are several plotting methods available to explore
-  the contents of a \code{MizerSim} object. See the package
-  vignette for more details.
+There are several plotting methods available to explore the
+contents of a \code{MizerSim} object. See the package
+vignette for more details.
 }
 \section{Slots}{
   \describe{ \item{\code{params}:}{An object of type
@@ -25,6 +25,6 @@
   background population by time and size} }
 }
 \seealso{
-  \code{\link{project}} \code{\link{MizerParams}}
+\code{\link{project}} \code{\link{MizerParams}}
 }
 

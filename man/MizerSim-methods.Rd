@@ -4,6 +4,12 @@
 \alias{MizerSim,MizerParams-method}
 \alias{MizerSim-method}
 \title{Constructor for the \code{MizerSim} class}
+\usage{
+MizerSim(object, ...)
+
+\S4method{MizerSim}{MizerParams}(object, t_dimnames = NA, t_max = 100,
+  t_save = 1, ...)
+}
 \arguments{
   \item{object}{a MizerParams object}
 
@@ -18,13 +24,13 @@
   Default value = 1.} }}
 }
 \value{
-  An object of type \code{MizerSim}
+An object of type \code{MizerSim}
 }
 \description{
-  A constructor for the \code{MizerSim} class. This is used
-  by the \code{project} method to create \code{MizerSim}
-  objects of the right dimensions. It is not necessary for
-  users to use this constructor.
+A constructor for the \code{MizerSim} class. This is used
+by the \code{project} method to create \code{MizerSim}
+objects of the right dimensions. It is not necessary for
+users to use this constructor.
 }
 \examples{
 \dontrun{
@@ -35,7 +41,7 @@ sim <- project(params)
 }
 }
 \seealso{
-  \code{\link{project}} \code{\link{MizerParams}}
-  \code{\link{MizerSim-class}}
+\code{\link{project}} \code{\link{MizerParams}}
+\code{\link{MizerSim-class}}
 }
 

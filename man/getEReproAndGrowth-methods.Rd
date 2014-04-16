@@ -5,6 +5,15 @@
 \alias{getEReproAndGrowth,MizerParams,matrix,numeric,missing-method}
 \alias{getEReproAndGrowth-method}
 \title{getEReproAndGrowth method for the size based model}
+\usage{
+getEReproAndGrowth(object, n, n_pp, feeding_level, ...)
+
+\S4method{getEReproAndGrowth}{MizerParams,matrix,numeric,matrix}(object, n,
+  n_pp, feeding_level)
+
+\S4method{getEReproAndGrowth}{MizerParams,matrix,numeric,missing}(object, n,
+  n_pp)
+}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -19,13 +28,13 @@
   \code{getFeedingLevel()} method.}
 }
 \value{
-  A two dimensional array (species x size)
+A two dimensional array (species x size)
 }
 \description{
-  Calculates the energy available by species and size for
-  reproduction and growth after metabolism and movement
-  have been accounted for. Used by the \code{project}
-  method for performing simulations.
+Calculates the energy available by species and size for
+reproduction and growth after metabolism and movement have
+been accounted for. Used by the \code{project} method for
+performing simulations.
 }
 \examples{
 \dontrun{
@@ -39,6 +48,6 @@ getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-  \code{\link{project}} and \code{\link{getFeedingLevel}}.
+\code{\link{project}} and \code{\link{getFeedingLevel}}.
 }
 

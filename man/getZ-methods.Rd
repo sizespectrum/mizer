@@ -5,6 +5,15 @@
 \alias{getZ,MizerParams,matrix,numeric,numeric,missing-method}
 \alias{getZ-method}
 \title{getZ method for the size based model}
+\usage{
+getZ(object, n, n_pp, effort, m2, ...)
+
+\S4method{getZ}{MizerParams,matrix,numeric,numeric,matrix}(object, n, n_pp,
+  effort, m2)
+
+\S4method{getZ}{MizerParams,matrix,numeric,numeric,missing}(object, n, n_pp,
+  effort)
+}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -22,12 +31,12 @@
   \code{getM2()} method.}
 }
 \value{
-  A two dimensional array (prey species x prey size).
+A two dimensional array (prey species x prey size).
 }
 \description{
-  Calculates the total mortality on each species by size
-  from predation mortality (M2), background mortality (M)
-  and fishing mortality for a single time step.
+Calculates the total mortality on each species by size from
+predation mortality (M2), background mortality (M) and
+fishing mortality for a single time step.
 }
 \examples{
 \dontrun{
@@ -41,6 +50,6 @@ getZ(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
 }
 }
 \seealso{
-  \code{\link{getM2}}, \code{\link{getFMort}}
+\code{\link{getM2}}, \code{\link{getFMort}}
 }
 

@@ -1,8 +1,10 @@
 \docType{methods}
-\name{plot}
-\alias{plot}
+\name{plot,MizerSim,missing-method}
 \alias{plot,MizerSim,missing-method}
 \title{Summary plot for \code{MizerSim} objects}
+\usage{
+\S4method{plot}{MizerSim,missing}(x, ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}}
 
@@ -10,17 +12,22 @@
   for \code{\link{plotBiomass}},
   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
   and \code{\link{plotFMort}}.}
+
+  \item{x}{the coordinates of points in the plot.
+  Alternatively, a single plotting structure, function or
+  \emph{any \R object with a \code{plot} method} can be
+  provided.}
 }
 \value{
-  A viewport object
+A viewport object
 }
 \description{
-  After running a projection, produces 5 plots in the same
-  window: feeding level, abundance spectra, predation
-  mortality and fishing mortality of each species by size;
-  and biomass of each species through time. This method
-  just uses the other plotting methods and puts them all in
-  one window.
+After running a projection, produces 5 plots in the same
+window: feeding level, abundance spectra, predation
+mortality and fishing mortality of each species by size;
+and biomass of each species through time. This method just
+uses the other plotting methods and puts them all in one
+window.
 }
 \examples{
 \dontrun{

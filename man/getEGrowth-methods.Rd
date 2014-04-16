@@ -5,6 +5,15 @@
 \alias{getEGrowth,MizerParams,matrix,numeric,missing,missing-method}
 \alias{getEGrowth-method}
 \title{getEGrowth method for the size based model}
+\usage{
+getEGrowth(object, n, n_pp, e_spawning, e, ...)
+
+\S4method{getEGrowth}{MizerParams,matrix,numeric,matrix,matrix}(object, n, n_pp,
+  e_spawning, e)
+
+\S4method{getEGrowth}{MizerParams,matrix,numeric,missing,missing}(object, n,
+  n_pp)
+}
 \arguments{
   \item{object}{A \code{MizerParams} object.}
 
@@ -26,13 +35,13 @@
   \code{getESpawning()} method.}
 }
 \value{
-  A two dimensional array (prey species x prey size)
+A two dimensional array (prey species x prey size)
 }
 \description{
-  Calculates the energy available by species and size for
-  growth after metabolism and movement have been accounted
-  for. Used by the \code{project} method for performing
-  simulations.
+Calculates the energy available by species and size for
+growth after metabolism and movement have been accounted
+for. Used by the \code{project} method for performing
+simulations.
 }
 \examples{
 \dontrun{
@@ -46,6 +55,6 @@ getEGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-  \code{\link{project}}
+\code{\link{project}}
 }
 

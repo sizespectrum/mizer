@@ -4,6 +4,13 @@
 \alias{plotBiomass,MizerSim-method}
 \alias{plotBiomass-method}
 \title{Plot the biomass of each species through time}
+\usage{
+plotBiomass(object, ...)
+
+\S4method{plotBiomass}{MizerSim}(object, print_it = TRUE,
+  start_time = as.numeric(dimnames(object@n)[[1]][1]),
+  end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -29,18 +36,17 @@
   ggplot2 object. Default value is TRUE.}
 }
 \value{
-  A ggplot2 object
+A ggplot2 object
 }
 \description{
-  After running a projection, the biomass of each species
-  can be plotted against time. The biomass is calculated
-  within user defined size limits (see
-  \code{\link{getBiomass}}). This plot is pretty easy to do
-  by hand. It just gets the biomass using the
-  \code{\link{getBiomass}} method and plots using the
-  ggplot2 package. You can then fiddle about with colours
-  and linetypes etc. Just look at the source code for
-  details.
+After running a projection, the biomass of each species can
+be plotted against time. The biomass is calculated within
+user defined size limits (see \code{\link{getBiomass}}).
+This plot is pretty easy to do by hand. It just gets the
+biomass using the \code{\link{getBiomass}} method and plots
+using the ggplot2 package. You can then fiddle about with
+colours and linetypes etc. Just look at the source code for
+details.
 }
 \examples{
 \dontrun{
@@ -53,6 +59,6 @@ plotBiomass(sim, min_w = 10, max_w = 1000)
 }
 }
 \seealso{
-  \code{\link{getBiomass}}
+\code{\link{getBiomass}}
 }
 

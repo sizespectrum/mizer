@@ -4,6 +4,12 @@
 \alias{getCommunitySlope,MizerSim-method}
 \alias{getCommunitySlope-method}
 \title{Calculate the slope of the community abundance}
+\usage{
+getCommunitySlope(object, ...)
+
+\S4method{getCommunitySlope}{MizerSim}(object,
+  species = 1:nrow(object@params@species_params), biomass = TRUE, ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 
@@ -27,18 +33,17 @@
   calculation.}
 }
 \value{
-  A data frame with slope, intercept and R2 values.
+A data frame with slope, intercept and R2 values.
 }
 \description{
-  Calculates the slope of the community abundance through
-  time by performing a linear regression on the logged
-  total numerical abundance at weight and logged weights
-  (natural logs, not log to base 10, are used). You can
-  specify minimum and maximum weight or length range for
-  the species. Lengths take precedence over weights (i.e.
-  if both min_l and min_w are supplied, only min_l will be
-  used). You can also specify the species to be used in the
-  calculation.
+Calculates the slope of the community abundance through
+time by performing a linear regression on the logged total
+numerical abundance at weight and logged weights (natural
+logs, not log to base 10, are used). You can specify
+minimum and maximum weight or length range for the species.
+Lengths take precedence over weights (i.e. if both min_l
+and min_w are supplied, only min_l will be used). You can
+also specify the species to be used in the calculation.
 }
 \examples{
 \dontrun{

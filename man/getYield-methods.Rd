@@ -4,15 +4,20 @@
 \alias{getYield,MizerSim-method}
 \alias{getYield-method}
 \title{Calculate the total yield of each species}
+\usage{
+getYield(object, ...)
+
+\S4method{getYield}{MizerSim}(object, ...)
+}
 \arguments{
   \item{object}{An object of class \code{MizerSim}.}
 }
 \value{
-  An array containing the total yield (time x species)
+An array containing the total yield (time x species)
 }
 \description{
-  Calculates the total yield of each species across all
-  gears at each simulation time step.
+Calculates the total yield of each species across all gears
+at each simulation time step.
 }
 \examples{
 \dontrun{
@@ -24,6 +29,6 @@ y <- getYield(sim)
 }
 }
 \seealso{
-  \code{\link{getYieldGear}}
+\code{\link{getYieldGear}}
 }
 

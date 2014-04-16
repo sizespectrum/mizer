@@ -3,31 +3,31 @@
 \alias{MizerParams-class}
 \title{MizerParams}
 \description{
-  A class to hold the parameters for a size based model.
-  These parameters include the model species, their life
-  history parameters and the size ranges of the model.
+A class to hold the parameters for a size based model.
+These parameters include the model species, their life
+history parameters and the size ranges of the model.
 }
 \details{
-  \code{MizerParam} objects can be created using a range of
-  \code{\link{MizerParams}} constructor methods.
+\code{MizerParam} objects can be created using a range of
+\code{\link{MizerParams}} constructor methods.
 
-  Dynamic simulations are performed using the
-  \code{\link{project}} method on objects of this class.
+Dynamic simulations are performed using the
+\code{\link{project}} method on objects of this class.
 }
 \note{
-  The \code{MizerParams} class is fairly complex with a
-  large number of slots, many of which are multidimensional
-  arrays. The dimensions of these arrays is strictly
-  enforced so that \code{MizerParam} objects are consistent
-  in terms of number of species and number of size classes.
+The \code{MizerParams} class is fairly complex with a large
+number of slots, many of which are multidimensional arrays.
+The dimensions of these arrays is strictly enforced so that
+\code{MizerParam} objects are consistent in terms of number
+of species and number of size classes.
 
-  Although it is possible to build a \code{MizerParams}
-  object by hand it is not recommended and several
-  constructors are available.
+Although it is possible to build a \code{MizerParams}
+object by hand it is not recommended and several
+constructors are available.
 
-  The \code{MizerParams} class does not hold any dynamic
-  information, e.g. abundances or harvest effort through
-  time. These are held in \code{\link{MizerSim}} objects.
+The \code{MizerParams} class does not hold any dynamic
+information, e.g. abundances or harvest effort through
+time. These are held in \code{\link{MizerSim}} objects.
 }
 \section{Slots}{
   \describe{ \item{\code{w}:}{A numeric vector of size bins
@@ -74,6 +74,6 @@
   each gear} }
 }
 \seealso{
-  \code{\link{project}} \code{\link{MizerSim}}
+\code{\link{project}} \code{\link{MizerSim}}
 }
 

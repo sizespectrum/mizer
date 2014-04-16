@@ -2,7 +2,7 @@
 \alias{get_initial_n}
 \title{Calculate initial population abundances for the community populations}
 \usage{
-  get_initial_n(params, n0_mult = NULL, a = 0.35)
+get_initial_n(params, n0_mult = NULL, a = 0.35)
 }
 \arguments{
   \item{params}{The model parameters. An object of type
@@ -14,15 +14,15 @@
   Default value is kappa / 1000.}
 }
 \value{
-  A matrix (species x size) of population abundances.
+A matrix (species x size) of population abundances.
 }
 \description{
-  This function uses the model parameters and other
-  parameters to calculate initial population abundances for
-  the community populations. These initial abundances
-  should be reasonable guesses at the equilibrium values.
-  The returned population can be passed to the
-  \code{project} method.
+This function uses the model parameters and other
+parameters to calculate initial population abundances for
+the community populations. These initial abundances should
+be reasonable guesses at the equilibrium values. The
+returned population can be passed to the \code{project}
+method.
 }
 \examples{
 \dontrun{
