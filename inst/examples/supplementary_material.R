@@ -392,7 +392,8 @@ add_effort_lines <- function(){
 }
 
 #postscript(file = "Figure2.eps", width = width/2.5, height = height/2.5, pointsize=8, horizontal = FALSE, onefile=FALSE, paper='special')
-png(filename="Figure2.png", width = width, height = height, units="cm",res=800, pointsize=8)
+#png(filename="Figure2.png", width = width, height = height, units="cm",res=800, pointsize=8)
+png(filename="Figure2.png", width = width, height = height, units="cm",res=1000, pointsize=8)
 
 # Figuring out figure panel heights - bit fiddly
 rel_heights <- c(0.7,rep(0.5,8),0.5,0.8,1) # rel heights of panels
