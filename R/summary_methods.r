@@ -16,7 +16,6 @@
 #' @export
 #' @docType methods
 #' @rdname getSSB-methods
-#' @aliases getSSB-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -26,13 +25,12 @@
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
 #' }
-setGeneric('getSSB', function(object, ...)
+setGeneric('getSSB', function(object)
     standardGeneric('getSSB'))
 
 #' @rdname getSSB-methods
-#' @aliases getSSB,MizerSim-method
 setMethod('getSSB', signature(object='MizerSim'),
-    function(object,  ...){
+    function(object){
 	ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
 	return(ssb)
     })
@@ -44,16 +42,12 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #'
 #' @param object An object of class \code{MizerSim}.
-#' @param min_w minimum weight of species to be used in the calculation.
-#' @param max_w maximum weight of species to be used in the calculation.
-#' @param min_l minimum length of species to be used in the calculation.
-#' @param max_l maximum length of species to be used in the calculation.
+#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
 #' @docType methods
 #' @rdname getBiomass-methods
-#' @aliases getBiomass-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -66,8 +60,8 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' }
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
+
 #' @rdname getBiomass-methods
-#' @aliases getBiomass,MizerSim-method
 setMethod('getBiomass', signature(object='MizerSim'),
     function(object, ...){
         size_range <- get_size_range_array(object@params,...)
@@ -82,16 +76,12 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' You can specify minimum and maximum weight or lengths for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
 #'
 #' @param object An object of class \code{MizerSim}.
-#' @param min_w minimum weight of species to be used in the calculation.
-#' @param max_w maximum weight of species to be used in the calculation.
-#' @param min_l minimum length of species to be used in the calculation.
-#' @param max_l maximum length of species to be used in the calculation.
+#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
 #' @docType methods
 #' @rdname getN-methods
-#' @aliases getN-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -104,8 +94,8 @@ setMethod('getBiomass', signature(object='MizerSim'),
 #' }
 setGeneric('getN', function(object, ...)
     standardGeneric('getN'))
+
 #' @rdname getN-methods
-#' @aliases getN,MizerSim-method
 setMethod('getN', signature(object='MizerSim'),
     function(object, ...){
 	size_range <- get_size_range_array(object@params,...)
@@ -125,7 +115,6 @@ setMethod('getN', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getYieldGear-methods
-#' @aliases getYieldGear-method
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -136,13 +125,12 @@ setMethod('getN', signature(object='MizerSim'),
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
 #' }
-setGeneric('getYieldGear', function(object,...)
+setGeneric('getYieldGear', function(object)
     standardGeneric('getYieldGear'))
 
 #' @rdname getYieldGear-methods
-#' @aliases getYieldGear,MizerSim-method
 setMethod('getYieldGear', signature(object='MizerSim'),
-    function(object,...){
+    function(object){
         # biomass less the first time step
         biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")[-1,,,drop=FALSE]
         f_gear <- getFMortGear(object)
@@ -161,7 +149,6 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' @export
 #' @docType methods
 #' @rdname getYield-methods
-#' @aliases getYield-method
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -171,12 +158,11 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
-setGeneric('getYield', function(object,...)
+setGeneric('getYield', function(object)
     standardGeneric('getYield'))
 #' @rdname getYield-methods
-#' @aliases getYield,MizerSim-method
 setMethod('getYield', signature(object='MizerSim'),
-    function(object,...){
+    function(object){
 	# biomass less the first time step
 	yield_gear_species <- getYieldGear(object)
 	return(apply(yield_gear_species,c(1,3),sum))
@@ -208,6 +194,8 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
     return(size_n)
 }
 
+# Check documentation for summary
+
 #' Summary method 
 #'
 #' Outputs a general summary of the structure and content of the object
@@ -215,7 +203,6 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
 #' @export
 #' @docType methods
 #' @rdname summary-methods
-#' @aliases summary,MizerParams-method
 #'
 #' @examples
 #' \dontrun{
@@ -288,19 +275,15 @@ setMethod("summary", signature(object="MizerSim"),
 #'
 #' @param object An object of class \code{MizerSim}.
 #' @param species numeric or character vector of species to include in the calculation.
-#' @param min_w minimum weight of species to be used in the calculation.
-#' @param max_w maximum weight of species to be used in the calculation.
-#' @param min_l minimum length of species to be used in the calculation.
-#' @param max_l maximum length of species to be used in the calculation.
 #' @param threshold_w the size used as the cutoff between large and small fish. Default value is 100.
 #' @param threshold_l the size used as the cutoff between large and small fish.
 #' @param biomass_proportion a boolean value. If TRUE the proportion calculated is based on biomass, if FALSE it is based on numbers of individuals. Default is TRUE.
+#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the proportion of large fish through time
 #' @export
 #' @docType methods
 #' @rdname getProportionOfLargeFish-methods
-#' @aliases getProportionOfLargeFish-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -316,8 +299,8 @@ setMethod("summary", signature(object="MizerSim"),
 #' }
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
+
 #' @rdname getProportionOfLargeFish-methods
-#' @aliases getProportionOfLargeFish,MizerSim-method
 setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
 	check_species(object,species)
