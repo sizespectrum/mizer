@@ -7,7 +7,6 @@
 %\VignetteEngine{knitr::knitr}
 
 \setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
-%\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \setcounter{secnumdepth}{3}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \usepackage[round,sort]{natbib} 
 \usepackage[english]{babel} % No idea what this is but stops the et~al problem from natbib
@@ -84,8 +83,8 @@ opts_chunk$set(width = 7)
 
 \tableofcontents
 \setcounter{footnote}{1} \footnotetext{This document is included as a
-  vignette (a \LaTeX\ document created using the \R function
-  \code{Sweave}) of the package \pkg{mizer}. It is automatically
+  vignette (a \LaTeX\ document created using the \R package
+  \code{knitr}) of the package \pkg{mizer}. It is automatically
   downloaded together with the package and can be accessed through \R
   typing \code{vignette("mizer\_vignette")}.}  \newpage
 \setlength{\parskip}{4pt} % Space between paragraphs
@@ -95,7 +94,7 @@ rm(list=ls())
 @ 
 %-----------------------------------------------------------------------------------
 \section{Summary}
-Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
+Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals that grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
 A key feature is that of a \emph{size spectrum}, where the total abundance of individuals at size scales negatively with size: there are more small things than big things.
 
 \pkg{mizer} is a software package for implementing size spectrum ecological models using the \R statistical programming environment.
@@ -105,10 +104,10 @@ Roughly speaking there are three versions of the size spectrum modelling framewo
 the \emph{trait-based} model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
 and the \emph{multispecies} model in which multiple ``real'' species are resolved, each of which can have differing species-specific traits. 
 The community and trait-based models can be considered as simplifications of the multispecies model.
-\pkg{mizer} is able implement all three model versions using the same set of tools.
+\pkg{mizer} is able to implement all three model versions using the same set of tools.
 
 \pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
-The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such mean weight in the community and the the slope of the size spectrum.
+The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such as mean weight in the community and the the slope of the size spectrum.
 
 The models created can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
@@ -560,7 +559,7 @@ m2[51,]
 If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}).
 
 \begin{figure}
-<<label=print_plot_comm_m2, echo=FALSE, fig.height=4>>=
+<<label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4>>=
 plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 @
 \caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
@@ -668,7 +667,7 @@ plotBiomass(sim_sigma1)
 @
 
 \begin{figure}
-<<plot_comm_biomass_sigma1, fig.height=4>>=
+<<label=print_plot_comm_biomass_sigma1, fig.height=4>>=
 <<plot_comm_biomass_sigma1>>
 @
 \caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
@@ -718,7 +717,7 @@ class(params)
 
 This object can therefore be interrogated in the same way as described in Section~\ref{sec:comm_model} above, either by inspecting the individual slots or by using the \code{summary()} function.
 
-<<label=summary_comm_params>>=
+<<label=summary_comm_params2>>=
 summary(params)
 @
 
@@ -818,13 +817,13 @@ total_abund1 <- apply(sim1@n[76,,],2,sum)
 
 We can then use these vectors to calculate the relative abundances:
 
-<<label='relative_comm_abundance'>>=
+<<label='relative_comm_abundance2'>>=
 relative_abundance <- total_abund1 / total_abund0
 @
 
-Which can be plotted using (Figure~\ref{fig:plot_relative_comm_abund}):
+Which can be plotted using (Figure~\ref{fig:plot_relative_comm_abund2}):
 
-<<label=plot_relative_comm_abund, eval=FALSE>>=
+<<label=plot_relative_comm_abund2, eval=FALSE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
@@ -833,10 +832,10 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 
 \begin{figure}
 <<label=show_plot_relative_comm_abund, eval=FALSE, fig.height=4>>=
-<<plot_relative_comm_abund>>
+<<plot_relative_comm_abund2>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model.}
-\label{fig:plot_relative_comm_abund}
+\label{fig:plot_relative_comm_abund2}
 \end{figure}
 
 The impact of fishing on species larger than 1000 g can be clearly seen.
