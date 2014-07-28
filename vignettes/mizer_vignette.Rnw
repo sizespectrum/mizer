@@ -1,30 +1,12 @@
-% place *.rnw inside mizer/vignettes
-% RCMD build mizer
-% To make the tar ball which includes the compiled pdf
-% RCMD INSTALL --build mizer.tar.gz****
-% To make the windows binary from the tarball. This binary zip file contains the vignette in pdf form
-% In R, load the library then
-% vignette("mizer_vignette") to open the vignette
-
-
-% For checking the latex works OK
-% setwd("~/Work/size_based_modelling/mizer/vignettes")
-% Sweave("mizer_vignette.Rnw", syntax="SweaveSyntaxNoweb")
-% shell("pdflatex mizer_vignette.tex")
-%
-% shell("bibtex mizer_vignette")
-
-% \SweaveOpts{width = 7, height = 10}
-% Or use the width and height option in the <<>>= bit
-% Whar is the difference and how to make them universal?
-	
-%The Sweave options width and height influence the dimensions of the PDF file but not the size of the figures in the document. Put something like
-%\setkeys{Gin}{width=0.4\textwidth}
-%after \begin{document} to get smaller plots.
+% !Rnw weave = knitr
 
 \documentclass{article}
+
+%\VignetteIndexEntry{Introduction to mizer}
+%\VignettePackage{mizer}
+%\VignetteEngine{knitr::knitr}
+
 \setlength{\parindent}{0pt}	% Eliminate the indent at the beginning of a new paragraph
-%\setcounter{secnumdepth}{0}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \setcounter{secnumdepth}{3}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \usepackage[round,sort]{natbib} 
 \usepackage[english]{babel} % No idea what this is but stops the et~al problem from natbib
@@ -61,9 +43,6 @@
 
 % ---------------------------------------------------------------------------------------------------------------------------------------
 
-%\VignetteIndexEntry{Introduction to mizer}
-%\VignettePackage{mizer}
-%\documentclass{amsart}
 \newcommand{\code}[1]{{\texttt{#1}}}
 \newcommand{\pkg}[1]{{\texttt{#1}}}
 \newcommand{\class}[1]{{\textit{#1}}}
@@ -71,26 +50,23 @@
 \newcommand{\args}[1]{{\texttt{#1}}}
 
 \begin{document}
+
+<<include=FALSE, cache=FALSE>>=
+library(knitr)
+opts_chunk$set(concordance=TRUE, cache=TRUE)
+@
+
 % Makes the ACTUAL images the same width as the text
 \setkeys{Gin}{width=0.95\textwidth}
 % width = x, in the <<>>= affects the R plot (i.e. label size) but not the actual image width
 % so width = 2 or width = 10 would give same image width in document, but labels and points etc would be different
 % height = x, the acutal image height is given by the width / height ratio and the actual image width
 % so image is always blown up to fit Gin width
-\SweaveOpts{width = 7}
 
-% This stuff came from abc vignette
-% <<label=R options,echo=FALSE>>=
-% options(width = 60)
-% options(SweaveHooks = list(fig = function() par(mar=c(3,3,1,0.5),mgp = c(2,1,0))))
-% @
+<<include=FALSE>>=
+opts_chunk$set(width = 7)
+@
 
-%\SweaveOpts{prefix.string=fig,include=F,keep.source=T,eps=FALSE}
-
-% <<echo=false>>=
-% options(continue="  ")
-% @
-% %@% TO ELIMINATE THE "+" IN CONSECUTIVE SCRIPT LINES
 
 \title{Multispecies, trait-based and community size spectrum ecological modelling in \R (\pkg{mizer})}
 %\author{F. Scott, J. L. Blanchard, K. H. Andersen}
@@ -107,8 +83,8 @@
 
 \tableofcontents
 \setcounter{footnote}{1} \footnotetext{This document is included as a
-  vignette (a \LaTeX\ document created using the \R function
-  \code{Sweave}) of the package \pkg{mizer}. It is automatically
+  vignette (a \LaTeX\ document created using the \R package
+  \code{knitr}) of the package \pkg{mizer}. It is automatically
   downloaded together with the package and can be accessed through \R
   typing \code{vignette("mizer\_vignette")}.}  \newpage
 \setlength{\parskip}{4pt} % Space between paragraphs
@@ -118,7 +94,7 @@ rm(list=ls())
 @ 
 %-----------------------------------------------------------------------------------
 \section{Summary}
-Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals which grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
+Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals that grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
 A key feature is that of a \emph{size spectrum}, where the total abundance of individuals at size scales negatively with size: there are more small things than big things.
 
 \pkg{mizer} is a software package for implementing size spectrum ecological models using the \R statistical programming environment.
@@ -128,10 +104,10 @@ Roughly speaking there are three versions of the size spectrum modelling framewo
 the \emph{trait-based} model, in which all the species-specific parameters are the same, except for the asymptotic size which determines other life-history parameters such as the size at maturity;
 and the \emph{multispecies} model in which multiple ``real'' species are resolved, each of which can have differing species-specific traits. 
 The community and trait-based models can be considered as simplifications of the multispecies model.
-\pkg{mizer} is able implement all three model versions using the same set of tools.
+\pkg{mizer} is able to implement all three model versions using the same set of tools.
 
 \pkg{mizer} contains routines and methods to allow users to set up the model community, and then project it through time under different fishing strategies.
-The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such mean weight in the community and the the slope of the size spectrum.
+The results of the simulations can then be explored using a range of plots and summary methods, including plots of size spectra and the calculation of community indicators such as mean weight in the community and the the slope of the size spectrum.
 
 The models created can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
@@ -152,7 +128,7 @@ install.packages("mizer")
 @
 
 After installing \pkg{mizer}, to actually use it you need to load the package using the \code{library()} function. Note that whilst you only need to install the package once, it will need to be loaded every time you start a new \R session.
-<<results = hide>>=
+<<results='hide'>>=
 library(mizer)
 @
 
@@ -515,7 +491,7 @@ slotNames(params)
 
 As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\ref{sec:MizerParams}. A quick description can be found in the \class{MizerParams} help page (run \code{class ? MizerParams}. The slots of an object are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
 
-<<label=demo_slot_accessor, results=hide>>=
+<<label=demo_slot_accessor, results='hide'>>=
 params@w
 @
 
@@ -550,7 +526,7 @@ plot(sim)
 @
 
 \begin{figure}
-<<label=print_plot_comm_sim, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_comm_sim, echo=FALSE, fig.height=9>>=
 <<plot_comm_sim>>
 @
 \caption{Example plot of the community model.}
@@ -576,14 +552,14 @@ m2 <- getM2(sim)
 This \code{m2} object is a array that contains the predation mortality at time by species by size. Here we only have one species so the species dimension is dropped, leaving us with a two dimensional array of time by size. We projected the model for \Sexpr{dim(m2)[1]-1} time steps but the length of the time dimension is \Sexpr{dim(m2)[1]} as the initial population is also included as a time step.
 
 To pull out the predation mortality at size in the final time step we use:
-<<label=m2_comm_final_time_step, results=hide>>=
+<<label=m2_comm_final_time_step, results='hide'>>=
 m2[51,]
 @
 
 If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\ref{fig:plot_comm_m2}).
 
 \begin{figure}
-<<label=print_plot_comm_m2, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4>>=
 plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 @
 \caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
@@ -622,7 +598,7 @@ plot(sim1)
 @
 
 \begin{figure}
-<<label=print_plot_comm_fmort, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_comm_fmort, echo=FALSE, fig.height=9>>=
 <<plot_comm_fmort>>
 @
 \caption{Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.}
@@ -652,7 +628,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=print_plot_relative_comm_abund, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plot_relative_comm_abund, echo=FALSE, fig.height=4>>=
 <<plot_relative_comm_abund>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) community model.}
@@ -691,7 +667,7 @@ plotBiomass(sim_sigma1)
 @
 
 \begin{figure}
-<<plot_comm_biomass_sigma1, fig=TRUE, height = 4>>=
+<<label=print_plot_comm_biomass_sigma1, fig.height=4>>=
 <<plot_comm_biomass_sigma1>>
 @
 \caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
@@ -741,7 +717,7 @@ class(params)
 
 This object can therefore be interrogated in the same way as described in Section~\ref{sec:comm_model} above, either by inspecting the individual slots or by using the \code{summary()} function.
 
-<<label=summary_comm_params>>=
+<<label=summary_comm_params2>>=
 summary(params)
 @
 
@@ -763,13 +739,13 @@ sim <- project(params, t_max=75, effort = 0)
 This results in a \class{MizerSim} object which contains the abundances of the community and background resource spectra through time, as well as the original \class{MizerParams} object.
 As with the community model, we can get a quick overview of the results of the simulation by calling the generic \code{plot()} method:
 
-<<plot_comm_sim, eval=FALSE>>=
+<<plot_comm_sim_2, eval=FALSE>>=
 plot(sim)
 @
 
 \begin{figure}
-<<label=print_plot_trait_sim, fig=TRUE, echo=FALSE, height = 9>>=
-<<plot_comm_sim>>
+<<label=print_plot_trait_sim, echo=FALSE, fig.height=9>>=
+<<plot_comm_sim_2>>
 @
 \caption{Example plot of the trait-based model with no fishing.}
 \label{fig:plot_trait_demo}
@@ -817,7 +793,7 @@ plot(sim1)
 @
 
 \begin{figure}
-<<label=print_plot_trait_fmort, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_trait_fmort, echo=FALSE, fig.height=9>>=
 <<plot_trait_fmort>>
 @
 \caption{Summary plot for the trait-based model when fishing with knife-edge selectivity at size = 1000 g.}
@@ -834,20 +810,20 @@ dim(sim0@n)
 As with the community model, we are interested in the relative total abundances by size in the final time step  so we want to pull out the 76th time step from the abundances and sum over the species.
 We can use the \code{apply()} function to help us:
 
-<<lable = total_abund_trait>>=
+<<label = total_abund_trait>>=
 total_abund0 <- apply(sim0@n[76,,],2,sum)
 total_abund1 <- apply(sim1@n[76,,],2,sum)
 @
 
 We can then use these vectors to calculate the relative abundances:
 
-<<label='relative_comm_abundance'>>=
+<<label='relative_comm_abundance2'>>=
 relative_abundance <- total_abund1 / total_abund0
 @
 
-Which can be plotted using (Figure~\ref{fig:plot_relative_comm_abund}):
+Which can be plotted using (Figure~\ref{fig:plot_relative_comm_abund2}):
 
-<<label=plot_relative_comm_abund, eval=FALSE>>=
+<<label=plot_relative_comm_abund2, eval=FALSE>>=
 plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
@@ -855,11 +831,11 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=show_plot_relative_comm_abund, fig=TRUE, echo=FALSE, height = 4>>=
-<<plot_relative_comm_abund>>
+<<label=show_plot_relative_comm_abund, eval=FALSE, fig.height=4>>=
+<<plot_relative_comm_abund2>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model.}
-\label{fig:plot_relative_comm_abund}
+\label{fig:plot_relative_comm_abund2}
 \end{figure}
 
 The impact of fishing on species larger than 1000 g can be clearly seen.
@@ -883,7 +859,7 @@ lines(x = sim0@params@w, y = m2_with_fishing)
 @
 
 \begin{figure}
-<<label=print_plot_relative_trait_m2, fig=TRUE, echo = FALSE, height = 4>>=
+<<label=print_plot_relative_trait_m2, echo = FALSE, fig.height=4>>=
 <<plot_relative_trait_m2>>
 @
 \caption{Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model.}
@@ -942,7 +918,7 @@ params_multi_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
 
 To check what has just happened we can take a look inside the \class{MizerParams} object. There is a slot in the object called \code{species\_params}. This is a \class{data.frame} that contains the life-history parameters of the species in the model (the results of running this command are not shown):
 
-<<label=looking_at_trait_species_params, results = hide>>=
+<<label=looking_at_trait_species_params, results='hide'>>=
 params_multi_gear@species_params
 @
 
@@ -963,7 +939,7 @@ plot(sim_multi_gear)
 @
 
 \begin{figure}
-<<label=print_plot_trait_multi_gear_single_effort, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_trait_multi_gear_single_effort, echo=FALSE, fig.height=9>>=
 <<plot_multi_gear_trait_single_effort>>
 @
 \caption{Summary plot for the trait-based model with multiple gears when all gears are operational.}
@@ -987,7 +963,7 @@ plot(sim_multi_gear)
 @
 
 \begin{figure}
-<<label=print_plot_trait_multi_gear, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_trait_multi_gear, echo=FALSE, fig.height=9>>=
 <<plot_multi_gear_trait>>
 @
 \caption{Summary plot for the trait-based model with multiple gears when only the industrial gear that fishes on species with asymptotic size of 500 g or less is operational.}
@@ -1019,7 +995,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=show_plot_relative_comm_abund_industrial, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=show_plot_relative_comm_abund_industrial, echo=FALSE, fig.height = 4>>=
 <<plot_relative_comm_abund_industrial>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model with an industrial fishery that targets species with an asymptotic size of 500 g or less.}
@@ -1382,7 +1358,7 @@ this function also needs another argument, \args{knife\_edge\_size}. This is not
 
 This species parameter data.frame is the minimum we need to create a \class{MizerParams} object as it contains only essential columns. To create the \class{MizerParams} object we pass the data.frame into the \code{MizerParams()} constructor method:
 
-<<label=first_MP, results = hide>>=
+<<label=first_MP, results='hide'>>=
 params <- MizerParams(params_data)
 @
 
@@ -1410,7 +1386,7 @@ An example of setting the catchability by hand can be seen in Section~\ref{sec:n
 
 As has been shown in Sections~\ref{sec:comm_model} and~\ref{sec:trait_based_model}, there is a \code{summary()} method for \class{MizerParams} objects which prints a useful summary of the model parameters:
 
-<<label=summary_params, results=hide>>=
+<<label=summary_params, results='hide'>>=
 summary(params)
 @
 
@@ -1448,7 +1424,7 @@ To make the \class{MizerClass} object you just call the constructor method and p
 We will use default values for the remainder of the arguments to the \code{MizerParams()} method (see Section~\ref{sec:other_mizerparams_arguments} and Table~\ref{tab:other_params}).
 This means that we only need to pass in two arguments to the constructor:
 
-<<results = hide>>=
+<<results='hide'>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
@@ -1480,7 +1456,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 If you inspect the \code{params\_data} object you will see a new column, \args{gear}, has been added to it.  
 We then make a new \class{MizerParams} object as before:
 
-<<label=set_params_gears, results = hide>>=
+<<label=set_params_gears, results='hide'>>=
 params_gears <- MizerParams(params_data_gears, interaction = inter)
 @
 
@@ -1600,7 +1576,7 @@ This method can be particularly useful for quickly projecting forward without fi
 We will use the \args{params} object that was created above in the \class{MizerParams} example above in which each species is caught by a separate gear.
 Here we make the object again:
 
-<<label = remaking_simple_ms_params, results = hide>>=
+<<label = remaking_simple_ms_params, results='hide'>>=
 params <- MizerParams(params_data, interaction = inter)
 @
 
@@ -1623,7 +1599,7 @@ plot(sim)
 @
 
 \begin{figure}
-<<label=print_plot_basic_ms_sim, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_plot_basic_ms_sim, echo=FALSE, fig.height=9>>=
 <<plot_basic_ms_sim>>
 @
 \caption{Plot of the North Sea multispecies model with no default fishing gears and constant effort of 1.}
@@ -1690,7 +1666,7 @@ plotFMort(sim)
 @
 
 \begin{figure}
-<<label=print_plotFMort, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plotFMort, echo=FALSE, fig.height=4>>=
 <<plotFMort>>
 @
 \caption{An example of using the \code{plotFMort()} method to show how different efforts for different gears can be specified.}
@@ -1769,7 +1745,7 @@ dim(sim@n)
 
 To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:
 
-<<results=hide>>=
+<<results='hide'>>=
 sim@n[,"Cod",]
 @
 
@@ -1931,7 +1907,7 @@ plotBiomass(sim)
 @
 
 \begin{figure}
-<<label=print_plotBiomass, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plotBiomass, echo=FALSE, fig.height=4>>=
 <<plotBiomass>>
 @
 \caption{An example of using the \code{plotBiomass()} method.}
@@ -1947,7 +1923,7 @@ plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 @
 
 \begin{figure}
-<<label=print_plotSpectra_example, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plotSpectra_example, echo=FALSE, fig.height=4>>=
 <<plotSpectra_example>>
 @
 \caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
@@ -1961,7 +1937,7 @@ plot(sim)
 @
 
 \begin{figure}
-<<label=plot_example, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=plot_example, echo=FALSE, fig.height=9>>=
 <<demo_summary_plot>>
 @
 \caption{Example output from using the summary \code{plot()} method.}
@@ -2088,7 +2064,7 @@ This was estimated along with the values \args{r\_max} as part of the calibratio
 
 We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
 
-<<label=make_ns_params, results = hide>>=
+<<label=make_ns_params, results='hide'>>=
 params <- MizerParams(params_data, inter, kappa = 9.27e10)
 @
 
@@ -2136,7 +2112,7 @@ plotBiomass(sim)
 @
 
 \begin{figure}
-<<label=print_plot_ns_biomass, fig=TRUE, echo=FALSE, height = 4>>=
+<<label=print_plot_ns_biomass, echo=FALSE, fig.height=4>>=
 <<plot_ns_biomass>>
 @
 \caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
@@ -2240,7 +2216,7 @@ p + geom_line(aes(x=year,y=data), linetype="dotted",
 @
 
 \begin{figure}
-<<label=print_plot_ns_indicators, fig=TRUE, echo=FALSE, height = 6>>=
+<<label=print_plot_ns_indicators, echo=FALSE, fig.height=6>>=
 <<plot_ns_indicators>>
 @
 \caption{Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model.}
@@ -2262,9 +2238,9 @@ Here we run two projections to 2050 with different fishing scenarios.
 Rather than looking at community indicators here, we will calculate the SSB of each species in the model and compare the projected levels to a biodiversity target based on the reference point $0.1 SSB_{F=0}$ \citep{rochet_does_2011}.
 The $F_{MSY}$ values are also taken from \citet{rochet_does_2011}.
 
-Before we can running the simulations, we need to set up arrays of future effort.
+Before we can run the simulations, we need to set up arrays of future effort.
 We will continue to use effort relative to the level in 1990.
-Here we make build on our existing array of relative to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
+Here we build on our existing array of relative effort to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This is needed because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
 We make an array of the future effort, and then bind it underneath the \args{relative\_effort} array used in the previous section.
 
 <<label = ns_scenario1_relative_effort>>=
@@ -2338,11 +2314,11 @@ p + theme(legend.position = "none")
 @
 
 \begin{figure}
-<<label=print_projected_ssb_ns, fig=TRUE, echo=FALSE, height = 9>>=
+<<label=print_projected_ssb_ns, echo=FALSE, fig.height=9>>=
 <<projected_ssb_ns>>
 @
 \caption{Historical and projected SSB under two fishing scenarios. Status quo (red), Fmsy (yellow). Unexploited (blue) and reference levels (purple) are also shown. }
-\label{fig:plot_ns_comm_indicators}
+\label{fig:plot_projected_ssb_ns}
 \end{figure}
 
 % Yields and trade-offs

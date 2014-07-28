@@ -18,7 +18,8 @@ Depends:
     R (>= 3.0)
 Suggests:
     testthat,
-    roxygen2
+    roxygen2,
+    knitr
 Collate:
     'MizerParams-class.r'
     'MizerSim-class.r'
@@ -30,3 +31,5 @@ Collate:
     'plots.r'
     'wrapper_functions.R'
     'NS_species_params-data.R'
+VignetteBuilder: 
+    knitr
