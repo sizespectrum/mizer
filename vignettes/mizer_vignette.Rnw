@@ -2238,9 +2238,9 @@ Here we run two projections to 2050 with different fishing scenarios.
 Rather than looking at community indicators here, we will calculate the SSB of each species in the model and compare the projected levels to a biodiversity target based on the reference point $0.1 SSB_{F=0}$ \citep{rochet_does_2011}.
 The $F_{MSY}$ values are also taken from \citet{rochet_does_2011}.
 
-Before we can running the simulations, we need to set up arrays of future effort.
+Before we can run the simulations, we need to set up arrays of future effort.
 We will continue to use effort relative to the level in 1990.
-Here we make build on our existing array of relative to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
+Here we build on our existing array of relative effort to make an array for the first scenario. Note the use of the \code{t()} command to transpose the array. This is needed because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
 We make an array of the future effort, and then bind it underneath the \args{relative\_effort} array used in the previous section.
 
 <<label = ns_scenario1_relative_effort>>=
