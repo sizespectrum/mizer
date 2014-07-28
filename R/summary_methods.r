@@ -458,8 +458,10 @@ setGeneric('getCommunitySlope', function(object, ...)
 #' @rdname getCommunitySlope-methods
 #' @aliases getCommunitySlope,MizerSim-method
 setMethod('getCommunitySlope', signature(object='MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params), 
-	     biomass = TRUE, ...){
+    function(object, species = 1:nrow(object@params@species_params),
+             biomass = TRUE, 
+             min_w = min(object@params@w), max_w = max(object@params@w), 
+             min_l = NULL, max_l = NULL){
         check_species(object,species)
         size_range <- get_size_range_array(object@params,...)
         total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop=FALSE],c(1,3),sum)

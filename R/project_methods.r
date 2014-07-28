@@ -6,14 +6,15 @@
 # Calculate the amount of food exposed to each predator by predator size
 
 #' getPhiPrey method for the size based model
-#'
-#' Calculates the amount of food exposed to each predator by predator size.
-#' This method is used by the \code{\link{project}} method for performing simulations.
-#' @param object An \code{MizerParams} object
+#' 
+#' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator by
+#' predator size. This method is used by the \code{\link{project}} method for
+#' performing simulations.
+#' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the background abundance by size
-#'
-#' @return A two dimensional array (predator species x predator size) 
+#'   
+#' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
 #' @export
 #' @docType methods
@@ -46,13 +47,14 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	    stop("n does not have the right number of size groups (second dimension)")
 	if(length(n_pp) != length(object@w_full))
 	    stop("n_pp does not have the right number of size groups")
-	# n_eff_prey is the total prey abundance by size exposed to each predator
-	# (prey not broken into species - here we are just working out how much a predator eats - not which species are being eaten - that is in the mortality calculation
+	# n_eff_prey is the total prey abundance by size exposed to each predator (prey
+	# not broken into species - here we are just working out how much a predator
+	# eats - not which species are being eaten - that is in the mortality calculation
 	n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*") 
 	# Quick reference to just the fish part of the size spectrum
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-	# predKernal is predator x predator size x prey size
-	# So multiply 3rd dimension of predKernal by the prey abundance
+	# pred_kernel is predator x predator size x prey size
+	# So multiply 3rd dimension of pred_kernel by the prey abundance
 	# Then sum over 3rd dimension to get total eaten by each predator by predator size
 	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*"),dims=2)
 	# Eating the background
@@ -65,19 +67,34 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 # The amount of food consumed by a predator, by each predator size
 
 #' getFeedingLevel method for the size based model
-#'
-#' Calculates the amount of food consumed by a predator by predator size based on food availability, search volume and maximum intake.
-#' This method is used by the \code{\link{project}} method for performing simulations.
+#' 
+#' Calculates the amount of food \eqn{f_i(w)} consumed by a predator by predator
+#' size based on food availability, search volume and maximum intake. This
+#' method is used by the \code{\link{project}} method for performing
+#' simulations.
 #' @param object A \code{MizerParams} or \code{MizerSim} object
-#' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.
-#' @param n_pp A vector of the background abundance by size. Only used if \code{object} argument is of type \code{MizerParams}.
-#' @param phi_prey The PhiPrey matrix (optional) of dimension no. species x no. size bins. If not passed in, it is calculated internally using the \code{getPhiPrey()} method. Only used if \code{object} argument is of type \code{MizerParams}.
-#' @param time_range Subset the returned fishing mortalities by time. The time range is either a vector of values, a vector of min and max time, or a single value. Default is the whole time range. Only used if the \code{object} argument is of type \code{MizerSim}.
-#' @param drop should extra dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
-#'
-#' @note
-#' If a \code{MizerParams} object is passed in, the method returns a two dimensional array (predator species x predator size) based on the abundances also passed in.
-#' If a \code{MizerSim} object is passed in, the method returns a three dimensional array (time step x predator species x predator size) with the feeding level calculated at every time step in the simulation.
+#' @param n A matrix of species abundance (species x size). Only used if 
+#'   \code{object} argument is of type \code{MizerParams}.
+#' @param n_pp A vector of the background abundance by size. Only used if 
+#'   \code{object} argument is of type \code{MizerParams}.
+#' @param phi_prey The PhiPrey matrix (optional) of dimension no. species x no. 
+#'   size bins. If not passed in, it is calculated internally using the 
+#'   \code{\link{getPhiPrey}} method. Only used if \code{object} argument is of type 
+#'   \code{MizerParams}.
+#' @param time_range Subset the returned fishing mortalities by time. The time 
+#'   range is either a vector of values, a vector of min and max time, or a 
+#'   single value. Default is the whole time range. Only used if the 
+#'   \code{object} argument is of type \code{MizerSim}.
+#' @param drop should extra dimensions of length 1 in the output be dropped, 
+#'   simplifying the output. Defaults to TRUE
+#'   
+#' @note If a \code{MizerParams} object is passed in, the method returns a two 
+#' dimensional array (predator species x predator size) based on the abundances 
+#' also passed in.
+#' 
+#' If a \code{MizerSim} object is passed in, the method returns a three
+#' dimensional array (time step x predator species x predator size) with the
+#' feeding level calculated at every time step in the simulation.
 #' @seealso \code{\link{getPhiPrey}}
 #' @export
 #' @docType methods
@@ -145,16 +162,25 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 
 # Predation rate
 # Soundtrack: Nick Drake - Pink Moon
+
 #' getPredRate method for the size based model
-#'
-#' Calculates the predation rate of each predator species at size on prey size.
-#' This method is used by the \code{\link{project}} method for performing simulations. In the simulations, it is combined with the interaction matrix (see \code{\link{MizerParams}}) to calculate the realised predation mortality (see \code{\link{getM2}}).
+#' 
+#' Calculates the predation rate of each predator species at size on prey size. 
+#' In formulas \deqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+#' This method is used by the \code{\link{project}} method for performing
+#' simulations. In the simulations, it is combined with the interaction matrix
+#' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
+#' (see \code{\link{getM2}}).
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
-#' @param feeding_level The current feeding level (optional). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{getFeedingLevel()} method.
-#'
-#' @return A three dimensional array (predator species x predator size x prey size) 
+#' @param feeding_level The current feeding level (optional). A matrix of size
+#'   no. species x no. size bins. If not supplied, is calculated internally
+#'   using the \code{getFeedingLevel()} method.
+#'   
+#' @return A three dimensional array (predator species x predator size x prey size), 
+#'   where the predator size runs over the community size range only and prey size
+#'   runs over community plus background spectrum.
 #' @export
 #' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @docType methods
@@ -182,7 +208,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
             stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*') # N_i(w)dw
         pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*")
         return(pred_rate)
 })
@@ -191,7 +217,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @aliases getPredRate,MizerParams,matrix,numeric,missing-method
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp, ...){
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*')
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*') # N_i(w)dw
         feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
         #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
         pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
@@ -205,7 +231,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 
 #' getM2 method for the size based model
 #'
-#' Calculates the total predation mortality on each prey species by prey size.
+#' Calculates the total predation mortality \eqn{\mu_{p,i}(w_p)} on each prey species by prey size.
 #' This method is used by the \code{\link{project}} method for performing simulations.
 #' @param object A \code{MizerParams} or \code{MizerSim} object.
 #' @param n A matrix of species abundance (species x size). Only used if \code{object} argument is of type \code{MizerParams}.
@@ -214,7 +240,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @param time_range Subset the returned fishing mortalities by time. The time range is either a vector of values, a vector of min and max time, or a single value. Default is the whole time range. Only used if the \code{object} argument is of type \code{MizerSim}.
 #' @param drop Only used when object is of type \code{MizerSim}. Should dimensions of length 1 in the output be dropped, simplifying the output. Defaults to TRUE  
 #'
-#' @note
+#' @return
 #' If a \code{MizerParams} object is passed in, the method returns a two dimensional array (prey species x prey size) based on the abundances also passed in.
 #' If a \code{MizerSim} object is passed in, the method returns a three dimensional array (time step x prey species x prey size) with the predation mortality calculated at every time step in the simulation.
 #' @seealso \code{\link{getPredRate}} and \code{\link{project}}.
@@ -279,7 +305,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 
 #' getM2Background method for the size based model
 #'
-#' Calculates the predation mortality on the background spectrum by prey size. Used by the \code{project} method for running size based simulations.
+#' Calculates the predation mortality \eqn{\mu_p(w)} on the background spectrum by prey size. Used by the \code{project} method for running size based simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
@@ -502,7 +528,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 # get total Z
 #' getZ method for the size based model
 #'
-#' Calculates the total mortality on each species by size from predation mortality (M2), background mortality (M) and fishing mortality for a single time step.
+#' Calculates the total mortality \eqn{\mu_i(w)} on each species by size from predation mortality (M2), background mortality (M) and fishing mortality for a single time step.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
@@ -510,6 +536,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #' @param m2 A two dimensional array of predation mortality (optional). Has dimensions no. sp x no. size bins in the community. If not supplied is calculated using the \code{getM2()} method.
 #'
 #' @return A two dimensional array (prey species x prey size). 
+#'
 #' @export
 #' @seealso \code{\link{getM2}}, \code{\link{getFMort}}
 #' @docType methods
@@ -656,13 +683,13 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 
 #' getEGrowth method for the size based model
 #'
-#' Calculates the energy available by species and size for growth after metabolism and movement have been accounted for.
-#' Used by the \code{project} method for performing simulations.
-#' @param object A \code{MizerParams} object.
+#' Calculates the energy \eqn{g_i(w)} available by species and size for growth after metabolism, movement and reproduction have been accounted for.
+#' Used by the \code{\link{project}} method for performing simulations.
+#' @param object A \linkS4class{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
-#' @param e The energy available for reproduction and growth (optional, although if specified, e_spawning must also be specified). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{getEReproAndGrowth()} method.
-#' @param e_spawning The energy available for spawning (optional, although if specified, e must also be specified). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{getESpawning()} method.
+#' @param e The energy available for reproduction and growth (optional, although if specified, e_spawning must also be specified). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{\link{getEReproAndGrowth}} method.
+#' @param e_spawning The energy available for spawning (optional, although if specified, e must also be specified). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{\link{getESpawning}} method.
 #'
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
@@ -712,12 +739,12 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 
 #' getRDI method for the size based model
 #'
-#' Calculates the density independent recruitment (total egg production) before density dependence, by species.
+#' Calculates the density independent recruitment (total egg production) \eqn{R_{p,i}} before density dependence, by species.
 #' Used by the \code{project} method for performing simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
-#' @param e_spawning The energy available for spawning (optional). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{getESpawning()} method.
+#' @param e_spawning The energy available for spawning (optional). A matrix of size no. species x no. size bins. If not supplied, is calculated internally using the \code{\link{getESpawning}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value is 0.5.
 #'
 #' @return A numeric vector the length of the number of species 
@@ -767,14 +794,14 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 
 #' getRDD method for the size based model
 #'
-#' Calculates the density dependent recruitment (total egg production) for each species.
+#' Calculates the density dependent recruitment (total egg production) \eqn{R_i} for each species.
 #' This is the flux entering the smallest size class of each species. 
 #' The density dependent recruiment is the density independent recruitment after it has been put through the density dependent stock-recruitment relationship function. 
 #' This method is used by the \code{project} method for performing simulations.
 #' @param object An \code{MizerParams} object
 #' @param n A matrix of species abundance (species x size)
 #' @param n_pp A vector of the background abundance by size
-#' @param rdi A matrix of density independent recruitment (optional) with dimensions no. sp x 1. If not specified rdi is calculated internally using the \code{getRDI()} method.
+#' @param rdi A matrix of density independent recruitment (optional) with dimensions no. sp x 1. If not specified rdi is calculated internally using the \code{\link{getRDI}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value is 0.5
 #'
 #' @return A numeric vector the length of the number of species. 
