@@ -37,7 +37,7 @@
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
-#' @seealso \code{\link{MizerParams}}
+#' @seealso \linkS4class{MizerParams}
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and individual efficiencies of size-structured communities, Proceedings of the Royal Society, 276, 109-114
 #' @examples
 #' \dontrun{
@@ -164,7 +164,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
-#' @seealso \code{\link{MizerParams}}
+#' @seealso \linkS4class{MizerParams}
 #' @references K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades driven by fishing in model marine ecosystems. Proceedings of the Royal Society V, Biological Sciences, 1682, 795-802.
 #' @examples
 #' \dontrun{

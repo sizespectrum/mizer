@@ -10,8 +10,8 @@
 #' project method for the size based modelling
 #'
 #' Runs the size-based model simulation and projects the size based model through time.
-#' \code{project} is called using an object of type \code{MizerParams} and an object that contains the effort of the fishing gears through time. 
-#' The method returns an object of type \code{\link{MizerSim}} which can then be explored with a range of summary and plotting methods.
+#' \code{project} is called using an object of type \linkS4class{MizerParams} and an object that contains the effort of the fishing gears through time. 
+#' The method returns an object of type \linkS4class{MizerSim} which can then be explored with a range of summary and plotting methods.
 #'
 #' @param object A \code{MizerParams} object
 #' @param effort The effort of each fishing gear through time. See notes below. 
@@ -28,7 +28,7 @@
 #' \item A single numeric value. This specifies the effort of all fishing gears which is constant through time (i.e. all the gears have the same constant effort).
 #' \item A numerical vector which has the same length as the number of fishing gears. The vector must be named and the names must correspond to the gear names in the \code{MizerParams} object. The values in the vector specify the constant fishing effort of each of the fishing gears, i.e. the effort is constant through time but each gear may have a different fishing effort.
 #' \item A numerical array with dimensions time step x gear. This specifies the fishing effort of each gear at each time step.  The first dimension, time, must be named numerically and contiguously. The second dimension of the array must be named and the names must correspond to the gear names in the \code{MizerParams} argument.
-#'}
+#' }
 #'
 #' If effort is specified as an array then the \code{t_max} argument is ignored and the maximum simulation time is the taken from the dimension names. 
 #'
@@ -157,20 +157,21 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         sim@n_pp[1,] <- initial_n_pp
 
         # Handy things
-        no_sp <- nrow(sim@params@species_params)
-        no_w <- length(sim@params@w)
+        no_sp <- nrow(sim@params@species_params) # number of species
+        no_w <- length(sim@params@w) # number of fish size bins
         idx <- 2:no_w
         # If no w_min_idx column in species_params, add one
         if (!("w_min_idx" %in% names(sim@params@species_params)))
             sim@params@species_params$w_min_idx <- 1
         # Hacky shortcut to access the correct element of a 2D array using 1D notation
+        # This references the egg size bracket for all species, so for example
+        # n[w_minidx_array_ref] = n[,w_min_idx]
         w_min_idx_array_ref <- (sim@params@species_params$w_min_idx-1) * no_sp + (1:no_sp)
 
         # sex ratio - DO SOMETHING LATER WITH THIS
         sex_ratio <- 0.5
 
         # Matrices for solver
-        # Dynamics of background spectrum uses a semi-chemostat model (de Roos - ask Ken)
         A <- matrix(0,nrow=no_sp,ncol=no_w)
         B <- matrix(0,nrow=no_sp,ncol=no_w)
         S <- matrix(0,nrow=no_sp,ncol=no_w)
@@ -183,35 +184,52 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         t_steps <- dim(effort_dt)[1]
         for (i_time in 1:t_steps){
             # Do it piece by piece to save repeatedly calling methods
+            # Calculate amount E_{a,i}(w) of available food
             phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
+            # Calculate amount f_i(w) of food consumed
             feeding_level <- getFeedingLevel(sim@params, n=n, n_pp=n_pp, phi_prey=phi_prey)
+            # Calculate the predation rate
             pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
+            # Calculate predation mortality on fish \mu_{p,i}(w)
             m2 <- getM2(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+            # Calculate total mortality \mu_i(w)
             z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort_dt[i_time,], m2=m2)
+            # Calculate predation mortality on the background spectrum
             m2_background <- getM2Background(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+            # Calculate the resources available for reproduction and growth
             e <- getEReproAndGrowth(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
+            # Calculate the resources for reproduction
             e_spawning <- getESpawning(sim@params, n=n, n_pp=n_pp, e=e)
+            # Calculate the growth rate g_i(w)
             e_growth <- getEGrowth(sim@params, n=n, n_pp=n_pp, e_spawning=e_spawning, e=e)
+            # R_{p,i}
             rdi <- getRDI(sim@params, n=n, n_pp=n_pp, e_spawning=e_spawning, sex_ratio=sex_ratio)
+            # R_i
             rdd <- getRDD(sim@params, n=n, n_pp=n_pp, rdi=rdi, sex_ratio=sex_ratio)
 
             # Iterate species one time step forward:
             # See Ken's PDF
+            # A_{ij} = - g_i(w_{j-1}) / dw_j dt
             A[,idx] <- sweep(-e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
+            # B_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
             B[,idx] <- 1 + sweep(e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + z[,idx,drop=FALSE]*dt
+            # S_{ij} <- N_i(w_j)
             S[,idx] <- n[,idx,drop=FALSE]
             # Boundary condition upstream end (recruitment)
             B[w_min_idx_array_ref] <- 1+e_growth[w_min_idx_array_ref]*dt/sim@params@dw[sim@params@species_params$w_min_idx]+z[w_min_idx_array_ref]*dt
             # Update first size group of n
             n[w_min_idx_array_ref] <- (n[w_min_idx_array_ref] + rdd*dt/sim@params@dw[sim@params@species_params$w_min_idx]) / B[w_min_idx_array_ref]
-            # Invert matrix
-            for (i in 1:no_sp)
+            # Update n
+            for (i in 1:no_sp) # number of species assumed small, so no need to vectorize this loop over species
                 for (j in (sim@params@species_params$w_min_idx[i]+1):no_w)
                     n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
 
             # Dynamics of background spectrum uses a semi-chemostat model (de Roos - ask Ken)
+            # We use the exact solution under the assumption of constant mortality during timestep
             tmp <- (sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background))
             n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp+m2_background)*dt)
+
+            # Store results only every t_step steps.
             store <- t_dimnames_index %in% i_time
             if (any(store)){
                 sim@n[which(store)+1,,] <- n 
