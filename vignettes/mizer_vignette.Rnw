@@ -667,7 +667,7 @@ plotBiomass(sim_sigma1)
 @
 
 \begin{figure}
-<<label=print_plot_comm_biomass_sigma1, fig.height=4>>=
+<<label=print_plot_comm_biomass_sigma1, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_comm_biomass_sigma1>>
 @
 \caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
@@ -831,7 +831,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 @
 
 \begin{figure}
-<<label=show_plot_relative_comm_abund, eval=FALSE, fig.height=4>>=
+<<label=show_plot_relative_comm_abund, echo=FALSE, fig.height=4>>=
 <<plot_relative_comm_abund2>>
 @
 \caption{Relative abundances from the unfished (dashed line) and fished (solid line) trait based model.}
@@ -839,7 +839,7 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 \end{figure}
 
 The impact of fishing on species larger than 1000 g can be clearly seen.
-As described above and in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish (> 1000 g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
+As described above and in \citep{andersen_damped_2010}, the fishing pressure lowers the abundance of large fish ($> 1000$ g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
 
 This impact can also be seen by looking at the predation mortality by size. 
 The predation mortalities are retrieved using the \code{getM2()} method for \class{MizerSim} objects. This returns a three dimensional array of predation mortalities by time x species x size (see the help page for \code{getM2()} for more details). As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species. 
@@ -1556,13 +1556,13 @@ An object of \class{MizerSim} has four slots, details of which can be seen in th
 The \args{params} slot holds the \class{MizerParams} object that was passed in to \code{project()}.
 The \args{effort} slot holds the fishing effort of each gear through time. Note that the \args{effort} slot may not be exactly the same as the \args{effort} argument that was passed in to \code{project()}. This is because only the saved effort is stored (the frequency of saving is determined by the argument \args{t\_save}).
 The \args{n} and \args{n\_pp} slots hold the saved abundances of the species and the background population at size respectively. 
-Note that The \args{n} and \args{n\_pp} slots have one more row than the \args{effort} slot. This is to the store the initial populations.
+Note that The \args{n} and \args{n\_pp} slots have one more row than the \args{effort} slot. This is to store the initial populations.
 
 \subsection{Projection examples}
 \label{sec:projection_examples}
 
 In this section we'll look at how to run simulations with the \code{project()} method.
-The examples will focus on fishing effort can be specified in different ways.
+The examples will focus on how fishing effort can be specified in different ways.
 The results of the simulations will not be explored in detail. We will leave that for Section~\ref{sec:summaries}.
 
 %We will use the \args{params\_gears} object with four gears that was created in the \class{MizerParams} example above.
@@ -1573,7 +1573,8 @@ Remember that the fishing mortality by size on a species is the product of the s
 When we use a single value for the \args{effort} argument, the value is used as a constant effort for all the gears.
 This method can be particularly useful for quickly projecting forward without fishing (you just set the \args{effort} argument to 0).
 
-We will use the \args{params} object that was created above in the \class{MizerParams} example above in which each species is caught by a separate gear.
+We will use the \args{params} object that was created in Section \ref{sec:params_example} 
+in which each species is caught by a separate gear.
 Here we make the object again:
 
 <<label = remaking_simple_ms_params, results='hide'>>=
@@ -1608,7 +1609,7 @@ plot(sim)
 
 Without fishing the community settles down to equilibria at about t = 50 (Figure~\ref{fig:plot_food_demo}). The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the ``species'' had the same M2 and feeding level patterns (see Figure~\ref{fig:plot_trait_demo}). Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
 
-You can also see in Figure~\ref{fig:plot_food_demo} that each species is has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species \args{w\_mat} parameter.
+You can also see in Figure~\ref{fig:plot_food_demo} that each species has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species \args{w\_mat} parameter.
 
 The effort through time can be inspected by looking at the \args{effort} slot (we use the \code{head()} function to just show the first few lines).
 The \args{effort} slot shows the effort by time and gear.
@@ -1666,7 +1667,7 @@ plotFMort(sim)
 @
 
 \begin{figure}
-<<label=print_plotFMort, echo=FALSE, fig.height=4>>=
+<<label=print_plotFMort, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plotFMort>>
 @
 \caption{An example of using the \code{plotFMort()} method to show how different efforts for different gears can be specified.}
@@ -1676,11 +1677,12 @@ plotFMort(sim)
 \subsubsection{An example of changing effort through time}
 
 In this example we set up a more complicated fishing effort structure that allows the fishing effort of each gear to change through time.
-As mentioned above, to do this effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear.
+As mentioned above, to do this, effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear.
 The dimensions must be named. The gear names must match the gears in the \class{MizerParams} object.
 Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument \args{t\_max} is not used.
 
-Here, we will use the \args{params\_gears} object we created earlier which has four gears.
+Here, we will use the \args{params\_gears} object we created in 
+Section~\ref{sec:setting_different_gears} which has four gears.
 The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 
 In this example, we will project forward for 10 time steps. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
@@ -1907,7 +1909,7 @@ plotBiomass(sim)
 @
 
 \begin{figure}
-<<label=print_plotBiomass, echo=FALSE, fig.height=4>>=
+<<label=print_plotBiomass, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plotBiomass>>
 @
 \caption{An example of using the \code{plotBiomass()} method.}
@@ -1923,7 +1925,7 @@ plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 @
 
 \begin{figure}
-<<label=print_plotSpectra_example, echo=FALSE, fig.height=4>>=
+<<label=print_plotSpectra_example, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plotSpectra_example>>
 @
 \caption{An example of using the \code{plotSpectra()} method, plotting values averaged over the period $t$ = 5 to 10.}
@@ -1992,10 +1994,10 @@ The sigmoid selectivity function is expressed in terms of length rather than wei
 
 \begin{equation}
     \label{eq:trawl_sel}
-    S_l = \frac{1}{1 + exp(S1 - S2 l)}
+    S_l = \frac{1}{1 + \exp(S1 - S2\ l)}
 \end{equation}
 
-where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = log(3) / (l50 - l25)$ and $S1$ = $l50 * S2$.
+where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = \log(3) / (l50 - l25)$ and $S1$ = $l50 \cdot S2$.
 
 This selectivity function is included in \pkg{mizer} as \code{sigmoid\_length()}. You can see the help page for more details.
 As well as the arguments \args{l25} and \args{l50}, this function has the arguments \args{a} and \args{b} to convert between length and weight: $w = a l^b$.
@@ -2004,7 +2006,7 @@ As explained in Section~\ref{sec:fishing_gear}, all arguments of the selectivity
 Therefore, columns for \args{l25}, \args{l50}, \args{a} and \args{b} need to be added to \args{params\_data}.
 We also add a column specifying the name of the selectivity function we wish to use.
 The data is taken from \citet{blanchard_multispecies_2013}.
-Note it would probably easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
+Note it would probably be easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
 
 <<label=adding_sel_params>>=
 params_data$sel_func <- "sigmoid_length"
@@ -2018,7 +2020,7 @@ params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
     3.101, 3.160, 3.173, 3.075)
 @
 
-Note that we don't set up a \args{gear} column to give specific gear names. This means that each species will be caught by a separate gear named after the species.
+Note that we do not set up a \args{gear} column to give specific gear names. This means that each species will be caught by a separate gear named after the species.
 
 In this model we are interested in projecting forward using historical fishing mortalities.
 %GET UPDATED Fs from JB
@@ -2051,7 +2053,7 @@ One of the model parameters that we have not really considered so far is \args{c
 By default catchability has a value of 1, meaning that an effort of 1 results in a fishing mortality of 1 for a fully selected species.
 When considering the historical fishing mortality, one option is therefore to leave catchability at 1 for each species and then use the \args{f\_history} matrix as the fishing effort.
 However, an alternative method is to use the effort relative to a chosen reference year. This can make the effort levels used in the model more meaningful.
-Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then an effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort 1990.
+Here we use the year 1990 as the reference year. If we set the catchability of each species to be the same as the fishing mortality in 1990 then an effort of 1 in 1990 will result in the fishing mortality being what it was in 1990. The effort in the other years will be relative to the effort in 1990.
 
 The catchability can be set by including a \args{catchability} column in the species parameters data.frame. Doing this overwrites the default values when the \class{MizerParams} constructor is called.
 
@@ -2082,7 +2084,7 @@ relative_effort[as.character(1988:1992),]
 
 We could just project forward with these relative efforts. However, the population dynamics in the early years will be strongly determined by the initial population abundances (known as the transient behaviour - essentially the initial behaviour before the long term dynamics are reached).
 As this is ecology, we don't know what the initial abundance are.
-One way around is this to project forward at a constant fishing mortality equal to the mortality in the first historical year until equilibrium is reached.
+One way around this is to project forward at a constant fishing mortality equal to the mortality in the first historical year until equilibrium is reached.
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
@@ -2112,7 +2114,7 @@ plotBiomass(sim)
 @
 
 \begin{figure}
-<<label=print_plot_ns_biomass, echo=FALSE, fig.height=4>>=
+<<label=print_plot_ns_biomass, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_ns_biomass>>
 @
 \caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
@@ -2142,10 +2144,10 @@ sim0 <- project(params, effort=0, dt = 0.5, t_save = 1, t_max = 100)
 
 \subsection{Exploring the model outputs}
 
-Here we look at some of the way the results of the simulation can be explored.
+Here we look at some of the ways the results of the simulation can be explored.
 %We are going to compare the simulated SSB and yield for each species to the ``official'' values from ICES.
 We calculate the community indicators ``mean maximum weight``, ``mean individual weight``, ``community slope`` and the ''large fish indicator'' (LFI) over the simulation period, and compare them to the unexploited values.
-We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI $0.8 LFI_{F=0}$ \citep{rochet_does_2011}.
+We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI of $0.8 LFI_{F=0}$ \citep{rochet_does_2011}.
 
 %Growth curves... (S2)
 
