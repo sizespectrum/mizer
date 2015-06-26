@@ -22,9 +22,6 @@
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotBiomass-methods
-#' @aliases plotBiomass-method
 #' @seealso \code{\link{getBiomass}}
 #' @examples
 #' \dontrun{
@@ -37,8 +34,8 @@
 #' }
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
-#' @rdname plotBiomass-methods
-#' @aliases plotBiomass,MizerSim-method
+
+#' @describeIn plotBiomass
 setMethod('plotBiomass', signature(object='MizerSim'),
     function(object, print_it=TRUE, start_time=as.numeric(dimnames(object@n)[[1]][1]), end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...){
         b <- getBiomass(object, ...)
@@ -73,9 +70,6 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotYield-methods
-#' @aliases plotYield-method
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -87,8 +81,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' }
 setGeneric('plotYield', function(object, ...)
     standardGeneric('plotYield'))
-#' @rdname plotYield-methods
-#' @aliases plotYield,MizerSim-method
+
+#' @describeIn plotYield
 setMethod('plotYield', signature(object='MizerSim'),
     function(object, print_it = TRUE, ...){
 	y <- getYield(object, ...)
@@ -114,9 +108,6 @@ setMethod('plotYield', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotYieldGear-methods
-#' @aliases plotYieldGear-method
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -128,8 +119,8 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' }
 setGeneric('plotYieldGear', function(object, ...)
     standardGeneric('plotYieldGear'))
-#' @rdname plotYieldGear-methods
-#' @aliases plotYieldGear,MizerSim-method
+
+#' @describeIn plotYieldGear
 setMethod('plotYieldGear', signature(object='MizerSim'),
     function(object, print_it=TRUE, ...){
 	y <- getYieldGear(object, ...)
@@ -158,9 +149,6 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotSpectra-methods
-#' @aliases plotSpectra-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -174,8 +162,8 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' }
 setGeneric('plotSpectra', function(object, ...)
     standardGeneric('plotSpectra'))
-#' @rdname plotSpectra-methods
-#' @aliases plotSpectra,MizerSim-method
+
+#' @describeIn plotSpectra
 setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...){
         time_elements <- get_time_elements(object,time_range)
@@ -213,9 +201,6 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotFeedingLevel-methods
-#' @aliases plotFeedingLevel-method
 #' @seealso \code{\link{getFeedingLevel}}
 #' @examples
 #' \dontrun{
@@ -228,8 +213,8 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' }
 setGeneric('plotFeedingLevel', function(object, ...)
     standardGeneric('plotFeedingLevel'))
-#' @rdname plotFeedingLevel-methods
-#' @aliases plotFeedingLevel,MizerSim-method
+
+#' @describeIn plotFeedingLevel
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
         feed_time <- getFeedingLevel(object=object, time_range=time_range, drop=FALSE, ...)
@@ -255,10 +240,7 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
 #' @seealso \code{\link{getM2}}
-#' @rdname plotM2-methods
-#' @aliases plotM2-method
 #' @seealso \code{\link{getM2}}
 #' @examples
 #' \dontrun{
@@ -271,8 +253,8 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #' }
 setGeneric('plotM2', function(object, ...)
     standardGeneric('plotM2'))
-#' @rdname plotM2-methods
-#' @aliases plotM2,MizerSim-method
+
+#' @describeIn plotM2
 setMethod('plotM2', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	m2_time <- getM2(object, time_range=time_range, drop=FALSE, ...)
@@ -298,9 +280,6 @@ setMethod('plotM2', signature(object='MizerSim'),
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotFMort-methods
-#' @aliases plotFMort-method
 #' @seealso \code{\link{getFMort}}
 #' @examples
 #' \dontrun{
@@ -313,8 +292,8 @@ setMethod('plotM2', signature(object='MizerSim'),
 #' }
 setGeneric('plotFMort', function(object, ...)
     standardGeneric('plotFMort'))
-#' @rdname plotFMort-methods
-#' @aliases plotFMort,MizerSim-method
+
+#' @describeIn plotFMort
 setMethod('plotFMort', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	f_time <- getFMort(object, time_range=time_range, drop=FALSE, ...)
@@ -343,9 +322,6 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' @param ...  For additional arguments see the documentation for \code{\link{plotBiomass}}, \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}} and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
-#' @docType methods
-#' @rdname plot-methods
-#' @aliases plot,MizerSim,missing-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)

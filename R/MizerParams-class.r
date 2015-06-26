@@ -215,81 +215,120 @@ valid_MizerParams <- function(object) {
 }
 
 # Soundtrack: White Hills - Glitter Glamour Atrocity
-#' MizerParams
-#'
-#' A class to hold the parameters for a size based model. These parameters include the model species, their life history parameters and the size ranges of the model.
-#'
-#' \code{MizerParam} objects can be created using a range of \code{\link{MizerParams}} constructor methods.
-#'
-#' Dynamic simulations are performed using the \code{\link{project}} method on objects of this class. 
-#'
-#' @slot w A numeric vector of size bins used for the community (i.e. fish) part of the model. These are usually spaced on a log10 scale
-#' @slot dw The absolute difference between the size bins specified in the w slot. A vector the same length as the w slot. The final value is the same as the second to last value
-#' @slot w_full A numeric vector of size bins used for the whole model (i.e. the community and background spectra) . These are usually spaced on a log10 scale
-#' @slot dw_full The absolute difference between the size bins specified in the w_full slot. A vector the same length as the w_full slot. The final value is the same as the second to last value
-#' @slot psi An array (species x size) that holds the allocation to reproduction for each species at size
-#' @slot intake_max An array (species x size) that holds the maximum intake for each species at size
-#' @slot search_vol An array (species x size) that holds the search volume for each species at size
-#' @slot activity An array (species x size) that holds the activity for each species at size
-#' @slot std_metab An array (species x size) that holds the standard metabolism for each species at size
-#' @slot pred_kernel An array (species x predator size x prey size) that holds the predation coefficient of each predator at size on each prey size
-#' @slot rr_pp A vector the same length as the w_full slot. The size specific growth rate of the background spectrum
-#' @slot cc_pp A vector the same length as the w_full slot. The size specific carrying capacity of the background spectrum
-#' @slot species_params A data.frame to hold the species specific parameters (see the mizer vignette, Table 2, for details)
+
+#' A class to hold the parameters for a size based model. 
+#' 
+#' These parameters include the model species, their life history parameters and
+#' the size ranges of the model.
+#' 
+#' \code{MizerParams} objects can be created using a range of
+#' \code{MizerParams} constructor methods.
+#' 
+#' Dynamic simulations are performed using the \code{\link{project}} method on
+#' objects of this class.
+#' 
+#' @slot w A numeric vector of size bins used for the community (i.e. fish) part
+#'   of the model. These are usually spaced on a log10 scale
+#' @slot dw The absolute difference between the size bins specified in the w
+#'   slot. A vector the same length as the w slot. The final value is the same
+#'   as the second to last value
+#' @slot w_full A numeric vector of size bins used for the whole model (i.e. the
+#'   community and background spectra) . These are usually spaced on a log10
+#'   scale
+#' @slot dw_full The absolute difference between the size bins specified in the
+#'   w_full slot. A vector the same length as the w_full slot. The final value
+#'   is the same as the second to last value
+#' @slot psi An array (species x size) that holds the allocation to reproduction
+#'   for each species at size
+#' @slot intake_max An array (species x size) that holds the maximum intake for
+#'   each species at size
+#' @slot search_vol An array (species x size) that holds the search volume for
+#'   each species at size
+#' @slot activity An array (species x size) that holds the activity for each
+#'   species at size
+#' @slot std_metab An array (species x size) that holds the standard metabolism
+#'   for each species at size
+#' @slot pred_kernel An array (species x predator size x prey size) that holds
+#'   the predation coefficient of each predator at size on each prey size
+#' @slot rr_pp A vector the same length as the w_full slot. The size specific
+#'   growth rate of the background spectrum
+#' @slot cc_pp A vector the same length as the w_full slot. The size specific
+#'   carrying capacity of the background spectrum
+#' @slot species_params A data.frame to hold the species specific parameters
+#'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix.
-#' @slot srr Function to calculate the realised (density dependent) recruitment. Has two arguments which are rdi and species_params
-#' @slot selectivity An array (gear x species x w) that holds the selectivity of each species by gear and species size
-#' @slot catchability An array (gear x species) that holds the catchability of each species by each gear
-#'
-#' @note The \code{MizerParams} class is fairly complex with a large number of slots, many of which are multidimensional arrays. The dimensions of these arrays is strictly enforced so that \code{MizerParams} objects are consistent in terms of number of species and number of size classes.
-#'
-#' Although it is possible to build a \code{MizerParams} object by hand it is not recommended and several constructors are available.
-#'
-#' The \code{MizerParams} class does not hold any dynamic information, e.g. abundances or harvest effort through time. These are held in \code{\link{MizerSim}} objects.
+#' @slot srr Function to calculate the realised (density dependent) recruitment.
+#'   Has two arguments which are rdi and species_params
+#' @slot selectivity An array (gear x species x w) that holds the selectivity of
+#'   each species by gear and species size
+#' @slot catchability An array (gear x species) that holds the catchability of
+#'   each species by each gear
+#'   
+#' @note The \code{MizerParams} class is fairly complex with a large number of
+#'   slots, many of which are multidimensional arrays. The dimensions of these
+#'   arrays is strictly enforced so that \code{MizerParams} objects are
+#'   consistent in terms of number of species and number of size classes.
+#'   
+#'   Although it is possible to build a \code{MizerParams} object by hand it is
+#'   not recommended and several constructors are available.
+#'   
+#'   The \code{MizerParams} class does not hold any dynamic information, e.g.
+#'   abundances or harvest effort through time. These are held in
+#'   \code{\link{MizerSim}} objects.
 #' @name MizerParams-class
 #' @rdname MizerParams-class
-#' @docType class
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #' @export
-setClass("MizerParams",
+setClass(
+    "MizerParams",
     representation(
-	w = "numeric",
-	dw = "numeric",
-	w_full = "numeric",
-	dw_full = "numeric",
-	psi = "array", 
-	intake_max = "array",
-	search_vol = "array",
-	activity = "array",
-	std_metab = "array",
-	pred_kernel = "array",
-	#z0 = "numeric",
-	rr_pp = "numeric",
-	cc_pp = "numeric", # was NinPP, carrying capacity of background
-	species_params = "data.frame",
-	interaction = "array",
-	srr  = "function",
-	selectivity = "array",
-	catchability = "array"
+        w = "numeric",
+        dw = "numeric",
+        w_full = "numeric",
+        dw_full = "numeric",
+        psi = "array",
+        intake_max = "array",
+        search_vol = "array",
+        activity = "array",
+        std_metab = "array",
+        pred_kernel = "array",
+        #z0 = "numeric",
+        rr_pp = "numeric",
+        cc_pp = "numeric", # was NinPP, carrying capacity of background
+        species_params = "data.frame",
+        interaction = "array",
+        srr  = "function",
+        selectivity = "array",
+        catchability = "array"
     ),
     prototype = prototype(
-	w = NA_real_,
-	dw = NA_real_,
-	w_full = NA_real_,
-	dw_full = NA_real_,
-	psi = array(NA,dim=c(1,1), dimnames = list(sp=NULL,w=NULL)),
-	intake_max = array(NA,dim=c(1,1), dimnames = list(sp=NULL,w=NULL)),
-	search_vol = array(NA,dim=c(1,1), dimnames = list(sp=NULL,w=NULL)),
-	activity = array(NA,dim=c(1,1), dimnames = list(sp=NULL,w=NULL)),
-	std_metab = array(NA,dim=c(1,1), dimnames = list(sp=NULL,w=NULL)),
-	pred_kernel = array(NA,dim=c(1,1,1), dimnames = list(sp=NULL,w_pred=NULL,w_prey=NULL)),
-	#z0 = NA_real_,
-	rr_pp = NA_real_,
-	cc_pp = NA_real_,
-	#speciesParams = data.frame(),
-	interaction = array(NA,dim=c(1,1), dimnames=list(predator=NULL, prey=NULL)), # which dimension is prey and which is prey?
-	selectivity = array(NA, dim=c(1,1,1), dimnames = list(gear=NULL, sp=NULL, w=NULL)),
-	catchability = array(NA, dim=c(1,1), dimnames = list(gear=NULL, sp=NULL))
+        w = NA_real_,
+        dw = NA_real_,
+        w_full = NA_real_,
+        dw_full = NA_real_,
+        psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        pred_kernel = array(
+            NA,dim = c(1,1,1), dimnames = list(
+                sp = NULL,w_pred = NULL,w_prey = NULL
+            )
+        ),
+        #z0 = NA_real_,
+        rr_pp = NA_real_,
+        cc_pp = NA_real_,
+        #speciesParams = data.frame(),
+        interaction = array(
+            NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
+        ), # which dimension is prey and which is prey?
+        selectivity = array(
+            NA, dim = c(1,1,1), dimnames = list(gear = NULL, sp = NULL, w = NULL)
+        ),
+        catchability = array(
+            NA, dim = c(1,1), dimnames = list(gear = NULL, sp = NULL)
+        )
     ),
     validity = valid_MizerParams
 )
@@ -332,23 +371,16 @@ setClass("MizerParams",
 #' An additional constructor method which takes an integer of the number of species in the model. This is only used in internally to set up a \code{MizerParams} object with the correct dimensions. It is not recommended that this method is used by users.
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
 #' @export
-#' @docType methods
-#' @rdname MizerParams-methods
-#' @aliases MizerParams-method
 #' @examples
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- MizerParams(NS_species_params_gears, inter)
-
-
-
 setGeneric('MizerParams', function(object, interaction, ...)
     standardGeneric('MizerParams'))
 
 # Basic constructor with only the number of species as dispatching argument
 # Only really used to make MizerParams of the right size and shouldn't be used by user
-#' @rdname MizerParams-methods
-#' @aliases MizerParams,numeric,missing-method
+#' @describeIn MizerParams
 setMethod('MizerParams', signature(object='numeric', interaction='missing'),
     function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = round(no_w)*0.3, species_names=1:object, gear_names=species_names){
 	#args <- list(...)
@@ -407,8 +439,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 
 # Constructor that takes the species_params data.frame and the interaction matrix
 
-#' @rdname MizerParams-methods
-#' @aliases MizerParams,data.frame,matrix-method
+#' @describeIn MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, max_w = max(object$w_inf)*1.1, f0 = 0.6, z0pre = 0.6, z0exp = n-1, ...){
 
@@ -559,8 +590,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 )
 
 # If interaction is missing, make one of the right size and fill with 1s
-#' @rdname MizerParams-methods
-#' @aliases MizerParams,data.frame,missing-method
+#' @describeIn MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='missing'),
     function(object, ...){
 	interaction <- matrix(1,nrow=nrow(object), ncol=nrow(object))

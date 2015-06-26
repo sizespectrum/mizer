@@ -107,9 +107,6 @@ valid_MizerSim <- function(object){
 #' @slot effort Array that stores the fishing effort through time by time and gear
 #' @slot n_pp Array that stores the projected background population by time and size
 #'
-#' @name MizerSim-class
-#' @rdname MizerSim-class
-#' @docType class
 #' @seealso \code{\link{project}} \code{\link{MizerParams}}
 #' @export
 setClass("MizerSim",
@@ -147,9 +144,6 @@ remove(valid_MizerSim)
 #' @return An object of type \linkS4class{MizerSim}
 #' @seealso \code{\link{project}} \linkS4class{MizerParams} \linkS4class{MizerSim}
 #' @export
-#' @docType methods
-#' @rdname MizerSim-methods
-#' @aliases MizerSim-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -157,12 +151,10 @@ remove(valid_MizerSim)
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' sim <- project(params)
 #' }
-
 setGeneric('MizerSim', function(object, ...)
     standardGeneric('MizerSim'))
 
-#' @rdname MizerSim-methods
-#' @aliases MizerSim,MizerParams-method
+#' @describeIn MizerSim
 setMethod('MizerSim', signature(object='MizerParams'),
     function(object, t_dimnames = NA, t_max = 100, t_save=1){
         # If the dimnames for the time dimension not passed in, calculate them from t_max and t_save 

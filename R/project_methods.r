@@ -17,9 +17,6 @@
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
 #' @export
-#' @docType methods
-#' @rdname getPhiPrey-methods
-#' @aliases getPhiPrey-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -31,12 +28,10 @@
 #' n_pp <- sim@@n_pp[21,]
 #' getPhiPrey(params,n,n_pp)
 #' }
-
 setGeneric('getPhiPrey', function(object, n, n_pp,...)
     standardGeneric('getPhiPrey'))
 
-#' @rdname getPhiPrey-methods
-#' @aliases getPhiPrey,MizerParams,matrix,numeric-method
+#' @describeIn getPhiPrey
 setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
     function(object, n, n_pp, ...){
 #        cat("In getPhiPrey\n")
@@ -97,9 +92,6 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #' feeding level calculated at every time step in the simulation.
 #' @seealso \code{\link{getPhiPrey}}
 #' @export
-#' @docType methods
-#' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -119,8 +111,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 setGeneric('getFeedingLevel', function(object, n, n_pp, phi_prey, ...)
     standardGeneric('getFeedingLevel'))
 
-#' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getFeedingLevel
 setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='matrix'),
     function(object, n, n_pp, phi_prey, ...){
     # Check dims of phi_prey
@@ -133,8 +124,8 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
         f <- encount/(encount + object@intake_max)
         return(f)
     })
-#' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerParams,matrix,numeric,missing-method
+
+#' @describeIn getFeedingLevel
 setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='missing'),
     function(object, n, n_pp, ...){
 	phi_prey <- getPhiPrey(object, n=n, n_pp=n_pp)
@@ -146,8 +137,7 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
 	return(f)
 })
 
-#' @rdname getFeedingLevel-methods
-#' @aliases getFeedingLevel,MizerSim,missing,missing,missing-method
+#' @describeIn getFeedingLevel
 setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='missing', phi_prey='missing'),
     function(object, time_range=dimnames(object@n)$time, drop=FALSE, ...){
         time_elements <- get_time_elements(object,time_range)
@@ -183,9 +173,6 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 #'   runs over community plus background spectrum.
 #' @export
 #' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
-#' @docType methods
-#' @rdname getPredRate-methods
-#' @aliases getPredRate-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -201,8 +188,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', n_pp='m
 setGeneric('getPredRate', function(object, n, n_pp, feeding_level,...)
     standardGeneric('getPredRate'))
 
-#' @rdname getPredRate-methods
-#' @aliases getPredRate,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'matrix'),
     function(object, n, n_pp, feeding_level, ...){
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
@@ -213,8 +199,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
         return(pred_rate)
 })
 
-#' @rdname getPredRate-methods
-#' @aliases getPredRate,MizerParams,matrix,numeric,missing-method
+#' @describeIn getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp, ...){
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*') # N_i(w)dw
@@ -245,9 +230,6 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' If a \code{MizerSim} object is passed in, the method returns a three dimensional array (time step x prey species x prey size) with the predation mortality calculated at every time step in the simulation.
 #' @seealso \code{\link{getPredRate}} and \code{\link{project}}.
 #' @export
-#' @docType methods
-#' @rdname getM2-methods
-#' @aliases getM2-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -267,8 +249,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 setGeneric('getM2', function(object, n, n_pp, pred_rate,...)
     standardGeneric('getM2'))
 
-#' @rdname getM2-methods
-#' @aliases getM2,MizerParams,matrix,numeric,array-method
+#' @describeIn getM2
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', n_pp='numeric', pred_rate = 'array'),
     function(object, n, n_pp, pred_rate, ...){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
@@ -281,16 +262,16 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix', n_pp='numeric',
 	m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
 	return(m2)
 })
-#' @rdname getM2-methods
-#' @aliases getM2,MizerParams,matrix,numeric,missing-method
+
+#' @describeIn getM2
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp, ...){
 	pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
     m2 <- getM2(object,n=n,n_pp=n_pp, pred_rate=pred_rate)
 	return(m2)
 })
-#' @rdname getM2-methods
-#' @aliases getM2,MizerSim,missing,missing,missing-method
+
+#' @describeIn getM2
 setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', pred_rate = 'missing'),
 	function(object, time_range=dimnames(object@n)$time, drop=TRUE, ...){
 		time_elements <- get_time_elements(object,time_range)
@@ -314,9 +295,6 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 #' @return A vector of predation mortalities by background prey size.
 #' @seealso \code{\link{project}} and \code{\link{getM2}}.
 #' @export
-#' @docType methods
-#' @rdname getM2Background-methods
-#' @aliases getM2Background-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -332,8 +310,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 setGeneric('getM2Background', function(object, n, n_pp, pred_rate,...)
     standardGeneric('getM2Background'))
 
-#' @rdname getM2Background-methods
-#' @aliases getM2Background,MizerParams,matrix,numeric,array-method
+#' @describeIn getM2Background
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp='numeric', pred_rate='array'),
     function(object, n, n_pp, pred_rate, ...){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
@@ -343,8 +320,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
         return(M2background)
 })
 
-#' @rdname getM2Background-methods
-#' @aliases getM2Background,MizerParams,matrix,numeric,missing-method
+#' @describeIn getM2Background
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, ...){
         pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
@@ -368,9 +344,6 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 #'
 #' If the object argument is of class \code{MizerSim} then the effort slot of the \code{MizerSim} object is used and the \code{effort} argument is not used.
 #' @export
-#' @docType methods
-#' @rdname getFMortGear-methods
-#' @aliases getFMortGear-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -398,8 +371,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', n_pp=
 setGeneric('getFMortGear', function(object, effort, ...)
     standardGeneric('getFMortGear'))
 
-#' @rdname getFMortGear-methods
-#' @aliases getFMortGear,MizerParams,numeric-method
+#' @describeIn getFMortGear
 # Effort is a single value or a numeric vector.
 # Effort has no time time dimension
 setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
@@ -421,8 +393,7 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
     }
 )
 
-#' @rdname getFMortGear-methods
-#' @aliases getFMortGear,MizerParams,matrix-method
+#' @describeIn getFMortGear
 # Always returns a 4D array: time x gear x species x size
 setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
     function(object, effort, ...){
@@ -438,8 +409,7 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 )
 
 # Returns the fishing mortality: time * gear * species * size
-#' @rdname getFMortGear-methods
-#' @aliases getFMortGear,MizerSim,missing-method
+#' @describeIn getFMortGear
 setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
     function(object,effort, time_range=dimnames(object@effort)$time, ...){
         time_elements <- get_time_elements(object,time_range, slot="effort")
@@ -467,9 +437,6 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #'
 #' If the object argument is of class \code{MizerSim} then the effort slot of the \code{MizerSim} object is used and the \code{effort} argument is not used.
 #' @export
-#' @docType methods
-#' @rdname getFMort-methods
-#' @aliases getFMort-method
 #' @seealso \code{getFMortGear}, \code{project}
 #' @examples
 #' \dontrun{
@@ -497,8 +464,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 setGeneric('getFMort', function(object, effort, ...)
     standardGeneric('getFMort'))
 
-#' @rdname getFMort-methods
-#' @aliases getFMort,MizerParams,numeric-method
+#' @describeIn getFMort
 setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
     function(object, effort, ...){
 	fMortGear <- getFMortGear(object, effort, ...)
@@ -506,8 +472,7 @@ setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
 	return(fMort)
 })
 
-#' @rdname getFMort-methods
-#' @aliases getFMort,MizerParams,matrix-method
+#' @describeIn getFMort
 setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
     function(object, effort, ...){
 	fMortGear <- getFMortGear(object, effort, ...)
@@ -515,8 +480,7 @@ setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
 	return(fMort)
 })
 
-#' @rdname getFMort-methods
-#' @aliases getFMort,MizerSim,missing-method
+#' @describeIn getFMort
 setMethod('getFMort', signature(object='MizerSim', effort='missing'),
     function(object, effort, time_range=dimnames(object@effort)$time, drop=TRUE, ...){
 	time_elements <- get_time_elements(object,time_range, slot="effort")
@@ -539,9 +503,6 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 #'
 #' @export
 #' @seealso \code{\link{getM2}}, \code{\link{getFMort}}
-#' @docType methods
-#' @rdname getZ-methods
-#' @aliases getZ-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -555,8 +516,7 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 setGeneric('getZ', function(object, n, n_pp, effort, m2, ...)
     standardGeneric('getZ'))
 
-#' @rdname getZ-methods
-#' @aliases getZ,MizerParams,matrix,numeric,numeric,matrix-method
+#' @describeIn getZ
 setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', effort='numeric', m2 = 'matrix'),
     function(object, n, n_pp, effort, m2){
         if (!all(dim(m2) == c(nrow(object@species_params),length(object@w)))){
@@ -567,8 +527,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
         return(z)
 })
 
-#' @rdname getZ-methods
-#' @aliases getZ,MizerParams,matrix,numeric,numeric,missing-method
+#' @describeIn getZ
 setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', effort='numeric', m2 = 'missing'),
     function(object, n, n_pp, effort){
         m2 <- getM2(object, n=n, n_pp=n_pp)
@@ -589,9 +548,6 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 #'
 #' @return A two dimensional array (species x size) 
 #' @export
-#' @docType methods
-#' @rdname getEReproAndGrowth-methods
-#' @aliases getEReproAndGrowth-method
 #' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
 #' @examples
 #' \dontrun{
@@ -606,8 +562,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric'
 setGeneric('getEReproAndGrowth', function(object, n, n_pp, feeding_level, ...)
     standardGeneric('getEReproAndGrowth'))
 
-#' @rdname getEReproAndGrowth-methods
-#' @aliases getEReproAndGrowth,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getEReproAndGrowth
 setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', feeding_level='matrix'),
     function(object, n, n_pp, feeding_level){
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
@@ -621,8 +576,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
         return(e)
 })
 
-#' @rdname getEReproAndGrowth-methods
-#' @aliases getEReproAndGrowth,MizerParams,matrix,numeric,missing-method
+#' @describeIn getEReproAndGrowth
 setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', feeding_level='missing'),
     function(object, n, n_pp){
         feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
@@ -644,9 +598,6 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 #'
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
-#' @docType methods
-#' @rdname getESpawning-methods
-#' @aliases getESpawning-method
 #' @seealso \code{\link{project}} and \code{\link{getEReproAndGrowth}}.
 #' @examples
 #' \dontrun{
@@ -661,8 +612,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', n_
 setGeneric('getESpawning', function(object, n, n_pp, e, ...)
     standardGeneric('getESpawning'))
 
-#' @rdname getESpawning-methods
-#' @aliases getESpawning,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getESpawning
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e = 'matrix'),
     function(object, n, n_pp, e){
         if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
@@ -672,8 +622,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
         return(e_spawning)
     }
 )
-#' @rdname getESpawning-methods
-#' @aliases getESpawning,MizerParams,matrix,numeric,missing-method
+#' @describeIn getESpawning
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e = 'missing'),
     function(object, n, n_pp){
 	e <- getEReproAndGrowth(object,n=n,n_pp=n_pp)
@@ -693,9 +642,6 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 #'
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
-#' @docType methods
-#' @rdname getEGrowth-methods
-#' @aliases getEGrowth-method
 #' @seealso \code{\link{project}}
 #' @examples
 #' \dontrun{
@@ -710,8 +656,7 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', n_pp = '
 setGeneric('getEGrowth', function(object, n, n_pp, e_spawning, e, ...)
     standardGeneric('getEGrowth'))
 
-#' @rdname getEGrowth-methods
-#' @aliases getEGrowth,MizerParams,matrix,numeric,matrix,matrix-method
+#' @describeIn getEGrowth
 setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e_spawning='matrix', e='matrix'),
     function(object, n, n_pp, e_spawning, e){
         if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
@@ -725,8 +670,8 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
         e_growth <- e - e_spawning
         return(e_growth)
 })
-#' @rdname getEGrowth-methods
-#' @aliases getEGrowth,MizerParams,matrix,numeric,missing,missing-method
+
+#' @describeIn getEGrowth
 setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e_spawning='missing', e='missing'),
     function(object, n, n_pp){
         # Assimilated intake less activity and metabolism
@@ -749,9 +694,6 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 #'
 #' @return A numeric vector the length of the number of species 
 #' @export
-#' @docType methods
-#' @rdname getRDI-methods
-#' @aliases getRDI-method
 #' @seealso \code{\link{project}}
 #' @examples
 #' \dontrun{
@@ -766,8 +708,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', n_pp = 'nu
 setGeneric('getRDI', function(object, n, n_pp, e_spawning, ...)
     standardGeneric('getRDI'))
 
-#' @rdname getRDI-methods
-#' @aliases getRDI,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getRDI
 setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e_spawning='matrix'),
     function(object, n, n_pp, e_spawning, sex_ratio = 0.5){
         if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
@@ -780,8 +721,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
         rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro)/object@w[object@species_params$w_min_idx] 
         return(rdi)
 })
-#' @rdname getRDI-methods
-#' @aliases getRDI,MizerParams,matrix,numeric,missing-method
+
+#' @describeIn getRDI
 setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', e_spawning='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
 	# Should we put this in the class as part of species_params?
@@ -806,9 +747,6 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 #'
 #' @return A numeric vector the length of the number of species. 
 #' @export
-#' @docType methods
-#' @rdname getRDD-methods
-#' @aliases getRDD-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -822,8 +760,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 setGeneric('getRDD', function(object, n, n_pp, rdi, ...)
     standardGeneric('getRDD'))
 
-#' @rdname getRDD-methods
-#' @aliases getRDD,MizerParams,matrix,numeric,matrix-method
+#' @describeIn getRDD
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', rdi='matrix'),
     function(object, n, n_pp, rdi, sex_ratio = 0.5){
         if (!all(dim(rdi) == c(nrow(object@species_params),1))){
@@ -833,8 +770,7 @@ setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
         return(rdd)
 })
 
-#' @rdname getRDD-methods
-#' @aliases getRDD,MizerParams,matrix,numeric,missing-method
+#' @describeIn getRDD
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', rdi='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
 	rdi <- getRDI(object, n=n, n_pp=n_pp, sex_ratio = sex_ratio)
