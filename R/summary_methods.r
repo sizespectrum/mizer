@@ -460,28 +460,35 @@ setGeneric('getCommunitySlope', function(object, ...)
     standardGeneric('getCommunitySlope'))
 
 #' @describeIn getCommunitySlope
-setMethod('getCommunitySlope', signature(object='MizerSim'),
+setMethod('getCommunitySlope', signature(object = 'MizerSim'),
     function(object, species = 1:nrow(object@params@species_params),
-             biomass = TRUE, ...){
+             biomass = TRUE, ...) {
         check_species(object,species)
         size_range <- get_size_range_array(object@params,...)
-        total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop=FALSE],c(1,3),sum)
+        # set entries for unwanted sizes to zero and sum over wanted species, giving
+        # array (time x size)
+        total_n <-
+            apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop = FALSE],c(1,3),sum)
         # numbers or biomass?
         if (biomass)
-            total_n <- sweep(total_n,2,object@params@w,"*") 
-        total_n[total_n<=0] <- NA
-        slope <- adply(total_n,1,function(x,w){
-			summary_fit <- summary(lm(log(x) ~ log(w)))
-			out_df <- data.frame(
-			    slope = summary_fit$coefficients[2,1],
-			    intercept = summary_fit$coefficients[1,1],
-			    r2 = summary_fit$r.squared)
-			    }, w = object@params@w)
+            total_n <- sweep(total_n,2,object@params@w,"*")
+        # previously unwanted entries were set to zero, now set them to NA
+        # so that they will be ignored when fitting the linear model
+        total_n[total_n <= 0] <- NA
+        # fit linear model at every time and put result in data frame
+        slope <- adply(total_n,1,function(x,w) {
+            summary_fit <- summary(lm(log(x) ~ log(w)))
+            out_df <- data.frame(
+                slope = summary_fit$coefficients[2,1],
+                intercept = summary_fit$coefficients[1,1],
+                r2 = summary_fit$r.squared
+            )
+        }, w = object@params@w)
         dimnames(slope)[[1]] <- slope[,1]
         slope <- slope[,-1]
-	return(slope)
-})
-
+        return(slope)
+    }
+)
 
 # internal
 check_species <- function(object,species){
