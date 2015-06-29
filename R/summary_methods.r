@@ -5,17 +5,17 @@
 # Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
 
 # Soundtrack: The Definitive Lead Belly
+
 #' Calculate the SSB of species
-#'
-#' Calculates the spawning stock biomass (SSB) through time of the species in the \code{MizerSim} class.
-#' SSB is calculated as the total mass of all mature individuals.
-#'
+#' 
+#' Calculates the spawning stock biomass (SSB) through time of the species in
+#' the \code{MizerSim} class. SSB is calculated as the total mass of all mature
+#' individuals.
+#' 
 #' @param object An object of class \code{MizerSim}.
-#'
+#'   
 #' @return An array containing the SSB (time x species)
 #' @export
-#' @docType methods
-#' @rdname getSSB-methods
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -28,26 +28,28 @@
 setGeneric('getSSB', function(object)
     standardGeneric('getSSB'))
 
-#' @rdname getSSB-methods
+#' @describeIn getSSB
 setMethod('getSSB', signature(object='MizerSim'),
     function(object){
 	ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
 	return(ssb)
-    })
+    }
+)
 
 #' Calculate the total biomass of each species within a size range at each time step.
-#'
-#' Calculates the total biomass through time of the species in the \code{MizerSim} class within user defined size limits.
-#' The default option is to use the whole size range.
-#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-#'
+#' 
+#' Calculates the total biomass through time of the species in the
+#' \code{MizerSim} class within user defined size limits. The default option is
+#' to use the whole size range. You can specify minimum and maximum weight or
+#' length range for the species. Lengths take precedence over weights (i.e. if
+#' both min_l and min_w are supplied, only min_l will be used).
+#' 
 #' @param object An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
+#' @param ... Other arguments to select the size range of the species to be used
+#'   in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
-#' @docType methods
-#' @rdname getBiomass-methods
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -61,27 +63,29 @@ setMethod('getSSB', signature(object='MizerSim'),
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 
-#' @rdname getBiomass-methods
+#' @describeIn getBiomass
 setMethod('getBiomass', signature(object='MizerSim'),
     function(object, ...){
         size_range <- get_size_range_array(object@params,...)
         biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
         return(biomass)
-    })
+    }
+)
 
 #' Calculate the total abundance in terms of numbers of species within a size range
 #'
-#' Calculates the total numbers through time of the species in the \code{MizerSim} class within user defined size limits.
-#' The default option is to use the whole size range
-#' You can specify minimum and maximum weight or lengths for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used)
-#'
+#' Calculates the total numbers through time of the species in the
+#' \code{MizerSim} class within user defined size limits. The default option is
+#' to use the whole size range You can specify minimum and maximum weight or
+#' lengths for the species. Lengths take precedence over weights (i.e. if both
+#' min_l and min_w are supplied, only min_l will be used)
+#' 
 #' @param object An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
+#' @param ... Other arguments to select the size range of the species to be used
+#'   in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
-#' @docType methods
-#' @rdname getN-methods
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -95,13 +99,14 @@ setMethod('getBiomass', signature(object='MizerSim'),
 setGeneric('getN', function(object, ...)
     standardGeneric('getN'))
 
-#' @rdname getN-methods
+#' @describeIn getN
 setMethod('getN', signature(object='MizerSim'),
     function(object, ...){
-	size_range <- get_size_range_array(object@params,...)
-	n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
-	return(n)
-    })
+	    size_range <- get_size_range_array(object@params,...)
+	    n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
+    	return(n)
+    }
+)
 
 
 #' Calculate the total yield per gear and species
@@ -113,8 +118,6 @@ setMethod('getN', signature(object='MizerSim'),
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
-#' @docType methods
-#' @rdname getYieldGear-methods
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -128,7 +131,7 @@ setMethod('getN', signature(object='MizerSim'),
 setGeneric('getYieldGear', function(object)
     standardGeneric('getYieldGear'))
 
-#' @rdname getYieldGear-methods
+#' @describeIn getYieldGear
 setMethod('getYieldGear', signature(object='MizerSim'),
     function(object){
         # biomass less the first time step
@@ -136,7 +139,8 @@ setMethod('getYieldGear', signature(object='MizerSim'),
         f_gear <- getFMortGear(object)
         yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
         return(yield_species_gear)
-})
+    }
+)
 
 #' Calculate the total yield of each species
 #'
@@ -147,8 +151,6 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
-#' @docType methods
-#' @rdname getYield-methods
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -160,13 +162,15 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' }
 setGeneric('getYield', function(object)
     standardGeneric('getYield'))
-#' @rdname getYield-methods
+
+#' @describeIn getYield
 setMethod('getYield', signature(object='MizerSim'),
     function(object){
-	# biomass less the first time step
-	yield_gear_species <- getYieldGear(object)
-	return(apply(yield_gear_species,c(1,3),sum))
-    })
+    	# biomass less the first time step
+    	yield_gear_species <- getYieldGear(object)
+    	return(apply(yield_gear_species,c(1,3),sum))
+    }
+)
 
 # Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
 # the size limits specified by the arguments
@@ -194,16 +198,13 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
     return(size_n)
 }
 
-# Check documentation for summary
+# TODO: Check documentation for summary
 
-#' Summary method 
+#' Summarize MizerParams object 
 #'
 #' Outputs a general summary of the structure and content of the object
 #'
 #' @export
-#' @docType methods
-#' @rdname summary-methods
-#'
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -240,8 +241,10 @@ setMethod("summary", signature(object="MizerParams"),
 	}
 })
 
-#' @rdname summary-methods
-#' @aliases summary,MizerSim-method
+#' Summarize MizerSim object 
+#'
+#' Outputs a general summary of the structure and content of the object
+#'
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -264,26 +267,30 @@ setMethod("summary", signature(object="MizerSim"),
 
 
 #' Calculate the proportion of large fish
-#'
-#' Calculates the proportion of large fish through time in the \code{MizerSim} class within user defined size limits.
-#' The default option is to use the whole size range.
-#' You can specify minimum and maximum size ranges for the species and also the threshold size for large fish. 
-#' Sizes can be expressed as weight or size. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-#' You can also specify the species to be used in the calculation.
-#' This method can be used to calculate the Large Fish Index.
-#' The proportion is based on either abundance or biomass.
-#'
+#' 
+#' Calculates the proportion of large fish through time in the \code{MizerSim}
+#' class within user defined size limits. The default option is to use the whole
+#' size range. You can specify minimum and maximum size ranges for the species
+#' and also the threshold size for large fish. Sizes can be expressed as weight
+#' or size. Lengths take precedence over weights (i.e. if both min_l and min_w
+#' are supplied, only min_l will be used). You can also specify the species to
+#' be used in the calculation. This method can be used to calculate the Large
+#' Fish Index. The proportion is based on either abundance or biomass.
+#' 
 #' @param object An object of class \code{MizerSim}.
-#' @param species numeric or character vector of species to include in the calculation.
-#' @param threshold_w the size used as the cutoff between large and small fish. Default value is 100.
+#' @param species numeric or character vector of species to include in the
+#'   calculation.
+#' @param threshold_w the size used as the cutoff between large and small fish.
+#'   Default value is 100.
 #' @param threshold_l the size used as the cutoff between large and small fish.
-#' @param biomass_proportion a boolean value. If TRUE the proportion calculated is based on biomass, if FALSE it is based on numbers of individuals. Default is TRUE.
-#' @param ... Other arguments to select the size range of the species to be used in the calculation (min_w, max_w, min_l, max_l).
-#'
+#' @param biomass_proportion a boolean value. If TRUE the proportion calculated
+#'   is based on biomass, if FALSE it is based on numbers of individuals.
+#'   Default is TRUE.
+#' @param ... Other arguments to select the size range of the species to be used
+#'   in the calculation (min_w, max_w, min_l, max_l).
+#'   
 #' @return An array containing the proportion of large fish through time
 #' @export
-#' @docType methods
-#' @rdname getProportionOfLargeFish-methods
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -300,7 +307,7 @@ setMethod("summary", signature(object="MizerSim"),
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
 
-#' @rdname getProportionOfLargeFish-methods
+#' @describeIn getProportionOfLargeFish
 setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
 	check_species(object,species)
@@ -337,9 +344,6 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
-#' @docType methods
-#' @rdname getMeanWeight-methods
-#' @aliases getMeanWeight-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -352,8 +356,8 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' }
 setGeneric('getMeanWeight', function(object, ...)
     standardGeneric('getMeanWeight'))
-#' @rdname getMeanWeight-methods
-#' @aliases getMeanWeight,MizerSim-method
+
+#' @describeIn getMeanWeight
 setMethod('getMeanWeight', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params),...){
 	check_species(object,species)
@@ -366,10 +370,12 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 
 #' Calculate the mean maximum weight of the community
 #'
-#' Calculates the mean maximum weight of the community through time.
-#' This can be calculated by numbers or biomass.
-#' The calculation is the sum of the w_inf * abundance of each species, divided by the total abundance community, where abundance is either in biomass or numbers.
-#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
+#' Calculates the mean maximum weight of the community through time. This can be
+#' calculated by numbers or biomass. The calculation is the sum of the w_inf *
+#' abundance of each species, divided by the total abundance community, where
+#' abundance is either in biomass or numbers. You can specify minimum and
+#' maximum weight or length range for the species. Lengths take precedence over
+#' weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
 #' @param object An object of class \code{MizerSim}.
@@ -382,9 +388,6 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #'
 #' @return A matrix or vector containing the mean maximum weight of the community through time
 #' @export
-#' @docType methods
-#' @rdname getMeanMaxWeight-methods
-#' @aliases getMeanMaxWeight-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -397,8 +400,8 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' }
 setGeneric('getMeanMaxWeight', function(object, ...)
     standardGeneric('getMeanMaxWeight'))
-#' @rdname getMeanMaxWeight-methods
-#' @aliases getMeanMaxWeight,MizerSim-method
+
+#' @describeIn getMeanMaxWeight
 setMethod('getMeanMaxWeight', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), measure = "both",...){
 	if (!(measure %in% c("both","numbers","biomass")))
@@ -427,16 +430,16 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' @param object An object of class \code{MizerSim}.
 #' @param species Numeric or character vector of species to include in the calculation.
 #' @param biomass Boolean. If TRUE (default), the abundance is based on biomass, if FALSE the abundance is based on numbers. 
-#' @param min_w Minimum weight of species to be used in the calculation.
-#' @param max_w Maximum weight of species to be used in the calculation.
-#' @param min_l Minimum length of species to be used in the calculation.
-#' @param max_l Maximum length of species to be used in the calculation.
+#' @param ... Optional parameters include
+#'   \itemize{
+#'     \item min_w Minimum weight of species to be used in the calculation.
+#'     \item max_w Maximum weight of species to be used in the calculation.
+#'     \item min_l Minimum length of species to be used in the calculation.
+#'     \item max_l Maximum length of species to be used in the calculation.
+#'   }
 #'
 #' @return A data frame with slope, intercept and R2 values.
 #' @export
-#' @docType methods
-#' @rdname getCommunitySlope-methods
-#' @aliases getCommunitySlope-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -455,30 +458,37 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' }
 setGeneric('getCommunitySlope', function(object, ...)
     standardGeneric('getCommunitySlope'))
-#' @rdname getCommunitySlope-methods
-#' @aliases getCommunitySlope,MizerSim-method
-setMethod('getCommunitySlope', signature(object='MizerSim'),
+
+#' @describeIn getCommunitySlope
+setMethod('getCommunitySlope', signature(object = 'MizerSim'),
     function(object, species = 1:nrow(object@params@species_params),
-             biomass = TRUE, ...){
+             biomass = TRUE, ...) {
         check_species(object,species)
         size_range <- get_size_range_array(object@params,...)
-        total_n <- apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop=FALSE],c(1,3),sum)
+        # set entries for unwanted sizes to zero and sum over wanted species, giving
+        # array (time x size)
+        total_n <-
+            apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop = FALSE],c(1,3),sum)
         # numbers or biomass?
         if (biomass)
-            total_n <- sweep(total_n,2,object@params@w,"*") 
-        total_n[total_n<=0] <- NA
-        slope <- adply(total_n,1,function(x,w){
-			summary_fit <- summary(lm(log(x) ~ log(w)))
-			out_df <- data.frame(
-			    slope = summary_fit$coefficients[2,1],
-			    intercept = summary_fit$coefficients[1,1],
-			    r2 = summary_fit$r.squared)
-			    }, w = object@params@w)
+            total_n <- sweep(total_n,2,object@params@w,"*")
+        # previously unwanted entries were set to zero, now set them to NA
+        # so that they will be ignored when fitting the linear model
+        total_n[total_n <= 0] <- NA
+        # fit linear model at every time and put result in data frame
+        slope <- adply(total_n,1,function(x,w) {
+            summary_fit <- summary(lm(log(x) ~ log(w)))
+            out_df <- data.frame(
+                slope = summary_fit$coefficients[2,1],
+                intercept = summary_fit$coefficients[1,1],
+                r2 = summary_fit$r.squared
+            )
+        }, w = object@params@w)
         dimnames(slope)[[1]] <- slope[,1]
         slope <- slope[,-1]
-	return(slope)
-})
-
+        return(slope)
+    }
+)
 
 # internal
 check_species <- function(object,species){
