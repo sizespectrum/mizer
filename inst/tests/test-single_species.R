@@ -57,5 +57,4 @@ test_that("summary methods",{
     expect_that(length(getProportionOfLargeFish(sim1, threshold_w = 1)), is_identical_to(length(getProportionOfLargeFish(sim1s, threshold_w = 1))))
     expect_that(length(getMeanWeight(sim1, min_w = 1)), is_identical_to(length(getMeanWeight(sim1s, min_w = 1))))
     expect_that(length(getMeanMaxWeight(sim1, min_w = 1)), is_identical_to(length(getMeanMaxWeight(sim1s, min_w = 1))))
-    expect_that(dim(getCommunitySlope(sim1, min_w = 1)), is_identical_to(dim(getCommunitySlope(sim1s, min_w = 1))))
 })
