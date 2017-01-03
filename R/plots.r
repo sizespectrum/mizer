@@ -1,6 +1,7 @@
 # Plotting methods for the MizerSim class
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. Distributed under the GPL 2 or later
+# Copyright 2012 Finlay Scott and Julia Blanchard. 
+# Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS
 
 # Biomass through time
@@ -8,23 +9,27 @@
  
 #' Plot the biomass of each species through time
 #'
-#' After running a projection, the biomass of each species can be plotted against time. The biomass is calculated within user defined size limits (see \code{\link{getBiomass}}).
-#' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getBiomass}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
+#' After running a projection, the biomass of each species can be plotted
+#' against time. The biomass is calculated within user defined size limits (see
+#' \code{\link{getBiomass}}). This plot is pretty easy to do by hand. It just
+#' gets the biomass using the \code{\link{getBiomass}} method and plots using
+#' the ggplot2 package. You can then fiddle about with colours and linetypes
+#' etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}.
 #' @param min_w Minimum weight of species to be used in the calculation.
 #' @param max_w Maximum weight of species to be used in the calculation.
 #' @param min_l Minimum length of species to be used in the calculation.
 #' @param max_l Maximum length of species to be used in the calculation.
-#' @param start_time The first time step to be plotted. Default is the beginning of the time series.
-#' @param end_time The first time step to be plotted. Default is the end of the time series.
-#' @param print_it Display the plot, or just return the ggplot2 object. Default value is TRUE.
-#'
+#' @param start_time The first time step to be plotted. Default is the beginning
+#'   of the time series.
+#' @param end_time The first time step to be plotted. Default is the end of the
+#'   time series.
+#' @param print_it Display the plot, or just return the ggplot2 object. Default
+#'   value is TRUE.
+#'   
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotBiomass-methods
-#' @aliases plotBiomass-method
 #' @seealso \code{\link{getBiomass}}
 #' @examples
 #' \dontrun{
@@ -37,8 +42,8 @@
 #' }
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
-#' @rdname plotBiomass-methods
-#' @aliases plotBiomass,MizerSim-method
+
+#' @describeIn plotBiomass
 setMethod('plotBiomass', signature(object='MizerSim'),
     function(object, print_it=TRUE, start_time=as.numeric(dimnames(object@n)[[1]][1]), end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...){
         b <- getBiomass(object, ...)
@@ -48,7 +53,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
         }
         b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & (as.numeric(dimnames(b)[[1]]) <= end_time),,drop=FALSE]
         bm <- melt(b)
-        # Force Species column to be a character (if numbers used - may be interpreted as integer and hence continuous)
+        # Force Species column to be a character (if numbers used - may be
+        # interpreted as integer and hence continuous)
         bm$Species <- as.character(bm$Species)
         # Due to log10, need to set a minimum value, seems like a feature in ggplot
         min_value <- 1e-300
@@ -60,22 +66,22 @@ setMethod('plotBiomass', signature(object='MizerSim'),
         if (print_it)
             print(p)
         return(p)
-    })
+    }
+)
 
 #' Plot the total yield of each species through time
 #'
-#' After running a projection, the total yield of each species across all
-#' fishing gears can be plotted against time. 
-#' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getYield}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
+#' After running a projection, the total yield of each species across all 
+#' fishing gears can be plotted against time. This plot is pretty easy to do by
+#' hand. It just gets the biomass using the \code{\link{getYield}} method and
+#' plots using the ggplot2 package. You can then fiddle about with colours and
+#' linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotYield-methods
-#' @aliases plotYield-method
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -87,8 +93,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' }
 setGeneric('plotYield', function(object, ...)
     standardGeneric('plotYield'))
-#' @rdname plotYield-methods
-#' @aliases plotYield,MizerSim-method
+
+#' @describeIn plotYield
 setMethod('plotYield', signature(object='MizerSim'),
     function(object, print_it = TRUE, ...){
 	y <- getYield(object, ...)
@@ -101,22 +107,22 @@ setMethod('plotYield', signature(object='MizerSim'),
     if (print_it)
         print(p)
 	return(p)
-    })
+    }
+)
 
 #' Plot the total yield of each species by gear through time
 #'
-#' After running a projection, the total yield of each species by 
-#' fishing gear can be plotted against time. 
-#' This plot is pretty easy to do by hand. It just gets the biomass using the \code{\link{getYieldGear}} method and plots using the ggplot2 package. You can then fiddle about with colours and linetypes etc. Just look at the source code for details.
+#' After running a projection, the total yield of each species by fishing gear
+#' can be plotted against time. This plot is pretty easy to do by hand. It just
+#' gets the biomass using the \code{\link{getYieldGear}} method and plots using
+#' the ggplot2 package. You can then fiddle about with colours and linetypes
+#' etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotYieldGear-methods
-#' @aliases plotYieldGear-method
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -128,8 +134,8 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' }
 setGeneric('plotYieldGear', function(object, ...)
     standardGeneric('plotYieldGear'))
-#' @rdname plotYieldGear-methods
-#' @aliases plotYieldGear,MizerSim-method
+
+#' @describeIn plotYieldGear
 setMethod('plotYieldGear', signature(object='MizerSim'),
     function(object, print_it=TRUE, ...){
 	y <- getYieldGear(object, ...)
@@ -142,25 +148,30 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
     if (print_it)
         print(p)
 	return(p)
-    })
+    }
+)
 
 #' Plot the abundance spectra of each species and the background population
-#'
-#' After running a projection, the spectra of the abundance of each species and the background population can be plotted.
-#' The abundance is averaged over the specified time range (a single value for the time range can be used to plot a single time step).
-#' The abundance can be in terms of numbers or biomass, depending on the \code{biomass} argument.
+#' 
+#' After running a projection, the spectra of the abundance of each species and
+#' the background population can be plotted. The abundance is averaged over the
+#' specified time range (a single value for the time range can be used to plot a
+#' single time step). The abundance can be in terms of numbers or biomass,
+#' depending on the \code{biomass} argument.
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
-#' @param min_w Minimum weight to be plotted (useful for truncating the background spectrum). Default value is a hundredth of the minimum size value of the community. 
-#' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted or the abundance in numbers (FALSE). Default is TRUE.
+#' @param time_range The time range (either a vector of values, a vector of min
+#'   and max time, or a single value) to average the abundances over. Default is
+#'   the final time step.
+#' @param min_w Minimum weight to be plotted (useful for truncating the
+#'   background spectrum). Default value is a hundredth of the minimum size
+#'   value of the community.
+#' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted
+#'   or the abundance in numbers (FALSE). Default is TRUE.
 #' @param print_it Display the plot, or just return the ggplot2 object
-#'
+#'   
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotSpectra-methods
-#' @aliases plotSpectra-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -174,8 +185,8 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' }
 setGeneric('plotSpectra', function(object, ...)
     standardGeneric('plotSpectra'))
-#' @rdname plotSpectra-methods
-#' @aliases plotSpectra,MizerSim-method
+
+#' @describeIn plotSpectra
 setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...){
         time_elements <- get_time_elements(object,time_range)
@@ -199,23 +210,24 @@ setMethod('plotSpectra', signature(object='MizerSim'),
         if (print_it)
             print(p)
         return(p)
-    })
+    }
+)
 
 
-#' Plot the feeding level of each species by size 
-#'
-#' After running a projection, plot the feeding level of each species by size.
-#' The feeding level is averaged over the specified time range (a single value for the time range can be used).
+#' Plot the feeding level of each species by size
+#' 
+#' After running a projection, plot the feeding level of each species by size. 
+#' The feeding level is averaged over the specified time range (a single value
+#' for the time range can be used).
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param time_range The time range (either a vector of values, a vector of min
+#'   and max time, or a single value) to average the abundances over. Default is
+#'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotFeedingLevel-methods
-#' @aliases plotFeedingLevel-method
 #' @seealso \code{\link{getFeedingLevel}}
 #' @examples
 #' \dontrun{
@@ -228,37 +240,38 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' }
 setGeneric('plotFeedingLevel', function(object, ...)
     standardGeneric('plotFeedingLevel'))
-#' @rdname plotFeedingLevel-methods
-#' @aliases plotFeedingLevel,MizerSim-method
+
+#' @describeIn plotFeedingLevel
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
         feed_time <- getFeedingLevel(object=object, time_range=time_range, drop=FALSE, ...)
         feed <- apply(feed_time, c(2,3), mean)
         plot_dat <- data.frame(value = c(feed), Species = dimnames(feed)[[1]], w = rep(object@params@w, each=nrow(object@params@species_params)))
         p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
-    if (nrow(object@params@species_params)>12){
-        p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
-    }
+        if (nrow(object@params@species_params)>12){
+            p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species)) + scale_x_continuous(name = "Size", trans="log10") + scale_y_continuous(name = "Feeding Level", lim=c(0,1))
+        }
         if (print_it)
             print(p)
         return(p)
-    })
+    }
+)
 
-#' Plot M2 of each species by size 
-#'
-#' After running a projection, plot M2 of each species by size.
-#' M2 is averaged over the specified time range (a single value for the time range can be used to plot a single time step).
+#' Plot M2 of each species by size
+#' 
+#' After running a projection, plot M2 of each species by size. M2 is averaged
+#' over the specified time range (a single value for the time range can be used
+#' to plot a single time step).
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param time_range The time range (either a vector of values, a vector of min
+#'   and max time, or a single value) to average the abundances over. Default is
+#'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
 #' @seealso \code{\link{getM2}}
-#' @rdname plotM2-methods
-#' @aliases plotM2-method
 #' @seealso \code{\link{getM2}}
 #' @examples
 #' \dontrun{
@@ -271,8 +284,8 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #' }
 setGeneric('plotM2', function(object, ...)
     standardGeneric('plotM2'))
-#' @rdname plotM2-methods
-#' @aliases plotM2,MizerSim-method
+
+#' @describeIn plotM2
 setMethod('plotM2', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	m2_time <- getM2(object, time_range=time_range, drop=FALSE, ...)
@@ -284,23 +297,25 @@ setMethod('plotM2', signature(object='MizerSim'),
     }
     if (print_it)
         print(p)
-	return(p)
-    })
+        return(p)
+    }
+)
 
-#' Plot total fishing mortality of each species by size 
-#'
-#' After running a projection, plot the total fishing mortality of each species by size.
-#' The total fishing mortality is averaged over the specified time range (a single value for the time range can be used to plot a single time step).
+#' Plot total fishing mortality of each species by size
+#' 
+#' After running a projection, plot the total fishing mortality of each species
+#' by size. The total fishing mortality is averaged over the specified time
+#' range (a single value for the time range can be used to plot a single time
+#' step).
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param time_range The time range (either a vector of values, a vector of min and max time, or a single value) to average the abundances over. Default is the final time step.
+#' @param time_range The time range (either a vector of values, a vector of min
+#'   and max time, or a single value) to average the abundances over. Default is
+#'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
 #'
 #' @return A ggplot2 object
 #' @export
-#' @docType methods
-#' @rdname plotFMort-methods
-#' @aliases plotFMort-method
 #' @seealso \code{\link{getFMort}}
 #' @examples
 #' \dontrun{
@@ -313,8 +328,8 @@ setMethod('plotM2', signature(object='MizerSim'),
 #' }
 setGeneric('plotFMort', function(object, ...)
     standardGeneric('plotFMort'))
-#' @rdname plotFMort-methods
-#' @aliases plotFMort,MizerSim-method
+
+#' @describeIn plotFMort
 setMethod('plotFMort', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	f_time <- getFMort(object, time_range=time_range, drop=FALSE, ...)
@@ -327,25 +342,24 @@ setMethod('plotFMort', signature(object='MizerSim'),
     if (print_it)
         print(p)
 	return(p)
-    })
+    }
+)
 
 
 #' Summary plot for \code{MizerSim} objects
-#'
-#' After running a projection, produces 5 plots in the same window:
-#' feeding level, abundance spectra, predation mortality and fishing
-#' mortality of each species by size; and biomass of each species through
-#' time.
-#' This method just uses the other plotting methods and puts them
-#' all in one window.
+#' 
+#' After running a projection, produces 5 plots in the same window: feeding
+#' level, abundance spectra, predation mortality and fishing mortality of each
+#' species by size; and biomass of each species through time. This method just
+#' uses the other plotting methods and puts them all in one window.
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param ...  For additional arguments see the documentation for \code{\link{plotBiomass}}, \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}} and \code{\link{plotFMort}}.
+#' @param ...  For additional arguments see the documentation for
+#'   \code{\link{plotBiomass}},
+#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
+#'   and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
-#' @docType methods
-#' @rdname plot-methods
-#' @aliases plot,MizerSim,missing-method
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -374,5 +388,6 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 	print(p4+ theme(legend.position="none"), vp = vplayout(2,1))
 	print(p5+ theme(legend.position="none"), vp = vplayout(2,2))
 	print(p2+ theme(legend.position="right", legend.key.size=unit(0.1,"cm")), vp = vplayout(3,1:2))
-    })
+    }
+)
 
