@@ -1,18 +1,28 @@
 context("methods used in project")
 
 test_that("getFmortGear",{
+    # Two methods:
+    # MizerParams + numeric
+    # MizerParams + matrix
     data(NS_species_params_gears)
     data(inter)
     params <- MizerParams(NS_species_params_gears, inter)
+    # Randomize selectivity and catchability for proper test
+    params@catchability[] <- runif(prod(dim(params@catchability)), min=0, max=1)
+    params@selectivity[] <- runif(prod(dim(params@selectivity)), min=0, max=1)
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
-    effort1 <- 0.5
-    effort2 <- rep(effort1,no_gear)
-    effort3 <- array(effort1,dim=c(7,no_gear))
-    f1 <- getFMortGear(params,effort1)
-    f2 <- getFMortGear(params,effort2)
-    f3 <- getFMortGear(params,effort3)
+    # Single numeric
+    effort_num1 <- runif(1, min=0.1, max=1)
+    # Numeric vector
+    effort_num2 <- runif(no_gear, min=0.1, max=1)
+    # Matrix (or 2D  array) - here with 7 timesteps
+    effort_mat <- array(runif(no_gear*7, min=0.1, max=1),dim=c(7,no_gear))
+    # Call both methods with different effort inputs
+    f1 <- getFMortGear(params,effort_num1)
+    f2 <- getFMortGear(params,effort_num2)
+    f3 <- getFMortGear(params,effort_mat)
     # check that number of dims are right
     expect_that(length(dim(f1)), equals(3))
     expect_that(length(dim(f2)), equals(3))
@@ -20,21 +30,21 @@ test_that("getFmortGear",{
     # check that length of dims is right
     expect_that(dim(f1), equals(c(no_gear,no_sp,no_w)))
     expect_that(dim(f2), equals(c(no_gear,no_sp,no_w)))
-    expect_that(dim(f3), equals(c(dim(effort3)[1],no_gear,no_sp,no_w)))
+    expect_that(dim(f3), equals(c(dim(effort_mat)[1],no_gear,no_sp,no_w)))
     # Check dimnames are right
-    expect_that(names(dimnames(f3))[2], equals("gear"))
-    expect_that(names(dimnames(f3))[3], equals("sp"))
-    expect_that(names(dimnames(f3))[4], equals("w"))
-    #expect_that(dimnames(f3)$gear
+    expect_equal(names(dimnames(f1)),c("gear","sp","w"))
+    expect_equal(names(dimnames(f2)),c("gear","sp","w"))
+    expect_equal(names(dimnames(f3))[2:4],c("gear","sp","w"))
     # check fails if effort is not right size
-    expect_error(getFMortGear(params,c(1,2)))
-    # check contents of output
-    expect_that(f1[1,1,], equals(params@catchability[1,1] * params@selectivity[1,1,] * effort1[1])) 
-    expect_that(f1[no_gear,no_sp,], equals(params@catchability[no_gear,no_sp] * params@selectivity[no_gear,no_sp,] * effort1[1])) 
-    expect_that(f2[1,1,1], equals(params@catchability[1,1] * params@selectivity[1,1,1] * effort2[1])) 
-    expect_that(f2[no_gear,no_sp,no_w], equals(params@catchability[no_gear,no_sp] * params@selectivity[no_gear,no_sp,no_w] * effort2[no_gear])) 
-    expect_that(f3[1,1,1,], equals(params@catchability[1,1] * params@selectivity[1,1,] * effort3[1,1])) 
-    expect_that(f3[dim(effort3)[1],no_gear,no_sp,], equals(params@catchability[no_gear,no_sp] * params@selectivity[no_gear,no_sp,] * effort3[dim(effort3)[1],no_gear])) 
+    bad_effort <- rep(effort, no_gear-1)
+    expect_error(getFMortGear(params, bad_effort))
+    # Check contents of output
+    widx <- round(runif(1, min=1, max=no_w))
+    sp <- round(runif(1, min=1, max=no_sp))
+    gear <- round(runif(1, min=1, max=no_gear))
+    expect_equal(effort_num1 * params@catchability[gear,sp] * params@selectivity[gear,sp,widx], f1[gear,sp,widx])
+    expect_equal(effort_num2[gear] * params@catchability[gear,sp] * params@selectivity[gear,sp,widx], f2[gear,sp,widx])
+    expect_equal(effort_mat[,gear] * params@catchability[gear,sp] * params@selectivity[gear,sp,widx], unname(f3[,gear,sp,widx]))
 })
 
 test_that("getFMort",{
