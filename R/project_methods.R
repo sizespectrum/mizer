@@ -538,10 +538,11 @@ setGeneric('getFMort', function(object, effort, ...)
     standardGeneric('getFMort'))
 
 #' @describeIn getFMort
+# Called from project -> getZ -> 
 setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
     function(object, effort, ...){
 	fMortGear <- getFMortGear(object, effort, ...)
-	fMort <- apply(fMortGear, c(2,3), sum)
+	fMort <- colSums(fMortGear)
 	return(fMort)
 })
 
@@ -596,6 +597,7 @@ setGeneric('getZ', function(object, n, n_pp, effort, m2)
     standardGeneric('getZ'))
 
 #' @describeIn getZ
+# Called from project()
 setMethod('getZ', signature(object='MizerParams', n = 'matrix', 
                             n_pp = 'numeric', effort='numeric', m2 = 'matrix'),
     function(object, n, n_pp, effort, m2){
@@ -603,7 +605,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix',
             stop("m2 argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         f_mort <- getFMort(object, effort = effort)
-        z = sweep(m2 + f_mort,1,object@species_params$z0,"+")
+        z <- sweep(m2 + f_mort,1,object@species_params$z0,"+") # not a slow sweep
         return(z)
     }
 )
