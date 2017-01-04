@@ -438,13 +438,9 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
             effort <- rep(effort, no_gear)
         if (length(effort) != no_gear)
             stop("Effort must be a single value or a vector as long as the number of gears\n")
-        # turn to array and call next method
-        effort <- array(effort,dim=c(1,no_gear))
-        fmort_gear <- getFMortGear(object,effort)
-        # fmort_gear is 4D, and first D is time with length 1
-        # Drop time dimension - bit annoying because we want to keep the other dims even if they have length 1
-        out <- array(fmort_gear, dim=dim(fmort_gear)[2:4])
-        dimnames(out) <- dimnames(fmort_gear)[2:4]
+        # Streamlined for speed increase - note use of recycling
+        out <- object@selectivity
+        out[] <- effort * c(object@catchability) * c(object@selectivity)
         return(out)
     }
 )
@@ -456,11 +452,13 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 	no_gear <- dim(object@catchability)[1]
 	if (dim(effort)[2] != no_gear)
 	    stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
-	# F = sel * q * effort
-	sel_q <- sweep(object@selectivity, c(1,2), object@catchability, "*")
-	# Kinda nasty! ends up with 4D array 
-	fmort_gear <- aaply(effort, 1, function(x,sel_q) sweep(sel_q, c(1), x, "*"), sel_q=sel_q, .drop=FALSE)
-	return(fmort_gear)
+    # Make the output array - note that we put time as last dimension and then aperm before returning 
+    # This is because of the order of the values when we call the other getFMortGear method
+    # Fill it up with by calling the other method and passing in each line of the effort matrix
+    out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
+    out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
+    out <- aperm(out, c(4,1,2,3))
+    return(out)
     }
 )
 
