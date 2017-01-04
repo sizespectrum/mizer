@@ -36,7 +36,7 @@ test_that("getFmortGear",{
     expect_equal(names(dimnames(f2)),c("gear","sp","w"))
     expect_equal(names(dimnames(f3))[2:4],c("gear","sp","w"))
     # check fails if effort is not right size
-    bad_effort <- rep(effort, no_gear-1)
+    bad_effort <- rep(effort_num1, no_gear-1)
     expect_error(getFMortGear(params, bad_effort))
     # Check contents of output
     widx <- round(runif(1, min=1, max=no_w))
