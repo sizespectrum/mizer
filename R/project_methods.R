@@ -45,15 +45,17 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# n_eff_prey is the total prey abundance by size exposed to each predator (prey
 	# not broken into species - here we are just working out how much a predator
 	# eats - not which species are being eaten - that is in the mortality calculation
-	n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*") 
+    n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
 	# Quick reference to just the fish part of the size spectrum
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 	# pred_kernel is predator x predator size x prey size
 	# So multiply 3rd dimension of pred_kernel by the prey abundance
 	# Then sum over 3rd dimension to get total eaten by each predator by predator size
-	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*"),dims=2)
+    # This line is a bottle neck
+	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
 	# Eating the background
-	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*"),dims=2)
+    # This line is a bottle neck
+	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
 	return(phi_prey_species+phi_prey_background)
 })
 
@@ -194,14 +196,16 @@ setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
     standardGeneric('getPredRate'))
 
 #' @describeIn getPredRate
+# Called from project ->
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
     function(object, n, n_pp, feeding_level){
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
             stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*') # N_i(w)dw
-        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*")
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
+        # The next line is a bottle neck
+        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
         return(pred_rate)
     }
 )
@@ -209,7 +213,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
 #' @describeIn getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp){
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*') # N_i(w)dw
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
         feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
         #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
         pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
@@ -605,7 +609,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix',
             stop("m2 argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         f_mort <- getFMort(object, effort = effort)
-        z <- sweep(m2 + f_mort,1,object@species_params$z0,"+") # not a slow sweep
+        z <- sweep(m2 + f_mort,1,object@species_params$z0,"+", check.margin=FALSE) # not a slow sweep
         return(z)
     }
 )
@@ -658,7 +662,7 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix',
             stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         # assimilated intake
-        e <- sweep(feeding_level * object@intake_max,1,object@species_params$alpha,"*")
+        e <- sweep(feeding_level * object@intake_max,1,object@species_params$alpha,"*", check.margin=FALSE)
         # Subtract basal metabolism and activity 
         e <- e - object@std_metab - object@activity
         e[e<0] <- 0 # Do not allow negative growth
