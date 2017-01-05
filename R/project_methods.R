@@ -470,7 +470,7 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 #' @describeIn getFMortGear
 setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
     function(object,effort, time_range=dimnames(object@effort)$time, ...){
-        time_elements <- get_time_elements(object,time_range, slot="effort")
+        time_elements <- get_time_elements(object,time_range, slot_name="effort")
         f_mort_gear <- getFMortGear(object@params, object@effort, ...)
         return(f_mort_gear[time_elements,,,,drop=FALSE])
 })
@@ -561,7 +561,7 @@ setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
 #' @describeIn getFMort
 setMethod('getFMort', signature(object='MizerSim', effort='missing'),
     function(object, effort, time_range=dimnames(object@effort)$time, drop=TRUE, ...){
-    	time_elements <- get_time_elements(object,time_range, slot="effort")
+    	time_elements <- get_time_elements(object,time_range, slot_name="effort")
     	fMort <- getFMort(object@params, object@effort, ...)
     	return(fMort[time_elements,,,drop=drop])
     }

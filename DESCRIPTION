@@ -30,6 +30,6 @@ Collate:
     'summary_methods.R'
     'plots.R'
     'wrapper_functions.R'
-    'NS_species_params-data.R'
+    'data.R'
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

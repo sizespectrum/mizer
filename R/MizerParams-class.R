@@ -587,6 +587,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Could maybe improve this. Pretty ugly at the moment
 	res@pred_kernel[] <- object$beta
 	res@pred_kernel <- exp(-0.5*sweep(log(sweep(sweep(res@pred_kernel,3,res@w_full,"*")^-1,2,res@w,"*")),1,object$sigma,"/")^2)
+    combn <- NULL # Stupid hack to pass documentation check
 	res@pred_kernel <- sweep(res@pred_kernel,c(2,3),combn(res@w_full,1,function(x,w)x<w,w=res@w),"*") # find out the untrues and then multiply
 
 
@@ -633,6 +634,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 )
 
 # If interaction is missing, make one of the right size and fill with 1s
+#' Constructor based on the species_params data.frame only with no interaction
 #' @describeIn MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='missing'),
     function(object, ...){
