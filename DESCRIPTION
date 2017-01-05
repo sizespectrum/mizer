@@ -21,14 +21,14 @@ Suggests:
     roxygen2,
     knitr
 Collate:
-    'MizerParams-class.r'
-    'MizerSim-class.r'
-    'selectivity_funcs.r'
-    'project.r'
-    'help.r'
+    'MizerParams-class.R'
+    'MizerSim-class.R'
+    'selectivity_funcs.R'
+    'project.R'
+    'help.R'
     'project_methods.R'
-    'summary_methods.r'
-    'plots.r'
+    'summary_methods.R'
+    'plots.R'
     'wrapper_functions.R'
     'NS_species_params-data.R'
 VignetteBuilder: knitr
