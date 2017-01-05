@@ -192,30 +192,39 @@ test_that("getM2 for MizerParams",{
     data(NS_species_params_gears)
     data(inter)
     params <- MizerParams(NS_species_params_gears, inter)
+    # Randomize selectivity and catchability for proper test
+    params@catchability[] <- runif(prod(dim(params@catchability)), min=0, max=1)
+    params@selectivity[] <- runif(prod(dim(params@selectivity)), min=0, max=1)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     n_full <- abs(rnorm(no_w_full))
-    m2 <- getM2(params,n,n_full)
-    # test dim
-    expect_that(dim(m2), equals(c(no_sp,no_w)))
-    # Look at numbers in prey 1
-    pr <- getPredRate(params,n,n_full)
+    # Two methods:
+    # Params + pred_rate
+    # Params + n + n_pp
+    pred_rate <- getPredRate(params,n,n_full)
+    m21 <- getM2(params,pred_rate=pred_rate)
+    m22 <- getM2(params,n,n_full)
+    # Test dims
+    expect_equal(dim(m21), c(no_sp,no_w))
+    expect_equal(dim(m21), c(no_sp,no_w))
+    expect_equal(m21, m22)
+    # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
-    m2_temp <- array(0,dim=c(no_sp,no_w_full))
+    pred_total <- 0
     # sum over predator sizes to give total predation rate of each predator on each prey size
-    for (i in 1:no_w)
-        m2_temp <- m2_temp + pr[,i,]
-    m22 <- rep(NA,no_w)
-    for (i in 1:no_w)
-        m22[i] <- sum(params@interaction[,1] * m2_temp[,w_offset+i])
-    expect_that(m22, is_equivalent_to(m2[1,]))
-    # Passing in pred_rate yields the same
-    m21 <- getM2(params,n,n_full)
-    pr <- getPredRate(params,n,n_full)
-    m22 <- getM2(params,n,n_full, pred_rate=pr)
-    expect_that(m21, is_identical_to(m22))
+    # Same as that horrible aperm + colsums
+    for (i in 1:no_w){
+        pred_total <- pred_total + pred_rate[,i,]
+    }
+    m2temp <- rep(NA,no_w)
+    sp <- runif(1, min=1, max=no_sp)
+    for (i in 1:no_w){
+        m2temp[i] <- sum(params@interaction[,sp] * pred_total[,w_offset+i])
+    }
+    expect_equal(m2temp, unname(m21[sp,]))
+    expect_equal(m2temp, unname(m21[sp,]))
 })
 
 test_that("getM2 for MizerSim",{

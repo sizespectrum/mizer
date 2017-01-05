@@ -272,9 +272,9 @@ setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
     standardGeneric('getM2'))
 
 #' @describeIn getM2
-setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
-                             n_pp='numeric', pred_rate = 'array'),
-    function(object, n, n_pp, pred_rate){
+setMethod('getM2', signature(object='MizerParams', n = 'missing', 
+                             n_pp='missing', pred_rate = 'array'),
+    function(object, pred_rate){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
             stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),") x no. size bins in community + background (",length(object@w_full),")")
         }
@@ -291,9 +291,9 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
 #' @describeIn getM2
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
-    function(object, n, n_pp, pred_rate){
+    function(object, n, n_pp){
 	    pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
-        m2 <- getM2(object,n=n,n_pp=n_pp, pred_rate=pred_rate)
+        m2 <- getM2(object, pred_rate=pred_rate)
 	    return(m2)
     }
 )

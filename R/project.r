@@ -205,7 +205,8 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             # Calculate the predation rate
             pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
             # Calculate predation mortality on fish \mu_{p,i}(w)
-            m2 <- getM2(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+            #m2 <- getM2(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
+            m2 <- getM2(sim@params, pred_rate=pred_rate)
             # Calculate total mortality \mu_i(w)
             z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort_dt[i_time,], m2=m2)
             # Calculate predation mortality on the background spectrum
