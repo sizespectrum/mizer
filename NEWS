@@ -1,3 +1,10 @@
+mizer 0.3
+-----------
+
+* Improvements made to the speed of the simulations. Remaining bottle necks are the sweep statements in getPhiPrey() and getPredRate().
+* Moved tests to new suggested folder.
+* Minor changes to documentation to pass new check requirements.
+
 mizer 0.2
 -----------
 
