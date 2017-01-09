@@ -351,39 +351,41 @@ setClass(
 #'   This means that the order of the columns and rows of the interaction matrix
 #'   argument should be the same as the species name in the
 #'   \code{species_params} slot.
-#' @param ... Additional arguments used to specify the dimensions and sizes of
-#'   the model. These include:
-#'   \itemize{
-#'     \item{\code{min_w} The smallest size of the community spectrum}
-#'     \item{\code{max_w} The largest size of the community spectrum. Default
-#'       value is the largest w_inf in the community x 1.1}
-#'     \item{\code{no_w} The number of size bins in the community spectrum}
-#'     \item{\code{min_w_pp} The smallest size of the background spectrum}
-#'     \item{\code{no_w_pp} The number of the extra size bins in the background
+#' @param min_w The smallest size of the community spectrum.
+#' @param max_w The largest size of the community spectrum.
+#'    Default value is the largest w_inf in the community x 1.1.
+#' @param no_w The number of size bins in the community spectrum.
+#' @param min_w_pp The smallest size of the background spectrum.
+#' @param no_w_pp The number of the extra size bins in the background
 #'       spectrum (i.e. the difference between the number of sizes bins in the
-#'       community spectrum and the full spectrum)}
-#'     \item{\code{n} Scaling of the intake. Default value is 2/3} 
-#'     \item{\code{p} Scaling of the standard metabolism. Default value is 0.7} 
-#'     \item{\code{q} Exponent of the search volume. Default value is 0.8} 
-#'     \item{\code{r_pp} Growth rate of the primary productivity. Default value is 10} 
-#'     \item{\code{kappa} Carrying capacity of the resource spectrum. Default
-#'       value is 1e11}
-#'     \item{\code{lambda} Exponent of the resource spectrum. Default value is
-#'       (2+q-n)}
-#'     \item{\code{w_pp_cutoff} The cut off size of the background spectrum.
-#'       Default value is 10}
-#'     \item{\code{f0} Average feeding level. Used to calculated \code{h} and
+#'       community spectrum and the full spectrum).
+#' @param n Scaling of the intake. Default value is 2/3.
+#' @param p Scaling of the standard metabolism. Default value is 0.7. 
+#' @param q Exponent of the search volume. Default value is 0.8. 
+#' @param r_pp Growth rate of the primary productivity. Default value is 10. 
+#' @param kappa Carrying capacity of the resource spectrum. Default
+#'       value is 1e11.
+#' @param lambda Exponent of the resource spectrum. Default value is
+#'       (2+q-n).
+#' @param w_pp_cutoff The cut off size of the background spectrum.
+#'       Default value is 10.
+#' @param f0 Average feeding level. Used to calculated \code{h} and
 #'       \code{gamma} if those are not columns in the species data frame. Also
 #'       requires \code{k_vb} (the von Bertalanffy K parameter) to be a column
 #'       in the species data frame. If \code{h} and \code{gamma} are supplied
-#'       then this argument is ignored. Default is 0.6.}
-#'     \item{\code{z0pre} If \code{z0}, the mortality from other sources, is not
+#'       then this argument is ignored. Default is 0.6..
+#' @param z0pre If \code{z0}, the mortality from other sources, is not
 #'       a column in the species data frame, it is calculated as 
-#'       z0pre * w_inf ^ z0exp. Default value is 0.6.}
-#'     \item{\code{z0exp} If \code{z0}, the mortality from other sources, is not
+#'       z0pre * w_inf ^ z0exp. Default value is 0.6.
+#' @param z0exp If \code{z0}, the mortality from other sources, is not
 #'       a column in the species data frame, it is calculated as 
-#'       z0pre * w_inf ^ z0exp. Default value is n-1.}
-#'   }
+#'       z0pre * w_inf ^ z0exp. Default value is n-1.
+#' @param species_names Names of the species. Generally not needed as normally
+#'   taken from the \code{object} data.frame.
+#' @param gear_names Names of the gears that catch each species. Generally not
+#'   needed as normally taken from the \code{object} data.frame. Default is
+#'   \code{species_names}.
+#' @param ... Additional arguments.
 #'
 #' @return An object of type \code{MizerParams}
 #' @note The only essential argument to the \code{MizerParams} constructor is a
@@ -416,7 +418,7 @@ setGeneric('MizerParams', function(object, interaction, ...)
 #' 
 #' Only really used to make MizerParams of the right size and shouldn't be used
 #' by user
-#' @describeIn MizerParams
+#' @rdname MizerParams
 setMethod('MizerParams', signature(object='numeric', interaction='missing'),
     function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = round(no_w)*0.3, species_names=1:object, gear_names=species_names){
 	#args <- list(...)
@@ -474,7 +476,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 )
 
 #' Constructor that takes the species_params data.frame and the interaction matrix
-#' @describeIn MizerParams
+#' @rdname MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     function(object, interaction,  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, 
              kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, 
@@ -635,7 +637,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 
 # If interaction is missing, make one of the right size and fill with 1s
 #' Constructor based on the species_params data.frame only with no interaction
-#' @describeIn MizerParams
+#' @rdname MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='missing'),
     function(object, ...){
 	interaction <- matrix(1,nrow=nrow(object), ncol=nrow(object))

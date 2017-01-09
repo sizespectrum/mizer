@@ -30,6 +30,7 @@
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
 #'   the \code{MizerParams} argument. By default the \code{cc_pp} slot of the
 #'   \code{\link{MizerParams}} argument is used.
+#' @param ... Currently unused.
 #' 
 #' @note The \code{effort} argument specifies the level of fishing effort during
 #' the simulation. It can be specified in three different ways: \itemize{ \item
@@ -84,14 +85,16 @@ setGeneric('project', function(object, effort, ...)
 # No effort is specified - default is to set an effort of 1
 # All other arguments passed as ...
 
-#' @describeIn project
+#' Project without an effort argument.
+#' @rdname project
 setMethod('project', signature(object='MizerParams', effort='missing'),
     function(object, ...){
 	res <- project(object, effort=0, ...)
 	return(res)
 })
 
-#' @describeIn project
+#' Project with a constant effort.
+#' @rdname project
 setMethod('project', signature(object='MizerParams', effort='numeric'),
     function(object, effort,  t_max = 100, dt = 0.1, ...){
     #if (!all.equal(t_max %% dt, 0))
@@ -118,7 +121,8 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 	return(res)
 })
 
-#' @describeIn project
+#' Project with time varying effort
+#' @rdname project
 setMethod('project', signature(object='MizerParams', effort='array'),
     function(object, effort, t_save=1, dt=0.1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
         validObject(object)

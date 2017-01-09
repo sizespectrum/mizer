@@ -13,6 +13,7 @@
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the background abundance by size
+#' @param ... Other arguments (currently unused)
 #'   
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
@@ -31,7 +32,7 @@
 setGeneric('getPhiPrey', function(object, n, n_pp,...)
     standardGeneric('getPhiPrey'))
 
-#' @describeIn getPhiPrey
+#' @rdname getPhiPrey
 setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
     function(object, n, n_pp, ...){
 #        cat("In getPhiPrey\n")
@@ -83,7 +84,8 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 #'   single value. Default is the whole time range. Only used if the 
 #'   \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped, 
-#'   simplifying the output. Defaults to TRUE
+#'   simplifying the output. Defaults to TRUE.
+#' @param ... Other arguments (currently unused).
 #'   
 #' @note If a \code{MizerParams} object is passed in, the method returns a two 
 #' dimensional array (predator species x predator size) based on the abundances 
@@ -113,7 +115,8 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 setGeneric('getFeedingLevel', function(object, n, n_pp, phi_prey, ...)
     standardGeneric('getFeedingLevel'))
 
-#' @describeIn getFeedingLevel
+#' getFeedingLevel method for a \code{MizerParams} object with already calculated \code{phi_prey} matrix.
+#' @rdname getFeedingLevel
 setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='matrix'),
     function(object, n, n_pp, phi_prey, ...){
     # Check dims of phi_prey
@@ -128,9 +131,9 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp=
     }
 )
 
-#' @describeIn getFeedingLevel
-setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric', phi_prey='missing'),
+#' getFeedingLevel method for a \code{MizerParams} object without the \code{phi_prey} matrix argument.
+#' @rdname getFeedingLevel
+setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', n_pp='numeric', phi_prey='missing'),
     function(object, n, n_pp, ...){
         phi_prey <- getPhiPrey(object, n=n, n_pp=n_pp)
         # encountered food = available food * search volume
@@ -142,7 +145,8 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getFeedingLevel
+#' getFeedingLevel method for a \code{MizerSim} object.
+#' @rdname getFeedingLevel
 setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', 
                                        n_pp='missing', phi_prey='missing'),
     function(object, time_range=dimnames(object@n)$time, drop=FALSE, ...){
@@ -160,7 +164,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 # Predation rate
 # Soundtrack: Nick Drake - Pink Moon
 
-#' getPredRate method for the size based model
+#' \code{getPredRate} method for the size based model
 #' 
 #' Calculates the predation rate of each predator species at size on prey size. 
 #' In formulas \deqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
@@ -195,7 +199,8 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
     standardGeneric('getPredRate'))
 
-#' @describeIn getPredRate
+#' \code{getPredRate} method with \code{feeding_level} argument.
+#' @rdname getPredRate
 # Called from project ->
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
@@ -210,7 +215,8 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getPredRate
+#' \code{getPredRate} method without \code{feeding_level} argument.
+#' @rdname getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp){
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
@@ -220,7 +226,6 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
         return(pred_rate)
     }
 )
-
 
 # getM2
 # This uses the predation rate which is also used in M2background
@@ -247,6 +252,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 #' @param drop Only used when object is of type \code{MizerSim}. Should
 #'   dimensions of length 1 in the output be dropped, simplifying the output.
 #'   Defaults to TRUE
+#' @param ... Other arguments (currently unused).
 #'
 #' @return
 #'   If a \code{MizerParams} object is passed in, the method returns a two
@@ -275,7 +281,8 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
 setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
     standardGeneric('getM2'))
 
-#' @describeIn getM2
+#' \code{getM2} method for \code{MizerParams} object with \code{pred_rate} argument.
+#' @rdname getM2
 setMethod('getM2', signature(object='MizerParams', n = 'missing', 
                              n_pp='missing', pred_rate = 'array'),
     function(object, pred_rate){
@@ -292,7 +299,8 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
     }
 )
 
-#' @describeIn getM2
+#' \code{getM2} method for \code{MizerParams} object without \code{pred_rate} argument.
+#' @rdname getM2
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp){
@@ -302,7 +310,8 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getM2
+#' \code{getM2} method for \code{MizerSim} object.
+#' @rdname getM2
 setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', pred_rate = 'missing'),
 	function(object, time_range=dimnames(object@n)$time, drop=TRUE, ...){
 		time_elements <- get_time_elements(object,time_range)
@@ -348,7 +357,8 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', p
 setGeneric('getM2Background', function(object, n, n_pp, pred_rate)
     standardGeneric('getM2Background'))
 
-#' @describeIn getM2Background
+#' \code{getM2Background} method with \code{pred_array} argument.
+#' @rdname getM2Background
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric', pred_rate='array'),
     function(object, n, n_pp, pred_rate){
@@ -360,7 +370,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getM2Background
+#' \code{getM2Background} method without \code{pred_array} argument.
+#' @rdname getM2Background
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, pred_rate){
@@ -384,6 +395,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
 #'   \code{object} argument is of type \code{MizerSim}.
+#' @param ... Other arguments (currently unused).
 #'   
 #' @return An array. If the effort argument has a time dimension, or a
 #'   \code{MizerSim} is passed in, the output array has four dimensions (time x
@@ -431,7 +443,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 setGeneric('getFMortGear', function(object, effort, ...)
     standardGeneric('getFMortGear'))
 
-#' @describeIn getFMortGear
+#' \code{getFMortGear} method for \code{MizerParams} object with constant effort.
+#' @rdname getFMortGear
 # Effort is a single value or a numeric vector.
 # Effort has no time time dimension
 setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
@@ -449,7 +462,8 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
     }
 )
 
-#' @describeIn getFMortGear
+#' \code{getFMortGear} method for \code{MizerParams} object with time changing effort.
+#' @rdname getFMortGear
 # Always returns a 4D array: time x gear x species x size
 setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
     function(object, effort, ...){
@@ -467,7 +481,8 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
 )
 
 # Returns the fishing mortality: time * gear * species * size
-#' @describeIn getFMortGear
+#' \code{getFMortGear} method for \code{MizerSim} object.
+#' @rdname getFMortGear
 setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
     function(object,effort, time_range=dimnames(object@effort)$time, ...){
         time_elements <- get_time_elements(object,time_range, slot_name="effort")
@@ -496,6 +511,7 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 #' @param drop Only used when object is of type \code{MizerSim}. Should
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
 #'   species it might make presentation of results easier. Default is TRUE
+#' @param ... Other arguments passed to \code{getFMortGear} method.
 #'
 #' @return An array. If the effort argument has a time dimension, or object is
 #'   of class \code{MizerSim}, the output array has three dimensions (time x
@@ -541,7 +557,8 @@ setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
 setGeneric('getFMort', function(object, effort, ...)
     standardGeneric('getFMort'))
 
-#' @describeIn getFMort
+#' \code{getFMort} method for \code{MizerParams} object with constant effort.
+#' @rdname getFMort
 # Called from project -> getZ -> 
 setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
     function(object, effort, ...){
@@ -550,7 +567,8 @@ setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
 	return(fMort)
 })
 
-#' @describeIn getFMort
+#' \code{getFMort} method for \code{MizerParams} object with time changing effort.
+#' @rdname getFMort
 setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
     function(object, effort, ...){
 	fMortGear <- getFMortGear(object, effort, ...)
@@ -558,7 +576,8 @@ setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
 	return(fMort)
 })
 
-#' @describeIn getFMort
+#' \code{getFMort} method for \code{MizerSim} object.
+#' @rdname getFMort
 setMethod('getFMort', signature(object='MizerSim', effort='missing'),
     function(object, effort, time_range=dimnames(object@effort)$time, drop=TRUE, ...){
     	time_elements <- get_time_elements(object,time_range, slot_name="effort")
@@ -600,7 +619,8 @@ setMethod('getFMort', signature(object='MizerSim', effort='missing'),
 setGeneric('getZ', function(object, n, n_pp, effort, m2)
     standardGeneric('getZ'))
 
-#' @describeIn getZ
+#' \code{getZ} method with \code{m2} argument.
+#' @rdname getZ
 # Called from project()
 setMethod('getZ', signature(object='MizerParams', n = 'matrix', 
                             n_pp = 'numeric', effort='numeric', m2 = 'matrix'),
@@ -614,7 +634,8 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getZ
+#' \code{getZ} method without \code{m2} argument.
+#' @rdname getZ
 setMethod('getZ', signature(object='MizerParams', n = 'matrix', 
                             n_pp = 'numeric', effort='numeric', m2 = 'missing'),
     function(object, n, n_pp, effort){
@@ -654,7 +675,8 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix',
 setGeneric('getEReproAndGrowth', function(object, n, n_pp, feeding_level)
     standardGeneric('getEReproAndGrowth'))
 
-#' @describeIn getEReproAndGrowth
+#' \code{getEReproAndGrowth} method with \code{feeding_level} argument.
+#' @rdname getEReproAndGrowth
 setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', 
                                           n_pp = 'numeric', feeding_level='matrix'),
     function(object, n, n_pp, feeding_level){
@@ -670,7 +692,8 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getEReproAndGrowth
+#' \code{getEReproAndGrowth} method without \code{feeding_level} argument.
+#' @rdname getEReproAndGrowth
 setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', 
                                           n_pp = 'numeric', feeding_level='missing'),
     function(object, n, n_pp){
@@ -711,7 +734,8 @@ setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix',
 setGeneric('getESpawning', function(object, n, n_pp, e)
     standardGeneric('getESpawning'))
 
-#' @describeIn getESpawning
+#' \code{getESpawning} method with \code{e} argument.
+#' @rdname getESpawning
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', 
                                     n_pp = 'numeric', e = 'matrix'),
     function(object, n, n_pp, e){
@@ -723,7 +747,8 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getESpawning
+#' \code{getESpawning} method without \code{e} argument.
+#' @rdname getESpawning
 setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', 
                                     n_pp = 'numeric', e = 'missing'),
     function(object, n, n_pp){
@@ -766,7 +791,8 @@ setMethod('getESpawning', signature(object='MizerParams', n = 'matrix',
 setGeneric('getEGrowth', function(object, n, n_pp, e_spawning, e)
     standardGeneric('getEGrowth'))
 
-#' @describeIn getEGrowth 
+#' \code{getEGrowth} method with \code{e_spawning} and \code{e} arguments.
+#' @rdname getEGrowth 
 setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', 
                                   n_pp = 'numeric', e_spawning='matrix', e='matrix'),
     function(object, n, n_pp, e_spawning, e){
@@ -783,7 +809,8 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getEGrowth
+#' \code{getEGrowth} method without \code{e_spawning} and \code{e} arguments.
+#' @rdname getEGrowth
 setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', 
                                   n_pp = 'numeric', e_spawning='missing', e='missing'),
     function(object, n, n_pp){
@@ -809,6 +836,7 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix',
 #'   using the \code{\link{getESpawning}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
+#' @param ... Other arguments (currently unused).
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
@@ -826,7 +854,8 @@ setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix',
 setGeneric('getRDI', function(object, n, n_pp, e_spawning, ...)
     standardGeneric('getRDI'))
 
-#' @describeIn getRDI
+#' \code{getRDI} method with \code{e_spawning} argument.
+#' @rdname getRDI
 setMethod('getRDI', signature(object='MizerParams', n = 'matrix', 
                               n_pp = 'numeric', e_spawning='matrix'),
     function(object, n, n_pp, e_spawning, sex_ratio = 0.5){
@@ -842,7 +871,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
     }
 )
 
-#' @describeIn getRDI
+#' \code{getRDI} method without \code{e_spawning} argument.
+#' @rdname getRDI
 setMethod('getRDI', signature(object='MizerParams', n = 'matrix', 
                               n_pp = 'numeric', e_spawning='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
@@ -870,6 +900,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
 #'   the \code{\link{getRDI}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5
+#' @param ... Other arguments (currently unused).
 #'   
 #' @return A numeric vector the length of the number of species. 
 #' @export
@@ -886,7 +917,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
 setGeneric('getRDD', function(object, n, n_pp, rdi, ...)
     standardGeneric('getRDD'))
 
-#' @describeIn getRDD
+#' \code{getRDD} method with \code{rdi} argument.
+#' @rdname getRDD
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', 
                               n_pp = 'numeric', rdi='matrix'),
     function(object, n, n_pp, rdi, sex_ratio = 0.5){
@@ -897,7 +929,8 @@ setMethod('getRDD', signature(object='MizerParams', n = 'matrix',
         return(rdd)
 })
 
-#' @describeIn getRDD
+#' \code{getRDD} method without \code{rdi} argument.
+#' @rdname getRDD
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', rdi='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
     	rdi <- getRDI(object, n=n, n_pp=n_pp, sex_ratio = sex_ratio)

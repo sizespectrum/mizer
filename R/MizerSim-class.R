@@ -156,6 +156,7 @@ remove(valid_MizerSim)
 #'   = NA. Default value = 100.
 #' @param t_save How often should the results of the simulation be stored. Only
 #'   used if t_dimnames = NA. Default value = 1.
+#' @param ... Other arguments (currently not used).
 #'   
 #' @return An object of type \linkS4class{MizerSim}
 #' @seealso \code{\link{project}} \linkS4class{MizerParams}
@@ -171,7 +172,8 @@ remove(valid_MizerSim)
 setGeneric('MizerSim', function(object, ...)
     standardGeneric('MizerSim'))
 
-#' @describeIn MizerSim
+#' MizerSim constructor taking only a \code{MizerParams} object.
+#' @rdname MizerSim
 setMethod('MizerSim', signature(object='MizerParams'),
     function(object, t_dimnames = NA, t_max = 100, t_save=1){
         # If the dimnames for the time dimension not passed in, calculate them

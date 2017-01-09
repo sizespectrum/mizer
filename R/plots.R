@@ -17,16 +17,14 @@
 #' etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param min_w Minimum weight of species to be used in the calculation.
-#' @param max_w Maximum weight of species to be used in the calculation.
-#' @param min_l Minimum length of species to be used in the calculation.
-#' @param max_l Maximum length of species to be used in the calculation.
 #' @param start_time The first time step to be plotted. Default is the beginning
 #'   of the time series.
 #' @param end_time The first time step to be plotted. Default is the end of the
 #'   time series.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
-#'   value is TRUE.
+#'   value is TRUE
+#' @param ... Other arguments to pass to \code{getBiomass} method, for example
+#'   \code{min_w} and \code{max_w}
 #'   
 #' @return A ggplot2 object
 #' @export
@@ -43,7 +41,8 @@
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
 
-#' @describeIn plotBiomass
+#' Plot the biomass using a \code{MizerSim} object.
+#' @rdname plotBiomass
 setMethod('plotBiomass', signature(object='MizerSim'),
     function(object, print_it=TRUE, start_time=as.numeric(dimnames(object@n)[[1]][1]), end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...){
         b <- getBiomass(object, ...)
@@ -79,6 +78,7 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments to pass to \code{getYield} method
 #'
 #' @return A ggplot2 object
 #' @export
@@ -94,7 +94,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 setGeneric('plotYield', function(object, ...)
     standardGeneric('plotYield'))
 
-#' @describeIn plotYield
+#' Plot the yield using a \code{MizerSim} object.
+#' @rdname plotYield
 setMethod('plotYield', signature(object='MizerSim'),
     function(object, print_it = TRUE, ...){
 	y <- getYield(object, ...)
@@ -120,6 +121,7 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' 
 #' @param object An object of class \code{MizerSim}
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments to pass to \code{getYieldGear} method
 #'
 #' @return A ggplot2 object
 #' @export
@@ -135,7 +137,8 @@ setMethod('plotYield', signature(object='MizerSim'),
 setGeneric('plotYieldGear', function(object, ...)
     standardGeneric('plotYieldGear'))
 
-#' @describeIn plotYieldGear
+#' Plot the yield of each gear using a \code{MizerSim} object.
+#' @rdname plotYieldGear
 setMethod('plotYieldGear', signature(object='MizerSim'),
     function(object, print_it=TRUE, ...){
 	y <- getYieldGear(object, ...)
@@ -169,6 +172,7 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted
 #'   or the abundance in numbers (FALSE). Default is TRUE.
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
 #' @export
@@ -186,7 +190,8 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 setGeneric('plotSpectra', function(object, ...)
     standardGeneric('plotSpectra'))
 
-#' @describeIn plotSpectra
+#' Plot the abundance spectra using a \code{MizerSim} object.
+#' @rdname plotSpectra
 setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), min_w =min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...){
         time_elements <- get_time_elements(object,time_range)
@@ -225,6 +230,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments to pass to \code{getFeedingLevel} method
 #'
 #' @return A ggplot2 object
 #' @export
@@ -241,7 +247,8 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 setGeneric('plotFeedingLevel', function(object, ...)
     standardGeneric('plotFeedingLevel'))
 
-#' @describeIn plotFeedingLevel
+#' PLot the feeding level using a \code{MizerSim} object.
+#' @rdname plotFeedingLevel
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
         feed_time <- getFeedingLevel(object=object, time_range=time_range, drop=FALSE, ...)
@@ -268,6 +275,7 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments to pass to \code{getM2} method.
 #'
 #' @return A ggplot2 object
 #' @export
@@ -285,7 +293,8 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 setGeneric('plotM2', function(object, ...)
     standardGeneric('plotM2'))
 
-#' @describeIn plotM2
+#' Plot M2 using a \code{MizerSim} object.
+#' @rdname plotM2
 setMethod('plotM2', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	m2_time <- getM2(object, time_range=time_range, drop=FALSE, ...)
@@ -313,6 +322,7 @@ setMethod('plotM2', signature(object='MizerSim'),
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object
+#' @param ... Other arguments to pass to \code{getFMort} method
 #'
 #' @return A ggplot2 object
 #' @export
@@ -329,7 +339,8 @@ setMethod('plotM2', signature(object='MizerSim'),
 setGeneric('plotFMort', function(object, ...)
     standardGeneric('plotFMort'))
 
-#' @describeIn plotFMort
+#' Plot total fishing mortality using a \code{MizerSim} object.
+#' @rdname plotFMort
 setMethod('plotFMort', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
 	f_time <- getFMort(object, time_range=time_range, drop=FALSE, ...)
@@ -353,13 +364,15 @@ setMethod('plotFMort', signature(object='MizerSim'),
 #' species by size; and biomass of each species through time. This method just
 #' uses the other plotting methods and puts them all in one window.
 #' 
-#' @param object An object of class \code{MizerSim}
+#' @param x An object of class \code{MizerSim}
+#' @param y Not used
 #' @param ...  For additional arguments see the documentation for
 #'   \code{\link{plotBiomass}},
 #'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
 #'   and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
+#' @rdname plotMizerSim
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)

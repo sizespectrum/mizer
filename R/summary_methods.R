@@ -28,7 +28,8 @@
 setGeneric('getSSB', function(object)
     standardGeneric('getSSB'))
 
-#' @describeIn getSSB
+#' Calculate the SSB from a \code{MizerSim} object
+#' @rdname getSSB
 setMethod('getSSB', signature(object='MizerSim'),
     function(object){
 	ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
@@ -63,7 +64,8 @@ setMethod('getSSB', signature(object='MizerSim'),
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 
-#' @describeIn getBiomass
+#' Calculate the total biomass of each species from a \code{MizerSim} object
+#' @rdname getBiomass
 setMethod('getBiomass', signature(object='MizerSim'),
     function(object, ...){
         size_range <- get_size_range_array(object@params,...)
@@ -99,7 +101,8 @@ setMethod('getBiomass', signature(object='MizerSim'),
 setGeneric('getN', function(object, ...)
     standardGeneric('getN'))
 
-#' @describeIn getN
+#' Calculate the total abundance from a \code{MizerSim} object
+#' @rdname getN
 setMethod('getN', signature(object='MizerSim'),
     function(object, ...){
 	    size_range <- get_size_range_array(object@params,...)
@@ -131,7 +134,8 @@ setMethod('getN', signature(object='MizerSim'),
 setGeneric('getYieldGear', function(object)
     standardGeneric('getYieldGear'))
 
-#' @describeIn getYieldGear
+#' Calculate the total yield per gear from a \code{MizerSim} object
+#' @rdname getYieldGear
 setMethod('getYieldGear', signature(object='MizerSim'),
     function(object){
         # biomass less the first time step
@@ -163,7 +167,8 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 setGeneric('getYield', function(object)
     standardGeneric('getYield'))
 
-#' @describeIn getYield
+#' Calculate the total yield of each species from a \code{MizerSim} object
+#' @rdname getYield
 setMethod('getYield', signature(object='MizerSim'),
     function(object){
     	# biomass less the first time step
@@ -203,6 +208,8 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
 #' Summarize MizerParams object 
 #'
 #' Outputs a general summary of the structure and content of the object
+#' @param object A \code{MizerParams} object.
+#' @param ... Other arguments (currently not used).
 #'
 #' @export
 #' @examples
@@ -244,6 +251,8 @@ setMethod("summary", signature(object="MizerParams"),
 #' Summarize MizerSim object 
 #'
 #' Outputs a general summary of the structure and content of the object
+#' @param object A \code{MizerSim} object.
+#' @param ... Other arguments (currently not used).
 #'
 #' @examples
 #' \dontrun{
@@ -307,7 +316,8 @@ setMethod("summary", signature(object="MizerSim"),
 setGeneric('getProportionOfLargeFish', function(object, ...)
     standardGeneric('getProportionOfLargeFish'))
 
-#' @describeIn getProportionOfLargeFish
+#' Calculate the proportion of large fish from a \code{MizerSim} object.
+#' @rdname getProportionOfLargeFish
 setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
 	check_species(object,species)
@@ -336,11 +346,8 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #' You can also specify the species to be used in the calculation.
 #'
 #' @param object An object of class \code{MizerSim}
-#' @param min_w minimum weight of species to be used in the calculation
-#' @param max_w maximum weight of species to be used in the calculation
-#' @param min_l minimum length of species to be used in the calculation
-#' @param max_l maximum length of species to be used in the calculation
 #' @param species numeric or character vector of species to include in the calculation
+#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods suchs as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
@@ -357,7 +364,8 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 setGeneric('getMeanWeight', function(object, ...)
     standardGeneric('getMeanWeight'))
 
-#' @describeIn getMeanWeight
+#' Calculate the mean weight of the community from a \code{MizerSim} object.
+#' @rdname getMeanWeight
 setMethod('getMeanWeight', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params),...){
 	check_species(object,species)
@@ -379,12 +387,9 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' You can also specify the species to be used in the calculation.
 #'
 #' @param object An object of class \code{MizerSim}.
-#' @param min_w minimum weight of species to be used in the calculation.
-#' @param max_w maximum weight of species to be used in the calculation.
-#' @param min_l minimum length of species to be used in the calculation.
-#' @param max_l maximum length of species to be used in the calculation.
 #' @param species numeric or character vector of species to include in the calculation.
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
+#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods suchs as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
 #'
 #' @return A matrix or vector containing the mean maximum weight of the community through time
 #' @export
@@ -401,7 +406,8 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 setGeneric('getMeanMaxWeight', function(object, ...)
     standardGeneric('getMeanMaxWeight'))
 
-#' @describeIn getMeanMaxWeight
+#' Calculate the mean maximum weight of the community from a \code{MizerSim} object.
+#' @rdname getMeanMaxWeight
 setMethod('getMeanMaxWeight', signature(object='MizerSim'),
     function(object, species = 1:nrow(object@params@species_params), measure = "both",...){
 	if (!(measure %in% c("both","numbers","biomass")))
@@ -459,7 +465,8 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 setGeneric('getCommunitySlope', function(object, ...)
     standardGeneric('getCommunitySlope'))
 
-#' @describeIn getCommunitySlope
+#' Calculate the slope of the community abundance from a \code{MizerSim} object.
+#' @rdname getCommunitySlope
 setMethod('getCommunitySlope', signature(object = 'MizerSim'),
     function(object, species = 1:nrow(object@params@species_params),
              biomass = TRUE, ...) {
