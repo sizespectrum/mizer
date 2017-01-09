@@ -4,6 +4,8 @@
 # Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
 
+# Hackiness to get past the 'no visible binding ... ' warning when running check
+ utils::globalVariables(c("lm"))
 
 # Validity check
 valid_MizerSim <- function(object){

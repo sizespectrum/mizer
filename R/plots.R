@@ -4,6 +4,9 @@
 # Distributed under the GPL 2 or later
 # Maintainer: Finlay Scott, CEFAS
 
+# Hackiness to get past the 'no visible binding ... ' warning when running check
+ utils::globalVariables(c("time", "value", "Species", "w", "gear"))
+
 # Biomass through time
 # Pretty easy - user could do it themselves by hand for fine tuning if necessary
  
