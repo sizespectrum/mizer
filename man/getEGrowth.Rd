@@ -4,12 +4,16 @@
 \name{getEGrowth}
 \alias{getEGrowth}
 \alias{getEGrowth,MizerParams,matrix,numeric,matrix,matrix-method}
+\alias{getEGrowth,MizerParams,matrix,numeric,missing,missing-method}
 \title{getEGrowth method for the size based model}
 \usage{
 getEGrowth(object, n, n_pp, e_spawning, e)
 
 \S4method{getEGrowth}{MizerParams,matrix,numeric,matrix,matrix}(object, n, n_pp,
   e_spawning, e)
+
+\S4method{getEGrowth}{MizerParams,matrix,numeric,missing,missing}(object, n,
+  n_pp)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object.}
@@ -35,11 +39,11 @@ A two dimensional array (prey species x prey size)
 Calculates the energy \eqn{g_i(w)} available by species and size for growth
 after metabolism, movement and reproduction have been accounted for. Used by
 the \code{\link{project}} method for performing simulations.
+
+\code{getEGrowth} method with \code{e_spawning} and \code{e} arguments.
+
+\code{getEGrowth} method without \code{e_spawning} and \code{e} arguments.
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{object = MizerParams,n = matrix,n_pp = numeric,e_spawning = matrix,e = matrix}: 
-}}
 \examples{
 \dontrun{
 data(NS_species_params_gears)
