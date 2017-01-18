@@ -211,7 +211,7 @@ The second central assumption is that the preference of food is determined by in
 
 \begin{equation}
   \label{eq:4}
-  \phi(w_p/w) = \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right],
+  \phi_i(w_p/w) = \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right],
 \end{equation}
 where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the width of the weight selection function.
 
@@ -226,7 +226,7 @@ The available food (mass per volume) for a predator of weight $w$ is determined 
 
 \begin{equation}
   \label{eq:1}
-  E_{a.i}(w) = \int \left( N_R(w) + \sum_{j} \theta_{ij} N_j(w) \right) \phi(w_p/w) w_p \, dw_p.
+  E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) \phi_i(w_p/w) w_p \, dw_p.
 \end{equation}
 
 where $\theta_{ij}$ is the preference of species $i$ for species $j$. The food actually encountered $E_{e.i}$ (mass per time) depends on the search rate (volume per time) which is assumed to scale with individual weight as $\gamma_i w^q$:
@@ -259,7 +259,7 @@ where $w_{m.i}$ is the weight at maturation and $W_i$ is the asymptotic (maximum
 
 \begin{equation}
   \label{eq:growth}
-  g_i(w) = (\alpha f_i(w) h_i w^n - k_{s.i} w^p)(1-\psi(w)).
+  g_i(w) = (\alpha f_i(w) h_i w^n - k_{s.i} w^p)(1-\psi_i(w)).
 \end{equation}
 
 \begin{figure}[t]
