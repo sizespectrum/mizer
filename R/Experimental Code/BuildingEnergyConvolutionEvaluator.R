@@ -1,14 +1,28 @@
-
-
-
-
 #####################
-
-install.packages("mizer")
-
-library(mizer)
+# Source the mizer code without loading it as a package
+source('./R/MizerParams-class.r')
+source('./R/MizerSim-class.r')
+source('./R/project_methods.r')
+source('./R/selectivity_funcs.r')
+source('./R/summary_methods.r')
+source('./R/wrapper_functions.R')
+source('./R/plots.r')
+source('./R/project.r')
+library(ggplot2)
+library(grid)
+library(methods)
+library(plyr)
+library(reshape2)
 
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+object <- params 
+sim <- project(params, t_max=1)
+
+# extract n_pp and n from sim object 
+n_pp <- sim@n_pp[1, ]
+n <- sim@n[2, , ]
+# we need to get species index back even though there is only one species
+dim(n) <- c(1, length(n))
 
 params@interaction
 
@@ -18,11 +32,11 @@ params@pred_kernel
 
 #####################
 
-#object@pred_kernel[i,w,wp]=Phi_i(wp/w)
+# This is the value you want to reproduce with fft method:
+phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
 
-# perhaps we can use the above information directly, anyway we can use
 
-wFull <- object@w_full 
+wFull <- params@w_full 
 
 w0 <- eggsize
 
