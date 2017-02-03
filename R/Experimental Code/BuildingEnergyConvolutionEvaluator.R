@@ -10,6 +10,12 @@ library(mizer)
 
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
 
+params@interaction
+
+summary(params)
+
+params@pred_kernel
+
 #####################
 
 #object@pred_kernel[i,w,wp]=Phi_i(wp/w)
