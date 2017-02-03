@@ -1,0 +1,45 @@
+source('./R/MizerParams-class.r')
+source('./R/MizerSim-class.r')
+source('./R/project_methods.r')
+source('./R/selectivity_funcs.r')
+source('./R/summary_methods.r')
+source('./R/wrapper_functions.R')
+source('./R/plots.r')
+source('./R/project.r')
+library(ggplot2)
+library(grid)
+library(methods)
+library(plyr)
+library(reshape2)
+
+params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+object <- params 
+sim <- project(params, t_max=1)
+
+# extract n_pp and n from sim object 
+n_pp <- sim@n_pp[1, ]
+n <- sim@n[1, , ]
+
+# sim@n[time,species, weight ]
+# we need to get species index back even though there is only one species
+dim(n) <- c(1, length(n))
+
+params@interaction
+
+summary(params)
+
+params@pred_kernel
+
+w0 <- object@w[1]
+
+Beta <- log(object@species_params$beta)
+sigma <- object@species_params$sigma
+wFull <- params@w_full 
+xFull <- log(wFull/w0)
+s <- exp(-(xFull -Beta)^2/(2*sigma^2))
+dx <- xFull[2]-xFull[1]
+f <- n_pp*xFull*xFull
+
+energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
+
+plot(xFull,energy)

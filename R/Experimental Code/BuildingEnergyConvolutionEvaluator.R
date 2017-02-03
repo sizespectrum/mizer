@@ -20,7 +20,9 @@ sim <- project(params, t_max=1)
 
 # extract n_pp and n from sim object 
 n_pp <- sim@n_pp[1, ]
-n <- sim@n[2, , ]
+n <- sim@n[1, , ]
+
+# sim@n[time,species, weight ]
 # we need to get species index back even though there is only one species
 dim(n) <- c(1, length(n))
 
@@ -35,8 +37,16 @@ params@pred_kernel
 # This is the value you want to reproduce with fft method:
 phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
 
+object@species_params$beta
+object@species_params$sigma
+object@w[1]
+log(object@dw[1])
+
+log(object@w[2])-log(object@w[1])
+
 
 wFull <- params@w_full 
+
 
 w0 <- eggsize
 
