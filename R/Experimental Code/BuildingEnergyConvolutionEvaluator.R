@@ -15,6 +15,7 @@ library(plyr)
 library(reshape2)
 
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+object <- params 
 sim <- project(params, t_max=1)
 
 # extract n_pp and n from sim object 
