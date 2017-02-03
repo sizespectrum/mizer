@@ -38,8 +38,18 @@ wFull <- params@w_full
 xFull <- log(wFull/w0)
 s <- exp(-(xFull -Beta)^2/(2*sigma^2))
 dx <- xFull[2]-xFull[1]
-f <- n_pp*xFull*xFull
+f <- n_pp*wFull*wFull
 
 energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
 
 plot(xFull,energy)
+
+
+########### compare #########
+
+mizerResult <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
+dim(mizerResult)
+
+length(object@w_full)
+
+plot(log(object@w), mizerResult)
