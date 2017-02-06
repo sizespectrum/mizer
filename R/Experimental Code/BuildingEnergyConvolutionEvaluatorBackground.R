@@ -36,7 +36,8 @@ Beta <- log(object@species_params$beta)
 sigma <- object@species_params$sigma
 wFull <- params@w_full 
 xFull <- log(wFull/w0)
-s <- exp(-(xFull -Beta)^2/(2*sigma^2))
+ s <- exp(-(xFull - Beta)^2/(2*sigma^2))/(sqrt(2*pi)*sigma)
+#s <- exp(-(xFull +Beta)^2/(2*sigma^2))
 dx <- xFull[2]-xFull[1]
 f <- n_pp*wFull*wFull
 
@@ -44,6 +45,7 @@ energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
 
 plot(xFull,energy)
 
+#now result is about 5 times too big
 
 ########### compare #########
 
@@ -52,4 +54,25 @@ dim(mizerResult)
 
 length(object@w_full)
 
-plot(log(object@w), mizerResult)
+plot(log(object@w/w0), mizerResult)
+
+dim(object@pred_kernel)
+
+###################
+
+#plot(xFull[82:130],energy[82:130])
+
+plot((1:length(mizerResult)),mizerResult)
+lines(energy[60:130])
+
+lines(mizerResult)
+
+
+mizerResult[1]
+
+which(energy>31824)
+
+plot(xFull,s)
+Beta
+
+# does this match pred_kernel ?

@@ -437,12 +437,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
 	if(w[1] <= dw[1])
 	    stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
-	
-	# For fft methods we need a constant log step size throughout. 
-	# Therefore we ignore the no_w_pp argument and instead use as many steps as are necessary
-	# to almost reach min_w_pp. 
-	x_pp <- rev(seq(from=log10(min_w), log10(min_w_pp), by=log10(min_w/max_w)/(no_w-1))[-1])
-	w_full <- c(10^x_pp, w)
+	w_full <- c(10^seq(from=log10(min_w_pp), to =  log10(w[1]-dw[1]),length.out=no_w_pp),w)
 	no_w_full <- length(w_full)
 	dw_full <- diff(w_full)
 	dw_full[no_w_full] <- dw_full[no_w_full-1]
