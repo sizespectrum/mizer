@@ -42,5 +42,10 @@ energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
 idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 plot(log(object@w),energy[idx_sp])
 lines(log(object@w), mizerResult)
+# richard's code
+params@interaction
 
+summary(params)
+
+params@pred_kernel
 
