@@ -25,8 +25,24 @@ n <- sim@n[1, , ]
 dim(n) <- c(1, length(n))
 
 mizerResult <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
+#presumably the above over estimates, because it is based on a left-Riemman sum. The following uses right-Riemman sum, provided 
+# that the last entry integrated via rowSums in `mizerResult` is negligable
 
+
+Presweep <- array(dim=c(1,dim(object@pred_kernel)[2],(dim(object@pred_kernel)[3]-1)))
+Presweep[1,,] <- object@pred_kernel[,,-1]
+mizerUnderEstimate2 <- rowSums(sweep(Presweep,3,(object@dw_full[-(length(object@dw_full))])*(object@w_full[-1])*(n_pp[-1]),"*", check.margin=FALSE),dims=2)
+
+
+
+
+
+######################
 w0 <- object@w[1]
+
+length(B)
+
+dim(AA)
 
 Beta <- log(object@species_params$beta)
 sigma <- object@species_params$sigma
@@ -42,6 +58,8 @@ energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
 idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 plot(log(object@w),energy[idx_sp])
 lines(log(object@w), mizerResult)
+lines(log(object@w), mizerUnderEstimate2)
+
 # richard's code
 params@interaction
 
