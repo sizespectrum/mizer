@@ -21,8 +21,29 @@ object <- sim@params
 nt <- dim(sim@n_pp)[1]  # index of last time step
 n_pp <- sim@n_pp[nt, ]
 n <- sim@n[nt, , ]
+# we need to get species index back even though there is only one species
+dim(n) <- c(1, length(n))
 
-#(1-feeding_level)*object@search_vol*n_total_in_size_bins
+Beta <- log(object@species_params$beta)
+sigma <- object@species_params$sigma
+w <- params@w
+x <- log(w)
+x <- x - x[1]
+dx <- x[2]-x[1]
+
+Delta <- dx*round(min(2*sigma, Beta)/dx)
+Beta <- dx*round(Beta/dx)
+min_cannibal <- ceiling((Beta-Delta)/dx)
+P <- x[length(x)] + 2*Delta
+no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
+x_P <- (1:no_P)*dx+
+
+feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+
+f <- (1-feeding_level)*object@search_vol*n
+f <- c(f[min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
+
+phi <- exp(-(x + Beta - P)^2/(2*sigma^2))
 
 #     from line 213 of project_methods.R
 #   pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
