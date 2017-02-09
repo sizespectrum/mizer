@@ -40,8 +40,9 @@ Beta <- log(object@species_params$beta)
 sigma <- object@species_params$sigma
 wFull <- object@w_full
 xFull <- log(wFull)
+xFull <- xFull - xFull[1]
 dx <- xFull[2]-xFull[1]
-s <- exp(-(xFull - xFull[1] - Beta)^2/(2*sigma^2))
+s <- exp(-(xFull - Beta)^2/(2*sigma^2))
 
 f <- wFull*wFull*n_pp
 
