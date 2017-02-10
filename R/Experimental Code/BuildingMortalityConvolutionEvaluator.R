@@ -24,6 +24,14 @@ n <- sim@n[nt, , ]
 # we need to get species index back even though there is only one species
 dim(n) <- c(1, length(n))
 
+# Do the mizer calculation of m2
+# from lines 211 and 213 of project_methods.R
+n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
+pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
+# from lines 293 and 297 of project_methods.R
+idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
+
 Beta <- log(object@species_params$beta)
 sigma <- object@species_params$sigma
 w <- params@w
@@ -38,7 +46,6 @@ P <- x[length(x)] + 2*Delta
 no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
 x_P <- (1:no_P)*dx#+Beta-Delta-dx
 
-
 feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
 
 f <- (1-feeding_level)*object@search_vol*n*w
@@ -46,22 +53,11 @@ f <- c(f[min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
 
 phi <- exp(-(x_P + Beta - P)^2/(2*sigma^2))
 
-plot(phi)
-
 mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
 
-plot(mortalityIntegral)
-lines(m2)
+mu <- c(mortalityIntegral[(no_P-min_cannibal):no_P], mortalityIntegral[1:(length(x)-min_cannibal-1)])
 
-# from lines 211 and 213 of project_methods.R
-n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
+plot(mu)
+lines(m2[1,])
 
-# from lines 293 and 297 of project_methods.R
-idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
 
-plot(1:length(m2), m2)
-############## more about getm2 is on lines 286-300, are there are help comments above
-
-f <- rep(1, no_P)
