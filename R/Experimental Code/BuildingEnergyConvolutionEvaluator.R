@@ -14,6 +14,10 @@ library(reshape2)
 
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7,
                               sigma = 2, no_w=100)
+
+#params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+
+
 sim <- project(params)
 object <- sim@params 
 
@@ -59,9 +63,26 @@ lines(log(object@w), mizerUnderEstimate2)
 
 fishEaten <- rep(0, length.out = length(wFull))
 fishEaten[idx_sp] <- (object@interaction %*% n)[1, ]
-f2 <- wFull*wFull*(n_pp + fishEaten)
-fullEnergy <- dx*Re(fft(fft(s)*fft(f2), inverse=TRUE)/length(s))
-plot(log(object@w),fullEnergy[idx_sp])
+
+
+
+#fishEatenMat <- matrix(0, nrow = dim(n)[1], ncol=dim(n)[2])
+fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
+
+for(i in 1:dim(n)[1]){
+#  fishEatenMat[i,idx_sp] <- (object@interaction %*% n)[i, ]
+  fishEaten <- rep(0, length.out = length(wFull))
+  fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
+  f2 <- wFull*wFull*(n_pp + fishEaten)
+  fullEnergy <- dx*Re(fft(fft(s)*fft(f2), inverse=TRUE)/length(s))
+  fullEnergyMat[i,] <- fullEnergy[idx_sp]
+  }
+
+#f2 <- wFull*wFull*(n_pp + fishEaten)
+#fullEnergy <- dx*Re(fft(fft(s)*fft(f2), inverse=TRUE)/length(s))
+#plot(log(object@w),fullEnergy[idx_sp])
+plot(log(object@w),fullEnergyMat[1,])
+
 
 ################################## compare with mizer result
 
