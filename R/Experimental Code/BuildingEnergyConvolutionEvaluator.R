@@ -50,9 +50,21 @@ wFull <- object@w_full
 xFull <- log(wFull)
 xFull <- xFull - xFull[1]
 dx <- xFull[2]-xFull[1]
+
+
 s <- exp(-(xFull - Beta)^2/(2*sigma^2))
 
+smat <- matrix(0, nrow = dim(n)[1], ncol=length(xFull))
+for(i in 1:dim(n)[1]){
+  smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+}
+
+tail(s)
+tail(smat[1,])
+
+
 f <- wFull*wFull*n_pp
+
 
 #background energy via fft
 energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
@@ -78,7 +90,7 @@ for(i in 1:dim(n)[1]){
   fishEaten <- rep(0, length.out = length(wFull))
   fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
   f2 <- wFull*wFull*(n_pp + fishEaten)
-  fullEnergy <- dx*Re(fft(fft(s)*fft(f2), inverse=TRUE)/length(s))
+  fullEnergy <- dx*Re(fft(fft(smat[i,])*fft(f2), inverse=TRUE)/length(smat[i,]))
   fullEnergyMat[i,] <- fullEnergy[idx_sp]
   }
 
