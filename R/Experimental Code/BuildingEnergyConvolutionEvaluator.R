@@ -12,11 +12,13 @@ library(methods)
 library(plyr)
 library(reshape2)
 
-params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7,
-                              sigma = 2, no_w=100)
+#params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7,
+#                              sigma = 2, no_w=100)
 
-#params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+params <- set_trait_model(no_sp = 2, min_w_inf = 10, max_w_inf = 1e5)
 
+
+#params@species_params$beta
 
 sim <- project(params)
 object <- sim@params 
@@ -27,7 +29,7 @@ n_pp <- sim@n_pp[nt, ]
 n <- sim@n[nt, , ]
 # sim@n[time,species, weight ]
 # we need to get species index back even though there is only one species
-dim(n) <- c(1, length(n))
+dim(n) <- c(dim(object@interaction)[1], length(n))
 
 mizerResult <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
 #presumably the above over estimates, because it is based on a left-Riemman sum. The following uses right-Riemman sum, provided 
@@ -83,13 +85,27 @@ for(i in 1:dim(n)[1]){
 #plot(log(object@w),fullEnergy[idx_sp])
 plot(log(object@w),fullEnergyMat[1,])
 
+plot(log(object@w),fullEnergyMat[2,])
 
+dim(object@interaction)
+
+dim(n)
 ################################## compare with mizer result
 
 n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
 idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 mizerResultFish <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)[1,]
 
+length(log(object@w))
+
 lines(log(object@w),mizerResultFish+mizerResult)
 
 
+gPP <- getPhiPrey(object, n, n_pp)
+dim(gPP)
+
+plot(gPP[1,])
+lines(fullEnergyMat[1,])
+
+plot(gPP[2,])
+lines(fullEnergyMat[2,])
