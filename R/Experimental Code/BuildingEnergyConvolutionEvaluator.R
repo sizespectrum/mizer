@@ -118,8 +118,10 @@ lines(log(object@w),mizerResultFish+mizerResult)
 gPP <- getPhiPrey(object, n, n_pp)
 dim(gPP)
 
-plot(gPP[1,])
-lines(fullEnergyMat[1,])
+plot(xFull[idx_sp],gPP[1,])
+lines(xFull[idx_sp],fullEnergyMat[1,])
+
+Beta
 
 plot(gPP[2,])
 lines(fullEnergyMat[2,])
