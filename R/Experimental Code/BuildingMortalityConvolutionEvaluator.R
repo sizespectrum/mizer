@@ -51,7 +51,9 @@ feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
 f <- (1-feeding_level)*object@search_vol*n*w
 f <- c(f[min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
 
-phi <- exp(-(x_P + Beta - P)^2/(2*sigma^2))
+phi <- rep(0, length(x_P))
+
+phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
 
 mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
 
