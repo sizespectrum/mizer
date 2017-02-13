@@ -17,6 +17,8 @@ library(reshape2)
 
 params <- set_trait_model(no_sp = 2, min_w_inf = 10, max_w_inf = 1e5)
 
+params@species_params$beta
+
 
 #params@species_params$beta
 
@@ -29,15 +31,15 @@ n_pp <- sim@n_pp[nt, ]
 n <- sim@n[nt, , ]
 # sim@n[time,species, weight ]
 # we need to get species index back even though there is only one species
-dim(n) <- c(dim(object@interaction)[1], length(n))
+dim(n) <- c(dim(object@interaction)[1], dim(sim@n)[3])
 
 mizerResult <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
 #presumably the above over estimates, because it is based on a left-Riemman sum. The following uses right-Riemman sum, provided 
 # that the last entry integrated via rowSums in `mizerResult` is negligable
 
-Presweep <- array(dim=c(1,dim(object@pred_kernel)[2],(dim(object@pred_kernel)[3]-1)))
-Presweep[1,,] <- object@pred_kernel[,,-1]
-mizerUnderEstimate2 <- rowSums(sweep(Presweep,3,(object@dw_full[-(length(object@dw_full))])*(object@w_full[-1])*(n_pp[-1]),"*", check.margin=FALSE),dims=2)
+#Presweep <- array(dim=c(1,dim(object@pred_kernel)[2],(dim(object@pred_kernel)[3]-1)))
+#Presweep[1,,] <- object@pred_kernel[,,-1]
+#mizerUnderEstimate2 <- rowSums(sweep(Presweep,3,(object@dw_full[-(length(object@dw_full))])*(object@w_full[-1])*(n_pp[-1]),"*", check.margin=FALSE),dims=2)
 
 ######################
 w0 <- object@w[1]
