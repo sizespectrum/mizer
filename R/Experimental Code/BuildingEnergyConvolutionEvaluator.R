@@ -15,14 +15,15 @@ library(reshape2)
 #params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7,
 #                              sigma = 2, no_w=100)
 
-params <- set_trait_model(no_sp = 2, min_w_inf = 10, max_w_inf = 1e5)
+#params <- set_trait_model(no_sp = 2, min_w_inf = 10, max_w_inf = 1e5)
+#sim <- project(params)
 
-params@species_params$beta
-
-
-#params@species_params$beta
-
-sim <- project(params)
+params_data <- read.csv("./vignettes/NS_species_params.csv")
+inter <- read.csv("./vignettes/inter.csv", row.names=1)
+inter <- as(inter, "matrix")
+params <- MizerParams(params_data, interaction = inter)
+sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
+plot(sim)
 object <- sim@params 
 
 # extract n_pp and n from sim object 
@@ -51,6 +52,7 @@ xFull <- log(wFull)
 xFull <- xFull - xFull[1]
 dx <- xFull[2]-xFull[1]
 
+idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 
 s <- exp(-(xFull - Beta)^2/(2*sigma^2))
 
@@ -59,69 +61,36 @@ for(i in 1:dim(n)[1]){
   smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
 }
 
-tail(s)
-tail(smat[1,])
-
-
 f <- wFull*wFull*n_pp
-
 
 #background energy via fft
 energy <- dx*Re(fft(fft(s)*fft(f), inverse=TRUE)/length(s))
-idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 
 #compare
-plot(log(object@w),energy[idx_sp])
-lines(log(object@w), mizerResult)
-lines(log(object@w), mizerUnderEstimate2)
+#plot(log(object@w),energy[idx_sp])
+#lines(log(object@w), mizerResult)
+#lines(log(object@w), mizerUnderEstimate2)
 
 ######### adding energy from eating fish ###
 
-fishEaten <- rep(0, length.out = length(wFull))
-fishEaten[idx_sp] <- (object@interaction %*% n)[1, ]
-
-
-
-#fishEatenMat <- matrix(0, nrow = dim(n)[1], ncol=dim(n)[2])
 fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
 
-for(i in 1:dim(n)[1]){
-#  fishEatenMat[i,idx_sp] <- (object@interaction %*% n)[i, ]
-  fishEaten <- rep(0, length.out = length(wFull))
-  fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
-  f2 <- wFull*wFull*(n_pp + fishEaten)
-  fullEnergy <- dx*Re(fft(fft(smat[i,])*fft(f2), inverse=TRUE)/length(smat[i,]))
-  fullEnergyMat[i,] <- fullEnergy[idx_sp]
-  }
+for(i in 1:(dim(n)[1])) {
+    fishEaten <- rep(0, length.out = length(wFull))
+    fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
+    f2 <- wFull*wFull*(n_pp + fishEaten)
+    fullEnergy <- dx*Re(fft(fft(smat[i,])*fft(f2), inverse=TRUE)/length(smat[i,]))
+    fullEnergyMat[i,] <- fullEnergy[idx_sp]
+}
 
-#f2 <- wFull*wFull*(n_pp + fishEaten)
-#fullEnergy <- dx*Re(fft(fft(s)*fft(f2), inverse=TRUE)/length(s))
-#plot(log(object@w),fullEnergy[idx_sp])
 plot(log(object@w),fullEnergyMat[1,])
 
 plot(log(object@w),fullEnergyMat[2,])
 
-dim(object@interaction)
-
-dim(n)
 ################################## compare with mizer result
 
-n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
-idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-mizerResultFish <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)[1,]
-
-length(log(object@w))
-
-lines(log(object@w),mizerResultFish+mizerResult)
-
-
 gPP <- getPhiPrey(object, n, n_pp)
-dim(gPP)
 
-plot(xFull[idx_sp],gPP[1,])
-lines(xFull[idx_sp],fullEnergyMat[1,])
-
-Beta
-
-plot(gPP[2,])
-lines(fullEnergyMat[2,])
+i <- 6
+plot(log(object@w), gPP[i,])
+lines(log(object@w), fullEnergyMat[i,])
