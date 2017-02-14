@@ -319,7 +319,7 @@ The mortality rate of an individual $\mu_i(w)$ has three sources: predation mort
 
 \begin{equation}
   \label{eq:mup}
-  \mu_{p.i}(w_p) = \sum_j \int \phi(w_p/w) (1-f_j(w)) \gamma_j w^q \theta_{ji} N_j(w) \, dw.
+  \mu_{p.i}(w_p) = \sum_j \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q \theta_{ji} N_j(w) \, dw.
 \end{equation}
 
 When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth stops, i.e.~there is no negative growth, and the individual is subjected to a starvation mortality.  Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
