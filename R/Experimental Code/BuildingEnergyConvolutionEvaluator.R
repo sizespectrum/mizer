@@ -81,7 +81,7 @@ for(i in 1:(dim(n)[1])) {
     fishEaten <- rep(0, length.out = length(wFull))
     fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
     f2 <- wFull*wFull*(n_pp + fishEaten)
-    fullEnergy <- dx*Re(fft(fft(smat[i,])*fft(f2), inverse=TRUE)/length(smat[i,]))
+    fullEnergy <- dx*Re(fft(fft(smat[i,])*fft(f2), inverse=TRUE)/length(object@smat[i,]))
     fullEnergyMat[i,] <- fullEnergy[idx_sp]
 }
 
