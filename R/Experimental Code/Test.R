@@ -73,3 +73,29 @@ n <- sim@n[nt, , ]
 gPP <- getPhiPrey(object, n, n_pp)
 i <- 6
 lines(log(object@w), gPP[i,])
+
+#####################
+
+plot(object@smat[1,])
+
+#######################
+
+w0 <- object@w[1]
+Beta <- log(object@species_params$beta)
+sigma <- object@species_params$sigma
+wFull <- object@w_full
+xFull <- log(wFull)
+xFull <- xFull - xFull[1]
+dx <- xFull[2]-xFull[1]
+smat <- matrix(0, nrow = dim(n)[1], ncol=length(xFull))
+for(i in 1:dim(n)[1]){
+  smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+}
+
+###########################
+lines(smat[1,])
+
+###########################
+i <- 3
+plot(object@smat[i,])
+lines(smat[i,])

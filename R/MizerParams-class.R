@@ -600,16 +600,16 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
 	
+	w0 <- res@w[1]
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
 	wFull <- res@w_full
 	xFull <- log(wFull)
 	xFull <- xFull - xFull[1]
-	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+  smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	for(i in 1:dim(res@interaction)[1]){
 	  smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
 	}
-	
 	res@smat <- smat 
 	
 	
