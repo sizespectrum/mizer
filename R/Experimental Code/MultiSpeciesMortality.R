@@ -37,15 +37,17 @@ dim(n) <- c(dim(object@interaction)[1], dim(sim@n)[3])
 noSpecies <- dim(object@interaction)[1]
 muVals <- matrix(0, nrow = noSpecies, ncol = length(params@w))
 
+w <- params@w
+x <- log(w)
+x <- x - x[1]
+dx <- x[2]-x[1]
+
 for (i in 1:noSpecies){
   for (j in 1:noSpecies){
     Beta <- log(object@species_params$beta)[j]
     sigma <- object@species_params$sigma[j]
     
-    w <- params@w
-    x <- log(w)
-    x <- x - x[1]
-    dx <- x[2]-x[1]
+  
     
     Delta <- dx*round(min(2*sigma, Beta)/dx)
     Beta <- dx*round(Beta/dx)
