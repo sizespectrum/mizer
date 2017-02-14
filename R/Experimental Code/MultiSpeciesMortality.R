@@ -1,5 +1,6 @@
 source('./R/MizerParams-class.R')
 source('./R/MizerSim-class.R')
+source('./R/project_methodsFFT.R')
 source('./R/project_methods.R')
 source('./R/selectivity_funcs.R')
 source('./R/summary_methods.R')
@@ -42,6 +43,49 @@ x <- log(w)
 x <- x - x[1]
 dx <- x[2]-x[1]
 
+feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+
+no_Pvec <- rep(0, noSpecies)
+
+for (j in 1:noSpecies){
+  Beta <- log(object@species_params$beta)[j]
+  sigma <- object@species_params$sigma[j]
+  Delta <- dx*round(min(2*sigma, Beta)/dx)
+  Beta <- dx*round(Beta/dx)
+  Delta <- Beta
+  min_cannibal <- 1+floor((Beta-Delta)/dx)
+  P <- x[length(x)] + 2*Delta
+  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
+  x_P <- (1:no_P)*dx#+Beta-Delta-dx
+  no_Pvec[j] <- no_P
+}
+
+
+phiMortality <- matrix(0,nrow = noSpecies, ncol = max(no_Pvec))
+
+for (j in 1:noSpecies){
+  Beta <- log(object@species_params$beta)[j]
+  sigma <- object@species_params$sigma[j]
+  
+  
+  
+  Delta <- dx*round(min(2*sigma, Beta)/dx)
+  Beta <- dx*round(Beta/dx)
+  Delta <- Beta
+  min_cannibal <- 1+floor((Beta-Delta)/dx)
+  #min_cannibal <- 0
+  
+  P <- x[length(x)] + 2*Delta
+  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
+  x_P <- (1:no_P)*dx#+Beta-Delta-dx
+  
+  phi <- rep(0, length(x_P))
+  
+  phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
+  
+  phiMortality[j, 1:length(phi)] <- phi
+}
+
 for (i in 1:noSpecies){
   for (j in 1:noSpecies){
     Beta <- log(object@species_params$beta)[j]
@@ -58,13 +102,12 @@ for (i in 1:noSpecies){
     P <- x[length(x)] + 2*Delta
     no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
     x_P <- (1:no_P)*dx#+Beta-Delta-dx
+    #phi <- rep(0, length(x_P))
+    #phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
     
-    phi <- rep(0, length(x_P))
+    phi <- phiMortality[j, 1:no_Pvec[j]]
     
-    phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
-    
-    feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)[j,]
-    f <- (1-feeding_level)*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
+    f <- (1-feeding_level[j, ])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
     f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))
     
     
@@ -77,7 +120,7 @@ for (i in 1:noSpecies){
    
 }
 
-
+tail(w)
 
 m2 <- getM2(object, n, n_pp)
 
@@ -85,3 +128,5 @@ dim(m2)
 
 plot(muVals[1, ])
 lines(m2[1, ])
+
+#plot(muVals[1, ])
