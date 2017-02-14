@@ -79,13 +79,7 @@ for (i in 1:noSpecies){
 
 
 
-# Do the mizer calculation of m2
-# from lines 211 and 213 of project_methods.R
-n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
-# from lines 293 and 297 of project_methods.R
-idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
+m2 <- getM2(object, n, n_pp)
 
 dim(m2)
 
