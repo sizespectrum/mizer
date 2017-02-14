@@ -40,20 +40,45 @@ x <- x - x[1]
 dx <- x[2]-x[1]
 
 Delta <- dx*round(min(2*sigma, Beta)/dx)
+
 Beta <- dx*round(Beta/dx)
-min_cannibal <- ceiling((Beta-Delta)/dx)
+Delta <- Beta
+min_cannibal <- 1+floor((Beta-Delta)/dx)
+#min_cannibal <- 0
+
 P <- x[length(x)] + 2*Delta
 no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
 x_P <- (1:no_P)*dx#+Beta-Delta-dx
 
 feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
 
-f <- (1-feeding_level)*object@search_vol*n*w
-f <- c(f[min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
+# pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
+
+fmat <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n,"*", check.margin=FALSE)
+
+dim(object@pred_kernel)
+length(f)
+
+
+for(i in 1:dim(n)[1]){
+  fmat[i, ] <- c(fmat[i,min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
+}
+
+#min_cannibal
+
+#dim(fmat)
 
 phi <- rep(0, length(x_P))
 
 phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
+
+f <- (1-feeding_level)*object@search_vol*n*w
+f <- c(f[min_cannibal:length(x)], rep(0, no_P-length(x)+min_cannibal-1))
+f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))
+
+
+
+
 
 mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
 
