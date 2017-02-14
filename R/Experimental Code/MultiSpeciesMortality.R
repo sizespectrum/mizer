@@ -46,7 +46,6 @@ dx <- x[2]-x[1]
 feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
 
 no_Pvec <- rep(0, noSpecies)
-
 for (j in 1:noSpecies){
   Beta <- log(object@species_params$beta)[j]
   sigma <- object@species_params$sigma[j]
@@ -62,27 +61,18 @@ for (j in 1:noSpecies){
 
 
 phiMortality <- matrix(0,nrow = noSpecies, ncol = max(no_Pvec))
-
 for (j in 1:noSpecies){
   Beta <- log(object@species_params$beta)[j]
   sigma <- object@species_params$sigma[j]
-  
-  
-  
   Delta <- dx*round(min(2*sigma, Beta)/dx)
   Beta <- dx*round(Beta/dx)
   Delta <- Beta
   min_cannibal <- 1+floor((Beta-Delta)/dx)
-  #min_cannibal <- 0
-  
   P <- x[length(x)] + 2*Delta
   no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
   x_P <- (1:no_P)*dx#+Beta-Delta-dx
-  
   phi <- rep(0, length(x_P))
-  
   phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
-  
   phiMortality[j, 1:length(phi)] <- phi
 }
 

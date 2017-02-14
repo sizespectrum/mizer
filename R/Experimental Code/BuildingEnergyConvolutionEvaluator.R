@@ -26,6 +26,8 @@ sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
 plot(sim)
 object <- sim@params 
 
+object@phiMortality
+
 # extract n_pp and n from sim object 
 nt <- dim(sim@n_pp)[1]  # index of last time step
 n_pp <- sim@n_pp[nt, ]
