@@ -678,8 +678,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	
 	phiMortality <- matrix(0,nrow = noSpecies, ncol = max(no_Pvec))
 	for (j in 1:noSpecies){
-	  Beta <- log(object@species_params$beta)[j]
-	  sigma <- object@species_params$sigma[j]
+	  Beta <- log(res@species_params$beta)[j]
+	  sigma <- res@species_params$sigma[j]
 	  Delta <- dx*round(min(2*sigma, Beta)/dx)
 	  Beta <- dx*round(Beta/dx)
 	  Delta <- Beta
