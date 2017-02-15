@@ -618,6 +618,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             for (j in 1:noSpecies){
               Beta <- log(res@species_params$beta)[j]
               sigma <- res@species_params$sigma[j]
+              dx <- x[2]-x[1]
               Delta <- dx*round(min(2*sigma, Beta)/dx)
               Beta <- dx*round(Beta/dx)
               Delta <- Beta
