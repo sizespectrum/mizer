@@ -349,14 +349,14 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
           min_cannibal <- 1+floor((Beta-Delta)/dx)
           #min_cannibal <- 0
           
-          P <- x[length(x)] + 2*Delta
-          no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-          x_P <- (1:no_P)*dx#+Beta-Delta-dx
-          phi <- rep(0, length(x_P))
-          phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
+#          P <- x[length(x)] + 2*Delta
+#          no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
+#          x_P <- (1:no_P)*dx#+Beta-Delta-dx
+#          phi <- rep(0, length(x_P))
+#          phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
           
-#          phi <- object@smatM[j,]
-#          no_P <- length(phi)
+          phi <- object@smatM[j,]
+          no_P <- length(phi)
           
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
           f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))

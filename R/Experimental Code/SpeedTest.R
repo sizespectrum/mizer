@@ -1,6 +1,6 @@
 
-#source('./R/MizerParams-classNewSlots.R')
-source('./R/MizerParams-class.R')
+source('./R/MizerParams-classNewSlots.R')
+#source('./R/MizerParams-class.R')
 source('./R/MizerSim-class.R')
 #source('./R/MizerSim-classNewSlots.R')
 #source('./R/project_methodsFFT.R')
@@ -34,7 +34,8 @@ timeData<- proc.time() - ptm
 mizerTime <- timeData[[3]]
 
 #Read fft project code
-source('./R/project_methodsFFT2.R')
+#source('./R/project_methodsFFT2.R')
+source('./R/project_methodsFFT2usingSlots.R')
 #start clock
 ptm <- proc.time() 
 # run simulation
