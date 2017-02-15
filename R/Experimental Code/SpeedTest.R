@@ -1,4 +1,6 @@
-source('./R/MizerParams-class.R')
+
+source('./R/MizerParams-classNewSlots.R.R')
+#source('./R/MizerParams-class.R')
 source('./R/MizerSim-class.R')
 #source('./R/MizerSim-classNewSlots.R')
 #source('./R/project_methodsFFT.R')
