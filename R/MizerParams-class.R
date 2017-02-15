@@ -298,9 +298,7 @@ setClass(
         interaction = "array",
         srr  = "function",
         selectivity = "array",
-        catchability = "array",
-        no_Pvec = "numeric",
-        phiMortality = "array"
+        catchability = "array"
     ),
     prototype = prototype(
         w = NA_real_,
@@ -330,9 +328,7 @@ setClass(
         ),
         catchability = array(
             NA, dim = c(1,1), dimnames = list(gear = NULL, sp = NULL)
-        ),
-        no_Pvec = NA_real_,
-        phiMortality = array(NA, dim = c(1,1))
+        )
     ),
     validity = valid_MizerParams
 )
@@ -600,16 +596,16 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
 	
-	w0 <- res@w[1]
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
 	wFull <- res@w_full
 	xFull <- log(wFull)
 	xFull <- xFull - xFull[1]
-  smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	for(i in 1:dim(res@interaction)[1]){
 	  smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
 	}
+	
 	res@smat <- smat 
 	
 	
@@ -659,41 +655,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Remove catchabiliy from species data.frame, now stored in slot
 	#params@species_params[,names(params@species_params) != "catchability"]
 	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
-	
-	noSpecies <- dim(res@interaction)[1]
-	no_Pvec <- rep(0, noSpecies)
-	for (j in 1:noSpecies){
-	  Beta <- log(res@species_params$beta)[j]
-	  sigma <- res@species_params$sigma[j]
-	  Delta <- dx*round(min(2*sigma, Beta)/dx)
-	  Beta <- dx*round(Beta/dx)
-	  Delta <- Beta
-	  min_cannibal <- 1+floor((Beta-Delta)/dx)
-	  P <- x[length(x)] + 2*Delta
-	  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-	  x_P <- (1:no_P)*dx#+Beta-Delta-dx
-	  no_Pvec[j] <- no_P
-	}
-	res@no_Pvec <- no_Pvec
-	
-	phiMortality <- matrix(0,nrow = noSpecies, ncol = max(no_Pvec))
-	for (j in 1:noSpecies){
-	  Beta <- log(res@species_params$beta)[j]
-	  sigma <- res@species_params$sigma[j]
-	  Delta <- dx*round(min(2*sigma, Beta)/dx)
-	  Beta <- dx*round(Beta/dx)
-	  Delta <- Beta
-	  min_cannibal <- 1+floor((Beta-Delta)/dx)
-	  P <- x[length(x)] + 2*Delta
-	  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-	  x_P <- (1:no_P)*dx#+Beta-Delta-dx
-	  phi <- rep(0, length(x_P))
-	  phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
-	  phiMortality[j, 1:length(phi)] <- phi
-	}
-	res@phiMortality <- phiMortality
-	
-	
 	return(res)
     }
 )
