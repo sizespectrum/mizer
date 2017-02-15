@@ -16,7 +16,7 @@ library(reshape2)
 params_data <- read.csv("./vignettes/NS_species_params.csv")
 inter <- read.csv("./vignettes/inter.csv", row.names=1)
 inter <- as(inter, "matrix")
-params <- MizerParams(params_data, interaction = inter)
+params <- MizerParams(params_data, interaction = inter, no_w = 200)
 
 
 #Read mizer project code
@@ -31,7 +31,7 @@ timeData<- proc.time() - ptm
 mizerTime <- timeData[[3]]
 
 #Read fft project code
-source('./R/project_methodsFFT.R')
+source('./R/project_methodsFFT2.R')
 #start clock
 ptm <- proc.time() 
 # run simulation
