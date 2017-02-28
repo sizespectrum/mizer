@@ -2,8 +2,8 @@
 title: "Applying Spectral Methods To Mizer"
 author: "Richard Southwell"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -257,6 +257,19 @@ and now we can evaluate
 \[
 \mathbb{I}_{j,i}(x)=\int_{0}^{P_{j,i}}\phi_{j}(v-P)q_{j,i}(x-y).dy
 \]
+
+
+## Notes on supports on feeding kernels
+
+In mizer the feeding kernel$\phi_{i}(v)=\Phi_{i}\left(e^{v}\right)=\exp\left[\frac{-\left(v+\beta\right)^{2}}{2\sigma_{i}^{2}}\right]$
+is essentially truncated, as so in mizer we can view it as having
+support $sup(\phi_{i})=[-\beta_{i}-3\sigma_{i},0].$ The function
+$\phi_{i}(v)$ is essentially the gaussian that appears in the integral
+in the predation mortality inegrals (as parts of $\mu_{p.i}(w)$ the
+convolution integrals. There is also the gaussian $\psi_{i}(v)=\phi_{i}(-v)=\exp\left[\frac{-\left(v-\beta\right)^{2}}{2\sigma_{i}^{2}}\right],$
+which is used in the computation of available energy $E_{a.i}.$ When
+using this gaussian, within convolution integrals in mizer, perhaps
+it is best to consider it as having support $sup(s_{i})=[0,\beta_{i}+3\sigma_{i}].$
 
 
 ## Differences in notation
