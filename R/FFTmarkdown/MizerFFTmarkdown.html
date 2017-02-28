@@ -122,8 +122,64 @@ $(document).ready(function () {
 </div>
 
 
-<div id="feeding-kernels" class="section level2">
-<h2>Feeding Kernels</h2>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In order to evolve the McKendrik-von Foerster equation PDE</p>
+<span class="math display">\[\begin{equation}
+\frac{\partial N_{i}(w)}{\partial t}=-\frac{\partial\left[g_{i}(w)N_{i}(w)\right]}{\partial t}-\mu_{i}N_{i}(w)
+\end{equation}\]</span>
+<p>We also include an extra boundary condition about new fish (eggs) of size <span class="math inline">\(w_0\)</span> appearing over time due to evolution, but we shall get into that later.</p>
+<p>The point is that the above PDE (Equation 1) describes the time evolution of the individual-density function, <span class="math inline">\(N_i(w),\)</span> which is such that <span class="math inline">\(N_i(w) dw\)</span> equals the number of individuals with a weight in the interval <span class="math inline">\([w, w+dw],\)</span> when <span class="math inline">\(dx\)</span> is small.</p>
+<p>We can evolve this PDE numerically by repeatedly evaluating the right hand side of the PDE and then using this information into integrate-forward/project <span class="math inline">\(\frac{\partial N_{i}(w)}{\partial t}\)</span>. This can be done by repeatedly evaluating the right hand side of the PDE, and then applying some method, such as the Euler method, or the method of lines), to approximate the time evolution of <span class="math inline">\(N_{i}(w).\)</span></p>
+<p>Since we have to evaluate the right hand side of Equation (1) many times in order to evolve our PDE, it is important to be able to do it quickly. The most time consuming parts of evaluating the right hand side of our PDE at a given time involve evaluating growth rate <span class="math inline">\(g_{i}(w)\)</span> and mortality rate <span class="math inline">\(\mu_{i}N_{i}(w)\)</span>.</p>
+<p>The central point of this document is that we have implemented ways of evaluating the integrals of which <span class="math inline">\(g_{i}(w)\)</span> and <span class="math inline">\(\mu_{i}N_{i}(w)\)</span> are comprised, using spectral methods, which can evaluate the integrals many orders of magnitude faster. This is possible because the integrals in question are convolution integrals, and they can be evaluated quickly using the fast Fourier transform (fft).</p>
+</div>
+<div id="the-integrals-we-want-to-evaluate-faster" class="section level2">
+<h2>The Integrals we want to evaluate faster</h2>
+<p>The growth rate <span class="math inline">\(g_i(w)\)</span> involves many terms concerning search rates, feeding levels, partitions of energy into growth, reproduction and metabolism, but the computation bottleneck in evaluating the growth rate, at a particular time, is the determination of the available energy:</p>
+<span class="math display">\[\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)\Phi_{i}\left(\frac{w_{p}}{w}\right)w_{p}dw_{p}
+\end{equation}\]</span>
+<p>is the amount of available food that predator <span class="math inline">\(w\)</span> could get, over all species, resources, and prey masses.</p>
+<p>The mortality rate <span class="math inline">\(\mu_{i}(w)\)</span> of a fish of mass <span class="math inline">\(w\)</span> equals</p>
+<p><span class="math display">\[\mu_{i}(w) = \mu_{p.i}(w) + \mu_{s.i}(w) + \mu_{b.i}(w) + \mu_{f.i}(w),\]</span> where <span class="math inline">\(\mu_{p.i}(w)\)</span> is the predation mortality, and <span class="math inline">\(\mu_{s.i}(w)\)</span> is the starvation mortality, and <span class="math inline">\(\mu_{b.i}(w)\)</span> is the background mortality, and <span class="math inline">\(\mu_{f.i}(w)\)</span> is the fishing mortality. The computational bottleneck to determining the predation mortality. Thankfully this can be done quickly by exploiting the convolution integrals within <span class="math inline">\(\mu_{p.i}(w),\)</span> as we describe in our section on `Mortality Integral And Spectral Methods’.</p>
+</div>
+<div id="writing-available-energy-as-a-convolution-integral" class="section level2">
+<h2>Writing Available Energy As A Convolution Integral</h2>
+<p>We can rewrite our integral for the available energy as</p>
+<p><span class="math display">\[
+E_{a.i}(w)=\int_{0}^{\infty}Q(w_{p})\Phi_{i}\left(\frac{w_{p}}{w}\right)dw_{p}
+\]</span></p>
+<p>where <span class="math inline">\(Q(w_{p})=\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)w_{p}\)</span> measures the energy that prey <span class="math inline">\(w\)</span> gets from eating different fish and plankton of size <span class="math inline">\(w_{p}.\)</span></p>
+<p>Let us transform the available energy integral into `x-space’, by making the substitutions</p>
+<p><span class="math inline">\(x=\frac{\log(w)}{log(w_{0})}\)</span> and <span class="math inline">\(y=\frac{\log(w_{p})}{log(w_{0})},\)</span> so we have <span class="math inline">\(w=w_{0}e^{x}\)</span> and <span class="math inline">\(w_{p}=w_{0}e^{y}\)</span> and <span class="math inline">\(dw_{p}=w_{p}.dy\)</span>, we can rewrite our expression for available energy as</p>
+<p><span class="math display">\[
+E'_{a.i}(x):=E_{a.i}(w)=E_{a.i}(w_{0}e^{x})=\int_{-\infty}^{\infty}Q(w_{0}e^{y})\Phi_{i}\left(\frac{w_{0}e^{y}}{w_{0}e^{x}}\right)w_{0}e^{y}.dy
+\]</span></p>
+<p>So <span class="math inline">\(E'_{a.i}(x)\)</span> available energy <span class="math inline">\(E_{a.i}(w)\)</span> to a prey of mass <span class="math inline">\(w=w_{0}e^{x},\)</span></p>
+<p><span class="math display">\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}Q(w_{0}e^{y})\Phi_{i}\left(e^{y-x}\right)w_{0}e^{y}.dy
+\]</span></p>
+<p>If we define <span class="math inline">\(q(y)=Q(w_{0}e^{y})w_{0}e^{y},\)</span> and we recall, <span class="math inline">\(\phi_{i}\left(y-x\right)=\Phi_{i}\left(e^{y-x}\right),\)</span> as described in section {*}, we see that <span class="math inline">\(E'_{a.i}(x)\)</span> can be rewritten as</p>
+<p><span class="math display">\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(y)\phi_{i}(y-x)dy
+\]</span></p>
+<p>This is a convolution integral, accessible to spectral methods, however to make things more clear, let us perform the substitution <span class="math inline">\(y'=x-y,\)</span> so we rewrite <span class="math inline">\(E'_{a.i}(x)\)</span> as</p>
+<p><span class="math display">\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(x-y')\phi_{i}(-y')dy',
+\]</span> to see how spectral methods can be applied to this issue more easily we can define the function <span class="math inline">\(\psi_{i}(v)\)</span> such that for every real <span class="math inline">\(v\)</span> we have</p>
+<p><span class="math inline">\(\psi_{i}(v):=\phi_{i}(-v)=\exp\left[\frac{-\left(v-\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right]\)</span>, so now we can rewrite <span class="math inline">\(E'_{a.i}(x)\)</span> as</p>
+<p><span class="math display">\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(x-y')\psi_{i}(y')dy',
+\]</span></p>
+<p>moreover, since <span class="math inline">\(\psi_{i}(y')\)</span> is a Gaussian, which is heavily concentrated about <span class="math inline">\(\beta_{j},\)</span> with <span class="math inline">\(\psi_{i}(y')\)</span> becoming very small when <span class="math inline">\(\left|y'-\beta_{i}\right|&gt;5\sigma_{i},\)</span> it makes sense that artificially truncate our Gaussian <span class="math inline">\(\psi_{i}(y')\)</span>, by supposing the support of <span class="math inline">\(\psi\)</span>, that is, <span class="math inline">\(\left\{ y':\psi_{i}(y')\neq0\right\}\)</span> is contained in some interval <span class="math inline">\(\sup(\psi_{i})=[L_{\psi},R_{\psi}]\ni\beta_{i},\)</span> for example we could have <span class="math inline">\(L_{\psi}=\beta_{i}-5\sigma_{i}\)</span> and <span class="math inline">\(R_{\psi}=\beta_{i}+5\sigma_{i}\)</span>. Now we know <span class="math inline">\(s\)</span> has limited support we can write our integral as</p>
+<p><span class="math display">\[
+E'_{a.i}(x)=\int_{L_{\psi}}^{R_{\psi}}q(x-y')\psi_{i}(y')dy',
+\]</span></p>
+<p>We want to evaluate this integral for each <span class="math inline">\(x\in[0,X_{i}]\)</span>, and this can be done using fast Fourier transform based spectral integration.</p>
+</div>
+<div id="about-the-feeding-kernel" class="section level2">
+<h2>About the feeding Kernel</h2>
 <p>Let <span class="math inline">\(\{1,..,s\}\)</span> denote the set of species.</p>
 <p>The feeding Kernel <span class="math inline">\(\Phi _i\)</span> measures amount of preference that a predator has weight <span class="math inline">\(W_p\)</span> has for a prey of weight <span class="math inline">\(w\)</span> is</p>
 <p><span class="math display">\[\Phi _i \left( \frac{w_p}{w} \right) = \exp \left[ \frac{-\left(\ln \left( \frac{w}{w_p} \right) - \ln(\beta _i ^*) \right)^2}{2\sigma_i ^2} \right].\]</span> We shall normalize mass by dividing by the egg size <span class="math inline">\(w_0,\)</span> and logs, to re-represent this information in the `x-space’ where <span class="math inline">\(x=\frac{\log(w)}{log(w_{0})},\)</span> and <span class="math inline">\(y=\frac{\log(w_p)}{log(w_{0})}.\)</span> Before we consider the feeding kernel in these terms, let us note, that for any real number <span class="math inline">\(v\)</span> we have:</p>
@@ -148,7 +204,7 @@ plot(y,Preference_x_has_for_prey_y)</code></pre>
 <p><span class="math display">\[
 x=\frac{\log(w)}{log(w_{0})}
 \]</span></p>
-<p>In the <span class="math inline">\(x\)</span> space we want to evaluate the <span class="math inline">\(\mu_{P,i}(x),\)</span><span class="math inline">\(\forall x\in[x_{0},X_{i}]\)</span>, where <span class="math inline">\(w_{0}\)</span> is the fish size, and <span class="math inline">\(X_{i}\)</span> is the maximal size/ biomass of species <span class="math inline">\(i\in{1,..,s},\)</span> and <span class="math inline">\(s\)</span> is the number of species.</p>
+<p>In the <span class="math inline">\(x\)</span> space we want to evaluate the <span class="math inline">\(\mu_{P,i}(x),\)</span>, <span class="math inline">\(\forall x\in[x_{0},X_{i}]\)</span>, where <span class="math inline">\(w_{0}\)</span> is the fish size, and <span class="math inline">\(X_{i}\)</span> is the maximal size/ biomass of species <span class="math inline">\(i\in{1,..,s},\)</span> and <span class="math inline">\(s\)</span> is the number of species.</p>
 <p><span class="math display">\[
 \ensuremath{\mu_{P,i}(x)=\sum_{j=1}^{s}\int_{-\infty}^{\infty}\phi_{j}(y)q_{j,i}(x-y)dy}
 \]</span></p>

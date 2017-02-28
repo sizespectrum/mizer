@@ -2,15 +2,124 @@
 title: "Applying Spectral Methods To Mizer"
 author: "Richard Southwell"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Feeding Kernels
+## Introduction
+
+
+
+In order to evolve the McKendrik-von Foerster equation PDE
+
+\begin{equation}
+\frac{\partial N_{i}(w)}{\partial t}=-\frac{\partial\left[g_{i}(w)N_{i}(w)\right]}{\partial t}-\mu_{i}N_{i}(w)
+\end{equation}
+
+We also include an extra boundary condition about new fish (eggs) of size $w_0$ appearing over time due to evolution, but we shall get into that later.
+
+
+The point is that the above PDE (Equation 1) describes the time evolution of the individual-density function, $N_i(w),$ which is such that $N_i(w) dw$ equals the number of individuals with a weight in the interval $[w, w+dw],$  when $dx$ is small.
+
+We can evolve this PDE numerically by repeatedly evaluating the right hand side of the PDE and then using this information into integrate-forward/project $\frac{\partial N_{i}(w)}{\partial t}$. This can be done by repeatedly evaluating the right hand side of the PDE, and then applying some method, such as the Euler method, or the method of lines), to approximate the time evolution of $N_{i}(w).$  
+
+Since we have to evaluate the right hand side of Equation (1) many times in order to evolve our PDE, it is important to be able to do it quickly. The most time consuming parts of evaluating the right hand side of our PDE at a given time involve evaluating growth rate $g_{i}(w)$ and mortality rate $\mu_{i}N_{i}(w)$. 
+
+The central point of this document is that we have implemented ways of evaluating the integrals of which $g_{i}(w)$ and $\mu_{i}N_{i}(w)$ are comprised, using spectral methods, which can evaluate the integrals many orders of magnitude faster. This is possible because the integrals in question are convolution integrals, and they can be evaluated quickly using the fast Fourier transform (fft).
+
+## The Integrals we want to evaluate faster
+
+The growth rate $g_i(w)$ involves many terms concerning search rates, feeding levels, partitions of energy into growth, reproduction and metabolism, but the computation bottleneck in evaluating the growth rate, at a particular time, is the determination of the available energy:
+
+\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)\Phi_{i}\left(\frac{w_{p}}{w}\right)w_{p}dw_{p}
+\end{equation}
+
+is the amount of available food that predator $w$ could get, over all species, resources, and prey masses.
+
+The mortality rate $\mu_{i}(w)$ of a fish of mass $w$ equals 
+
+$$\mu_{i}(w) = \mu_{p.i}(w) + \mu_{s.i}(w) + \mu_{b.i}(w) + \mu_{f.i}(w),$$
+where $\mu_{p.i}(w)$ is the predation mortality, and $\mu_{s.i}(w)$ is the starvation mortality, and $\mu_{b.i}(w)$ is the background mortality, and $\mu_{f.i}(w)$ is the fishing mortality. The computational bottleneck to determining the predation mortality. Thankfully this can be done quickly by exploiting the convolution integrals within $\mu_{p.i}(w),$ as we describe in our section on `Mortality Integral And Spectral Methods'.
+ 
+
+## Writing Available Energy As A Convolution Integral
+
+We can rewrite our integral for the available energy as 
+
+\[
+E_{a.i}(w)=\int_{0}^{\infty}Q(w_{p})\Phi_{i}\left(\frac{w_{p}}{w}\right)dw_{p}
+\]
+
+where $Q(w_{p})=\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)w_{p}$
+measures the energy that prey $w$ gets from eating different fish
+and plankton of size $w_{p}.$ 
+
+Let us transform the available energy integral into `x-space', by
+making the substitutions
+
+$x=\frac{\log(w)}{log(w_{0})}$ and $y=\frac{\log(w_{p})}{log(w_{0})},$
+so we have $w=w_{0}e^{x}$ and $w_{p}=w_{0}e^{y}$ and $dw_{p}=w_{p}.dy$,
+we can rewrite our expression for available energy as 
+
+\[
+E'_{a.i}(x):=E_{a.i}(w)=E_{a.i}(w_{0}e^{x})=\int_{-\infty}^{\infty}Q(w_{0}e^{y})\Phi_{i}\left(\frac{w_{0}e^{y}}{w_{0}e^{x}}\right)w_{0}e^{y}.dy
+\]
+
+So $E'_{a.i}(x)$ available energy $E_{a.i}(w)$ to a prey of mass
+$w=w_{0}e^{x},$ 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}Q(w_{0}e^{y})\Phi_{i}\left(e^{y-x}\right)w_{0}e^{y}.dy
+\]
+
+If we define $q(y)=Q(w_{0}e^{y})w_{0}e^{y},$ and we recall, $\phi_{i}\left(y-x\right)=\Phi_{i}\left(e^{y-x}\right),$
+as described in section {*}, we see that $E'_{a.i}(x)$ can be rewritten
+as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(y)\phi_{i}(y-x)dy
+\]
+
+This is a convolution integral, accessible to spectral methods, however
+to make things more clear, let us perform the substitution $y'=x-y,$
+so we rewrite $E'_{a.i}(x)$ as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(x-y')\phi_{i}(-y')dy',
+\]
+to see how spectral methods can be applied to this issue more easily
+we can define the function $\psi_{i}(v)$ such that for every real
+$v$ we have 
+
+$\psi_{i}(v):=\phi_{i}(-v)=\exp\left[\frac{-\left(v-\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right]$,
+so now we can rewrite $E'_{a.i}(x)$ as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q(x-y')\psi_{i}(y')dy',
+\]
+
+moreover, since $\psi_{i}(y')$ is a Gaussian, which is heavily concentrated
+about $\beta_{j},$ with $\psi_{i}(y')$ becoming very small when
+$\left|y'-\beta_{i}\right|>5\sigma_{i},$ it makes sense that artificially
+truncate our Gaussian $\psi_{i}(y')$, by supposing the support of $\psi$,  that is, $\left\{ y':\psi_{i}(y')\neq0\right\}$
+is contained in some interval $\sup(\psi_{i})=[L_{\psi},R_{\psi}]\ni\beta_{i},$
+for example we could have $L_{\psi}=\beta_{i}-5\sigma_{i}$ and $R_{\psi}=\beta_{i}+5\sigma_{i}$.
+Now we know $s$ has limited support we can write our integral as
+
+\[
+E'_{a.i}(x)=\int_{L_{\psi}}^{R_{\psi}}q(x-y')\psi_{i}(y')dy',
+\]
+
+We want to evaluate this integral for each $x\in[0,X_{i}]$, and this
+can be done using fast Fourier transform based spectral integration.
+
+
+## About the feeding Kernel
 
 
 Let $\{1,..,s\}$ denote the set of species.
@@ -59,7 +168,7 @@ for a species $i$, with a size $w$ such that
 x=\frac{\log(w)}{log(w_{0})}
 \]
 
-In the $x$ space we want to evaluate the $\mu_{P,i}(x),$$\forall x\in[x_{0},X_{i}]$,
+In the $x$ space we want to evaluate the $\mu_{P,i}(x),$, $\forall x\in[x_{0},X_{i}]$,
 where $w_{0}$ is the fish size, and $X_{i}$ is the maximal size/
 biomass of species $i\in{1,..,s},$ and $s$ is the number of species.
 
