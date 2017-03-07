@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-We are seeking to improve and implement the Mizer package
+We are seeking to improve and implement the Mizer package 
 
 
 Scott, F., Blanchard, J.L., Andersen, K.H., 2014a. Mizer: an R package for
