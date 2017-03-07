@@ -1,0 +1,577 @@
+---
+title: "Applying Spectral Methods To Mizer"
+author: "Richard Southwell"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+We are seeking to improve and implement the Mizer package
+
+
+Scott, F., Blanchard, J.L., Andersen, K.H., 2014a. Mizer: an R package for
+multispecies, trait-based and community size spectrum ecological modelling.
+Methods Ecol. Evol. 5, 1121–1125.
+
+
+We wish to evolve the McKendrik-von Foerster equation PDE
+
+\begin{equation}
+\frac{\partial N_{i}(w)}{\partial t}=-\frac{\partial\left[g_{i}(w)N_{i}(w)\right]}{\partial t}-\mu_{i}(w)N_{i}(w)
+\end{equation}
+
+There is also include an extra boundary condition about new fish (eggs) of size $w_0$ appearing over time due to reproduction, but we shall get into that later.
+
+
+The point is that the above PDE (Equation 1) describes the time evolution of the individual-density function, $N_i(w),$ which is such that $N_i(w) dw$ equals the number of individuals with a weight in the interval $[w, w+dw],$  when $dx$ is small.
+
+We can evolve this PDE numerically by repeatedly evaluating the right hand side of the PDE and then using this information into integrate-forward $\frac{\partial N_{i}(w)}{\partial t}$. This can be done by repeatedly evaluating the right hand side of the PDE, and then applying some method (e.g., Euler's method, or the method of lines), to approximate the time evolution of $N_{i}(w).$  
+
+Since we have to evaluate the right hand side of Equation (1) many times in order to evolve our PDE, it is important to be able to do it quickly. The most time consuming parts of evaluating the right hand side of our PDE involve evaluating growth rate $g_{i}(w)$ and mortality rate $\mu_{i}(w),$ which depend upon convolution integrals involving the entire size distribution. 
+
+The central point of this document is that we have determined/implemented ways of evaluating the integrals underlying $g_{i}(w)$ and $\mu_{i}(w)$ using spectral methods, which can evaluate the integrals many orders of magnitude faster than standard approaches (e.g., using Riemann sums). This is possible because the integrals in question are convolution integrals, and they can be evaluated quickly using spectral methods exploiting the fast Fourier transform (fft).
+
+
+
+## The Integrals we want to evaluate faster
+
+The growth rate $g_i(w)$ involves many terms concerning search rates, feeding levels, partitions of energy into growth, reproduction and metabolism, but the computational bottleneck in evaluating the growth rate, at a particular time, is the determination of the available energy:
+
+\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)\Phi_{i}\left(\frac{w_{p}}{w}\right)w_{p}dw_{p},
+\end{equation}
+
+which is the amount of available food that predator $w$ could get, over all species, resources, and prey masses.
+
+The mortality rate $\mu_{i}(w)$ of a fish of species $i$ and mass $w$ equals 
+
+$$\mu_{i}(w) = \mu_{p.i}(w) + \mu_{s.i}(w) + \mu_{b.i}(w) + \mu_{f.i}(w),$$
+where $\mu_{p.i}(w)$ is the predation mortality, and $\mu_{s.i}(w)$ is the starvation mortality, and $\mu_{b.i}(w)$ is the background mortality, and $\mu_{f.i}(w)$ is the fishing mortality. The computational bottleneck to determining the predation mortality. 
+\[
+\mu_{p.i}\left(w\right)=\sum_{j=1}^{s}\int_{0}^{\infty}\Phi_{j}\left(\frac{w}{w_{p}}\right)\left(1-f_{j}\left(w_{p}\right)\right)\gamma_{j}(w_{p})^{p^{*}}\theta_{j,i}N_{j}(w_{p}).dw_{p},
+\]
+(given here for a prey of mass $w$ of species $i$). These parts of the predation mortality can be done quickly via spectral methods.
+
+## FEEDING KERNELS
+
+
+
+Let $\{1,..,s\}$ denote the set of species.
+
+The feeding Kernel $\Phi _i$ measures amount of preference that a predator has weight $W_p$ has for a prey of weight $w$ is 
+
+$$\Phi _i \left( \frac{w_p}{w} \right) = \exp \left[ \frac{-\left(\ln \left( \frac{w}{w_p} \right) - \ln(\beta _i ^*) \right)^2}{2\sigma_i ^2} \right].$$
+We shall normalize mass by dividing by the egg size $w_0,$ and logs, to re-represent this information in the `x-space' where $x=\frac{\log(w)}{log(w_{0})},$ and $y=\frac{\log(w_p)}{log(w_{0})}.$ Before we consider the feeding kernel in these terms, let us note, that for any real number $v$ we have:
+
+$$\Phi_{i}\left(e^{v}\right)=\exp\left[\frac{-\left(\ln\left(e^{-v}\right)-\ln(\beta_{i}^{*})\right)^{2}}{2\sigma_{i}^{2}}\right]=\exp\left[\frac{-\left(v+\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right],
+$$
+where $\beta_i = \ln(\beta_i ^*),$ and $\Phi_{i}\left(e^{v}\right)$ is concentrated about $-\beta_i.$
+
+Let us return to consideration of $\Phi _i \left( \frac{w_p}{w} \right).$ By making our substitutions, we can rewrite $Phi_i$ in terms of $x$ and $y$ as
+
+$$\Phi_{i}\left(\frac{w_{p}}{w}\right)	=	\Phi_{i}\left(\frac{w_{0}e^{y}}{w_{0}e^{x}}\right)=\Phi_{i}(e^{y-x})=\exp\left[\frac{-\left(y-x+\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right]$$
+
+To illustrate, let us consider a practical example where the width of the feeding distribution is $\sigma_i = 1,$ the (log-space) predator size is $x=8$, and the log of the preferred predator-prey mass ratio is $\beta_i = \ln(\beta _i ^* ) = 3.$ 
+
+Below we plot the resulting feeding kernel, the horizontal axis gives the (log-space) prey size, and the vertical axis measures the amount of preference that our size $x=8$ predators have for this prey:
+
+
+```{r}
+sigma <- 1
+x <- 8
+beta <- 3
+dy <- 0.1
+y <- seq(0, 10, by = dy)
+Preference_x_has_for_prey_y <- exp((-((y-x+beta)^2))/(2*sigma^2))
+plot(y,Preference_x_has_for_prey_y)
+```
+Because the size of the predator is $x=8,$ its most preferred prey size is 
+$$x - \beta_i = 8-3$$, which is the $y$ value at which the feeding preference function plotted above is concentrated at.   
+
+
+
+
+
+\subsection{Feeding Kernels in log space}
+
+For each real number $v$ let us define $\phi_{i}(v)=\Phi_{i}\left(e^{v}\right).$
+Essentially $\phi_{i}$ is the feeding kernel, when the system has
+been transformed into log-space, and the convolution integrals we are
+concerned with involve them. From the subsequent full line formula
+we have 
+
+\[
+\phi_{i}(v)=\Phi_{i}\left(e^{v}\right)=\exp\left[\frac{-\left(\ln\left(e^{-v}\right)-\ln(\beta_{i}^{*})\right)^{2}}{2\sigma_{i}^{2}}\right]=\exp\left[\frac{-\left(v+\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right],
+\]
+
+
+\section*{How feeding kernels are handled in mizer and fft}
+
+The support of a function is the set of real inputs for which it has
+non-zero outputs. Our function $\phi_{i}(v)$ is a Gaussian, and so
+technically it has an infinite support. However, in our practical use
+of this equation, in mizer, and also, for the sake of spectral methods,
+we have instead made small artificial changes to the type of feeding
+kernel we are using. To put it bluntly, in our code we assume $\phi_{i}(v)$
+returns the normal output for each real $v$ in the interval $[-\beta_{i}-3\sigma_{i},0]$,
+but we also suppose that our function returns a zero when $v$ lies
+outside of this interval.
+
+The assumption that $v<-\beta_{i}-3\sigma_{i}$ implies $\phi_{i}(v)=0$
+is a realistic numerical approximation, since the overwhelming majority
+of the area under a Gaussian lies within three standard deviations
+$\sigma_{j}$ of the mean $-\beta_{i},$ so for $v<-\beta_{i}-3\sigma_{i}$
+the value of $\phi_{i}(v)$ will be so small that it is negligible,
+with respect to the numerical methods we apply. 
+
+The assumption that $v>0$ implies $\phi_{i}(v)=0$ corresponds to
+the assumption that no predator would prefer to eat prey larger than
+themselves. This not a mild approximation, like in the previous assumption,
+this the padding part $\phi_{i}$ with zeroes - adding zeros into
+parts of the function that would not even be referenced in `ecologically
+realistic' scenarios where the chances of predators eating prey larger
+than themselves is negligible. So basically we take the definition
+of 
+
+\[
+\phi_{i}(v)=\Phi_{i}\left(e^{v}\right)=\exp\left[\frac{-\left(v+\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right],
+\]
+
+and we suppose we are always dealing with `ecologically realistic'
+scenarios where predators never predators never prefer to eat prey
+bigger than themselves, so $v>0\Rightarrow\phi_{i}(v)=0.$ 
+
+Under this `ecologically inspired' restriction, and our `numerically
+convenient truncation decision' we write 
+
+\[
+\sup\left(\phi_{i}\right)=\left\{ v\in\mathbb{R}:\phi_{i}(v)\neq0\right\} =[-\beta_{i}-3\sigma_{i},0],
+\]
+
+Note also that $\phi_{i}(v)$ is concentrated at $-\beta_{i}.$
+
+Here the support of a function is the set of inputs that give non-zero
+outputs.
+
+So essentially we are saying that, for the sake of our numerical calculations (fft's and such) we shall assume that $\phi_i$ takes the form of a `truncated' Gaussian feeding kernel $\phi_{j}(v)$ such
+that $\forall v\in\mathbb{R}$ we have 
+
+\[
+\Phi_j(e^v)= \phi_{j}(v)=\begin{cases}
+\exp\left(\frac{-(v+\beta_{j})^{2}}{2\sigma_{j}^{2}}\right) & \text{if \ensuremath{v\in[-\beta_{j}-3\sigma_{j},0]}}\\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+In ecologically realistic scenarios the effect of this truncation should be negligible.
+
+We shall use feeding kernel $\phi_{i}$ when we talk about the energy
+integral. 
+
+
+
+
+\subsubsection*{Feeding kernel reversal for energy integral}
+
+The type of convolution integrals appearing in the mortality integrals
+are very similar to those appearing in the energy integrals we shall
+encounter. In the mortality integrals, the kernel $\phi_{i}(v)$ appears
+naturally in the convolution integrals. However, for the available
+energy integrals, the kernel $\psi_{i},$ (which is the reflection
+of $\phi_{i}$ about zero), appears in the convolution more naturally.
+Formally we give $\psi_{i}(v)$ the definition that $\psi_{j}(v)=\phi_{j}(-v),$
+for every real $v$. It follows that $\psi_{j}(v)$ is concentrated
+at $\beta_{j},$ and has support 
+
+\[
+\sup\left(\psi_{i}\right)=\left\{ v\in\mathbb{R}:\psi_{i}(v)\neq0\right\} =[0,\beta_{i}+3\sigma_{i}],
+\]
+
+and general form
+
+\[
+\psi_{i}(v)=\phi_{i}(-v)=\exp\left[\frac{-\left(v-\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right].
+\]
+
+
+
+
+## MORTALITY INTEGRALS
+
+## Conversion of Mortality Equations
+
+
+
+The predation mortality for a prey of mass $w$ of species $i$ is 
+
+\[
+\mu_{p.i}\left(w\right)=\sum_{j=1}^{s}\int_{0}^{\infty}\Phi_{j}\left(\frac{w}{w_{p}}\right)\left(1-f_{j}\left(w_{p}\right)\right)\gamma_{j}(w_{p})^{p^{*}}\theta_{j,i}N_{j}(w_{p}).dw_{p}
+\]
+
+In this case, where we are discussing predation mortality, for convenience,
+we shall let $w$ denote the mass of the prey, while $w_{p}$ denotes
+the mass of the predator (note, we use the opposite convention when
+we discuss available energy, but at least our convention means integration
+always happens over $w_{p}.$ 
+
+Note that predation mortality, for an individual of of species $i,$
+with mass $w\in[w_{0},W_{i}],$ will be given by the sum of the predation
+rates that the various species $j\in\left\{ 1,..,s\right\} ,$ will
+have upon our individual, and so we will have 
+
+\[
+\mu_{p.i}\left(w\right)=\sum_{j=1}^{s}\mathbb{J}_{j,i}(w),
+\]
+
+where $\mathbb{J}_{j,i}(w)$ denotes the predation mortality of morality
+of a prey of mass $w$ being predated upon by an individual of species
+$j.$ 
+
+So now we seek to evaluate the `cross predation term':
+
+\[
+\mathbb{J}_{j,i}(w)=\int_{0}^{\infty}\Phi_{j}\left(\frac{w}{w_{p}}\right)\left(1-F_{j}\left(w_{p}\right)\right)\gamma_{j}(w_{p})^{p^{*}}\theta_{j,i}N_{j}(w_{p}).dw_{p}
+\]
+
+Let
+
+\[
+y'=\ln\left(\frac{w_{p}}{w_{0}}\right)
+\]
+
+and let 
+
+\[
+x=\ln\left(\frac{w}{w_{0}}\right),
+\]
+
+Under these substitutions it makes sense to let $\mathbb{I}_{j,i}$
+be such that $\mathbb{I}_{j,i}\left(x\right)=\mathbb{J}_{j,i}(w_{0}e^{x}).$
+Using substitutions we may rewrite our expression for $\mathbb{I}_{j,i}(w)$
+as 
+
+\[
+\mathbb{J}_{j,i}(w_{0}e^{x})=\mathbb{I}_{j,i}\left(x\right)=\int_{-\infty}^{\infty}\phi_{j}(x-y')f_{ji}(y').dy'
+\]
+
+where, for every real $y',$ we let 
+
+\[
+f_{ji}(y')=\left[\left(1-F_{j}\left(w_{0}e^{y'}\right)\right)\gamma_{j}(w_{0}e^{y'})^{p^{*}}\theta_{j,i}N_{j}(w_{0}e^{y'})\right]w_{0}e^{y'},
+\]
+ 
+
+Under the substitution $y'=x-y$ our expression for this log-space
+(part of the) predation mortality rate becomes
+
+\[
+\mathbb{I}_{j,i}\left(x\right)=\int_{-\infty}^{\infty}\phi_{j}(y)f_{ji}(x-y).dy
+\]
+
+
+
+
+In order to determine the mortality rate $\ensuremath{\mu_{p,i}(x)=\sum_{j=1}^{s}\mathbb{I}_{j,i}(x),}$
+we wish to evaluate each 
+
+\[
+\mathbb{I}_{j,i}(x)=\int_{-\infty}^{\infty}\phi_{j}(y)f_{j,i}(x-y).dy=\int_{-\beta_{j}-3\sigma_{j}}^{0}\phi_{j}(y)f_{j,i}(x-y).dy
+\]
+
+$\forall x\in[x_{0},X_{i}]=[0,X_{i}]$
+
+where $\sup(f_{j,i})=[x_{0},X_{j}]=[0,X_{j}]$
+
+We can do this directly, using spectral methods. 
+
+## Spectral Methods For Mortality Integrals 
+
+
+In this integral, we gave that $f_{j,i}(v)$ is used $\forall v=x-y\in[0,X_{i}+\beta_{j}+3\sigma_{j}].$
+This means it makes treat $\mathbb{I}_{j,i}(x)$ is a convolution
+integral, with period 
+
+$P_{j,i}=length\left([-\beta_{j}-3\sigma_{j},0]\right)+length\left([0,X_{i}]\right)=X_{i}+\beta_{j}+3\sigma_{j}=P_{j,i}$
+
+Suppose $\bar{\phi_{j}}(v)$ is the period $P_{j,i}$ extension of
+$\phi_{j}(v)$ that agrees with $\phi_{j}(v),$ for all $v\in[-\beta_{j}-3\sigma_{j},-\beta_{j}-3\sigma_{j}+P_{j,i}].$
+
+Suppose $\bar{f}_{j,i}(v)$ is the period $P_{j,i}$ extension of
+$f_{j,i}(v)$ that agrees with $f_{j,i}(v),$ $\forall v\in[0,X_{i}+\beta_{j}+3\sigma_{j}]=[0,P].$
+
+Now we have 
+
+\[
+\mathbb{I}_{j,i}(x)=\int_{-\beta_{j}-3\sigma_{j}}^{0}\phi_{j}(y)f_{j,i}(x-y).dy
+\]
+
+can be rewritten (in terms more amenable to spectral methods) as
+
+\[
+\mathbb{I}_{j,i}(x)=\int_{-\beta_{j}-3\sigma_{j}}^{-\beta_{j}-3\sigma_{j}+P_{j,i}}\bar{\phi}_{j}(y)\bar{f}_{j,i}(x-y).dy
+\]
+
+Also, since $\bar{\phi}_{j}(y)\bar{f}_{j,i}(x-y)$ is a period $P_{j,i}$
+function, we can rewrite it as 
+
+\[
+\mathbb{I}_{j,i}(x)=\int_{0}^{P_{j,i}}\bar{\phi}_{j}(y)\bar{f}_{j,i}(x-y).dy,
+\]
+ we want 
+
+We can find the appropriate data to input into our spectral integration
+method by noting that $v\in[0,P_{j,i}]\Rightarrow\bar{f}_{j,i}(v)=f_{j,i}(v)$
+and 
+
+Note that $\forall v\in[0,P_{j,i}]\Rightarrow\bar{\phi_{j}}(v)=\phi_{j}(v-P_{j,i}).$
+
+Now $\forall k\in\left\{ 0,1,..,N-1\right\} ,$ let 
+
+\[
+x_{k}=\frac{kP_{j,i}}{N},
+\]
+ be the $k$th grid point in our discretization of $[0,P_{j,i}].$
+In order to apply our spectral methods, we want to obtain samplings
+of $\bar{f}_{j,i}(x_{k})$ and $\bar{\phi}_{j}(x_{k})$ over these
+intervals, in particular, to apply our fft method we want to evaluate
+the sequences:
+
+\[
+\mathcal{L}_{f}=\left(\bar{f}_{j,i}\left(x_{k}\right)\right)_{k=0}^{N-1}=\left(f_{j,i}\left(x_{k}\right)\right)_{k=0}^{N-1},
+\]
+
+and
+
+\[
+\mathcal{L}_{\phi}=\left(\bar{\phi}_{j}\left(x_{k}\right)\right)_{k=0}^{N-1}=\left(\phi_{j}\left(x_{k}-P_{j,i}\right)\right)_{k=0}^{N-1},
+\]
+
+given this information we can apply our our key transformation
+
+\[
+\left(\mathbb{I}_{j,i}(x_{k})\right)_{k=0}^{N-1}\approx\left(\frac{P_{j,i}}{N}\right)\mathbb{F}_{N}^{-1}\left[\mathbb{F}_{N}\left[\mathcal{L}_{f}\right]\otimes\mathbb{F}_{N}\left[\mathcal{L}_{\phi}\right]\right]
+\]
+
+Here applying the fast Fourier transform $\mathbb{F}_{N}$ to a length
+$N$ sequence $\mathcal{L}_{f}$ results in another length $N$ list.
+Here $\mathbb{F}_{N}\left[\mathcal{L}_{f}\right]\otimes\mathbb{F}_{N}\left[\mathcal{L}_{\phi}\right]$
+denotes the length $N$ list you get by multiplying $\mathbb{F}_{N}\left[\mathcal{L}_{q}\right]$
+and $\mathbb{F}_{N}\left[\mathcal{L}_{\phi}\right]$ component wise,
+and $\mathbb{F}_{N}^{-1}$ is the inverse fast Fourier transform.
+After multiplying by the step size $\left(\frac{P_{j,i}}{N}\right),$
+this gives us our our output values (in $N\times O(\log N)$ time),
+which are within the sequence $\left(\mathbb{I}_{j,i}(x_{k})\right)_{k=0}^{N-1}.$
+In particular, the sequence 
+
+\[
+\left(\mathbb{I}_{j,i}(x_{k})\right)_{k=0}^{\left\lfloor \frac{X_{i}}{\Delta x}\right\rfloor },
+\]
+
+where $\Delta x=\frac{P_{j,i}}{N},$ gives the information about the
+values of $E'_{a.i}(x)$ for discrete values of $x$ in the interval
+$[0,X_{i}].$
+
+
+## AVAILABLE ENERGY INTEGRAL
+ 
+
+
+The available (food) energy to a fish of mass $w$ and species $i \in \{1,..,2 \}$ is called the available energy, and described by the following equation. 
+
+\[
+E_{a.i}(w)=\int_{0}^{\infty}Q_{i}(w_{p})\Phi_{i}\left(\frac{w_{p}}{w}\right)dw_{p}
+\]
+
+where $Q(w_{p})=\left(N_{R}\left(w_{p}\right)+\sum_{j=1}^{s}\theta_{i,j}N_{j}(w_{p})\right)w_{p}$
+measures the energy that prey $w$ gets from eating different fish
+and plankton of size $w_{p}.$ 
+
+Let us transform the available energy integral into `x-space', by
+making the substitutions $x=\log\left(\frac{w}{w_{0}}\right)$ and
+$y=\log\left(\frac{w_{p}}{w_{0}}\right),$
+
+so we have $w=w_{0}e^{x}$ and $w_{p}=w_{0}e^{y}$ and $dw_{p}=w_{p}.dy$,
+we can rewrite our expression for available energy as 
+
+\[
+E'_{a.i}(x):=E_{a.i}(w)=E_{a.i}(w_{0}e^{x})=\int_{-\infty}^{\infty}Q_{i}(w_{0}e^{y})\Phi_{i}\left(\frac{w_{0}e^{y}}{w_{0}e^{x}}\right)w_{0}e^{y}.dy
+\]
+
+\[
+E'_{a.i}(x):=E_{a.i}(w)=E_{a.i}(w_{0}e^{x})=\int_{-\infty}^{\infty}Q_{i}(w_{0}e^{y})\Phi_{i}\left(\frac{w_{0}e^{y}}{w_{0}e^{x}}\right)w_{0}e^{y}.dy
+\]
+
+So $E'_{a.i}(x)$ is the available energy $E_{a.i}(w)$ to a prey
+of mass $w=w_{0}e^{x},$ 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}Q_{i}(w_{0}e^{y})\Phi_{i}\left(e^{y-x}\right)w_{0}e^{y}.dy
+\]
+
+If we define $q_{i}(y)=Q_{i}(w_{0}e^{y})w_{0}e^{y},$ and we recall,
+$\phi_{i}\left(y-x\right)=\Phi_{i}\left(e^{y-x}\right),$ as described
+in section \{{*}\}, we see that $E'_{a.i}(x)$ can be rewritten as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q_{i}(y)\phi_{i}(y-x)dy
+\]
+
+This is a convolution integral, accessible to spectral methods, however
+to make things more clear, let us perform the substitution $y'=x-y,$
+so we rewrite $E'_{a.i}(x)$ as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q_{i}(x-y')\phi_{i}(-y')dy',
+\]
+to see how spectral methods can be applied to this issue more easily, it makes sense for us to use the `reversed feeding kernel' $\psi _i (v),$ we defined previously. Recall that $\psi _i (v) = \phi (-v),$ for all reals $v$. So the function $\psi_{i}(v)$ is such that for every real
+$v$ we have 
+
+$\psi_{i}(v):=\phi_{i}(-v)=\exp\left[\frac{-\left(v-\beta_{i}\right)^{2}}{2\sigma_{i}^{2}}\right].$
+
+Using this information, we can rewrite our expression for the available energy as $E'_{a.i}(x)$ as 
+
+\[
+E'_{a.i}(x)=\int_{-\infty}^{\infty}q_{i}(x-y')\psi_{i}(y')dy',
+\]
+
+We wish to evaluate this expression $E'_{a.i}(x),$ $\forall x\in[x_{0},X_{i}]=[0,X_{i}].$
+
+Recall $X_{i}=\ln\left(\frac{W_{i}}{w_{0}}\right),$ where $W_{i}$
+is the maximum weight of species $i\in\left\{ 1,..,s\right\} .$ 
+
+Since 
+
+\[
+\sup\left(\psi_{i}\right)=[0,\beta_{i}+3\sigma_{i}],
+\]
+
+we have
+
+\[
+E'_{a.i}(x)=\int_{0}^{\beta_{i}+3\sigma_{i}}q_{i}(x-y')\psi_{i}(y')dy',
+\]
+
+Notice that, in the course of evaluating this integral, over those
+$x$ values, we are only sampling the function $q_{i}(x-y')=q_{i}(v)$
+for $v$ within the interval $[0,X_{i}+\beta_{i}+3\sigma_{i}].$ 
+
+In our spectral method we shall choose period a period length $\rho_{i}=X_{i}+\beta_{i}+3\sigma_{i}$
+with a length, $\rho_{i}$ equal to this interval $[0,X_{i}+\beta_{i}+3\sigma_{i}].$ 
+
+\subsection{Making periodic functions}
+
+To apply spectral methods to evaluate 
+\[
+E'_{a.i}(x)=\int_{0}^{\beta_{i}+3\sigma_{i}}q_{i}(x-y')\psi_{i}(y')dy',
+\]
+
+Let us define the period $\rho_{i}$ function $\bar{q}_{i}(v)$ which
+is a period $\rho_{i}$ extension of $q_{i}(v)$ which agrees with
+$q_{i}$ on the interval $[0,\rho_{i}]=[0,X_{i}+\beta_{i}+3\sigma_{i}].$
+In other words, if $v\in[0,\rho_{i}]$ then $\bar{q}_{i}(v)=q_{i}(v),$
+otherwise $\bar{q}_{i}(v)=q_{i}(v+n\rho_{i}),$ where is the integer
+such that $v+n\rho_{i}\in[0,\rho_{i}].$ 
+
+Let us also define the period $\rho_{i}$ function $\bar{\psi}_{i}(v),$
+which is a period $\rho_{i}$ extension of $\psi_{i},$ which agrees
+with $\psi_{i}$ on the interval $[0,\rho_{i}].$ In other words,
+if $v\in[0,\rho_{i}]$ then $\bar{\psi}_{i}(v)=\psi_{i}(v),$ otherwise
+$\bar{\psi}_{i}(v)=\psi_{i}(v+n\rho_{i}),$ where is the integer such
+that $v+n\rho_{i}\in[0,\rho_{i}].$ 
+
+We shall use now use these periodic functions to rewrite the integral
+in a way more amenable to spectral methods (i.e., fast evaluation
+of convolution integrals).
+
+It should be checked that, when $x\in[0,X_{i}]$ we can rewrite our
+expression of the available energy as 
+
+\[
+E'_{a.i}(x)=\int_{0}^{\rho_{i}}\bar{q}_{i}(x-y')\bar{\psi}_{i}(y')dy',
+\]
+
+where $\rho_{i}=X_{i}+\beta_{i}+3\sigma_{i}$ is the period of the
+functions.
+
+This problem can be solved quickly via spectral methods, as we discuss
+in the next section:
+
+\subsection{Applying fft to energy convolution integral}
+
+We want to evaluate
+
+\[
+E'_{a.i}(x)=\int_{0}^{\rho_{i}}\bar{q}_{i}(x-y')\bar{\psi}_{i}(y')dy',
+\]
+
+$\forall x\in[0,X_{i}].$
+
+Let us consider how to do this problem practically, using the fast Fourier
+transform (fft). 
+
+Suppose we are dealing with a discretised grid of $N_{i}$ points.
+We index these points, so that $\forall k\in\left\{ 0,1,..,N-1\right\} ,$
+we have 
+
+\[
+x_{k}=\frac{k\rho_{i}}{N},
+\]
+ denotes the $k$th point in interval $[0,X_{i}].$ 
+
+{[}DO WE NEED TO THINK ABOUT REMOVING REFERENCE TO RESOURCE, OR PICKING
+LOGER PERIOD HERE ?{]}
+
+To do out fft we require the sequence 
+
+\[
+\mathcal{L}_{q}=\left(\bar{q}_{i}\left(x_{k}\right)\right)_{k=0}^{N-1}=\left(q_{i}\left(x_{k}\right)\right)_{k=0}^{N-1},
+\]
+
+and we also require the sequence 
+
+\[
+\mathcal{L}_{\psi}=\left(\bar{\psi}_{i}\left(x_{k}\right)\right)_{k=0}^{N-1}=\left(\psi_{i}\left(x_{k}\right)\right)_{k=0}^{N-1},
+\]
+
+In this case we have our key transformation
+
+\[
+\left(E'_{a.i}\left(x_{k}\right)\right)_{k=0}^{N-1}\approx\left(\frac{\rho_{i}}{N}\right)\mathbb{F}_{N}^{-1}\left[\mathbb{F}_{N}\left[\mathcal{L}_{q}\right]\otimes\mathbb{F}_{N}\left[\mathcal{L}_{\psi}\right]\right]
+\]
+
+Here applying the fast Fourier transform $\mathbb{F}_{N}$ to a length
+$N$ sequence $\mathcal{L}_{q}$ results in another length $N$ list.
+Here $\mathbb{F}_{N}\left[\mathcal{L}_{q}\right]\otimes\mathbb{F}_{N}\left[\mathcal{L}_{\psi}\right]$
+denotes the length $N$ list you get by multiplying $\mathbb{F}_{N}\left[\mathcal{L}_{q}\right]$
+and $\mathbb{F}_{N}\left[\mathcal{L}_{\psi}\right]$ component wise,
+and $\mathbb{F}_{N}^{-1}$ is the inverse fast Fourier transform.
+After multiplying by the step size $\left(\frac{\rho_{i}}{N}\right),$
+this gives us our our output values (in $N\times O(\log N)$ time),
+which are within the sequence $\left(E'_{a.i}\left(x_{k}\right)\right)_{k=0}^{N-1}.$
+In particular, the sequence 
+
+\[
+\left(E'_{a.i}\left(x_{k}\right)\right)_{k=0}^{\left\lfloor \frac{X_{i}}{\Delta x}\right\rfloor },
+\]
+
+where $\Delta x=\frac{\rho_{i}}{N},$ gives the information about
+the values of $E'_{a.i}(x)$ for discrete values of $x$ in the interval
+$[0,X_{i}].$
+
+
+
+## Differences in notation
+
+In the mizer vignette they write $\beta_i$. I write $\beta _i ^*$ to mean the same thing.
+
+In the mizer vignette they write $\phi_i$. I write $\Phi _i$ to mean the same thing.
+
+I used capital F for feeding function, inside mortality integral
+
+
