@@ -257,7 +257,7 @@ and now we can evaluate
 \[
 \mathbb{I}_{j,i}(x)=\int_{0}^{P_{j,i}}\phi_{j}(v-P)q_{j,i}(x-y).dy
 \]
-
+ 
 
 ## Notes on supports on feeding kernels
 
