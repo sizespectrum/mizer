@@ -19,6 +19,25 @@ Scott, F., Blanchard, J.L., Andersen, K.H., 2014a. Mizer: an R package for
 multispecies, trait-based and community size spectrum ecological modelling.
 Methods Ecol. Evol. 5, 1121–1125.
 
+## A demo of Mizer running in a simple case
+
+```{r}
+
+
+library(ggplot2)
+library(grid)
+library(methods)
+library(plyr)
+library(reshape2)
+library(mizer)
+
+
+
+params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+sim <- project(params, t_max=50, effort = 0)
+plot(sim)
+```
+
 
 We wish to evolve the McKendrik-von Foerster equation PDE
 
@@ -91,6 +110,7 @@ y <- seq(0, 10, by = dy)
 Preference_x_has_for_prey_y <- exp((-((y-x+beta)^2))/(2*sigma^2))
 plot(y,Preference_x_has_for_prey_y)
 ```
+
 Because the size of the predator is $x=8,$ its most preferred prey size is 
 $$x - \beta_i = 8-3$$, which is the $y$ value at which the feeding preference function plotted above is concentrated at.   
 
