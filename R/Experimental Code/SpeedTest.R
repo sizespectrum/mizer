@@ -1,4 +1,5 @@
-source('./R/MizerParams-classNewSlots.R')
+#source('./R/MizerParams-classNewSlots.R')
+source('./R/MizerParams-class.r')
 source('./R/MizerSim-class.R')
 source('./R/project_methods.R')
 source('./R/selectivity_funcs.R')
@@ -11,6 +12,7 @@ library(grid)
 library(methods)
 library(plyr)
 library(reshape2)
+
 
 params_data <- read.csv("./vignettes/NS_species_params.csv")
 inter <- read.csv("./vignettes/inter.csv", row.names=1)
@@ -31,7 +33,12 @@ mizerTime <- timeData[[3]]
 
 #Read fft project code
 #source('./R/project_methodsFFT2.R')
+source('./R/MizerParams-classNewSlots.R')
 source('./R/project_methodsFFT2usingSlots.R')
+params_data <- read.csv("./vignettes/NS_species_params.csv")
+inter <- read.csv("./vignettes/inter.csv", row.names=1)
+inter <- as(inter, "matrix")
+params <- MizerParams(params_data, interaction = inter, no_w = 200)
 #start clock
 ptm <- proc.time() 
 # run simulation
