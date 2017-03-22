@@ -57,23 +57,18 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# Eating the background
     # This line is a bottle neck
 ###	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
-
 	w0 <- object@w[1]
-	
 	Beta <- log(object@species_params$beta)
 	sigma <- object@species_params$sigma
 	wFull <- object@w_full
 	xFull <- log(wFull)
 	xFull <- xFull - xFull[1]
 	dx <- xFull[2]-xFull[1]
-	
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-	
-	
 	fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
+	fishEaten <- rep(0, length.out = length(wFull))
 	
 	for(i in 1:(dim(n)[1])) {
-	  fishEaten <- rep(0, length.out = length(wFull))
 	  fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
 	  f2 <- wFull*wFull*(n_pp + fishEaten)
 	  fullEnergy <- dx*Re(fft(fft(object@smat[i,])*fft(f2), inverse=TRUE)/length(object@smat[i,]))
