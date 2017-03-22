@@ -57,22 +57,43 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# Eating the background
     # This line is a bottle neck
 ###	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
+    # get egg size
 	w0 <- object@w[1]
+	# get feeding kernel parameters
 	Beta <- log(object@species_params$beta)
 	sigma <- object@species_params$sigma
+	# get full vector of weight values (including small weights, below egg-size, for resource-energy description)
 	wFull <- object@w_full
+	# take logs 
 	xFull <- log(wFull)
+	# xFull is the mass vector, in log space, it describes weights down to the plankton, and up to the largest fish,
+	# The entries of xFull are evenly spaced, and translating xFull (i.e., adding a constant to each entry) should not alter
+	# the result to getPhi, so we translate our xFull so it begins with zero.
 	xFull <- xFull - xFull[1]
+	# The constant difference between the entries of xFull is dx
 	dx <- xFull[2]-xFull[1]
+	# The object@w vector only gives weights from the egg size up to the max fish size. However object@w_full gives more
+	# smaller weights and idx_sp are the index values of object@w_full such that (object@w_full)[idx_sp]=object@w
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+	# Our output, fullEnergyMat, will be a ((# species) times length(wFull)) matrix, initially filled with 0's
 	fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
+	# In the calculation we use the length length(wFull) vector, fishEaten, which we initially fill with 0's
 	fishEaten <- rep(0, length.out = length(wFull))
 	
 	for(i in 1:(dim(n)[1])) {
+	# Looking at Equation (3.4), for available energy in the mizer vignette, we have, for our predator species i, that
+	# fishEaten[k] equals the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
 	  fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
+	# The vector f2 equals everything inside integral (3.4), except the feeding kernel, phi_i(w_p/w). We work in log-space
+	# so an extra multiplier w_p is introduced. Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w]
 	  f2 <- wFull*wFull*(n_pp + fishEaten)
+	# object@smat is a ((# species) times (length(wFull))) matrix where object@smat[i,k]=phi_i(wFull[k]) 
+	# In other words object@smat[i, ]=exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)), we added smat to MizerParams-class.R
+	# Using spectral methods we can evaluate the integral as follow (here fft is the fast fourier transform)
 	  fullEnergy <- dx*Re(fft(fft(object@smat[i,])*fft(f2), inverse=TRUE)/length(object@smat[i,]))
+	# The result of this integral is one row of the matrix ((# species) times (length(wFull))), fullEnergyMat, outputted
 	  fullEnergyMat[i,] <- fullEnergy[idx_sp]
+	# Here fullEnergyMat[i,k] = E_{a.i}(wFull[k])
 	}
 		return(fullEnergyMat)
 })
