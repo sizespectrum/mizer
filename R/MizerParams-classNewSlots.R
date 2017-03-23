@@ -292,6 +292,7 @@ setClass(
     smat = "array",
     fsmat = "array",
     smatM = "array",
+    fsmatM = "array",
     pred_kernel = "array",
     #z0 = "numeric",
     rr_pp = "numeric",
@@ -315,6 +316,7 @@ setClass(
     smat = array(NA, dim = c(1,1)),
     fsmat = array(NA, dim = c(1,1)),
     smatM = array(NA, dim = c(1,1)),
+    fsmatM = array(NA, dim = c(1,1)),
     pred_kernel = array(
       NA,dim = c(1,1,1), dimnames = list(
         sp = NULL,w_pred = NULL,w_prey = NULL
@@ -642,6 +644,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             # # # 
             
             phiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
+            fphiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
             for (j in 1:noSpecies){
               Beta <- log(res@species_params$beta)[j]
               sigma <- res@species_params$sigma[j]
@@ -655,10 +658,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
               phi <- rep(0, length(x_P))
               phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
               phiMortality[j, 1:length(phi)] <- phi
+              fphiMortality[j, ] <- fft(phiMortality[j, ])
             }
             #####################
             
             res@smatM <- phiMortality
+            res@fsmatM <- fphiMortality
             
             ###res@smatM <- smat
             

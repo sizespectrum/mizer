@@ -363,7 +363,8 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
           no_P <- length(phi)
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
           f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))
-          mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
+          #mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
+          mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
           mu <- c(mortalityIntegral[(no_P-min_cannibal):no_P], mortalityIntegral[1:(length(x)-min_cannibal-1)])
           muVals[i, ] <- muVals[i, ]+mu  
         }
