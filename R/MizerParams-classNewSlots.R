@@ -290,6 +290,7 @@ setClass(
     activity = "array",
     std_metab = "array",
     smat = "array",
+    fsmat = "array",
     smatM = "array",
     pred_kernel = "array",
     #z0 = "numeric",
@@ -312,6 +313,7 @@ setClass(
     activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
     std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
     smat = array(NA, dim = c(1,1)),
+    fsmat = array(NA, dim = c(1,1)),
     smatM = array(NA, dim = c(1,1)),
     pred_kernel = array(
       NA,dim = c(1,1,1), dimnames = list(
@@ -604,11 +606,14 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             xFull <- log(wFull)
             xFull <- xFull - xFull[1]
             smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+            fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
             for(i in 1:dim(res@interaction)[1]){
               smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+              fsmat[i, ] <- fft(smat[i, ])
             }
             
-            res@smat <- smat 
+            res@smat <- smat
+            res@fsmat <- fsmat
             
             ##################
             

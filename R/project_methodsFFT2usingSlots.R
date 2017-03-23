@@ -90,7 +90,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# object@smat is a ((# species) times (length(wFull))) matrix where object@smat[i,k]=phi_i(exp(-xFull[k])) 
 	# In other words object@smat[i, ]=exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)), we added smat to MizerParams-class.R
 	# Using spectral methods we can evaluate the integral as follow (here fft is the fast fourier transform)
-	  fullEnergy <- dx*Re(fft(fft(object@smat[i,])*fft(f2), inverse=TRUE)/length(object@smat[i,]))
+	  fullEnergy <- dx*Re(fft(object@fsmat[i, ]*fft(f2), inverse=TRUE)/length(object@smat[i,]))
 	# The result of this integral is one row of the matrix ((# species) times (length(wFull))), fullEnergyMat, outputted
 	  fullEnergyMat[i,] <- fullEnergy[idx_sp]
 	# Here fullEnergyMat[i,k] = E_{a.i}(wFull[k])
