@@ -353,12 +353,15 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       
       for (i in 1:noSpecies){
         for (j in 1:noSpecies){
-          Beta <- log(object@species_params$beta)[j]
-          sigma <- object@species_params$sigma[j]
-          Delta <- dx*round(min(2*sigma, Beta)/dx)
-          Beta <- dx*round(Beta/dx)
-          Delta <- Beta
-          min_cannibal <- 1+floor((Beta-Delta)/dx)
+          #Beta <- log(object@species_params$beta)[j]
+          #sigma <- object@species_params$sigma[j]
+          #Delta <- dx*round(min(2*sigma, Beta)/dx)
+          #Beta <- dx*round(Beta/dx)
+          #Delta <- Beta
+          #min_cannibal <- 1+floor((Beta-Delta)/dx)
+          
+          min_cannibal <- 1
+          
           phi <- object@smatM[j,]
           no_P <- length(phi)
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
