@@ -87,7 +87,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# The vector f2 equals everything inside integral (3.4), except the feeding kernel, phi_i(w_p/w). We work in log-space
 	# so an extra multiplier w_p is introduced. Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w]
 	  f2 <- wFull*wFull*(n_pp + fishEaten)
-	# object@smat is a ((# species) times (length(wFull))) matrix where object@smat[i,k]=phi_i(wFull[k]) 
+	# object@smat is a ((# species) times (length(wFull))) matrix where object@smat[i,k]=phi_i(exp(-xFull[k])) 
 	# In other words object@smat[i, ]=exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)), we added smat to MizerParams-class.R
 	# Using spectral methods we can evaluate the integral as follow (here fft is the fast fourier transform)
 	  fullEnergy <- dx*Re(fft(fft(object@smat[i,])*fft(f2), inverse=TRUE)/length(object@smat[i,]))
