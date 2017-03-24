@@ -624,16 +624,18 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             Pvec <- rep(0, noSpecies)
             for (j in 1:noSpecies){
               Beta <- log(res@species_params$beta)[j]
-              sigma <- res@species_params$sigma[j]
+             # sigma <- res@species_params$sigma[j]
               w <- res@w
               x <- log(w)
               x <- x - x[1]
               dx <- x[2]-x[1]
-              Delta <- dx*round(min(2*sigma, Beta)/dx)
+            #  Delta <- dx*round(min(2*sigma, Beta)/dx)
               Beta <- dx*round(Beta/dx)
-              Delta <- Beta
-              min_cannibal <- 1+floor((Beta-Delta)/dx)
-              P <- x[length(x)] + 2*Delta
+            #  Delta <- Beta
+            #  min_cannibal <- 1+floor((Beta-Delta)/dx)
+              min_cannibal <- 1
+            #  P <- x[length(x)] + 2*Delta
+              P <- x[length(x)] + 2*Beta
               no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
               x_P <- (1:no_P)*dx#+Beta-Delta-dx
               no_Pvec[j] <- no_P
@@ -648,15 +650,17 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             for (j in 1:noSpecies){
               Beta <- log(res@species_params$beta)[j]
               sigma <- res@species_params$sigma[j]
-              Delta <- dx*round(min(2*sigma, Beta)/dx)
+              # Delta <- dx*round(min(2*sigma, Beta)/dx)
               Beta <- dx*round(Beta/dx)
-              Delta <- Beta
-              min_cannibal <- 1+floor((Beta-Delta)/dx)
+              # Delta <- Beta
+              #min_cannibal <- 1+floor((Beta-Delta)/dx)
+              min_cannibal <- 1
               #  P <- x[length(x)] + 2*Delta
               #  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
               x_P <- (1:no_P)*dx#+Beta-Delta-dx
               phi <- rep(0, length(x_P))
-              phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
+              # phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
+              phi[abs(x_P+Beta-P)<Beta] <- exp(-(x_P[abs(x_P+Beta-P)<Beta] + Beta - P)^2/(2*sigma^2)) 
               phiMortality[j, 1:length(phi)] <- phi
               fphiMortality[j, ] <- fft(phiMortality[j, ])
             }
