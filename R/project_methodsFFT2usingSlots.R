@@ -343,30 +343,27 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp){
+      # determine the number of species
       noSpecies <- dim(object@interaction)[1]
+      # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
       muVals <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+      # Obtain weight vector w, and the corresponding vector x in log-space
       w <- params@w
       x <- log(w)
       x <- x - x[1]
+      # Values of x are evenly spaced, with a difference of dx, starting with zero
       dx <- x[2]-x[1]
+      # Obtain feeding level
       feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
       
+      # Loop over i and j, do determine how much i dies from being predated on by species j
       for (i in 1:noSpecies){
         for (j in 1:noSpecies){
-          #Beta <- log(object@species_params$beta)[j]
-          #sigma <- object@species_params$sigma[j]
-          #Delta <- dx*round(min(2*sigma, Beta)/dx)
-          #Beta <- dx*round(Beta/dx)
-          #Delta <- Beta
-          #min_cannibal <- 1+floor((Beta-Delta)/dx)
-          
           min_cannibal <- 1
-          
           phi <- object@smatM[j,]
           no_P <- length(phi)
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
           f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))
-          #mortalityIntegral <- dx*Re(fft(fft(phi)*fft(f), inverse=TRUE)/no_P)
           mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
           mu <- c(mortalityIntegral[(no_P-min_cannibal):no_P], mortalityIntegral[1:(length(x)-min_cannibal-1)])
           muVals[i, ] <- muVals[i, ]+mu  
