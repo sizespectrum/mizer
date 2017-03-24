@@ -359,13 +359,11 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       # Loop over i and j, do determine how much i dies from being predated on by species j
       for (i in 1:noSpecies){
         for (j in 1:noSpecies){
-          min_cannibal <- 1
-          phi <- object@smatM[j,]
-          no_P <- length(phi)
+          no_P <- length(object@smatM[j,])
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
-          f <- c(f[min_cannibal:length(x)], rep(0, length(phi)-length(x)))
+          f <- c(f[1:length(x)], rep(0, no_P-length(x)))
           mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
-          mu <- c(mortalityIntegral[(no_P-min_cannibal):no_P], mortalityIntegral[1:(length(x)-min_cannibal-1)])
+          mu <- c(mortalityIntegral[(no_P-1):no_P], mortalityIntegral[1:(length(x)-1-1)])
           muVals[i, ] <- muVals[i, ]+mu  
         }
         

@@ -1,5 +1,5 @@
-#source('./R/MizerParams-classNewSlots.R')
-source('./R/MizerParams-class.r')
+source('./R/MizerParams-classNewSlots.R')
+#source('./R/MizerParams-class.r')
 source('./R/MizerSim-class.R')
 source('./R/project_methods.R')
 source('./R/selectivity_funcs.R')
