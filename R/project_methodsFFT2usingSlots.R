@@ -359,11 +359,19 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       # Loop over i and j, do determine how much i dies from being predated on by species j
       for (i in 1:noSpecies){
         for (j in 1:noSpecies){
+          # no_P = P/dx is the number of x entries taking values in [0,P]
           no_P <- length(object@smatM[j,])
+          # We express the mortality integral (3.12) as a a convolution integral involving
+          # two functions: f and fsmatM. Here f is all the integrand of (3.12), except the
+          # feeding kernel
           f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w*object@interaction[j,i]
+          # For convolution, we imagine f is a period P function, and sample it on [0,P]
           f <- c(f[1:length(x)], rep(0, no_P-length(x)))
+          # We use fast fourier transforms to evalute this convolution integral
           mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
+          # mu measures how much i dies from being predated on by species j
           mu <- c(mortalityIntegral[(no_P-1):no_P], mortalityIntegral[1:(length(x)-1-1)])
+          # We add mu to muVals so muVals eventually equals i's death rate due to predation.
           muVals[i, ] <- muVals[i, ]+mu  
         }
         
