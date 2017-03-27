@@ -46,18 +46,57 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# n_eff_prey is the total prey abundance by size exposed to each predator (prey
 	# not broken into species - here we are just working out how much a predator
 	# eats - not which species are being eaten - that is in the mortality calculation
-    n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
+###    n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
 	# Quick reference to just the fish part of the size spectrum
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 	# pred_kernel is predator x predator size x prey size
 	# So multiply 3rd dimension of pred_kernel by the prey abundance
 	# Then sum over 3rd dimension to get total eaten by each predator by predator size
     # This line is a bottle neck
-	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
+###	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
 	# Eating the background
     # This line is a bottle neck
-	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
-	return(phi_prey_species+phi_prey_background)
+###	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
+    # get egg size
+	w0 <- object@w[1]
+	# get feeding kernel parameters
+	Beta <- log(object@species_params$beta)
+	sigma <- object@species_params$sigma
+	# get full vector of weight values (including small weights, below egg-size, for resource-energy description)
+	wFull <- object@w_full
+	# take logs 
+	xFull <- log(wFull)
+	# xFull is the mass vector, in log space, it describes weights down to the plankton, and up to the largest fish,
+	# The entries of xFull are evenly spaced, and translating xFull (i.e., adding a constant to each entry) should not alter
+	# the result to getPhi, so we translate our xFull so it begins with zero.
+	xFull <- xFull - xFull[1]
+	# The constant difference between the entries of xFull is dx
+	dx <- xFull[2]-xFull[1]
+	# The object@w vector only gives weights from the egg size up to the max fish size. However object@w_full gives more
+	# smaller weights and idx_sp are the index values of object@w_full such that (object@w_full)[idx_sp]=object@w
+	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+	# Our output, fullEnergyMat, will be a ((# species) times length(wFull)) matrix, initially filled with 0's
+	fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
+	# In the calculation we use the length length(wFull) vector, fishEaten, which we initially fill with 0's
+	fishEaten <- rep(0, length.out = length(wFull))
+	
+	for(i in 1:(dim(n)[1])) {
+	# Looking at Equation (3.4), for available energy in the mizer vignette, we have, for our predator species i, that
+	# fishEaten[k] equals the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
+	  fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
+	# The vector f2 equals everything inside integral (3.4), except the feeding kernel, phi_i(w_p/w). We work in log-space
+	# so an extra multiplier w_p is introduced. Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w]
+	  f2 <- wFull*wFull*(n_pp + fishEaten)
+	# object@smat is a ((# species) times (length(wFull))) matrix where object@smat[i,k]=phi_i(exp(-xFull[k])) 
+	# In other words object@smat[i, ]=exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)), we added smat to MizerParams-class.R
+	# Using spectral methods we can evaluate the integral as follow (here fft is the fast fourier transform).
+	# To save having to do an fft of smat every time step, we define fsmat such that fsmat[i, ] = fft(smat[i, ])  
+	  fullEnergy <- dx*Re(fft(object@fsmat[i, ]*fft(f2), inverse=TRUE)/length(object@smat[i,]))
+	# The result of this integral is one row of the matrix ((# species) times (length(wFull))), fullEnergyMat, outputted
+	  fullEnergyMat[i,] <- fullEnergy[idx_sp]
+	# Here fullEnergyMat[i,k] = E_{a.i}(wFull[k])
+	}
+		return(fullEnergyMat)
 })
 
 
@@ -304,9 +343,52 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp){
-	    pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
-        m2 <- getM2(object, pred_rate=pred_rate)
-	    return(m2)
+      # determine the number of species
+      noSpecies <- dim(object@interaction)[1]
+      # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
+      muVals <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+      # Obtain weight vector w, and the corresponding vector x in log-space
+      w <- params@w
+      x <- log(w)
+      x <- x - x[1]
+      # Values of x are evenly spaced, with a difference of dx, starting with zero
+      dx <- x[2]-x[1]
+      # Obtain feeding level
+      feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+      
+      # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
+      no_P <- length(object@smatM[1,])
+      
+      # Make a matrix to compute intermediate values, which are mortality integrals from predation via different 
+      # species, whose terms equal the integral within the sum of (3.12), discounting the interaction matrix theta
+      muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+      
+      
+      # Fill out this intermediate matrix
+      
+      for (j in 1:noSpecies){
+          # We express the intermediate values as a a convolution integral involving
+          # two functions: f and fsmatM. Here f is all the integrand of (3.12), except the
+          # feeding kernel and theta
+          f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w
+          # For convolution, we imagine f is a period P function, and sample it on [0,P]
+          f <- c(f[1:length(x)], rep(0, no_P-length(x)))
+          # We use fast fourier transforms to evalute this convolution integral
+          mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
+          # muIntermediate[j, ] measures how much i dies from being predated on by species j when object@interaction[j,i]=1
+          muIntermediate[j, ] <- c(mortalityIntegral[(no_P-1):no_P], mortalityIntegral[1:(length(x)-1-1)])
+      }
+      
+      
+      # Loop over i and j, do determine how much i dies from being predated on by species j
+      for (i in 1:noSpecies){
+        for (j in 1:noSpecies){
+          muVals[i, ] <- muVals[i, ]+object@interaction[j,i]*muIntermediate[j, ]
+          ## can we speed this up by using matrix multiplication ?
+        }
+        
+      }	    
+      return(muVals)
     }
 )
 
