@@ -604,14 +604,18 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
             Beta <- log(res@species_params$beta)
             sigma <- res@species_params$sigma
+            # wFull has the weights from the smallest relevant plankton, to the largest fish
             wFull <- res@w_full
             xFull <- log(wFull)
             xFull <- xFull - xFull[1]
+            # smat ends up as the feeding kernel values appropriate for the available energy integral
             smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+            # We also form fsmat, in which we pre-compute the fft of the rows of smat
             fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
             for(i in 1:dim(res@interaction)[1]){
-              smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
-              fsmat[i, ] <- fft(smat[i, ])
+                # Inside the loop we compute the feeding kernel terms, and the fft of them.
+                smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+                fsmat[i, ] <- fft(smat[i, ])
             }
             
             res@smat <- smat
