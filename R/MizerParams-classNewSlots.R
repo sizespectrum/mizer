@@ -619,50 +619,52 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
             ##################
             
-            noSpecies <- dim(res@interaction)[1]
-            no_Pvec <- rep(0, noSpecies)
-            Pvec <- rep(0, noSpecies)
-            for (j in 1:noSpecies){
-              Beta <- log(res@species_params$beta)[j]
-             # sigma <- res@species_params$sigma[j]
-              w <- res@w
-              x <- log(w)
-              x <- x - x[1]
-              dx <- x[2]-x[1]
-            #  Delta <- dx*round(min(2*sigma, Beta)/dx)
-              Beta <- dx*round(Beta/dx)
-            #  Delta <- Beta
-            #  min_cannibal <- 1+floor((Beta-Delta)/dx)
-              min_cannibal <- 1
-            #  P <- x[length(x)] + 2*Delta
-              P <- x[length(x)] + 2*Beta
-              no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-              x_P <- (1:no_P)*dx#+Beta-Delta-dx
-              no_Pvec[j] <- no_P
-              Pvec[j] <- P
-            }
-            no_P <- max(no_Pvec)
-            P <- max(Pvec)
-            # # # 
+            Beta <- log(res@species_params$beta)
             
+            # Here we use default rr[j] = beta[j] + 3*sigma[j]
+            rr <- Beta + 3*res@species_params$sigma
+            
+            # Get size sample terms
+            w <- res@w
+            x <- log(w)
+            x <- x - x[1]
+            dx <- x[2]-x[1]
+            
+            # Perturb rr so it falls on grid points
+            rr <- dx*ceiling(rr/dx)
+            
+            # Determine period used
+            P <- max(x[length(x)] + 2*rr)
+            
+            # Determine number of x points used in period
+            no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
+            
+            # Number of species
+            noSpecies <- dim(res@interaction)[1]
+            
+            # Prepare matrix to hold phi values
             phiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
+            
+            
+            # Prepare matrix to hold the fft of the phi values
             fphiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
+            
+            # Get samples of x over a period
+            x_P <- (0:(no_P-1))*dx
+            
+            
+            # Loop over species j, to fill out the phi values
             for (j in 1:noSpecies){
-              Beta <- log(res@species_params$beta)[j]
-              sigma <- res@species_params$sigma[j]
-              # Delta <- dx*round(min(2*sigma, Beta)/dx)
-              Beta <- dx*round(Beta/dx)
-              # Delta <- Beta
-              #min_cannibal <- 1+floor((Beta-Delta)/dx)
-              min_cannibal <- 1
-              #  P <- x[length(x)] + 2*Delta
-              #  no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-              x_P <- (1:no_P)*dx#+Beta-Delta-dx
-              phi <- rep(0, length(x_P))
-              # phi[abs(x_P+Beta-P)<Delta] <- exp(-(x_P[abs(x_P+Beta-P)<Delta] + Beta - P)^2/(2*sigma^2)) 
-              phi[abs(x_P+Beta-P)<Beta] <- exp(-(x_P[abs(x_P+Beta-P)<Beta] + Beta - P)^2/(2*sigma^2)) 
-              phiMortality[j, 1:length(phi)] <- phi
-              fphiMortality[j, ] <- fft(phiMortality[j, ])
+                
+                # Prepare local phi, which will equal j th row of matrix, used in loop
+                phi <- rep(0, no_P)
+                # Our phi is a periodic extension of the normal feeding kernel, so, for 0<=x<=P we use phi[x-P] as our
+                # value of the period P extension of phi, since support(phi)=[-rr,0]
+                phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*(res@species_params$sigma[j])^2))
+                # This phi value is added to our output
+                phiMortality[j, 1:length(phi)] <- phi
+                # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
+                fphiMortality[j, ] <- fft(phiMortality[j, ])
             }
             #####################
             
