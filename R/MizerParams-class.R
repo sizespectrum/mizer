@@ -439,17 +439,24 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Community grid
 	w <- 10^(seq(from=log10(min_w),to=log10(max_w),length.out=no_w))
 	dw <- diff(w)
-	dw[no_w] <- dw[no_w-1] # Set final dw as same as one before
-
+	# Correctly defined dw by using the proper ratio (successive dw's have a fixed ratio). 
+	dw[no_w] <- dw[no_w-1]*(dw[no_w-1]/dw[no_w-2])	
+            
+            
 	# Set up full grid - background + community
 	# ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
 	if(w[1] <= dw[1])
 	    stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
-	w_full <- c(10^seq(from=log10(min_w_pp), to =  log10(w[1]-dw[1]),length.out=no_w_pp),w)
+            
+	# For fft methods we need a constant log step size throughout. 
+	# Therefore we ignore the no_w_pp argument and instead use as many steps as are necessary
+	# to almost reach min_w_pp. 
+	x_pp <- rev(seq(from=log10(min_w), log10(min_w_pp), by=log10(min_w/max_w)/(no_w-1))[-1])
+	w_full <- c(10^x_pp, w)
 	no_w_full <- length(w_full)
 	dw_full <- diff(w_full)
-	dw_full[no_w_full] <- dw_full[no_w_full-1]
-
+	dw_full[no_w_full] <- dw_full[no_w_full-1]*(dw_full[no_w_full-1]/dw_full[no_w_full-2])	
+	
 	# Basic arrays for templates
 	mat1 <- array(NA, dim=c(object,no_w), dimnames = list(sp=species_names,w=signif(w,3)))
 	mat2 <- array(NA, dim=c(object,no_w,no_w_full), dimnames = list(sp=species_names,w_pred=signif(w,3), w_prey=signif(w_full,3)))
@@ -594,8 +601,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
-	
-	######## Energy Integral
+            
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
 	# wFull has the weights from the smallest relevant plankton, to the largest fish
@@ -611,13 +617,15 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
 	    fsmat[i, ] <- fft(smat[i, ])
 	}
+            
 	res@smat <- smat
 	res@fsmat <- fsmat
-	
-	####### Mortality Integral
-	Beta <- log(res@species_params$beta)
+            
+	##################
+            
+	Beta <- log(res@species_params$beta)            
 	# Here we use default rr[j] = beta[j] + 3*sigma[j]
-	rr <- Beta + 3*res@species_params$sigma
+	rr <- Beta + 3*res@species_params$sigma 
 	# Get size sample terms
 	w <- res@w
 	x <- log(w)
@@ -628,11 +636,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Determine period used
 	P <- max(x[length(x)] + rr)
 	# Determine number of x points used in period
-	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
+	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
 	# Number of species
 	noSpecies <- dim(res@interaction)[1]
 	# Prepare matrix to hold phi values
-	phiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
+	phiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)        
 	# Prepare matrix to hold the fft of the phi values
 	fphiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
 	# Get samples of x over a period
@@ -649,9 +657,10 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
 	    fphiMortality[j, ] <- fft(phiMortality[j, ])
 	}
+	#####################
+            
 	res@smatM <- phiMortality
 	res@fsmatM <- fphiMortality
-	#########################
 	# Could maybe improve this. Pretty ugly at the moment
 	res@pred_kernel[] <- object$beta
 	res@pred_kernel <- exp(-0.5*sweep(log(sweep(sweep(res@pred_kernel,3,res@w_full,"*")^-1,2,res@w,"*")),1,object$sigma,"/")^2)
