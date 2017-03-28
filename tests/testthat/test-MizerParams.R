@@ -13,8 +13,12 @@ test_that("basic constructor sets dimensions properly",{
     # Lengths of sizes OK?
     expect_that(length(test_params@w), equals(no_w))
     expect_that(length(test_params@dw), equals(no_w))
-    expect_that(length(test_params@w_full), equals(no_w+no_w_pp))
-    expect_that(length(test_params@dw_full), equals(no_w+no_w_pp))
+    
+    # The two tests below are not appropriate for our new version of mizer with fft, so instead I added a new test for the new w_full
+    ## expect_that(length(test_params@w_full), equals(no_w+no_w_pp))
+    ## expect_that(length(test_params@dw_full), equals(no_w+no_w_pp))
+    # Check that that log of w_full is evenly spaced
+    expect_that(max(diff(log(test_params@w_full))), equals(min(diff(log(test_params@w_full)))))
     # values of sizes OK?
     expect_that(test_params@w[1], equals(min_w))
     expect_that(test_params@w[length(test_params@w)], equals(max_w))
