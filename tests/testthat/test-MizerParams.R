@@ -25,7 +25,10 @@ test_that("basic constructor sets dimensions properly",{
     expect_that(test_params@dw[1], equals(test_params@w[2]-test_params@w[1]))
     expect_that(test_params@dw[length(test_params@dw)], equals(test_params@dw[length(test_params@dw - 1)]))
     expect_that(test_params@w_full[1], equals(min_w_pp))
-    expect_that(test_params@w_full[no_w_pp+1], equals(test_params@w[1]))
+    # This test needs replacing since no_w_pp is no longer used in fft code
+    ## expect_that(test_params@w_full[no_w_pp+1], equals(test_params@w[1]))
+    # Instead test that first weight entry after plankton spectrum equals smallest fish weight 
+    expect_that(test_params@w_full[1+length(test_params@w_full)-length(test_params@w)], equals(test_params@w[1]))
     # Dimensions of array slots
     expect_that(dim(test_params@psi), equals(c(no_sp,no_w)))
     expect_that(dim(test_params@intake_max), equals(c(no_sp,no_w)))
