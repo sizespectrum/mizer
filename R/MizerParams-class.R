@@ -430,7 +430,8 @@ setGeneric('MizerParams', function(object, interaction, ...)
 setMethod('MizerParams', signature(object='numeric', interaction='missing'),
     function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = round(no_w)*0.3, species_names=1:object, gear_names=species_names){
 	#args <- list(...)
-
+    if (no_w_pp!= round(no_w)*0.3)
+        warning("New mizer code cannot support changes to no_w_pp")
 	# Some checks
 	if (length(species_names) != object)
 	    stop("species_names must be the same length as the value of object argument")
