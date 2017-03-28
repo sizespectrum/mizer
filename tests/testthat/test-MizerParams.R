@@ -35,13 +35,20 @@ test_that("basic constructor sets dimensions properly",{
     expect_that(dim(test_params@search_vol), equals(c(no_sp,no_w)))
     expect_that(dim(test_params@activity), equals(c(no_sp,no_w)))
     expect_that(dim(test_params@std_metab), equals(c(no_sp,no_w)))
-    expect_that(dim(test_params@pred_kernel), equals(c(no_sp,no_w,no_w+no_w_pp)))
+    # This test needs replacing since no_w_pp is no longer used in fft code
+    ## expect_that(dim(test_params@pred_kernel), equals(c(no_sp,no_w,no_w+no_w_pp)))
+    # The following is analogous to the commented out test, but designed for the fft code
+    expect_that(dim(test_params@pred_kernel), equals(c(no_sp,no_w,length(test_params@w_full))))
     expect_that(dim(test_params@catchability), equals(c(no_sp,no_sp)))
     expect_that(dim(test_params@selectivity), equals(c(no_sp,no_sp, no_w)))
     expect_that(dim(test_params@interaction), equals(c(no_sp,no_sp)))
     # lengths of the other slots
-    expect_that(length(test_params@rr_pp), equals(no_w+no_w_pp)) 
-    expect_that(length(test_params@cc_pp), equals(no_w+no_w_pp)) 
+    # These two tests needs replacing since no_w_pp is no longer used in fft code
+    ## expect_that(length(test_params@rr_pp), equals(no_w+no_w_pp)) 
+    ## expect_that(length(test_params@cc_pp), equals(no_w+no_w_pp)) 
+    # To make these tests appropriate for fft, we just use length(test_params@w_full) instead of no_w+no_w_pp 
+    expect_that(length(test_params@rr_pp), equals(length(test_params@w_full))) 
+    expect_that(length(test_params@cc_pp), equals(length(test_params@w_full))) 
     # Final check to make sure that the gears are being treated properly
     gear_names <- c("Trawl","Pelagic")
     test_params_gears <- MizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, min_w_pp = min_w_pp, no_w_pp = no_w_pp, species_names = species_names, gear_names = gear_names)
