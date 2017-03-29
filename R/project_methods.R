@@ -59,7 +59,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	fishEaten[, idx_sp] <- object@interaction %*% n
 	# The vector f2 equals everything inside integral (3.4), except the feeding 
 	# kernel, phi_i(w_p/w). We work in log-space so an extra multiplier w_p is introduced.
-	f2 <- sweep(n_pp + fishEaten, 2, object@w_full*object@w_full, "*")
+	f2 <- sweep(sweep(fishEaten, 2, n_pp, "+"), 2, object@w_full^2, "*")
 	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
 	# We approximate the integral by the trapezoidal method. Using the
 	# convolution theorem we can evaluate the resulting sum via fast fourier
@@ -69,7 +69,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
-	fullEnergy <- dx*Re(t(mvfft(mvfft(t(object@fsmat)) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	fullEnergy <- dx*Re(t(mvfft(t(object@fsmat) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
 
 	return(fullEnergy[, idx_sp, drop=FALSE])
 })
