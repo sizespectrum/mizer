@@ -346,9 +346,9 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       # determine the number of species
       noSpecies <- dim(object@interaction)[1]
       # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
-      muVals <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+      muVals <- matrix(0, nrow = noSpecies, ncol = length(object@w))
       # Obtain weight vector w, and the corresponding vector x in log-space
-      w <- params@w
+      w <- object@w
       x <- log(w)
       x <- x - x[1]
       # Values of x are evenly spaced, with a difference of dx, starting with zero
@@ -361,7 +361,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       
       # Make a matrix to compute intermediate values, which are mortality integrals from predation via different 
       # species, whose terms equal the integral within the sum of (3.12), discounting the interaction matrix theta
-      muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+      muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w))
       
       
       # Fill out this intermediate matrix
