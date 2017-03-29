@@ -236,7 +236,16 @@ test_that("getM2 for MizerSim",{
     expect_that(length(dim(getM2(sim, time_range=time_range))), equals(3))
     time_range <- 20
     expect_that(length(dim(getM2(sim, time_range=time_range))), equals(2))
-    expect_that(getM2(sim, time_range=time_range), equals(getM2(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+    ##expect_that(getM2(sim, time_range=time_range), equals(getM2(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+    aq1 <- getM2(sim, time_range=time_range)
+    aq2 <- getM2(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])
+    
+    ttot <- 0
+    for (i in (1:dim(aq1)[1])){
+        ttot <- ttot + sum(aq1[i,]!=aq2[i,])    
+    }
+    
+    expect_that(ttot, equals(0))
 })
 
 
