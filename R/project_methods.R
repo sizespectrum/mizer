@@ -388,6 +388,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
         }
         
       }	    
+      rownames(muVals) <- rownames(object@interaction)
       return(muVals)
     }
 )
