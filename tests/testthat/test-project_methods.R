@@ -104,23 +104,32 @@ test_that("getPhiPrey",{
     pp <- getPhiPrey(params,n,n_full)
     # test dim
     expect_that(dim(pp), equals(c(no_sp,no_w)))
-    # Test numbers are right
-    # Hideous - doing it by hand for first predator - should be the same
+    
+    # Test fft based integrator works ok
+    
     n <- abs(matrix(rnorm(no_sp*no_w),nrow = no_sp,ncol = no_w))
     n_pp <- abs(rnorm(no_w_full))
-    neff1 <- rep(0,length(params@w))
-    for (i in 1:no_w)
-        neff1[i] <- neff1[i] + sum(params@interaction[1,] * n[,i] * params@w[i] * params@dw[i])
-    w_offset <- no_w_full - no_w
-    pks <- rep(NA,length(params@w))
-    pkpp <- rep(NA,length(params@w))
-    for (i in 1:length(params@w)){
-        pks[i] <- sum(params@pred_kernel[1,i,(w_offset+1):no_w_full] * neff1)
-        pkpp[i] <- sum(n_pp * params@w_full * params@dw_full * params@pred_kernel[1,i,])
+    
+    ppp <- getPhiPrey(params,n,n_pp)
+    
+    object <- params
+    w0 <- object@w[1]
+    Beta <- log(object@species_params$beta)
+    sigma <- object@species_params$sigma
+    wFull <- object@w_full
+    xFull <- log(wFull)
+    xFull <- xFull - xFull[1]
+    dx <- xFull[2]-xFull[1]
+    idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+    fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
+    fishEaten <- rep(0, length.out = length(wFull))
+    for(i in 1:(dim(n)[1])) {
+        fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
+        f2 <- wFull*wFull*(n_pp + fishEaten)
+        fullEnergy <- dx*Re(fft(object@fsmat[i, ]*fft(f2), inverse=TRUE)/length(object@smat[i,]))
+        fullEnergyMat[i,] <- fullEnergy[idx_sp]
     }
-    pp1 <- pks + pkpp
-    pp <- getPhiPrey(params,n,n_pp)
-  ## Replace this test with something appropriate for fft##  expect_that(pp1, is_equivalent_to(pp[1,]))
+    expect_that(fullEnergyMat[1,], is_equivalent_to(ppp[1,]))
 })
 
 test_that("getFeedingLevel for MizerParams",{
