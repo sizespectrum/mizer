@@ -248,6 +248,14 @@ valid_MizerParams <- function(object) {
 #'   species at size
 #' @slot std_metab An array (species x size) that holds the standard metabolism
 #'   for each species at size
+#' @slot smat An array (species x size) that holds the feeding kernel information
+#'   in a form appropriate for evaluating the available energy integral
+#' @slot fsmat An array (species x size), each row of which equals the fast Fourier
+#'   transform of the corresponding row of smat
+#' @slot smatM An array (species x size) that holds the feeding kernel information
+#'   in a form appropriate for evaluating the predation mortality integral
+#' @slot fsmatM An array (species x size), each row of which equals the fast Fourier
+#'   transform of the corresponding row of smatM
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
