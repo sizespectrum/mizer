@@ -218,7 +218,34 @@ test_that("getM2 for MizerParams",{
     # Test dims
     expect_equal(dim(m21), c(no_sp,no_w))
     expect_equal(dim(m21), c(no_sp,no_w))
-    ## Replace this test with something appropriate for fft## expect_equal(m21, m22)
+    ######################################
+    # m22 was computed via the fft whereas m21 was not, so we dont expect them to be equal, as the
+    # old test was designed to test for, so instead we recompute muVals (which is the mortality 
+    # integral, as computed via fft), and we check this equals m22
+    object <- params
+    noSpecies <- dim(object@interaction)[1]
+    muVals <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+    w <- params@w
+    x <- log(w)
+    x <- x - x[1]
+    dx <- x[2]-x[1]
+    feeding_level <- getFeedingLevel(object, n=n, n_pp=n_full)
+    no_P <- length(object@smatM[1,])
+    muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(params@w))
+    for (j in 1:noSpecies){
+        f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w
+        f <- c(f[1:length(x)], rep(0, no_P-length(x)))
+        mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
+        muIntermediate[j, ] <- c(mortalityIntegral[(no_P-1):no_P], mortalityIntegral[1:(length(x)-1-1)])
+    }
+    for (i in 1:noSpecies){
+        for (j in 1:noSpecies){
+            muVals[i, ] <- muVals[i, ]+object@interaction[j,i]*muIntermediate[j, ]
+        }
+        
+    }
+    expect_equal(sum(m22[1,]!=muVals[1,]), 0)
+    ########################################
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
     pred_total <- 0
