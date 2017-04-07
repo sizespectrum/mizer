@@ -301,6 +301,8 @@ setClass(
         fsmat = "array",
         smatM = "array",
         fsmatM = "array",
+        smatMlong = "array",
+        fsmatMlong = "array",
         pred_kernel = "array",
         #z0 = "numeric",
         rr_pp = "numeric",
@@ -325,6 +327,8 @@ setClass(
         fsmat = array(NA, dim = c(1,1)),
         smatM = array(NA, dim = c(1,1)),
         fsmatM = array(NA, dim = c(1,1)),
+        smatMlong = array(NA, dim = c(1,1)),
+        fsmatMlong = array(NA, dim = c(1,1)),
         pred_kernel = array(
             NA,dim = c(1,1,1), dimnames = list(
                 sp = NULL,w_pred = NULL,w_prey = NULL
@@ -670,6 +674,48 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
 	res@smatM <- phiMortality
 	res@fsmatM <- fphiMortality
+	
+	###!!!### smatMlong code put here
+	
+	Beta <- log(res@species_params$beta)            
+	# Here we use default rr[j] = beta[j] + 3*sigma[j]
+	rr <- Beta + 3*res@species_params$sigma 
+	
+	wfull <- res@w_full
+	xfull <- log(wfull)
+	xfull <- xfull - xfull[1]
+	dx <- xfull[2]-xfull[1]
+	
+	rr <- dx*ceiling(rr/dx)
+	# Determine period used
+	P <- max(xfull[length(xfull)] + rr)
+	# Determine number of x points used in period
+	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
+	noSpecies <- dim(res@interaction)[1]
+	
+	# initially fill matrices with zeros
+	phiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
+	fphiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
+	
+	for (j in 1:noSpecies){
+	    # Prepare local phi, which will equal j th row of matrix, used in loop
+	    phi <- rep(0, no_P)
+	    # Our phi is a periodic extension of the normal feeding kernel, so, for 0<=x<=P we use phi[x-P] as our
+	    # value of the period P extension of phi, since support(phi)=[-rr,0]
+	    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*(res@species_params$sigma[j])^2))
+	    # This phi value is added to our output
+	    phiMortality[j, 1:length(phi)] <- phi
+	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
+	    fphiMortality[j, ] <- fft(phiMortality[j, ])
+	}
+	
+	res@smatMlong <- phiMortality
+	res@fsmatMlong <- fphiMortality
+	
+	
+	############ smatMlong code ends here
+	
+	
 	# Could maybe improve this. Pretty ugly at the moment
 	res@pred_kernel[] <- object$beta
 	res@pred_kernel <- exp(-0.5*sweep(log(sweep(sweep(res@pred_kernel,3,res@w_full,"*")^-1,2,res@w,"*")),1,object$sigma,"/")^2)
