@@ -103,6 +103,14 @@ xfull <- log(wfull)
 xfull <- xfull - xfull[1]
 # Values of x are evenly spaced, with a difference of dx, starting with zero
 dx <- xfull[2]-xfull[1]
+
+###@@@### We wont need this when we make it into a project method
+n <- get_initial_n(object)
+n_pp <- object@cc_pp
+###@@@###
+
+
+
 # Obtain feeding level
 feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
 
@@ -137,12 +145,59 @@ for (j in 1:noSpecies){
     # feeding kernel and theta, and we sample it from 0 to P, but it is only 
     # non-zero from fishEggSize to X, where P = X + beta + 3*sigma
     q <- rep(0, no_P)
-    q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w
+    q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
     # For convolution, we imagine f is a period P function, and sample it on [0,P]
     # We use fast fourier transforms to evalute this convolution integral
-    mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(q), inverse=TRUE)/no_P)
+    mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
     # muIntermediate[j, ] measures how much i dies from being predated on by species j when object@interaction[j,i]=1
     muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
 }
 
-OUTPUT@get_pred_rate_fft <- muIntermediate
+
+plot(muIntermediate[1,])
+
+
+comp <- getM2Background(object=object, n = n, 
+              n_pp=n_pp)
+
+lines(comp)
+
+
+#################################### we need to ensure smatMlong is being calculated properly
+
+res <- params
+
+Beta <- log(res@species_params$beta)            
+# Here we use default rr[j] = beta[j] + 3*sigma[j]
+rr <- Beta + 3*res@species_params$sigma 
+
+wfull <- res@w_full
+xfull <- log(wfull)
+xfull <- xfull - xfull[1]
+dx <- xfull[2]-xfull[1]
+
+rr <- dx*ceiling(rr/dx)
+# Determine period used
+P <- max(xfull[length(xfull)] + rr)
+# Determine number of x points used in period
+no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
+noSpecies <- dim(res@interaction)[1]
+
+# initially fill matrices with zeros
+phiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
+fphiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
+
+for (j in 1:noSpecies){
+    # Prepare local phi, which will equal j th row of matrix, used in loop
+    phi <- rep(0, no_P)
+    # Our phi is a periodic extension of the normal feeding kernel, so, for 0<=x<=P we use phi[x-P] as our
+    # value of the period P extension of phi, since support(phi)=[-rr,0]
+    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*(res@species_params$sigma[j])^2))
+    # This phi value is added to our output
+    phiMortality[j, 1:length(phi)] <- phi
+    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
+    fphiMortality[j, ] <- fft(phiMortality[j, ])
+}
+
+res@smatMlong <- phiMortality
+res@fsmatMlong <- fphiMortality

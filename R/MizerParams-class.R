@@ -697,6 +697,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	phiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
 	fphiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
 	
+	x_P <- (0:(no_P-1))*dx
+	
 	for (j in 1:noSpecies){
 	    # Prepare local phi, which will equal j th row of matrix, used in loop
 	    phi <- rep(0, no_P)
