@@ -241,6 +241,38 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
     }
 )
 
+############################@@@ my new method ###############
+
+setGeneric('getPredRateFFT', function(object, n, n_pp, feeding_level)
+    standardGeneric('getPredRateFFT'))
+
+
+setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix', 
+                                   n_pp='numeric', feeding_level = 'matrix'),
+          function(object, n, n_pp, feeding_level){
+              if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
+                  stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
+              }
+              n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
+              # The next line is a bottle neck
+              pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
+              return(pred_rate)
+          }
+)
+
+
+setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
+          function(object, n, n_pp){
+              n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
+              feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+              #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
+              pred_rate <- getPredRateFFT(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
+              return(pred_rate)
+          }
+)
+
+#############################################################
+
 # getM2
 # This uses the predation rate which is also used in M2background
 # Too much overlap? Inefficient? Same thing is calculated twice
