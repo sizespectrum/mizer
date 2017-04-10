@@ -253,10 +253,69 @@ setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix',
               if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
                   stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
               }
-              n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-              # The next line is a bottle neck
-              pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
-              return(pred_rate)
+              
+              noSpecies <- dim(object@interaction)[1]
+              
+              # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
+              muVals <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
+              
+              # Obtain weight vector wfull, and the corresponding vector xfull in log-space
+              wfull <- object@w_full
+              xfull <- log(wfull)
+              xfull <- xfull - xfull[1]
+              # Values of x are evenly spaced, with a difference of dx, starting with zero
+              dx <- xfull[2]-xfull[1]
+              
+              ###@@@### We wont need this when we make it into a project method
+              n <- get_initial_n(object)
+              n_pp <- object@cc_pp
+              ###@@@###
+              
+              
+              
+              # Obtain feeding level
+              feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+              
+              # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
+              no_P <- length(object@smatMlong[1,])
+              
+              LL <- length(object@w)
+              LLfull <- length(object@w_full)
+              
+              #xlonger[1] == 0
+              #xlonger[no_P] == dx*(no_P-1) == P == xfull[LLfull] + ceiling(max((log(object@beta) + 3*object@sigma))/dx)*dx
+              # no_P == 1+ ceiling(P/dx)
+              #xlonger[(1:LLfull)] == xfull
+              
+              xlonger <- (0:(no_P-1))*dx
+              
+              FishEggIndex <- LLfull-LL+1
+              
+              #x == xlonger[(FishEggIndex:LLfull)]
+              
+              # Make a matrix to compute intermediate values, which are mortality integrals from predation via different 
+              # species, whose terms equal the integral within the sum of (3.12), discounting the interaction matrix theta
+              muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
+              
+              ########################################## Express full convolution integral ######
+              
+              
+              # Fill out this intermediate matrix
+              for (j in 1:noSpecies){
+                  # We express the intermediate values as a a convolution integral involving
+                  # two functions: q and fsmatM. Here q is all the integrand of (3.12), except the
+                  # feeding kernel and theta, and we sample it from 0 to P, but it is only 
+                  # non-zero from fishEggSize to X, where P = X + beta + 3*sigma
+                  q <- rep(0, no_P)
+                  q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
+                  # For convolution, we imagine f is a period P function, and sample it on [0,P]
+                  # We use fast fourier transforms to evalute this convolution integral
+                  mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
+                  # muIntermediate[j, ] measures how much i dies from being predated on by species j when object@interaction[j,i]=1
+                  muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
+              }
+              
+              return(muIntermediate)
           }
 )
 

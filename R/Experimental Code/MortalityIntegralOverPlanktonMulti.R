@@ -150,10 +150,6 @@ for (j in 1:noSpecies){
 }
 
 
-plot(muIntermediate[1,])
-
-plot(colSums(muIntermediate))
-
 
 comp <- getM2Background(object=object, n = n, 
               n_pp=n_pp)
@@ -161,9 +157,4 @@ comp <- getM2Background(object=object, n = n,
 lines(comp)
 
 
-AA <- getPredRate(object = object, n = n, n_pp = n_pp)
-
-BB <- getPredRateFFT(object = object, n = n, n_pp = n_pp)
-
-dim(BB)
 
