@@ -267,8 +267,8 @@ setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix',
               dx <- xfull[2]-xfull[1]
               
               ###@@@### We wont need this when we make it into a project method
-              ###n <- get_initial_n(object)
-              ###n_pp <- object@cc_pp
+              #n <- get_initial_n(object)
+              #n_pp <- object@cc_pp
               ###@@@###
               
               
