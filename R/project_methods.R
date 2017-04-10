@@ -511,10 +511,10 @@ setGeneric('getM2Background', function(object, n, n_pp, pred_rate)
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric', pred_rate='array'),
     function(object, n, n_pp, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
-            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),") x no. size bins in community + background (",length(object@w_full),")")
+        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
+            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
-        M2background <- colSums(pred_rate,dims=2)
+        M2background <- colSums(pred_rate)
         return(M2background)
     }
 )
@@ -524,7 +524,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, pred_rate){
-        pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
+        pred_rate <- getPredRateFFT(object,n=n,n_pp=n_pp)
         M2background <- getM2Background(object, n=n, n_pp=n_pp, pred_rate=pred_rate)
         return(M2background)
     }
