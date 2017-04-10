@@ -391,15 +391,23 @@ setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
 setMethod('getM2', signature(object='MizerParams', n = 'missing', 
                              n_pp='missing', pred_rate = 'array'),
     function(object, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
-            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),") x no. size bins in community + background (",length(object@w_full),")")
+        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
+            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
         # get the element numbers that are just species
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-        # Interaction is predator x prey so need to transpose so it is prey x pred
-        # Sum pred_kernel over predator sizes to give total predation rate of
-        # each predator on each prey size
-        m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
+        
+        intera <- object@interaction
+        no_spe <- dim(intera)[1]
+        m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
+        
+        #make use of getPredRateFFT
+        for (i in 1:no_spe){
+            for (j in 1:no_spe){
+                m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
+            }
+        }
+        rownames(m2) <- rownames(object@interaction)
         return(m2)
     }
 )
@@ -409,53 +417,26 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp){
-      # determine the number of species
-      noSpecies <- dim(object@interaction)[1]
-      # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
-      muVals <- matrix(0, nrow = noSpecies, ncol = length(object@w))
-      # Obtain weight vector w, and the corresponding vector x in log-space
-      w <- object@w
-      x <- log(w)
-      x <- x - x[1]
-      # Values of x are evenly spaced, with a difference of dx, starting with zero
-      dx <- x[2]-x[1]
-      # Obtain feeding level
       feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
       
-      # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
-      no_P <- length(object@smatM[1,])
-      
-      # Make a matrix to compute intermediate values, which are mortality integrals from predation via different 
-      # species, whose terms equal the integral within the sum of (3.12), discounting the interaction matrix theta
-      muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w))
+      pred_rate <- getPredRateFFT(object= object, n = n, 
+                                   n_pp=n_pp, feeding_level = feeding_level)
       
       
-      # Fill out this intermediate matrix
+      idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
       
-      for (j in 1:noSpecies){
-          # We express the intermediate values as a a convolution integral involving
-          # two functions: f and fsmatM. Here f is all the integrand of (3.12), except the
-          # feeding kernel and theta
-          f <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*w
-          # For convolution, we imagine f is a period P function, and sample it on [0,P]
-          f <- c(f[1:length(x)], rep(0, no_P-length(x)))
-          # We use fast fourier transforms to evalute this convolution integral
-          mortalityIntegral <- dx*Re(fft((object@fsmatM[j,])*fft(f), inverse=TRUE)/no_P)
-          # muIntermediate[j, ] measures how much i dies from being predated on by species j when object@interaction[j,i]=1
-          muIntermediate[j, ] <- c(mortalityIntegral[(no_P-1):no_P], mortalityIntegral[1:(length(x)-1-1)])
+      intera <- object@interaction
+      no_spe <- dim(intera)[1]
+      m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
+      
+      #make use of getPredRateFFT
+      for (i in 1:no_spe){
+          for (j in 1:no_spe){
+              m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
+          }
       }
-      
-      
-      # Loop over i and j, do determine how much i dies from being predated on by species j
-      for (i in 1:noSpecies){
-        for (j in 1:noSpecies){
-          muVals[i, ] <- muVals[i, ]+object@interaction[j,i]*muIntermediate[j, ]
-          ## can we speed this up by using matrix multiplication ?
-        }
-        
-      }	    
-      rownames(muVals) <- rownames(object@interaction)
-      return(muVals)
+      rownames(m2) <- rownames(object@interaction)
+      return(m2)
     }
 )
 
@@ -512,7 +493,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
                                        n_pp='numeric', pred_rate='array'),
     function(object, n, n_pp, pred_rate){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
-            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
+            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
         M2background <- colSums(pred_rate)
         return(M2background)
