@@ -29,8 +29,13 @@ inter <- read.csv("./vignettes/inter.csv", row.names=1)
 inter <- as(inter, "matrix")
 
 ####
-params <- MizerParams(params_data, interaction = inter, no_w = 200)
+params <- MizerParams(params_data, interaction = inter, no_w = 1000)
+
+ptm <- proc.time() 
+
+
 sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
+(proc.time() - ptm)[[3]]
 plot(sim)
 ##################
 ####### put initializeation code here
