@@ -382,14 +382,15 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
             stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
-        # get the element numbers that are just species
+        # Get indexes such that w_full[idx_sp[k]]==w[[k]]
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
         
         intera <- object@interaction
         no_spe <- dim(intera)[1]
         m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
         
-        #make use of getPredRateFFT
+        # Since pred_rate here is the result of calling getPredRateFFT, we have that m2 equals 
+        # the sum of rows of pred_rate, weighted by the interaction matrix
         for (i in 1:no_spe){
             for (j in 1:no_spe){
                 m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
@@ -410,14 +411,15 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       pred_rate <- getPredRateFFT(object= object, n = n, 
                                    n_pp=n_pp, feeding_level = feeding_level)
       
-      
+      # Get indexes such that w_full[idx_sp[k]]==w[[k]]
       idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
       
       intera <- object@interaction
       no_spe <- dim(intera)[1]
       m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
       
-      #make use of getPredRateFFT
+      # Since pred_rate here is the result of calling getPredRateFFT, we have that m2 equals 
+      # the sum of rows of pred_rate, weighted by the interaction matrix
       for (i in 1:no_spe){
           for (j in 1:no_spe){
               m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
@@ -483,6 +485,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
             stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
+        # Since pred_rate here is the result of calling getPredRateFFT, we have that M2background equals 
+        # the sum of rows of pred_rate
         M2background <- colSums(pred_rate)
         return(M2background)
     }
@@ -494,6 +498,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
                                        n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, pred_rate){
         pred_rate <- getPredRateFFT(object,n=n,n_pp=n_pp)
+        # Since pred_rate here is the result of calling getPredRateFFT, we have that M2background equals 
+        # the sum of rows of pred_rate
         M2background <- getM2Background(object, n=n, n_pp=n_pp, pred_rate=pred_rate)
         return(M2background)
     }
