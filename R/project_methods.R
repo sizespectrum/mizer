@@ -241,11 +241,14 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='num
     }
 )
 
-############################@@@ my new method ###############
+############################ New FFT based computation of pred_rate data ###############
 
 setGeneric('getPredRateFFT', function(object, n, n_pp, feeding_level)
     standardGeneric('getPredRateFFT'))
 
+# getPredRateFFT returns a (no. species) * (length(w_full)) matrix M where M[j,k] equals the predation rate of a prey of size 
+# w_full[k], from predators of species j, when the interaction matrix is full of 1s. In other words M[j,k] equals the j th term in 
+# the sum of (3.12), from the mizer vignette, discounting the interaction matrix, theta
 
 setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
@@ -266,13 +269,6 @@ setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix',
               # Values of x are evenly spaced, with a difference of dx, starting with zero
               dx <- xfull[2]-xfull[1]
               
-              ###@@@### We wont need this when we make it into a project method
-              #n <- get_initial_n(object)
-              #n_pp <- object@cc_pp
-              ###@@@###
-              
-              
-              
               # Obtain feeding level
               feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
               
@@ -281,37 +277,29 @@ setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix',
               
               LL <- length(object@w)
               LLfull <- length(object@w_full)
-              
-              #xlonger[1] == 0
-              #xlonger[no_P] == dx*(no_P-1) == P == xfull[LLfull] + ceiling(max((log(object@beta) + 3*object@sigma))/dx)*dx
-              # no_P == 1+ ceiling(P/dx)
-              #xlonger[(1:LLfull)] == xfull
-              
-              xlonger <- (0:(no_P-1))*dx
-              
+              # w_full[FishEggIndex] equals the fish egg weight
               FishEggIndex <- LLfull-LL+1
               
-              #x == xlonger[(FishEggIndex:LLfull)]
-              
-              # Make a matrix to compute intermediate values, which are mortality integrals from predation via different 
-              # species, whose terms equal the integral within the sum of (3.12), discounting the interaction matrix theta
+              # Make a matrix to hold the final result. 
               muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
               
               ########################################## Express full convolution integral ######
               
               
-              # Fill out this intermediate matrix
+              # Fill out the matrix of results
               for (j in 1:noSpecies){
                   # We express the intermediate values as a a convolution integral involving
-                  # two functions: q and fsmatM. Here q is all the integrand of (3.12), except the
+                  # two functions: q and fsmatMlong. Here q is all the integrand of (3.12), except the
                   # feeding kernel and theta, and we sample it from 0 to P, but it is only 
-                  # non-zero from fishEggSize to X, where P = X + beta + 3*sigma
+                  # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
+                  # fish size in the log space
                   q <- rep(0, no_P)
                   q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
                   # For convolution, we imagine f is a period P function, and sample it on [0,P]
                   # We use fast fourier transforms to evalute this convolution integral
                   mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
-                  # muIntermediate[j, ] measures how much i dies from being predated on by species j when object@interaction[j,i]=1
+                  # muIntermediate[j,k] measures how much a size w_full[k] prey 
+                  # dies from being predated on by species j when the interaction matrix is full of 1s
                   muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
               }
               
