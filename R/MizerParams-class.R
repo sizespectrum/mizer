@@ -220,16 +220,12 @@ valid_MizerParams <- function(object) {
 #'   species at size
 #' @slot std_metab An array (species x size) that holds the standard metabolism
 #'   for each species at size
-#' @slot smat An array (species x size) that holds the feeding kernel information
-#'   in a form appropriate for evaluating the available energy integral
-#'   GWD: this is not really species x size but rather species x log of predator/prey size ratio.
-#'   GWD: Do we actually need these slots that hold the non-Fourier-transformed kernels?
-#' @slot fsmat An array (species x size), each row of which equals the fast Fourier
-#'   transform of the corresponding row of smat
-#' @slot smatM An array (species x size) that holds the feeding kernel information
-#'   in a form appropriate for evaluating the predation mortality integral
-#' @slot fsmatM An array (species x size), each row of which equals the fast Fourier
-#'   transform of the corresponding row of smatM
+#' @slot fsmat An array (species x log of predator/prey size ratio) that holds 
+#'   the Fourier transform of the feeding kernel in a form appropriate for
+#'   evaluating the available energy integral
+#' @slot fsmatMlong An array (species x log of predator/prey size ratio) that holds 
+#'   the Fourier transform of the feeding kernel in a form appropriate for
+#'   evaluating the predation mortality integral
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the background spectrum
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -269,13 +265,8 @@ setClass(
         search_vol = "array",
         activity = "array",
         std_metab = "array",
-        smat = "array",
         fsmat = "array",
-        smatM = "array",
-        fsmatM = "array",
-        smatMlong = "array",
         fsmatMlong = "array",
-# GWD: the previous two slots were not mentioned in the class documentation
         #z0 = "numeric",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
@@ -295,11 +286,7 @@ setClass(
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        smat = array(NA, dim = c(1,1)),
         fsmat = array(NA, dim = c(1,1)),
-        smatM = array(NA, dim = c(1,1)),
-        fsmatM = array(NA, dim = c(1,1)),
-        smatMlong = array(NA, dim = c(1,1)),
         fsmatMlong = array(NA, dim = c(1,1)),
         #z0 = NA_real_,
         rr_pp = NA_real_,
@@ -343,6 +330,9 @@ setClass(
 #'    Default value is the largest w_inf in the community x 1.1.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w_pp The smallest size of the background spectrum.
+#' @param no_w_pp Obsolete argument that is no longer used because the number
+#'    of plankton size bins is determined because all size bins have to
+#'    be logarithmically equally spaced.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
@@ -583,13 +573,13 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	xFull <- log(res@w_full)
 	xFull <- xFull - xFull[1]
 	# smat ends up as the feeding kernel values appropriate for the available energy integral
-	res@smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	# We also form fsmat, in which we pre-compute the fft of the rows of smat
 	res@fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	for(i in 1:dim(res@interaction)[1]){
 	    # Inside the loop we compute the feeding kernel terms, and the fft of them.
-	    res@smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
-	    res@fsmat[i, ] <- fft(res@smat[i, ])
+	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+	    res@fsmat[i, ] <- fft(smat[i, ])
 	}
 
 	##################
@@ -602,37 +592,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	dx <- x[2]-x[1]
 	# Perturb rr so it falls on grid points
 	rr <- dx*ceiling(rr/dx)
-	# Determine period used
-	P <- max(x[length(x)] + rr)
-	# Determine number of x points used in period
-	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer 
-	# Number of species
-	noSpecies <- dim(res@interaction)[1]
-	# Prepare matrix to hold phi values
-	phiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)        
-	# Prepare matrix to hold the fft of the phi values
-	fphiMortality <- matrix(0,nrow = noSpecies, ncol = no_P)
-	# Get samples of x over a period
-	x_P <- (0:(no_P-1))*dx
-	# Loop over species j, to fill out the phi values
-	for (j in 1:noSpecies){
-	    # Prepare local phi, which will equal j th row of matrix, used in loop
-	    phi <- rep(0, no_P)
-	    # Our phi is a periodic extension of the normal feeding kernel, so, for 0<=x<=P we use phi[x-P] as our
-	    # value of the period P extension of phi, since support(phi)=[-rr,0]
-	    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*(res@species_params$sigma[j])^2))
-	    # This phi value is added to our output
-	    phiMortality[j, 1:length(phi)] <- phi
-	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
-	    fphiMortality[j, ] <- fft(phiMortality[j, ])
-	}
-	#####################
-            
-	res@smatM <- phiMortality
-	res@fsmatM <- fphiMortality
-	
-	###!!!### smatMlong code put here
-
 	# Determine period used
 	P <- max(xFull[length(xFull)] + rr)
 	# Determine number of x points used in period
@@ -657,7 +616,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    fphiMortality[j, ] <- fft(phiMortality[j, ])
 	}
 	
-	res@smatMlong <- phiMortality
 	res@fsmatMlong <- fphiMortality
 	
 	

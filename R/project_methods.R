@@ -64,8 +64,6 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# We approximate the integral by the trapezoidal method. Using the
 	# convolution theorem we can evaluate the resulting sum via fast fourier
 	# transform.
-	# The feeding kernel is in object@smat[i,k]=phi_i(exp(-xFull[k])) 
-	# and object@fsmat contains its Fourier transform.
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
@@ -213,6 +211,9 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
     standardGeneric('getPredRate'))
 
+#' \code{getPredRate} method with \code{feeding_level} argument.
+#' @rdname getPredRate
+# Called from project ->
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
           function(object, n, n_pp, feeding_level){
@@ -236,7 +237,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
               feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
               
               # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
-              no_P <- length(object@smatMlong[1,])
+              no_P <- length(object@fsmatMlong[1,])
               
               LL <- length(object@w)
               LLfull <- length(object@w_full)
@@ -270,7 +271,8 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
           }
 )
 
-
+#' \code{getPredRate} method without \code{feeding_level} argument.
+#' @rdname getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
           function(object, n, n_pp){
               n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
