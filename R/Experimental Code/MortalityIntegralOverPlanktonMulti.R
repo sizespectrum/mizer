@@ -156,7 +156,7 @@ for (j in 1:noSpecies){
 
 
 
-plot(colSums(getPredRateFFT(object = object, n = n, n_pp = n_pp)))
+plot(colSums(getPredRate(object = object, n = n, n_pp = n_pp)))
 
 
 comp <- getM2Background(object=object, n = n, 

@@ -7,16 +7,12 @@ test_that("basic constructor sets dimensions properly",{
     max_w <- 5000
     no_w <- 200
     min_w_pp <- 1e-8
-    no_w_pp <- 20
     species_names <- c("Cod","Haddock","Whiting")
-    test_params <- MizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, min_w_pp = min_w_pp, no_w_pp = no_w_pp, species_names = species_names)
+    test_params <- MizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, min_w_pp = min_w_pp, species_names = species_names)
     # Lengths of sizes OK?
     expect_that(length(test_params@w), equals(no_w))
     expect_that(length(test_params@dw), equals(no_w))
     
-    # The two tests below are not appropriate for our new version of mizer with fft, so instead I added a new test for the new w_full
-    ## expect_that(length(test_params@w_full), equals(no_w+no_w_pp))
-    ## expect_that(length(test_params@dw_full), equals(no_w+no_w_pp))
     # Check that that log of w_full is evenly spaced
     expect_that(max(diff(log(test_params@w_full))), equals(min(diff(log(test_params@w_full)))))
     # values of sizes OK?
@@ -25,9 +21,7 @@ test_that("basic constructor sets dimensions properly",{
     expect_that(test_params@dw[1], equals(test_params@w[2]-test_params@w[1]))
     expect_that(test_params@dw[length(test_params@dw)], equals(test_params@dw[length(test_params@dw - 1)]))
     expect_that(test_params@w_full[1], equals(min_w_pp))
-    # This test needs replacing since no_w_pp is no longer used in fft code
-    ## expect_that(test_params@w_full[no_w_pp+1], equals(test_params@w[1]))
-    # Instead test that first weight entry after plankton spectrum equals smallest fish weight 
+    # Test that first weight entry after plankton spectrum equals smallest fish weight 
     expect_that(test_params@w_full[1+length(test_params@w_full)-length(test_params@w)], equals(test_params@w[1]))
     # Dimensions of array slots
     expect_that(dim(test_params@psi), equals(c(no_sp,no_w)))
@@ -35,23 +29,15 @@ test_that("basic constructor sets dimensions properly",{
     expect_that(dim(test_params@search_vol), equals(c(no_sp,no_w)))
     expect_that(dim(test_params@activity), equals(c(no_sp,no_w)))
     expect_that(dim(test_params@std_metab), equals(c(no_sp,no_w)))
-    # This test needs replacing since no_w_pp is no longer used in fft code
-    ## expect_that(dim(test_params@pred_kernel), equals(c(no_sp,no_w,no_w+no_w_pp)))
-    # The following is analogous to the commented out test, but designed for the fft code
-    expect_that(dim(test_params@pred_kernel), equals(c(no_sp,no_w,length(test_params@w_full))))
     expect_that(dim(test_params@catchability), equals(c(no_sp,no_sp)))
     expect_that(dim(test_params@selectivity), equals(c(no_sp,no_sp, no_w)))
     expect_that(dim(test_params@interaction), equals(c(no_sp,no_sp)))
     # lengths of the other slots
-    # These two tests needs replacing since no_w_pp is no longer used in fft code
-    ## expect_that(length(test_params@rr_pp), equals(no_w+no_w_pp)) 
-    ## expect_that(length(test_params@cc_pp), equals(no_w+no_w_pp)) 
-    # To make these tests appropriate for fft, we just use length(test_params@w_full) instead of no_w+no_w_pp 
     expect_that(length(test_params@rr_pp), equals(length(test_params@w_full))) 
     expect_that(length(test_params@cc_pp), equals(length(test_params@w_full))) 
     # Final check to make sure that the gears are being treated properly
     gear_names <- c("Trawl","Pelagic")
-    test_params_gears <- MizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, min_w_pp = min_w_pp, no_w_pp = no_w_pp, species_names = species_names, gear_names = gear_names)
+    test_params_gears <- MizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, min_w_pp = min_w_pp, species_names = species_names, gear_names = gear_names)
     expect_that(dim(test_params_gears@catchability), equals(c(length(gear_names),no_sp)))
     expect_that(dim(test_params_gears@selectivity), equals(c(length(gear_names),no_sp, no_w)))
     # dimnames of species and gears - just do a couple because the validity check should ensure the consistency of the others

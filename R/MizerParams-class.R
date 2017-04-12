@@ -44,10 +44,8 @@ valid_MizerParams <- function(object) {
 	    errors <- c(errors, msg)
     }
     # 3D arrays
-    if(!all(c(
-	length(dim(object@pred_kernel)),
-	length(dim(object@selectivity))) == 3)){
-	    msg <- "pred_kernel and selectivity must be three dimensions"
+    if(length(dim(object@selectivity)) != 3){
+	    msg <- "selectivity must be three dimensions"
 	    errors <- c(errors, msg)
     }
     # Check number of species is equal across relevant slots
@@ -57,13 +55,12 @@ valid_MizerParams <- function(object) {
 	dim(object@search_vol)[1],
 	dim(object@std_metab)[1],
 	dim(object@activity)[1],
-	dim(object@pred_kernel)[1],
 	dim(object@selectivity)[2],
 	dim(object@catchability)[2],
 	dim(object@interaction)[1],
 	dim(object@interaction)[2]) == 
 	    dim(object@species_params)[1])){
-	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, pred_kernel, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
+	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, interaction (dim 1), selectivity, catchability and interaction (dim 2) slots"
 	    errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -73,16 +70,10 @@ valid_MizerParams <- function(object) {
 	dim(object@search_vol)[2],
 	dim(object@activity)[2],
 	dim(object@std_metab)[2],
-	dim(object@pred_kernel)[2],
 	dim(object@selectivity)[3]) ==
 	    length_w)){
-	    msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, activity, pred_kernel (dim 2) and selectivity (dim 3) slots"
+	    msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, activity, and selectivity (dim 3) slots"
 	    errors <- c(errors, msg)
-    }
-    # Check number of full spectrum size groups
-    if(!isTRUE(all.equal(dim(object@pred_kernel)[3],length(object@w_full)))){
-	msg <- "The length of the full size spectrum in the third dimension of the pred_kernel slot must be the same length as the w_full slot"
-	errors <- c(errors, msg)
     }
     # Check numbe of gears
     if(!isTRUE(all.equal(dim(object@selectivity)[1], dim(object@catchability)[1]))){
@@ -97,10 +88,9 @@ valid_MizerParams <- function(object) {
 	names(dimnames(object@search_vol))[1],
 	names(dimnames(object@activity))[1],
 	names(dimnames(object@std_metab))[1],
-	names(dimnames(object@pred_kernel))[1],
 	names(dimnames(object@selectivity))[2],
 	names(dimnames(object@catchability))[2]) == "sp")){
-	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity and pred_kernel and the second dimension of selectivity and catchability must be 'sp'"
+	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity and the second dimension of selectivity and catchability must be 'sp'"
 	    errors <- c(errors, msg)
 	}
     #interaction dimension names
@@ -123,14 +113,6 @@ valid_MizerParams <- function(object) {
 	    msg <- "Name of second dimension of psi, intake_max, search_vol, std_metab, activity and third dimension of selectivity must be 'w'"
 	    errors <- c(errors, msg)
 	}
-    if(names(dimnames(object@pred_kernel))[2] != "w_pred"){
-	msg <- "Name of second dimension of pred_kernel must be 'w_pred'"
-	errors <- c(errors, msg)
-    }
-    if(names(dimnames(object@pred_kernel))[3] != "w_prey"){
-	msg <- "Name of third dimension of pred_kernel must be 'w_prey'"
-	errors <- c(errors, msg)
-    }
     if(!all(c(
 	  names(dimnames(object@selectivity))[1],
 	  names(dimnames(object@catchability))[1]) == "gear")){
@@ -146,13 +128,12 @@ valid_MizerParams <- function(object) {
 	dimnames(object@search_vol)[[1]],
 	dimnames(object@std_metab)[[1]],
 	dimnames(object@activity)[[1]],
-	dimnames(object@pred_kernel)[[1]],
 	dimnames(object@selectivity)[[2]],
 	dimnames(object@catchability)[[2]],
 	dimnames(object@interaction)[[1]],
 	dimnames(object@interaction)[[2]]) ==
 	    object@species_params$species)){
-	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, activity, pred_kernel, selectivity, catchability and interaction must all be the same"
+	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, activity, selectivity, catchability and interaction must all be the same"
 	    errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -161,10 +142,9 @@ valid_MizerParams <- function(object) {
 	dimnames(object@intake_max)[[2]],
 	dimnames(object@search_vol)[[2]],
 	dimnames(object@std_metab)[[2]],
-	dimnames(object@activity)[[2]],
-	dimnames(object@pred_kernel)[[2]]) == 
+	dimnames(object@activity)[[2]]) == 
 	    dimnames(object@selectivity)[[3]])){
-	    msg <- "The size names of psi, intake_max, search_vol, std_metab, activity, pred_kernel and selectivity must all be the same"
+	    msg <- "The size names of psi, intake_max, search_vol, std_metab, activityand selectivity must all be the same"
 	    errors <- c(errors, msg)
     }
     # Check dimnames of gear
@@ -179,16 +159,8 @@ valid_MizerParams <- function(object) {
         msg <- "rr_pp must be the same length as w_full"
         errors <- c(errors, msg)
     }
-    if(!isTRUE(all.equal(names(object@rr_pp),dimnames(object@pred_kernel)[[3]]))){
-        msg <- "Names of rr_pp and third dimension of pred_kernel must be consistent"
-        errors <- c(errors, msg)
-    }
     if(length(object@cc_pp) != length(object@w_full)){
         msg <- "cc_pp must be the same length as w_full"
-        errors <- c(errors, msg)
-    }
-    if(!isTRUE(all.equal(names(object@cc_pp),dimnames(object@pred_kernel)[[3]]))){
-        msg <- "Names of cc_pp and third dimension of pred_kernel must be consistent"
         errors <- c(errors, msg)
     }
 
@@ -250,14 +222,14 @@ valid_MizerParams <- function(object) {
 #'   for each species at size
 #' @slot smat An array (species x size) that holds the feeding kernel information
 #'   in a form appropriate for evaluating the available energy integral
+#'   GWD: this is not really species x size but rather species x log of predator/prey size ratio.
+#'   GWD: Do we actually need these slots that hold the non-Fourier-transformed kernels?
 #' @slot fsmat An array (species x size), each row of which equals the fast Fourier
 #'   transform of the corresponding row of smat
 #' @slot smatM An array (species x size) that holds the feeding kernel information
 #'   in a form appropriate for evaluating the predation mortality integral
 #' @slot fsmatM An array (species x size), each row of which equals the fast Fourier
 #'   transform of the corresponding row of smatM
-#' @slot pred_kernel An array (species x predator size x prey size) that holds
-#'   the predation coefficient of each predator at size on each prey size
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the background spectrum
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -303,7 +275,7 @@ setClass(
         fsmatM = "array",
         smatMlong = "array",
         fsmatMlong = "array",
-        pred_kernel = "array",
+# GWD: the previous two slots were not mentioned in the class documentation
         #z0 = "numeric",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
@@ -329,11 +301,6 @@ setClass(
         fsmatM = array(NA, dim = c(1,1)),
         smatMlong = array(NA, dim = c(1,1)),
         fsmatMlong = array(NA, dim = c(1,1)),
-        pred_kernel = array(
-            NA,dim = c(1,1,1), dimnames = list(
-                sp = NULL,w_pred = NULL,w_prey = NULL
-            )
-        ),
         #z0 = NA_real_,
         rr_pp = NA_real_,
         cc_pp = NA_real_,
@@ -376,9 +343,6 @@ setClass(
 #'    Default value is the largest w_inf in the community x 1.1.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w_pp The smallest size of the background spectrum.
-#' @param no_w_pp The number of the extra size bins in the background
-#'       spectrum (i.e. the difference between the number of sizes bins in the
-#'       community spectrum and the full spectrum).
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
@@ -440,10 +404,10 @@ setGeneric('MizerParams', function(object, interaction, ...)
 #' by user
 #' @rdname MizerParams
 setMethod('MizerParams', signature(object='numeric', interaction='missing'),
-    function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = round(no_w)*0.3, species_names=1:object, gear_names=species_names){
+    function(object, min_w = 0.001, max_w = 1000, no_w = 100,  min_w_pp = 1e-10, no_w_pp = NA, species_names=1:object, gear_names=species_names){
 	#args <- list(...)
-    if (no_w_pp!= round(no_w)*0.3)
-        warning("New mizer code cannot support changes to no_w_pp")
+    if (!is.na(no_w_pp))
+        warning("New mizer code does not support the parameter no_w_pp")
 	# Some checks
 	if (length(species_names) != object)
 	    stop("species_names must be the same length as the value of object argument")
@@ -455,15 +419,13 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Correctly defined dw by using the proper ratio (successive dw's have a fixed ratio). 
 	dw[no_w] <- dw[no_w-1]*(dw[no_w-1]/dw[no_w-2])	
             
-            
 	# Set up full grid - background + community
 	# ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
 	if(w[1] <= dw[1])
 	    stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
             
 	# For fft methods we need a constant log step size throughout. 
-	# Therefore we ignore the no_w_pp argument and instead use as many steps as are necessary
-	# to almost reach min_w_pp. 
+	# Therefore we use as many steps as are necessary to almost reach min_w_pp. 
 	x_pp <- rev(seq(from=log10(min_w), log10(min_w_pp), by=log10(min_w/max_w)/(no_w-1))[-1])
 	w_full <- c(10^x_pp, w)
 	no_w_full <- length(w_full)
@@ -495,7 +457,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
-	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, std_metab = mat1, pred_kernel = mat2,
+	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, std_metab = mat1,
 	    selectivity=selectivity, catchability=catchability,
 	    rr_pp = vec1, cc_pp = vec1, species_params = species_params,
 	    interaction = interaction, srr = srr) 
@@ -617,31 +579,25 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
-	# wFull has the weights from the smallest relevant plankton, to the largest fish
-	wFull <- res@w_full
-	xFull <- log(wFull)
+	# w_full has the weights from the smallest relevant plankton, to the largest fish
+	xFull <- log(res@w_full)
 	xFull <- xFull - xFull[1]
 	# smat ends up as the feeding kernel values appropriate for the available energy integral
-	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+	res@smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	# We also form fsmat, in which we pre-compute the fft of the rows of smat
-	fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+	res@fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	for(i in 1:dim(res@interaction)[1]){
 	    # Inside the loop we compute the feeding kernel terms, and the fft of them.
-	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
-	    fsmat[i, ] <- fft(smat[i, ])
+	    res@smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+	    res@fsmat[i, ] <- fft(res@smat[i, ])
 	}
-            
-	res@smat <- smat
-	res@fsmat <- fsmat
-            
+
 	##################
-            
-	Beta <- log(res@species_params$beta)            
+
 	# Here we use default rr[j] = beta[j] + 3*sigma[j]
 	rr <- Beta + 3*res@species_params$sigma 
 	# Get size sample terms
-	w <- res@w
-	x <- log(w)
+	x <- log(res@w)
 	x <- x - x[1]
 	dx <- x[2]-x[1]
 	# Perturb rr so it falls on grid points
@@ -676,19 +632,9 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@fsmatM <- fphiMortality
 	
 	###!!!### smatMlong code put here
-	
-	Beta <- log(res@species_params$beta)            
-	# Here we use default rr[j] = beta[j] + 3*sigma[j]
-	rr <- Beta + 3*res@species_params$sigma 
-	
-	wfull <- res@w_full
-	xfull <- log(wfull)
-	xfull <- xfull - xfull[1]
-	dx <- xfull[2]-xfull[1]
-	
-	rr <- dx*ceiling(rr/dx)
+
 	# Determine period used
-	P <- max(xfull[length(xfull)] + rr)
+	P <- max(xFull[length(xFull)] + rr)
 	# Determine number of x points used in period
 	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
 	noSpecies <- dim(res@interaction)[1]
@@ -716,14 +662,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	
 	
 	############ smatMlong code ends here
-	
-	
-	# Could maybe improve this. Pretty ugly at the moment
-	res@pred_kernel[] <- object$beta
-	res@pred_kernel <- exp(-0.5*sweep(log(sweep(sweep(res@pred_kernel,3,res@w_full,"*")^-1,2,res@w,"*")),1,object$sigma,"/")^2)
-    combn <- NULL # Stupid hack to pass documentation check
-	res@pred_kernel <- sweep(res@pred_kernel,c(2,3),combn(res@w_full,1,function(x,w)x<w,w=res@w),"*") # find out the untrues and then multiply
-
 
 	# Background spectrum
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##

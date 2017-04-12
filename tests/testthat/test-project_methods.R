@@ -169,33 +169,20 @@ test_that("getFeedingLevel for MizerSim",{
     expect_that(getFeedingLevel(sim, time_range=time_range)[1,,], equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
 })
 
-test_that("getPredRate",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
-    no_sp <- dim(params@catchability)[2]
-    no_w <- length(params@w)
-    no_w_full <- length(params@w_full)
-    n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    n_full <- abs(rnorm(no_w_full))
-    pr <- getPredRate(params,n,n_full)
-    # test dim
-    expect_that(dim(pr), equals(c(no_sp,no_w,no_w_full)))
-    # Look at numbers in predator 1
-    n_total <- n[1,] * params@dw
-    fl <- getFeedingLevel(params, n=n, n_pp=n_full)
-    prr <- (1-fl[1,])*params@search_vol[1,]*n_total
-    prr1 <- array(NA,dim=c(no_w,no_w_full))
-    for(i in 1:no_w_full)
-        prr1[,i] <- prr * params@pred_kernel[1,,i]
-    expect_that(pr[1,,], is_equivalent_to(prr1))
-    # Passing in feeding_level should yield the same
-    pr1 <- getPredRate(params,n=n,n_pp=n_full)
-    fl <- getFeedingLevel(params, n=n, n_pp=n_full)
-    pr2 <- getPredRate(params,n=n,n_pp=n_full, feeding_level=fl)
-    expect_that(pr1, is_identical_to(pr2))
-    expect_that(getPredRate(params,n,n_full,feeding_level=matrix(rnorm(10*(no_sp-1)),ncol=10,nrow=no_sp-1)), throws_error())
-})
+## We need a better test here
+# test_that("getPredRate",{
+#     data(NS_species_params_gears)
+#     data(inter)
+#     params <- MizerParams(NS_species_params_gears, inter)
+#     no_sp <- dim(params@catchability)[2]
+#     no_w <- length(params@w)
+#     no_w_full <- length(params@w_full)
+#     n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
+#     n_full <- abs(rnorm(no_w_full))
+#     pr <- getPredRate(params,n,n_full)
+#     # test dim
+#     expect_that(dim(pr), equals(c(no_sp,no_w,no_w_full)))
+# })
 
 test_that("getM2 for MizerParams",{
     data(NS_species_params_gears)
@@ -213,8 +200,7 @@ test_that("getM2 for MizerParams",{
     # Params + pred_rate
     # Params + n + n_pp
     
-    ##@@pred_rate <- getPredRate(params,n,n_full)
-    pred_rate <- getPredRateFFT(params,n,n_full)
+    pred_rate <- getPredRate(params,n,n_full)
     m21 <- getM2(params,pred_rate=pred_rate)
     m22 <- getM2(params,n,n_full)
     # Test dims
@@ -271,17 +257,10 @@ test_that("getM2Background",{
     # test dim
     expect_that(length(m2), equals(no_w_full))
     # Check number in final prey size group
-    ##pr <- getPredRate(params,n,n_full)
-    ##m22 <- rep(NA,no_w_full)
-    ##for (i in 1:no_w_full)
-        ##m22[i] <- sum(pr[,,i])
-    # Using a new test here, to allow for fft based modifications
-    m22 <- colSums(getPredRateFFT(params,n,n_full))
-    ####
+    m22 <- colSums(getPredRate(params,n,n_full))
     expect_that(m22, is_equivalent_to(m2))
     # Passing in pred_rate gives the same
-    ##pr <- getPredRate(params,n,n_full)
-    pr <- getPredRateFFT(params,n,n_full)
+    pr <- getPredRate(params,n,n_full)
     m2b1 <- getM2Background(params,n,n_full)
     m2b2 <- getM2Background(params,n,n_full, pred_rate=pr)
     expect_that(m2b1, is_identical_to(m2b2))
@@ -433,7 +412,6 @@ test_that("project methods return objects of correct dimension when community on
     # MizerParams methods
     expect_that(dim(getPhiPrey(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getFeedingLevel(params,n,n_pp)), equals(c(1,nw)))
-    expect_that(dim(getPredRate(params,n,n_pp)), equals(c(1,nw,length(params@w_full))))
     expect_that(dim(getM2(params,n,n_pp)), equals(c(1,nw)))
     expect_that(length(getM2Background(params,n,n_pp)), equals(length(params@w_full)))
     expect_that(dim(getFMortGear(params,0)), equals(c(1,1,nw))) # 3D time x species x size

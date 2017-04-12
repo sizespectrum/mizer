@@ -213,44 +213,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
     standardGeneric('getPredRate'))
 
-#' \code{getPredRate} method with \code{feeding_level} argument.
-#' @rdname getPredRate
-# Called from project ->
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
-                                   n_pp='numeric', feeding_level = 'matrix'),
-    function(object, n, n_pp, feeding_level){
-        if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
-            stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-        # The next line is a bottle neck
-        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
-        return(pred_rate)
-    }
-)
-
-#' \code{getPredRate} method without \code{feeding_level} argument.
-#' @rdname getPredRate
-setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
-    function(object, n, n_pp){
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
-        pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
-        return(pred_rate)
-    }
-)
-
-############################ New FFT based computation of pred_rate data ###############
-
-setGeneric('getPredRateFFT', function(object, n, n_pp, feeding_level)
-    standardGeneric('getPredRateFFT'))
-
-# getPredRateFFT returns a (no. species) * (length(w_full)) matrix M where M[j,k] equals the predation rate of a prey of size 
-# w_full[k], from predators of species j, when the interaction matrix is full of 1s. In other words M[j,k] equals the j th term in 
-# the sum of (3.12), from the mizer vignette, discounting the interaction matrix, theta
-
-setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
           function(object, n, n_pp, feeding_level){
               if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
@@ -308,12 +271,11 @@ setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix',
 )
 
 
-setMethod('getPredRateFFT', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
+setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
           function(object, n, n_pp){
               n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
               feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-              #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
-              pred_rate <- getPredRateFFT(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
+              pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
               return(pred_rate)
           }
 )
@@ -389,7 +351,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
         no_spe <- dim(intera)[1]
         m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
         
-        # Since pred_rate here is the result of calling getPredRateFFT, we have that m2 equals 
+        # Since pred_rate here is the result of calling getPredRate, we have that m2 equals 
         # the sum of rows of pred_rate, weighted by the interaction matrix
         for (i in 1:no_spe){
             for (j in 1:no_spe){
@@ -408,7 +370,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
     function(object, n, n_pp){
       feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
       
-      pred_rate <- getPredRateFFT(object= object, n = n, 
+      pred_rate <- getPredRate(object= object, n = n, 
                                    n_pp=n_pp, feeding_level = feeding_level)
       
       # Get indexes such that w_full[idx_sp[k]]==w[[k]]
@@ -418,7 +380,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       no_spe <- dim(intera)[1]
       m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
       
-      # Since pred_rate here is the result of calling getPredRateFFT, we have that m2 equals 
+      # Since pred_rate here is the result of calling getPredRate, we have that m2 equals 
       # the sum of rows of pred_rate, weighted by the interaction matrix
       for (i in 1:no_spe){
           for (j in 1:no_spe){
@@ -485,7 +447,7 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
             stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
-        # Since pred_rate here is the result of calling getPredRateFFT, we have that M2background equals 
+        # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
         # the sum of rows of pred_rate
         M2background <- colSums(pred_rate)
         return(M2background)
@@ -497,8 +459,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, pred_rate){
-        pred_rate <- getPredRateFFT(object,n=n,n_pp=n_pp)
-        # Since pred_rate here is the result of calling getPredRateFFT, we have that M2background equals 
+        pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
+        # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
         # the sum of rows of pred_rate
         M2background <- getM2Background(object, n=n, n_pp=n_pp, pred_rate=pred_rate)
         return(M2background)
