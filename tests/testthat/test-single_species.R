@@ -19,6 +19,7 @@ test_that("project methods",{
 
     expect_that(length(dim(getPhiPrey(params,n_mult,npp))), is_identical_to(length(dim(getPhiPrey(single_params,n_single,npp)))))
     expect_that(length(dim(getFeedingLevel(params,n_mult,npp))), is_identical_to(length(dim(getFeedingLevel(single_params,n_single,npp)))))
+    expect_that(length(dim(getPredRate(params,n_mult,npp))), is_identical_to(length(dim(getPredRate(single_params,n_single,npp)))))
     expect_that(length(dim(getM2(params,n_mult,npp))), is_identical_to(length(dim(getM2(single_params,n_single,npp)))))
     expect_that(length(getM2Background(params,n_mult,npp)), is_identical_to(length(getM2Background(single_params,n_single,npp))))
     expect_that(length(dim(getFMortGear(params,effort = 1))), is_identical_to(length(dim(getFMortGear(single_params,effort = 1)))))

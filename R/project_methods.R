@@ -216,70 +216,69 @@ setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
 # Called from project ->
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
                                    n_pp='numeric', feeding_level = 'matrix'),
-          function(object, n, n_pp, feeding_level){
-              if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
-                  stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-              }
-              
-              noSpecies <- dim(object@interaction)[1]
-              
-              # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
-              muVals <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
-              
-              # Obtain weight vector wfull, and the corresponding vector xfull in log-space
-              wfull <- object@w_full
-              xfull <- log(wfull)
-              xfull <- xfull - xfull[1]
-              # Values of x are evenly spaced, with a difference of dx, starting with zero
-              dx <- xfull[2]-xfull[1]
-              
-              # Obtain feeding level
-              feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-              
-              # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
-              no_P <- length(object@fsmatMlong[1,])
-              
-              LL <- length(object@w)
-              LLfull <- length(object@w_full)
-              # w_full[FishEggIndex] equals the fish egg weight
-              FishEggIndex <- LLfull-LL+1
-              
-              # Make a matrix to hold the final result. 
-              muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
-              
-              ########################################## Express full convolution integral ######
-              
-              
-              # Fill out the matrix of results
-              for (j in 1:noSpecies){
-                  # We express the intermediate values as a a convolution integral involving
-                  # two functions: q and fsmatMlong. Here q is all the integrand of (3.12), except the
-                  # feeding kernel and theta, and we sample it from 0 to P, but it is only 
-                  # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
-                  # fish size in the log space
-                  q <- rep(0, no_P)
-                  q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
-                  # For convolution, we imagine f is a period P function, and sample it on [0,P]
-                  # We use fast fourier transforms to evalute this convolution integral
-                  mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
-                  # muIntermediate[j,k] measures how much a size w_full[k] prey 
-                  # dies from being predated on by species j when the interaction matrix is full of 1s
-                  muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
-              }
-              
-              return(muIntermediate)
-          }
+    function(object, n, n_pp, feeding_level){
+        if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
+            stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
+        }
+        
+        noSpecies <- dim(object@interaction)[1]
+        
+        # Prepare a (noSpecies times length(w)) matrix, that will be used to ouput the mortality integral data
+        muVals <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
+        
+        # Obtain weight vector wfull, and the corresponding vector xfull in log-space
+        wfull <- object@w_full
+        xfull <- log(wfull)
+        xfull <- xfull - xfull[1]
+        # Values of x are evenly spaced, with a difference of dx, starting with zero
+        dx <- xfull[2]-xfull[1]
+        
+        # Obtain feeding level
+        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+        
+        # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
+        no_P <- length(object@fsmatMlong[1,])
+        
+        LL <- length(object@w)
+        LLfull <- length(object@w_full)
+        # w_full[FishEggIndex] equals the fish egg weight
+        FishEggIndex <- LLfull-LL+1
+        
+        # Make a matrix to hold the final result. 
+        muIntermediate <- matrix(0, nrow = noSpecies, ncol = length(object@w_full))
+        
+        ########################################## Express full convolution integral ######
+        
+        
+        # Fill out the matrix of results
+        for (j in 1:noSpecies){
+            # We express the intermediate values as a a convolution integral involving
+            # two functions: q and fsmatMlong. Here q is all the integrand of (3.12), except the
+            # feeding kernel and theta, and we sample it from 0 to P, but it is only 
+            # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
+            # fish size in the log space
+            q <- rep(0, no_P)
+            q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
+            # For convolution, we imagine f is a period P function, and sample it on [0,P]
+            # We use fast fourier transforms to evalute this convolution integral
+            mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
+            # muIntermediate[j,k] measures how much a size w_full[k] prey 
+            # dies from being predated on by species j when the interaction matrix is full of 1s
+            muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
+        }
+        
+        return(muIntermediate)
+    }
 )
 
 #' \code{getPredRate} method without \code{feeding_level} argument.
 #' @rdname getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
-          function(object, n, n_pp){
-              n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-              feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-              pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
-              return(pred_rate)
-          }
+    function(object, n, n_pp){
+        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+        pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
+        return(pred_rate)
+    }
 )
 
 #############################################################
