@@ -348,18 +348,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
         # Get indexes such that w_full[idx_sp[k]]==w[[k]]
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
         
-        intera <- object@interaction
-        no_spe <- dim(intera)[1]
-        m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
-        
-        # Since pred_rate here is the result of calling getPredRate, we have that m2 equals 
-        # the sum of rows of pred_rate, weighted by the interaction matrix
-        for (i in 1:no_spe){
-            for (j in 1:no_spe){
-                m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
-            }
-        }
-        rownames(m2) <- rownames(object@interaction)
+        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp]
         return(m2)
     }
 )
@@ -377,18 +366,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       # Get indexes such that w_full[idx_sp[k]]==w[[k]]
       idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
       
-      intera <- object@interaction
-      no_spe <- dim(intera)[1]
-      m2 <- matrix(0, nrow = no_spe, ncol = length(object@w))
-      
-      # Since pred_rate here is the result of calling getPredRate, we have that m2 equals 
-      # the sum of rows of pred_rate, weighted by the interaction matrix
-      for (i in 1:no_spe){
-          for (j in 1:no_spe){
-              m2[i, ] <- m2[i, ]+intera[j,i]*pred_rate[j,idx_sp]
-          }
-      }
-      rownames(m2) <- rownames(object@interaction)
+      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp]
       return(m2)
     }
 )
