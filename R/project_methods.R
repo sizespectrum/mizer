@@ -179,7 +179,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 #' \code{getPredRate} method for the size based model
 #' 
 #' Calculates the predation rate of each predator species at size on prey size. 
-#' In formulas \deqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+#' In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 #' This method is used by the \code{\link{project}} method for performing
 #' simulations. In the simulations, it is combined with the interaction matrix
 #' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
@@ -191,9 +191,8 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
 #'   
-#' @return A three dimensional array (predator species x predator size x prey size), 
-#'   where the predator size runs over the community size range only and prey size
-#'   runs over community plus background spectrum.
+#' @return A two dimensional array (predator species x prey size), 
+#'   where the prey size runs over community plus background spectrum.
 #' @export
 #' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @examples
@@ -348,7 +347,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
         # Get indexes such that w_full[idx_sp[k]]==w[[k]]
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
         
-        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp]
+        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
         return(m2)
     }
 )
@@ -366,7 +365,7 @@ setMethod('getM2', signature(object='MizerParams', n = 'matrix',
       # Get indexes such that w_full[idx_sp[k]]==w[[k]]
       idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
       
-      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp]
+      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
       return(m2)
     }
 )
