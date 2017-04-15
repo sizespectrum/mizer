@@ -126,7 +126,7 @@ test_that("getPhiPrey",{
     for(i in 1:(dim(n)[1])) {
         fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
         f2 <- wFull*wFull*(n_pp + fishEaten)
-        fullEnergy <- dx*Re(fft(object@fsmat[i, ]*fft(f2), inverse=TRUE)/length(object@fsmat[i,]))
+        fullEnergy <- dx*Re(fft(object@ft_pred_kernel_e[i, ]*fft(f2), inverse=TRUE)/length(object@ft_pred_kernel_e[i,]))
         fullEnergyMat[i,] <- fullEnergy[idx_sp]
     }
     expect_that(fullEnergyMat[1,], is_equivalent_to(ppp[1,]))

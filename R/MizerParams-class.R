@@ -220,10 +220,10 @@ valid_MizerParams <- function(object) {
 #'   species at size
 #' @slot std_metab An array (species x size) that holds the standard metabolism
 #'   for each species at size
-#' @slot fsmat An array (species x log of predator/prey size ratio) that holds 
+#' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the available energy integral
-#' @slot fsmatMlong An array (species x log of predator/prey size ratio) that holds 
+#' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio) that holds 
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the predation mortality integral
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
@@ -265,8 +265,8 @@ setClass(
         search_vol = "array",
         activity = "array",
         std_metab = "array",
-        fsmat = "array",
-        fsmatMlong = "array",
+        ft_pred_kernel_e = "array",
+        ft_pred_kernel_p = "array",
         #z0 = "numeric",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
@@ -286,8 +286,8 @@ setClass(
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        fsmat = array(NA, dim = c(1,1)),
-        fsmatMlong = array(NA, dim = c(1,1)),
+        ft_pred_kernel_e = array(NA, dim = c(1,1)),
+        ft_pred_kernel_p = array(NA, dim = c(1,1)),
         #z0 = NA_real_,
         rr_pp = NA_real_,
         cc_pp = NA_real_,
@@ -574,12 +574,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	xFull <- xFull - xFull[1]
 	# smat ends up as the feeding kernel values appropriate for the available energy integral
 	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
-	# We also form fsmat, in which we pre-compute the fft of the rows of smat
-	res@fsmat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
+	# We also form ft_pred_kernel_e, in which we pre-compute the fft of the rows of smat
+	res@ft_pred_kernel_e <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	for(i in 1:dim(res@interaction)[1]){
 	    # Inside the loop we compute the feeding kernel terms, and the fft of them.
 	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
-	    res@fsmat[i, ] <- fft(smat[i, ])
+	    res@ft_pred_kernel_e[i, ] <- fft(smat[i, ])
 	}
 
 	##################
@@ -616,7 +616,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    fphiMortality[j, ] <- fft(phiMortality[j, ])
 	}
 	
-	res@fsmatMlong <- fphiMortality
+	res@ft_pred_kernel_p <- fphiMortality
 	
 	
 	############ smatMlong code ends here

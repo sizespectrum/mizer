@@ -67,7 +67,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
-	fullEnergy <- dx*Re(t(mvfft(t(object@fsmat) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	fullEnergy <- dx*Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
 
 	return(fullEnergy[, idx_sp, drop=FALSE])
 })
@@ -236,7 +236,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
         
         # no_P is the number of x points sampled over a period P (period P is used in spectral integration)
-        no_P <- length(object@fsmatMlong[1,])
+        no_P <- length(object@ft_pred_kernel_p[1,])
         
         LL <- length(object@w)
         LLfull <- length(object@w_full)
@@ -252,7 +252,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         # Fill out the matrix of results
         for (j in 1:noSpecies){
             # We express the intermediate values as a a convolution integral involving
-            # two functions: q and fsmatMlong. Here q is all the integrand of (3.12), except the
+            # two functions: q and ft_pred_kernel_p. Here q is all the integrand of (3.12), except the
             # feeding kernel and theta, and we sample it from 0 to P, but it is only 
             # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
             # fish size in the log space
@@ -260,7 +260,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
             q[(FishEggIndex: LLfull)] <- (1-feeding_level[j,])*object@search_vol[j,]*n[j,]*object@w
             # For convolution, we imagine f is a period P function, and sample it on [0,P]
             # We use fast fourier transforms to evalute this convolution integral
-            mortalityIntegral <- dx*Re(fft((object@fsmatMlong[j,])*fft(q), inverse=TRUE)/no_P)
+            mortalityIntegral <- dx*Re(fft((object@ft_pred_kernel_p[j,])*fft(q), inverse=TRUE)/no_P)
             # muIntermediate[j,k] measures how much a size w_full[k] prey 
             # dies from being predated on by species j when the interaction matrix is full of 1s
             muIntermediate[j, ] <- mortalityIntegral[1:length(object@w_full)]
