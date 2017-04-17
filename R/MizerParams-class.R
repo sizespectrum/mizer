@@ -582,7 +582,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    res@ft_pred_kernel_e[i, ] <- fft(smat[i, ])
 	}
 	
-	dimnames(res@ft_pred_kernel_e) <- list(sp=rownames(res@std_metab),k=signif((1:length(xFull)),5))
+	dimnames(res@ft_pred_kernel_e) <- list(sp=rownames(res@std_metab),k=(1:length(xFull)))
 
 	# Get size sample terms
 	x <- log(res@w)
@@ -620,7 +620,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	
 	res@ft_pred_kernel_p <- fphiMortality
 	
-	dimnames(res@ft_pred_kernel_p) <- list(sp=rownames(res@std_metab),k=signif((1:no_P),5))
+	dimnames(res@ft_pred_kernel_p) <- list(sp=rownames(res@std_metab),k=(1:no_P))
 
 	# Background spectrum
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##
