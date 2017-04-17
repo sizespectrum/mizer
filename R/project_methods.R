@@ -221,9 +221,6 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         }
         noSpecies <- dim(object@interaction)[1]
         
-        # Obtain feeding level
-        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        
         # Obtain weight vector wfull, and the corresponding vector xfull in log-space
         wfull <- object@w_full
         xfull <- log(wfull)
@@ -249,10 +246,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         # We do our spectral integration in parallel over the different species 
         mortLonger <- dx*Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
         # We drop some of the final columns to get our output
-        muIntermediate <- mortLonger[, (1:length(object@w_full)), drop = FALSE] 
-        #muIntermediate <- mortLonger[, (1:length(object@w_full))] 
-        
-        return(muIntermediate)
+        return(mortLonger[, (1:length(object@w_full)), drop = FALSE])
     }
 )
 

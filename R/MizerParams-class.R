@@ -286,8 +286,8 @@ setClass(
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        ft_pred_kernel_e = array(NA, dim = c(1,1)),
-        ft_pred_kernel_p = array(NA, dim = c(1,1)),
+        ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,x = NULL)),
+        ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,x = NULL)),
         #z0 = NA_real_,
         rr_pp = NA_real_,
         cc_pp = NA_real_,
@@ -582,14 +582,14 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    res@ft_pred_kernel_e[i, ] <- fft(smat[i, ])
 	}
 
-	##################
-
-	# Here we use default rr[j] = beta[j] + 3*sigma[j]
-	rr <- Beta + 3*res@species_params$sigma 
 	# Get size sample terms
 	x <- log(res@w)
 	x <- x - x[1]
 	dx <- x[2]-x[1]
+	
+	# rr is the log of the maximal predator/prey mass ratio
+    # Here we use default rr= beta + 3*sigma
+	rr <- Beta + 3*sigma
 	# Perturb rr so it falls on grid points
 	rr <- dx*ceiling(rr/dx)
 	# Determine period used
@@ -617,9 +617,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	}
 	
 	res@ft_pred_kernel_p <- fphiMortality
-	
-	
-	############ smatMlong code ends here
 
 	# Background spectrum
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##
