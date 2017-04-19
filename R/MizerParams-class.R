@@ -434,20 +434,12 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	mat1 <- array(NA, dim=c(object,no_w), dimnames = list(sp=species_names,w=signif(w,3)))
 	mat2 <- array(NA, dim=c(object,no_w,no_w_full), dimnames = list(sp=species_names,w_pred=signif(w,3), w_prey=signif(w_full,3)))
 	
-	mate <- array(NA, dim=c(object,no_w_full), dimnames = list(sp=species_names,w_full=signif((1:no_w_full),5)))
+	ft_pred_kernel_e <- array(NA, dim=c(object,no_w_full), dimnames = list(sp=species_names, k=1:no_w_full))
 	
-	## How do I determine no_P for making a dummy ft_pred_kernel_p ? The commented out code fails because it refers to res
-	#Beta <- log(res@species_params$beta)
-	#sigma <- res@species_params$sigma
-	#xFull <- log(w_full)
-	#xFull <- xFull - xFull[1]
-	#dx <- xFull[2]-xFull[1]
-	#rr <- Beta + 3*sigma
-	#rr <- dx*ceiling(rr/dx)
-	#P <- max(xFull[length(xFull)] + rr)
-	#no_P <- 1+ceiling(P/dx)
-	#matp <- array(NA, dim=c(object,no_P), dimnames = list(sp=species_names,w_full=signif((1:no_P),5)))
-	matp <- array(NA, dim=c(object,no_w_full), dimnames = list(sp=species_names,w_full=signif((1:no_w_full),5)))
+	# We do not know the second dimension of ft_pred_kernel_p until the species
+	# parameters determining the predation kernel are know. 
+	# So for now we set it to 2
+	ft_pred_kernel_p <- array(NA, dim=c(object, 2), dimnames = list(sp=species_names, k=1:2))
 	
 	selectivity <- array(0, dim=c(length(gear_names), object, no_w), dimnames=list(gear=gear_names, sp=species_names, w=signif(w,3)))
 	catchability <- array(0, dim=c(length(gear_names), object), dimnames = list(gear=gear_names, sp=species_names))
@@ -471,7 +463,9 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
-	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, std_metab = mat1, ft_pred_kernel_e = mate, ft_pred_kernel_p = matp,
+	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
+	    std_metab = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
+	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
 	    rr_pp = vec1, cc_pp = vec1, species_params = species_params,
 	    interaction = interaction, srr = srr) 
@@ -600,51 +594,40 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	# We also form ft_pred_kernel_e, in which we pre-compute the fft of the rows of smat
 	res@ft_pred_kernel_e <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
-	for(i in 1:dim(res@interaction)[1]){
+	noSpecies <- dim(res@interaction)[1]
+	for(i in 1:noSpecies){
 	    # Inside the loop we compute the feeding kernel terms, and the fft of them.
 	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
 	    res@ft_pred_kernel_e[i, ] <- fft(smat[i, ])
 	}
-	
-	dimnames(res@ft_pred_kernel_e) <- list(sp=rownames(res@std_metab),k=(1:length(xFull)))
 
-	# Get size sample terms
-	x <- log(res@w)
-	x <- x - x[1]
-	dx <- x[2]-x[1]
-	
 	# rr is the log of the maximal predator/prey mass ratio
     # Here we use default rr= beta + 3*sigma
 	rr <- Beta + 3*sigma
 	# Perturb rr so it falls on grid points
+	dx <- xFull[2]-xFull[1]
 	rr <- dx*ceiling(rr/dx)
 	# Determine period used
 	P <- max(xFull[length(xFull)] + rr)
 	# Determine number of x points used in period
 	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
-	noSpecies <- dim(res@interaction)[1]
-	
-	# initially fill matrices with zeros
-	phiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
-	fphiMortality <- matrix(0, nrow = noSpecies, ncol = no_P)
-	
+    # vector of values for log predator/prey mass ratio
 	x_P <- (0:(no_P-1))*dx
 	
-	for (j in 1:noSpecies){
-	    # Prepare local phi, which will equal j th row of matrix, used in loop
-	    phi <- rep(0, no_P)
-	    # Our phi is a periodic extension of the normal feeding kernel, so, for 0<=x<=P we use phi[x-P] as our
-	    # value of the period P extension of phi, since support(phi)=[-rr,0]
-	    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*(res@species_params$sigma[j])^2))
-	    # This phi value is added to our output
-	    phiMortality[j, 1:length(phi)] <- phi
-	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
-	    fphiMortality[j, ] <- fft(phiMortality[j, ])
-	}
-	
-	res@ft_pred_kernel_p <- fphiMortality
-	
+	# The dimension of ft_pred_kernel_p was not know at the time the res object
+	# was initialised. Hence we need to create it with the right dimension here.
+	res@ft_pred_kernel_p <- matrix(0, nrow = noSpecies, ncol = no_P)
 	dimnames(res@ft_pred_kernel_p) <- list(sp=rownames(res@std_metab),k=(1:no_P))
+	
+	for (j in 1:noSpecies){
+	    phi <- rep(0, no_P)
+	    # Our phi is a periodic extension of the normal feeding kernel.
+	    # For 0<=x<=P we use phi[x-P] as our
+	    # value of the period P extension of phi, since support(phi)=[-rr,0]
+	    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*sigma[j]^2))
+	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
+	    res@ft_pred_kernel_p[j, ] <- fft(phi)
+	}
 
 	# Background spectrum
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##

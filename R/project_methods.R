@@ -57,8 +57,9 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# we have, for our predator species i, that fishEaten[k] equals 
 	# the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
 	fishEaten[, idx_sp] <- object@interaction %*% n
-	# The vector f2 equals everything inside integral (3.4), except the feeding 
-	# kernel, phi_i(w_p/w). We work in log-space so an extra multiplier w_p is introduced.
+	# The vector f2 equals everything inside integral (3.4) except the feeding 
+	# kernel phi_i(w_p/w). 
+	# We work in log-space so an extra multiplier w_p is introduced.
 	f2 <- sweep(sweep(fishEaten, 2, n_pp, "+"), 2, object@w_full^2, "*")
 	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
 	# We approximate the integral by the trapezoidal method. Using the
@@ -225,7 +226,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         wfull <- object@w_full
         xfull <- log(wfull)
         xfull <- xfull - xfull[1]
-        # Values of x are evenly spaced, with a difference of dx, starting with zero
+        # Values of xFull are evenly spaced, with a difference of dx, starting with zero
         dx <- xfull[2]-xfull[1]
         
         # Get indices of w_full that give w
@@ -233,12 +234,12 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         # get period used in spectral integration
         no_P <- length(object@ft_pred_kernel_p[1,])
         # We express the intermediate values as a a convolution integral involving
-        # two objects: Q[i,] and ft_pred_kernel_p[i,]. Here Q[i,] is all the integrand of (3.12), except the
+        # two objects: Q[i,] and ft_pred_kernel_p[i,]. 
+        # Here Q[i,] is all the integrand of (3.12) except the
         # feeding kernel and theta, and we sample it from 0 to P, but it is only 
         # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
         # fish size in the log space
         
-        # We initially fill Q with 0's
         Q <- matrix(0, nrow = noSpecies, ncol = no_P )
         # We fill the middle of each row of Q with the proper values
         Q[, idx_sp] <- sweep((1-feeding_level)*object@search_vol*n, 2, object@w, "*")
@@ -246,7 +247,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         # We do our spectral integration in parallel over the different species 
         mortLonger <- dx*Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
         # We drop some of the final columns to get our output
-        return(mortLonger[, (1:length(object@w_full)), drop = FALSE])
+        return(mortLonger[, 1:length(object@w_full), drop = FALSE])
     }
 )
 

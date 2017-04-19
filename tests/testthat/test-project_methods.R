@@ -412,6 +412,7 @@ test_that("project methods return objects of correct dimension when community on
     # MizerParams methods
     expect_that(dim(getPhiPrey(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getFeedingLevel(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getPredRate(params,n,n_pp)), equals(c(1,length(params@w_full))))
     expect_that(dim(getM2(params,n,n_pp)), equals(c(1,nw)))
     expect_that(length(getM2Background(params,n,n_pp)), equals(length(params@w_full)))
     expect_that(dim(getFMortGear(params,0)), equals(c(1,1,nw))) # 3D time x species x size
