@@ -169,20 +169,35 @@ test_that("getFeedingLevel for MizerSim",{
     expect_that(getFeedingLevel(sim, time_range=time_range)[1,,], equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
 })
 
-## We need a better test here
-# test_that("getPredRate",{
-#     data(NS_species_params_gears)
-#     data(inter)
-#     params <- MizerParams(NS_species_params_gears, inter)
-#     no_sp <- dim(params@catchability)[2]
-#     no_w <- length(params@w)
-#     no_w_full <- length(params@w_full)
-#     n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-#     n_full <- abs(rnorm(no_w_full))
-#     pr <- getPredRate(params,n,n_full)
-#     # test dim
-#     expect_that(dim(pr), equals(c(no_sp,no_w,no_w_full)))
-# })
+# This tests pred rate is calculated as is was in project_methods
+ test_that("getPredRate",{
+     # First we calculate pr using getPredRate
+     data(NS_species_params_gears)
+     data(inter)
+     params <- MizerParams(NS_species_params_gears, inter)
+     no_sp <- dim(params@catchability)[2]
+     no_w <- length(params@w)
+     no_w_full <- length(params@w_full)
+     n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
+     n_full <- abs(rnorm(no_w_full))
+     pr <- getPredRate(params,n,n_full)
+     expect_that(dim(pr), equals(c(no_sp,no_w_full)))
+     # Next we calculate output, which uses the same procedure as getPredRate, directly
+     noSpecies <- dim(params@interaction)[1]
+     wfull <- params@w_full
+     xfull <- log(wfull)
+     xfull <- xfull - xfull[1]
+     dx <- xfull[2]-xfull[1]
+     idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
+     no_P <- length(params@ft_pred_kernel_p[1,])
+     Q <- matrix(0, nrow = noSpecies, ncol = no_P )
+     feeding_level <- getFeedingLevel(params, n=n, n_pp=n_full)
+     Q[, idx_sp] <- sweep((1-feeding_level)*params@search_vol*n, 2, params@w, "*")
+     mortLonger <- dx*Re(t(mvfft(t(params@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
+     output <- mortLonger[, 1:length(params@w_full), drop = FALSE]
+     # Test that output matches pr
+     expect_that(all(output==pr), equals(TRUE))
+ })
 
 test_that("getM2 for MizerParams",{
     data(NS_species_params_gears)
