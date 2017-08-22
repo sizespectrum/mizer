@@ -343,7 +343,7 @@ Mortality from sources other than predation and starvation is assumed to be cons
 The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
 \begin{equation}
   \label{eq:nb}
-  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa_R w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
+  \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
 \end{equation}
 where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ the carrying capacity.
 
@@ -368,11 +368,11 @@ However, the depletion of resources makes it difficult to find an analytical app
   \centering
   \caption{Parameters in the model with dimensions and ``default'' values. For a detailed explanation of the determination of the values see \protect\citep[App.~E]{hartvig_food_2011-1}.}
   \label{tab:parameters}
-  \begin{tabular}{llllp{7cm}}
+  \begin{tabular}{llllp{8.5cm}}
     %&  & Value & Units & Description \\
     \hline
     \multicolumn{5}{l}{ Resource spectrum} \\
-    & $\kappa_R$ & $5\cdot{}10^{-3}$ & g$^{\lambda-1}/$m$^3$ & Magnitude of the resource spectrum \\
+    & $\kappa$ & $5\cdot{}10^{-3}$ & g$^{\lambda-1}/$m$^3$ & Magnitude of the resource spectrum \\
     & $\lambda$ & 2.05 & - & Exponent of resource spectrum ($=2-n+q$)\\
     & $r_0$ & 4 & g$^{1-p}$/yr & Constant for regeneration rate of resources \\
     & $w_{cut}$ & 0.5 & g & Upper weight limit of the resource spectrum \\
@@ -385,7 +385,7 @@ However, the depletion of resources makes it difficult to find an analytical app
     & $p$ & 0.75 & - & Exponent of standard metabolism* \\
     & $\beta$ & 100 & - & Preferred predator-prey mass ratio \\
     & $\sigma$ & 1.3$^\P$ & - & Width of size selection function \\
-    & $\gamma$ & Eq.~(\protect \ref{eq:gamma}) & g$^{-q}$/yr & Constant for volumetric search rate \\
+    & $\gamma$ & Eq.~(\protect \ref{eq:gamma}) & g$^{-q}m^3$/yr & Constant for volumetric search rate \\
     & $q$ & 0.8$^\S$ & - & Exponent for volumetric search rate \\
     \multicolumn{5}{l}{ Mortality} \\
     & $\xi$ & 0.1 & - & Fraction of body weight containing reserves \\
@@ -394,7 +394,7 @@ However, the depletion of resources makes it difficult to find an analytical app
     & $w_0$ & 0.5 & mg & Offspring weight \\
 %   & $\eta$ & 0.25 & - & Weight at maturation divided by  $W$  \\
     & $\epsilon$ & 0.1 & - & Efficiency of offspring production \\
-    & $\kappa$ & 50$^\ddagger$ & - & Factor for maximum recruitment. \\
+    & $k_0$ & 50$^\ddagger$ & - & Factor for maximum recruitment in trait-based model \\
     \hline
     \multicolumn{5}{p{\textwidth}}{\footnotesize *Laboratory experiments on fish indicate that the exponent of standard metabolism should be higher, around $p=0.86$ \protect\citep{winberg_rate_1956,killen_little_2007}. The practical implication of choosing $p>n$ is that a maximum weight for individuals at which all energy, even if $f=1$, is used for standard metabolism at $W_+ = [ (\alpha h)/k_s ]^{1/(p-n)}$ \citep[Eq.~8]{andersen_life-history_2008}. Here a value of $p=n$ is used to make the analysis of the model output easier. }\\
 \multicolumn{5}{p{\textwidth}}{\footnotesize $^\dagger$Adjusted to a different value than in \protect\citep{hartvig_food_2011-1} to give growth rates similar to growth rates of species in the North Sea. }\\
@@ -711,7 +711,7 @@ The main parameters of interest are the number of the species in the model (\arg
 One of the key differences between the community type model described above and the trait-based model is that reproduction and egg production are considered.
 In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production.
 In the trait-based model, the egg production is modeled using a ``Beverton-Holt'' type function (the default in \pkg{mizer}, see Section~\ref{sec:recruitment}) where the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
-The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier \citep[see][]{andersen_damped_2010}, $\kappa$ (see Equation~\ref{eq:gamma}), which can be passed in as an argument (\args{k0}) to the \code{set\_trait\_model()} function. \args{k0} has a default value of 50. 
+The maximum recruitment flux is calculated using equilibrium theory \citep[see][]{andersen_damped_2010} and a recruitment multiplier $k_0$, which can be passed in as an argument (\args{k0}) to the \code{set\_trait\_model()} function. \args{k0} has a default value of 50. 
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 
