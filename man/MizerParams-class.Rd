@@ -48,8 +48,13 @@ species at size}
 \item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
 for each species at size}
 
-\item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
-the predation coefficient of each predator at size on each prey size}
+\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
+the Fourier transform of the feeding kernel in a form appropriate for
+evaluating the available energy integral}
+
+\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio) that holds 
+the Fourier transform of the feeding kernel in a form appropriate for
+evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
 growth rate of the background spectrum}
@@ -87,4 +92,3 @@ The \code{MizerParams} class is fairly complex with a large number of
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}
 }
-

@@ -3,16 +3,16 @@
 \docType{methods}
 \name{MizerParams}
 \alias{MizerParams}
+\alias{MizerParams,numeric,missing-method}
 \alias{MizerParams,data.frame,matrix-method}
 \alias{MizerParams,data.frame,missing-method}
-\alias{MizerParams,numeric,missing-method}
 \title{Constructors for objects of \code{MizerParams} class}
 \usage{
 MizerParams(object, interaction, ...)
 
 \S4method{MizerParams}{numeric,missing}(object, min_w = 0.001, max_w = 1000,
-  no_w = 100, min_w_pp = 1e-10, no_w_pp = round(no_w) * 0.3,
-  species_names = 1:object, gear_names = species_names)
+  no_w = 100, min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:object,
+  gear_names = species_names)
 
 \S4method{MizerParams}{data.frame,matrix}(object, interaction, n = 2/3,
   p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
@@ -46,9 +46,9 @@ Default value is the largest w_inf in the community x 1.1.}
 
 \item{min_w_pp}{The smallest size of the background spectrum.}
 
-\item{no_w_pp}{The number of the extra size bins in the background
-spectrum (i.e. the difference between the number of sizes bins in the
-community spectrum and the full spectrum).}
+\item{no_w_pp}{Obsolete argument that is no longer used because the number
+of plankton size bins is determined because all size bins have to
+be logarithmically equally spaced.}
 
 \item{species_names}{Names of the species. Generally not needed as normally
 taken from the \code{object} data.frame.}
@@ -130,4 +130,3 @@ params <- MizerParams(NS_species_params_gears, inter)
 \seealso{
 \code{\link{project}} \linkS4class{MizerSim}
 }
-
