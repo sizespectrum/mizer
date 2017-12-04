@@ -187,9 +187,9 @@ set_community_model <- function(max_w = 1e6,
 #' @param max_w The largest size of the community spectrum. Default value is the
 #'   largest w_inf in the community x 1.1.
 #' @param min_w_pp The smallest size of the background spectrum.
-#' @param no_w_pp The number of the extra size bins in the background spectrum
-#'   (i.e. the difference between the number of sizes bins in the community
-#'   spectrum and the full spectrum).
+#' @param no_w_pp Obsolete argument that is no longer used because the number
+#'    of plankton size bins is determined because all size bins have to
+#'    be logarithmically equally spaced.
 #' @param w_pp_cutoff The cut off size of the background spectrum. Default value
 #'   is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
@@ -254,7 +254,7 @@ set_trait_model <- function(no_sp = 10,
                             min_w = 0.001,
                             max_w = max_w_inf * 1.1,
                             min_w_pp = 1e-10,
-                            no_w_pp = round(no_w)*0.3,
+                            no_w_pp = NA,
                             w_pp_cutoff = 1,
                             k0 = 50, # recruitment adjustment parameter
                             n = 2/3,
@@ -275,6 +275,8 @@ set_trait_model <- function(no_sp = 10,
                             knife_edge_size = 1000,
                             gear_names = "knife_edge_gear",
                             ...){
+    if (!is.na(no_w_pp))
+        warning("New mizer code does not support the parameter no_w_pp")
     # If not supplied, calculate gamma using equation 2.1 in A&P 2010
     if(is.na(gamma)){
         alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
