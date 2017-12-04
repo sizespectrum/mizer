@@ -1,0 +1,63 @@
+---
+title: "Developer documentation"
+author: "Gustav Delius"
+date: "4 December 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Development branches
+
+We do all our development work in branches that have been branched off from
+the master branch.
+
+When I start working on a feature I start a new branch with a name
+suggestive of the feature. For example if I have some improvement of the
+documentation to share, I might call the branch *docs* and create it by
+issuing
+```
+git checkout -b docs
+```
+while I am on the master branch. Then I push this to github with
+```
+git push --set-upstream origin docs
+```
+Then I do my development work and when the feature is complete, documented
+and tested I go to the github web site and create a pull
+request from that branch to the master branch.
+
+Any such pull request to the master branch needs a code review 
+before it can be merged. 
+After the merge has taken place, the branch can be deleted. There is a
+convenient button on github to delete the branch after merging the pull
+request, but I also need to delete the branch separately in my local
+repository by issuing
+```
+git branch -d docs
+```
+from the shell. In addition I may want to tell my local repository that the
+remote branch has disappeared as well:
+```
+git remote prune origin
+```
+Otherwise it will stay in RStudio's list of remote branches.
+
+Of course sometimes I may want to work on several features or changes at the 
+same time but keep those changes separate, so I will create more branches off
+my main working branch, one for each separate feature. In that case I create
+an issue on github in which I describe the purpose of the branch. This is both
+in order to let Richard know what I am up to, but also to avoid forgetting 
+myself why I created the branch. I label the issue with the *work in progress*
+label.
+
+After a feature has been merged into master we will want to rebase all
+other branches so that they branch off from the updated master branch. 
+After you have switched to your branch (which you can do from R Studio) do
+```
+git rebase origin/master
+```
+
