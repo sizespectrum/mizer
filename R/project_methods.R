@@ -43,21 +43,34 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	    stop("n does not have the right number of size groups (second dimension)")
 	if(length(n_pp) != length(object@w_full))
 	    stop("n_pp does not have the right number of size groups")
-	# n_eff_prey is the total prey abundance by size exposed to each predator (prey
-	# not broken into species - here we are just working out how much a predator
-	# eats - not which species are being eaten - that is in the mortality calculation
-    n_eff_prey <- sweep(object@interaction %*% n, 2, object@w * object@dw, "*", check.margin=FALSE) 
-	# Quick reference to just the fish part of the size spectrum
+
+	# The constant step size in log size
+	dx <- log(object@w[2]/object@w[1])  
+
+	# The object@w vector only gives weights from the egg size up to the max fish size. 
+	# However object@w_full gives more smaller weights and idx_sp are the index 
+	# values of object@w_full such that (object@w_full)[idx_sp]=object@w
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-	# pred_kernel is predator x predator size x prey size
-	# So multiply 3rd dimension of pred_kernel by the prey abundance
-	# Then sum over 3rd dimension to get total eaten by each predator by predator size
-    # This line is a bottle neck
-	phi_prey_species <- rowSums(sweep(object@pred_kernel[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
-	# Eating the background
-    # This line is a bottle neck
-	phi_prey_background <- rowSums(sweep(object@pred_kernel,3,object@dw_full*object@w_full*n_pp,"*", check.margin=FALSE),dims=2)
-	return(phi_prey_species+phi_prey_background)
+
+	fishEaten <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
+	# Looking at Equation (3.4), for available energy in the mizer vignette, 
+	# we have, for our predator species i, that fishEaten[k] equals 
+	# the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
+	fishEaten[, idx_sp] <- object@interaction %*% n
+	# The vector f2 equals everything inside integral (3.4) except the feeding 
+	# kernel phi_i(w_p/w). 
+	# We work in log-space so an extra multiplier w_p is introduced.
+	f2 <- sweep(sweep(fishEaten, 2, n_pp, "+"), 2, object@w_full^2, "*")
+	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
+	# We approximate the integral by the trapezoidal method. Using the
+	# convolution theorem we can evaluate the resulting sum via fast fourier
+	# transform.
+	# mvfft() does a Fourier transform of each column of its argument, but
+	# we need the Fourier transforms of each row, so we need to apply mvfft()
+	# to the transposed matrices and then transpose again at the end.
+	fullEnergy <- dx*Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+
+	return(fullEnergy[, idx_sp, drop=FALSE])
 })
 
 
@@ -167,7 +180,7 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 #' \code{getPredRate} method for the size based model
 #' 
 #' Calculates the predation rate of each predator species at size on prey size. 
-#' In formulas \deqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+#' In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 #' This method is used by the \code{\link{project}} method for performing
 #' simulations. In the simulations, it is combined with the interaction matrix
 #' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
@@ -179,9 +192,8 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
 #'   
-#' @return A three dimensional array (predator species x predator size x prey size), 
-#'   where the predator size runs over the community size range only and prey size
-#'   runs over community plus background spectrum.
+#' @return A two dimensional array (predator species x prey size), 
+#'   where the prey size runs over community plus background spectrum.
 #' @export
 #' @seealso \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @examples
@@ -208,10 +220,34 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
             stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
-        # The next line is a bottle neck
-        pred_rate <- sweep(object@pred_kernel,c(1,2),(1-feeding_level)*object@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
-        return(pred_rate)
+        noSpecies <- dim(object@interaction)[1]
+        
+        # Obtain weight vector wfull, and the corresponding vector xfull in log-space
+        wfull <- object@w_full
+        xfull <- log(wfull)
+        xfull <- xfull - xfull[1]
+        # Values of xFull are evenly spaced, with a difference of dx, starting with zero
+        dx <- xfull[2]-xfull[1]
+        
+        # Get indices of w_full that give w
+        idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+        # get period used in spectral integration
+        no_P <- length(object@ft_pred_kernel_p[1,])
+        # We express the intermediate values as a a convolution integral involving
+        # two objects: Q[i,] and ft_pred_kernel_p[i,]. 
+        # Here Q[i,] is all the integrand of (3.12) except the
+        # feeding kernel and theta, and we sample it from 0 to P, but it is only 
+        # non-zero from fishEggSize to X, where P = X + beta + 3*sigma, and X is the max 
+        # fish size in the log space
+        
+        Q <- matrix(0, nrow = noSpecies, ncol = no_P )
+        # We fill the middle of each row of Q with the proper values
+        Q[, idx_sp] <- sweep((1-feeding_level)*object@search_vol*n, 2, object@w, "*")
+        
+        # We do our spectral integration in parallel over the different species 
+        mortLonger <- dx*Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
+        # We drop some of the final columns to get our output
+        return(mortLonger[, 1:length(object@w_full), drop = FALSE])
     }
 )
 
@@ -219,13 +255,13 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
 #' @rdname getPredRate
 setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', n_pp='numeric', feeding_level = 'missing'),
     function(object, n, n_pp){
-        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin=FALSE) # N_i(w)dw
         feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        #pred_rate <- sweep(object@pred_kernel,c(1,2),(1-f)*object@search_vol*n_total_in_size_bins,"*")
         pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, feeding_level = feeding_level)
         return(pred_rate)
     }
 )
+
+#############################################################
 
 # getM2
 # This uses the predation rate which is also used in M2background
@@ -286,15 +322,13 @@ setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
 setMethod('getM2', signature(object='MizerParams', n = 'missing', 
                              n_pp='missing', pred_rate = 'array'),
     function(object, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
-            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),") x no. size bins in community + background (",length(object@w_full),")")
+        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
+            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
-        # get the element numbers that are just species
+        # Get indexes such that w_full[idx_sp[k]]==w[[k]]
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-        # Interaction is predator x prey so need to transpose so it is prey x pred
-        # Sum pred_kernel over predator sizes to give total predation rate of
-        # each predator on each prey size
-        m2 <- t(object@interaction) %*% colSums(aperm(pred_rate, c(2,1,3)),dims=1)[,idx_sp]
+        
+        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
         return(m2)
     }
 )
@@ -304,9 +338,16 @@ setMethod('getM2', signature(object='MizerParams', n = 'missing',
 setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
                              n_pp='numeric', pred_rate = 'missing'),
     function(object, n, n_pp){
-	    pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
-        m2 <- getM2(object, pred_rate=pred_rate)
-	    return(m2)
+      feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+      
+      pred_rate <- getPredRate(object= object, n = n, 
+                                   n_pp=n_pp, feeding_level = feeding_level)
+      
+      # Get indexes such that w_full[idx_sp[k]]==w[[k]]
+      idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+      
+      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
+      return(m2)
     }
 )
 
@@ -362,10 +403,12 @@ setGeneric('getM2Background', function(object, n, n_pp, pred_rate)
 setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
                                        n_pp='numeric', pred_rate='array'),
     function(object, n, n_pp, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w),length(object@w_full)))) | (length(dim(pred_rate))!=3)){
-            stop("pred_rate argument must have 3 dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),") x no. size bins in community + background (",length(object@w_full),")")
+        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
+            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
-        M2background <- colSums(pred_rate,dims=2)
+        # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
+        # the sum of rows of pred_rate
+        M2background <- colSums(pred_rate)
         return(M2background)
     }
 )
@@ -376,6 +419,8 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
                                        n_pp='numeric',  pred_rate='missing'),
     function(object, n, n_pp, pred_rate){
         pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
+        # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
+        # the sum of rows of pred_rate
         M2background <- getM2Background(object, n=n, n_pp=n_pp, pred_rate=pred_rate)
         return(M2background)
     }
