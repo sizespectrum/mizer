@@ -431,8 +431,10 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Community grid
 	w <- 10^(seq(from=log10(min_w),to=log10(max_w),length.out=no_w))
 	dw <- diff(w)
-	dw[no_w] <- dw[no_w-1] # Set final dw as same as one before
-
+	# Correctly defined dw by using the proper ratio (successive dw's have a fixed ratio). 
+	dw[no_w] <- dw[no_w-1]*(dw[no_w-1]/dw[no_w-2])	
+		
+	
 	# Set up full grid - background + community
 	# ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
 	if(w[1] <= dw[1])
@@ -440,8 +442,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	w_full <- c(10^seq(from=log10(min_w_pp), to =  log10(w[1]-dw[1]),length.out=no_w_pp),w)
 	no_w_full <- length(w_full)
 	dw_full <- diff(w_full)
-	dw_full[no_w_full] <- dw_full[no_w_full-1]
-
+	dw_full[no_w_full] <- dw_full[no_w_full-1]*(dw_full[no_w_full-1]/dw_full[no_w_full-2])	
+	
 	# Basic arrays for templates
 	mat1 <- array(NA, dim=c(object,no_w), dimnames = list(sp=species_names,w=signif(w,3)))
 	mat2 <- array(NA, dim=c(object,no_w,no_w_full), dimnames = list(sp=species_names,w_pred=signif(w,3), w_prey=signif(w_full,3)))
