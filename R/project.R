@@ -7,6 +7,10 @@
 # project can dispatch with effort being different classes (missing, numeric,
 # array).
 
+#' @useDynLib mizer
+#' @importFrom Rcpp sourceCpp
+NULL
+
 #' project method for the size based modelling
 #' 
 #' Runs the size-based model simulation and projects the size based model
@@ -239,9 +243,12 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             # Update first size group of n
             n[w_min_idx_array_ref] <- (n[w_min_idx_array_ref] + rdd*dt/sim@params@dw[sim@params@species_params$w_min_idx]) / B[w_min_idx_array_ref]
             # Update n
-            for (i in 1:no_sp) # number of species assumed small, so no need to vectorize this loop over species
-                for (j in (sim@params@species_params$w_min_idx[i]+1):no_w)
-                    n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
+            # for (i in 1:no_sp) # number of species assumed small, so no need to vectorize this loop over species
+            #     for (j in (sim@params@species_params$w_min_idx[i]+1):no_w)
+            #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
+            
+            n <- inner_project_loop(no_sp=no_sp, no_w=no_w, n=n, A=A, B=B, S=S,
+                                    w_min_idx=sim@params@species_params$w_min_idx)
 
             # Dynamics of background spectrum uses a semi-chemostat model (de Roos - ask Ken)
             # We use the exact solution under the assumption of constant mortality during timestep
