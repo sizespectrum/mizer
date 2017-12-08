@@ -44,9 +44,6 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	if(length(n_pp) != length(object@w_full))
 	    stop("n_pp does not have the right number of size groups")
 
-	# The constant step size in log size
-	dx <- log(object@w[2]/object@w[1])  
-
 	# The object@w vector only gives weights from the egg size up to the max fish size. 
 	# However object@w_full gives more smaller weights and idx_sp are the index 
 	# values of object@w_full such that (object@w_full)[idx_sp]=object@w
@@ -68,7 +65,7 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
-	fullEnergy <- dx*Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	fullEnergy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
 
 	return(fullEnergy[, idx_sp, drop=FALSE])
 })
@@ -221,14 +218,6 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
             stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         noSpecies <- dim(object@interaction)[1]
-        
-        # Obtain weight vector wfull, and the corresponding vector xfull in log-space
-        wfull <- object@w_full
-        xfull <- log(wfull)
-        xfull <- xfull - xfull[1]
-        # Values of xFull are evenly spaced, with a difference of dx, starting with zero
-        dx <- xfull[2]-xfull[1]
-        
         # Get indices of w_full that give w
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
         # get period used in spectral integration
@@ -245,7 +234,7 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         Q[, idx_sp] <- sweep((1-feeding_level)*object@search_vol*n, 2, object@w, "*")
         
         # We do our spectral integration in parallel over the different species 
-        mortLonger <- dx*Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
+        mortLonger <- Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
         # We drop some of the final columns to get our output
         return(mortLonger[, 1:length(object@w_full), drop = FALSE])
     }

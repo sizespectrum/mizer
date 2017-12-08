@@ -587,18 +587,19 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
+	Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx
 	# w_full has the weights from the smallest relevant plankton, to the largest fish
 	xFull <- log(res@w_full)
 	xFull <- xFull - xFull[1]
-	# smat ends up as the feeding kernel values appropriate for the available energy integral
-	smat <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
-	# We also form ft_pred_kernel_e, in which we pre-compute the fft of the rows of smat
+
+	# ft_pred_kernel_e is an array (species x log of predator/prey size ratio) 
+	# that holds the Fourier transform of the feeding kernel in a form 
+	# appropriate for evaluating the available energy integral
 	res@ft_pred_kernel_e <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
 	noSpecies <- dim(res@interaction)[1]
 	for(i in 1:noSpecies){
-	    # Inside the loop we compute the feeding kernel terms, and the fft of them.
-	    smat[i, ] <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
-	    res@ft_pred_kernel_e[i, ] <- fft(smat[i, ])
+	    # We compute the feeding kernel terms and their fft.
+	    res@ft_pred_kernel_e[i, ] <- Dx*fft(exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)))
 	}
 
 	# rr is the log of the maximal predator/prey mass ratio
@@ -612,7 +613,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Determine number of x points used in period
 	no_P <- 1+ceiling(P/dx)  # P/dx should already be integer
     # vector of values for log predator/prey mass ratio
-	x_P <- (0:(no_P-1))*dx
+	x_P <- (-1:(no_P-2))*dx
 	
 	# The dimension of ft_pred_kernel_p was not know at the time the res object
 	# was initialised. Hence we need to create it with the right dimension here.
@@ -626,7 +627,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    # value of the period P extension of phi, since support(phi)=[-rr,0]
 	    phi[x_P-P >= -rr[j]] <- exp(-(Beta[j]-P+x_P[x_P-P >= -rr[j]])^2/(2*sigma[j]^2))
 	    # We also save the fft of this vector, so we don't have to use too many fft s in the time evolution
-	    res@ft_pred_kernel_p[j, ] <- fft(phi)
+	    res@ft_pred_kernel_p[j, ] <- Dx*fft(phi)
 	}
 
 	# Background spectrum
