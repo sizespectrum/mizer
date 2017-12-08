@@ -93,43 +93,51 @@ test_that("getFMort",{
 
 
 test_that("getPhiPrey",{
+    # Initialise params
     data(NS_species_params_gears)
     data(inter)
     params <- MizerParams(NS_species_params_gears, inter)
     no_sp <- dim(params@catchability)[2]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    n_full <- abs(rnorm(no_w_full))
-    pp <- getPhiPrey(params,n,n_full)
-    # test dim
-    expect_that(dim(pp), equals(c(no_sp,no_w)))
     
-    # Test fft based integrator works ok
-    
-    n <- abs(matrix(rnorm(no_sp*no_w),nrow = no_sp,ncol = no_w))
-    n_pp <- abs(rnorm(no_w_full))
-    
-    ppp <- getPhiPrey(params,n,n_pp)
-    
-    object <- params
-    w0 <- object@w[1]
-    Beta <- log(object@species_params$beta)
-    sigma <- object@species_params$sigma
-    wFull <- object@w_full
-    xFull <- log(wFull)
-    xFull <- xFull - xFull[1]
-    dx <- xFull[2]-xFull[1]
-    idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-    fullEnergyMat <- matrix(0, nrow = dim(n)[1], ncol=length(object@w))
-    fishEaten <- rep(0, length.out = length(wFull))
-    for(i in 1:(dim(n)[1])) {
-        fishEaten[idx_sp] <- (object@interaction %*% n)[i, ]
-        f2 <- wFull*wFull*(n_pp + fishEaten)
-        fullEnergy <- dx*Re(fft(object@ft_pred_kernel_e[i, ]*fft(f2), inverse=TRUE)/length(object@ft_pred_kernel_e[i,]))
-        fullEnergyMat[i,] <- fullEnergy[idx_sp]
+    ## Test that fft based integrator gives the same result as old code
+    old_getPhiPrey <- function(params, n, n_pp, pk) {
+        # Calculate phi with old code
+        n_eff_prey <- sweep(params@interaction %*% n, 2, w * params@dw, "*", check.margin=FALSE) 
+        idx_sp <- (length(w_full) - length(w) + 1):length(w_full)
+        phi_prey_species <- rowSums(sweep(pk[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
+        phi_prey_background <- rowSums(sweep(pk,3,params@dw_full*w_full*n_pp,"*", check.margin=FALSE),dims=2)
+        return(phi_prey_background + phi_prey_species)
     }
-    expect_that(fullEnergyMat[1,], is_equivalent_to(ppp[1,]))
+
+    # Calculate predation kernel using old code
+    beta <- params@species_params$beta
+    sigma <- params@species_params$sigma
+    w <- params@w
+    w_full <- params@w_full
+    pk = array(beta, dim = c(no_sp, no_w, no_w_full))
+    pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
+    pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
+
+    # Initial n and n_pp
+    n <- get_initial_n(params)
+    n_pp <- params@cc_pp
+    old <- old_getPhiPrey(params, n, n_pp, pk)
+    new <- getPhiPrey(params, n, n_pp)
+    expect_true(max(abs(log(old/new))) < 0.005)
+    
+    # Random n and n_pp
+    n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
+    n_pp <- abs(rnorm(no_w_full))
+    old <- old_getPhiPrey(params, n, n_pp, pk)
+    new <- getPhiPrey(params, n, n_pp)
+    expect_true(max(abs(old-new)) < 0.005)
+    # You can take a look at the graphs for the different species if you like
+    # i <- 2
+    # plot(old[i, ], type="l")
+    # lines(new[i, ], col="blue")
+    # max(abs(old-new))
 })
 
 test_that("getFeedingLevel for MizerParams",{
@@ -169,34 +177,47 @@ test_that("getFeedingLevel for MizerSim",{
     expect_that(getFeedingLevel(sim, time_range=time_range)[1,,], equals(getFeedingLevel(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
 })
 
-# This tests pred rate is calculated as is was in project_methods
+
  test_that("getPredRate",{
-     # First we calculate pr using getPredRate
+     # Initialise params object
      data(NS_species_params_gears)
      data(inter)
      params <- MizerParams(NS_species_params_gears, inter)
      no_sp <- dim(params@catchability)[2]
      no_w <- length(params@w)
      no_w_full <- length(params@w_full)
+
+     # We calculate predation rate using old code without fft
+     old_getPredRate <- function(params, n, n_pp, pk) {
+         # Calculate predation rate with old code
+         feeding_level <- getFeedingLevel(params, n=n, n_pp=n_pp)
+         n_total_in_size_bins <- sweep(n, 2, params@dw, '*', check.margin=FALSE) # N_i(w)dw
+         pred_rate <- sweep(pk,c(1,2),(1-feeding_level)*params@search_vol*n_total_in_size_bins,"*", check.margin=FALSE)
+         return(colSums(aperm(pred_rate, c(2,1,3)),dims=1))
+     }
+     
+     # Calculate predation kernel using old code
+     beta <- params@species_params$beta
+     sigma <- params@species_params$sigma
+     w <- params@w
+     w_full <- params@w_full
+     pk = array(beta, dim = c(no_sp, no_w, no_w_full))
+     pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
+     pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
+
+     # Initial n and n_pp
+     n <- get_initial_n(params)
+     n_pp <- params@cc_pp
+     old <- old_getPredRate(params, n, n_pp, pk)
+     new <- getPredRate(params, n, n_pp)
+     expect_true(max(abs(old-new)) < 0.0001)
+     
+     # Random n and n_pp
      n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-     n_full <- abs(rnorm(no_w_full))
-     pr <- getPredRate(params,n,n_full)
-     expect_that(dim(pr), equals(c(no_sp,no_w_full)))
-     # Next we calculate output, which uses the same procedure as getPredRate, directly
-     noSpecies <- dim(params@interaction)[1]
-     wfull <- params@w_full
-     xfull <- log(wfull)
-     xfull <- xfull - xfull[1]
-     dx <- xfull[2]-xfull[1]
-     idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-     no_P <- length(params@ft_pred_kernel_p[1,])
-     Q <- matrix(0, nrow = noSpecies, ncol = no_P )
-     feeding_level <- getFeedingLevel(params, n=n, n_pp=n_full)
-     Q[, idx_sp] <- sweep((1-feeding_level)*params@search_vol*n, 2, params@w, "*")
-     mortLonger <- dx*Re(t(mvfft(t(params@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
-     output <- mortLonger[, 1:length(params@w_full), drop = FALSE]
-     # Test that output matches pr
-     expect_that(all(output==pr), equals(TRUE))
+     n_pp <- abs(rnorm(no_w_full))
+     old <- old_getPredRate(params, n, n_pp, pk)
+     new <- getPredRate(params, n, n_pp)
+     expect_true(max(abs(old-new)) < 0.0001)
  })
 
 test_that("getM2 for MizerParams",{
