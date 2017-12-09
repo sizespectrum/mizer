@@ -84,4 +84,3 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 \seealso{
 \code{\link{getPhiPrey}}
 }
-

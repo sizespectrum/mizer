@@ -33,7 +33,7 @@ calculated using the \code{getM2()} method.}
 A two dimensional array (prey species x prey size).
 }
 \description{
-Calculates the total mortality \eqn{\mu_i(w)} on each species by size from
+Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size from
 predation mortality (M2), background mortality (M) and fishing mortality for
 a single time step.
 
@@ -55,4 +55,3 @@ getZ(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
 \seealso{
 \code{\link{getM2}}, \code{\link{getFMort}}
 }
-

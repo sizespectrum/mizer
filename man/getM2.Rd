@@ -3,8 +3,8 @@
 \docType{methods}
 \name{getM2}
 \alias{getM2}
-\alias{getM2,MizerParams,matrix,numeric,missing-method}
 \alias{getM2,MizerParams,missing,missing,array-method}
+\alias{getM2,MizerParams,matrix,numeric,missing-method}
 \alias{getM2,MizerSim,missing,missing,missing-method}
 \title{getM2 method for the size based model}
 \usage{
@@ -50,7 +50,7 @@ If a \code{MizerParams} object is passed in, the method returns a two
   predation mortality calculated at every time step in the simulation.
 }
 \description{
-Calculates the total predation mortality \eqn{\mu_{p,i}(w_p)} on each prey
+Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each prey
 species by prey size. This method is used by the \code{\link{project}} method
 for performing simulations.
 
@@ -80,4 +80,3 @@ getM2(sim, time_range = c(15,20))
 \seealso{
 \code{\link{getPredRate}} and \code{\link{project}}.
 }
-

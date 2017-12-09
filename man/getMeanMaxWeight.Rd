@@ -45,4 +45,3 @@ getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 }
 }
-

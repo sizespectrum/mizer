@@ -41,4 +41,3 @@ plotYield(sim)
 \seealso{
 \code{\link{getYield}}
 }
-

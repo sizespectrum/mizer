@@ -41,4 +41,3 @@ plotYieldGear(sim)
 \seealso{
 \code{\link{getYieldGear}}
 }
-

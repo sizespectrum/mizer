@@ -3,9 +3,9 @@
 \docType{methods}
 \name{MizerParams}
 \alias{MizerParams}
+\alias{MizerParams,numeric,missing-method}
 \alias{MizerParams,data.frame,matrix-method}
 \alias{MizerParams,data.frame,missing-method}
-\alias{MizerParams,numeric,missing-method}
 \title{Constructors for objects of \code{MizerParams} class}
 \usage{
 MizerParams(object, interaction, ...)
@@ -130,4 +130,3 @@ params <- MizerParams(NS_species_params_gears, inter)
 \seealso{
 \code{\link{project}} \linkS4class{MizerSim}
 }
-

@@ -35,4 +35,3 @@ getYieldGear(sim)
 \seealso{
 \code{\link{getYield}}
 }
-

@@ -58,4 +58,3 @@ getPredRate(params,n,n_pp)
 \seealso{
 \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 }
-

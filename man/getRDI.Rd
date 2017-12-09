@@ -36,7 +36,7 @@ A numeric vector the length of the number of species
 }
 \description{
 Calculates the density independent recruitment (total egg production)
-\eqn{R_{p,i}} before density dependence, by species. Used by the
+\eqn{R_{p.i}} before density dependence, by species. Used by the
 \code{project} method for performing simulations.
 
 \code{getRDI} method with \code{e_spawning} argument.
@@ -57,4 +57,3 @@ getRDI(params,sim@n[21,,],sim@n_pp[21,])
 \seealso{
 \code{\link{project}}
 }
-

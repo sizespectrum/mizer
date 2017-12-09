@@ -34,4 +34,3 @@ y <- getYield(sim)
 \seealso{
 \code{\link{getYieldGear}}
 }
-

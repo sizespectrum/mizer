@@ -244,23 +244,41 @@ The encountered food is consumed subjected to a standard Holling functional resp
   f_i(w) = \frac{E_{e.i}}{E_{e.i} + h_i w^n},
 \end{equation}
 
-where $h_i w^n$ is the maximum consumption rate.
+where $h_i w^n$ is the maximum consumption rate. The rate at which food is
+consumed is then $f_i(w) h_i w^n$.
 
 \subsection{Growth}
 \label{sec:growth}
-The consumed food $f_i(w) h_i w^n$ is assimilated by an efficiency $\alpha$ and used to fuel the needs for standard metabolism and activity $k_{s.i} w^p$. The remaining available energy, $\alpha f_i(w) h_i w^n - k_{s.i} w^p$, is divided between growth and reproduction by a function of weight changing between zero around the weight of maturation to one at the asymptotic weight where all available energy is used for reproduction:
+The consumed food is assimilated with an efficiency $\alpha$ and 
+used to fuel the needs for standard metabolism (at a rate $k_{s.i} w^p$) and 
+activity and movement (at a rate $k_i w$). The remaining rate, if any,
+\begin{equation}
+  \label{eq:Er}
+  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - k_{s.i} w^p - k_i w)
+\end{equation}
+is used for growth and reproduction.
+When food supply does not cover the requirements of metabolism and activity, 
+growth and reproduction stops, i.e.~there is no negative growth\footnote{
+The individual would then be subjected to a starvation mortality.
+Starvation is usually not an important process in the multispecies model with Beverton-Holt recruitment.
+It is therefore not implemented in mizer at the moment.}.
 
+The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
+a function $\psi_i(w)$ that changes between 
+zero around the weight of maturation $w_{m.i}$ to one at the asymptotic weight 
+$W_i$ where all available energy is used for reproduction:
 \begin{equation}
   \label{eq:psi}
   \psi_i(w) = \left[ 1 + \left( \frac{w}{w_{m.i}} \right)^{-10} \right]^{-1} \left( \frac{w}{W_i} \right)^{1-n},
 \end{equation}
+The term in the square bracket is a function that varies smoothly from 0 to 1 around the weight at maturation.  The last term describes how the relative amount of energy invested in reproduction increases as the weight approaches the asymptotic weight.  
 
-where $w_{m.i}$ is the weight at maturation and $W_i$ is the asymptotic (maximum) size.  The term in the square bracket is a function which varies smoothly from 0 to 1 around the weight at maturation.  The last term describes how the relative amount of energy invested in reproduction increases as the weight approaches the asymptotic weight.  The somatic growth function therefore becomes:
-
+Thus the somatic growth function is given by
 \begin{equation}
   \label{eq:growth}
-  g_i(w) = (\alpha f_i(w) h_i w^n - k_{s.i} w^p)(1-\psi_i(w)).
+  g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
 \end{equation}
+
 
 \begin{figure}[t]
   \centering
@@ -274,21 +292,24 @@ The form of the allocation function (\ref{eq:psi}) is chosen such that the growt
 
 \begin{equation}
   \label{eq:fc}
-  f_{c.i}(w) = k_{s.i} w^p/(\alpha h_i w^n).
+  f_{c.i}(w) = \frac{k_{s.i} w^p+k_i w}{\alpha h_i w^n}.
 \end{equation}
 
-If $n=p$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
+If $n=p$ and $k=0$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
 
 \subsection{Reproduction}
 \label{sec:reproduction}
-The total production of eggs $R_{p.i}$ (numbers per time) is found by integrating the energy allocated to reproduction over all individuals:
-
+The total production rate of eggs $R_{p.i}$ (numbers per time) is found by 
+integrating the contribution from all individuals:
 \begin{equation}
   \label{eq:Rp}
-  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  (\alpha f_i(w) h_i w^n - k_{s.i} w^p) \psi_i(w) \, dw,
+  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
 \end{equation}
-
-where $w_0$ is the egg weight, $\epsilon$ is the efficiency of reproduction, and the factor $1/2$ takes into account that only females reproduce.
+where the individual contribution is obtained by multiplying the rate at which the
+individual allocates energy to reproduction by an efficiency factor $\epsilon$ 
+and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
+The result is multiplied by a factor $1/2$ to take into account that only 
+females reproduce.
 
 \subsection{Recruitment}
 \label{sec:recruitment}
@@ -315,29 +336,34 @@ where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\
 The ``Beverton-Holt'' type of SRR is not the only density dependence model that \pkg{mizer} can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or ``hockey-stick''. This is explored in more detail in Section~\ref{sec:srr}.
 
 \subsection{Mortality}
-The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$ , starvation mortality $\mu_{s.i}(w)$, and a constant background mortality $\mu_{b.i}(w)$. The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citet[Appendix~A]{hartvig_food_2011-1} for derivation):
+The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and fishing mortality $\mu_{f.i}(w)$. 
+
+Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citet[Appendix~A]{hartvig_food_2011-1} for derivation):
 
 \begin{equation}
   \label{eq:mup}
-  \mu_{p.i}(w_p) = \sum_j \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q \theta_{ji} N_j(w) \, dw.
+  \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw
 \end{equation}
 
-When food supply does not cover metabolic requirements $k_{s.i} w^p$, growth stops, i.e.~there is no negative growth, and the individual is subjected to a starvation mortality.  Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
-\begin{equation}
-  \label{eq:mu_s}
-  \mu_{s.i}(w) = \left\{ \begin{array}{lc}
-0 & \alpha f_i(w) h_i w^n > k_{s.i} w^p \\
- \frac{k_{s.i} w^p - \alpha f_i(w) h_i w^n}{\xi w} & \mathrm{otherwise}
-\end{array} \right. .
-\end{equation}
 
-Starvation is usually not an important process in the multispecies model with Beverton-Holt recruitment.
+% Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
+% \begin{equation}
+%   \label{eq:mu_s}
+%   \mu_{s.i}(w) = \left\{ \begin{array}{lc}
+% 0 & \alpha f_i(w) h_i w^n > k_{s.i} w^p \\
+%  \frac{k_{s.i} w^p - \alpha f_i(w) h_i w^n}{\xi w} & \mathrm{otherwise}
+% \end{array} \right. .
+% \end{equation}
 
-Mortality from sources other than predation and starvation is assumed to be constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
+Background mortality from other sources is assumed to be constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
 \begin{equation}
   \label{eq:mu_b}
   \mu_{b.i} = \mu_0 W_i^{n-1}.
 \end{equation}
+The background mortality is needed to ensure that the largest individuals in the community also experience mortality as they are not predated upon by any individuals from the community spectrum.  
+
+Fishing mortality $\mu_{f.i}(w)$ is discussed further in section \ref{sec:fishing_gear}.
+
 
 \subsection{Resource dynamics}
 The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
@@ -345,7 +371,12 @@ The background resource spectrum $N_R(w)$ represents food items for the smallest
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ \kappa w^{-\lambda} - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
 \end{equation}
-where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ the carrying capacity.
+where $r_0 w^{p-1}$ is the population regeneration rate \citep{fenchel_intrinsic_1974,savage_effects_2004} and $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ the carrying capacity. 
+The predation mortality rate is given by a similar expression as in \eqref{eq:mup}:
+\begin{equation}
+  \label{eq:mupp}
+  \mu_{p}(w_p) = \sum_j \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw.
+\end{equation}
 
 \subsection{Parameters}
 \label{sec:parameters}
@@ -1170,14 +1201,17 @@ These are explained further in Sections~\ref{sec:fishing_gear} and \ref{sec:srr}
 In this section we take a look at how fishing is implemented and how fishing gears are set up within
 \pkg{mizer}.
 
-In \pkg{mizer}, fishing mortality is imposed on species by fishing gears.
-The fishing mortality $F$ imposed by gear $g$ on species $s$ at size $w$ is calculated as:
-
+In \pkg{mizer}, fishing mortality is imposed on species by fishing gears. The total fishing
+mortality is obtained by summing over the mortality from all gears,
+\begin{equation}
+    \label{eq:muf}
+    \mu_{f.i}(w) = \sum_g F_{g,i}(w),
+\end{equation}
+where the fishing mortality $F_{g,i}(w)$ imposed by gear $g$ on species $i$ at size $w$ is calculated as:
 \begin{equation}
     \label{eq:sel}
-    F_{s,g,w} = S_{s,g,w} Q_{s,g} E_{g}
+    F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g}
 \end{equation}
-
 where $S$ is the selectivity by species, gear and size, $Q$ is the catchability by species
 and gear and $E$ is the fishing effort by gear.
 The selectivity at size has a range between 0 (not selected at that size) to 1 (fully selected at

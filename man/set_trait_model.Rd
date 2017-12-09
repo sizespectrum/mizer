@@ -157,4 +157,3 @@ K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 \seealso{
 \linkS4class{MizerParams}
 }
-

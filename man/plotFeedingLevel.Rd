@@ -46,4 +46,3 @@ plotFeedingLevel(sim, time_range = 10:20)
 \seealso{
 \code{\link{getFeedingLevel}}
 }
-

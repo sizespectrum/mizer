@@ -59,4 +59,3 @@ getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
     threshold_w = 500, biomass_proportion=FALSE)
 }
 }
-
