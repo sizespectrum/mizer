@@ -48,9 +48,13 @@ species at size, \eqn{k_i w}}
 \item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
 for each species at size, \eqn{k_{s.i} w^p}}
 
-\item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
-the predation coefficient of each predator at size on each prey size,
-\eqn{\phi_i(wp/w)}}
+\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
+the Fourier transform of the feeding kernel in a form appropriate for
+evaluating the available energy integral}
+
+\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio) that holds 
+the Fourier transform of the feeding kernel in a form appropriate for
+evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
 growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}

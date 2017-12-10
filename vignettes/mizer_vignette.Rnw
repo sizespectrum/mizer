@@ -132,7 +132,7 @@ After installing \pkg{mizer}, to actually use it you need to load the package us
 library(mizer)
 @
 
-The source code for \pkg{mizer} is currently hosted at Github (\url{https://github.com/drfinlayscott/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here using the \R package \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
+The source code for \pkg{mizer} is hosted on Github (\url{https://github.com/sizespectrum/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here using the \R package \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
 
 \subsection{Getting help}
 
@@ -1359,7 +1359,7 @@ In the rest of this section we demonstrate how to pull these elements together t
 
 The first step is to prepare the species specific parameter data.frame.
 As mentioned above, one way of doing this is to use a spreadsheet and save it as a .csv file. We will use this approach here.
-An example .csv file has been included in the package. This contains the species parameters for a multispecies North Sea model \citep{blanchard_multispecies_2013}.
+An example .csv file has been included in the package. This contains the species parameters for a multispecies North Sea model \citep{blanchard_multispecies_2014}.
 This file is placed in the \code{doc} folder of the package installation.
 The location of the file can be found by running:
 
@@ -1997,12 +1997,12 @@ plot(sim)
 In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
 First we will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
 We then run two different future projection scenarios.
-This example is based on the multispecies model in \citet{blanchard_multispecies_2013}.
+This example is based on the multispecies model in \citet{blanchard_multispecies_2014}.
 
 \subsection{Setting up the North Sea model}
 
 The first job is to set up the \class{MizerParams} object for the North Sea model.
-In the previous multispecies examples we have already been using the life-history parameters and the interaction matrix for the North Sea model used in \citet{blanchard_multispecies_2013}.
+In the previous multispecies examples we have already been using the life-history parameters and the interaction matrix for the North Sea model used in \citet{blanchard_multispecies_2014}.
 We will use them again here but will make some changes. In particular we set up the fishing gears differently.
 
 The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the \code{system.file()} function to tell us the location of the files.
@@ -2028,7 +2028,7 @@ The \args{params\_data} object is a data.frame with columns for \args{species}, 
 We have seen before that only having these columns in the species data.frame is sufficient to make a \class{MizerParams} object. Any missing columns will be added by the default values and relationships in the \class{MizerParams} constructor.
 For example, the data.frame does not include columns for \args{h} or \args{gamma}. This means that they will be estimated using the \args{k\_vb} column (see Section~\ref{sec:species_parameters_dataframe}).
 
-We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\ref{sec:srr}, this requires a column \args{r\_max} in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2013}.
+We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\ref{sec:srr}, this requires a column \args{r\_max} in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2014}.
 The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
 
 At the moment, the species data.frame does not contain any information on the selectivity of the species.
@@ -2049,7 +2049,7 @@ This is because the sigmoid selectivity function is defined in terms of length, 
 As explained in Section~\ref{sec:fishing_gear}, all arguments of the selectivity function need to be in the species parameter data.frame.
 Therefore, columns for \args{l25}, \args{l50}, \args{a} and \args{b} need to be added to \args{params\_data}.
 We also add a column specifying the name of the selectivity function we wish to use.
-The data is taken from \citet{blanchard_multispecies_2013}.
+The data is taken from \citet{blanchard_multispecies_2014}.
 Note it would probably be easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
 
 <<label=adding_sel_params>>=
@@ -2106,7 +2106,7 @@ params_data$catchability <- as.numeric(f_history["1990",])
 @
 
 Considering the other model parameters, we will use default values for all of the other parameters apart from \args{kappa}, the carrying capacity of the resource spectrum (see Section~\ref{sec:parameters}).
-This was estimated along with the values \args{r\_max} as part of the calibration process described in \citet{blanchard_multispecies_2013}.
+This was estimated along with the values \args{r\_max} as part of the calibration process described in \citet{blanchard_multispecies_2014}.
 
 We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
 
@@ -2201,7 +2201,7 @@ We also compare the simulated values of the LFI to a community target based on a
 %Yield time series (Figure 3) These plots go all the way to 2050 after scenarios
 
 The indicators are calculated using the methods described in see Table~\ref{tab:indicator_methods} and Section~\ref{sec:summaries}.
-Here we calculate the LFI and the other community indicators for the unexploited community. As in \citet{blanchard_multispecies_2013}, when calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
+Here we calculate the LFI and the other community indicators for the unexploited community. As in \citet{blanchard_multispecies_2014}, when calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
 Each of these methods returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = \args{100}).
 
 <<label=ns_comm_ref_point>>=
@@ -2387,6 +2387,7 @@ p + theme(legend.position = "none")
 \section{Acknowledgements}
 
 Finlay Scott would like to thank the Cefas Seedcorn Project DP266 and the Defra project MF1225 for supporting this work.
+This project has received funding from the European Union's Horizon 2020 Research and Innovation programme under Grant Agreement No 634495 (MINOUW).
 
 %-------------------------------------------------------------------------
 % References
