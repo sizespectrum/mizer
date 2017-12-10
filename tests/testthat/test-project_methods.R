@@ -138,6 +138,16 @@ test_that("getPhiPrey",{
     # plot(old[i, ], type="l")
     # lines(new[i, ], col="blue")
     # max(abs(old-new))
+    
+    # Different egg sizes
+    NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
+    params <- MizerParams(NS_species_params_gears, inter)
+    n <- get_initial_n(params)
+    n_pp <- params@cc_pp
+    old <- old_getPhiPrey(params, n, n_pp, pk)
+    new <- getPhiPrey(params, n, n_pp)
+    expect_true(max(abs(log(old/new))) < 0.005)
+    
 })
 
 test_that("getFeedingLevel for MizerParams",{
@@ -215,6 +225,15 @@ test_that("getFeedingLevel for MizerSim",{
      # Random n and n_pp
      n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
      n_pp <- abs(rnorm(no_w_full))
+     old <- old_getPredRate(params, n, n_pp, pk)
+     new <- getPredRate(params, n, n_pp)
+     expect_true(max(abs(old-new)) < 0.0001)
+     
+     # Different egg sizes
+     NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
+     params <- MizerParams(NS_species_params_gears, inter)
+     n <- get_initial_n(params)
+     n_pp <- params@cc_pp
      old <- old_getPredRate(params, n, n_pp, pk)
      new <- getPredRate(params, n, n_pp)
      expect_true(max(abs(old-new)) < 0.0001)
