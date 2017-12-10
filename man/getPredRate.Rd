@@ -26,13 +26,12 @@ no. species x no. size bins. If not supplied, is calculated internally
 using the \code{getFeedingLevel()} method.}
 }
 \value{
-A three dimensional array (predator species x predator size x prey size), 
-  where the predator size runs over the community size range only and prey size
-  runs over community plus background spectrum.
+A two dimensional array (predator species x prey size), 
+  where the prey size runs over community plus background spectrum.
 }
 \description{
 Calculates the predation rate of each predator species at size on prey size. 
-In formulas \deqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 This method is used by the \code{\link{project}} method for performing
 simulations. In the simulations, it is combined with the interaction matrix
 (see \code{\link{MizerParams}}) to calculate the realised predation mortality
@@ -58,4 +57,3 @@ getPredRate(params,n,n_pp)
 \seealso{
 \code{\link{project}}, \code{\link{getM2}}, \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 }
-

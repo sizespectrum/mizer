@@ -178,9 +178,10 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         no_sp <- nrow(sim@params@species_params) # number of species
         no_w <- length(sim@params@w) # number of fish size bins
         idx <- 2:no_w
-        # If no w_min_idx column in species_params, add one
-        if (!("w_min_idx" %in% names(sim@params@species_params)))
-            sim@params@species_params$w_min_idx <- 1
+        # If no w_min_idx column in species_params, issue error
+        if (!("w_min_idx" %in% names(sim@params@species_params))) {
+            stop("w_min_idx column missing in species params")
+        }
         # Hacky shortcut to access the correct element of a 2D array using 1D notation
         # This references the egg size bracket for all species, so for example
         # n[w_minidx_array_ref] = n[,w_min_idx]
