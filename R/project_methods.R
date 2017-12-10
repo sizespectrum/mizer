@@ -896,9 +896,6 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
         if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
             stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        # Should we put this in the class as part of species_params?
-        # Index of the smallest size class for each species
-        #w0_idx <- as.vector(tapply(object@species_params$w_min,1:length(object@species_params$w_min),function(w_min,wx) max(which(wx<=w_min)),wx=params@w))
         e_spawning_pop <- (e_spawning*n) %*% object@dw
         rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro)/object@w[object@species_params$w_min_idx] 
         return(rdi)
@@ -910,13 +907,11 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
 setMethod('getRDI', signature(object='MizerParams', n = 'matrix', 
                               n_pp = 'numeric', e_spawning='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
-	# Should we put this in the class as part of species_params?
-	# Index of the smallest size class for each species
-	#w0_idx <- as.vector(tapply(object@species_params$w_min,1:length(object@species_params$w_min),function(w_min,wx) max(which(wx<=w_min)),wx=params@w))
-	e_spawning <- getESpawning(object, n=n, n_pp=n_pp)
-    rdi <- getRDI(object, n=n, n_pp=n_pp, e_spawning=e_spawning, sex_ratio=sex_ratio)
-	return(rdi)
-})
+        e_spawning <- getESpawning(object, n=n, n_pp=n_pp)
+        rdi <- getRDI(object, n=n, n_pp=n_pp, e_spawning=e_spawning, sex_ratio=sex_ratio)
+        return(rdi)
+    }
+)
 
 #' getRDD method for the size based model
 #'

@@ -544,9 +544,9 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	                   gear_names=unique(object$gear), max_w=max_w,...)
 
 	# If not w_min column in species_params, set to w_min of community
-	# Check min_w argument is not > w_min in species_params
 	if (!("w_min" %in% colnames(object)))
 	    object$w_min <- min(res@w)
+	# Check min_w argument is not > w_min in species_params
 	if(any(object$w_min < min(res@w)))
 	    stop("One or more of your w_min values is less than the smallest size of the community spectrum")
 
