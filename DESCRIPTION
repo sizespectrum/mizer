@@ -1,9 +1,10 @@
 Package: mizer
 Imports:
+    ggplot2,
+    grid,
     methods,
     plyr,
-    reshape2,
-    ggplot2
+    reshape2
 Maintainer: Finlay Scott <finlay.scott@jrc.ec.europa.eu>
 Author: Finlay Scott (JRC, IT) and Julia Blanchard (Sheffield University, UK)
     and Ken Andersen (DTU Aqua, Copenhagen, DK)
@@ -32,4 +33,4 @@ Collate:
     'wrapper_functions.R'
     'data.R'
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
