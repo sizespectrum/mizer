@@ -3,8 +3,8 @@
 \docType{methods}
 \name{getM2}
 \alias{getM2}
-\alias{getM2,MizerParams,matrix,numeric,missing-method}
 \alias{getM2,MizerParams,missing,missing,array-method}
+\alias{getM2,MizerParams,matrix,numeric,missing-method}
 \alias{getM2,MizerSim,missing,missing,missing-method}
 \title{getM2 method for the size based model}
 \usage{
@@ -80,4 +80,3 @@ getM2(sim, time_range = c(15,20))
 \seealso{
 \code{\link{getPredRate}} and \code{\link{project}}.
 }
-

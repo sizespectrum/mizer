@@ -53,4 +53,3 @@ plotBiomass(sim, min_w = 10, max_w = 1000)
 \seealso{
 \code{\link{getBiomass}}
 }
-

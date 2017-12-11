@@ -55,4 +55,3 @@ getZ(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
 \seealso{
 \code{\link{getM2}}, \code{\link{getFMort}}
 }
-

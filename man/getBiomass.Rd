@@ -39,4 +39,3 @@ getBiomass(sim)
 getBiomass(sim, min_w = 10, max_w = 1000)
 }
 }
-

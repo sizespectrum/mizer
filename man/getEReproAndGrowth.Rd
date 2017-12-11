@@ -52,4 +52,3 @@ getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 \seealso{
 \code{\link{project}} and \code{\link{getFeedingLevel}}.
 }
-

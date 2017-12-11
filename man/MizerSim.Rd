@@ -47,4 +47,3 @@ sim <- project(params)
 \code{\link{project}} \linkS4class{MizerParams}
   \linkS4class{MizerSim}
 }
-

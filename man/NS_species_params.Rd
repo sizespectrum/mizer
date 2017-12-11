@@ -27,4 +27,3 @@ It is a data.frame that contains all the necessary information to be used by the
 As there is no gear column, each species is asssumed to be fished by a seperate gear.
 }
 \keyword{datasets}
-

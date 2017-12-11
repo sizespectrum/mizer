@@ -3,9 +3,9 @@
 \docType{methods}
 \name{project}
 \alias{project}
-\alias{project,MizerParams,array-method}
 \alias{project,MizerParams,missing-method}
 \alias{project,MizerParams,numeric-method}
+\alias{project,MizerParams,array-method}
 \title{project method for the size based modelling}
 \usage{
 project(object, effort, ...)
@@ -109,4 +109,3 @@ sim <- project(params, effort = effort_array)
 \seealso{
 \code{\link{MizerParams}}
 }
-
