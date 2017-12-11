@@ -13,9 +13,9 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     role=c("aut", "cph")),
              person("Ken", "Andersen", email="kha@aqua.dtu.dk",
                     role=c("aut", "cph")),
-             person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
-                    role=c("ctb", "cre")),
              person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
+                    role=c("ctb", "cre")),
+             person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cre")))
 Version: 0.4
 License: GPL-3
