@@ -76,6 +76,7 @@ each species by gear and species size}
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
 each species by each gear}
 }}
+
 \note{
 The \code{MizerParams} class is fairly complex with a large number of
   slots, many of which are multidimensional arrays. The dimensions of these

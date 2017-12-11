@@ -3,8 +3,8 @@
 \docType{methods}
 \name{getFMortGear}
 \alias{getFMortGear}
-\alias{getFMortGear,MizerParams,matrix-method}
 \alias{getFMortGear,MizerParams,numeric-method}
+\alias{getFMortGear,MizerParams,matrix-method}
 \alias{getFMortGear,MizerSim,missing-method}
 \title{Get the fishing mortality by time, gear, species and size}
 \usage{
@@ -88,4 +88,3 @@ getFMortGear(sim)
 getFMortGear(sim, time_range=c(10,20))
 }
 }
-

@@ -42,4 +42,3 @@ getPhiPrey(params,n,n_pp)
 \seealso{
 \code{\link{project}}
 }
-

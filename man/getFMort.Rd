@@ -3,8 +3,8 @@
 \docType{methods}
 \name{getFMort}
 \alias{getFMort}
-\alias{getFMort,MizerParams,matrix-method}
 \alias{getFMort,MizerParams,numeric-method}
+\alias{getFMort,MizerParams,matrix-method}
 \alias{getFMort,MizerSim,missing-method}
 \title{Get the total fishing mortality from all fishing gears by time, species and
 size.}
@@ -94,4 +94,3 @@ getFMort(sim, time_range = c(10,20))
 \seealso{
 \code{getFMortGear}, \code{project}
 }
-

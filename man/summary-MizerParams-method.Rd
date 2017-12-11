@@ -23,4 +23,3 @@ params <- MizerParams(NS_species_params_gears,inter)
 summary(params)
 }
 }
-

@@ -55,4 +55,3 @@ getM2Background(params,n,n_pp)
 \seealso{
 \code{\link{project}} and \code{\link{getM2}}.
 }
-

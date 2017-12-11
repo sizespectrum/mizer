@@ -54,4 +54,3 @@ plotSpectra(sim, time_range = 10:20)
 plotSpectra(sim, time_range = 10:20, biomass = FALSE)
 }
 }
-

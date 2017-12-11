@@ -29,7 +29,7 @@ gear}
 \item{\code{n_pp}}{Array that stores the projected background population by time and
 size}
 }}
+
 \seealso{
 \code{\link{project}} \code{\link{MizerParams}}
 }
-

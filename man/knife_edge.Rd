@@ -15,4 +15,3 @@ knife_edge(w, knife_edge_size)
 A knife-edge selectivity function where only sizes greater or equal to
 \code{knife_edge_size} are selected.
 }
-

@@ -33,4 +33,3 @@ sim <- project(params, t_max = 20, effort = 0.5)
 getSSB(sim)
 }
 }
-
