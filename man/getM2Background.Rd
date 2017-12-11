@@ -31,7 +31,7 @@ it is calculated by the \code{getPredRate()} method.}
 A vector of predation mortalities by background prey size.
 }
 \description{
-Calculates the predation mortality \eqn{\mu_p(w)} on the background spectrum
+Calculates the predation mortality rate \eqn{\mu_p(w)} on the background spectrum
 by prey size. Used by the \code{project} method for running size based
 simulations.
 

@@ -28,8 +28,8 @@ internally using the \code{getEReproAndGrowth()} method.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy available by species and size for reproduction after
-metabolism and movement have been accounted for.
+Calculates the energy rate available by species and size for reproduction after
+metabolism and movement have been accounted for: \eqn{\psi_i(w)E_{r.i}(w)}.
 Used by the \code{project} method for performing simulations.
 
 \code{getESpawning} method with \code{e} argument.

@@ -30,9 +30,9 @@ using the \code{getFeedingLevel()} method.}
 A two dimensional array (species x size)
 }
 \description{
-Calculates the energy available by species and size for reproduction and
-growth after metabolism and movement have been accounted for. Used by the
-\code{project} method for performing simulations.
+Calculates the energy rate available by species and size for reproduction and
+growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
+Used by the \code{project} method for performing simulations.
 
 \code{getEReproAndGrowth} method with \code{feeding_level} argument.
 

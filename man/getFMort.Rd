@@ -6,7 +6,7 @@
 \alias{getFMort,MizerParams,numeric-method}
 \alias{getFMort,MizerParams,matrix-method}
 \alias{getFMort,MizerSim,missing-method}
-\title{Get the total fishing mortality from all fishing gears by time, species and
+\title{Get the total fishing mortality rate from all fishing gears by time, species and
 size.}
 \usage{
 getFMort(object, effort, ...)
@@ -42,10 +42,10 @@ An array. If the effort argument has a time dimension, or object is
   output array has two dimensions (species x size).
 }
 \description{
-Calculates the fishing mortality from all gears by species and size at each
-time step in the \code{effort} argument.
+Calculates the total fishing mortality from all gears by species and size at 
+each time step in the \code{effort} argument.
 The total fishing mortality is just the sum of the fishing mortalities
-imposed by each gear.
+imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 
 \code{getFMort} method for \code{MizerParams} object with constant effort.
 

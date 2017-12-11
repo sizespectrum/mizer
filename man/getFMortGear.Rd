@@ -38,9 +38,9 @@ An array. If the effort argument has a time dimension, or a
   three dimensions (gear x species x size).
 }
 \description{
-Calculates the fishing mortality by gear, species and size at each time step
-in the \code{effort} argument. Used by the \code{project} method to perform
-simulations.
+Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
+size at each time step in the \code{effort} argument. 
+Used by the \code{project} method to perform simulations.
 
 \code{getFMortGear} method for \code{MizerParams} object with constant effort.
 

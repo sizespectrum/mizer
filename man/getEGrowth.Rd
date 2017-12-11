@@ -36,7 +36,7 @@ the \code{\link{getEReproAndGrowth}} method.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy \eqn{g_i(w)} available by species and size for growth
+Calculates the energy rate \eqn{g_i(w)} available by species and size for growth
 after metabolism, movement and reproduction have been accounted for. Used by
 the \code{\link{project}} method for performing simulations.
 

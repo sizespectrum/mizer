@@ -50,7 +50,7 @@ If a \code{MizerParams} object is passed in, the method returns a two
   predation mortality calculated at every time step in the simulation.
 }
 \description{
-Calculates the total predation mortality \eqn{\mu_{p,i}(w_p)} on each prey
+Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each prey
 species by prey size. This method is used by the \code{\link{project}} method
 for performing simulations.
 
