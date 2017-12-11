@@ -16,7 +16,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
              person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     role=c("ctb", "cre")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
-                    role=c("ctb", "cre")))
+                    role=c("ctb")))
 Version: 0.4
 License: GPL-3
 Imports:
