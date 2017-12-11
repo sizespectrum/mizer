@@ -27,8 +27,9 @@
 #' @name project_methods
 NULL
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. Distributed under the GPL 2 or later
-# Maintainer: Finlay Scott, CEFAS
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 #' getPhiPrey method for the size based model
 #' 

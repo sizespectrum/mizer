@@ -1,9 +1,9 @@
 # Class outline for sbm base parameters class
 # Class has members to store parameters of size based model
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. 
-# Distributed under the GPL 2 or later
-# Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 #Naming conventions:
 #S4 classes and constructors: AClass
