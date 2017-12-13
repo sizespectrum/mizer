@@ -1,6 +1,10 @@
 mizer 0.4
 -----------
-* Improvements made to the speed by evaluating convolution sums via fft
+* Improvements made to the speed by evaluating convolution sums via fft,
+  removing the bottlenecks in getPhiPrey() and getPredRate().
+* Using C++ for the inner loop in the project method for extra speed.
+* Minor corrections to vignette and documentation to bring them into alignment
+  and to document the new home on github and new maintainers.
 
 
 mizer 0.3

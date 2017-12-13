@@ -1,8 +1,8 @@
 # Class specification and constructors for the simulation class
 
 # Copyright 2012 Finlay Scott and Julia Blanchard. 
-# Distributed under the GPL 2 or later
-# Maintainer: Finlay Scott, CEFAS. finlay.scott@cefas.co.uk
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
  utils::globalVariables(c("lm"))

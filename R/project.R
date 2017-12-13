@@ -1,8 +1,8 @@
 # Project method for the size based modelling package mizer
 
 # Copyright 2012 Finlay Scott and Julia Blanchard. 
-# Distributed under the GPL 2 or later 
-# Maintainer: Finlay Scott, CEFAS
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # project can dispatch with effort being different classes (missing, numeric,
 # array).
