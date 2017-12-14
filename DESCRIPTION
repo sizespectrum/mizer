@@ -5,8 +5,6 @@ Description: A set of classes and methods to set up and run multispecies, trait
     based and community size spectrum ecological models, focussed on the marine
     environment.
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
-Author: Finlay Scott (JRC, IT) and Julia Blanchard (Sheffield University, UK)
-    and Ken Andersen (DTU Aqua, Copenhagen, DK)
 Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
              person("Julia", "Blanchard", email="julia.blanchard@utas.edu.au",
