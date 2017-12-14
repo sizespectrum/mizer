@@ -250,7 +250,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 setGeneric('plotFeedingLevel', function(object, ...)
     standardGeneric('plotFeedingLevel'))
 
-#' PLot the feeding level using a \code{MizerSim} object.
+#' Plot the feeding level using a \code{MizerSim} object.
 #' @rdname plotFeedingLevel
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
