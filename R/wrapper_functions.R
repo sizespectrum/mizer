@@ -312,7 +312,7 @@ set_trait_model <- function(no_sp = 10,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
             gear = gear_names,
-            erepro = 1 # not used but included out of necessity
+            erepro = 1
     )
     # Make the MizerParams
     trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 
