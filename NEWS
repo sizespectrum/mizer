@@ -1,3 +1,6 @@
+* Allow for size- and species-dependent background death
+
+
 mizer 0.4
 -----------
 * Improvements made to the speed by evaluating convolution sums via fft,
