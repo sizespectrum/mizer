@@ -38,11 +38,12 @@ valid_MizerParams <- function(object) {
 	length(dim(object@search_vol)),
 	length(dim(object@activity)),
 	length(dim(object@std_metab)),
+	length(dim(object@mu_b)),
 	length(dim(object@ft_pred_kernel_e)),
 	length(dim(object@ft_pred_kernel_p)),
 	length(dim(object@interaction)),
 	length(dim(object@catchability))) == 2)){
-	    msg <- "psi, intake_max, search_vol, activity, std_metab, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
+	    msg <- "psi, intake_max, search_vol, activity, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
 	    errors <- c(errors, msg)
     }
     # 3D arrays
@@ -59,12 +60,13 @@ valid_MizerParams <- function(object) {
 	dim(object@ft_pred_kernel_e)[1],
 	dim(object@ft_pred_kernel_p)[1],
 	dim(object@activity)[1],
+	dim(object@mu_b)[1],
 	dim(object@selectivity)[2],
 	dim(object@catchability)[2],
 	dim(object@interaction)[1],
 	dim(object@interaction)[2]) == 
 	    dim(object@species_params)[1])){
-	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
+	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, mu_b, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
 	    errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -92,11 +94,12 @@ valid_MizerParams <- function(object) {
 	names(dimnames(object@search_vol))[1],
 	names(dimnames(object@activity))[1],
 	names(dimnames(object@std_metab))[1],
+	names(dimnames(object@mu_b))[1],
 	names(dimnames(object@ft_pred_kernel_e))[1],
 	names(dimnames(object@ft_pred_kernel_p))[1],
 	names(dimnames(object@selectivity))[2],
 	names(dimnames(object@catchability))[2]) == "sp")){
-	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
+	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity, mu_b, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
 	    errors <- c(errors, msg)
 	}
     #interaction dimension names
@@ -136,12 +139,13 @@ valid_MizerParams <- function(object) {
 	dimnames(object@ft_pred_kernel_e)[[1]],
 	dimnames(object@ft_pred_kernel_p)[[1]],
 	dimnames(object@activity)[[1]],
+	dimnames(object@mu_b)[[1]],
 	dimnames(object@selectivity)[[2]],
 	dimnames(object@catchability)[[2]],
 	dimnames(object@interaction)[[1]],
 	dimnames(object@interaction)[[2]]) ==
 	    object@species_params$species)){
-	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, ft_pred_kernel_e, ft_pred_kernel_p, activity, selectivity, catchability and interaction must all be the same"
+	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, activity, selectivity, catchability and interaction must all be the same"
 	    errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -228,6 +232,8 @@ valid_MizerParams <- function(object) {
 #'   species at size, \eqn{k_i w}
 #' @slot std_metab An array (species x size) that holds the standard metabolism
 #'   for each species at size, \eqn{k_{s.i} w^p}
+#' @slot mu_b An array (species x size) that holds the background death 
+#'   \eqn{\mu_{b.i}(w)}
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the available energy integral
@@ -275,7 +281,7 @@ setClass(
         std_metab = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
-        #z0 = "numeric",
+        mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
         species_params = "data.frame",
@@ -296,7 +302,7 @@ setClass(
         std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
-        #z0 = NA_real_,
+        mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         rr_pp = NA_real_,
         cc_pp = NA_real_,
         #speciesParams = data.frame(),
@@ -464,7 +470,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
 	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
-	    std_metab = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
+	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
 	    rr_pp = vec1, cc_pp = vec1, species_params = species_params,
@@ -584,6 +590,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
+	res@mu_b[] <- res@species_params$z0
             
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma

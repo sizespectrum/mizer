@@ -355,7 +355,9 @@ Predation mortality is calculated such that all that is eaten translates into co
 % \end{array} \right. .
 % \end{equation}
 
-Background mortality from other sources is assumed to be constant within a species and inversely proportional to generation time \citep{peters_ecological_1986}:
+Background mortality $\mu_{b .i}(w)$ can be set freely in mizer. By default
+it is assumed to be constant within a species and inversely proportional to 
+generation time \citep{peters_ecological_1986}:
 \begin{equation}
   \label{eq:mu_b}
   \mu_{b.i} = \mu_0 W_i^{n-1}.

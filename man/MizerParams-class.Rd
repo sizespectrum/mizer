@@ -48,6 +48,9 @@ species at size, \eqn{k_i w}}
 \item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
 for each species at size, \eqn{k_{s.i} w^p}}
 
+\item{\code{mu_b}}{An array (species x size) that holds the background death 
+\eqn{\mu_{b.i}(w)}}
+
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
 the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the available energy integral}
