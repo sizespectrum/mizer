@@ -1272,7 +1272,7 @@ The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
 For example, the default stock-recruitment function has a second argument to it, \args{r\_max}. Therefore the species parameter data.frame must have an \args{r\_max} column.
 
-Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment, $R_{p.i}$.
+Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment $R_{p.i}$, the second argument must be \args{species\_params}, the dataframe with the species parameters. This function should then be assigned to the \args{srr} slot of the MizerParams object.
 
 
 \subsection{The interaction matrix}
