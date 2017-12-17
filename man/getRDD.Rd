@@ -37,7 +37,7 @@ A numeric vector the length of the number of species.
 \description{
 Calculates the density dependent recruitment (total egg production) \eqn{R_i}
 for each species. This is the flux entering the smallest size class of each
-species. The density dependent recruiment is the density independent
+species. The density dependent recruitment is the density independent
 recruitment after it has been put through the density dependent
 stock-recruitment relationship function. This method is used by the
 \code{project} method for performing simulations.
