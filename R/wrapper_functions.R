@@ -278,6 +278,8 @@ set_trait_model <- function(no_sp = 10,
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # If not supplied, calculate gamma using equation 2.1 in A&P 2010
+    # TODO: remove this here because it is already calculated in MizerParams()
+    #       Having the same code in two locations is not a good idea
     if(is.na(gamma)){
         alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
         gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
