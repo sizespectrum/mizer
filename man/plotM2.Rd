@@ -21,7 +21,8 @@ plotM2(object, ...)
 and max time, or a single value) to average the abundances over. Default is
 the final time step.}
 
-\item{print_it}{Display the plot, or just return the ggplot2 object}
+\item{print_it}{Display the plot, or just return the ggplot2 object.
+Defaults to TRUE}
 }
 \value{
 A ggplot2 object
@@ -44,7 +45,5 @@ plotM2(sim, time_range = 10:20)
 }
 }
 \seealso{
-\code{\link{getM2}}
-
 \code{\link{getM2}}
 }

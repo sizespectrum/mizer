@@ -159,7 +159,7 @@ set_community_model <- function(max_w = 1e6,
 #' 
 #' The stock recruitment relationship is the default Beverton-Holt style. The
 #' maximum recruitment is calculated using equilibrium theory (see Andersen &
-#' Pederson, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
+#' Pedersen, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
 #' get the spectra they want.
 #' 
 #' The factor for the search volume, \code{gamma}, is calculated using the
@@ -278,6 +278,8 @@ set_trait_model <- function(no_sp = 10,
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # If not supplied, calculate gamma using equation 2.1 in A&P 2010
+    # TODO: remove this here because it is already calculated in MizerParams()
+    #       Having the same code in two locations is not a good idea
     if(is.na(gamma)){
         alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
         gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
@@ -312,7 +314,7 @@ set_trait_model <- function(no_sp = 10,
             sel_func = "knife_edge",
             knife_edge_size = knife_edge_size,
             gear = gear_names,
-            erepro = 1 # not used but included out of necessity
+            erepro = 1
     )
     # Make the MizerParams
     trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 

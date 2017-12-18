@@ -347,7 +347,7 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 #'
 #' @param object An object of class \code{MizerSim}
 #' @param species numeric or character vector of species to include in the calculation
-#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods suchs as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
+#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
@@ -389,7 +389,7 @@ setMethod('getMeanWeight', signature(object='MizerSim'),
 #' @param object An object of class \code{MizerSim}.
 #' @param species numeric or character vector of species to include in the calculation.
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
-#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods suchs as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
+#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
 #'
 #' @return A matrix or vector containing the mean maximum weight of the community through time
 #' @export
