@@ -164,7 +164,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         effort_dt <- t(effort_dt)
 
         # Make the MizerSim object with the right size
-        # We only save every t_save steps}
+        # We only save every t_save steps
         # Divisibility test needs to be careful about machine rounding errors,
         # see https://github.com/sizespectrum/mizer/pull/2
         if((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
@@ -206,7 +206,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         n <- array(sim@n[1,,],dim=dim(sim@n)[2:3])
         dimnames(n) <- dimnames(sim@n)[2:3]
         n_pp <- sim@n_pp[1,]
-        t_steps <- dim(effort_dt)[1]
+        t_steps <- dim(effort_dt)[1]-1
         for (i_time in 1:t_steps){
             # Do it piece by piece to save repeatedly calling methods
             # Calculate amount E_{a,i}(w) of available food
@@ -259,7 +259,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp+m2_background)*dt)
 
             # Store results only every t_step steps.
-            store <- t_dimnames_index %in% i_time
+            store <- t_dimnames_index %in% (i_time+1)
             if (any(store)){
                 sim@n[which(store),,] <- n 
                 sim@n_pp[which(store),] <- n_pp
