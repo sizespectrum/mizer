@@ -1600,7 +1600,6 @@ An object of \class{MizerSim} has four slots, details of which can be seen in th
 The \args{params} slot holds the \class{MizerParams} object that was passed in to \code{project()}.
 The \args{effort} slot holds the fishing effort of each gear through time. Note that the \args{effort} slot may not be exactly the same as the \args{effort} argument that was passed in to \code{project()}. This is because only the saved effort is stored (the frequency of saving is determined by the argument \args{t\_save}).
 The \args{n} and \args{n\_pp} slots hold the saved abundances of the species and the background population at size respectively. 
-Note that The \args{n} and \args{n\_pp} slots have one more row than the \args{effort} slot. This is to store the initial populations.
 
 \subsection{Projection examples}
 \label{sec:projection_examples}
@@ -1723,13 +1722,14 @@ plotFMort(sim)
 In this example we set up a more complicated fishing effort structure that allows the fishing effort of each gear to change through time.
 As mentioned above, to do this, effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear.
 The dimensions must be named. The gear names must match the gears in the \class{MizerParams} object.
-Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument \args{t\_max} is not used.
+Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument \args{t\_max} is not used. Instead the simulation runs from
+the earliest time in the effort array to the latest.
 
 Here, we will use the \args{params\_gears} object we created in 
 Section~\ref{sec:setting_different_gears} which has four gears.
 The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 
-In this example, we will project forward for 10 time steps. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
+In this example, we will project forward from time $t=1$ to time $t=10$. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
 
 First we create the empty \args{effort} array:
 <<label=set_empty_effort_array>>=
@@ -1752,7 +1752,9 @@ The first few rows of the effort array are shown as an illustration:
 <<label=show_effort_array>>=
 head(effort_array)
 @
-
+The first row gives the effort between times 1 and 2, the second between times 
+2 and 3, and so on. The time 10 row in the array is not actually used, except
+to set the final time for the simulation.
 Now we can use this effort array in the projection:
 
 <<label=project_effort_array>>=

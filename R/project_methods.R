@@ -1002,17 +1002,16 @@ setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeri
 # Necessary to include a slot_name argument because the effort and abundance
 # slots have different time dimensions
 get_time_elements <- function(sim,time_range,slot_name="n"){
-    if (!(slot_name %in% c("n","effort")))
-	stop("'slot_name' argument should be 'n' or 'effort'")
     if (!is(sim,"MizerSim"))
-	stop("First argument to get_time_elements function must be of class MizerSim")
+        stop("First argument to get_time_elements function must be of class MizerSim")
     time_range <- range(as.numeric(time_range))
     # Check that time range is even in object
-    sim_time_range <- range(as.numeric(dimnames(slot(sim,slot_name))$time))
+    sim_times <- as.numeric(dimnames(sim@effort)$time)
+    sim_time_range <- range(sim_times)
     if ((time_range[1] < sim_time_range[1]) | (time_range[2] > sim_time_range[2]))
-	stop("Time range is outside the time range of the modell")
-    time_elements <- (as.numeric(dimnames(slot(sim,slot_name))$time) >= time_range[1]) & (as.numeric(dimnames(slot(sim,slot_name))$time) <= time_range[2])
-    names(time_elements) <- dimnames(slot(sim,slot_name))$time
+	    stop("Time range is outside the time range of the model")
+    time_elements <- (sim_times >= time_range[1]) & (sim_times <= time_range[2])
+    names(time_elements) <- dimnames(sim@effort)$time
     return(time_elements)
 }
 
