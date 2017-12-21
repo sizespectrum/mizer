@@ -178,8 +178,11 @@ setMethod('MizerSim', signature(object='MizerParams'),
         if (any(is.na(t_dimnames))){
             t_dimnames <- seq(from = 0, to = t_max, by = t_save)
         }
-        if (is.character(t_dimnames)){
+        if (!is.numeric(t_dimnames)){
             stop("The t_dimnames argument must be numeric.")
+        }
+        if (is.unsorted(t_dimnames)) {
+            stop("The t_dimnames argument should be increasing.")
         }
         no_sp <- nrow(object@species_params)
         species_names <- dimnames(object@psi)$sp

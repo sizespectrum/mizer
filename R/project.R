@@ -91,7 +91,7 @@ NULL
 setGeneric('project', function(object, effort, ...)
     standardGeneric('project'))
 
-# No effort is specified - default is to set an effort of 1
+# No effort is specified - default is to set an effort of 0
 # All other arguments passed as ...
 
 #' Project without an effort argument.
@@ -154,6 +154,9 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             stop("The time dimname of the effort argument must be numeric.")
         }
         time_effort <- as.numeric(dimnames(effort)[[1]])
+        if (is.unsorted(time_effort)) {
+            stop("The time dimname of the effort argument should be increasing.")
+        }
         t_max <- time_effort[length(time_effort)]
         # Blow up effort so that rows are dt spaced
         time_effort_dt <- seq(from = time_effort[1], to = t_max, by = dt)

@@ -1517,11 +1517,11 @@ It also means that after a simulation has been run you can examine the catches b
 \section{Running a simulation}
 \label{sec:projection}
 
-In the preceding section and in the sections on the community and trait-based models above, we used the \code{project()} method to perform simple simulations where the fishing effort was held constant through the duration of the simulation.
+In the preceding section and in the sections on the community and trait-based models above, we used the \code{project()} method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
 In the trait-based model example, we also looked at how the effort for different gears could be specified.
 In this section we take a detailed look at how the \code{project()} method works and the different ways in which effort and time can be set up.
 
-In \pkg{mizer} simulations are performed using the \code{project()} method. This method takes a \class{MizerParams} object and projects it
+In \pkg{mizer}, simulations are performed using the \code{project()} method. This method takes a \class{MizerParams} object and projects it
 forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.
 
 Running a projection with \code{project()} requires various arguments:
@@ -2134,6 +2134,7 @@ One way around this is to project forward at a constant fishing mortality equal 
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
+% This is really unnecessarily complex. A single extra row with the year 1867 would be enough.
 Here we make an initial effort matrix of 100 years at the first effort level. We need to include dimension names for the time dimension.
 We then stick it on top of the original matrix of historical relative effort using \code{rbind()}.
 
