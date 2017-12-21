@@ -92,6 +92,8 @@ setMethod('getPhiPrey', signature(object='MizerParams', n = 'matrix', n_pp='nume
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
 	fullEnergy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	# Due to numerical errors we might get negative entries. They should be 0
+	fullEnergy[fullEnergy<0] <- 0
 
 	return(fullEnergy[, idx_sp, drop=FALSE])
 })
@@ -261,6 +263,9 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
         
         # We do our spectral integration in parallel over the different species 
         mortLonger <- Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
+        # Unfortunately due to numerical errors some entries might be negative
+        # So we have to set them to zero. Is this the fastest way to do that?
+        mortLonger[mortLonger<0] <- 0
         # We drop some of the final columns to get our output
         return(mortLonger[, 1:length(object@w_full), drop = FALSE])
     }
