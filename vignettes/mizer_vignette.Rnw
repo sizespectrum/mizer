@@ -233,19 +233,19 @@ where $\theta_{ij}$ is the preference of species $i$ for species $j$. The food a
 
 \begin{equation}
   \label{eq:Ee}
-  E_{e.i}(w) = \gamma_i w^q E_{a.i}.
+  E_{e.i}(w) = \gamma_i w^q E_{a.i}(w).
 \end{equation}
 
 \subsection{Consumption}
-The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 (no food) and 1 (fully satiated):
+The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 (no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the encountered food that is consumed. It is given by
 
 \begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{e.i}}{E_{e.i} + h_i w^n},
+  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + h_i w^n},
 \end{equation}
 
 where $h_i w^n$ is the maximum consumption rate. The rate at which food is
-consumed is then $f_i(w) h_i w^n$.
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) h_i w^n$.
 
 \subsection{Growth}
 \label{sec:growth}
@@ -338,13 +338,13 @@ The ``Beverton-Holt'' type of SRR is not the only density dependence model that 
 \subsection{Mortality}
 The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and fishing mortality $\mu_{f.i}(w)$. 
 
-Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citet[Appendix~A]{hartvig_food_2011-1} for derivation):
+Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals. Recalling that $1-f_j(w)$ is the proportion of the food encountered by a predator of species $j$ and weight $w$ that is actually consumed, this gives:
 
 \begin{equation}
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw
 \end{equation}
-
+(see \citet[Appendix~A]{hartvig_food_2011-1} for derivation)
 
 % Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
 % \begin{equation}
@@ -1272,7 +1272,7 @@ The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
 For example, the default stock-recruitment function has a second argument to it, \args{r\_max}. Therefore the species parameter data.frame must have an \args{r\_max} column.
 
-Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment, $R_{p.i}$.
+Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment $R_{p.i}$, the second argument must be \args{species\_params}, the dataframe with the species parameters. This function should then be assigned to the \args{srr} slot of the MizerParams object.
 
 
 \subsection{The interaction matrix}

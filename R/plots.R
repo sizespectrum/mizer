@@ -20,9 +20,9 @@
 #' etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param start_time The first time step to be plotted. Default is the beginning
+#' @param start_time The first time to be plotted. Default is the beginning
 #'   of the time series.
-#' @param end_time The first time step to be plotted. Default is the end of the
+#' @param end_time The last time to be plotted. Default is the end of the
 #'   time series.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
 #'   value is TRUE
@@ -80,7 +80,8 @@ setMethod('plotBiomass', signature(object='MizerSim'),
 #' linetypes etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object.
+#'   Defaults to TRUE
 #' @param ... Other arguments to pass to \code{getYield} method
 #'
 #' @return A ggplot2 object
@@ -123,7 +124,8 @@ setMethod('plotYield', signature(object='MizerSim'),
 #' etc. Just look at the source code for details.
 #' 
 #' @param object An object of class \code{MizerSim}
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object. 
+#'   Defaults to TRUE
 #' @param ... Other arguments to pass to \code{getYieldGear} method
 #'
 #' @return A ggplot2 object
@@ -174,7 +176,8 @@ setMethod('plotYieldGear', signature(object='MizerSim'),
 #'   value of the community.
 #' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted
 #'   or the abundance in numbers (FALSE). Default is TRUE.
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object.
+#'   Defaults to TRUE
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
@@ -232,7 +235,8 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object.
+#'   Defaults to TRUE
 #' @param ... Other arguments to pass to \code{getFeedingLevel} method
 #'
 #' @return A ggplot2 object
@@ -250,7 +254,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 setGeneric('plotFeedingLevel', function(object, ...)
     standardGeneric('plotFeedingLevel'))
 
-#' PLot the feeding level using a \code{MizerSim} object.
+#' Plot the feeding level using a \code{MizerSim} object.
 #' @rdname plotFeedingLevel
 setMethod('plotFeedingLevel', signature(object='MizerSim'),
     function(object, time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE, ...){
@@ -277,12 +281,12 @@ setMethod('plotFeedingLevel', signature(object='MizerSim'),
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object.
+#'   Defaults to TRUE
 #' @param ... Other arguments to pass to \code{getM2} method.
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getM2}}
 #' @seealso \code{\link{getM2}}
 #' @examples
 #' \dontrun{
@@ -324,7 +328,8 @@ setMethod('plotM2', signature(object='MizerSim'),
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object
+#' @param print_it Display the plot, or just return the ggplot2 object.
+#'   Defaults to TRUE
 #' @param ... Other arguments to pass to \code{getFMort} method
 #'
 #' @return A ggplot2 object

@@ -21,7 +21,8 @@ plotFeedingLevel(object, ...)
 and max time, or a single value) to average the abundances over. Default is
 the final time step.}
 
-\item{print_it}{Display the plot, or just return the ggplot2 object}
+\item{print_it}{Display the plot, or just return the ggplot2 object.
+Defaults to TRUE}
 }
 \value{
 A ggplot2 object
@@ -31,7 +32,7 @@ After running a projection, plot the feeding level of each species by size.
 The feeding level is averaged over the specified time range (a single value
 for the time range can be used).
 
-PLot the feeding level using a \code{MizerSim} object.
+Plot the feeding level using a \code{MizerSim} object.
 }
 \examples{
 \dontrun{

@@ -14,7 +14,7 @@ getMeanWeight(object, ...)
 \arguments{
 \item{object}{An object of class \code{MizerSim}}
 
-\item{...}{Other arguments for the \code{getN} and \code{getBiomass} methods suchs as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.}
+\item{...}{Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.}
 
 \item{species}{numeric or character vector of species to include in the calculation}
 }

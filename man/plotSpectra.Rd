@@ -28,7 +28,8 @@ value of the community.}
 \item{biomass}{A boolean value. Should the biomass spectrum (TRUE) be plotted
 or the abundance in numbers (FALSE). Default is TRUE.}
 
-\item{print_it}{Display the plot, or just return the ggplot2 object}
+\item{print_it}{Display the plot, or just return the ggplot2 object.
+Defaults to TRUE}
 }
 \value{
 A ggplot2 object
