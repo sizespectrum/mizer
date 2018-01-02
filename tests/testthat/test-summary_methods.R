@@ -74,14 +74,14 @@ test_that("get_time_elements",{
     expect_that(length(get_time_elements(sim,3:4)), equals(dim(sim@n)[1]))
     expect_that(sum(get_time_elements(sim,3:4)), equals(3))
     expect_that(sum(get_time_elements(sim,3:50)), throws_error())
-    expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(6,7,8)))
+    expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(7,8,9)))
     expect_that(length(get_time_elements(sim,seq(from=3,to=4,by = 0.1), slot_name="effort")), equals(dim(sim@effort)[1]))
     # What if real years are used
     effort <- array(1, dim = c(19,4), dimnames = list(year = seq(from = 1960, to = 1969, by = 0.5), gear = c("Industrial","Pelagic","Otter","Beam")))
     sim <- project(params, effort = effort, t_save = 0.5)
-    expect_that(which(get_time_elements(sim,1965)), is_equivalent_to(12))
-    expect_that(which(get_time_elements(sim,"1965")), is_equivalent_to(12))
-    expect_that(which(get_time_elements(sim,1965:1969)), is_equivalent_to(12:20))
+    expect_that(which(get_time_elements(sim,1965)), is_equivalent_to(11))
+    expect_that(which(get_time_elements(sim,"1965")), is_equivalent_to(11))
+    expect_that(which(get_time_elements(sim,1965:1969)), is_equivalent_to(11:19))
 })
 
 
@@ -164,9 +164,9 @@ test_that("getYieldGear works",{
     sim <- project(params, effort=1, t_max=10)
     y <- getYieldGear(sim)
     # check dims
-    expect_that(dim(y),equals(c(10,dim(params@catchability)[1],dim(params@catchability)[2])))
+    expect_that(dim(y),equals(c(11,dim(params@catchability)[1],dim(params@catchability)[2])))
     # check a value and assume the others are right
-    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")[-1,,]
+    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
     expect_that(sum((biomass*f_gear[,1,,])[1,1,]),equals(y[1,1,1]))
 })
@@ -178,9 +178,9 @@ test_that("getYield works",{
     sim <- project(params, effort=1, t_max=10)
     y <- getYield(sim)
     # check dims
-    expect_that(dim(y),equals(c(10,dim(params@catchability)[2])))
+    expect_that(dim(y),equals(c(11,dim(params@catchability)[2])))
     # check a value and assume the others are right
-    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")[-1,,]
+    biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim)
     expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
 })

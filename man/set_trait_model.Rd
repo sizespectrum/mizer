@@ -106,7 +106,7 @@ are spread evenly on a logarithmic scale within this range.
 
 The stock recruitment relationship is the default Beverton-Holt style. The
 maximum recruitment is calculated using equilibrium theory (see Andersen &
-Pederson, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
+Pedersen, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
 get the spectra they want.
 
 The factor for the search volume, \code{gamma}, is calculated using the

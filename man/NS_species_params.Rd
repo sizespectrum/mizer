@@ -7,11 +7,11 @@
 \format{A data frame with 12 rows and 7 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
-\item{w_inf}{The von Bertalanffy Winfinity parameter}
+\item{w_inf}{The von Bertalanffy W_infinity parameter}
 \item{w_mat}{Size at maturity}
 \item{beta}{Size preference ratio}
 \item{sigma}{Width of the size-preference}
-\item{r_max}{Maxium recruitment}
+\item{r_max}{Maximum recruitment}
 \item{k_vb}{The von Bertalanffy k parameter}
 }}
 \source{
@@ -24,6 +24,7 @@ NS_species_params
 This data set is based on species in the North Sea (Blanchard et al.).
 It is a data.frame that contains all the necessary information to be used by the
 \code{\link{MizerParams}} constructor.
-As there is no gear column, each species is asssumed to be fished by a seperate gear.
+As there is no gear column, each species is assumed to be fished by a
+separate gear.
 }
 \keyword{datasets}

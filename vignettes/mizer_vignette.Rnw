@@ -233,19 +233,19 @@ where $\theta_{ij}$ is the preference of species $i$ for species $j$. The food a
 
 \begin{equation}
   \label{eq:Ee}
-  E_{e.i}(w) = \gamma_i w^q E_{a.i}.
+  E_{e.i}(w) = \gamma_i w^q E_{a.i}(w).
 \end{equation}
 
 \subsection{Consumption}
-The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 (no food) and 1 (fully satiated):
+The encountered food is consumed subjected to a standard Holling functional response type II to represent satiation.  This determines the \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 (no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the encountered food that is consumed. It is given by
 
 \begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{e.i}}{E_{e.i} + h_i w^n},
+  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + h_i w^n},
 \end{equation}
 
 where $h_i w^n$ is the maximum consumption rate. The rate at which food is
-consumed is then $f_i(w) h_i w^n$.
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) h_i w^n$.
 
 \subsection{Growth}
 \label{sec:growth}
@@ -338,13 +338,13 @@ The ``Beverton-Holt'' type of SRR is not the only density dependence model that 
 \subsection{Mortality}
 The mortality rate of an individual $\mu_i(w)$ has three sources: predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and fishing mortality $\mu_{f.i}(w)$. 
 
-Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals (see \citet[Appendix~A]{hartvig_food_2011-1} for derivation):
+Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals. Recalling that $1-f_j(w)$ is the proportion of the food encountered by a predator of species $j$ and weight $w$ that is actually consumed, this gives:
 
 \begin{equation}
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw
 \end{equation}
-
+(see \citet[Appendix~A]{hartvig_food_2011-1} for derivation)
 
 % Starvation mortality is assumed proportional to the energy deficiency $k_{s.i} w^p - \alpha f_i(w) h_i w^n$, and is inversely proportional to lipid reserves, which are assumed proportional to body weight:
 % \begin{equation}
@@ -1272,7 +1272,7 @@ The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
 For example, the default stock-recruitment function has a second argument to it, \args{r\_max}. Therefore the species parameter data.frame must have an \args{r\_max} column.
 
-Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment, $R_{p.i}$.
+Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment $R_{p.i}$, the second argument must be \args{species\_params}, the dataframe with the species parameters. This function should then be assigned to the \args{srr} slot of the MizerParams object.
 
 
 \subsection{The interaction matrix}
@@ -1517,11 +1517,11 @@ It also means that after a simulation has been run you can examine the catches b
 \section{Running a simulation}
 \label{sec:projection}
 
-In the preceding section and in the sections on the community and trait-based models above, we used the \code{project()} method to perform simple simulations where the fishing effort was held constant through the duration of the simulation.
+In the preceding section and in the sections on the community and trait-based models above, we used the \code{project()} method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
 In the trait-based model example, we also looked at how the effort for different gears could be specified.
 In this section we take a detailed look at how the \code{project()} method works and the different ways in which effort and time can be set up.
 
-In \pkg{mizer} simulations are performed using the \code{project()} method. This method takes a \class{MizerParams} object and projects it
+In \pkg{mizer}, simulations are performed using the \code{project()} method. This method takes a \class{MizerParams} object and projects it
 forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.
 
 Running a projection with \code{project()} requires various arguments:
@@ -1600,7 +1600,6 @@ An object of \class{MizerSim} has four slots, details of which can be seen in th
 The \args{params} slot holds the \class{MizerParams} object that was passed in to \code{project()}.
 The \args{effort} slot holds the fishing effort of each gear through time. Note that the \args{effort} slot may not be exactly the same as the \args{effort} argument that was passed in to \code{project()}. This is because only the saved effort is stored (the frequency of saving is determined by the argument \args{t\_save}).
 The \args{n} and \args{n\_pp} slots hold the saved abundances of the species and the background population at size respectively. 
-Note that The \args{n} and \args{n\_pp} slots have one more row than the \args{effort} slot. This is to store the initial populations.
 
 \subsection{Projection examples}
 \label{sec:projection_examples}
@@ -1723,13 +1722,14 @@ plotFMort(sim)
 In this example we set up a more complicated fishing effort structure that allows the fishing effort of each gear to change through time.
 As mentioned above, to do this, effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear.
 The dimensions must be named. The gear names must match the gears in the \class{MizerParams} object.
-Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument \args{t\_max} is not used.
+Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument \args{t\_max} is not used. Instead the simulation runs from
+the earliest time in the effort array to the latest.
 
 Here, we will use the \args{params\_gears} object we created in 
 Section~\ref{sec:setting_different_gears} which has four gears.
 The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 
-In this example, we will project forward for 10 time steps. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
+In this example, we will project forward from time $t=1$ to time $t=10$. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
 
 First we create the empty \args{effort} array:
 <<label=set_empty_effort_array>>=
@@ -1752,7 +1752,9 @@ The first few rows of the effort array are shown as an illustration:
 <<label=show_effort_array>>=
 head(effort_array)
 @
-
+The first row gives the effort between times 1 and 2, the second between times 
+2 and 3, and so on. The time 10 row in the array is not actually used, except
+to set the final time for the simulation.
 Now we can use this effort array in the projection:
 
 <<label=project_effort_array>>=
@@ -2132,6 +2134,7 @@ One way around this is to project forward at a constant fishing mortality equal 
 We then can carry on projecting forward using the remaining years of effort.
 This approach reduces the impact of transient dynamics.
 
+% This is really unnecessarily complex. A single extra row with the year 1867 would be enough.
 Here we make an initial effort matrix of 100 years at the first effort level. We need to include dimension names for the time dimension.
 We then stick it on top of the original matrix of historical relative effort using \code{rbind()}.
 

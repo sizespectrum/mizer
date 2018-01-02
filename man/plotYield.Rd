@@ -15,7 +15,8 @@ plotYield(object, ...)
 
 \item{...}{Other arguments to pass to \code{getYield} method}
 
-\item{print_it}{Display the plot, or just return the ggplot2 object}
+\item{print_it}{Display the plot, or just return the ggplot2 object.
+Defaults to TRUE}
 }
 \value{
 A ggplot2 object

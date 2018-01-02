@@ -21,10 +21,10 @@ plotBiomass(object, ...)
 \item{print_it}{Display the plot, or just return the ggplot2 object. Default
 value is TRUE}
 
-\item{start_time}{The first time step to be plotted. Default is the beginning
+\item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}
 
-\item{end_time}{The first time step to be plotted. Default is the end of the
+\item{end_time}{The last time to be plotted. Default is the end of the
 time series.}
 }
 \value{

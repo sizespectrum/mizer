@@ -466,9 +466,9 @@ test_that("project methods return objects of correct dimension when community on
     expect_that(dim(getFeedingLevel(sim)), equals(c(t_max+1,1,nw))) # time x species x size
     expect_that(dim(getM2(sim)), equals(c(t_max+1,nw))) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
     expect_that(dim(getM2(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
-    expect_that(dim(getFMortGear(sim)), equals(c(t_max,1,1,nw))) # time x gear x species x size
-    expect_that(dim(getFMort(sim)), equals(c(t_max,nw))) # time x species x size - note drop = TRUE
-    expect_that(dim(getFMort(sim, drop=FALSE)), equals(c(t_max,1,nw))) # time x species x size 
+    expect_that(dim(getFMortGear(sim)), equals(c(t_max+1,1,1,nw))) # time x gear x species x size
+    expect_that(dim(getFMort(sim)), equals(c(t_max+1,nw))) # time x species x size - note drop = TRUE
+    expect_that(dim(getFMort(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
 
 
 })
