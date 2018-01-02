@@ -138,8 +138,7 @@ setGeneric('getYieldGear', function(object)
 #' @rdname getYieldGear
 setMethod('getYieldGear', signature(object='MizerSim'),
     function(object){
-        # biomass less the first time step
-        biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")[-1,,,drop=FALSE]
+        biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")
         f_gear <- getFMortGear(object)
         yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
         return(yield_species_gear)

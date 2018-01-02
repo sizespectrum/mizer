@@ -8,31 +8,29 @@ test_that("time dimension is dealt with properly",{
     # Effort is a single numeric
     # If dt and t_save don't match
     expect_error(project(params,effort=1,t_save=3,dt=2, t_max = 10))
-    # If t_max and t_save don't match
-    expect_error( project(params,effort=1,t_max=7,dt=2))
 
     t_max <- 5
     t_save <- 1
     dt <- 0.1
     sim <- project(params,t_max=t_max,t_save=t_save, dt = dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = t_save, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(1 + (length(seq(from = t_save, to = t_max, by = t_save)))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     dt <- 0.5
     t_save <- 2
     sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = t_save, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(1 + (length(seq(from = t_save, to = t_max, by = t_save)))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     t_save <- 0.5
     dt <- 0.5
     sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(t_max/t_save - 1))
-    expect_that(dim(sim@n)[1], equals(1 + (t_max/t_save - 1)))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 1, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(t_max/t_save + 1))
+    expect_that(dim(sim@n)[1], equals(t_max/t_save + 1))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
@@ -43,27 +41,27 @@ test_that("time dimension is dealt with properly",{
     t_max <- 5
     t_save <- 2
     sim <- project(params,t_max=t_max,t_save=t_save, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = t_save, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(1 + (length(seq(from = t_save, to = t_max, by = t_save)))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     dt <- 0.5
     sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = t_save, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(1 + (length(seq(from = t_save, to = t_max, by = t_save)))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
     t_save <- 0.5
     sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = 1, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(1 + (length(seq(from = 1, to = t_max, by = t_save)))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 1, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
 
     # Effort is an array
     t_max <- 5
     # time step = 1
-    effort <- array(NA, dim = c(t_max, 4), dimnames=list(time = seq(from = 1, to = t_max, by = 1), gear = c("Industrial","Pelagic","Otter","Beam")))
+    effort <- array(NA, dim = c(t_max+1, 4), dimnames=list(time = seq(from = 0, to = t_max, by = 1), gear = c("Industrial","Pelagic","Otter","Beam")))
     effort[,1] <- seq(from=0, to = 1, length = nrow(effort))
     effort[,2] <- 0.5
     effort[,3] <- seq(from=1, to = 0.5, length = nrow(effort))
@@ -72,15 +70,15 @@ test_that("time dimension is dealt with properly",{
     dt <- 0.1
     t_save <- 1
     sim <- project(params, t_save=t_save, dt=dt, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(t_max / t_save))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(t_max / t_save + 1))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
 
     dt <- 0.2
     t_save <- 2
     sim <- project(params, t_save=t_save, dt=dt, effort = effort)
 
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = t_save, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = t_save, to = t_max, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
 
     # Dimnames of time not start at 1
     t_max <- 5
@@ -102,8 +100,8 @@ test_that("time dimension is dealt with properly",{
     dt <- 0.1
     t_save <- 2
     sim <- project(params, t_save=t_save, dt=dt, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = start_year+1, to = end_year, by = t_save))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = start_year+1, to = end_year, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = start_year, to = end_year, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = start_year, to = end_year, by = t_save))))
 
     dt <- 0.1
     t_save <- 0.5
@@ -132,8 +130,8 @@ test_that("time dimension is dealt with properly",{
     dt <- 0.1
     t_save <- 2
     sim <- project(params, t_save=t_save, dt=dt, effort = effort)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = start_year+1, to = end_year, by = t_save))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = start_year+1, to = end_year, by = t_save))))
+    expect_that(dim(sim@effort)[1], equals(length(seq(from = start_year, to = end_year, by = t_save))))
+    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = start_year, to = end_year, by = t_save))))
 
     dt <- 0.1
     t_save <- 0.5
