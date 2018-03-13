@@ -78,6 +78,12 @@ each gear for species and size, \eqn{S_{g,i,w}}}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}}
+
+\item{\code{initial_n}}{An array (species x size) that holds abundance of each species
+at each weight at our candidate steady state solution.}
+
+\item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
+the abundance of the background background resource at each weight.}
 }}
 
 \note{

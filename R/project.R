@@ -29,10 +29,12 @@ NULL
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
-#' @param initial_n The initial populations of the species. See the notes below.
+#' @param initial_n The initial populations of the species. By default the 
+#'   \code{initial_n} slot of the \code{\link{MizerParams}} argument is used.
+#'   See the notes below.
 #' @param initial_n_pp The initial population of the background spectrum. It
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
-#'   the \code{MizerParams} argument. By default the \code{cc_pp} slot of the
+#'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \code{\link{MizerParams}} argument is used.
 #' @param ... Currently unused.
 #' 
@@ -129,7 +131,7 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 #' Project with time varying effort
 #' @rdname project
 setMethod('project', signature(object='MizerParams', effort='array'),
-    function(object, effort, t_save=1, dt=0.1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
+    function(object, effort, t_save=1, dt=0.1, initial_n=object@initial_n, initial_n_pp=object@initial_n_pp,  ...){
         validObject(object)
         # Check that number and names of gears in effort array is same as in MizerParams object
         no_gears <- dim(object@catchability)[1]

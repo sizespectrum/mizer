@@ -253,7 +253,10 @@ valid_MizerParams <- function(object) {
 #'   each gear for species and size, \eqn{S_{g,i,w}}
 #' @slot catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}
-#'   
+#' @slot initial_n An array (species x size) that holds abundance of each species
+#'  at each weight at our candidate steady state solution.
+#' @slot initial_n_pp A vector the same length as the w_full slot that describes
+#'  the abundance of the background background resource at each weight.
 #' @note The \code{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
 #'   arrays is strictly enforced so that \code{MizerParams} objects are
@@ -275,6 +278,7 @@ setClass(
         w_full = "numeric",
         dw_full = "numeric",
         psi = "array",
+        initial_n = "array",
         intake_max = "array",
         search_vol = "array",
         activity = "array",
@@ -284,6 +288,7 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
+        initial_n_pp = "numeric",
         species_params = "data.frame",
         interaction = "array",
         srr  = "function",
@@ -296,6 +301,7 @@ setClass(
         w_full = NA_real_,
         dw_full = NA_real_,
         psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -305,6 +311,7 @@ setClass(
         mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         rr_pp = NA_real_,
         cc_pp = NA_real_,
+        initial_n_pp = NA_real_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
@@ -469,11 +476,11 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
-	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
+	    psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
 	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
-	    rr_pp = vec1, cc_pp = vec1, species_params = species_params,
+	    rr_pp = vec1, cc_pp = vec1, initial_n_pp = vec1, species_params = species_params,
 	    interaction = interaction, srr = srr) 
 	return(res)
     }
@@ -585,6 +592,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@psi[unlist(tapply(res@w,1:length(res@w),function(wx,w_mat)wx<(w_mat*0.1)  ,w_mat=object$w_mat))] <- 0
 	# Set all w > w_inf to 1 # Check this is right...
 	res@psi[unlist(tapply(res@w,1:length(res@w),function(wx,w_inf)(wx/w_inf)>1,w_inf=object$w_inf))] <- 1
+	# note sure what a and n0_mult are in get_initial_n
 
 	res@intake_max[] <- unlist(tapply(res@w,1:length(res@w),function(wx,h,n)h * wx^n,h=object$h,n=n))
 	res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
@@ -643,6 +651,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@cc_pp[res@w_full>w_pp_cutoff] <- 0      #set density of sizes < plankton cutoff size
 	# Set the SRR to be a Beverton Holt esque relationship
 	# Can add more functional forms or user specifies own
+	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
 	    return(species_params$r_max * rdi / (species_params$r_max+rdi))
 	}
@@ -675,6 +684,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Remove catchabiliy from species data.frame, now stored in slot
 	#params@species_params[,names(params@species_params) != "catchability"]
 	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
+	res@initial_n <- res@psi
+	res@initial_n <- get_initial_n(res)
 	return(res)
     }
 )

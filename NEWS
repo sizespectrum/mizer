@@ -1,5 +1,5 @@
 * Allow for size- and species-dependent background death
-
+* Added initial_nand initial_n_pp slots to mizer params.
 
 mizer 0.4
 -----------

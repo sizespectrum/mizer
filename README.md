@@ -17,3 +17,4 @@ See the accompanying vignette, "mizer_vignette", for more details on how
 the package works including detailed examples.
 
 [![Travis-CI Build Status](https://travis-ci.org/sizespectrum/mizer.svg?branch=master)](https://travis-ci.org/sizespectrum/mizer)
+
