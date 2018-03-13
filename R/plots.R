@@ -102,13 +102,22 @@ setGeneric('plotYield', function(object, ...)
 #' @rdname plotYield
 setMethod('plotYield', signature(object='MizerSim'),
     function(object, print_it = TRUE, ...){
-	y <- getYield(object, ...)
-	names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
-	ym <- melt(y)
-	p <- ggplot(ym) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
-    if (nrow(object@params@species_params)>12){
-        p <- ggplot(ym) + geom_line(aes(x=time,y=value, group=Species)) + scale_y_continuous(trans="log10", name="Yield") + scale_x_continuous(name="Time") 
-    }
+        y <- getYield(object, ...)
+        names(dimnames(y))[names(dimnames(y))=="sp"] <- "Species"
+        y <- y[, colSums(y)>0]
+        ym <- reshape2::melt(y)
+        ym$Species <- as.character(ym$Species)
+        if (dim(y)[2]>12) {
+            p <- ggplot(ym) + 
+                geom_line(aes(x=time,y=value, group=Species)) + 
+                scale_y_continuous(trans="log10", name="Yield") + 
+                scale_x_continuous(name="Time") 
+        } else {
+            p <- ggplot(ym) + 
+                geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + 
+                scale_y_continuous(trans="log10", name="Yield") + 
+                scale_x_continuous(name="Time") 
+        }
     if (print_it)
         print(p)
 	return(p)
