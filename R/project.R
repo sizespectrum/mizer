@@ -212,7 +212,13 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         dimnames(n) <- dimnames(sim@n)[2:3]
         n_pp <- sim@n_pp[1,]
         t_steps <- dim(effort_dt)[1]-1
+        # Set up progress bar
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = t_steps, width= 60)
         for (i_time in 1:t_steps){
+            # Advance progress bar
+            pb$tick()
             # Do it piece by piece to save repeatedly calling methods
             # Calculate amount E_{a,i}(w) of available food
             phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
