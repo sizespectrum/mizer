@@ -16,28 +16,41 @@ library(mizer)
 # ----
 #' ### Set parameters 
 #' Global Parameters
-f0 <- 0.6
-alpha <- 0.4
-r_pp <- 1e-1
-n <- 2/3
+#' 
+
+set_scaling_model <- function(f0 = 0.6,
+                              alpha = 0.4,
+                              r_pp = 1e-1,
+                              n = 2/3,
+                              q =3/4,
+                              kappa = 7e10,
+                              erepro = 0.1,
+                              beta = 100,
+                              sigma = 1.3,
+                              h = 30,
+                              ks = 4,
+                              dist_sp = 0.2,
+                              log10_minimum_egg = -4,
+                              log10_maximum_egg = -2,
+                              min_w_pp = 1e-8){
+  
+                              
 p <- n
-q <- 3/4
 lambda <- 2+q-n
-kappa <- 7e10
+
 #' Species Parameters
-erepro <- 0.1 # Will be changed later
-beta <- 100
-sigma <- 1.3
-h <- 30
-ks <- 4
 
 # ----
 #' ### Set grid points and characteristic sizes 
 
+#! we should describe size in terms of min_egg,min_w_mat,min_w_inf,
+# max_w_inf,no_sp and no_sp, so the 5, 4.5, dist_sp,log10_minimum_egg,
+# log10_maximum_egg need to be replaced.
 
-dist_sp <- 0.2
-log10_minimum_egg <- -4
-log10_maximum_egg <- -2
+#! how much freedom do we have over the choice of no_w ?
+
+#! set min_w_pp properly later, by considering beta, sigma,min_w
+
 no_sp <- (log10_maximum_egg-log10_minimum_egg)/dist_sp + 1
 species <- 1:no_sp
 x_min <- seq(log10_minimum_egg, by = dist_sp, length.out = no_sp)
@@ -47,7 +60,6 @@ w_mat <- 10^(x_min+4.4)  # This is about a quarter of w_inf
 min_w <- min(w_min)
 max_w <- max(w_inf)
 no_w <- log10(max_w/min_w)*100+1
-min_w_pp <- 1e-8
 
 # ----
 #' ### Build Params Object 
@@ -117,11 +129,6 @@ n_output <- initial_n*(kappa*w[v_idx]^(-lambda))/sum(initial_n[,v_idx])
 
 # more generally, just sum over 1:no_background species
 
-plot(w, kappa*w^(-lambda), type="l", log="xy")
-for (i in 1:no_sp) {
-  lines(w, n_output[i,], col="blue")
-}
-lines(w, colSums(n_output), col="red")
 
 # ----
 #' ### Setup plankton
@@ -172,7 +179,17 @@ params@species_params$erepro <- erepro_final
 
 params@srr <- function(rdi, species_params) {return(rdi)}
 #params@chi <- 0.0
+
+params@initial_n <- n_output
+params@initial_n_pp <- initial_n_pp
+
+
+return(params)
+}
+
+params2 <- set_scaling_model()
+
 t_max <- 5
-sim <- project(params, t_max=t_max, dt=0.01, t_save=t_max/100 ,effort = 0, 
-               initial_n = n_output, initial_n_pp = initial_n_pp)
+sim <- project(params2, t_max=t_max, dt=0.01, t_save=t_max/100 ,effort = 0, 
+               initial_n = params2@initial_n, initial_n_pp = params2@initial_n_pp)
 plot(sim)
