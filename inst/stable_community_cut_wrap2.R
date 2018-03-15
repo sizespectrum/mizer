@@ -31,10 +31,9 @@ set_scaling_model <- function(f0 = 0.6,
                               ks = 4,
                               #dist_sp = 0.2,
                               no_sp = 11,
-                              log10_minimum_egg = -4,
-                              log10_maximum_egg = -2,
+                              min_egg = 10^(-4),
+                              max_egg = 10^(-2),
                               min_w_pp = 1e-8){
-  
   
   p <- n
   lambda <- 2+q-n
@@ -47,7 +46,12 @@ set_scaling_model <- function(f0 = 0.6,
   #! we should describe size in terms of min_egg,min_w_mat,min_w_inf,
   # max_w_inf,no_sp and no_sp, so the 5, 4.5, dist_sp,log10_minimum_egg,
   # log10_maximum_egg need to be replaced.
+
   
+  ##!! put egg connection here
+  log10_minimum_egg <- log10(min_egg)
+  log10_maximum_egg <- log10(max_egg)
+    
   #! how much freedom do we have over the choice of no_w ?
   
   #! set min_w_pp properly later, by considering beta, sigma,min_w
@@ -59,6 +63,7 @@ set_scaling_model <- function(f0 = 0.6,
   
   
   species <- 1:no_sp
+
   x_min <- seq(log10_minimum_egg, by = dist_sp, length.out = no_sp)
   w_min <- 10^x_min
   w_inf <- 10^(x_min+5)
