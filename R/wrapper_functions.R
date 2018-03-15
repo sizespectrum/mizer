@@ -345,34 +345,46 @@ set_trait_model <- function(no_sp = 10,
 
 ####################@@@@@@@@@@@@@@@@@@@@###################
 
-#' Sets up parameters for a trait-based model
+#' Sets up parameters for a scale free trait-based model
 #' 
-#' This functions creates a \code{MizerParams} object so that trait-based-type 
-#' models can be easily set up and run. The trait-based size spectrum model can
+#' This functions creates a \code{MizerParams} object so that scale free trait-based-type 
+#' models can be easily set up and run. The scale free trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
-#' \code{mizer}. All the species-specific parameters are the same, except for
-#' the asymptotic size, which is considered the most important trait
-#' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by w_inf * eta, where eta is
-#' the same for all species. For the trait-based model the number of species is
-#' not important. For applications of the trait-based model see Andersen &
-#' Pedersen (2010). See the \code{mizer} vignette for more details and examples
-#' of the trait-based model.
+#' \code{mizer}. The scale free trait-based model is similar to the 
+#' standard trait-based model, with three main differences: 
+#' (1) We have an exact equation for a steady state of this system which is often 
+#' stable, even when we include no extra stabilization effects like density dependence 
+#' or stock recruitment relationships.
+#' (2) The egg size is proportional to the maturity size for each species
+#' (3) The parameters are chosen so that R_0 (the expected number of 
+#' offspring produced by an individual over a lifetime) is close to 1
+#' for each species.
+#' 
+#'  All the species-specific parameters are the same, except for
+#' the egg size, maturity size and asymptotic size. These differ over 
+#' the species, but the ratio of egg size to maturity size, and the ratio of 
+#' egg size to asymptotic size, are the same for each species. The egg sizes 
+#' or maturity sizes or asymptotic sizes) of the species are spread evenly on
+#' a logarithmic scale. See the \code{mizer} vignette
+#' for more details and examples of the scale free trait-based model.
 #' 
 #' The function has many arguments, all of which have default values. Of
 #' particular interest to the user are the number of species in the model and
-#' the minimum and maximum asymptotic sizes. The asymptotic sizes of the species
-#' are spread evenly on a logarithmic scale within this range.
+#' the minimum and maximum asymptotic sizes. 
 #' 
-#' The stock recruitment relationship is the default Beverton-Holt style. The
-#' maximum recruitment is calculated using equilibrium theory (see Andersen &
-#' Pedersen, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
-#' get the spectra they want.
+#' DO WE INCLUDE STOCK RECRUITMENT, DISCUSS
+#' 
+#' In addition to setting up the parameters, this code also evaluates 
+#' our analytic expression for a steady state of the scale free trait-based model 
+#' and stores it in the initial_n slot.
 #' 
 #' The factor for the search volume, \code{gamma}, is calculated using the
 #' expected feeding level, \code{f0}.
 #' 
-#' Fishing selectivity is modelled as a knife-edge function with one parameter,
+#' The option of including fishing is given, but the steady state may lose its 
+#' natural stability if too much fishing is included. In such a case the user may 
+#' which to include stablizing effects (like Rmax and chi) to ensure 
+#' our steady state is stable. Fishing selectivity is modelled as a knife-edge function with one parameter,
 #' \code{knife_edge_size}, which is the size at which species are selected. Each
 #' species can either be fished by the same gear (\code{knife_edge_size} has a
 #' length of 1) or by a different gear (the length of \code{knife_edge_size} has
@@ -389,25 +401,14 @@ set_trait_model <- function(no_sp = 10,
 #' @param min_w_inf The asymptotic size of the smallest species in the
 #'   community.
 #' @param max_w_inf The asymptotic size of the largest species in the community.
+#' @param min_egg The smallest size of the the egg of a species.
 #' @param no_w The number of size bins in the community spectrum.
-#' @param min_w The smallest size of the community spectrum.
-#' @param max_w The largest size of the community spectrum. Default value is the
-#'   largest w_inf in the community x 1.1.
 #' @param min_w_pp The smallest size of the background spectrum.
-#' @param no_w_pp Obsolete argument that is no longer used because the number
-#'    of plankton size bins is determined because all size bins have to
-#'    be logarithmically equally spaced.
-#' @param w_pp_cutoff The cut off size of the background spectrum. Default value
-#'   is 1.
-#' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3.
-#' @param p Scaling of the standard metabolism. Default value is 0.75.
 #' @param q Exponent of the search volume. Default value is 0.9.
-#' @param eta Factor to calculate \code{w_mat} from asymptotic size.
 #' @param r_pp Growth rate of the primary productivity. Default value is 4.
 #' @param kappa Carrying capacity of the resource spectrum. Default value is
 #'   0.005.
-#' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
 #' @param alpha The assimilation efficiency of the community. The default value
 #'   is 0.6
 #' @param ks Standard metabolism coefficient. Default value is 4.
@@ -418,8 +419,6 @@ set_trait_model <- function(no_sp = 10,
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
 #'   factor for the search volume. The default value is 0.5.
-#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and
-#'   \code{kappa} if not supplied.
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the
@@ -433,26 +432,11 @@ set_trait_model <- function(no_sp = 10,
 #'   Society V, Biological Sciences, 1682, 795-802.
 #' @examples
 #' \dontrun{
-#' trait_params <- set_trait_model(no_sp = 15)
-#' init_pop <- get_initial_n(trait_params, n0_mult = 0.001)
-#' sim <- project(trait_params, effort = 0, t_max = 50, dt=0.2,
-#'     initial_n = init_pop, t_save = 1)
+#' s_params <- set_scaling_model()
+#' t_max <- 5
+#' sim <- project(s_params, t_max=t_max, dt=0.01, t_save=t_max/100 ,effort = 0, 
+#'               initial_n = s_params@initial_n, initial_n_pp = s_params@initial_n_pp)
 #' plot(sim)
-#' ## Set up industrial fishery that only fishes on species with w_inf <= 500 g
-#' ## And where the selectivity of the industrial fishery = w_inf * 0.05
-#' no_sp <- 10
-#' min_w_inf <- 10
-#' max_w_inf <- 1e5
-#' w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
-#' knife_edges <- w_inf * 0.05
-#' industrial_gears <- w_inf <= 500
-#' other_gears <- w_inf > 500
-#' gear_names <- rep("Industrial", no_sp)
-#' gear_names[other_gears] <- "Other"
-#' params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
-#'     max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
-#' ## Only turn on Industrial fishery. Set effort of the Other gear to 0
-#' sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
 #' }
 set_scaling_model <- function(f0 = 0.6,
                               alpha = 0.4,
@@ -468,10 +452,10 @@ set_scaling_model <- function(f0 = 0.6,
                               no_sp = 11,
                               min_egg = 10^(-4),
                               min_w_pp = min_egg/(beta*exp(5*sigma)),
-                              max_w = 10^3,
+                              max_w_inf = 10^3,
                               min_w_inf = 10,
                               min_w_mat = 10^(0.4),
-                              no_w = log10(max_w/min_egg)*100+1){
+                              no_w = log10(max_w_inf/min_egg)*100+1){
   # Set exponents
   p <- n
   lambda <- 2+q-n
@@ -491,6 +475,7 @@ set_scaling_model <- function(f0 = 0.6,
   # down to the size range min_w_pp, where min_w_pp is chosen by default
   # to be so small that almost no fish can eat it.
   min_w <- min_egg
+  max_w <- max_w_inf
   # min_egg and max_w already lie on grid points in w. Let us round   
   # min_w_mat up to the nearest grid point.
   delt <- (log10(max_w)-log10(min_w))/(no_w-1)
@@ -586,6 +571,7 @@ set_scaling_model <- function(f0 = 0.6,
     params@psi[i, w < (w_mat[i]-1e-10)] <- 0
     params@psi[i, w > (w_inf[i]-1e-10)] <- 1
     params@mu_b[i, ] <- mu0 * w^(n-1) - m2[i,]
+    params@mu_b[i,params@mu_b[i, ]<0] <- 0
   }
   # Set erepro to meet boundary condition
   rdi <- getRDI(params, n_output, initial_n_pp)
