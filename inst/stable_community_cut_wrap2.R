@@ -29,7 +29,8 @@ set_scaling_model <- function(f0 = 0.6,
                               sigma = 1.3,
                               h = 30,
                               ks = 4,
-                              dist_sp = 0.2,
+                              #dist_sp = 0.2,
+                              no_sp = 11,
                               log10_minimum_egg = -4,
                               log10_maximum_egg = -2,
                               min_w_pp = 1e-8){
@@ -51,7 +52,12 @@ set_scaling_model <- function(f0 = 0.6,
   
   #! set min_w_pp properly later, by considering beta, sigma,min_w
   
-  no_sp <- (log10_maximum_egg-log10_minimum_egg)/dist_sp + 1
+  ##!! altered things so that no_sp is defined, and dist_sp is 
+  # computed as a result. Notice new code has issues if no_sp=1
+  ## no_sp <- (log10_maximum_egg-log10_minimum_egg)/dist_sp + 1
+  dist_sp <- (log10_maximum_egg-log10_minimum_egg)/(no_sp-1) 
+  
+  
   species <- 1:no_sp
   x_min <- seq(log10_minimum_egg, by = dist_sp, length.out = no_sp)
   w_min <- 10^x_min
