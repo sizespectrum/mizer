@@ -5,10 +5,11 @@
 \title{Sets up parameters for a scale free trait-based model}
 \usage{
 set_scaling_model(f0 = 0.6, alpha = 0.4, r_pp = 0.1, n = 2/3, q = 3/4,
-  kappa = 7e+10, erepro = 0.1, beta = 100, sigma = 1.3, h = 30,
-  ks = 4, no_sp = 11, min_egg = 10^(-4), min_w_pp = min_egg/(beta *
-  exp(5 * sigma)), max_w_inf = 10^3, min_w_inf = 10, min_w_mat = 10^(0.4),
-  no_w = log10(max_w_inf/min_egg) * 100 + 1)
+  kappa = 7e+10, beta = 100, sigma = 1.3, h = 30, ks = 4,
+  no_sp = 11, min_egg = 10^(-4), min_w_pp = min_egg/(beta * exp(5 *
+  sigma)), max_w_inf = 10^3, min_w_inf = 10, min_w_mat = 10^(0.4),
+  no_w = log10(max_w_inf/min_egg) * 100 + 1, knife_edge_size = 100,
+  gear_names = "knife_edge_gear", ...)
 }
 \arguments{
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
@@ -48,9 +49,6 @@ community.}
 
 \item{no_w}{The number of size bins in the community spectrum.}
 
-\item{z0pre}{The coefficient of the background mortality of the community. z0
-= z0pre * w_inf ^ (n-1). The default value is 0.6.}
-
 \item{knife_edge_size}{The minimum size at which the gear or gears select
 species. Must be of length 1 or no_sp.}
 
@@ -58,6 +56,9 @@ species. Must be of length 1 or no_sp.}
 same length as the number of species. Default is 1 - no_sp.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
+
+\item{z0pre}{The coefficient of the background mortality of the community. z0
+= z0pre * w_inf ^ (n-1). The default value is 0.6.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -88,6 +89,20 @@ for more details and examples of the scale free trait-based model.
 The function has many arguments, all of which have default values. Of
 particular interest to the user are the number of species in the model and
 the minimum and maximum asymptotic sizes.
+
+The characteristic weights of the different species are defined by 
+min_egg,min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense 
+that the egg weights of the no_sp species are logarithmically 
+evenly spaced, ranging from min_w=min_egg to max_w=max_w_inf. 
+The maturity weights of the species can be obtained by muliplying 
+the egg_weights by min_w_mat/min_egg. The asymptotic weights 
+of the species can be obtained by mulitiplying the egg weights by 
+min_w_inf/min_egg.
+The no_w weights, which we keep track of the abundance of fish at,
+form a logarithmically evenly spaced vector w, ranging from 
+min_w to max_w. The vector w_full is obtained by extending w 
+down to the size range min_w_pp, where min_w_pp is chosen by default
+to be so small that almost no fish can eat it.
 
 DO WE INCLUDE STOCK RECRUITMENT, DISCUSS
 

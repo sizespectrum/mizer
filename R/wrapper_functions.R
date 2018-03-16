@@ -372,6 +372,21 @@ set_trait_model <- function(no_sp = 10,
 #' particular interest to the user are the number of species in the model and
 #' the minimum and maximum asymptotic sizes. 
 #' 
+#'   The characteristic weights of the different species are defined by 
+#' min_egg,min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense 
+#' that the egg weights of the no_sp species are logarithmically 
+#' evenly spaced, ranging from min_w=min_egg to max_w=max_w_inf. 
+#' The maturity weights of the species can be obtained by muliplying 
+#' the egg_weights by min_w_mat/min_egg. The asymptotic weights 
+#' of the species can be obtained by mulitiplying the egg weights by 
+#' min_w_inf/min_egg.
+#' The no_w weights, which we keep track of the abundance of fish at,
+#' form a logarithmically evenly spaced vector w, ranging from 
+#' min_w to max_w. The vector w_full is obtained by extending w 
+#' down to the size range min_w_pp, where min_w_pp is chosen by default
+#' to be so small that almost no fish can eat it.
+
+#' 
 #' DO WE INCLUDE STOCK RECRUITMENT, DISCUSS
 #' 
 #' In addition to setting up the parameters, this code also evaluates 
@@ -444,7 +459,6 @@ set_scaling_model <- function(f0 = 0.6,
                               n = 2/3,
                               q =3/4,
                               kappa = 7e10,
-                              erepro = 0.1,
                               beta = 100,
                               sigma = 1.3,
                               h = 30,
@@ -455,25 +469,15 @@ set_scaling_model <- function(f0 = 0.6,
                               max_w_inf = 10^3,
                               min_w_inf = 10,
                               min_w_mat = 10^(0.4),
-                              no_w = log10(max_w_inf/min_egg)*100+1){
+                              no_w = log10(max_w_inf/min_egg)*100+1,
+                              knife_edge_size = 100,
+                              gear_names = "knife_edge_gear",
+                              ...){
   # Set exponents
   p <- n
   lambda <- 2+q-n
   # Set grid points and characteristic sizes 
   
-  # The characteristic weights of the different species are defined by 
-  # min_egg,min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense 
-  # that the egg weights of the no_sp species are logarithmically 
-  # evenly spaced, ranging from min_w=min_egg to max_w=max_w_inf. 
-  # The maturity weights of the species can be obtained by muliplying 
-  # the egg_weights by min_w_mat/min_egg. The asymptotic weights 
-  # of the species can be obtained by mulitiplying the egg weights by 
-  # min_w_inf/min_egg.
-  # The no_w weights, which we keep track of the abundance of fish at,
-  # form a logarithmically evenly spaced vector w, ranging from 
-  # min_w to max_w. The vector w_full is obtained by extending w 
-  # down to the size range min_w_pp, where min_w_pp is chosen by default
-  # to be so small that almost no fish can eat it.
   min_w <- min_egg
   max_w <- max_w_inf
   # min_egg and max_w already lie on grid points in w. Let us round   
@@ -502,6 +506,7 @@ set_scaling_model <- function(f0 = 0.6,
   w_inf <- w_min*min_w_inf/min_egg
   w_mat <- w_min*min_w_mat/min_egg
   # Build Params Object 
+  erepro <- 0.1
   species_params <- data.frame(
     species = 1:no_sp,
     w_min = w_min,
@@ -515,7 +520,8 @@ set_scaling_model <- function(f0 = 0.6,
     alpha = alpha,
     erepro = erepro,
     sel_func = "knife_edge", # not used but required
-    knife_edge_size = 1000
+    knife_edge_size = knife_edge_size,
+    gear = gear_names
   )
   params <- MizerParams(species_params, p=p, n=n, q=q, lambda = lambda, f0 = f0,
                         kappa = kappa, min_w = min_w, max_w = max_w, no_w = no_w, 
@@ -556,7 +562,11 @@ set_scaling_model <- function(f0 = 0.6,
   n_output <- initial_n*(kappa*w[v_idx]^(-lambda))/sum(initial_n[,v_idx])
   # Setup plankton
   plankton_vec <- (kappa*w^(-lambda))-colSums(n_output)
+  if (sum(plankton_vec<0)>0){
+    warning("Negative abundance values in background resource overwritten with zeros")
+  }
   plankton_vec[plankton_vec<0] <- 0
+  # Cut off plankton after first zero
   plankton_vec[min(which(plankton_vec==0)):length(plankton_vec)] <- 0
   params@cc_pp[sum(params@w_full<=w[1]):length(params@cc_pp)] <- plankton_vec
   initial_n_pp <- params@cc_pp
@@ -571,6 +581,9 @@ set_scaling_model <- function(f0 = 0.6,
     params@psi[i, w < (w_mat[i]-1e-10)] <- 0
     params@psi[i, w > (w_inf[i]-1e-10)] <- 1
     params@mu_b[i, ] <- mu0 * w^(n-1) - m2[i,]
+    if (sum(params@mu_b[i, ]<0)>0){
+      warning("Negative background mortality rates overwritten with zeros")
+    }
     params@mu_b[i,params@mu_b[i, ]<0] <- 0
   }
   # Set erepro to meet boundary condition
