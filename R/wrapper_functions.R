@@ -416,35 +416,37 @@ set_trait_model <- function(no_sp = 10,
 #' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
 #' any instabilities with the solver. You can check this by plotting the biomass
 #' or abundance through time after the projection.
-#' @param no_sp The number of species in the model. The default value is 10. The
+#' @param no_sp The number of species in the model. The default value is 11. The
 #'   more species, the longer takes to run.
 #' @param min_w_inf The asymptotic size of the smallest species in the
-#'   community.
+#'   community. Default value is 10. 
 #' @param max_w_inf The asymptotic size of the largest species in the community.
-#' @param min_egg The smallest size of the the egg of a species.
-#' @param no_w The number of size bins in the community spectrum.
-#' @param min_w_pp The smallest size of the background spectrum.
+#' Default value is 1000.
+#' @param min_egg The smallest size of the the egg of a species. Default value is 10^(-4).
+#' @param min_w_mat The smallest maturity size of a species. Default value is 10^(0.4),
+#' @param no_w The number of size bins in the community spectrum. Default value 
+#' is log10(max_w_inf/min_egg)*100+1.
+#' @param min_w_pp The smallest size of the background spectrum. Default value is 
+#' min_egg/(beta*exp(5*sigma)).
 #' @param n Scaling of the intake. Default value is 2/3.
-#' @param q Exponent of the search volume. Default value is 0.9.
-#' @param r_pp Growth rate of the primary productivity. Default value is 4.
+#' @param q Exponent of the search volume. Default value is 3/4.
+#' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
 #' @param kappa Carrying capacity of the resource spectrum. Default value is
-#'   0.005.
+#'   7e10.
 #' @param alpha The assimilation efficiency of the community. The default value
-#'   is 0.6
+#'   is 0.4.
 #' @param ks Standard metabolism coefficient. Default value is 4.
-#' @param z0pre The coefficient of the background mortality of the community. z0
-#'   = z0pre * w_inf ^ (n-1). The default value is 0.6.
 #' @param h Maximum food intake rate. Default value is 30.
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
-#'   factor for the search volume. The default value is 0.5.
+#'   factor for the search volume. The default value is 0.6.
 #' @param knife_edge_size The minimum size at which the gear or gears select
-#'   species. Must be of length 1 or no_sp.
+#'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the number of species. Default is 1 - no_sp.
-#' @param fac The factor such that Rmax = fac*RDD, where RDD is the measures 
-#'   the inflow of eggs, after the Rmax based stock recruitment relationship 
+#'   same length as the number of species. 
+#' @param rfac The factor such that rmax = rfac*RDD, where RDD is the measures 
+#'   the inflow of eggs, after the rmax based stock recruitment relationship 
 #'   has been implemented. The default is 11.   
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
@@ -461,26 +463,26 @@ set_trait_model <- function(no_sp = 10,
 #'               initial_n = s_params@initial_n, initial_n_pp = s_params@initial_n_pp)
 #' plot(sim)
 #' }
-set_scaling_model <- function(f0 = 0.6,
-                              alpha = 0.4,
-                              r_pp = 1e-1,
-                              n = 2/3,
-                              q =3/4,
-                              kappa = 7e10,
-                              beta = 100,
-                              sigma = 1.3,
-                              h = 30,
-                              ks = 4,
-                              no_sp = 11,
-                              min_egg = 10^(-4),
-                              min_w_pp = min_egg/(beta*exp(5*sigma)),
-                              max_w_inf = 10^3,
+set_scaling_model <- function(no_sp = 11,
                               min_w_inf = 10,
+                              max_w_inf = 10^3,
+                              min_egg = 10^(-4),
                               min_w_mat = 10^(0.4),
                               no_w = log10(max_w_inf/min_egg)*100+1,
+                              min_w_pp = min_egg/(beta*exp(5*sigma)),
+                              n = 2/3,
+                              q = 3/4,
+                              r_pp = 0.1,
+                              kappa = 7e10,
+                              alpha = 0.4,
+                              ks = 4,
+                              h = 30,
+                              beta = 100,
+                              sigma = 1.3,
+                              f0 = 0.6,
                               knife_edge_size = 100,
                               gear_names = "knife_edge_gear",
-                              fac = 11,
+                              rfac = 11,
                               ...){
   # Set exponents
   p <- n
@@ -609,16 +611,16 @@ set_scaling_model <- function(f0 = 0.6,
     mumu0 <- mumu[i,params@species_params$w_min_idx[i]]
     DW <- params@dw[params@species_params$w_min_idx[i]]
     #erepro_final[i] <- erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
-    erepro_final[i] <- (fac/(fac-1))*erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
+    erepro_final[i] <- (rfac/(rfac-1))*erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
   }
   params@species_params$erepro <- erepro_final
   # Record abundance of fish and resources at steady state, as slots.
   params@initial_n <- n_output
   params@initial_n_pp <- initial_n_pp
-  # set rmax so that fac*RDD=Rmax
-  # note that erepro has been multiplied by a factor of (fac/(fac-1)) to compensate for using a 
+  # set rmax so that frac*RDD=Rmax
+  # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a 
   # stock recruitment relationship. 
-  params@species_params$r_max <- (fac-1)*getRDI(params, n_output, initial_n_pp)
+  params@species_params$r_max <- (rfac-1)*getRDI(params, n_output, initial_n_pp)
   
   return(params)
 }

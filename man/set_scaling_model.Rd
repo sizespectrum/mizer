@@ -4,65 +4,67 @@
 \alias{set_scaling_model}
 \title{Sets up parameters for a scale free trait-based model}
 \usage{
-set_scaling_model(f0 = 0.6, alpha = 0.4, r_pp = 0.1, n = 2/3, q = 3/4,
-  kappa = 7e+10, beta = 100, sigma = 1.3, h = 30, ks = 4,
-  no_sp = 11, min_egg = 10^(-4), min_w_pp = min_egg/(beta * exp(5 *
-  sigma)), max_w_inf = 10^3, min_w_inf = 10, min_w_mat = 10^(0.4),
-  no_w = log10(max_w_inf/min_egg) * 100 + 1, knife_edge_size = 100,
-  gear_names = "knife_edge_gear", fac = 11, ...)
+set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
+  min_egg = 10^(-4), min_w_mat = 10^(0.4), no_w = log10(max_w_inf/min_egg)
+  * 100 + 1, min_w_pp = min_egg/(beta * exp(5 * sigma)), n = 2/3, q = 3/4,
+  r_pp = 0.1, kappa = 7e+10, alpha = 0.4, ks = 4, h = 30,
+  beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
+  gear_names = "knife_edge_gear", rfac = 11, ...)
 }
 \arguments{
-\item{f0}{Expected average feeding level. Used to set \code{gamma}, the
-factor for the search volume. The default value is 0.5.}
+\item{no_sp}{The number of species in the model. The default value is 11. The
+more species, the longer takes to run.}
 
-\item{alpha}{The assimilation efficiency of the community. The default value
-is 0.6}
+\item{min_w_inf}{The asymptotic size of the smallest species in the
+community. Default value is 10.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default value is 4.}
+\item{max_w_inf}{The asymptotic size of the largest species in the community.
+Default value is 1000.}
+
+\item{min_egg}{The smallest size of the the egg of a species. Default value is 10^(-4).}
+
+\item{min_w_mat}{The smallest maturity size of a species. Default value is 10^(0.4),}
+
+\item{no_w}{The number of size bins in the community spectrum. Default value 
+is log10(max_w_inf/min_egg)*100+1.}
+
+\item{min_w_pp}{The smallest size of the background spectrum. Default value is 
+min_egg/(beta*exp(5*sigma)).}
 
 \item{n}{Scaling of the intake. Default value is 2/3.}
 
-\item{q}{Exponent of the search volume. Default value is 0.9.}
+\item{q}{Exponent of the search volume. Default value is 3/4.}
+
+\item{r_pp}{Growth rate of the primary productivity. Default value is 0.1.}
 
 \item{kappa}{Carrying capacity of the resource spectrum. Default value is
-0.005.}
+7e10.}
+
+\item{alpha}{The assimilation efficiency of the community. The default value
+is 0.4.}
+
+\item{ks}{Standard metabolism coefficient. Default value is 4.}
+
+\item{h}{Maximum food intake rate. Default value is 30.}
 
 \item{beta}{Preferred predator prey mass ratio. Default value is 100.}
 
 \item{sigma}{Width of prey size preference. Default value is 1.3.}
 
-\item{h}{Maximum food intake rate. Default value is 30.}
-
-\item{ks}{Standard metabolism coefficient. Default value is 4.}
-
-\item{no_sp}{The number of species in the model. The default value is 10. The
-more species, the longer takes to run.}
-
-\item{min_egg}{The smallest size of the the egg of a species.}
-
-\item{min_w_pp}{The smallest size of the background spectrum.}
-
-\item{max_w_inf}{The asymptotic size of the largest species in the community.}
-
-\item{min_w_inf}{The asymptotic size of the smallest species in the
-community.}
-
-\item{no_w}{The number of size bins in the community spectrum.}
+\item{f0}{Expected average feeding level. Used to set \code{gamma}, the
+factor for the search volume. The default value is 0.6.}
 
 \item{knife_edge_size}{The minimum size at which the gear or gears select
-species. Must be of length 1 or no_sp.}
+species. Must be of length 1 or no_sp. Default value is 100.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the number of species. Default is 1 - no_sp.}
+same length as the number of species.}
 
-\item{fac}{The factor such that Rmax = fac*RDD, where RDD is the measures 
-the inflow of eggs, after the Rmax based stock recruitment relationship 
+\item{rfac}{The factor such that rmax = rfac*RDD, where RDD is the measures 
+the inflow of eggs, after the rmax based stock recruitment relationship 
 has been implemented. The default is 11.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
-
-\item{z0pre}{The coefficient of the background mortality of the community. z0
-= z0pre * w_inf ^ (n-1). The default value is 0.6.}
 }
 \value{
 An object of type \code{MizerParams}
