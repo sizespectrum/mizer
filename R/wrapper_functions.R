@@ -373,19 +373,14 @@ set_trait_model <- function(no_sp = 10,
 #' the minimum and maximum asymptotic sizes.
 #'
 #' The characteristic weights of the different species are defined by
-#' min_egg,min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense that the egg
+#' min_egg, min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense that the egg
 #' weights of the no_sp species are logarithmically evenly spaced, ranging from
 #' min_w=min_egg to max_w=max_w_inf. The maturity weights of the species can be
 #' obtained by muliplying the egg_weights by min_w_mat/min_egg. The asymptotic
-#' weights of the species can be obtained by mulitiplying the egg weights by
-#' min_w_inf/min_egg. The no_w weights, which we keep track of the abundance of
-#' fish at, form a logarithmically evenly spaced vector w, ranging from min_w to
-#' max_w. The vector w_full is obtained by extending w down to the size range
-#' min_w_pp, where min_w_pp is chosen by default to be so small that almost no
-#' fish can eat it.
-
+#' weights of the species can be obtained by multiplying the egg weights by
+#' min_w_inf/min_egg.
 #'
-#' Also the scale free trait based model's default steady state is often stable
+#' Although the scale free trait based model's default steady state is often stable
 #' without imposing a stock recruitment relationship, by default we do impose a
 #' Beverton-Holt type stock recruitment relationship. The values of the maximum
 #' recruitment rmax and the reproduction efficiency erepro are chosen so that,
@@ -401,7 +396,7 @@ set_trait_model <- function(no_sp = 10,
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may which to include stablizing effects (like Rmax and chi) to ensure our
+#' may wish to include stablizing effects (like Rmax and chi) to ensure the
 #' steady state is stable. Fishing selectivity is modelled as a knife-edge
 #' function with one parameter, \code{knife_edge_size}, which is the size at
 #' which species are selected. Each species can either be fished by the same
@@ -416,14 +411,14 @@ set_trait_model <- function(no_sp = 10,
 #' or abundance through time after the projection.
 #'
 #' @param no_sp The number of species in the model. The default value is 11. The
-#'   more species, the longer takes to run.
+#'   more species, the longer the simulation takes to run.
 #' @param min_w_inf The asymptotic size of the smallest species in the
 #'   community. Default value is 10.
 #' @param max_w_inf The asymptotic size of the largest species in the community.
 #'   Default value is 1000.
-#' @param min_egg The smallest size of the the egg of a species. Default value
+#' @param min_egg The size of the the egg of the smallest species. Default value
 #'   is 10^(-4).
-#' @param min_w_mat The smallest maturity size of a species. Default value is
+#' @param min_w_mat The maturity size of the smallest species. Default value is
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
 #'   is log10(max_w_inf/min_egg)*100+1.
@@ -445,7 +440,7 @@ set_trait_model <- function(no_sp = 10,
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the number of species.
+#'   same length as the knife_edge_size parameter.
 #' @param rfac The factor such that rmax = rfac*RDD, where RDD is the measures
 #'   the inflow of eggs, after the rmax based stock recruitment relationship
 #'   has been implemented. The default is 11.
@@ -456,10 +451,8 @@ set_trait_model <- function(no_sp = 10,
 #' @examples
 #' \dontrun{
 #' s_params <- set_scaling_model()
-#' t_max <- 5
-#' sim <- project(s_params, t_max=t_max, dt=0.01, t_save=t_max/100 ,effort = 0,
-#'               initial_n = s_params@initial_n, initial_n_pp = s_params@initial_n_pp)
-#' plot(sim)
+#' sim <- project(s_params, t_max=5, effort = 0)
+#' plotSpectra(sim)
 #' }
 set_scaling_model <- function(no_sp = 11,
                               min_w_inf = 10,
@@ -483,20 +476,26 @@ set_scaling_model <- function(no_sp = 11,
                               gear_names = "knife_edge_gear",
                               rfac = 11,
                               ...) {
+    # check validity of parameters
+    if (rfac <= 1) {
+        warning("rfac can not be smaller than 1. Setting rfac=1.1")
+        rfac <- 1.1
+    }
+    # TODO check other parameters
     # Set exponents
     p <- n
     lambda <- 2 + q - n
     # Set grid points and characteristic sizes
     min_w <- min_egg
     max_w <- max_w_inf
-    # min_egg and max_w already lie on grid points in w. Let us round
-    # min_w_mat up to the nearest grid point.
+    # min_egg and max_w already lie on grid points in w. 
+    # Round min_w_mat up to the nearest grid point.
     delt <- (log10(max_w) - log10(min_w)) / (no_w - 1)
     v <- min_w_mat
     j <- 1 + ceiling((log10(v) - log10(min_w)) / delt)
     v <- 10 ^ (log10(min_w) + (j - 1) * delt)
     min_w_mat <- v
-    # Let us round min_w_inf up to the nearest grid point.
+    # Round min_w_inf up to the nearest grid point.
     v <- min_w_inf
     j <- 1 + ceiling((log10(v) - log10(min_w)) / delt)
     v <- 10 ^ (log10(min_w) + (j - 1) * delt)
@@ -505,9 +504,8 @@ set_scaling_model <- function(no_sp = 11,
     max_egg <- max_w * min_egg / min_w_inf
     log10_minimum_egg <- log10(min_egg)
     log10_maximum_egg <- log10(max_egg)
-    # Determine logrithmic spacing of egg weights
+    # Determine logarithmic spacing of egg weights
     dist_sp <- (log10_maximum_egg - log10_minimum_egg) / (no_sp - 1)
-    species <- 1:no_sp
     # Determine egg weights w_min for all species
     x_min <- seq(log10_minimum_egg, by = dist_sp, length.out = no_sp)
     w_min <- 10 ^ x_min
@@ -515,7 +513,7 @@ set_scaling_model <- function(no_sp = 11,
     w_inf <- w_min * min_w_inf / min_egg
     w_mat <- w_min * min_w_mat / min_egg
     # Build Params Object
-    erepro <- 0.1
+    erepro <- 0.1  # Will be changed later to achieve coexistence
     species_params <- data.frame(
         species = 1:no_sp,
         w_min = w_min,
@@ -549,7 +547,7 @@ set_scaling_model <- function(no_sp = 11,
             w_pp_cutoff = max_w,
             r_pp = r_pp
         )
-    # gamma is determined by mizerparams
+    # gamma is determined by MizerParams
     gamma <- params@species_params$gamma[1]
     w <- params@w
     # Get constants for analytic solution
@@ -562,83 +560,74 @@ set_scaling_model <- function(no_sp = 11,
     n_mult[w < w_mat[1]] <- 1
     n_mult[w >= w_inf[1]] <- 0
     # Create steady state solution n_exact for species 1
-    n_exact <- w  # Just to get array with correct dimensions and names
     n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
-    n_exact[w < w_min[1]] <- 0
+    n_exact <- n_exact[w >= w_min[1] & w <= w_inf[1]]
     # Use n_exact as a template to create solution initial_n for all species
-    initial_n <- params@psi
+    initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
-    w_inf_idx <- w_inf
     for (i in 1:no_sp) {
-        w_inf_idx[i] <- length(w[w <= w_inf[i]])
-        initial_n[i, params@species_params$w_min_idx[i]:(
-            params@species_params$w_min_idx[i] +
-                (w_inf_idx[1] - params@species_params$w_min_idx[1])
-        )] <-
-            n_exact[params@species_params$w_min_idx[1]:(
-                params@species_params$w_min_idx[1] +
-                    (w_inf_idx[1] - params@species_params$w_min_idx[1])
-            )] *
-            (w_min[1] / w_min[i]) ^ lambda
+        w_min_idx <- params@species_params$w_min_idx[i]  # smallest index for species
+        idxs <- w_min_idx:(w_min_idx+length(n_exact)-1)  # range of indices
+        initial_n[i, idxs] <- n_exact * (w_min[1] / w_min[i]) ^ lambda
     }
     # rescale fish abundance to line up with background resource spectrum
+    # TODO: replace this with optimisation code
     v <- sqrt(min(w_mat) * max(w_mat))
     v_idx <- length(w[w < v])
-    # The resulting steady state is n_output
-    n_output <-
+    initial_n <-
         initial_n * (kappa * w[v_idx] ^ (-lambda)) / sum(initial_n[, v_idx])
+    
     # Setup plankton
-    plankton_vec <- (kappa * w ^ (-lambda)) - colSums(n_output)
+    plankton_vec <- (kappa * w ^ (-lambda)) - colSums(initial_n)
+    # Cut off plankton at maturity size of smallest species
+    plankton_vec[w >= w_mat[1]] <- 0
+    # Do not allow negative plankton abundance
     if (sum(plankton_vec < 0) > 0) {
-        warning("Negative abundance values in background resource overwritten with zeros")
+        message("Note: Negative abundance values in background resource overwritten with zeros")
     }
     plankton_vec[plankton_vec < 0] <- 0
-    # Cut off plankton after first zero
-    plankton_vec[min(which(plankton_vec == 0)):length(plankton_vec)] <- 0
+    # The cc_pp factor needs to be higher than the desired steady state in
+    # order to compensate for predation mortality
     params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
         plankton_vec
     initial_n_pp <- params@cc_pp
-    # The cc_pp factor needs to be higher than the desired steady state in
-    # order to compensate for predation mortality
-    m2_background <- getM2Background(params, n_output, initial_n_pp)
+    m2_background <- getM2Background(params, initial_n, initial_n_pp)
     params@cc_pp <- (1 + m2_background / params@rr_pp) * initial_n_pp
+
     # Setup background death and steplike psi
-    m2 <- getM2(params, n_output, initial_n_pp)
+    m2 <- getM2(params, initial_n, initial_n_pp)
     for (i in 1:no_sp) {
         params@psi[i,] <- (w / w_inf[i]) ^ (1 - n)
         params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
         params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
         if (sum(params@mu_b[i,] < 0) > 0) {
-            warning("Negative background mortality rates overwritten with zeros")
+            message("Note: Negative background mortality rates overwritten with zeros")
         }
         params@mu_b[i, params@mu_b[i,] < 0] <- 0
     }
     # Set erepro to meet boundary condition
-    rdi <- getRDI(params, n_output, initial_n_pp)
-    gg <- getEGrowth(params, n_output, initial_n_pp)
-    effort <- 0
-    mumu <- getZ(params, n_output, initial_n_pp, effort = effort)
-    
-    erepro_final <- rdi
-    
+    rdi <- getRDI(params, initial_n, initial_n_pp)
+    gg <- getEGrowth(params, initial_n, initial_n_pp)
+    mumu <- getZ(params, initial_n, initial_n_pp, effort = 0)
+    erepro_final <- rdi  # set up vector of right dimension
     for (i in (1:no_sp)) {
         gg0 <- gg[i, params@species_params$w_min_idx[i]]
         mumu0 <- mumu[i, params@species_params$w_min_idx[i]]
         DW <- params@dw[params@species_params$w_min_idx[i]]
         erepro_final[i] <- (rfac / (rfac - 1)) * 
-                           erepro * (n_output[i, params@species_params$w_min_idx[i]] *
+                           erepro * (initial_n[i, params@species_params$w_min_idx[i]] *
                            (gg0 + DW * mumu0)) / rdi[i]
     }
     params@species_params$erepro <- erepro_final
     # Record abundance of fish and resources at steady state, as slots.
-    params@initial_n <- n_output
+    params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
-    # set rmax so that frac*RDD=Rmax
+    # set rmax=fac*RDD
     # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
     # stock recruitment relationship.
     params@species_params$r_max <-
-        (rfac - 1) * getRDI(params, n_output, initial_n_pp)
+        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
     
     return(params)
 }
