@@ -9,7 +9,7 @@ set_scaling_model(f0 = 0.6, alpha = 0.4, r_pp = 0.1, n = 2/3, q = 3/4,
   no_sp = 11, min_egg = 10^(-4), min_w_pp = min_egg/(beta * exp(5 *
   sigma)), max_w_inf = 10^3, min_w_inf = 10, min_w_mat = 10^(0.4),
   no_w = log10(max_w_inf/min_egg) * 100 + 1, knife_edge_size = 100,
-  gear_names = "knife_edge_gear", ...)
+  gear_names = "knife_edge_gear", fac = 11, ...)
 }
 \arguments{
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
@@ -54,6 +54,10 @@ species. Must be of length 1 or no_sp.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
 same length as the number of species. Default is 1 - no_sp.}
+
+\item{fac}{The factor such that Rmax = fac*RDD, where RDD is the measures 
+the inflow of eggs, after the Rmax based stock recruitment relationship 
+has been implemented. The default is 11.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 
@@ -104,7 +108,12 @@ min_w to max_w. The vector w_full is obtained by extending w
 down to the size range min_w_pp, where min_w_pp is chosen by default
 to be so small that almost no fish can eat it.
 
-DO WE INCLUDE STOCK RECRUITMENT, DISCUSS
+Also the scale free trait based model's default steady state is often stable 
+without imposing a stock recruitment relationship, by default we do impose a 
+Beverton-Holt type stock recruitment relationship. The values of the maximum 
+recruitment rmax and the reproduction efficiency erepro 
+are chosen so that, at the steady state we construct, the stock recruitment 
+adjusted reproduction output equals a given factor, fac, multiplied by rmax.
 
 In addition to setting up the parameters, this code also evaluates 
 our analytic expression for a steady state of the scale free trait-based model 

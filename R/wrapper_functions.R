@@ -387,7 +387,12 @@ set_trait_model <- function(no_sp = 10,
 #' to be so small that almost no fish can eat it.
 
 #' 
-#' DO WE INCLUDE STOCK RECRUITMENT, DISCUSS
+#' Also the scale free trait based model's default steady state is often stable 
+#' without imposing a stock recruitment relationship, by default we do impose a 
+#' Beverton-Holt type stock recruitment relationship. The values of the maximum 
+#' recruitment rmax and the reproduction efficiency erepro 
+#' are chosen so that, at the steady state we construct, the stock recruitment 
+#' adjusted reproduction output equals a given factor, fac, multiplied by rmax.  
 #' 
 #' In addition to setting up the parameters, this code also evaluates 
 #' our analytic expression for a steady state of the scale free trait-based model 
@@ -438,6 +443,9 @@ set_trait_model <- function(no_sp = 10,
 #'   species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the number of species. Default is 1 - no_sp.
+#' @param fac The factor such that Rmax = fac*RDD, where RDD is the measures 
+#'   the inflow of eggs, after the Rmax based stock recruitment relationship 
+#'   has been implemented. The default is 11.   
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -472,6 +480,7 @@ set_scaling_model <- function(f0 = 0.6,
                               no_w = log10(max_w_inf/min_egg)*100+1,
                               knife_edge_size = 100,
                               gear_names = "knife_edge_gear",
+                              fac = 11,
                               ...){
   # Set exponents
   p <- n
@@ -591,18 +600,25 @@ set_scaling_model <- function(f0 = 0.6,
   gg <- getEGrowth(params, n_output, initial_n_pp)
   effort <- 0
   mumu <- getZ(params, n_output, initial_n_pp, effort = effort)
+  
+  
   erepro_final <- rdi
+  
   for (i in (1:no_sp)){
     gg0 <- gg[i,params@species_params$w_min_idx[i]]
     mumu0 <- mumu[i,params@species_params$w_min_idx[i]]
     DW <- params@dw[params@species_params$w_min_idx[i]]
-    erepro_final[i] <- erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
+    #erepro_final[i] <- erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
+    erepro_final[i] <- (fac/(fac-1))*erepro*(n_output[i,params@species_params$w_min_idx[i]]*(gg0+DW*mumu0))/rdi[i]
   }
   params@species_params$erepro <- erepro_final
-  # Turn off R_max
-  params@srr <- function(rdi, species_params) {return(rdi)}
   # Record abundance of fish and resources at steady state, as slots.
   params@initial_n <- n_output
   params@initial_n_pp <- initial_n_pp
+  # set rmax so that fac*RDD=Rmax
+  # note that erepro has been multiplied by a factor of (fac/(fac-1)) to compensate for using a 
+  # stock recruitment relationship. 
+  params@species_params$r_max <- (fac-1)*getRDI(params, n_output, initial_n_pp)
+  
   return(params)
 }
