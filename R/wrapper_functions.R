@@ -441,9 +441,10 @@ set_trait_model <- function(no_sp = 10,
 #'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the knife_edge_size parameter.
-#' @param rfac The factor such that rmax = rfac*RDD, where RDD is the measures
-#'   the inflow of eggs, after the rmax based stock recruitment relationship
-#'   has been implemented. The default is 11.
+#' @param rfac The factor such that in the steady state Rmax = rfac * R, 
+#'   where Rmax is the maximum recruitment allowed and R is the actual
+#'   recruitment. Thus the larger \code{rfac} the less the impact of the
+#'   non-linear stock-recruitment curve. The default is Inf.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -474,7 +475,7 @@ set_scaling_model <- function(no_sp = 11,
                               f0 = 0.6,
                               knife_edge_size = 100,
                               gear_names = "knife_edge_gear",
-                              rfac = 11,
+                              rfac = Inf,
                               ...) {
     # check validity of parameters
     if (rfac <= 1) {
@@ -615,19 +616,27 @@ set_scaling_model <- function(no_sp = 11,
         gg0 <- gg[i, params@species_params$w_min_idx[i]]
         mumu0 <- mumu[i, params@species_params$w_min_idx[i]]
         DW <- params@dw[params@species_params$w_min_idx[i]]
-        erepro_final[i] <- (rfac / (rfac - 1)) * 
-                           erepro * (initial_n[i, params@species_params$w_min_idx[i]] *
+        erepro_final[i] <- erepro * (initial_n[i, params@species_params$w_min_idx[i]] *
                            (gg0 + DW * mumu0)) / rdi[i]
+    }
+    if (is.finite(rfac)) {
+        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
+        # stock recruitment relationship.
+        erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
     # Record abundance of fish and resources at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
-    # set rmax=fac*RDD
-    # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
-    # stock recruitment relationship.
-    params@species_params$r_max <-
-        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
-    
+    if (is.finite(rfac)) {
+        # set rmax=fac*RDD
+        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
+        # stock recruitment relationship.
+        params@species_params$r_max <-
+            (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
+    } else {
+        # An infinite rfac means that rdd equals rdi
+        params@srr <- function(rdi, species_params) {return(rdi)}
+    }
     return(params)
 }
