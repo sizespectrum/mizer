@@ -1,20 +1,3 @@
-* Aded a function that computes parameters and a steady state for scale free trait-based models.
-
-mizer 0.5
------------
-* Control number of ticks on y-axis in biomass plot
-* Allow for size- and species-dependent background death.
-* Add initial_n and initial_n_pp slots to mizer params.
-* project() now shows a progress bar while simulation is running.
-* Now checking that effort times are increasing.
-* Corrections in the documentation.
-* Fix bugs in how the start time of a simulation was handled.
-* Improvements to the vignette.
-* Fix potential problems with negative numbers due to numerical errors.
-* Fix a bug in the divisibility checks.
-* Add a test of the numeric solution against an analytic solution.
-
-
 mizer 0.4
 -----------
 * Improvements made to the speed by evaluating convolution sums via fft,
