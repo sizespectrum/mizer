@@ -6,10 +6,25 @@
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
  utils::globalVariables(c("time", "value", "Species", "w", "gear"))
-
-# Biomass through time
-# Pretty easy - user could do it themselves by hand for fine tuning if necessary
  
+ #' Helper function to produce nice breaks on logarithmic axes
+ #'
+ #' This is needed when the logarithmic y-axis spans less than one order of
+ #' magnitude, in which case the ggplot2 default produces no ticks.
+ #' Thanks to Heather Turner at
+ #' https://stackoverflow.com/questions/14255533/pretty-ticks-for-log-normal-scale-using-ggplot2-dynamic-not-manual
+ #'
+ #' @param n Approximate number of ticks
+ #'
+ #' @return A function that can be used as the break argument in calls to
+ #'     scale_y_continuous() or scale_x_continuous()
+log_breaks <- function(n = 6){
+   n = max(1, n)  # Because n=0 could lead to R crash
+   function(x) {
+     axisTicks(log10(range(x, na.rm = TRUE)), log = TRUE, nint = n)
+   }
+ }
+
 #' Plot the biomass of each species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
@@ -24,6 +39,7 @@
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
 #'   time series.
+#' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
 #'   value is TRUE
 #' @param ... Other arguments to pass to \code{getBiomass} method, for example
@@ -40,6 +56,8 @@
 #' sim <- project(params, effort=1, t_max=20, t_save = 2)
 #' plotBiomass(sim)
 #' plotBiomass(sim, min_w = 10, max_w = 1000)
+#' plotBiomass(sim, start_time = 10, end_time = 15, y_ticks = 2)
+#' plotBiomass(sim, y_ticks = 3)
 #' }
 setGeneric('plotBiomass', function(object, ...)
     standardGeneric('plotBiomass'))
@@ -47,7 +65,9 @@ setGeneric('plotBiomass', function(object, ...)
 #' Plot the biomass using a \code{MizerSim} object.
 #' @rdname plotBiomass
 setMethod('plotBiomass', signature(object='MizerSim'),
-    function(object, print_it=TRUE, start_time=as.numeric(dimnames(object@n)[[1]][1]), end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]), ...){
+    function(object, start_time = as.numeric(dimnames(object@n)[[1]][1]), 
+             end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]),
+             y_ticks = 6, print_it = TRUE, ...){
         b <- getBiomass(object, ...)
         names(dimnames(b))[names(dimnames(b))=="sp"] <- "Species"
         if(start_time >= end_time){
@@ -59,11 +79,17 @@ setMethod('plotBiomass', signature(object='MizerSim'),
         # interpreted as integer and hence continuous)
         bm$Species <- as.character(bm$Species)
         # Due to log10, need to set a minimum value, seems like a feature in ggplot
-        min_value <- 1e-300
+        min_value <- 1e-30
         bm <- bm[bm$value >= min_value,]
-        p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
+        p <- ggplot(bm) + geom_line(aes(x=time,y=value, colour=Species, linetype=Species)) + 
+            scale_y_continuous(trans="log10", breaks=log_breaks(n=y_ticks), 
+                               labels = prettyNum, name="Biomass") + 
+            scale_x_continuous(name="Time") 
         if (nrow(object@params@species_params)>12){
-        p <- ggplot(bm) + geom_line(aes(x=time,y=value, group=Species)) + scale_y_continuous(trans="log10", name="Biomass") + scale_x_continuous(name="Time") 
+        p <- ggplot(bm) + geom_line(aes(x=time,y=value, group=Species)) + 
+            scale_y_continuous(trans="log10", breaks=log_breaks(n=y_ticks), 
+                               labels = prettyNum, name="Biomass") + 
+            scale_x_continuous(name="Time") 
         }
         if (print_it)
             print(p)
@@ -404,7 +430,7 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
     function(x, ...){
 	p1 <- plotFeedingLevel(x,print_it = FALSE,...)
 	p2 <- plotSpectra(x,print_it = FALSE,...)
-	p3 <- plotBiomass(x,print_it = FALSE,...)
+	p3 <- plotBiomass(x, y_ticks = 3, print_it = FALSE,...)
 	p4 <- plotM2(x,print_it = FALSE,...)
 	p5 <- plotFMort(x,print_it = FALSE,...)
 	grid::grid.newpage()
