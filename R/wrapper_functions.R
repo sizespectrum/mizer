@@ -611,7 +611,7 @@ set_scaling_model <- function(no_sp = 11,
     rdi <- getRDI(params, initial_n, initial_n_pp)
     gg <- getEGrowth(params, initial_n, initial_n_pp)
     mumu <- getZ(params, initial_n, initial_n_pp, effort = 0)
-    erepro_final <- rdi  # set up vector of right dimension
+    erepro_final <- 1:no_sp  # set up vector of right dimension
     for (i in (1:no_sp)) {
         gg0 <- gg[i, params@species_params$w_min_idx[i]]
         mumu0 <- mumu[i, params@species_params$w_min_idx[i]]
