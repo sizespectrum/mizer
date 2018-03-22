@@ -22,7 +22,6 @@ Imports:
     grid,
     methods,
     plyr,
-    progress,
     Rcpp,
     reshape2
 LinkingTo: Rcpp
