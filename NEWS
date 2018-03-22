@@ -2,6 +2,7 @@
 
 mizer 0.5
 -----------
+* Control number of ticks on y-axis in biomass plot
 * Allow for size- and species-dependent background death.
 * Add initial_n and initial_n_pp slots to mizer params.
 * project() now shows a progress bar while simulation is running.
