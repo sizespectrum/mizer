@@ -48,6 +48,9 @@ species at size, \eqn{k_i w}}
 \item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
 for each species at size, \eqn{k_{s.i} w^p}}
 
+\item{\code{mu_b}}{An array (species x size) that holds the background death 
+\eqn{\mu_{b.i}(w)}}
+
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
 the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the available energy integral}
@@ -75,6 +78,12 @@ each gear for species and size, \eqn{S_{g,i,w}}}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}}
+
+\item{\code{initial_n}}{An array (species x size) that holds abundance of each species
+at each weight at our candidate steady state solution.}
+
+\item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
+the abundance of the background background resource at each weight.}
 }}
 
 \note{

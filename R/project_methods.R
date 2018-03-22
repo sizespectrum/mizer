@@ -693,9 +693,7 @@ setMethod('getZ', signature(object='MizerParams', n = 'matrix',
         if (!all(dim(m2) == c(nrow(object@species_params),length(object@w)))){
             stop("m2 argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        f_mort <- getFMort(object, effort = effort)
-        z <- sweep(m2 + f_mort,1,object@species_params$z0,"+", check.margin=FALSE) # not a slow sweep
-        return(z)
+        return(m2 + object@mu_b + getFMort(object, effort = effort))
     }
 )
 
