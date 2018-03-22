@@ -9,7 +9,7 @@ set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   * 100 + 1, min_w_pp = min_egg/(beta * exp(5 * sigma)), n = 2/3, q = 3/4,
   r_pp = 0.1, kappa = 7e+10, alpha = 0.4, ks = 4, h = 30,
   beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
-  gear_names = "knife_edge_gear", rfac = 11, ...)
+  gear_names = "knife_edge_gear", rfac = Inf, ...)
 }
 \arguments{
 \item{no_sp}{The number of species in the model. The default value is 11. The
@@ -62,9 +62,10 @@ species. Must be of length 1 or no_sp. Default value is 100.}
 \item{gear_names}{The names of the fishing gears. A character vector, the
 same length as the knife_edge_size parameter.}
 
-\item{rfac}{The factor such that rmax = rfac*RDD, where RDD is the measures
-the inflow of eggs, after the rmax based stock recruitment relationship
-has been implemented. The default is 11.}
+\item{rfac}{The factor such that in the steady state Rmax = rfac * R, 
+where Rmax is the maximum recruitment allowed and R is the actual
+recruitment. Thus the larger \code{rfac} the less the impact of the
+non-linear stock-recruitment curve. The default is Inf.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
