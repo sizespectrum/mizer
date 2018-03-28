@@ -421,9 +421,10 @@ set_trait_model <- function(no_sp = 10,
 #' @param min_w_mat The maturity size of the smallest species. Default value is
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
-#'   is log10(max_w_inf/min_egg)*100+1.
+#'   is such that there are 100 bins for each factor of 10 in weight.
 #' @param min_w_pp The smallest size of the background spectrum. Default value
-#'   is min_egg/(beta*exp(5*sigma)).
+#'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+#'   feeding kernel of even the smallest fish larva.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param q Exponent of the search volume. Default value is 3/4.
 #' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
@@ -440,7 +441,8 @@ set_trait_model <- function(no_sp = 10,
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the knife_edge_size parameter.
+#'   same length as the knife_edge_size parameter. Default value is
+#'   "knife_edge_gear".
 #' @param rfac The factor such that in the steady state Rmax = rfac * R, 
 #'   where Rmax is the maximum recruitment allowed and R is the actual
 #'   recruitment. Thus the larger \code{rfac} the less the impact of the
@@ -460,8 +462,7 @@ set_scaling_model <- function(no_sp = 11,
                               max_w_inf = 10 ^ 3,
                               min_egg = 10 ^ (-4),
                               min_w_mat = 10 ^ (0.4),
-                              no_w = log10(max_w_inf / min_egg) * 100 +
-                                  1,
+                              no_w = log10(max_w_inf / min_egg) * 100 + 1,
                               min_w_pp = min_egg / (beta * exp(5 * sigma)),
                               n = 2 / 3,
                               q = 3 / 4,
@@ -479,10 +480,32 @@ set_scaling_model <- function(no_sp = 11,
                               ...) {
     # check validity of parameters
     if (rfac <= 1) {
-        warning("rfac can not be smaller than 1. Setting rfac=1.1")
+        message("rfac can not be smaller than 1. Setting rfac=1.1")
         rfac <- 1.1
     }
-    # TODO check other parameters
+    no_w <- round(no_w)
+    if (no_w < 1) {
+        stop("The number of size bins no_w must be a positive integer")
+    }
+    if (no_w < log10(max_w_inf/min_egg)*5) {
+        no_w <- round(log10(max_w_inf/min_egg)*5+1)
+        message(paste("Increased no_w to", no_w, "so that there are 5 bins for an interval from w and 10w."))
+    }
+    if (no_w > 10000) {
+        message("Running a simulation with", no_w, "size bins is going to be very slow.")
+    }
+    if (min_w_inf >= max_w_inf) {
+        stop("The asymptotic size of the smallest species min_w_inf must be smaller than the asymptotic size of the largest species max_w_inf")
+    }
+    if (min_egg >= min_w_mat) {
+        stop("The egg size of the smallest species min_egg must be smaller than its maturity size min_w_mat")
+    }
+    if (min_w_mat >= min_w_inf) {
+        stop("The maturity size of the smallest species min_w_mat must be smaller than its maximum size min_w_inf")
+    }
+    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
+        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
+    }
     # Set exponents
     p <- n
     lambda <- 2 + q - n
