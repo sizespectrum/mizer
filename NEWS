@@ -1,4 +1,9 @@
-* Aded a function that computes parameters and a steady state for scale free trait-based models.
+* Added a function that computes parameters and a steady state for scale free trait-based models.
+
+* Included add_species which attempts to add a new species into the system in such a way that the resulting system will still be in steady state. 
+
+* Wrote retune_abundance, as part of add_species. This retunes the abundances of background species to retain power law. 
+
 
 mizer 0.5
 -----------
