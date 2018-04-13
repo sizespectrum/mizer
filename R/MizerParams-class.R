@@ -244,6 +244,7 @@ valid_MizerParams <- function(object) {
 #'   growth rate of the background spectrum, \eqn{r_0 w^{p-1}}
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}
+#' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
@@ -257,6 +258,14 @@ valid_MizerParams <- function(object) {
 #'  at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
 #'  the abundance of the background background resource at each weight.
+#' @slot n Exponent of maximum intake rate.
+#' @slot p Exponent of metabolic cost.
+#' @slot lambda Exponent of resource spectrum.
+#' @slot q Exponent for volumetric search rate.
+#' @slot f0 Initial feeding level.
+#' @slot kappa Magnitude of resource spectrum.
+#' @slot A Abundance multipliers.
+
 #' @note The \code{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
 #'   arrays is strictly enforced so that \code{MizerParams} objects are
@@ -288,18 +297,32 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
+        sc = "numeric",
         initial_n_pp = "numeric",
         species_params = "data.frame",
         interaction = "array",
         srr  = "function",
         selectivity = "array",
-        catchability = "array"
+        catchability = "array",
+        n = "numeric",
+        p = "numeric",
+        lambda = "numeric",
+        q = "numeric",
+        f0 = "numeric",
+        kappa = "numeric",
+        A = "numeric"
     ),
     prototype = prototype(
         w = NA_real_,
         dw = NA_real_,
         w_full = NA_real_,
         dw_full = NA_real_,
+        n = NA_real_,
+        p = NA_real_,
+        lambda = NA_real_,
+        q = NA_real_,
+        f0 = NA_real_,
+        kappa = NA_real_,
         psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -311,7 +334,9 @@ setClass(
         mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         rr_pp = NA_real_,
         cc_pp = NA_real_,
+        sc = NA_real_,
         initial_n_pp = NA_real_,
+        A = NA_real_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
@@ -480,8 +505,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
-	    rr_pp = vec1, cc_pp = vec1, initial_n_pp = vec1, species_params = species_params,
-	    interaction = interaction, srr = srr) 
+	    rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, species_params = species_params,
+	    interaction = interaction, srr = srr, A=as.numeric(rep(NA, dim(interaction)[1]))) 
 	return(res)
     }
 )
@@ -555,6 +580,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Make an empty object of the right dimensions
 	res <- MizerParams(no_sp, species_names=object$species, 
 	                   gear_names=unique(object$gear), max_w=max_w,...)
+    res@n <- n
+    res@p <- p
+    res@lambda <- lambda
+    res@q <- q
+    res@f0 <- f0
+    res@kappa <- kappa
 
 	# If not w_min column in species_params, set to w_min of community
 	if (!("w_min" %in% colnames(object)))
@@ -686,6 +717,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
 	res@initial_n <- res@psi
 	res@initial_n <- get_initial_n(res)
+	res@A <- rep(1,no_sp)
 	return(res)
     }
 )
