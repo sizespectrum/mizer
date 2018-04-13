@@ -6,16 +6,19 @@
 \alias{plotFMort,MizerSim-method}
 \title{Plot total fishing mortality of each species by size}
 \usage{
-plotFMort(object, ...)
+plotFMort(sim, ...)
 
-\S4method{plotFMort}{MizerSim}(object,
-  time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE,
-  ...)
+\S4method{plotFMort}{MizerSim}(sim,
+  species = as.character(sim@params@species_params$species),
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getFMort} method}
+
+\item{species}{Name or vector of names of the species to be plotted. By
+default all species are plotted.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is

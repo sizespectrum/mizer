@@ -4,20 +4,24 @@
 \name{plotBiomass}
 \alias{plotBiomass}
 \alias{plotBiomass,MizerSim-method}
-\title{Plot the biomass of each species through time}
+\title{Plot the biomass of species through time}
 \usage{
-plotBiomass(object, ...)
+plotBiomass(sim, ...)
 
-\S4method{plotBiomass}{MizerSim}(object,
-  start_time = as.numeric(dimnames(object@n)[[1]][1]),
-  end_time = as.numeric(dimnames(object@n)[[1]][dim(object@n)[1]]),
-  y_ticks = 6, print_it = TRUE, ...)
+\S4method{plotBiomass}{MizerSim}(sim,
+  species = as.character(sim@params@species_params$species),
+  start_time = as.numeric(dimnames(sim@n)[[1]][1]),
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), y_ticks = 6,
+  print_it = TRUE, total = FALSE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getBiomass} method, for example
 \code{min_w} and \code{max_w}}
+
+\item{species}{Name or vector of names of the species to be plotted. By
+default all species are plotted.}
 
 \item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}
@@ -29,6 +33,9 @@ time series.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object. Default
 value is TRUE}
+
+\item{total}{A boolean value that determines whether the total biomass from
+all species is plotted as well. Default is FALSE}
 }
 \value{
 A ggplot2 object
@@ -36,22 +43,26 @@ A ggplot2 object
 \description{
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits (see
-\code{\link{getBiomass}}). This plot is pretty easy to do by hand. It just
+\code{\link{getBiomass}}).
+
+Plot the biomass using a \code{MizerSim} object.
+}
+\details{
+This plot is pretty easy to do by hand. It just
 gets the biomass using the \code{\link{getBiomass}} method and plots using
 the ggplot2 package. You can then fiddle about with colours and linetypes
 etc. Just look at the source code for details.
-
-Plot the biomass using a \code{MizerSim} object.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=20, t_save = 2)
+sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 plotBiomass(sim)
+plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
 plotBiomass(sim, min_w = 10, max_w = 1000)
-plotBiomass(sim, start_time = 10, end_time = 15, y_ticks = 2)
+plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
 }
 }
