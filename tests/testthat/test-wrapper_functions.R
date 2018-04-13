@@ -1,5 +1,12 @@
 context("Wrapper functions for trait and community models")
 
+test_that("scaling model is set up correctly", {
+  p <- set_scaling_model()
+  sim <- project(p, t_max=5, effort = 0)
+  # Check that total biomass changes little (relatively)
+  bm <- getBiomass(sim)
+  expect_lt(max(bm[1, ]-bm[6, ]), 6*10^8)
+})
 
 test_that("trait-based model multiple gears",{
     # Check multiple gears are working properly
