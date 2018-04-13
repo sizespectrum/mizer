@@ -65,6 +65,8 @@ growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}}
 
+\item{\code{sc}}{The community abundance of the scaling community}
+
 \item{\code{species_params}}{A data.frame to hold the species specific parameters
 (see the mizer vignette, Table 2, for details)}
 
@@ -78,6 +80,26 @@ each gear for species and size, \eqn{S_{g,i,w}}}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}}
+
+\item{\code{initial_n}}{An array (species x size) that holds abundance of each species
+at each weight at our candidate steady state solution.}
+
+\item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
+the abundance of the background background resource at each weight.}
+
+\item{\code{n}}{Exponent of maximum intake rate.}
+
+\item{\code{p}}{Exponent of metabolic cost.}
+
+\item{\code{lambda}}{Exponent of resource spectrum.}
+
+\item{\code{q}}{Exponent for volumetric search rate.}
+
+\item{\code{f0}}{Initial feeding level.}
+
+\item{\code{kappa}}{Magnitude of resource spectrum.}
+
+\item{\code{A}}{Abundance multipliers.}
 }}
 
 \note{

@@ -13,7 +13,7 @@ getBiomass(object, ...)
 \arguments{
 \item{object}{An object of class \code{MizerSim}.}
 
-\item{...}{Other arguments to select the size range of the species to be used
+\item{...}{Other arguments to select the size range of fish to be used
 in the calculation (min_w, max_w, min_l, max_l).}
 }
 \value{

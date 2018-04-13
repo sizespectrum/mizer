@@ -46,7 +46,7 @@ setMethod('getSSB', signature(object='MizerSim'),
 #' both min_l and min_w are supplied, only min_l will be used).
 #' 
 #' @param object An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of the species to be used
+#' @param ... Other arguments to select the size range of fish to be used
 #'   in the calculation (min_w, max_w, min_l, max_l).
 #'
 #' @return An array containing the biomass (time x species)
