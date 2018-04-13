@@ -1,6 +1,6 @@
 library(shiny)
 library(devtools)
-install_github("gustavdelius/mizer", ref="shiny")
+install_github("gustavdelius/mizer")
 library(mizer)
 library(progress)
 
