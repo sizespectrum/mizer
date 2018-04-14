@@ -28,10 +28,11 @@ is 10^(-4).}
 10^(0.4),}
 
 \item{no_w}{The number of size bins in the community spectrum. Default value
-is log10(max_w_inf/min_egg)*100+1.}
+is such that there are 100 bins for each factor of 10 in weight.}
 
 \item{min_w_pp}{The smallest size of the background spectrum. Default value
-is min_egg/(beta*exp(5*sigma)).}
+is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+feeding kernel of even the smallest fish larva.}
 
 \item{n}{Scaling of the intake. Default value is 2/3.}
 
@@ -60,7 +61,8 @@ factor for the search volume. The default value is 0.6.}
 species. Must be of length 1 or no_sp. Default value is 100.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the knife_edge_size parameter.}
+same length as the knife_edge_size parameter. Default value is
+"knife_edge_gear".}
 
 \item{rfac}{The factor such that in the steady state Rmax = rfac * R, 
 where Rmax is the maximum recruitment allowed and R is the actual
