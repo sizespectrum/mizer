@@ -572,11 +572,19 @@ set_scaling_model <- function(no_sp = 11,
     # gamma is determined by MizerParams
     gamma <- params@species_params$gamma[1]
     w <- params@w
+    dw <- params@dw
     # Get constants for analytic solution
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
     hbar <- alpha * h * f0 - ks
+    if (hbar < 0) {
+        stop("The feeding level is not sufficient to maintain the fish.")
+    }
     pow <- mu0 / hbar / (1 - n)
+    if (pow < 1) {
+        message("The ratio of death rate to growth rate is too small, leading to
+                an accumulation of fish at their largest size.")
+    }
     n_mult <- (1 - (w / w_inf[1]) ^ (1 - n)) ^ (pow - 1) * 
                   (1 - (w_mat[1] / w_inf[1]) ^(1 - n)) ^ (-pow)
     n_mult[w < w_mat[1]] <- 1
@@ -584,6 +592,9 @@ set_scaling_model <- function(no_sp = 11,
     # Create steady state solution n_exact for species 1
     n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
     n_exact <- n_exact[w >= w_min[1] & w <= w_inf[1]]
+    # rescale fish abundance to line up with background resource spectrum
+    mult <- kappa / sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w <= w_inf[1]])
+    n_exact <- n_exact * mult * (10^(dist_sp*(1-lambda)) - 1) / (1-lambda)
     # Use n_exact as a template to create solution initial_n for all species
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
