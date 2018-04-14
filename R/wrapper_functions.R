@@ -594,7 +594,7 @@ set_scaling_model <- function(no_sp = 11,
     n_exact <- n_exact[w >= w_min[1] & w <= w_inf[1]]
     # rescale fish abundance to line up with background resource spectrum
     mult <- kappa / sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w <= w_inf[1]])
-    n_exact <- n_exact * mult * (10^(dist_sp*(1-lambda)) - 1) / (1-lambda)
+    n_exact <- n_exact * mult * (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
     # Use n_exact as a template to create solution initial_n for all species
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
@@ -603,12 +603,6 @@ set_scaling_model <- function(no_sp = 11,
         idxs <- w_min_idx:(w_min_idx+length(n_exact)-1)  # range of indices
         initial_n[i, idxs] <- n_exact * (w_min[1] / w_min[i]) ^ lambda
     }
-    # rescale fish abundance to line up with background resource spectrum
-    # TODO: replace this with optimisation code
-    v <- sqrt(min(w_mat) * max(w_mat))
-    v_idx <- length(w[w < v])
-    initial_n <-
-        initial_n * (kappa * w[v_idx] ^ (-lambda)) / sum(initial_n[, v_idx])
     
     # Setup plankton
     plankton_vec <- (kappa * w ^ (-lambda)) - colSums(initial_n)
@@ -670,7 +664,6 @@ set_scaling_model <- function(no_sp = 11,
         # An infinite rfac means that rdd equals rdi
         params@srr <- function(rdi, species_params) {return(rdi)}
     }
-    params@sc <- colSums(params@initial_n)
     return(params)
 }
 
