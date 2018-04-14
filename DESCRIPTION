@@ -18,6 +18,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
 Version: 0.4
 License: GPL-3
 Imports:
+    deSolve,
     ggplot2,
     grid,
     methods,

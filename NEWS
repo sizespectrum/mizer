@@ -1,4 +1,4 @@
-* Added a function that computes parameters and a steady state for scale free trait-based models.
+b* Added a function that computes parameters and a steady state for scale free trait-based models.
 
 * Included add_species which attempts to add a new species into the system in such a way that the resulting system will still be in steady state. 
 
@@ -7,7 +7,16 @@
 
 mizer 0.5
 -----------
-* Control number of ticks on y-axis in biomass plot
+* Improvements to plots:
+-- Added units to axes
+-- Added method for plotting growth curves
+-- PlotYield no longer fails when species names are numbers or when a 
+     species abundance is zero
+-- Added a "total" parameter to several plot methods to add the curve for the 
+     total community (sum over all species and plankton)
+-- Added a "species" parameter to all plot methods to allow for only a 
+      selection of species to be plotted
+-- Allow the number of ticks on y-axis in biomass plot to be controlled
 * Allow for size- and species-dependent background death.
 * Add initial_n and initial_n_pp slots to mizer params.
 * project() now shows a progress bar while simulation is running.
