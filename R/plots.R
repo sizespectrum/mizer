@@ -265,8 +265,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' After running a projection, the spectra of the abundance of each species and
 #' the plankton can be plotted. The abundance is averaged over the specified
 #' time range (a single value for the time range can be used to plot a single
-#' time step). The abundance can be in terms of numbers or biomass, depending on
-#' the \code{biomass} argument.
+#' time step). What is plotted is the number density multiplied by a power of
+#' the weight, with the power specified by the \code{power} argument.
 #' 
 #' @param sim An object of class \code{MizerSim}.
 #' @param species Name or vector of names of the species to be plotted. By
@@ -277,8 +277,13 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' @param min_w Minimum weight to be plotted (useful for truncating the
 #'   background spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
-#' @param biomass A boolean value. Should the biomass spectrum (TRUE) be plotted
-#'   or the abundance in numbers (FALSE). Default is TRUE.
+#' @param power The abundance is plotted as the number density times the weight
+#' raised to \code{power}. The default \code{power = 1} gives the biomass 
+#' density, whereas \code{power = 2} gives the biomass density with respect
+#' to logarithmic size bins.
+#' @param biomass Obsolete. Only used if \code{power} argument is missing. Then
+#'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
+#'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to TRUE
 #' @param total A boolean value that determines whether the total over all
@@ -296,8 +301,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' plotSpectra(sim)
 #' plotSpectra(sim, min_w = 1e-6)
 #' plotSpectra(sim, time_range = 10:20)
-#' plotSpectra(sim, time_range = 10:20, biomass = FALSE)
-#' plotSpectra(sim, species = c("Cod", "Herring"), total = TRUE)
+#' plotSpectra(sim, time_range = 10:20, power = 0)
+#' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' }
 setGeneric('plotSpectra', function(sim, ...)
     standardGeneric('plotSpectra'))
@@ -307,8 +312,12 @@ setGeneric('plotSpectra', function(sim, ...)
 setMethod('plotSpectra', signature(sim='MizerSim'),
     function(sim, species = as.character(sim@params@species_params$species),
              time_range = max(as.numeric(dimnames(sim@n)$time)), 
-             min_w = min(sim@params@w)/100, biomass = TRUE, print_it = TRUE, 
-             total = FALSE, ...){
+             min_w = min(sim@params@w)/100, power = 1, biomass = TRUE, 
+             print_it = TRUE, total = FALSE, ...) {
+        # to deal with old-type biomass argument
+        if (missing(power)) {
+            power <- as.numeric(biomass)
+        }
         time_elements <- get_time_elements(sim,time_range)
         spec_n <- apply(sim@n[time_elements, , ,drop=FALSE], c(2,3), mean)
         background_n <- apply(sim@n_pp[time_elements,,drop=FALSE],2,mean)
@@ -318,19 +327,19 @@ setMethod('plotSpectra', signature(sim='MizerSim'),
                 length(sim@params@w_full)
             total_n <- background_n
             total_n[fish_idx] <- total_n[fish_idx] + colSums(spec_n)
-            if (biomass) {
-                total_n <- total_n * sim@params@w_full
-            }
+            total_n <- total_n * sim@params@w_full^power
         }
         # Select only the desired species
         spec_n <- spec_n[as.character(dimnames(spec_n)[[1]]) %in% species, ,
                          drop = FALSE]
-        y_label = "Abundance density [1/g]"
-        if (biomass){
-            spec_n <- sweep(spec_n,2,sim@params@w,"*")
-            background_n <- background_n * sim@params@w_full
-            y_label = "Biomass density"
+        if (power %in% c(0, 1, 2)) {
+            y_label = c("Number density [1/g]", "Biomass density", 
+                        "Biomass density [g]")[power+1]
+        } else {
+            y_label = paste0("Number density * w^", power)
         }
+        spec_n <- sweep(spec_n, 2, sim@params@w^power, "*")
+        background_n <- background_n * sim@params@w_full^power
         # Make data.frame for plot
         plot_dat <- data.frame(value = c(spec_n), 
                                Species = dimnames(spec_n)[[1]], 
@@ -542,10 +551,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
         p <- ggplot(plot_dat) + geom_line(aes(x=w, y = value, group = Species))
     } else {
         p <- ggplot(plot_dat) + 
-            geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) + 
-            scale_x_continuous(name = "Size", trans="log10") + 
-            scale_y_continuous(name = "Total fishing mortality", 
-                               limits=c(0,max(plot_dat$value)))
+            geom_line(aes(x=w, y = value, colour = Species, linetype=Species))
     }
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
