@@ -68,7 +68,6 @@ params_out <- add_species(params, species_params, biomass = 3070953023,
 sim <- project(params_out, t_max = 5, effort = 0)
 plot(sim)
 }
-#'
 }
 \seealso{
 \linkS4class{MizerParams}
