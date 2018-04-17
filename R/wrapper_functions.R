@@ -394,23 +394,24 @@ set_trait_model <- function(no_sp = 10,
 #' This functions creates a \code{MizerParams} object so that scale free
 #' trait-based-type models can be easily set up and run. The scale free
 #' trait-based size spectrum model can be derived as a simplification of the
-#' general size-based model used in \code{mizer}. The scale free trait-based
-#' model is similar to the standard trait-based model, with three main
-#' differences:
-#' (1) We have an exact equation for a steady state of this system which is
+#' general size-based model used in \code{mizer}. All the species-specific
+#' parameters are the same for all species, except for the egg size, maturity
+#' size and asymptotic size. These differ over the species, but the ratio of egg
+#' size to maturity size and the ratio of egg size to asymptotic size are the
+#' same for each species. The asymptotic sizes of the species are spread evenly
+#' on a logarithmic scale. See the \code{mizer} vignette and the Details section
+#' below for more details and examples of the scale free trait-based model.
+#' 
+#' The scale free trait-based model is similar to the standard trait-based
+#' model, with three main differences:
+#' \enumerate{
+#' \item We have an exact equation for a steady state of this system which is
 #' often stable, even when we include no extra stabilization effects like
 #' density dependence or stock recruitment relationships.
-#' (2) The egg size is proportional to the maturity size for each species
-#' (3) The parameters are chosen so that R_0 (the expected number of offspring
+#' \item The egg size is proportional to the maturity size for each species
+#' \item The parameters are chosen so that R_0 (the expected number of offspring
 #' produced by an individual over a lifetime) is close to 1 for each species.
-#'
-#' All the species-specific parameters are the same for all species, except for
-#' the egg size, maturity size and asymptotic size. These differ over the
-#' species, but the ratio of egg size to maturity size and the ratio of egg size
-#' to asymptotic size are the same for each species. The egg sizes or maturity
-#' sizes or asymptotic sizes) of the species are spread evenly on a logarithmic
-#' scale. See the \code{mizer} vignette for more details and examples of the
-#' scale free trait-based model.
+#' }
 #'
 #' The function has many arguments, all of which have default values. Of
 #' particular interest to the user are the number of species in the model and
@@ -425,18 +426,17 @@ set_trait_model <- function(no_sp = 10,
 #' min_w_inf/min_egg.
 #'
 #' Although the scale free trait based model's default steady state is often
-#' stable without imposing a stock recruitment relationship, by default we do
-#' impose a Beverton-Holt type stock recruitment relationship. The values of the
-#' maximum recruitment rmax and the reproduction efficiency erepro are chosen so
-#' that, at the steady state we construct, the stock recruitment adjusted
-#' reproduction output equals a given factor, fac, multiplied by rmax.
+#' stable without imposing a stock recruitment relationship, the function can
+#' set a Beverton-Holt type stock recruitment relationship that imposes a
+#' maximal reproduction rate that is a multiple of the recruitment rate at
+#' steady state. That multiple is set by the argument \code{rfac}.
 #'
-#' In addition to setting up the parameters, this code also evaluates our
+#' In addition to setting up the parameters, this function also evaluates the
 #' analytic expression for a steady state of the scale free trait-based model
-#' and stores it in the initial_n slot.
+#' and sets it as the initial condition.
 #'
-#' The factor for the search volume, \code{gamma}, is calculated using the
-#' expected feeding level, \code{f0}.
+#' The search rate coefficient \code{gamma} is calculated using the expected
+#' feeding level, \code{f0}.
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
@@ -450,12 +450,11 @@ set_trait_model <- function(no_sp = 10,
 #'
 #' The resulting \code{MizerParams} object can be projected forward using
 #' \code{project()} like any other \code{MizerParams} object. When projecting
-#' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
-#' any instabilities with the solver. You can check this by plotting the biomass
-#' or abundance through time after the projection.
+#' the model it may be necessary to reduce \code{dt} to 0.1 to avoid any
+#' instabilities with the solver. You can check this by plotting the biomass or
+#' abundance through time after the projection.
 #'
-#' @param no_sp The number of species in the model. The default value is 11. The
-#'   more species, the longer the simulation takes to run.
+#' @param no_sp The number of species in the model. The default value is 11.
 #' @param min_w_inf The asymptotic size of the smallest species in the
 #'   community. Default value is 10.
 #' @param max_w_inf The asymptotic size of the largest species in the community.
@@ -481,16 +480,16 @@ set_trait_model <- function(no_sp = 10,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
-#'   factor for the search volume. The default value is 0.6.
+#'   coefficient in the search rate. The default value is 0.6.
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the knife_edge_size parameter. Default value is
 #'   "knife_edge_gear".
-#' @param rfac The factor such that in the steady state Rmax = rfac * R, 
-#'   where Rmax is the maximum recruitment allowed and R is the actual
-#'   recruitment. Thus the larger \code{rfac} the less the impact of the
-#'   non-linear stock-recruitment curve. The default is Inf.
+#' @param rfac The factor such that Rmax = rfac * R, where Rmax is the maximum
+#'   recruitment allowed and R is the steady-state recruitment. Thus the larger
+#'   \code{rfac} the less the impact of the non-linear stock-recruitment curve.
+#'   The default is Inf.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -654,15 +653,34 @@ set_scaling_model <- function(no_sp = 11,
         initial_n[i, idxs] <- n_exact * (w_min[1] / w_min[i]) ^ lambda
     }
     
+    # Calculate the community spectrum
+    sc <- colSums(initial_n)
+    # The following was an attempt to calculate the community for a
+    # finer-grained spectrum where species are spaced by just one
+    # weight bracket. This level of detail is however not necessary.
+    # Also in the below the start and end of the integration is not
+    # quite right.
+    # sc <- rep(0, no_w)
+    # idxs <- seq_along(n_exact)
+    # fac <- (w[1]/w[2])^lambda
+    # for (i in seq_len(max(params@species_params$w_min_idx) - 1)) {
+    #     sc[idxs] <- sc[idxs] + n_exact * fac^(i-1)
+    #     idxs <- idxs+1
+    # }
+    # sc <- sc * 
+    #     (10^(delt*(1-lambda)/2) - 10^(-delt*(1-lambda)/2)) /
+    #     (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2))
+    params@sc <- sc
+    
     # Setup plankton
-    plankton_vec <- (kappa * w ^ (-lambda)) - colSums(initial_n)
-    # Cut off plankton at maturity size of smallest species
-    plankton_vec[w >= w_mat[1]] <- 0
+    plankton_vec <- (kappa * w ^ (-lambda)) - sc
+    # Cut off plankton at maximum size of smallest species
+    plankton_vec[w >= min_w_inf] <- 0
     # Do not allow negative plankton abundance
     if (sum(plankton_vec < 0) > 0) {
         message("Note: Negative abundance values in background resource overwritten with zeros")
+        plankton_vec[plankton_vec < 0] <- 0
     }
-    plankton_vec[plankton_vec < 0] <- 0
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
     params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
@@ -713,9 +731,8 @@ set_scaling_model <- function(no_sp = 11,
             (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
     } else {
         # An infinite rfac means that rdd equals rdi
-        params@srr <- function(rdi, ...) {return(rdi)}
+        params@srr <- function(rdi, species_params) {return(rdi)}
     }
-    params@sc <- colSums(params@initial_n)
     return(params)
 }
 
@@ -820,24 +837,10 @@ retune_abundance <- function(params) {
 
 
 #### add_species ####
-#' Add a new species into the system in such a way that the resulting system
-#' will still be in steady state.
+#' Add more species into an ecosystem with scaling background species.
 #'
-#' Adds a new species into the system, and sets its abundance to the steady
-#' state in the system where the new species does not self interact. Then the
-#' abundance multipliers of the background species are retuned to retain the old
-#' aggregate abundance curve, using retune_abundance(). Then the values of
-#' erepro are altered so that the resulting configuration satisfies the steady
-#' state reproduction boundary condition. The idea is that if the params system
-#' is at steady state, and if the death rates of pre-existing species are close
-#' to what they where before the new species were added, and if the newly added
-#' species is at a low enough abundance (i.e., if mult is low enough) that the
-#' assumption of it being none self interacting is approximately valid, then the
-#' abundance curves attached to the params object returned by add_species() will
-#' be a steady state,
-#'
-#' Note that we assuming that the first species is a background species, and the
-#' last species is a foreground species, with abundance multiplier mult.
+#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' given parameters to the ecosystem.
 #'
 #' @param params A mizer params object for the original system. The A slot holds
 #'   1's for foreground species we wish to hold fixed the abundance multiplier
@@ -885,10 +888,26 @@ retune_abundance <- function(params) {
 #'     a = a_m,
 #'     b = b_m
 #' )
-#' params_out <- add_species(params, species_params, biomass = 3070953023, min_w_observed = 0)
+#' params_out <- add_species(params, species_params, biomass = 3070953023, 
+#'                           min_w_observed = 0)
 #' sim <- project(params_out, t_max = 5, effort = 0)
 #' plot(sim)
 #' }
+# The code adds a new species into the system, and sets its abundance to the
+# steady state in the system where the new species does not self interact. Then
+# the abundance multipliers of the background species are retuned to retain the
+# old aggregate abundance curve, using retune_abundance(). Then the values of
+# erepro are altered so that the resulting configuration satisfies the steady
+# state reproduction boundary condition. The idea is that if the params system
+# is at steady state, and if the death rates of pre-existing species are close
+# to what they where before the new species were added, and if the newly added
+# species is at a low enough abundance (i.e., if mult is low enough) that the
+# assumption of it being none self interacting is approximately valid, then the
+# abundance curves attached to the params object returned by add_species() will
+# be a steady state,
+#
+# Note that we are assuming that the first species is a background species, and
+# the last species is a foreground species, with abundance multiplier mult.
 add_species <- function(params, species_params, biomass = 4*10^8, 
                         min_w_observed = 0, rfac=10, effort = 0) {
     # replace r_max with a large value, if absent
@@ -1110,10 +1129,11 @@ add_species <- function(params, species_params, biomass = 4*10^8,
         # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
         # compensate for using a stock recruitment relationship.
         combi_params@species_params$r_max <-
-            (rfac - 1) * getRDI(combi_params, combi_params@initial_n, combi_params@initial_n_pp)[,1]
+            (rfac - 1) * getRDI(combi_params, combi_params@initial_n, 
+                                combi_params@initial_n_pp)[,1]
     } else {
         # An infinite rfac means that rdd equals rdi
-        params@srr <- function(rdi, ...) {return(rdi)}
+        params@srr <- function(rdi, species_params) {return(rdi)}
     }
     return(combi_params)
 }

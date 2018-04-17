@@ -5,7 +5,7 @@
 \alias{getRDD}
 \alias{getRDD,MizerParams,matrix,numeric,matrix-method}
 \alias{getRDD,MizerParams,matrix,numeric,missing-method}
-\title{getRDD method for the size based model}
+\title{Get density dependent recruitment}
 \usage{
 getRDD(object, n, n_pp, rdi, ...)
 

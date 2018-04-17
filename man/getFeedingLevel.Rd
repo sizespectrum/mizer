@@ -44,11 +44,10 @@ single value. Default is the whole time range. Only used if the
 simplifying the output. Defaults to TRUE.}
 }
 \description{
-Calculates the feeding level \eqn{f_i(w)} as a function of predator size
-based on food availability, search volume and maximum intake. The feeding
-level is the proportion of the encountered food that is actually
-consumed.This method is used by the \code{\link{project}} method for
-performing simulations.
+Calculates the feeding level \eqn{f_i(w)} as a by predator size based on food
+availability, search volume and maximum intake. The feeding level is the
+proportion of the encountered food that is actually consumed.This method is
+used by the \code{\link{project}} method for performing simulations.
 
 getFeedingLevel method for a \code{MizerParams} object with already calculated \code{phi_prey} matrix.
 

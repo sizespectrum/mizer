@@ -5,7 +5,7 @@
 \alias{getPredRate}
 \alias{getPredRate,MizerParams,matrix,numeric,matrix-method}
 \alias{getPredRate,MizerParams,matrix,numeric,missing-method}
-\title{\code{getPredRate} method for the size based model}
+\title{Get predation rate}
 \usage{
 getPredRate(object, n, n_pp, feeding_level)
 

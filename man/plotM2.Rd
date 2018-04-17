@@ -4,7 +4,7 @@
 \name{plotM2}
 \alias{plotM2}
 \alias{plotM2,MizerSim-method}
-\title{Plot predation mortality rate of each species by size}
+\title{Plot predation mortality rate of each species against size}
 \usage{
 plotM2(sim, ...)
 

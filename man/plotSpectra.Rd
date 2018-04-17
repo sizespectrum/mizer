@@ -11,7 +11,7 @@ plotSpectra(sim, ...)
 \S4method{plotSpectra}{MizerSim}(sim,
   species = as.character(sim@params@species_params$species),
   time_range = max(as.numeric(dimnames(sim@n)$time)),
-  min_w = min(sim@params@w)/100, type = 1, biomass = TRUE,
+  min_w = min(sim@params@w)/100, power = 1, biomass = TRUE,
   print_it = TRUE, total = FALSE, ...)
 }
 \arguments{
@@ -30,13 +30,14 @@ the final time step.}
 background spectrum). Default value is a hundredth of the minimum size
 value of the community.}
 
-\item{type}{Determines whether the abundance is represented in terms of
-number density (type = 0) or biomass density (type = 1) or biomass in
-logarithmically-spaced size bins (type = 2)}
+\item{power}{The abundance is plotted as the number density times the weight
+raised to \code{power}. The default \code{power = 1} gives the biomass 
+density, whereas \code{power = 2} gives the biomass density with respect
+to logarithmic size bins.}
 
-\item{biomass}{Obsolete. Only used if \code{type} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{type=1} and 
-\code{biomass = FALSE} is equivalent to \code{type=0}}
+\item{biomass}{Obsolete. Only used if \code{power} argument is missing. Then
+\code{biomass = TRUE} is equivalent to \code{power=1} and 
+\code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
 Defaults to TRUE}
@@ -51,9 +52,8 @@ A ggplot2 object
 After running a projection, the spectra of the abundance of each species and
 the plankton can be plotted. The abundance is averaged over the specified
 time range (a single value for the time range can be used to plot a single
-time step). Depending on the \code{type} argument, the abundance can be in
-terms of number density (type = 0) or biomass density (type = 1) or biomass
-in logarithmically-spaced size bins (type = 2).
+time step). What is plotted is the number density multiplied by a power of
+the weight, with the power specified by the \code{power} argument.
 
 Plot the abundance spectra using a \code{MizerSim} object.
 }
@@ -66,7 +66,7 @@ sim <- project(params, effort=1, t_max=20, t_save = 2)
 plotSpectra(sim)
 plotSpectra(sim, min_w = 1e-6)
 plotSpectra(sim, time_range = 10:20)
-plotSpectra(sim, time_range = 10:20, type = 0)
-plotSpectra(sim, species = c("Cod", "Herring"), type = 1)
+plotSpectra(sim, time_range = 10:20, power = 0)
+plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 }
 }

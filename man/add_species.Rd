@@ -2,8 +2,7 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{add_species}
 \alias{add_species}
-\title{Add a new species into the system in such a way that the resulting system
-will still be in steady state.}
+\title{Add more species into an ecosystem with scaling background species.}
 \usage{
 add_species(params, species_params, biomass = 4 * 10^8, min_w_observed = 0,
   rfac = 10, effort = 0)
@@ -32,22 +31,8 @@ is 0.}
 An object of type \code{MizerParams}
 }
 \description{
-Adds a new species into the system, and sets its abundance to the steady
-state in the system where the new species does not self interact. Then the
-abundance multipliers of the background species are retuned to retain the old
-aggregate abundance curve, using retune_abundance(). Then the values of
-erepro are altered so that the resulting configuration satisfies the steady
-state reproduction boundary condition. The idea is that if the params system
-is at steady state, and if the death rates of pre-existing species are close
-to what they where before the new species were added, and if the newly added
-species is at a low enough abundance (i.e., if mult is low enough) that the
-assumption of it being none self interacting is approximately valid, then the
-abundance curves attached to the params object returned by add_species() will
-be a steady state,
-}
-\details{
-Note that we assuming that the first species is a background species, and the
-last species is a foreground species, with abundance multiplier mult.
+Takes a \linkS4class{MizerParams} object and adds additional species with
+given parameters to the ecosystem.
 }
 \examples{
 \dontrun{
@@ -78,10 +63,12 @@ species_params <- data.frame(
     a = a_m,
     b = b_m
 )
-params_out <- add_species(params, species_params, biomass = 3070953023, min_w_observed = 0)
+params_out <- add_species(params, species_params, biomass = 3070953023, 
+                          min_w_observed = 0)
 sim <- project(params_out, t_max = 5, effort = 0)
 plot(sim)
 }
+#'
 }
 \seealso{
 \linkS4class{MizerParams}

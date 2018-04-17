@@ -12,8 +12,7 @@ set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   gear_names = "knife_edge_gear", rfac = Inf, ...)
 }
 \arguments{
-\item{no_sp}{The number of species in the model. The default value is 11. The
-more species, the longer the simulation takes to run.}
+\item{no_sp}{The number of species in the model. The default value is 11.}
 
 \item{min_w_inf}{The asymptotic size of the smallest species in the
 community. Default value is 10.}
@@ -55,7 +54,7 @@ is 0.4.}
 \item{sigma}{Width of prey size preference. Default value is 1.3.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
-factor for the search volume. The default value is 0.6.}
+coefficient in the search rate. The default value is 0.6.}
 
 \item{knife_edge_size}{The minimum size at which the gear or gears select
 species. Must be of length 1 or no_sp. Default value is 100.}
@@ -64,10 +63,10 @@ species. Must be of length 1 or no_sp. Default value is 100.}
 same length as the knife_edge_size parameter. Default value is
 "knife_edge_gear".}
 
-\item{rfac}{The factor such that in the steady state Rmax = rfac * R, 
-where Rmax is the maximum recruitment allowed and R is the actual
-recruitment. Thus the larger \code{rfac} the less the impact of the
-non-linear stock-recruitment curve. The default is Inf.}
+\item{rfac}{The factor such that Rmax = rfac * R, where Rmax is the maximum
+recruitment allowed and R is the steady-state recruitment. Thus the larger
+\code{rfac} the less the impact of the non-linear stock-recruitment curve.
+The default is Inf.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
@@ -78,24 +77,25 @@ An object of type \code{MizerParams}
 This functions creates a \code{MizerParams} object so that scale free
 trait-based-type models can be easily set up and run. The scale free
 trait-based size spectrum model can be derived as a simplification of the
-general size-based model used in \code{mizer}. The scale free trait-based
-model is similar to the standard trait-based model, with three main
-differences:
-(1) We have an exact equation for a steady state of this system which is
-often stable, even when we include no extra stabilization effects like
-density dependence or stock recruitment relationships.
-(2) The egg size is proportional to the maturity size for each species
-(3) The parameters are chosen so that R_0 (the expected number of offspring
-produced by an individual over a lifetime) is close to 1 for each species.
+general size-based model used in \code{mizer}. All the species-specific
+parameters are the same for all species, except for the egg size, maturity
+size and asymptotic size. These differ over the species, but the ratio of egg
+size to maturity size and the ratio of egg size to asymptotic size are the
+same for each species. The asymptotic sizes of the species are spread evenly
+on a logarithmic scale. See the \code{mizer} vignette and the Details section
+below for more details and examples of the scale free trait-based model.
 }
 \details{
-All the species-specific parameters are the same for all species, except for
-the egg size, maturity size and asymptotic size. These differ over the
-species, but the ratio of egg size to maturity size and the ratio of egg size
-to asymptotic size are the same for each species. The egg sizes or maturity
-sizes or asymptotic sizes) of the species are spread evenly on a logarithmic
-scale. See the \code{mizer} vignette for more details and examples of the
-scale free trait-based model.
+The scale free trait-based model is similar to the standard trait-based
+model, with three main differences:
+\enumerate{
+\item We have an exact equation for a steady state of this system which is
+often stable, even when we include no extra stabilization effects like
+density dependence or stock recruitment relationships.
+\item The egg size is proportional to the maturity size for each species
+\item The parameters are chosen so that R_0 (the expected number of offspring
+produced by an individual over a lifetime) is close to 1 for each species.
+}
 
 The function has many arguments, all of which have default values. Of
 particular interest to the user are the number of species in the model and
@@ -110,18 +110,17 @@ weights of the species can be obtained by multiplying the egg weights by
 min_w_inf/min_egg.
 
 Although the scale free trait based model's default steady state is often
-stable without imposing a stock recruitment relationship, by default we do
-impose a Beverton-Holt type stock recruitment relationship. The values of the
-maximum recruitment rmax and the reproduction efficiency erepro are chosen so
-that, at the steady state we construct, the stock recruitment adjusted
-reproduction output equals a given factor, fac, multiplied by rmax.
+stable without imposing a stock recruitment relationship, the function can
+set a Beverton-Holt type stock recruitment relationship that imposes a
+maximal reproduction rate that is a multiple of the recruitment rate at
+steady state. That multiple is set by the argument \code{rfac}.
 
-In addition to setting up the parameters, this code also evaluates our
+In addition to setting up the parameters, this function also evaluates the
 analytic expression for a steady state of the scale free trait-based model
-and stores it in the initial_n slot.
+and sets it as the initial condition.
 
-The factor for the search volume, \code{gamma}, is calculated using the
-expected feeding level, \code{f0}.
+The search rate coefficient \code{gamma} is calculated using the expected
+feeding level, \code{f0}.
 
 The option of including fishing is given, but the steady state may lose its
 natural stability if too much fishing is included. In such a case the user
@@ -135,9 +134,9 @@ and the order of selectivity size is that of the asymptotic size).
 
 The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting
-the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
-any instabilities with the solver. You can check this by plotting the biomass
-or abundance through time after the projection.
+the model it may be necessary to reduce \code{dt} to 0.1 to avoid any
+instabilities with the solver. You can check this by plotting the biomass or
+abundance through time after the projection.
 }
 \examples{
 \dontrun{

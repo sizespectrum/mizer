@@ -6,8 +6,8 @@
 \alias{getFMort,MizerParams,numeric-method}
 \alias{getFMort,MizerParams,matrix-method}
 \alias{getFMort,MizerSim,missing-method}
-\title{Get the total fishing mortality rate from all fishing gears by time, species and
-size.}
+\title{Get the total fishing mortality rate from all fishing gears by time, species
+and size.}
 \usage{
 getFMort(object, effort, ...)
 
@@ -64,14 +64,17 @@ gear has the same effort that is constant in time). The order of gears in the
 \code{effort} argument must be the same the same as in the \code{MizerParams}
 object.
 
-If the object argument is of class \code{MizerSim} then the effort slot of the \code{MizerSim} object is used and the \code{effort} argument is not used.
+If the object argument is of class \code{MizerSim} then the effort slot of
+the \code{MizerSim} object is used and the \code{effort} argument is not
+used.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
-# Get the total fishing mortality when effort is constant for all gears and time:
+# Get the total fishing mortality when effort is constant for all 
+# gears and time:
 getFMort(params, effort = 1)
 # Get the total fishing mortality when effort is different
 # between the four gears but constant in time:
@@ -84,8 +87,8 @@ effort[,2] <- seq(from=1, to = 0.5, length=20)
 effort[,3] <- seq(from=1, to = 2, length=20)
 effort[,4] <- seq(from=2, to = 1, length=20)
 getFMort(params, effort=effort)
-# Get the total fishing mortality using the effort already held in a MizerSim
-object.
+# Get the total fishing mortality using the effort already held in a 
+# MizerSim object.
 sim <- project(params, t_max = 20, effort = 0.5)
 getFMort(sim)
 getFMort(sim, time_range = c(10,20))
