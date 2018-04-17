@@ -5,7 +5,8 @@
 \title{Included add_species which attempts to add a new species into the system in such a way that 
 the resulting system will still be in steady state.}
 \usage{
-add_species(params, species_params, mult = 1.5 * 10^(11))
+add_species(params, species_params, biomass = 4 * 10^8, min_w_observed = 0,
+  rfac = 10, effort = 0)
 }
 \arguments{
 \item{params}{A mizer params object for the original system. The A slot 
@@ -15,7 +16,15 @@ for background species that we shall vary the abundance multiplier of.}
 \item{species_params}{The species parameters of the foreground species we 
 want to add to the system.}
 
-\item{mult}{The abundance multiplier of the newly added species. Default value is 1.5 * 10 ^ (11)}
+\item{biomass}{The total biomass of members of the newly added species which have weights 
+greater than min_w_observed. Default value is 4*10^8.}
+
+\item{min_w_observed}{The minimum weight of fish of the new species that contribute to the
+biomass which we setup for the new species. Default value is 0.}
+
+\item{rfac}{Default value is 10.}
+
+\item{effort}{Default value is 0.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -40,42 +49,35 @@ last species is a foreground species, with abundance multiplier mult.
 }
 \examples{
 \dontrun{
-params <- set_scaling_model()
+params <- set_scaling_model(max_w_inf = 5000)
 params@species_params$r_max <- params@species_params$w_mat
 params@species_params$r_max[] <- 10^50
 params@A[] <- NA
+a_m <- 0.0085
+b_m <- 3.11
+L_inf_m <- 24.3
+L_mat <- 11.1
 species_params <- data.frame(
-  species = "mullet",
-  w_min = 0.001,
-  w_inf = 251.94,
-  w_mat = 16.48,
-  h = NA, # will compute this later
-  ks = 4,
-  beta = 283,
-  sigma = 1.8,
-  z0 = 0,
-  alpha = 0.4,
-  erepro = 0.1,
-  sel_func = "knife_edge", # not used but required
-  knife_edge_size = 100,
-  gear = "knife_edge_gear",
-  k = 0,
-  gamma = NA,
-  w_min_idx = NA,
-  r_max = 10^50
+    species = "mullet",
+    w_min = 0.001, 
+    w_inf = a_m*L_inf_m^b_m, 
+    w_mat = a_m*L_mat^b_m, 
+    beta = 283, 
+    sigma = 1.8, 
+    z0 = 0,
+    alpha = 0.6, 
+    erepro = 0.1, 
+    sel_func = "knife_edge", 
+    knife_edge_size = 100, 
+    gear = "knife_edge_gear",
+    k = 0,
+    r_max = 10^50,
+    k_vb = 0.6,
+    a = a_m,
+    b = b_m
 )
-k_vb <- 0.6
-species_params$h <- 3*k_vb*(species_params$w_inf^(1/3))/(species_params$alpha*params@f0)
-ae <- sqrt(2*pi) * species_params$sigma * species_params$beta^(params@lambda-2) * exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
-species_params$gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
-species_params$w_min_idx <- sum(params@w<=species_params$w_min)
-params_out <- add_species(params, species_params, mult = 5.5 * 10 ^ (8))
+params_out <- add_species(params, species_params, biomass = 3070953023, min_w_observed = 0)
 sim <- project(params_out, t_max = 5, effort = 0)
-plot(sim)
-species_params$species <- "mullet2"
-species_params$w_inf <- 50
-params_out_2 <- add_species(params_out, species_params, mult = 5.5 * 10 ^ (8))
-sim <- project(params_out_2, t_max = 5, effort = 0)
 plot(sim)
 }
 }
