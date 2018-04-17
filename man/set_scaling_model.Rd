@@ -109,12 +109,12 @@ obtained by muliplying the egg_weights by min_w_mat/min_egg. The asymptotic
 weights of the species can be obtained by multiplying the egg weights by
 min_w_inf/min_egg.
 
-Although the scale free trait based model's default steady state is often stable
-without imposing a stock recruitment relationship, by default we do impose a
-Beverton-Holt type stock recruitment relationship. The values of the maximum
-recruitment rmax and the reproduction efficiency erepro are chosen so that,
-at the steady state we construct, the stock recruitment adjusted reproduction
-output equals a given factor, fac, multiplied by rmax.
+Although the scale free trait based model's default steady state is often
+stable without imposing a stock recruitment relationship, by default we do
+impose a Beverton-Holt type stock recruitment relationship. The values of the
+maximum recruitment rmax and the reproduction efficiency erepro are chosen so
+that, at the steady state we construct, the stock recruitment adjusted
+reproduction output equals a given factor, fac, multiplied by rmax.
 
 In addition to setting up the parameters, this code also evaluates our
 analytic expression for a steady state of the scale free trait-based model

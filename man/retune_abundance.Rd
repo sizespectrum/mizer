@@ -2,31 +2,32 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{retune_abundance}
 \alias{retune_abundance}
-\title{Retunes abundance multipliers of background species so aggregate abundance is a 
-power law.}
+\title{Retunes abundance multipliers of background species so aggregate abundance is
+a power law.}
 \usage{
 retune_abundance(params)
 }
 \arguments{
-\item{params}{A mizer params object with an A slot with 1's for species 
-we wish to hold fixed the abundance multiplier of, and NA's for species that 
+\item{params}{A mizer params object with an A slot with 1's for species we
+wish to hold fixed the abundance multiplier of, and NA's for species that
 we shall vary the abundance multiplier of.}
 }
 \value{
 An object of type \code{MizerParams}
 }
 \description{
-If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with fixed growth 
-and death rates, then A_i*N_i(w) is also a steady state, where A_i is an abundance multiplier.  
-When we add a foreground species to our model, we want to choose new abundance multipliers of the 
-background species so that we the abundance, summed over all species and background 
-resources, is close to sc(w), which is the aggregate abundance of all but 
-the last species. We are assuming this last species is newly added, with A_i=1.
+If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with
+fixed growth and death rates, then A_i*N_i(w) is also a steady state, where
+A_i is an abundance multiplier. When we add a foreground species to our
+model, we want to choose new abundance multipliers of the background species
+so that we the abundance, summed over all species and background resources,
+is close to sc(w), which is the aggregate abundance of all but the last
+species. We are assuming this last species is newly added, with A_i=1.
 }
 \details{
-retune_abundance operates of a params object, with a slot A. If i is a background 
-species, then A_i=NA, indicating we are allowed to retune the abundance 
-multiplier.
+retune_abundance operates of a params object, with a slot A. If i is a
+background species, then A_i=NA, indicating we are allowed to retune the
+abundance multiplier.
 }
 \examples{
 \dontrun{

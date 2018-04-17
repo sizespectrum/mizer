@@ -15,8 +15,17 @@
 #' }
 #'
 #'The file also contains a helper function \code{\link{retune_abundance}}.
+#'
 #' @name wrapper_functions
 NULL
+
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 #### set_community_model ####
 #' Sets up parameters for a community-type model

@@ -29,6 +29,7 @@ log_breaks <- function(n = 6){
    }
 }
 
+#### plotBiomass ####
 #' Plot the biomass of species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
@@ -99,7 +100,8 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         # Force Species column to be a character (if numbers used - may be
         # interpreted as integer and hence continuous)
         bm$Species <- as.character(bm$Species)
-        # Due to log10, need to set a minimum value, seems like a feature in ggplot
+        # Due to log10, need to set a minimum value, seems like a feature in
+        # ggplot
         min_value <- 1e-30
         bm <- bm[bm$value >= min_value,]
         x_label <- "Year"
@@ -121,6 +123,8 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
     }
 )
 
+
+#### plotYield ####
 #' Plot the total yield of species through time
 #'
 #' After running a projection, the total yield of each species across all 
@@ -186,6 +190,8 @@ setMethod('plotYield', signature(sim='MizerSim'),
     }
 )
 
+
+#### plotYieldGear ####
 #' Plot the total yield of each species by gear through time
 #'
 #' After running a projection, the total yield of each species by fishing gear
@@ -252,13 +258,15 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
     }
 )
 
-#' Plot the abundance spectra of species and the background population
+
+#### plotSpectra ####
+#' Plot the abundance spectra of fish species and plankton
 #' 
 #' After running a projection, the spectra of the abundance of each species and
-#' the background population can be plotted. The abundance is averaged over the
-#' specified time range (a single value for the time range can be used to plot a
-#' single time step). The abundance can be in terms of numbers or biomass,
-#' depending on the \code{biomass} argument.
+#' the plankton can be plotted. The abundance is averaged over the specified
+#' time range (a single value for the time range can be used to plot a single
+#' time step). The abundance can be in terms of numbers or biomass, depending on
+#' the \code{biomass} argument.
 #' 
 #' @param sim An object of class \code{MizerSim}.
 #' @param species Name or vector of names of the species to be plotted. By
@@ -357,6 +365,7 @@ setMethod('plotSpectra', signature(sim='MizerSim'),
 )
 
 
+#### plotFeedingLevel ####
 #' Plot the feeding level of species by size
 #' 
 #' After running a projection, plot the feeding level of each species by size. 
@@ -419,7 +428,9 @@ setMethod('plotFeedingLevel', signature(sim='MizerSim'),
     }
 )
 
-#' Plot predation mortality rate of each species by size
+
+#### plotM2 ####
+#' Plot predation mortality rate of each species against size
 #' 
 #' After running a projection, plot the predation mortality rate of each species
 #' by size. The mortality rate is averaged over the specified time range (a
@@ -481,6 +492,8 @@ setMethod('plotM2', signature(sim='MizerSim'),
     }
 )
 
+
+#### plotFMort ####
 #' Plot total fishing mortality of each species by size
 #' 
 #' After running a projection, plot the total fishing mortality of each species
@@ -546,6 +559,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
 )
 
 
+#### plot ####
 #' Summary plot for \code{MizerSim} objects
 #' 
 #' After running a projection, produces 5 plots in the same window: feeding
@@ -595,6 +609,7 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 )
 
 
+#### plotGrowthCurves ####
 #' Plot growth curves giving weight as a function of age
 #' 
 #' Uses the growth rates at the final time of a simulation to calculate

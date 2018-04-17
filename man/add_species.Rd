@@ -2,25 +2,27 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{add_species}
 \alias{add_species}
-\title{Included add_species which attempts to add a new species into the system in such a way that 
-the resulting system will still be in steady state.}
+\title{Add a new species into the system in such a way that the resulting system
+will still be in steady state.}
 \usage{
 add_species(params, species_params, biomass = 4 * 10^8, min_w_observed = 0,
   rfac = 10, effort = 0)
 }
 \arguments{
-\item{params}{A mizer params object for the original system. The A slot 
-holds 1's for foreground species we wish to hold fixed the abundance multiplier of, and NA's for
-for background species that we shall vary the abundance multiplier of.}
+\item{params}{A mizer params object for the original system. The A slot holds
+1's for foreground species we wish to hold fixed the abundance multiplier
+of, and NA's for for background species that we shall vary the abundance
+multiplier of.}
 
-\item{species_params}{The species parameters of the foreground species we 
+\item{species_params}{The species parameters of the foreground species we
 want to add to the system.}
 
-\item{biomass}{The total biomass of members of the newly added species which have weights 
-greater than min_w_observed. Default value is 4*10^8.}
+\item{biomass}{The total biomass of members of the newly added species which
+have weights greater than min_w_observed. Default value is 4*10^8.}
 
-\item{min_w_observed}{The minimum weight of fish of the new species that contribute to the
-biomass which we setup for the new species. Default value is 0.}
+\item{min_w_observed}{The minimum weight of fish of the new species that
+contribute to the biomass which we setup for the new species. Default value
+is 0.}
 
 \item{rfac}{Default value is 10.}
 
@@ -30,18 +32,18 @@ biomass which we setup for the new species. Default value is 0.}
 An object of type \code{MizerParams}
 }
 \description{
-Adds a new species into the system, and sets its abundance to the steady state 
-in the system where the new species does not self interact. Then the abundance 
-multipliers of the background species are retuned to retain the old aggregate 
-abundance curve, using retune_abundance(). Then the values of erepro are 
-altered so that the resulting configuration satisfies the steady state 
-reproduction boundary condition. The idea is that if the params system is 
-at steady state, and if the death rates of pre-existing species are close to 
-what they where before the new species were added, and if the newly added 
-species is at a low enough abundance (i.e., if mult is low enough) that the 
-assumption of it being none self interacting is approximately valid, then 
-the abundance curves attached to the params object returned by add_species() 
-will be a steady state,
+Adds a new species into the system, and sets its abundance to the steady
+state in the system where the new species does not self interact. Then the
+abundance multipliers of the background species are retuned to retain the old
+aggregate abundance curve, using retune_abundance(). Then the values of
+erepro are altered so that the resulting configuration satisfies the steady
+state reproduction boundary condition. The idea is that if the params system
+is at steady state, and if the death rates of pre-existing species are close
+to what they where before the new species were added, and if the newly added
+species is at a low enough abundance (i.e., if mult is low enough) that the
+assumption of it being none self interacting is approximately valid, then the
+abundance curves attached to the params object returned by add_species() will
+be a steady state,
 }
 \details{
 Note that we assuming that the first species is a background species, and the
