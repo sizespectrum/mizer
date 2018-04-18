@@ -4,7 +4,7 @@
 \name{getPhiPrey}
 \alias{getPhiPrey}
 \alias{getPhiPrey,MizerParams,matrix,numeric-method}
-\title{getPhiPrey method for the size based model}
+\title{Get available energy}
 \usage{
 getPhiPrey(object, n, n_pp, ...)
 
@@ -23,8 +23,11 @@ getPhiPrey(object, n, n_pp, ...)
 A two dimensional array (predator species x predator size)
 }
 \description{
-Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator by
-predator size. This method is used by the \code{\link{project}} method for
+Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
+a function of predator size.
+}
+\details{
+This method is used by the \code{\link{project}} method for
 performing simulations.
 }
 \examples{

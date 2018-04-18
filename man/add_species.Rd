@@ -2,80 +2,70 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{add_species}
 \alias{add_species}
-\title{Included add_species which attempts to add a new species into the system in such a way that 
-the resulting system will still be in steady state.}
+\title{Add more species into an ecosystem with scaling background species.}
 \usage{
-add_species(params, species_params, mult = 1.5 * 10^(11))
+add_species(params, species_params, biomass = 4 * 10^8, min_w_observed = 0,
+  rfac = 10, effort = 0)
 }
 \arguments{
-\item{params}{A mizer params object for the original system. The A slot 
-holds 1's for foreground species we wish to hold fixed the abundance multiplier of, and NA's for
-for background species that we shall vary the abundance multiplier of.}
+\item{params}{A mizer params object for the original system. The A slot holds
+1's for foreground species we wish to hold fixed the abundance multiplier
+of, and NA's for for background species that we shall vary the abundance
+multiplier of.}
 
-\item{species_params}{The species parameters of the foreground species we 
+\item{species_params}{The species parameters of the foreground species we
 want to add to the system.}
 
-\item{mult}{The abundance multiplier of the newly added species. Default value is 1.5 * 10 ^ (11)}
+\item{biomass}{The total biomass of members of the newly added species which
+have weights greater than min_w_observed. Default value is 4*10^8.}
+
+\item{min_w_observed}{The minimum weight of fish of the new species that
+contribute to the biomass which we setup for the new species. Default value
+is 0.}
+
+\item{rfac}{Default value is 10.}
+
+\item{effort}{Default value is 0.}
 }
 \value{
 An object of type \code{MizerParams}
 }
 \description{
-Adds a new species into the system, and sets its abundance to the steady state 
-in the system where the new species does not self interact. Then the abundance 
-multipliers of the background species are retuned to retain the old aggregate 
-abundance curve, using retune_abundance(). Then the values of erepro are 
-altered so that the resulting configuration satisfies the steady state 
-reproduction boundary condition. The idea is that if the params system is 
-at steady state, and if the death rates of pre-existing species are close to 
-what they where before the new species were added, and if the newly added 
-species is at a low enough abundance (i.e., if mult is low enough) that the 
-assumption of it being none self interacting is approximately valid, then 
-the abundance curves attached to the params object returned by add_species() 
-will be a steady state,
-}
-\details{
-Note that we assuming that the first species is a background species, and the
-last species is a foreground species, with abundance multiplier mult.
+Takes a \linkS4class{MizerParams} object and adds additional species with
+given parameters to the ecosystem.
 }
 \examples{
 \dontrun{
-params <- set_scaling_model()
+params <- set_scaling_model(max_w_inf = 5000)
 params@species_params$r_max <- params@species_params$w_mat
 params@species_params$r_max[] <- 10^50
 params@A[] <- NA
+a_m <- 0.0085
+b_m <- 3.11
+L_inf_m <- 24.3
+L_mat <- 11.1
 species_params <- data.frame(
-  species = "mullet",
-  w_min = 0.001,
-  w_inf = 251.94,
-  w_mat = 16.48,
-  h = NA, # will compute this later
-  ks = 4,
-  beta = 283,
-  sigma = 1.8,
-  z0 = 0,
-  alpha = 0.4,
-  erepro = 0.1,
-  sel_func = "knife_edge", # not used but required
-  knife_edge_size = 100,
-  gear = "knife_edge_gear",
-  k = 0,
-  gamma = NA,
-  w_min_idx = NA,
-  r_max = 10^50
+    species = "mullet",
+    w_min = 0.001, 
+    w_inf = a_m*L_inf_m^b_m, 
+    w_mat = a_m*L_mat^b_m, 
+    beta = 283, 
+    sigma = 1.8, 
+    z0 = 0,
+    alpha = 0.6, 
+    erepro = 0.1, 
+    sel_func = "knife_edge", 
+    knife_edge_size = 100, 
+    gear = "knife_edge_gear",
+    k = 0,
+    r_max = 10^50,
+    k_vb = 0.6,
+    a = a_m,
+    b = b_m
 )
-k_vb <- 0.6
-species_params$h <- 3*k_vb*(species_params$w_inf^(1/3))/(species_params$alpha*params@f0)
-ae <- sqrt(2*pi) * species_params$sigma * species_params$beta^(params@lambda-2) * exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
-species_params$gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
-species_params$w_min_idx <- sum(params@w<=species_params$w_min)
-params_out <- add_species(params, species_params, mult = 5.5 * 10 ^ (8))
+params_out <- add_species(params, species_params, biomass = 3070953023, 
+                          min_w_observed = 0)
 sim <- project(params_out, t_max = 5, effort = 0)
-plot(sim)
-species_params$species <- "mullet2"
-species_params$w_inf <- 50
-params_out_2 <- add_species(params_out, species_params, mult = 5.5 * 10 ^ (8))
-sim <- project(params_out_2, t_max = 5, effort = 0)
 plot(sim)
 }
 }

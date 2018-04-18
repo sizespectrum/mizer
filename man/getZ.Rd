@@ -5,7 +5,7 @@
 \alias{getZ}
 \alias{getZ,MizerParams,matrix,numeric,numeric,matrix-method}
 \alias{getZ,MizerParams,matrix,numeric,numeric,missing-method}
-\title{getZ method for the size based model}
+\title{Get total mortality rate}
 \usage{
 getZ(object, n, n_pp, effort, m2)
 
@@ -33,9 +33,9 @@ calculated using the \code{getM2()} method.}
 A two dimensional array (prey species x prey size).
 }
 \description{
-Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size from
-predation mortality (M2), background mortality (M) and fishing mortality for
-a single time step.
+Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
+from predation mortality, background mortality and fishing mortality
+for a single time step.
 
 \code{getZ} method with \code{m2} argument.
 

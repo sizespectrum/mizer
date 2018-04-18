@@ -5,7 +5,7 @@
 \alias{getEGrowth}
 \alias{getEGrowth,MizerParams,matrix,numeric,matrix,matrix-method}
 \alias{getEGrowth,MizerParams,matrix,numeric,missing,missing-method}
-\title{getEGrowth method for the size based model}
+\title{Get energy rate available for growth}
 \usage{
 getEGrowth(object, n, n_pp, e_spawning, e)
 
@@ -36,9 +36,9 @@ the \code{\link{getEReproAndGrowth}} method.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy rate \eqn{g_i(w)} available by species and size for growth
-after metabolism, movement and reproduction have been accounted for. Used by
-the \code{\link{project}} method for performing simulations.
+Calculates the energy rate \eqn{g_i(w)} available by species and size for
+growth after metabolism, movement and reproduction have been accounted for.
+Used by the \code{\link{project}} method for performing simulations.
 
 \code{getEGrowth} method with \code{e_spawning} and \code{e} arguments.
 
