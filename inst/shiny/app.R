@@ -1,16 +1,21 @@
 library(shiny)
 library(devtools)
-install_github("gustavdelius/mizer")
-library(mizer)
+#install_github("gustavdelius/mizer")
+#library(mizer)
 library(progress)
 
 server <- function(input, output, session) {
 
     sim <- reactive({
+        # Create a Progress object
+        progress <- shiny::Progress$new(session)
+        # Close the progress when this reactive exits (even if there's an error)
+        on.exit(progress$close())
+
         params <- set_trait_model(no_sp = input$no_sp,
                                   min_w_inf = 10, max_w_inf = 1e5,
                                   knife_edge_size = input$knife_edge_size)
-        project(params, t_max = 20, effort = input$effort)
+        project(params, t_max = 200, effort = input$effort, progress = progress)
         })
 
     output$plot <- renderPlot({plot(sim())})

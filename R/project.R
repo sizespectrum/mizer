@@ -36,6 +36,8 @@ NULL
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
 #'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \code{\link{MizerParams}} argument is used.
+#' @param progress A shiny progress object used to update shiny progress bar.
+#'   Default NULL.
 #' @param ... Currently unused.
 #' 
 #' @note The \code{effort} argument specifies the level of fishing effort during
@@ -131,7 +133,8 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 #' Project with time varying effort
 #' @rdname project
 setMethod('project', signature(object='MizerParams', effort='array'),
-    function(object, effort, t_save=1, dt=0.1, initial_n=object@initial_n, initial_n_pp=object@initial_n_pp,  ...){
+    function(object, effort, t_save=1, dt=0.1, initial_n=object@initial_n, 
+             initial_n_pp=object@initial_n_pp, progress = NULL, ...){
         validObject(object)
         # Check that number and names of gears in effort array is same as in MizerParams object
         no_gears <- dim(object@catchability)[1]
@@ -215,10 +218,13 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         # Set up progress bar
         pb <- progress::progress_bar$new(
             format = "[:bar] :percent ETA: :eta",
-            total = t_steps, width= 60)
+            total = length(t_dimnames_index), width= 60)
+        if (hasArg(progress)) {
+            # We have been passed a shiny progress object
+            progress$set(message = "Running simulation", value = 0)
+            proginc <- 1/length(t_dimnames_index)
+        }
         for (i_time in 1:t_steps){
-            # Advance progress bar
-            pb$tick()
             # Do it piece by piece to save repeatedly calling methods
             # Calculate amount E_{a,i}(w) of available food
             phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
@@ -272,6 +278,12 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             # Store results only every t_step steps.
             store <- t_dimnames_index %in% (i_time+1)
             if (any(store)){
+                # Advance progress bar
+                pb$tick()
+                if (hasArg(progress)) {
+                    progress$inc(amount = proginc)
+                }
+                # Store result
                 sim@n[which(store),,] <- n 
                 sim@n_pp[which(store),] <- n_pp
             }
