@@ -36,7 +36,7 @@ NULL
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
 #'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \code{\link{MizerParams}} argument is used.
-#' @param progress A shiny progress object used to update shiny progress bar.
+#' @param shiny_progress A shiny progress object used to update shiny progress bar.
 #'   Default NULL.
 #' @param ... Currently unused.
 #' 
@@ -134,7 +134,7 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 #' @rdname project
 setMethod('project', signature(object='MizerParams', effort='array'),
     function(object, effort, t_save=1, dt=0.1, initial_n=object@initial_n, 
-             initial_n_pp=object@initial_n_pp, progress = NULL, ...){
+             initial_n_pp=object@initial_n_pp, shiny_progress = NULL, ...){
         validObject(object)
         # Check that number and names of gears in effort array is same as in MizerParams object
         no_gears <- dim(object@catchability)[1]
@@ -219,9 +219,9 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         pb <- progress::progress_bar$new(
             format = "[:bar] :percent ETA: :eta",
             total = length(t_dimnames_index), width= 60)
-        if (hasArg(progress)) {
+        if (hasArg(shiny_progress)) {
             # We have been passed a shiny progress object
-            progress$set(message = "Running simulation", value = 0)
+            shiny_progress$set(message = "Running simulation", value = 0)
             proginc <- 1/length(t_dimnames_index)
         }
         for (i_time in 1:t_steps){
@@ -280,8 +280,8 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             if (any(store)){
                 # Advance progress bar
                 pb$tick()
-                if (hasArg(progress)) {
-                    progress$inc(amount = proginc)
+                if (hasArg(shiny_progress)) {
+                    shiny_progress$inc(amount = proginc)
                 }
                 # Store result
                 sim@n[which(store),,] <- n 

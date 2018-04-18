@@ -15,7 +15,8 @@ server <- function(input, output, session) {
         params <- set_trait_model(no_sp = input$no_sp,
                                   min_w_inf = 10, max_w_inf = 1e5,
                                   knife_edge_size = input$knife_edge_size)
-        project(params, t_max = 200, effort = input$effort, progress = progress)
+        project(params, t_max = 200, effort = input$effort, 
+                shiny_progress = progress)
         })
 
     output$plot <- renderPlot({plot(sim())})
