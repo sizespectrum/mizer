@@ -2434,7 +2434,7 @@ To help set up a scale invariant trait-based model, there is a wrapper function,
 ?set_scaling_model
 @
 
-The main parameters of interest are the number of the species in the model (\args{no\_sp}), the minimum egg size (\args{min_egg}), the minimum maturity size of a species (\args{min_w_mat}) and the minimum and maximum asymptotic sizes (\args{min\_w\_inf}) and (\args{max\_w\_inf}) respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The stock recruitment relationship is controlled by the value of (\args{r_fac}), which is the ratio of the maximum recruitment $R_{max.i}$ and the actual recruitment $R_i$ at our steady state. Setting \args{r_fac=Inf} corresponds to setting $R_{max.i} \rightarrow \inf,$ which corresponds to turning the stock recruitment relationship off.  
+The main parameters of interest are the number of the species in the model (\args{no\_sp}), the minimum egg size (\args{min\_egg}), the minimum maturity size of a species (\args{min\_w\_mat}) and the minimum and maximum asymptotic sizes (\args{min\_w\_inf}) and (\args{max\_w\_inf}) respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The stock recruitment relationship is controlled by the value of (\args{r\_fac}), which is the ratio of the maximum recruitment $R_{max.i}$ and the actual recruitment $R_i$ at our steady state. Setting \args{r\_fac=Inf} corresponds to setting $R_{max.i} \rightarrow \inf,$ which corresponds to turning the stock recruitment relationship off.  
 
 <<label=demo_scaling_model_params>>=
 params <- set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10 ^ 3, min_egg = 10 ^ (-4), min_w_mat = 10 ^ (0.4), rfac = Inf)
