@@ -227,9 +227,9 @@ set_community_model <- function(max_w = 1e6,
 #' @param q Exponent of the search volume. Default value is 0.9.
 #' @param eta Factor to calculate \code{w_mat} from asymptotic size.
 #' @param r_pp Growth rate of the primary productivity. Default value is 4.
-#' @param kappa Carrying capacity of the resource spectrum. Default value is
+#' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
-#' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
+#' @param lambda Exponent of the abundance power law. Default value is (2+q-n).
 #' @param alpha The assimilation efficiency of the community. The default value
 #'   is 0.6
 #' @param ks Standard metabolism coefficient. Default value is 4.
@@ -469,10 +469,14 @@ set_trait_model <- function(no_sp = 10,
 #'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
 #'   feeding kernel of even the smallest fish larva.
 #' @param n Scaling of the intake. Default value is 2/3.
-#' @param q Exponent of the search volume. Default value is 3/4.
+#' @param q Exponent of the search volume. Default value is 3/4 unless 
+#'   \code{lambda} is provided, in which case this argument is ignored and
+#'   q = lambda - 2 + n.
+#' @param lambda Exponent of the abundance power law. If supplied, this 
+#'   overrrules the \code{q} argument. Otherwise the default value is 2+q-n.
 #' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
-#' @param kappa Carrying capacity of the resource spectrum. Default value is
-#'   7e10.
+#' @param kappa Coefficient in abundance power law. Default value is
+#'   0.005.
 #' @param alpha The assimilation efficiency of the community. The default value
 #'   is 0.4.
 #' @param ks Standard metabolism coefficient. Default value is 4.
@@ -509,8 +513,9 @@ set_scaling_model <- function(no_sp = 11,
                               min_w_pp = min_egg / (beta * exp(5 * sigma)),
                               n = 2 / 3,
                               q = 3 / 4,
+                              lambda = 2 + q - n,
                               r_pp = 0.1,
-                              kappa = 7e10,
+                              kappa = 0.005,
                               alpha = 0.4,
                               ks = 4,
                               h = 30,
@@ -521,6 +526,10 @@ set_scaling_model <- function(no_sp = 11,
                               gear_names = "knife_edge_gear",
                               rfac = Inf,
                               ...) {
+    if (hasArg(lambda)) {
+        # The lambda argument overrules any q argument
+        q <- lambda - 2 + n
+    }
     # check validity of parameters
     if (rfac <= 1) {
         message("rfac can not be smaller than 1. Setting rfac=1.1")
