@@ -5,7 +5,7 @@
 \alias{getRDI}
 \alias{getRDI,MizerParams,matrix,numeric,matrix-method}
 \alias{getRDI,MizerParams,matrix,numeric,missing-method}
-\title{getRDI method for the size based model}
+\title{Get density independent recruitment}
 \usage{
 getRDI(object, n, n_pp, e_spawning, ...)
 

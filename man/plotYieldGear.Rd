@@ -6,37 +6,49 @@
 \alias{plotYieldGear,MizerSim-method}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(object, ...)
+plotYieldGear(sim, ...)
 
-\S4method{plotYieldGear}{MizerSim}(object, print_it = TRUE, ...)
+\S4method{plotYieldGear}{MizerSim}(sim,
+  species = as.character(sim@params@species_params$species),
+  print_it = TRUE, total = FALSE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}}
+\item{sim}{An object of class \code{MizerSim}}
 
 \item{...}{Other arguments to pass to \code{getYieldGear} method}
 
+\item{species}{Name or vector of names of the species to be plotted. By
+default all species are plotted.}
+
 \item{print_it}{Display the plot, or just return the ggplot2 object. 
 Defaults to TRUE}
+
+\item{total}{A boolean value that determines whether the total yield
+per gear over all species in the system is plotted as well. Default is FALSE}
 }
 \value{
 A ggplot2 object
 }
 \description{
 After running a projection, the total yield of each species by fishing gear
-can be plotted against time. This plot is pretty easy to do by hand. It just
+can be plotted against time.
+
+Plot the yield of each gear using a \code{MizerSim} object.
+}
+\details{
+This plot is pretty easy to do by hand. It just
 gets the biomass using the \code{\link{getYieldGear}} method and plots using
 the ggplot2 package. You can then fiddle about with colours and linetypes
 etc. Just look at the source code for details.
-
-Plot the yield of each gear using a \code{MizerSim} object.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=20, t_save = 2)
+sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 plotYieldGear(sim)
+plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 }
 }
 \seealso{

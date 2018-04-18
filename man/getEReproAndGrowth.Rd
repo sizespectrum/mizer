@@ -5,7 +5,7 @@
 \alias{getEReproAndGrowth}
 \alias{getEReproAndGrowth,MizerParams,matrix,numeric,matrix-method}
 \alias{getEReproAndGrowth,MizerParams,matrix,numeric,missing-method}
-\title{getEReproAndGrowth method for the size based model}
+\title{Get energy after metabolism and movement}
 \usage{
 getEReproAndGrowth(object, n, n_pp, feeding_level)
 

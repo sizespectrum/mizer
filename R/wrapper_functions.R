@@ -1,3 +1,33 @@
+#' Functions used for setting up models
+#'
+#' The functions defined in the file wrapper functions set up MizerParams
+#' objects for various kinds of size-spectrum models.
+#'
+#' @section List of Functions:
+#' In this list we relate the functions in this file to the sections in
+#' the mizer vignette where the corresponding model is described.
+#' \tabular{llll}{
+#'   Function name \tab Description \tab Section in vignette\cr
+#'   \code{\link{set_community_model}} \tab Community model \tab 5 \cr
+#'   \code{\link{set_trait_model}} \tab Trait-based model \tab 6 \cr
+#'   \code{\link{set_scaling_model}} \tab Scale-invariant Trait-based model 
+#'       \tab 7 \cr
+#' }
+#'
+#'The file also contains a helper function \code{\link{retune_abundance}}.
+#'
+#' @name wrapper_functions
+NULL
+
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
+
+#### set_community_model ####
 #' Sets up parameters for a community-type model
 #' 
 #' This functions creates a \code{\linkS4class{MizerParams}} object so that
@@ -136,8 +166,7 @@ set_community_model <- function(max_w = 1e6,
 
 
 
-
-
+#### set_trait_model ####
 #' Sets up parameters for a trait-based model
 #' 
 #' This functions creates a \code{MizerParams} object so that trait-based-type 
@@ -243,7 +272,8 @@ set_community_model <- function(max_w = 1e6,
 #' gear_names <- rep("Industrial", no_sp)
 #' gear_names[other_gears] <- "Other"
 #' params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
-#'     max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+#'     max_w_inf = max_w_inf, knife_edge_size = knife_edges, 
+#'     gear_names = gear_names)
 #' ## Only turn on Industrial fishery. Set effort of the Other gear to 0
 #' sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
 #' }
@@ -281,7 +311,8 @@ set_trait_model <- function(no_sp = 10,
     # TODO: remove this here because it is already calculated in MizerParams()
     #       Having the same code in two locations is not a good idea
     if(is.na(gamma)){
-        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
+        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * 
+            exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
         gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
     }
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
@@ -317,17 +348,30 @@ set_trait_model <- function(no_sp = 10,
             erepro = 1
     )
     # Make the MizerParams
-    trait_params <- MizerParams(trait_params_df, min_w = min_w, max_w=max_w, no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_pp_cutoff, n = n, p=p, q=q, r_pp=r_pp, kappa=kappa, lambda = lambda) 
-    # Sort out maximum recruitment - see A&P 2009
-    # Get max flux at recruitment boundary, R_max
-    # R -> | -> g0 N0
-    # R is egg flux, in numbers per time
-    # Actual flux at recruitment boundary = RDD = NDD * g0 (where g0 is growth rate)
-    # So in our BH SRR we need R_max comparable to RDI (to get RDD)
-    # R_max = N0_max * g0 (g0 is the average growth rate of smallest size, i.e. at f0 = 0.5)
-    # N0 given by Appendix A of A&P 2010 - see Ken's email 12/08/13
-    # Taken from Ken's code 12/08/13 - equation in paper is wrong!
-    alpha_p <- f0 * h * beta^(2 * n - q - 1) * exp((2 * n * (q - 1) - q^2 + 1) * sigma^2 / 2)
+    trait_params <-
+        MizerParams(
+            trait_params_df,
+            min_w = min_w,
+            max_w = max_w,
+            no_w = no_w,
+            min_w_pp = min_w_pp,
+            w_pp_cutoff = w_pp_cutoff,
+            n = n,
+            p = p,
+            q = q,
+            r_pp = r_pp,
+            kappa = kappa,
+            lambda = lambda
+        ) 
+    # Sort out maximum recruitment - see A&P 2009 Get max flux at recruitment
+    # boundary, R_max R -> | -> g0 N0 R is egg flux, in numbers per time Actual
+    # flux at recruitment boundary = RDD = NDD * g0 (where g0 is growth rate) So
+    # in our BH SRR we need R_max comparable to RDI (to get RDD) R_max = N0_max
+    # * g0 (g0 is the average growth rate of smallest size, i.e. at f0 = 0.5) N0
+    # given by Appendix A of A&P 2010 - see Ken's email 12/08/13 Taken from
+    # Ken's code 12/08/13 - equation in paper is wrong!
+    alpha_p <- f0 * h * beta^(2 * n - q - 1) * 
+        exp((2 * n * (q - 1) - q^2 + 1) * sigma^2 / 2)
     alpha_rec <- alpha_p / (alpha * h * f0 - ks)
     # Calculating dw using Ken's code - see Ken's email 12/08/13
     tmpA <- w_inf[1]
@@ -343,28 +387,31 @@ set_trait_model <- function(no_sp = 10,
     return(trait_params)
 }
 
+
+#### set_scaling_model ####
 #' Sets up parameters for a scale free trait-based model
 #'
 #' This functions creates a \code{MizerParams} object so that scale free
 #' trait-based-type models can be easily set up and run. The scale free
 #' trait-based size spectrum model can be derived as a simplification of the
-#' general size-based model used in \code{mizer}. The scale free trait-based
-#' model is similar to the standard trait-based model, with three main
-#' differences:
-#' (1) We have an exact equation for a steady state of this system which is
+#' general size-based model used in \code{mizer}. All the species-specific
+#' parameters are the same for all species, except for the egg size, maturity
+#' size and asymptotic size. These differ over the species, but the ratio of egg
+#' size to maturity size and the ratio of egg size to asymptotic size are the
+#' same for each species. The asymptotic sizes of the species are spread evenly
+#' on a logarithmic scale. See the \code{mizer} vignette and the Details section
+#' below for more details and examples of the scale free trait-based model.
+#' 
+#' The scale free trait-based model is similar to the standard trait-based
+#' model, with three main differences:
+#' \enumerate{
+#' \item We have an exact equation for a steady state of this system which is
 #' often stable, even when we include no extra stabilization effects like
 #' density dependence or stock recruitment relationships.
-#' (2) The egg size is proportional to the maturity size for each species
-#' (3) The parameters are chosen so that R_0 (the expected number of offspring
+#' \item The egg size is proportional to the maturity size for each species
+#' \item The parameters are chosen so that R_0 (the expected number of offspring
 #' produced by an individual over a lifetime) is close to 1 for each species.
-#'
-#' All the species-specific parameters are the same for all species, except for
-#' the egg size, maturity size and asymptotic size. These differ over the
-#' species, but the ratio of egg size to maturity size and the ratio of egg size
-#' to asymptotic size are the same for each species. The egg sizes or maturity
-#' sizes or asymptotic sizes) of the species are spread evenly on a logarithmic
-#' scale. See the \code{mizer} vignette for more details and examples of the
-#' scale free trait-based model.
+#' }
 #'
 #' The function has many arguments, all of which have default values. Of
 #' particular interest to the user are the number of species in the model and
@@ -378,19 +425,18 @@ set_trait_model <- function(no_sp = 10,
 #' weights of the species can be obtained by multiplying the egg weights by
 #' min_w_inf/min_egg.
 #'
-#' Although the scale free trait based model's default steady state is often stable
-#' without imposing a stock recruitment relationship, by default we do impose a
-#' Beverton-Holt type stock recruitment relationship. The values of the maximum
-#' recruitment rmax and the reproduction efficiency erepro are chosen so that,
-#' at the steady state we construct, the stock recruitment adjusted reproduction
-#' output equals a given factor, fac, multiplied by rmax.
+#' Although the scale free trait based model's default steady state is often
+#' stable without imposing a stock recruitment relationship, the function can
+#' set a Beverton-Holt type stock recruitment relationship that imposes a
+#' maximal reproduction rate that is a multiple of the recruitment rate at
+#' steady state. That multiple is set by the argument \code{rfac}.
 #'
-#' In addition to setting up the parameters, this code also evaluates our
+#' In addition to setting up the parameters, this function also evaluates the
 #' analytic expression for a steady state of the scale free trait-based model
-#' and stores it in the initial_n slot.
+#' and sets it as the initial condition.
 #'
-#' The factor for the search volume, \code{gamma}, is calculated using the
-#' expected feeding level, \code{f0}.
+#' The search rate coefficient \code{gamma} is calculated using the expected
+#' feeding level, \code{f0}.
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
@@ -404,12 +450,11 @@ set_trait_model <- function(no_sp = 10,
 #'
 #' The resulting \code{MizerParams} object can be projected forward using
 #' \code{project()} like any other \code{MizerParams} object. When projecting
-#' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
-#' any instabilities with the solver. You can check this by plotting the biomass
-#' or abundance through time after the projection.
+#' the model it may be necessary to reduce \code{dt} to 0.1 to avoid any
+#' instabilities with the solver. You can check this by plotting the biomass or
+#' abundance through time after the projection.
 #'
-#' @param no_sp The number of species in the model. The default value is 11. The
-#'   more species, the longer the simulation takes to run.
+#' @param no_sp The number of species in the model. The default value is 11.
 #' @param min_w_inf The asymptotic size of the smallest species in the
 #'   community. Default value is 10.
 #' @param max_w_inf The asymptotic size of the largest species in the community.
@@ -419,9 +464,10 @@ set_trait_model <- function(no_sp = 10,
 #' @param min_w_mat The maturity size of the smallest species. Default value is
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
-#'   is log10(max_w_inf/min_egg)*100+1.
+#'   is such that there are 100 bins for each factor of 10 in weight.
 #' @param min_w_pp The smallest size of the background spectrum. Default value
-#'   is min_egg/(beta*exp(5*sigma)).
+#'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+#'   feeding kernel of even the smallest fish larva.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param q Exponent of the search volume. Default value is 3/4.
 #' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
@@ -434,15 +480,16 @@ set_trait_model <- function(no_sp = 10,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
-#'   factor for the search volume. The default value is 0.6.
+#'   coefficient in the search rate. The default value is 0.6.
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp. Default value is 100.
 #' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the knife_edge_size parameter.
-#' @param rfac The factor such that in the steady state Rmax = rfac * R, 
-#'   where Rmax is the maximum recruitment allowed and R is the actual
-#'   recruitment. Thus the larger \code{rfac} the less the impact of the
-#'   non-linear stock-recruitment curve. The default is Inf.
+#'   same length as the knife_edge_size parameter. Default value is
+#'   "knife_edge_gear".
+#' @param rfac The factor such that Rmax = rfac * R, where Rmax is the maximum
+#'   recruitment allowed and R is the steady-state recruitment. Thus the larger
+#'   \code{rfac} the less the impact of the non-linear stock-recruitment curve.
+#'   The default is Inf.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -458,8 +505,7 @@ set_scaling_model <- function(no_sp = 11,
                               max_w_inf = 10 ^ 3,
                               min_egg = 10 ^ (-4),
                               min_w_mat = 10 ^ (0.4),
-                              no_w = log10(max_w_inf / min_egg) * 100 +
-                                  1,
+                              no_w = log10(max_w_inf / min_egg) * 100 + 1,
                               min_w_pp = min_egg / (beta * exp(5 * sigma)),
                               n = 2 / 3,
                               q = 3 / 4,
@@ -477,10 +523,32 @@ set_scaling_model <- function(no_sp = 11,
                               ...) {
     # check validity of parameters
     if (rfac <= 1) {
-        warning("rfac can not be smaller than 1. Setting rfac=1.1")
+        message("rfac can not be smaller than 1. Setting rfac=1.1")
         rfac <- 1.1
     }
-    # TODO check other parameters
+    no_w <- round(no_w)
+    if (no_w < 1) {
+        stop("The number of size bins no_w must be a positive integer")
+    }
+    if (no_w < log10(max_w_inf/min_egg)*5) {
+        no_w <- round(log10(max_w_inf/min_egg)*5+1)
+        message(paste("Increased no_w to", no_w, "so that there are 5 bins for an interval from w and 10w."))
+    }
+    if (no_w > 10000) {
+        message("Running a simulation with", no_w, "size bins is going to be very slow.")
+    }
+    if (min_w_inf >= max_w_inf) {
+        stop("The asymptotic size of the smallest species min_w_inf must be smaller than the asymptotic size of the largest species max_w_inf")
+    }
+    if (min_egg >= min_w_mat) {
+        stop("The egg size of the smallest species min_egg must be smaller than its maturity size min_w_mat")
+    }
+    if (min_w_mat >= min_w_inf) {
+        stop("The maturity size of the smallest species min_w_mat must be smaller than its maximum size min_w_inf")
+    }
+    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
+        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
+    }
     # Set exponents
     p <- n
     lambda <- 2 + q - n
@@ -549,11 +617,19 @@ set_scaling_model <- function(no_sp = 11,
     # gamma is determined by MizerParams
     gamma <- params@species_params$gamma[1]
     w <- params@w
+    dw <- params@dw
     # Get constants for analytic solution
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
     hbar <- alpha * h * f0 - ks
+    if (hbar < 0) {
+        stop("The feeding level is not sufficient to maintain the fish.")
+    }
     pow <- mu0 / hbar / (1 - n)
+    if (pow < 1) {
+        message("The ratio of death rate to growth rate is too small, leading to
+                an accumulation of fish at their largest size.")
+    }
     n_mult <- (1 - (w / w_inf[1]) ^ (1 - n)) ^ (pow - 1) * 
                   (1 - (w_mat[1] / w_inf[1]) ^(1 - n)) ^ (-pow)
     n_mult[w < w_mat[1]] <- 1
@@ -561,30 +637,50 @@ set_scaling_model <- function(no_sp = 11,
     # Create steady state solution n_exact for species 1
     n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
     n_exact <- n_exact[w >= w_min[1] & w <= w_inf[1]]
+    # rescale fish abundance to line up with background resource spectrum
+    mult <- kappa / 
+        sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w <= w_inf[1]])
+    n_exact <- n_exact * mult * 
+        (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
     # Use n_exact as a template to create solution initial_n for all species
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
     for (i in 1:no_sp) {
-        w_min_idx <- params@species_params$w_min_idx[i]  # smallest index for species
-        idxs <- w_min_idx:(w_min_idx+length(n_exact)-1)  # range of indices
+        # smallest index for species
+        w_min_idx <- params@species_params$w_min_idx[i]
+        # range of indices
+        idxs <- w_min_idx:(w_min_idx+length(n_exact)-1)  
         initial_n[i, idxs] <- n_exact * (w_min[1] / w_min[i]) ^ lambda
     }
-    # rescale fish abundance to line up with background resource spectrum
-    # TODO: replace this with optimisation code
-    v <- sqrt(min(w_mat) * max(w_mat))
-    v_idx <- length(w[w < v])
-    initial_n <-
-        initial_n * (kappa * w[v_idx] ^ (-lambda)) / sum(initial_n[, v_idx])
+    
+    # Calculate the community spectrum
+    sc <- colSums(initial_n)
+    # The following was an attempt to calculate the community for a
+    # finer-grained spectrum where species are spaced by just one
+    # weight bracket. This level of detail is however not necessary.
+    # Also in the below the start and end of the integration is not
+    # quite right.
+    # sc <- rep(0, no_w)
+    # idxs <- seq_along(n_exact)
+    # fac <- (w[1]/w[2])^lambda
+    # for (i in seq_len(max(params@species_params$w_min_idx) - 1)) {
+    #     sc[idxs] <- sc[idxs] + n_exact * fac^(i-1)
+    #     idxs <- idxs+1
+    # }
+    # sc <- sc * 
+    #     (10^(delt*(1-lambda)/2) - 10^(-delt*(1-lambda)/2)) /
+    #     (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2))
+    params@sc <- sc
     
     # Setup plankton
-    plankton_vec <- (kappa * w ^ (-lambda)) - colSums(initial_n)
-    # Cut off plankton at maturity size of smallest species
-    plankton_vec[w >= w_mat[1]] <- 0
+    plankton_vec <- (kappa * w ^ (-lambda)) - sc
+    # Cut off plankton at maximum size of smallest species
+    plankton_vec[w >= min_w_inf] <- 0
     # Do not allow negative plankton abundance
     if (sum(plankton_vec < 0) > 0) {
         message("Note: Negative abundance values in background resource overwritten with zeros")
+        plankton_vec[plankton_vec < 0] <- 0
     }
-    plankton_vec[plankton_vec < 0] <- 0
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
     params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
@@ -614,12 +710,13 @@ set_scaling_model <- function(no_sp = 11,
         gg0 <- gg[i, params@species_params$w_min_idx[i]]
         mumu0 <- mumu[i, params@species_params$w_min_idx[i]]
         DW <- params@dw[params@species_params$w_min_idx[i]]
-        erepro_final[i] <- erepro * (initial_n[i, params@species_params$w_min_idx[i]] *
-                           (gg0 + DW * mumu0)) / rdi[i]
+        erepro_final[i] <- erepro * 
+            (initial_n[i, params@species_params$w_min_idx[i]] *
+                 (gg0 + DW * mumu0)) / rdi[i]
     }
     if (is.finite(rfac)) {
-        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
-        # stock recruitment relationship.
+        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+        # compensate for using a stock recruitment relationship.
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
@@ -628,41 +725,41 @@ set_scaling_model <- function(no_sp = 11,
     params@initial_n_pp <- initial_n_pp
     if (is.finite(rfac)) {
         # set rmax=fac*RDD
-        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to compensate for using a
-        # stock recruitment relationship.
+        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+        # compensate for using a stock recruitment relationship.
         params@species_params$r_max <-
-            (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
+            (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
     } else {
-        
         # An infinite rfac means that rdd equals rdi
         params@srr <- function(rdi, species_params) {return(rdi)}
     }
-    params@sc <- colSums(params@initial_n)
     return(params)
 }
 
 
-#' Retunes abundance multipliers of background species so aggregate abundance is a 
-#' power law.
+#### retune_abundance ####
+#' Retunes abundance multipliers of background species so aggregate abundance is
+#' a power law.
 #'
-#' If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with fixed growth 
-#' and death rates, then A_i*N_i(w) is also a steady state, where A_i is an abundance multiplier.  
-#' When we add a foreground species to our model, we want to choose new abundance multipliers of the 
-#' background species so that we the abundance, summed over all species and background 
-#' resources, is close to sc(w), which is the aggregate abundance of all but 
-#' the last species. We are assuming this last species is newly added, with A_i=1.  
-#' 
-#' retune_abundance operates of a params object, with a slot A. If i is a background 
-#' species, then A_i=NA, indicating we are allowed to retune the abundance 
-#' multiplier.
-#' 
-#' @param params A mizer params object with an A slot with 1's for species 
-#' we wish to hold fixed the abundance multiplier of, and NA's for species that 
-#' we shall vary the abundance multiplier of.
-
-#' @export
+#' If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with
+#' fixed growth and death rates, then A_i*N_i(w) is also a steady state, where
+#' A_i is an abundance multiplier. When we add a foreground species to our
+#' model, we want to choose new abundance multipliers of the background species
+#' so that we the abundance, summed over all species and background resources,
+#' is close to sc(w), which is the aggregate abundance of all but the last
+#' species. We are assuming this last species is newly added, with A_i=1.
+#'
+#' retune_abundance operates of a params object, with a slot A. If i is a
+#' background species, then A_i=NA, indicating we are allowed to retune the
+#' abundance multiplier.
+#'
+#' @param params A mizer params object with an A slot with 1's for species we
+#'   wish to hold fixed the abundance multiplier of, and NA's for species that
+#'   we shall vary the abundance multiplier of.
+#'   
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
+#' @export
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model()
@@ -670,268 +767,373 @@ set_scaling_model <- function(no_sp = 11,
 #' params@A[length(params@A)] <- 1
 #' retune_abundance(params)
 #' }
-#! why doesnt the example code for retune_abundance() work properly ?
-
 retune_abundance <- function(params) {
-  no_sp <- length(params@species_params$w_inf)
-  # get a list of the species that we can tune abundance mulpliers of
-  all_background <- is.na(params@A)
-  largest_background <-
-    which.max(params@species_params$w_inf[all_background])
-  # we are assuming that the abundance multiplier of the largest backgroud
-  # species should be held fixed at 1, if though it was initially an NA.
-  # to represent this we make a new background indicator A2
-  A2 <- params@A
-  A2[largest_background] <- 1
-  # we make a list L of species we will vary the abundance parameters of
-  # (everything but largest background)
-  #! currently the code relies on L being a list, but we could switch 
-  # to the TRUE/FALSE convention.
-  L <- (1:no_sp)[is.na(A2)]
-  # Determine the indices of the limits we shall integrate between 
-  idx_start <- sum(params@w <= min(params@species_params$w_mat))
-  idx_stop <- sum(params@w < max(params@species_params$w_inf))
-  # The problem is to vary the abundance multupliers of species in L
-  # so that, between the limits, to sum of the abundances 
-  # of the species is "close" to the power law. 
-  # More precisely, we find the abundance multipliers A_i so that 
-  # the integral of the square of the relative distance (sum_{i not in L} A_i*N_i(w) + sum_{i not in L} N_i(w) - c(w))/c(w)
-  # over w, between our limits, is minimized. Here c(w) is the sum of the abundances 
-  # of all but the last (newly added) species, and L is the set of all background 
-  # species, except the largest (that we keep the abundance multipliers of fixed).
-  #
-  #! how to define sc in general ? should it be smoothed ?
-  # sc used to be defined as
-  # sc <- colSums(params@initial_n[all_background, ])
-  # but now we are assuming that the newly added species 
-  # is the last one, and we are retunning to 
-  # get similar to the aggregate abundance of the 
-  # species (1:(no_sp-1))
-  sc <- params@sc
-  # rho is the total abundance of all the species that have their abundance multipliers
-  # held fixed.
-  Lcomp <- (1:no_sp)[!is.na(A2)]
-  rho <- colSums(params@initial_n[Lcomp, ])
-  # We solve a linear system to find the abundance multipliers, first we initialize 
-  # the matrix RR and vector QQ
-  RR <- matrix(0, nrow = length(L), ncol = length(L))
-  QQ <- (1:length(L))
-  den <- sc ^ 2
-  den[den==0] <- 10^(-50)
-  # Next we fill out the values of QQ and RR
-  for (i in (1:length(L))) {
-    QQ[i] <-
-      sum((params@initial_n[L[i], ] * (sc - rho) * params@dw / (den))[idx_start:idx_stop])
-    for (j in (1:length(L))) {
-      RR[i, j] <-
-        sum((
-          params@initial_n[L[i], ] * params@initial_n[L[j], ] * params@dw / (den)
-        )[idx_start:idx_stop])
+    no_sp <- length(params@species_params$w_inf)
+    # get a list of the species that we can tune abundance mulpliers of
+    all_background <- is.na(params@A)
+    largest_background <-
+        which.max(params@species_params$w_inf[all_background])
+    # we are assuming that the abundance multiplier of the largest backgroud
+    # species should be held fixed at 1, if though it was initially an NA.
+    # to represent this we make a new background indicator A2
+    A2 <- params@A
+    A2[largest_background] <- 1
+    # we make a list L of species we will vary the abundance parameters of
+    # (everything but largest background)
+    L <- (1:no_sp)[is.na(A2)]
+    # Determine the indices of the limits we shall integrate between
+    idx_start <- sum(params@w <= min(params@species_params$w_mat))
+    idx_stop <- sum(params@w < max(params@species_params$w_inf))
+    # The problem is to vary the abundance multupliers of species in L so that,
+    # between the limits, to sum of the abundances of the species is "close" to
+    # the power law. More precisely, we find the abundance multipliers A_i so
+    # that the integral of the square of the relative distance (sum_{i not in L}
+    # A_i*N_i(w) + sum_{i not in L} N_i(w) - c(w))/c(w) over w, between our
+    # limits, is minimized. Here c(w) is the sum of the abundances of all but
+    # the last (newly added) species, and L is the set of all background
+    # species, except the largest (that we keep the abundance multipliers of
+    # fixed).
+    # 
+    #! how to define sc in general ? should it be smoothed ?
+    # sc used to be defined as
+    # sc <- colSums(params@initial_n[all_background, ])
+    # but now we are assuming that the newly added species
+    # is the last one, and we are retunning to
+    # get similar to the aggregate abundance of the
+    # species (1:(no_sp-1))
+    sc <- params@sc
+    # rho is the total abundance of all the species that have their abundance multipliers
+    # held fixed.
+    Lcomp <- (1:no_sp)[!is.na(A2)]
+    rho <- colSums(params@initial_n[Lcomp,])
+    # We solve a linear system to find the abundance multipliers, first we initialize
+    # the matrix RR and vector QQ
+    RR <- matrix(0, nrow = length(L), ncol = length(L))
+    QQ <- (1:length(L))
+    den <- sc ^ 2
+    den[den == 0] <- 10 ^ (-50)
+    # Next we fill out the values of QQ and RR
+    for (i in (1:length(L))) {
+        QQ[i] <-
+            sum((params@initial_n[L[i],] * (sc - rho) * params@dw / (den))[idx_start:idx_stop])
+        for (j in (1:length(L))) {
+            RR[i, j] <-
+                sum((
+                    params@initial_n[L[i],] * params@initial_n[L[j],] * params@dw / (den)
+                )[idx_start:idx_stop])
+        }
     }
-  }
-  # Now we solve the linear system to find the abundance multipliers that 
-  # yield our power law
-  A2[L] <- solve(RR, QQ)
-  print(A2)
-  if (sum(A2 < 0) > 0) {
-    stop('Abundance multipliers generated with negative entries')
-    #! we should add an extra iteration to solve this issue of -ve 
-    # abundance multipliers by holding certain species off.
-  }
-  return(A2)
+    # Now we solve the linear system to find the abundance multipliers that
+    # yield our power law
+    A2[L] <- solve(RR, QQ)
+    print(A2)
+    if (sum(A2 < 0) > 0) {
+        stop('Abundance multipliers generated with negative entries')
+        #! we should add an extra iteration to solve this issue of -ve
+        # abundance multipliers by holding certain species off.
+    }
+    return(A2)
 }
 
-#' Included add_species which attempts to add a new species into the system in such a way that 
-#' the resulting system will still be in steady state. 
+
+#### add_species ####
+#' Add more species into an ecosystem with scaling background species.
 #'
-#' Adds a new species into the system, and sets its abundance to the steady state 
-#' in the system where the new species does not self interact. Then the abundance 
-#' multipliers of the background species are retuned to retain the old aggregate 
-#' abundance curve, using retune_abundance(). Then the values of erepro are 
-#' altered so that the resulting configuration satisfies the steady state 
-#' reproduction boundary condition. The idea is that if the params system is 
-#' at steady state, and if the death rates of pre-existing species are close to 
-#' what they where before the new species were added, and if the newly added 
-#' species is at a low enough abundance (i.e., if mult is low enough) that the 
-#' assumption of it being none self interacting is approximately valid, then 
-#' the abundance curves attached to the params object returned by add_species() 
-#' will be a steady state,
+#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' given parameters to the ecosystem.
+#'
+#' @param params A mizer params object for the original system. The A slot holds
+#'   1's for foreground species we wish to hold fixed the abundance multiplier
+#'   of, and NA's for for background species that we shall vary the abundance
+#'   multiplier of.
+#' @param species_params The species parameters of the foreground species we
+#'   want to add to the system.
+#' @param biomass The total biomass of members of the newly added species which
+#'   have weights greater than min_w_observed. Default value is 4*10^8.
+#' @param min_w_observed The minimum weight of fish of the new species that
+#'   contribute to the biomass which we setup for the new species. Default value
+#'   is 0.
+#' @param rfac Default value is 10.
+#' @param effort Default value is 0.
 #' 
-#' Note that we assuming that the first species is a background species, and the
-#' last species is a foreground species, with abundance multiplier mult. 
-#' 
-#' @param params A mizer params object for the original system. The A slot 
-#' holds 1's for foreground species we wish to hold fixed the abundance multiplier of, and NA's for
-#' for background species that we shall vary the abundance multiplier of.
-#' @param species_params The species parameters of the foreground species we 
-#' want to add to the system.
-#' @param mult The abundance multiplier of the newly added species. Default value is 1.5 * 10 ^ (11)
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
 #' @examples
 #' \dontrun{
-#' params <- set_scaling_model()
+#' params <- set_scaling_model(max_w_inf = 5000)
 #' params@species_params$r_max <- params@species_params$w_mat
 #' params@species_params$r_max[] <- 10^50
 #' params@A[] <- NA
+#' a_m <- 0.0085
+#' b_m <- 3.11
+#' L_inf_m <- 24.3
+#' L_mat <- 11.1
 #' species_params <- data.frame(
-#'   species = "mullet",
-#'   w_min = 0.001,
-#'   w_inf = 251.94,
-#'   w_mat = 16.48,
-#'   h = NA, # will compute this later
-#'   ks = 4,
-#'   beta = 283,
-#'   sigma = 1.8,
-#'   z0 = 0,
-#'   alpha = 0.4,
-#'   erepro = 0.1,
-#'   sel_func = "knife_edge", # not used but required
-#'   knife_edge_size = 100,
-#'   gear = "knife_edge_gear",
-#'   k = 0,
-#'   gamma = NA,
-#'   w_min_idx = NA,
-#'   r_max = 10^50
+#'     species = "mullet",
+#'     w_min = 0.001, 
+#'     w_inf = a_m*L_inf_m^b_m, 
+#'     w_mat = a_m*L_mat^b_m, 
+#'     beta = 283, 
+#'     sigma = 1.8, 
+#'     z0 = 0,
+#'     alpha = 0.6, 
+#'     erepro = 0.1, 
+#'     sel_func = "knife_edge", 
+#'     knife_edge_size = 100, 
+#'     gear = "knife_edge_gear",
+#'     k = 0,
+#'     r_max = 10^50,
+#'     k_vb = 0.6,
+#'     a = a_m,
+#'     b = b_m
 #' )
-#' k_vb <- 0.6
-#' species_params$h <- 3*k_vb*(species_params$w_inf^(1/3))/(species_params$alpha*params@f0)
-#' ae <- sqrt(2*pi) * species_params$sigma * species_params$beta^(params@lambda-2) * exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
-#' species_params$gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
-#' species_params$w_min_idx <- sum(params@w<=species_params$w_min)
-#' params_out <- add_species(params, species_params, mult = 5.5 * 10 ^ (8))
+#' params_out <- add_species(params, species_params, biomass = 3070953023, 
+#'                           min_w_observed = 0)
 #' sim <- project(params_out, t_max = 5, effort = 0)
 #' plot(sim)
-#' species_params$species <- "mullet2"
-#' species_params$w_inf <- 50
-#' params_out_2 <- add_species(params_out, species_params, mult = 5.5 * 10 ^ (8))
-#' sim <- project(params_out_2, t_max = 5, effort = 0)
-#' plot(sim)
 #' }
-
-# Note first species must be in background.
-
-add_species <- function(params, species_params, mult = 1.5 * 10 ^ (11)) {
-  # create large r_max's if such slots are absent
-  #! is it correct to make the rmax's like this
-  if (is.null(params@species_params$r_max)){
-    params@species_params$r_max <- params@species_params$w_inf
-    params@species_params$r_max[] <- 10^50
-  }
-  if (is.null(species_params$r_max)){
-    species_params$r_max <- 10^50
-  }
-  # add the new species (with parameters described by species_params), 
-  # to make a larger species_params dataframe.
-  combi_species_params <- rbind(params@species_params, species_params)
-  # use dataframe and global settings from params to make a new MizerParams 
-  # object.
-  combi_params <-
-    MizerParams(
-      combi_species_params,
-      p = params@p,
-      n = params@n,
-      q = params@q,
-      lambda = params@lambda,
-      f0 = params@f0,
-      kappa = params@kappa,
-      min_w = min(params@w),
-      max_w = max(params@w),
-      no_w = length(params@w),
-      min_w_pp = min(params@w_full),
-      w_pp_cutoff = max(params@w_full),
-      r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
-    )
-  # Use the same resource specrum as params
-  combi_params@initial_n_pp <- params@initial_n_pp
-  combi_params@cc_pp <- params@cc_pp
-  new_sp <- length(params@species_params$species) + 1
-  # Initially use abundance curves for pre-existing species 
-  # (we shall retune the abundance multipliers of such 
-  # species from the background later)
-  combi_params@initial_n[1:(new_sp - 1), ] <- params@initial_n
-  # Use the same psi and mu_b as before for old species
-  combi_params@psi[1:(new_sp - 1), ] <- params@psi
-  combi_params@sc <- params@sc
-  combi_params@mu_b[1:(new_sp - 1), ] <- params@mu_b
-  combi_params@mu_b[new_sp, ] <- params@mu_b[1, ]
-  #! what about params@srr ? do I have to pass this through when rmax is off ?
-  combi_params@srr <- params@srr
-  # Turn off self-interaction of the new species, so we can determine 
-  # the growth rates, and death rates induced upon it by the pre-existing species
-  combi_params@interaction[new_sp, new_sp] <- 0
-  # compute death rate for new species
-  mumu <-
-    getZ(combi_params,
-         combi_params@initial_n,
-         combi_params@initial_n_pp,
-         effort = 0)[new_sp, ]
-  # compute growth rate for new species
-  gg <-
-    getEGrowth(combi_params,
-               combi_params@initial_n,
-               combi_params@initial_n_pp)[new_sp, ]
-  w_inf_idx <-
-    sum(combi_params@w < combi_params@species_params$w_inf[new_sp])
-  #! Alter this code here, so it avoids division by zero, in stunted growth case.
-  # Compute integral to solve MVF for new species
-  if (sum(gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]==0)>0){stop("Can not compute steady state due to zero growth rates")}
-  integrand <-
-    params@dw[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] * mumu[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] /
-    gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
-  # Write steady state for new species (under assumption of self interaction)
-  combi_params@initial_n[new_sp, ] <- 0
-  combi_params@initial_n[new_sp, combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] <-
-    mult * exp(-cumsum(integrand)) / gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
-  # Turn self interaction back on
-  combi_params@interaction[new_sp, new_sp] <- 1
-  # Arrange background inidicators A, so show the new species is in the foreground
-  combi_params@A <- c(params@A, 1)
-  # Retune the abundance multipliers to recreate the aggregate abundance spectrum of 
-  # the old params object.
-  AA <- retune_abundance(combi_params)
-  # Use these abundance multipliers to rescale the abundance curves so that 
-  # their aggregation is close to the power law
-  new_n <- combi_params@initial_n
-  for (i in 1:length(combi_params@species_params$w_inf)) {
-    new_n[i, ] <- AA[i] * combi_params@initial_n[i, ]
-  }
-  combi_params@initial_n <- new_n
-  # Retune the values of erepro, so that we are at steady state.
-  # First get growth rates
-  mumu <-
-    getZ(combi_params,
-         combi_params@initial_n,
-         combi_params@initial_n_pp,
-         effort = 0)
-  gg <-
-    getEGrowth(combi_params,
-               combi_params@initial_n,
-               combi_params@initial_n_pp)
-  for (i in 1:new_sp){
-    gg0 <- gg[i,combi_params@species_params$w_min_idx[i]]
-    mumu0 <- mumu[i,combi_params@species_params$w_min_idx[i]]
-    # compute number of eggs made, ignoring stock recruitment relationship.
-    rdi <-
-      getRDI(combi_params,
+# The code adds a new species into the system, and sets its abundance to the
+# steady state in the system where the new species does not self interact. Then
+# the abundance multipliers of the background species are retuned to retain the
+# old aggregate abundance curve, using retune_abundance(). Then the values of
+# erepro are altered so that the resulting configuration satisfies the steady
+# state reproduction boundary condition. The idea is that if the params system
+# is at steady state, and if the death rates of pre-existing species are close
+# to what they where before the new species were added, and if the newly added
+# species is at a low enough abundance (i.e., if mult is low enough) that the
+# assumption of it being none self interacting is approximately valid, then the
+# abundance curves attached to the params object returned by add_species() will
+# be a steady state,
+#
+# Note that we are assuming that the first species is a background species, and
+# the last species is a foreground species, with abundance multiplier mult.
+add_species <- function(params, species_params, biomass = 4*10^8, 
+                        min_w_observed = 0, rfac=10, effort = 0) {
+    # replace r_max with a large value, if absent
+    if (is.null(params@species_params$r_max)){
+        params@species_params$r_max <- params@species_params$w_inf
+        params@species_params$r_max[] <- 10^50
+    }
+    if (is.null(species_params$r_max)){
+        species_params$r_max <- 10^50
+    }
+    # ensure dataframes to be merged have the same columns, 
+    # regarding k_vb, a and b
+    if (is.null(params@species_params$k_vb)&(!is.null(species_params$k_vb))){
+        params@species_params$k_vb <- params@species_params$w_inf
+        params@species_params$k_vb[] <- NA
+    }
+    if (!is.null(params@species_params$k_vb)&(is.null(species_params$k_vb))){
+        species_params$k_vb <- NA
+    }
+    if ((!("a" %in% colnames(params@species_params)))&(("a" %in% colnames(species_params)))){
+        params@species_params$a <- params@species_params$w_inf
+        params@species_params$a[] <- NA
+    }
+    if ((("a" %in% colnames(params@species_params)))&(!("a" %in% colnames(species_params)))){
+        species_params$a <- NA
+    }
+    if ((!("b" %in% colnames(params@species_params)))&(("b" %in% colnames(species_params)))){
+        params@species_params$b <- params@species_params$w_inf
+        params@species_params$b[] <- NA
+    }
+    if ((("b" %in% colnames(params@species_params)))&(!("b" %in% colnames(species_params)))){
+        species_params$b <- NA
+    }
+    if ((!("l25" %in% colnames(params@species_params)))&(("l25" %in% colnames(species_params)))){
+        params@species_params$l25 <- params@species_params$w_inf
+        params@species_params$l25[] <- NA
+    }
+    if ((("l25" %in% colnames(params@species_params)))&(!("l25" %in% colnames(species_params)))){
+        species_params$l25 <- NA
+    }
+    if ((!("l50" %in% colnames(params@species_params)))&(("l50" %in% colnames(species_params)))){
+        params@species_params$l50 <- params@species_params$w_inf
+        params@species_params$l50[] <- NA
+    }
+    if ((("l50" %in% colnames(params@species_params)))&(!("l50" %in% colnames(species_params)))){
+        species_params$l50 <- NA
+    }
+    # calculate h if it is missing
+    if (is.null(species_params$h)){
+        message("Note: \tNo h column in new species data frame so using f0 and k_vb to
+                calculate it.")
+        if(!("k_vb" %in% colnames(species_params))){
+            stop("\t\tExcept I can't because there is no k_vb column in the new species data frame")
+        }
+        fc <- 0.2/species_params$alpha
+        species_params$h <- 3*species_params$k_vb*(species_params$w_inf^(1/3))/
+            (species_params$alpha*params@f0-0.2)
+    }
+    if (is.na(species_params$h)){
+        message("Note: \tNo h column in new species data frame so using f0 and k_vb to
+                calculate it.")
+        fc <- 0.2/species_params$alpha
+        species_params$h <- 3*species_params$k_vb*(species_params$w_inf^(1/3))/
+            (species_params$alpha*params@f0*(1-fc/params@f0))
+    }
+    # calculate ks if it is missing
+    if (is.null(species_params$ks)){
+        message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
+        species_params$ks <- 0.2*species_params$h # mizer's default setting
+    }
+    if (is.na(species_params$ks)){
+        message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
+        species_params$ks <- 0.2*species_params$h # mizer's default setting
+    }
+    # calculate gamma if it is missing
+    if (is.null(species_params$gamma)){
+        message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        ae <- sqrt(2*pi) * species_params$sigma * 
+            species_params$beta^(params@lambda-2) * 
+            exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
+        species_params$gamma <- (species_params$h / (params@kappa * ae)) * 
+            (params@f0 / (1 - params@f0))
+    }
+    if (is.na(species_params$gamma)){
+        message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        ae <- sqrt(2*pi) * species_params$sigma * 
+            species_params$beta^(params@lambda-2) * 
+            exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
+        species_params$gamma <- (species_params$h / (params@kappa * ae)) * 
+            (params@f0 / (1 - params@f0))
+    }
+    species_params$w_min_idx <- sum(params@w<=species_params$w_min)
+    # add the new species (with parameters described by species_params), 
+    # to make a larger species_params dataframe.
+    combi_species_params <- rbind(params@species_params, species_params)
+    # use dataframe and global settings from params to make a new MizerParams 
+    # object.
+    combi_params <-
+        MizerParams(
+            combi_species_params,
+            p = params@p,
+            n = params@n,
+            q = params@q,
+            lambda = params@lambda,
+            f0 = params@f0,
+            kappa = params@kappa,
+            min_w = min(params@w),
+            max_w = max(params@w),
+            no_w = length(params@w),
+            min_w_pp = min(params@w_full),
+            w_pp_cutoff = max(params@w_full),
+            r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
+        )
+    # Use the same resource specrum as params
+    combi_params@initial_n_pp <- params@initial_n_pp
+    combi_params@cc_pp <- params@cc_pp
+    new_sp <- length(params@species_params$species) + 1
+    # Initially use abundance curves for pre-existing species 
+    # (we shall retune the abundance multipliers of such 
+    # species from the background later)
+    combi_params@initial_n[1:(new_sp - 1), ] <- params@initial_n
+    # Use the same psi and mu_b as before for old species
+    combi_params@psi[1:(new_sp - 1), ] <- params@psi
+    combi_params@sc <- params@sc
+    combi_params@mu_b[1:(new_sp - 1), ] <- params@mu_b
+    combi_params@mu_b[new_sp, ] <- params@mu_b[1, ]
+    #! what about params@srr ? do I have to pass this through when rmax is off ?
+    combi_params@srr <- params@srr
+    # Turn off self-interaction of the new species, so we can determine the
+    # growth rates, and death rates induced upon it by the pre-existing species
+    combi_params@interaction[new_sp, new_sp] <- 0
+    # compute death rate for new species
+    mumu <-
+        getZ(combi_params,
              combi_params@initial_n,
-             combi_params@initial_n_pp)[i]
-    DW <-
-      combi_params@dw[combi_params@species_params$w_min_idx[i]]
-    # rdi = erepro*H
-    H <- rdi / combi_params@species_params$erepro[i]
-    # X measures the amount of eggs growing/dying out of the egg size weight bin. 
-    # It should be equal to the inflow of eggs, rdd.
-    X <-
-      combi_params@initial_n[i, combi_params@species_params$w_min_idx[i]] *
-      (gg0 + DW * mumu0)
-    # Change erepro so that the reproduction boundary condition is satisfied
-    combi_params@species_params$erepro[i] <-
-      combi_params@species_params$r_max[i] * X / (H * combi_params@species_params$r_max[i] +
-                                                    H * X)
-    #! Do we need a new version of this erepro setting code for the case where 
-    # r_max is missing, or infinity.
-  }
-  return(combi_params)
+             combi_params@initial_n_pp,
+             effort = effort)[new_sp, ]
+    # compute growth rate for new species
+    gg <-
+        getEGrowth(combi_params,
+                   combi_params@initial_n,
+                   combi_params@initial_n_pp)[new_sp, ]
+    w_inf_idx <-
+        sum(combi_params@w < combi_params@species_params$w_inf[new_sp])
+    #! Alter this code here, so it avoids division by zero, in stunted growth
+    #case. Compute integral to solve MVF for new species
+    if (sum(gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]==0)>0) {
+        stop("Can not compute steady state due to zero growth rates")
+    }
+    integrand <-
+        params@dw[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] * 
+        mumu[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] /
+        gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
+    # Write steady state for new species (under assumption of self interaction)
+    combi_params@initial_n[new_sp, ] <- 0
+    combi_params@initial_n[new_sp, combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] <-
+        exp(-cumsum(integrand)) / gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
+    if(sum(is.infinite(combi_params@initial_n))>0){
+        stop("Candidate steady state holds infinities")
+    }
+    if(sum(is.na(combi_params@initial_n))+sum(is.nan(combi_params@initial_n))>0){
+        stop("Candidate steady state holds none numeric values")
+    }
+    unnormalised_biomass <- sum(combi_params@initial_n[new_sp,] *
+                                    combi_params@w*combi_params@dw *
+                                    (combi_params@w>min_w_observed))
+    combi_params@initial_n[new_sp, ] <-
+        combi_params@initial_n[new_sp, ] *
+        biomass / unnormalised_biomass
+    # Turn self interaction back on
+    combi_params@interaction[new_sp, new_sp] <- 1
+    # Arrange background inidicators A, so show the new species is in the
+    # foreground
+    combi_params@A <- c(params@A, 1)
+    # Retune the abundance multipliers to recreate the aggregate abundance
+    # spectrum of the old params object.
+    AA <- retune_abundance(combi_params)
+    # Use these abundance multipliers to rescale the abundance curves so that 
+    # their aggregation is close to the power law
+    new_n <- combi_params@initial_n
+    for (i in 1:length(combi_params@species_params$w_inf)) {
+        new_n[i, ] <- AA[i] * combi_params@initial_n[i, ]
+    }
+    combi_params@initial_n <- new_n
+    # Retune the values of erepro, so that we are at steady state.
+    # First get growth rates
+    mumu <-
+        getZ(combi_params,
+             combi_params@initial_n,
+             combi_params@initial_n_pp,
+             effort = effort)
+    gg <-
+        getEGrowth(combi_params,
+                   combi_params@initial_n,
+                   combi_params@initial_n_pp)
+    # #
+    rdi <- getRDI(combi_params, combi_params@initial_n, 
+                  combi_params@initial_n_pp)
+    no_sp <- new_sp
+    erepro_final <- 1:no_sp  # set up vector of right dimension
+    for (i in (1:no_sp)) {
+        gg0 <- gg[i, combi_params@species_params$w_min_idx[i]]
+        mumu0 <- mumu[i, combi_params@species_params$w_min_idx[i]]
+        DW <- params@dw[combi_params@species_params$w_min_idx[i]]
+        erepro_final[i] <- combi_params@species_params$erepro[i] *
+            (combi_params@initial_n[i, combi_params@species_params$w_min_idx[i]] *
+                 (gg0 + DW * mumu0)) / rdi[i]
+    }
+    if (is.finite(rfac)) {
+        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+        # compensate for using a stock recruitment relationship.
+        erepro_final <- (rfac / (rfac - 1)) * erepro_final
+    }
+    combi_params@species_params$erepro <- erepro_final
+    
+    if (is.finite(rfac)) {
+        combi_params@species_params$r_max <- combi_params@species_params$w_inf
+        # set rmax=fac*RDD
+        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+        # compensate for using a stock recruitment relationship.
+        combi_params@species_params$r_max <-
+            (rfac - 1) * getRDI(combi_params, combi_params@initial_n, 
+                                combi_params@initial_n_pp)[,1]
+    } else {
+        # An infinite rfac means that rdd equals rdi
+        params@srr <- function(rdi, species_params) {return(rdi)}
+    }
+    return(combi_params)
 }

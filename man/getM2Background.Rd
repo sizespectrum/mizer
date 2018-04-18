@@ -5,7 +5,7 @@
 \alias{getM2Background}
 \alias{getM2Background,MizerParams,matrix,numeric,array-method}
 \alias{getM2Background,MizerParams,matrix,numeric,missing-method}
-\title{getM2Background method for the size based model}
+\title{Get predation mortality rate for plankton}
 \usage{
 getM2Background(object, n, n_pp, pred_rate)
 
@@ -31,9 +31,9 @@ it is calculated by the \code{getPredRate()} method.}
 A vector of predation mortalities by background prey size.
 }
 \description{
-Calculates the predation mortality rate \eqn{\mu_p(w)} on the background spectrum
-by prey size. Used by the \code{project} method for running size based
-simulations.
+Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
+spectrum by plankton size. Used by the \code{project} method for running size
+based simulations.
 
 \code{getM2Background} method with \code{pred_array} argument.
 
