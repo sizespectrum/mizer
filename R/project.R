@@ -1,6 +1,10 @@
 # Project method for the size based modelling package mizer
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. 
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -11,6 +15,7 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+#### project ####
 #' project method for the size based modelling
 #' 
 #' Runs the size-based model simulation and projects the size based model

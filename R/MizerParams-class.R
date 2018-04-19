@@ -1,7 +1,11 @@
-# Class outline for sbm base parameters class
+# Class specification and constructors for mizer base parameters class
 # Class has members to store parameters of size based model
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -198,8 +202,7 @@ valid_MizerParams <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-# Soundtrack: White Hills - Glitter Glamour Atrocity
-
+#### Class definition ####
 #' A class to hold the parameters for a size based model. 
 #' 
 #' These parameters include the model species, their life history parameters and
@@ -352,8 +355,7 @@ setClass(
 )
 
 
-# Generic constructor
-
+#### Constructors ####
 #' Constructors for objects of \code{MizerParams} class
 #'
 #' Constructor method for the \linkS4class{MizerParams} class. Provides the
@@ -434,6 +436,7 @@ setClass(
 setGeneric('MizerParams', function(object, interaction, ...)
     standardGeneric('MizerParams'))
 
+#### Basic constructor ####
 #' Basic constructor with only the number of species as dispatching argument
 #' 
 #' Only really used to make MizerParams of the right size and shouldn't be used
@@ -511,6 +514,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
     }
 )
 
+
+#### Main constructor ####
 #' Constructor that takes the species_params data.frame and the interaction matrix
 #' @rdname MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
@@ -722,6 +727,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     }
 )
 
+
+#### theta = 1 constructor ####
 # If interaction is missing, make one of the right size and fill with 1s
 #' Constructor based on the species_params data.frame only with no interaction
 #' @rdname MizerParams
