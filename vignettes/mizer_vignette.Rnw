@@ -2424,32 +2424,151 @@ continuous version for which that's true)}.  Second, in Section~\ref{sec:explici
 these species are replaced, one at a time, by foreground species 
 with specified properties in a fish assemblage.  
 
-We shall describe how to run our scale invarient model, and make some comparisons with the old trait based model, and then discuss the inner workings of our scale invariant model in more detail.
+We shall describe how to run our scale invarient model, and make some comparisons with the old trait based model. Details about our scale invariant model and its motivations are given in {\bf the appendix}.
 
 \subsection{Implementing the scale invariant model}
 
-To help set up a scale invariant trait-based model, there is a wrapper function, \code{set_scaling_model()}. Like the \code{set\_community\_model()} and \code{set_trait_model()} functions described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
+
+To help set up a scale invariant trait-based model, there is a wrapper function, \code{set\_scaling\_model()}. Like the \code{set\_community\_model()} and \code{set\_tait\_model()} functions described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
 
 <<label=help_set_scaling_model, eval=FALSE>>=
 ?set_scaling_model
 @
 
-The main parameters of interest are the number of the species in the model (\args{no\_sp}), the minimum egg size (\args{min\_egg}), the minimum maturity size of a species (\args{min\_w\_mat}) and the minimum and maximum asymptotic sizes (\args{min\_w\_inf}) and (\args{max\_w\_inf}) respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The stock recruitment relationship is controlled by the value of (\args{r\_fac}), which is the ratio of the maximum recruitment $R_{max.i}$ and the actual recruitment $R_i$ at our steady state. Setting \args{r\_fac=Inf} corresponds to setting $R_{max.i} \rightarrow \inf,$ which corresponds to turning the stock recruitment relationship off.  
+The main parameters of interest are the number of the species in the model (\args{no\_sp}), the minimum egg size (\args{min\_egg}), the minimum maturity size of a species (\args{min\_w\_mat}) and the minimum and maximum asymptotic sizes (\args{min\_w\_inf}) and (\args{max\_w\_inf}) respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The Beverton-Holt stock recruitment relationship is turned off by default.  
 
 <<label=demo_scaling_model_params>>=
-params <- set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10 ^ 3, min_egg = 10 ^ (-4), min_w_mat = 10 ^ (0.4), rfac = Inf)
+params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
+                            min_egg = 1e-4, min_w_mat = 10^(0.4), 
+                            knife_edge_size = 100, kappa = 0.005)
 @
 
 Once a \class{MizerParams} object has been created for the scaling invariant model it can be run in the usual way:
 
-% ***
 <<label = scale_run>>=
 sim <- project(params, t_max=5, effort = 0)
+@
+
+Let us make a picture of the results:
+
+<<plot_scale_sim, eval=FALSE>>=
 plot(sim)
 @
 
+\begin{figure}
+<<label=print_plot_scale_sim, echo=FALSE, fig.height=9>>=
+<<plot_scale_sim>>
+@
+\caption{Example plot of the scale invariant trait-based model with no fishing.}
+\label{fig:plot_scale_demo}
+\end{figure}
+
 One can see from the plot of time versus biomass that the system is initiated very close to a steady state, and it is further attracted to the steady state without the need to impose any stock recruitement relationship.
 
+\subsection{Comparing with the trait based model}
+
+
+By comparing Figure~\ref{fig:plot_scale_demo} with Figure~\ref{fig:plot_trait_demo} one can see that the output of the scale-invariant trait-based model is somewhat similar to that of the previous trait-based model. The key difference between these two models is that a strong stock recruitment relationship is present in the original trait based model. In the original trait based model the number of fish grow rapidly, initially, until the population growth is eventually halted by the stock recruitment relationship. If one removed the stock recuitment relationship, the populations in the original trait based model would continue to grow rapidly, but they are being \emph{held back} by the stock recruitment relationship. The result is that the stock in the original trait based model is somewhat insensitive to changes in the enviroment, because its steady state is the result of a strong force for population growth being halted by a strong breaking force (the stock recruitment relationship) . To see this let us run the original trait based model, with a large amount of new effort put into fishing:
+
+
+<<label=demo_trait_model_insensitive>>=
+params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+                          knife_edge_size = 100)
+sim_trait <- project(params_trait, t_max=5, effort = 100)
+@
+
+We make a plot of how biomass changes over time (Figure~\ref{fig:plot_trait_ins}).  
+
+<<plot_trait_ins, eval=FALSE>>=
+plotBiomass(sim_trait)
+@
+
+\begin{figure}
+<<label=print_plot_trait_ins, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_trait_ins>>
+@
+\caption{A biomass plot of the original trait-based model under significant fishing.}
+\label{fig:plot_trait_ins}
+\end{figure}
+
+
+Notice that even though the fishing mortality rate is very high (orders of magnitude more than the predation mortality rate), no species are going extinct. Let us compare this with the analogous situation, where a high fishing effort is put into the scale-invariant trait-based model. We run the system under a high fishing effort:
+
+<<label=demo_scale_model_sensitive>>=
+params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
+                            min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
+                            knife_edge_size = 100,kappa = 0.005)
+sim <- project(params, t_max=5, effort = 100)
+@
+
+We make a plot of how biomass changes over time (Figure~\ref{fig:plot_scale_sense}).   
+
+<<plot_scale_sense, eval=FALSE>>=
+plotBiomass(sim)
+@
+
+\begin{figure}
+<<label=print_plot_scale_sense, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_scale_sense>>
+@
+\caption{A biomass plot of the scale-invariant trait-based model under significant fishing.}
+\label{fig:plot_scale_sense}
+\end{figure}
+
+In Figure~\ref{fig:plot_trait_ins} the large fishing effort just pushes down the final abundance of effected species, but these still remain because of their strong inclination towards population growth. In Figure~\ref{fig:plot_scale_sense}, on the other hand, the heavily fished species are actually going extinct. In summary the scale-invariant trait based model is more sensitive to the effects of fishing, and other changes in the envioment, unlike the original trait-based model which is somewhat held in place by a strong stock recruitment relationship. 
+
+\subsection{Modifications to the trait-based model}
+
+The scale invariant trait-based model corresponds to a special case of the general size spectrum model described in Section~\ref{sec:principles}.  Essentially the scale invariant trait-based model is very similar to the original trait-based model of Section~\ref{sec:explicit}, however there are the following differences:
+
+{\bf Richard.L: could you rephrase these as you see fit ? }
+\begin{itemize}
+ \item By default the scale-invariant trait-based model is initialized at a steady state that we know that analytic form of (see {\bf appendix ?}), whereas the original 
+ trait based model is not initialized near its steady state.
+ \item In order for our model to be scale-invariant we require that the exponent of metabolic intake $n$ equals the 
+exponent $p$ of metabolic loss. 
+\item In order for our model to be scale invariant we require that the exponent of the resource spectrum, the exponent of metabolic intake and the exponent of the volumetric search rate are related by the equation $\lambda = 2-n+q.$  
+\item Scale invariance requires similarity on every size scale, and so we cannot have any special sizes such as a constant egg weight shared by all species. In fact, we 
+require that the egg size $w_{0,i}$ of each species is equal to a fixed fraction of their asymptotic size. Although there is some evidence of such variations in egg size, the common belief is 
+that the egg size of most fish is constant at around one milligram, and so our assumption of egg size being proportional to asymptotic size could be taken as an idealization for mathematical simplicity. 
+ \item Although a stock recruitment relationship is not required to create a steady state in the scale-invariant trait-based model (unlike the original trait-based model), a stock recruitment relationship can be included in the in the scale-invariant trait-based model by setting the value of \args{r\_fac}. Here \args{r\_fac} equals the maximum recruitment $R_{max.i}$ divided by the actual recruitment $R_i$ at our steady state. By default the stock recruitment relationship is turned off, by setting \args{r\_fac} to go to infinity. This has the effect of also making $R_{max.i}\rightarrow \infty$, and so Equation~\ref{eq:R}) is effectively replaced with the simple relationship $R_i = R_{p.i}.$ 
+\item The total mortality
+ needs to scale with body weight. In practice, body weight always has an upper 
+ limit in a real ecosystem, and predation mortality goes to zero as this limit 
+ is approached.  Some compensation is needed for this in the background 
+ mortality.  Thus, rather then defining background mortality by (Equation~\ref{eq:mu_b}) we have a somewhat complicated expression for the background mortality $\mu_b(w)$ given by {\bf some equation in the appendix}. Essentially this term represents the predation mortality which would be induced by predators beyond the size ranges we explicityly model at -under the assumption that the abundance of such predators continue the scale invariant pattern. 
+ %We arrived at our expression for $\mu_b(w)$ by considering that in the inf use the expression $ \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w),0 \}$ where 
+ %\begin{equation}
+ %\mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right),
+ %\end{equation}
+ %and $\mu_{f.i}(w)$ is the fishing mortality (as determined by the fishing gears), and %$\mu_{p.i} (w)$ is the predation mortality, given by (Equation~\ref{eq:mup}), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
+%We have to choose parameters so that $\mu _0$ is sufficiently large that $ \mu_{b.i}(w) = \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w)\geq 0. $ 
+ \item The resource spectrum extends from the smallest weight at which an explicitly modeled fish may eat, up to the minimum maturity weight of a fish. We define the carrying capacity $c_p(w)$ of the background resource so when our system is at steady state, the 
+combination of the background resource spectrum and the aggregate abundance of the explicity modeled species is the power law $\kappa w^{-\lambda}.$ The details of how $c_p(w)$ is set within the scale-invariant model are given in the appendix. 
+%This is achieved choosing the carrying capacity of the background resource to be 
+%\begin{equation} c_{p} (w)=
+%   \begin{cases}
+%      \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}, & \text{if}\ w<\min\{w_{*i}\} \\
+%     0, & \text{otherwise}
+%    \end{cases}
+%\end{equation}
+%Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
+%so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the background resource declines to zero.  
+\item In order for us to be able to obtain a closed form expression for a steady state, we assume that the proportion of energy allocated to reproduction $\psi_i(w)$ is given by the step-like function
+\begin{equation}
+\psi_i(w)=\begin{cases}
+0 & \text{if \ensuremath{w<w_{*.i}}}\\
+\left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
+\end{cases}
+\end{equation}
+This can be achieved by taking the form given by  (Equation~\ref{eq:psi}), and letting $u \rightarrow \infty.$ Note that this is not a requirement for scale invariance, and the only reason this assumption is made is that it is mathematically 
+convenient is that it allows to obtain an exact analytic expression for our steady state.
+\end{itemize}
+
+Note that scale invariance in predation exists as standard feature in the
+mizer software tool (Equation~\ref{eq:MvF}), because predation depends on the ratio of predator
+to prey weight.  Thus no modification to growth and mortality caused by 
+predation is needed when the scale-invariant model is implemented.
 
 \subsection{Scale invariance}
 
@@ -2489,61 +2608,6 @@ for the most part familiar and widely documented in ecology {\bf(Peters book?)}.
  guide the choice of parameter values that are likely to permit coexistence 
  of species without calling for strong stock-recruitment relationships.
  \end{itemize}
-
-
-\subsection{Modifications to the trait-based model}
-
-The scale invariant trait-based model corresponds to a special case of the general size spectrum model described in Section~\ref{sec:principles}.  Some restrictions 
-on the trait-based model Section~\ref{sec:explicit} do need to be put in place, and 
-this leads to the following changes in parameters and functions:
-
-\begin{itemize}
- \item In order for our model to be scale invariant we require that each pair of species interact with one another with the same strength, and so $\theta_{i,j}=1$ for each 
-pair of species $i$ and $j.$
- \item In order for our model to be scale invariant we require that the exponent of metabolic intake $n$ equals the 
-exponent $p$ of metabolic loss. {\bf already in old trait based model ?}
- \item In order for our model to be scale invariant we require that the exponent of the resource spectrum, the exponent of metabolic intake and the exponent of the volumetric search rate are related by the equation $\lambda = 2-n+q.$  {\bf already in old trait based model ?}
- \item Scale invariance requires similarity on every size scale, and so we cannot have any special sizes such as a constant egg weight shared by all species. In fact, we 
-require that the egg size $w_{0,i}$ of each species is equal to a fixed fraction of their asymptotic size. Although there is some evidence of such variations in egg size, the common belief is 
-that the egg size of most fish is constant at around one milligram, and so our assumption of egg size being proportional to asymptotic size could be taken as an idealization for mathematical simplicity.
- \item Scale invariance allows us to construct a state which is steady without the need for a stock recruitment relationship. The degree of the stock recruitment relationship imposed is controlled by a new factor $R_{fac},$ which is defined so that $R_{max.i} = R_i R_{fac}$ for each species $i,$ where $R_i$ is given by (Equation~\ref{eq:R}), when the system is at our steady state. Dropping the stock recruitment relationship corresponds to setting $R_{fac} \rightarrow \infty.$  In this case (Equation~\ref{eq:R}) is replaced with the simple relationship $R_i = R_{p.i}.$ One should note that we have not 
-been able to prove that our steady state is \emph{stable} (in the sense that states close to the steady state are attracted back to it), although we have always found it to be stable under the realistic parameter settings implemented under our simulations. If the user find the steady state to be 
-unstable under their chosen settings (or in a larger system, where other species/effects are added), one may include a stock recruitment relationship by specifying a finite value of $R_{fac}$. 
-\item The total mortality
- needs to scale with body weight. In practice, body weight always has an upper 
- limit in a real ecosystem, and predation mortality goes to zero as this limit 
- is approached.  Some compensation is needed for this in the background 
- mortality.  Thus, rather then defining background mortality by (Equation~\ref{eq:mu_b}) we use the expression $ \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w),0 \}$ where 
- \begin{equation}
- \mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right),
- \end{equation}
- and $\mu_{f.i}(w)$ is the fishing mortality (as determined by the fishing gears), and $\mu_{p.i} (w)$ is the predation mortality, given by (Equation~\ref{eq:mup}), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
-%We have to choose parameters so that $\mu _0$ is sufficiently large that $ \mu_{b.i}(w) = \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w)\geq 0. $ 
- \item The resource spectrum extends from the smallest weight at which an explicitly modeled fish may eat, up to the minimum maturity weight of a fish. We define the carrying capacity $c_p(w)$ of the background resource so when our system is at steady state, the 
-combination of the background resource spectrum and the aggregate abundance of the explicity modeled species is the power law $\kappa w^{-\lambda}.$ This is achieved choosing the carrying capacity of the background resource to be 
-\begin{equation} c_{p} (w)=
-   \begin{cases}
-      \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}, & \text{if}\ w<\min\{w_{*i}\} \\
-     0, & \text{otherwise}
-    \end{cases}
-\end{equation}
-Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
-so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the background resource declines to zero.  
-\item In order for us to be able to obtain a closed form expression for a steady state, we assume that the proportion of energy allocated to reproduction $\psi_i(w)$ is given by the step-like function
-\begin{equation}
-\psi_i(w)=\begin{cases}
-0 & \text{if \ensuremath{w<w_{*.i}}}\\
-\left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
-\end{cases}
-\end{equation}
-This can be achieved by taking the form given by  (Equation~\ref{eq:psi}), and letting $u \rightarrow \infty.$ Note that this is not a requirement for scale invariance, and the only reason this assumption is made is that it is mathematically 
-convenient, in the sense that it allows to obtain an exact analytic expression for our steady state.
-\end{itemize}
-
-Note that scale invariance in predation exists as standard feature in the
-mizer software tool (Equation~\ref{eq:MvF}), because predation depends on the ratio of predator
-to prey weight.  Thus no modification to growth and mortality caused by 
-predation is needed when the scale-invariant model is implemented.
 
 
 \subsection{Setting up a scale-invariant assemblage at steady state}
