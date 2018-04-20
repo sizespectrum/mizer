@@ -33,15 +33,15 @@ log_breaks <- function(n = 6){
 #' Plot the biomass of species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
-#' against time. The biomass is calculated within user defined size limits (see
-#' \code{\link{getBiomass}}). 
+#' against time. The biomass is calculated within user defined size limits 
+#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
 #' 
 #' This plot is pretty easy to do by hand. It just
 #' gets the biomass using the \code{\link{getBiomass}} method and plots using
 #' the ggplot2 package. You can then fiddle about with colours and linetypes
 #' etc. Just look at the source code for details.
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param start_time The first time to be plotted. Default is the beginning
@@ -135,7 +135,7 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
 #' plots using the ggplot2 package. You can then fiddle about with colours and
 #' linetypes etc. Just look at the source code for details.
 #' 
-#' @param sim An object of class \code{MizerSim}
+#' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object.
@@ -202,7 +202,7 @@ setMethod('plotYield', signature(sim='MizerSim'),
 #' the ggplot2 package. You can then fiddle about with colours and linetypes
 #' etc. Just look at the source code for details.
 #' 
-#' @param sim An object of class \code{MizerSim}
+#' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object. 
@@ -260,20 +260,23 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 
 
 #### plotSpectra ####
-#' Plot the abundance spectra of fish species and plankton
+#' Plot the abundance spectra
 #' 
-#' After running a projection, the spectra of the abundance of each species and
-#' the plankton can be plotted. The abundance is averaged over the specified
-#' time range (a single value for the time range can be used to plot a single
-#' time step). What is plotted is the number density multiplied by a power of
+#' What is plotted is the number density multiplied by a power of
 #' the weight, with the power specified by the \code{power} argument.
+#'
+#' When called with a \linkS4class{MizerSim} object, the abundance is averaged over
+#' the specified time range (a single value for the time range can be used to
+#' plot a single time step). When called with a \linkS4class{MizerParams} object the
+#' initial abundance is plotted.
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param object An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range (either a vector of values, a vector of min
 #'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step.
+#'   the final time step. Ignored when called with a \linkS4class{MizerParams}
+#'   object.
 #' @param min_w Minimum weight to be plotted (useful for truncating the
 #'   background spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
@@ -288,6 +291,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #'   Defaults to TRUE
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
+#' @param plankton A boolean value that determines whether plankton is included.
+#'   Default is TRUE.
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
@@ -304,75 +309,99 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' }
-setGeneric('plotSpectra', function(sim, ...)
+setGeneric('plotSpectra', function(object, ...)
     standardGeneric('plotSpectra'))
 
 #' Plot the abundance spectra using a \code{MizerSim} object.
 #' @rdname plotSpectra
-setMethod('plotSpectra', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
-             time_range = max(as.numeric(dimnames(sim@n)$time)), 
-             min_w = min(sim@params@w)/100, power = 1, biomass = TRUE, 
-             print_it = TRUE, total = FALSE, ...) {
+setMethod('plotSpectra', signature(object='MizerSim'),
+    function(object, species = as.character(object@params@species_params$species),
+             time_range = max(as.numeric(dimnames(object@n)$time)), 
+             min_w = min(object@params@w)/100, power = 1, biomass = TRUE, 
+             print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
         # to deal with old-type biomass argument
         if (missing(power)) {
             power <- as.numeric(biomass)
         }
-        time_elements <- get_time_elements(sim,time_range)
-        spec_n <- apply(sim@n[time_elements, , ,drop=FALSE], c(2,3), mean)
-        background_n <- apply(sim@n_pp[time_elements,,drop=FALSE],2,mean)
-        if (total) {
-            # Calculate total community abundance
-            fish_idx <- (length(sim@params@w_full)-length(sim@params@w)+1):
-                length(sim@params@w_full)
-            total_n <- background_n
-            total_n[fish_idx] <- total_n[fish_idx] + colSums(spec_n)
-            total_n <- total_n * sim@params@w_full^power
-        }
-        # Select only the desired species
-        spec_n <- spec_n[as.character(dimnames(spec_n)[[1]]) %in% species, ,
-                         drop = FALSE]
-        if (power %in% c(0, 1, 2)) {
-            y_label = c("Number density [1/g]", "Biomass density", 
-                        "Biomass density [g]")[power+1]
-        } else {
-            y_label = paste0("Number density * w^", power)
-        }
-        spec_n <- sweep(spec_n, 2, sim@params@w^power, "*")
-        background_n <- background_n * sim@params@w_full^power
-        # Make data.frame for plot
-        plot_dat <- data.frame(value = c(spec_n), 
-                               Species = dimnames(spec_n)[[1]], 
-                               w = rep(sim@params@w, 
-                                       each = length(species)))
-        plot_dat <- rbind(plot_dat, 
-                          data.frame(value = c(background_n), 
-                                     Species = "Plankton", 
-                                     w = sim@params@w_full))
-        if (total) {
-            plot_dat <- rbind(plot_dat, 
-                              data.frame(value = c(total_n), 
-                                         Species = "Total", 
-                                         w = sim@params@w_full))
-        }
-        # lop off 0s in background and apply min_w
-        plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
-        if (length(species) > 12) {
-            p <- ggplot(plot_dat) + 
-                geom_line(aes(x=w, y = value, group = Species))
-        } else {
-            p <- ggplot(plot_dat) + 
-                geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) 
-        }
-        p <- p + 
-            scale_x_continuous(name = "Size [g]", trans="log10") + 
-            scale_y_continuous(name = y_label, trans="log10")
-        if (print_it)
-            print(p)
-        return(p)
+        time_elements <- get_time_elements(object,time_range)
+        spec_n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
+        background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
+        plot_spectra(object@params, spec_n, background_n, 
+                     species, min_w, power, print_it, total, plankton)
     }
 )
 
+#' Plot the abundance spectra using a \code{MizerParams} object.
+#' @rdname plotSpectra
+setMethod('plotSpectra', signature(object='MizerParams'),
+          function(object, species = as.character(object@species_params$species),
+                   min_w = min(object@w)/100, power = 1, biomass = TRUE, 
+                   print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
+              # to deal with old-type biomass argument
+              if (missing(power)) {
+                  power <- as.numeric(biomass)
+              }
+              plot_spectra(object, object@initial_n, object@initial_n_pp, 
+                           species, min_w, power, print_it, total, plankton)
+          }
+)
+
+plot_spectra <- function(params, spec_n, background_n,
+         species = as.character(params@species_params$species),
+         min_w = min(params@w)/100, power = 1,
+         print_it = TRUE, total = FALSE, plankton = TRUE) {
+    if (total) {
+        # Calculate total community abundance
+        fish_idx <- (length(params@w_full)-length(params@w)+1):
+            length(params@w_full)
+        total_n <- background_n
+        total_n[fish_idx] <- total_n[fish_idx] + colSums(spec_n)
+        total_n <- total_n * params@w_full^power
+    }
+    # Select only the desired species
+    spec_n <- spec_n[as.character(dimnames(spec_n)[[1]]) %in% species, ,
+                     drop = FALSE]
+    if (power %in% c(0, 1, 2)) {
+        y_label = c("Number density [1/g]", "Biomass density", 
+                    "Biomass density [g]")[power+1]
+    } else {
+        y_label = paste0("Number density * w^", power)
+    }
+    spec_n <- sweep(spec_n, 2, params@w^power, "*")
+    # Make data.frame for plot
+    plot_dat <- data.frame(value = c(spec_n), 
+                           Species = dimnames(spec_n)[[1]], 
+                           w = rep(params@w, 
+                                   each = length(species)))
+    if (plankton) {
+        background_n <- background_n * params@w_full^power
+        plot_dat <- rbind(plot_dat, 
+                          data.frame(value = c(background_n), 
+                                     Species = "Plankton", 
+                                     w = params@w_full))
+    }
+    if (total) {
+        plot_dat <- rbind(plot_dat, 
+                          data.frame(value = c(total_n), 
+                                     Species = "Total", 
+                                     w = params@w_full))
+    }
+    # lop off 0s in background and apply min_w
+    plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
+    if (length(species) > 12) {
+        p <- ggplot(plot_dat) + 
+            geom_line(aes(x=w, y = value, group = Species))
+    } else {
+        p <- ggplot(plot_dat) + 
+            geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) 
+    }
+    p <- p + 
+        scale_x_continuous(name = "Size [g]", trans="log10", breaks=log_breaks()) + 
+        scale_y_continuous(name = y_label, trans="log10", breaks=log_breaks())
+    if (print_it)
+        print(p)
+    return(p)
+}
 
 #### plotFeedingLevel ####
 #' Plot the feeding level of species by size
@@ -381,7 +410,7 @@ setMethod('plotSpectra', signature(sim='MizerSim'),
 #' The feeding level is averaged over the specified time range (a single value
 #' for the time range can be used).
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range (either a vector of values, a vector of min
@@ -445,7 +474,7 @@ setMethod('plotFeedingLevel', signature(sim='MizerSim'),
 #' by size. The mortality rate is averaged over the specified time range (a
 #' single value for the time range can be used to plot a single time step).
 #' 
-#' @param sim An object of class \code{MizerSim}
+#' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range (either a vector of values, a vector of min
@@ -510,7 +539,7 @@ setMethod('plotM2', signature(sim='MizerSim'),
 #' range (a single value for the time range can be used to plot a single time
 #' step).
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param time_range The time range (either a vector of values, a vector of min
@@ -573,7 +602,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
 #' species by size; and biomass of each species through time. This method just
 #' uses the other plotting methods and puts them all in one window.
 #' 
-#' @param x An object of class \code{MizerSim}
+#' @param x An object of class \linkS4class{MizerSim}
 #' @param y Not used
 #' @param ...  For additional arguments see the documentation for
 #'   \code{\link{plotBiomass}},

@@ -19,7 +19,7 @@ project(object, effort, ...)
   initial_n = object@initial_n, initial_n_pp = object@initial_n_pp, ...)
 }
 \arguments{
-\item{object}{A \code{MizerParams} object}
+\item{object}{A \linkS4class{MizerParams} object}
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
@@ -36,13 +36,13 @@ below.}
 value is 1. Must be an integer multiple of dt.}
 
 \item{initial_n}{The initial populations of the species. By default the 
-\code{initial_n} slot of the \code{\link{MizerParams}} argument is used.
+\code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
 See the notes below.}
 
 \item{initial_n_pp}{The initial population of the background spectrum. It
 should be a numeric vector of the same length as the \code{w_full} slot of
 the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
-\code{\link{MizerParams}} argument is used.}
+\linkS4class{MizerParams} argument is used.}
 }
 \value{
 An object of type \code{MizerSim}.

@@ -8,7 +8,7 @@
 \S4method{plot}{MizerSim,missing}(x, y, ...)
 }
 \arguments{
-\item{x}{An object of class \code{MizerSim}}
+\item{x}{An object of class \linkS4class{MizerSim}}
 
 \item{y}{Not used}
 

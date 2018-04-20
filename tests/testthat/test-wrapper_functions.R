@@ -5,7 +5,7 @@ test_that("scaling model is set up correctly", {
   sim <- project(p, t_max=5, effort = 0)
   # Check that total biomass changes little (relatively)
   bm <- getBiomass(sim)
-  expect_lt(abs(max(bm[1, ]-bm[6, ])), 3.6*10^7)
+  expect_lt(abs(max(bm[1, ]-bm[6, ])), 2.6*10^(-6))
 })
 
 test_that("trait-based model multiple gears",{

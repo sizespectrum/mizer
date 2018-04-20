@@ -208,7 +208,7 @@ valid_MizerParams <- function(object) {
 #' These parameters include the model species, their life history parameters and
 #' the size ranges of the model.
 #' 
-#' \code{MizerParams} objects can be created using a range of
+#' \linkS4class{MizerParams} objects can be created using a range of
 #' \code{MizerParams} constructor methods.
 #' 
 #' Dynamic simulations are performed using the \code{\link{project}} method on
@@ -269,7 +269,7 @@ valid_MizerParams <- function(object) {
 #' @slot kappa Magnitude of resource spectrum.
 #' @slot A Abundance multipliers.
 
-#' @note The \code{MizerParams} class is fairly complex with a large number of
+#' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
 #'   arrays is strictly enforced so that \code{MizerParams} objects are
 #'   consistent in terms of number of species and number of size classes.
@@ -279,7 +279,7 @@ valid_MizerParams <- function(object) {
 #'   
 #'   The \code{MizerParams} class does not hold any dynamic information, e.g.
 #'   abundances or harvest effort through time. These are held in
-#'   \code{\link{MizerSim}} objects.
+#'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #' @export
 setClass(
@@ -689,7 +689,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Can add more functional forms or user specifies own
 	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
-	    return(species_params$r_max * rdi / (species_params$r_max+rdi))
+	    return(rdi / (1 + rdi/species_params$r_max))
 	}
 
 	# Set fishing parameters: selectivity and catchability

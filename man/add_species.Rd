@@ -4,8 +4,8 @@
 \alias{add_species}
 \title{Add more species into an ecosystem with scaling background species.}
 \usage{
-add_species(params, species_params, biomass = 4 * 10^8, min_w_observed = 0,
-  rfac = 10, effort = 0)
+add_species(params, species_params, biomass = NA,
+  min_w_observed = species_params$w_mat, rfac = 10, effort = 0)
 }
 \arguments{
 \item{params}{A mizer params object for the original system. The A slot holds
@@ -17,11 +17,13 @@ multiplier of.}
 want to add to the system.}
 
 \item{biomass}{The total biomass of members of the newly added species which
-have weights greater than min_w_observed. Default value is 4*10^8.}
+have weights greater than min_w_observed. If not provided, the abundance
+of new species will be chosen so that the biomass of its mature fish is
+the same as that of the species with the next smaller maturity size.}
 
 \item{min_w_observed}{The minimum weight of fish of the new species that
 contribute to the biomass which we setup for the new species. Default value
-is 0.}
+is the maturity size of the new species.}
 
 \item{rfac}{Default value is 10.}
 
@@ -37,8 +39,6 @@ given parameters to the ecosystem.
 \examples{
 \dontrun{
 params <- set_scaling_model(max_w_inf = 5000)
-params@species_params$r_max <- params@species_params$w_mat
-params@species_params$r_max[] <- 10^50
 params@A[] <- NA
 a_m <- 0.0085
 b_m <- 3.11
@@ -58,7 +58,7 @@ species_params <- data.frame(
     knife_edge_size = 100, 
     gear = "knife_edge_gear",
     k = 0,
-    r_max = 10^50,
+    r_max = Inf,
     k_vb = 0.6,
     a = a_m,
     b = b_m

@@ -4,18 +4,24 @@
 \name{plotSpectra}
 \alias{plotSpectra}
 \alias{plotSpectra,MizerSim-method}
-\title{Plot the abundance spectra of fish species and plankton}
+\alias{plotSpectra,MizerParams-method}
+\title{Plot the abundance spectra}
 \usage{
-plotSpectra(sim, ...)
+plotSpectra(object, ...)
 
-\S4method{plotSpectra}{MizerSim}(sim,
-  species = as.character(sim@params@species_params$species),
-  time_range = max(as.numeric(dimnames(sim@n)$time)),
-  min_w = min(sim@params@w)/100, power = 1, biomass = TRUE,
-  print_it = TRUE, total = FALSE, ...)
+\S4method{plotSpectra}{MizerSim}(object,
+  species = as.character(object@params@species_params$species),
+  time_range = max(as.numeric(dimnames(object@n)$time)),
+  min_w = min(object@params@w)/100, power = 1, biomass = TRUE,
+  print_it = TRUE, total = FALSE, plankton = TRUE, ...)
+
+\S4method{plotSpectra}{MizerParams}(object,
+  species = as.character(object@species_params$species),
+  min_w = min(object@w)/100, power = 1, biomass = TRUE, print_it = TRUE,
+  total = FALSE, plankton = TRUE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
 
 \item{...}{Other arguments (currently unused)}
 
@@ -24,7 +30,8 @@ default all species are plotted.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is
-the final time step.}
+the final time step. Ignored when called with a \linkS4class{MizerParams}
+object.}
 
 \item{min_w}{Minimum weight to be plotted (useful for truncating the
 background spectrum). Default value is a hundredth of the minimum size
@@ -44,18 +51,26 @@ Defaults to TRUE}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}
+
+\item{plankton}{A boolean value that determines whether plankton is included.
+Default is TRUE.}
 }
 \value{
 A ggplot2 object
 }
 \description{
-After running a projection, the spectra of the abundance of each species and
-the plankton can be plotted. The abundance is averaged over the specified
-time range (a single value for the time range can be used to plot a single
-time step). What is plotted is the number density multiplied by a power of
+What is plotted is the number density multiplied by a power of
 the weight, with the power specified by the \code{power} argument.
 
 Plot the abundance spectra using a \code{MizerSim} object.
+
+Plot the abundance spectra using a \code{MizerParams} object.
+}
+\details{
+When called with a \linkS4class{MizerSim} object, the abundance is averaged over
+the specified time range (a single value for the time range can be used to
+plot a single time step). When called with a \linkS4class{MizerParams} object the
+initial abundance is plotted.
 }
 \examples{
 \dontrun{
