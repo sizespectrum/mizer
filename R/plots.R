@@ -33,8 +33,8 @@ log_breaks <- function(n = 6){
 #' Plot the biomass of species through time
 #'
 #' After running a projection, the biomass of each species can be plotted
-#' against time. The biomass is calculated within user defined size limits (see
-#' \code{\link{getBiomass}}). 
+#' against time. The biomass is calculated within user defined size limits 
+#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
 #' 
 #' This plot is pretty easy to do by hand. It just
 #' gets the biomass using the \code{\link{getBiomass}} method and plots using
