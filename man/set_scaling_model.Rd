@@ -7,8 +7,8 @@
 set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   min_egg = 10^(-4), min_w_mat = 10^(0.4), no_w = log10(max_w_inf/min_egg)
   * 100 + 1, min_w_pp = min_egg/(beta * exp(5 * sigma)), n = 2/3, q = 3/4,
-  r_pp = 0.1, kappa = 7e+10, alpha = 0.4, ks = 4, h = 30,
-  beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
+  lambda = 2 + q - n, r_pp = 0.1, kappa = 0.005, alpha = 0.4, ks = 4,
+  h = 30, beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
   gear_names = "knife_edge_gear", rfac = Inf, ...)
 }
 \arguments{
@@ -35,12 +35,17 @@ feeding kernel of even the smallest fish larva.}
 
 \item{n}{Scaling of the intake. Default value is 2/3.}
 
-\item{q}{Exponent of the search volume. Default value is 3/4.}
+\item{q}{Exponent of the search volume. Default value is 3/4 unless 
+\code{lambda} is provided, in which case this argument is ignored and
+q = lambda - 2 + n.}
+
+\item{lambda}{Exponent of the abundance power law. If supplied, this 
+overrrules the \code{q} argument. Otherwise the default value is 2+q-n.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 0.1.}
 
-\item{kappa}{Carrying capacity of the resource spectrum. Default value is
-7e10.}
+\item{kappa}{Coefficient in abundance power law. Default value is
+0.005.}
 
 \item{alpha}{The assimilation efficiency of the community. The default value
 is 0.4.}

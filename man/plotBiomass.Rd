@@ -15,7 +15,7 @@ plotBiomass(sim, ...)
   print_it = TRUE, total = FALSE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \linkS4class{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getBiomass} method, for example
 \code{min_w} and \code{max_w}}
@@ -42,8 +42,8 @@ A ggplot2 object
 }
 \description{
 After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits (see
-\code{\link{getBiomass}}).
+against time. The biomass is calculated within user defined size limits 
+(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
 
 Plot the biomass using a \code{MizerSim} object.
 }

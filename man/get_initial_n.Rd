@@ -7,7 +7,7 @@
 get_initial_n(params, n0_mult = NULL, a = 0.35)
 }
 \arguments{
-\item{params}{The model parameters. An object of type \code{MizerParams}.}
+\item{params}{The model parameters. An object of type \linkS4class{MizerParams}.}
 
 \item{n0_mult}{Multiplier for the abundance at size 0. Default value is
 kappa/1000.}
