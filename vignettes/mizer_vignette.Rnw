@@ -2580,6 +2580,67 @@ predation is needed when the scale-invariant model is implemented.
 
 \subsection{Introduction}
 
+In Section * we saw that using strong stock recruitment relationships, as implemented within the models discussed in Sections * and * can lead to scenarios where the stock levels are unrealistically insensitive to changes in the envioment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach for doing this is to use species from the scale-invariant trait based model as a type of background or substrait, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. The scale-invariant background species essentially act to model the presence of species that one has little knowledge about, or interest in modelling explicitly. 
+
+The key to our approach (of creating a system where species coexist without imposing strong stock recruitment relationships), is that when we add a new species to our system, we do so in such a way that the resulting system will still be at steady state. To do this, we try to ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survivle is based on the transplanted entity and its surrounds recieving similar stimulii before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to \emph{make room} for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
+
+\subsection{Adding a foreground species to a scale-invariant background}
+
+
+Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section *) as follows:
+
+<<label=seed_scaling_model_params>>=
+params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
+                            min_egg = 1e-4, min_w_mat = 10^(0.4), 
+                            knife_edge_size = 100, kappa = 0.005)
+@
+
+Let us introduce a species which we are interested in modelling explicityly into this background using our \code{add\_species()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
+
+<<label=mullet_data>>=
+species_params <- data.frame(
+    species = "mullet",
+    w_min = 0.001, 
+    w_inf = 173.2425, 
+    w_mat = 15.14863, 
+    beta = 283, 
+    sigma = 1.8, 
+    z0 = 0,
+    alpha = 0.6,
+    erepro = 0.1, 
+    sel_func = "sigmoid_length", 
+    knife_edge_size = 100, 
+    gear = "sigmoid_length_gear",
+    k = 0,
+    r_max = 10^50,
+    k_vb = 0.6,
+    a = 0.0085,
+    b = 3.11,
+    l25 = 15.65244,
+    l50 = 16.16
+)
+@
+
+Foreground species of specific interest can be introduced into our background using the following command:
+
+<<label=mullet_add>>=
+params_out <- add_species(params, species_params, biomass = 2*10^9, 
+min_w_observed = species_params$w_mat, rfac = 2)
+@
+
+This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{add\_species()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
+including the new species. This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight \args{min\_w\_observed} is \args{biomass}), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
+
+The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is neglidible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
+will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundanced of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
+
+The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection *.          
+
+
+\subsection{Adding a second species}
+
+
+
 \subsection{Method}
 
 \subsection{Species parameters}
@@ -2666,7 +2727,7 @@ We arrived at our expression for $\mu_b(w)$ by considering that in the steady st
   \end{equation}
   where $\mu_0$ is given by Equation~\ref{eq:mu0}, and $\mu_{p.i} (w)$ is the predation mortality, given by Equation~\ref{eq:mup}, where the abundance $N$ is the abundance at our steady state, given by Equation~\ref{eq:steady}.  This is done so that (provided we choose parameters so $ \mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0. $) 
 ) we ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
-***
+
 
 \subsection{Background resources in the scale invariant model}
 
