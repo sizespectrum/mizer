@@ -4,8 +4,8 @@
 \alias{add_species}
 \title{Add more species into an ecosystem with scaling background species.}
 \usage{
-add_species(params, species_params, biomass = NA, min_w_observed = 0,
-  rfac = 10, effort = 0)
+add_species(params, species_params, biomass = NA,
+  min_w_observed = species_params$w_mat, rfac = 10, effort = 0)
 }
 \arguments{
 \item{params}{A mizer params object for the original system. The A slot holds
@@ -23,7 +23,7 @@ the same as that of the species with the next smaller maturity size.}
 
 \item{min_w_observed}{The minimum weight of fish of the new species that
 contribute to the biomass which we setup for the new species. Default value
-is 0. Ignored unless \code{biomass} is provided.}
+is 1/10 of the maturity size of the new species.}
 
 \item{rfac}{Default value is 10.}
 

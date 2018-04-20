@@ -863,7 +863,7 @@ retune_abundance <- function(params) {
 #'   the same as that of the species with the next smaller maturity size.
 #' @param min_w_observed The minimum weight of fish of the new species that
 #'   contribute to the biomass which we setup for the new species. Default value
-#'   is 0. Ignored unless \code{biomass} is provided.
+#'   is the maturity size of the new species.
 #' @param rfac Default value is 10.
 #' @param effort Default value is 0.
 #' 
@@ -918,7 +918,7 @@ retune_abundance <- function(params) {
 # Note that we are assuming that the first species is a background species, and
 # the last species is a foreground species, with abundance multiplier mult.
 add_species <- function(params, species_params, biomass = NA, 
-                        min_w_observed = 0, rfac=10, effort = 0) {
+                        min_w_observed = species_params$w_mat, rfac=10, effort = 0) {
     
     # replace r_max with a large value, if absent
     if (is.null(params@species_params$r_max)){
@@ -1064,14 +1064,12 @@ add_species <- function(params, species_params, biomass = NA,
     # Normalise solution
     if (is.na(biomass)) {
         # If biomass of new species is not supplied, set it to the biomass of
-        # mature fish of the species with the next-smaller maturity size.
-        min_w_observed <- species_params$w_mat
-        # get index of next smaller species
+        # the species with the next-smaller maturity size.
         idx <- which.min(p@species_params$w_mat < species_params$w_mat) - 1
-        biomass <- sum(p@initial_n[idx, ] * p@w * p@dw * (p@w > min_w_observed))
+        biomass <- sum(p@initial_n[idx, ] * p@w * p@dw * (p@w >= min_w_observed))
     }
     unnormalised_biomass <- sum(p@initial_n[new_sp,] * p@w * p@dw *
-                                    (p@w>min_w_observed))
+                                    (p@w >= min_w_observed))
     p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * biomass / 
         unnormalised_biomass
     
