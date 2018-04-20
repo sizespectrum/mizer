@@ -732,16 +732,11 @@ set_scaling_model <- function(no_sp = 11,
     # Record abundance of fish and resources at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
-    if (is.finite(rfac)) {
-        # set rmax=fac*RDD
-        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
-        # compensate for using a stock recruitment relationship.
-        params@species_params$r_max <-
-            (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
-    } else {
-        # An infinite rfac means that rdd equals rdi
-        params@srr <- function(rdi, species_params) {return(rdi)}
-    }
+    # set rmax=fac*RDD
+    # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+    # compensate for using a stock recruitment relationship.
+    params@species_params$r_max <-
+        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
     return(params)
 }
 
@@ -892,7 +887,7 @@ retune_abundance <- function(params) {
 #'     knife_edge_size = 100, 
 #'     gear = "knife_edge_gear",
 #'     k = 0,
-#'     r_max = 10^50,
+#'     r_max = Inf,
 #'     k_vb = 0.6,
 #'     a = a_m,
 #'     b = b_m
@@ -920,13 +915,13 @@ retune_abundance <- function(params) {
 add_species <- function(params, species_params, biomass = NA, 
                         min_w_observed = species_params$w_mat, rfac=10, effort = 0) {
     
-    # replace r_max with a large value, if absent
+    # Set r_max to Inf if absent
     if (is.null(params@species_params$r_max)){
         params@species_params$r_max <- params@species_params$w_inf
-        params@species_params$r_max[] <- 10^50
+        params@species_params$r_max[] <- Inf
     }
     if (is.null(species_params$r_max)){
-        species_params$r_max <- 10^50
+        species_params$r_max <- Inf
     }
     
     # ensure dataframes to be merged have the same columns, 
@@ -1107,16 +1102,11 @@ add_species <- function(params, species_params, biomass = NA,
     }
     p@species_params$erepro <- erepro_final
     
-    if (is.finite(rfac)) {
-        p@species_params$r_max <- p@species_params$w_inf
-        # set rmax=fac*RDD
-        # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
-        # compensate for using a stock recruitment relationship.
-        p@species_params$r_max <-
-            (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
-    } else {
-        # An infinite rfac means that rdd equals rdi
-        params@srr <- function(rdi, species_params) {return(rdi)}
-    }
+    p@species_params$r_max <- p@species_params$w_inf
+    # set rmax=fac*RDD
+    # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+    # compensate for using a stock recruitment relationship.
+    p@species_params$r_max <-
+        (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
     return(p)
 }

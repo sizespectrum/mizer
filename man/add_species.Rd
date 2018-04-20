@@ -23,7 +23,7 @@ the same as that of the species with the next smaller maturity size.}
 
 \item{min_w_observed}{The minimum weight of fish of the new species that
 contribute to the biomass which we setup for the new species. Default value
-is 1/10 of the maturity size of the new species.}
+is the maturity size of the new species.}
 
 \item{rfac}{Default value is 10.}
 
@@ -58,7 +58,7 @@ species_params <- data.frame(
     knife_edge_size = 100, 
     gear = "knife_edge_gear",
     k = 0,
-    r_max = 10^50,
+    r_max = Inf,
     k_vb = 0.6,
     a = a_m,
     b = b_m

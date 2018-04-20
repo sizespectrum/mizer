@@ -684,7 +684,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Can add more functional forms or user specifies own
 	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
-	    return(species_params$r_max * rdi / (species_params$r_max+rdi))
+	    return(rdi / (1 + rdi/species_params$r_max))
 	}
 
 	# Set fishing parameters: selectivity and catchability
