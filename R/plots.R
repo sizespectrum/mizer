@@ -260,7 +260,7 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 
 
 #### plotSpectra ####
-#' Plot the abundance spectra of fish species and plankton
+#' Plot the abundance spectra
 #' 
 #' What is plotted is the number density multiplied by a power of
 #' the weight, with the power specified by the \code{power} argument.
@@ -291,6 +291,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #'   Defaults to TRUE
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
+#' @param plankton A boolean value that determines whether plankton is included.
+#'   Default is TRUE.
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
@@ -316,7 +318,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, species = as.character(object@params@species_params$species),
              time_range = max(as.numeric(dimnames(object@n)$time)), 
              min_w = min(object@params@w)/100, power = 1, biomass = TRUE, 
-             print_it = TRUE, total = FALSE, ...) {
+             print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
         # to deal with old-type biomass argument
         if (missing(power)) {
             power <- as.numeric(biomass)
@@ -325,7 +327,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
         spec_n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
         background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
         plot_spectra(object@params, spec_n, background_n, 
-                     species, min_w, power, print_it, total)
+                     species, min_w, power, print_it, total, plankton)
     }
 )
 
@@ -334,20 +336,20 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 setMethod('plotSpectra', signature(object='MizerParams'),
           function(object, species = as.character(object@species_params$species),
                    min_w = min(object@w)/100, power = 1, biomass = TRUE, 
-                   print_it = TRUE, total = FALSE, ...) {
+                   print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
               # to deal with old-type biomass argument
               if (missing(power)) {
                   power <- as.numeric(biomass)
               }
               plot_spectra(object, object@initial_n, object@initial_n_pp, 
-                           species, min_w, power, print_it, total)
+                           species, min_w, power, print_it, total, plankton)
           }
 )
 
 plot_spectra <- function(params, spec_n, background_n,
          species = as.character(params@species_params$species),
          min_w = min(params@w)/100, power = 1,
-         print_it = TRUE, total = FALSE) {
+         print_it = TRUE, total = FALSE, plankton = TRUE) {
     if (total) {
         # Calculate total community abundance
         fish_idx <- (length(params@w_full)-length(params@w)+1):
@@ -366,16 +368,18 @@ plot_spectra <- function(params, spec_n, background_n,
         y_label = paste0("Number density * w^", power)
     }
     spec_n <- sweep(spec_n, 2, params@w^power, "*")
-    background_n <- background_n * params@w_full^power
     # Make data.frame for plot
     plot_dat <- data.frame(value = c(spec_n), 
                            Species = dimnames(spec_n)[[1]], 
                            w = rep(params@w, 
                                    each = length(species)))
-    plot_dat <- rbind(plot_dat, 
-                      data.frame(value = c(background_n), 
-                                 Species = "Plankton", 
-                                 w = params@w_full))
+    if (plankton) {
+        background_n <- background_n * params@w_full^power
+        plot_dat <- rbind(plot_dat, 
+                          data.frame(value = c(background_n), 
+                                     Species = "Plankton", 
+                                     w = params@w_full))
+    }
     if (total) {
         plot_dat <- rbind(plot_dat, 
                           data.frame(value = c(total_n), 
@@ -392,8 +396,8 @@ plot_spectra <- function(params, spec_n, background_n,
             geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) 
     }
     p <- p + 
-        scale_x_continuous(name = "Size [g]", trans="log10") + 
-        scale_y_continuous(name = y_label, trans="log10")
+        scale_x_continuous(name = "Size [g]", trans="log10", breaks=log_breaks()) + 
+        scale_y_continuous(name = y_label, trans="log10", breaks=log_breaks())
     if (print_it)
         print(p)
     return(p)

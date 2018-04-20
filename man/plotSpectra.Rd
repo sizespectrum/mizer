@@ -5,7 +5,7 @@
 \alias{plotSpectra}
 \alias{plotSpectra,MizerSim-method}
 \alias{plotSpectra,MizerParams-method}
-\title{Plot the abundance spectra of fish species and plankton}
+\title{Plot the abundance spectra}
 \usage{
 plotSpectra(object, ...)
 
@@ -13,12 +13,12 @@ plotSpectra(object, ...)
   species = as.character(object@params@species_params$species),
   time_range = max(as.numeric(dimnames(object@n)$time)),
   min_w = min(object@params@w)/100, power = 1, biomass = TRUE,
-  print_it = TRUE, total = FALSE, ...)
+  print_it = TRUE, total = FALSE, plankton = TRUE, ...)
 
 \S4method{plotSpectra}{MizerParams}(object,
   species = as.character(object@species_params$species),
   min_w = min(object@w)/100, power = 1, biomass = TRUE, print_it = TRUE,
-  total = FALSE, ...)
+  total = FALSE, plankton = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -51,6 +51,9 @@ Defaults to TRUE}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}
+
+\item{plankton}{A boolean value that determines whether plankton is included.
+Default is TRUE.}
 }
 \value{
 A ggplot2 object
