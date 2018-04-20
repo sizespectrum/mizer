@@ -555,6 +555,10 @@ set_scaling_model <- function(no_sp = 11,
     if (min_w_mat >= min_w_inf) {
         stop("The maturity size of the smallest species min_w_mat must be smaller than its maximum size min_w_inf")
     }
+    no_sp <- as.integer(no_sp)
+    if (no_sp < 2) {
+        stop("The number of species must be at least 2.")
+    }
     if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
         stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
     }
@@ -571,11 +575,10 @@ set_scaling_model <- function(no_sp = 11,
     j <- 1 + ceiling((log10(v) - log10(min_w)) / delt)
     v <- 10 ^ (log10(min_w) + (j - 1) * delt)
     min_w_mat <- v
-    # Round min_w_inf up to the nearest grid point.
-    v <- min_w_inf
-    j <- 1 + ceiling((log10(v) - log10(min_w)) / delt)
-    v <- 10 ^ (log10(min_w) + (j - 1) * delt)
-    min_w_inf <- v
+    # Round min_w_inf so that it is an integer multiple of the
+    # species spacing away from max_w_inf
+    j <- round((log10(max_w) - log10(min_w_inf)) / (delt * (no_sp - 1)))
+    min_w_inf <- 10 ^ (log10(max_w) - j * (no_sp - 1) * delt)
     # Determine maximum egg size
     max_egg <- max_w * min_egg / min_w_inf
     log10_minimum_egg <- log10(min_egg)
