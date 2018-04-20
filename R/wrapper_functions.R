@@ -814,7 +814,7 @@ retune_abundance <- function(params) {
     # rho is the total abundance of all the species that have their abundance multipliers
     # held fixed.
     Lcomp <- (1:no_sp)[!is.na(A2)]
-    rho <- colSums(params@initial_n[Lcomp,])
+    rho <- colSums(params@initial_n[Lcomp, , drop=FALSE])
     # We solve a linear system to find the abundance multipliers, first we initialize
     # the matrix RR and vector QQ
     RR <- matrix(0, nrow = length(L), ncol = length(L))
@@ -858,10 +858,12 @@ retune_abundance <- function(params) {
 #' @param species_params The species parameters of the foreground species we
 #'   want to add to the system.
 #' @param biomass The total biomass of members of the newly added species which
-#'   have weights greater than min_w_observed. Default value is 4*10^8.
+#'   have weights greater than min_w_observed. If not provided, the abundance
+#'   of new species will be chosen so that the biomass of its mature fish is
+#'   the same as that of the species with the next smaller maturity size.
 #' @param min_w_observed The minimum weight of fish of the new species that
 #'   contribute to the biomass which we setup for the new species. Default value
-#'   is 0.
+#'   is 0. Ignored unless \code{biomass} is provided.
 #' @param rfac Default value is 10.
 #' @param effort Default value is 0.
 #' 
@@ -871,8 +873,6 @@ retune_abundance <- function(params) {
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
-#' params@species_params$r_max <- params@species_params$w_mat
-#' params@species_params$r_max[] <- 10^50
 #' params@A[] <- NA
 #' a_m <- 0.0085
 #' b_m <- 3.11
@@ -917,8 +917,9 @@ retune_abundance <- function(params) {
 #
 # Note that we are assuming that the first species is a background species, and
 # the last species is a foreground species, with abundance multiplier mult.
-add_species <- function(params, species_params, biomass = 4*10^8, 
+add_species <- function(params, species_params, biomass = NA, 
                         min_w_observed = 0, rfac=10, effort = 0) {
+    
     # replace r_max with a large value, if absent
     if (is.null(params@species_params$r_max)){
         params@species_params$r_max <- params@species_params$w_inf
@@ -927,6 +928,7 @@ add_species <- function(params, species_params, biomass = 4*10^8,
     if (is.null(species_params$r_max)){
         species_params$r_max <- 10^50
     }
+    
     # ensure dataframes to be merged have the same columns, 
     # regarding k_vb, a and b
     if (is.null(params@species_params$k_vb)&(!is.null(species_params$k_vb))){
@@ -964,8 +966,9 @@ add_species <- function(params, species_params, biomass = 4*10^8,
     if ((("l50" %in% colnames(params@species_params)))&(!("l50" %in% colnames(species_params)))){
         species_params$l50 <- NA
     }
+    
     # calculate h if it is missing
-    if (is.null(species_params$h)){
+    if (is.null(species_params$h) || is.na(species_params$h)){
         message("Note: \tNo h column in new species data frame so using f0 and k_vb to
                 calculate it.")
         if(!("k_vb" %in% colnames(species_params))){
@@ -975,24 +978,15 @@ add_species <- function(params, species_params, biomass = 4*10^8,
         species_params$h <- 3*species_params$k_vb*(species_params$w_inf^(1/3))/
             (species_params$alpha*params@f0-0.2)
     }
-    if (is.na(species_params$h)){
-        message("Note: \tNo h column in new species data frame so using f0 and k_vb to
-                calculate it.")
-        fc <- 0.2/species_params$alpha
-        species_params$h <- 3*species_params$k_vb*(species_params$w_inf^(1/3))/
-            (species_params$alpha*params@f0*(1-fc/params@f0))
-    }
+    
     # calculate ks if it is missing
-    if (is.null(species_params$ks)){
+    if (is.null(species_params$ks) || is.na(species_params$ks)){
         message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
         species_params$ks <- 0.2*species_params$h # mizer's default setting
     }
-    if (is.na(species_params$ks)){
-        message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
-        species_params$ks <- 0.2*species_params$h # mizer's default setting
-    }
+    
     # calculate gamma if it is missing
-    if (is.null(species_params$gamma)){
+    if (is.null(species_params$gamma) || is.na(species_params$gamma)){
         message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         ae <- sqrt(2*pi) * species_params$sigma * 
             species_params$beta^(params@lambda-2) * 
@@ -1000,22 +994,17 @@ add_species <- function(params, species_params, biomass = 4*10^8,
         species_params$gamma <- (species_params$h / (params@kappa * ae)) * 
             (params@f0 / (1 - params@f0))
     }
-    if (is.na(species_params$gamma)){
-        message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        ae <- sqrt(2*pi) * species_params$sigma * 
-            species_params$beta^(params@lambda-2) * 
-            exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
-        species_params$gamma <- (species_params$h / (params@kappa * ae)) * 
-            (params@f0 / (1 - params@f0))
-    }
+    
+    # calculate w_min_idx if it is missing
     species_params$w_min_idx <- sum(params@w<=species_params$w_min)
+    
     # add the new species (with parameters described by species_params), 
     # to make a larger species_params dataframe.
     combi_species_params <- rbind(params@species_params, species_params)
+    
     # use dataframe and global settings from params to make a new MizerParams 
     # object.
-    combi_params <-
-        MizerParams(
+    p <- MizerParams(
             combi_species_params,
             p = params@p,
             n = params@n,
@@ -1030,99 +1019,87 @@ add_species <- function(params, species_params, biomass = 4*10^8,
             w_pp_cutoff = max(params@w_full),
             r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
         )
-    # Use the same resource specrum as params
-    combi_params@initial_n_pp <- params@initial_n_pp
-    combi_params@cc_pp <- params@cc_pp
+    # Use the same resource spectrum as params
+    p@initial_n_pp <- params@initial_n_pp
+    p@cc_pp <- params@cc_pp
     new_sp <- length(params@species_params$species) + 1
     # Initially use abundance curves for pre-existing species 
     # (we shall retune the abundance multipliers of such 
     # species from the background later)
-    combi_params@initial_n[1:(new_sp - 1), ] <- params@initial_n
+    p@initial_n[1:(new_sp - 1), ] <- params@initial_n
     # Use the same psi and mu_b as before for old species
-    combi_params@psi[1:(new_sp - 1), ] <- params@psi
-    combi_params@sc <- params@sc
-    combi_params@mu_b[1:(new_sp - 1), ] <- params@mu_b
-    combi_params@mu_b[new_sp, ] <- params@mu_b[1, ]
-    #! what about params@srr ? do I have to pass this through when rmax is off ?
-    combi_params@srr <- params@srr
+    p@psi[1:(new_sp - 1), ] <- params@psi
+    p@sc <- params@sc
+    p@mu_b[1:(new_sp - 1), ] <- params@mu_b
+    p@mu_b[new_sp, ] <- params@mu_b[1, ]
+    p@srr <- params@srr
+    
     # Turn off self-interaction of the new species, so we can determine the
     # growth rates, and death rates induced upon it by the pre-existing species
-    combi_params@interaction[new_sp, new_sp] <- 0
+    p@interaction[new_sp, new_sp] <- 0
     # compute death rate for new species
-    mumu <-
-        getZ(combi_params,
-             combi_params@initial_n,
-             combi_params@initial_n_pp,
-             effort = effort)[new_sp, ]
+    mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)[new_sp, ]
     # compute growth rate for new species
-    gg <-
-        getEGrowth(combi_params,
-                   combi_params@initial_n,
-                   combi_params@initial_n_pp)[new_sp, ]
-    w_inf_idx <-
-        sum(combi_params@w < combi_params@species_params$w_inf[new_sp])
-    #! Alter this code here, so it avoids division by zero, in stunted growth
-    #case. Compute integral to solve MVF for new species
-    if (sum(gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]==0)>0) {
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[new_sp, ]
+    
+    # Compute integral to solve MVF for new species
+    w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
+    if (any(gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]==0)) {
         stop("Can not compute steady state due to zero growth rates")
     }
     integrand <-
-        params@dw[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] * 
-        mumu[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] /
-        gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
-    # Write steady state for new species (under assumption of self interaction)
-    combi_params@initial_n[new_sp, ] <- 0
-    combi_params@initial_n[new_sp, combi_params@species_params$w_min_idx[new_sp]:w_inf_idx] <-
-        exp(-cumsum(integrand)) / gg[combi_params@species_params$w_min_idx[new_sp]:w_inf_idx]
-    if(sum(is.infinite(combi_params@initial_n))>0){
+        params@dw[p@species_params$w_min_idx[new_sp]:w_inf_idx] * 
+        mumu[p@species_params$w_min_idx[new_sp]:w_inf_idx] /
+        gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]
+    p@initial_n[new_sp, ] <- 0
+    p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <-
+        exp(-cumsum(integrand)) / gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]
+    if (any(is.infinite(p@initial_n))) {
         stop("Candidate steady state holds infinities")
     }
-    if(sum(is.na(combi_params@initial_n))+sum(is.nan(combi_params@initial_n))>0){
+    if (any(is.na(p@initial_n) || is.nan(p@initial_n))) {
         stop("Candidate steady state holds none numeric values")
     }
-    unnormalised_biomass <- sum(combi_params@initial_n[new_sp,] *
-                                    combi_params@w*combi_params@dw *
-                                    (combi_params@w>min_w_observed))
-    combi_params@initial_n[new_sp, ] <-
-        combi_params@initial_n[new_sp, ] *
-        biomass / unnormalised_biomass
+    
+    # Normalise solution
+    if (is.na(biomass)) {
+        # If biomass of new species is not supplied, set it to the biomass of
+        # mature fish of the species with the next-smaller maturity size.
+        min_w_observed <- species_params$w_mat
+        # get index of next smaller species
+        idx <- which.max(p@species_params$w_mat < species_params$w_mat)
+        biomass <- sum(p@initial_n[idx, ] * p@w * p@dw * (p@w > min_w_observed))
+    }
+    unnormalised_biomass <- sum(p@initial_n[new_sp,] * p@w * p@dw *
+                                    (p@w>min_w_observed))
+    p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * biomass / 
+        unnormalised_biomass
+    
     # Turn self interaction back on
-    combi_params@interaction[new_sp, new_sp] <- 1
+    p@interaction[new_sp, new_sp] <- 1
     # Arrange background inidicators A, so show the new species is in the
     # foreground
-    combi_params@A <- c(params@A, 1)
+    p@A <- c(params@A, 1)
     # Retune the abundance multipliers to recreate the aggregate abundance
     # spectrum of the old params object.
-    AA <- retune_abundance(combi_params)
+    AA <- retune_abundance(p)
     # Use these abundance multipliers to rescale the abundance curves so that 
     # their aggregation is close to the power law
-    new_n <- combi_params@initial_n
-    for (i in 1:length(combi_params@species_params$w_inf)) {
-        new_n[i, ] <- AA[i] * combi_params@initial_n[i, ]
-    }
-    combi_params@initial_n <- new_n
+    p@initial_n <- p@initial_n * AA
+    
     # Retune the values of erepro, so that we are at steady state.
-    # First get growth rates
-    mumu <-
-        getZ(combi_params,
-             combi_params@initial_n,
-             combi_params@initial_n_pp,
-             effort = effort)
-    gg <-
-        getEGrowth(combi_params,
-                   combi_params@initial_n,
-                   combi_params@initial_n_pp)
-    # #
-    rdi <- getRDI(combi_params, combi_params@initial_n, 
-                  combi_params@initial_n_pp)
+    # First get death and growth rates
+    mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+    rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
     no_sp <- new_sp
     erepro_final <- 1:no_sp  # set up vector of right dimension
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, combi_params@species_params$w_min_idx[i]]
-        mumu0 <- mumu[i, combi_params@species_params$w_min_idx[i]]
-        DW <- params@dw[combi_params@species_params$w_min_idx[i]]
-        erepro_final[i] <- combi_params@species_params$erepro[i] *
-            (combi_params@initial_n[i, combi_params@species_params$w_min_idx[i]] *
+        gg0 <- gg[i, p@species_params$w_min_idx[i]]
+        mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
+        DW <- params@dw[p@species_params$w_min_idx[i]]
+        erepro_final[i] <- p@species_params$erepro[i] *
+            (p@initial_n[i, p@species_params$w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdi[i]
     }
     if (is.finite(rfac)) {
@@ -1130,19 +1107,18 @@ add_species <- function(params, species_params, biomass = 4*10^8,
         # compensate for using a stock recruitment relationship.
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
-    combi_params@species_params$erepro <- erepro_final
+    p@species_params$erepro <- erepro_final
     
     if (is.finite(rfac)) {
-        combi_params@species_params$r_max <- combi_params@species_params$w_inf
+        p@species_params$r_max <- p@species_params$w_inf
         # set rmax=fac*RDD
         # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
         # compensate for using a stock recruitment relationship.
-        combi_params@species_params$r_max <-
-            (rfac - 1) * getRDI(combi_params, combi_params@initial_n, 
-                                combi_params@initial_n_pp)[,1]
+        p@species_params$r_max <-
+            (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
     } else {
         # An infinite rfac means that rdd equals rdi
         params@srr <- function(rdi, species_params) {return(rdi)}
     }
-    return(combi_params)
+    return(p)
 }
