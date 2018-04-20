@@ -95,7 +95,7 @@ valid_MizerSim <- function(object){
 #' A class that holds the results of projecting a \linkS4class{MizerParams}
 #' object through time.
 #' 
-#' \code{MizerSim} objects are created by using the \code{\link{project}} method
+#' \linkS4class{MizerSim} objects are created by using the \code{\link{project}} method
 #' on an object of type \code{MizerParams}.
 #' 
 #' There are several plotting methods available to explore the contents of a

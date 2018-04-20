@@ -15,7 +15,7 @@ plotBiomass(sim, ...)
   print_it = TRUE, total = FALSE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \linkS4class{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getBiomass} method, for example
 \code{min_w} and \code{max_w}}

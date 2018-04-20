@@ -13,7 +13,7 @@ plotFMort(sim, ...)
   time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \linkS4class{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getFMort} method}
 
