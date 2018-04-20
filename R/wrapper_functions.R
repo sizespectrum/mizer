@@ -1067,7 +1067,7 @@ add_species <- function(params, species_params, biomass = NA,
         # mature fish of the species with the next-smaller maturity size.
         min_w_observed <- species_params$w_mat
         # get index of next smaller species
-        idx <- which.max(p@species_params$w_mat < species_params$w_mat)
+        idx <- which.min(p@species_params$w_mat < species_params$w_mat) - 1
         biomass <- sum(p@initial_n[idx, ] * p@w * p@dw * (p@w > min_w_observed))
     }
     unnormalised_biomass <- sum(p@initial_n[new_sp,] * p@w * p@dw *
