@@ -2634,20 +2634,38 @@ including the new species. This is done by decreasing the abundance of the pre-e
 The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is neglidible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
 will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundanced of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
 
-The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection *.          
+The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection *.
 
+We can perform a simulation with our new system, including the mullet, in the usual way: 
 
-\subsection{Adding a second species}
+<<label = mullet_run>>=
+sim <- project(params, t_max=5, effort = 0)
+@
 
+We now picture the results (Figure~\ref{fig:plot_mullet_demo}):
 
+<<plot_mullet_sim, eval=FALSE>>=
+plot(sim)
+@
 
-\subsection{Method}
+\begin{figure}
+<<label=print_plot_mullet_sim, echo=FALSE, fig.height=9>>=
+<<plot_mullet_sim>>
+@
+\caption{Example plot of the scale invariant trait-based model plus mullet with no fishing.}
+\label{fig:plot_mullet_demo}
+\end{figure}
 
-\subsection{Species parameters}
+\subsection{Adding another species}
 
-\subsection{Example: introducing one species -- hake}
+In practical fisheries science one will have many species that one wishes to model explicitly. Further species can be added into our system by repeated use of the \code{add\_species()} function. Let us demonstrait this by adding hake into our system with background and mullet. 
 
-\subsection{Example: introducing a second species -- mullet}
+Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
+
+\subsection{Adding fishing}
+
+\subsection{Comparing fishing gears}
+
 
 %---------------------------------------------------
 
