@@ -521,7 +521,7 @@ setMethod('plotM2', signature(sim='MizerSim'),
     }
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
-	    scale_y_continuous(name = "Mortality rate [1/year]", 
+	    scale_y_continuous(name = "Predation mortality [1/year]", 
 	                       limits=c(0,max(plot_dat$value)))
     if (print_it) {
         print(p)
@@ -584,7 +584,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
     }
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
-	    scale_y_continuous(name = "Total fishing mortality [1/Year]", 
+	    scale_y_continuous(name = "Fishing mortality [1/Year]", 
 	                       limits=c(0,max(plot_dat$value)))
     if (print_it) {
         print(p)
