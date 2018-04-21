@@ -12,13 +12,13 @@ plotSpectra(object, ...)
 \S4method{plotSpectra}{MizerSim}(object,
   species = as.character(object@params@species_params$species),
   time_range = max(as.numeric(dimnames(object@n)$time)),
-  min_w = min(object@params@w)/100, power = 1, biomass = TRUE,
-  print_it = TRUE, total = FALSE, plankton = TRUE, ...)
+  min_w = min(object@params@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE, ...)
 
 \S4method{plotSpectra}{MizerParams}(object,
   species = as.character(object@species_params$species),
-  min_w = min(object@w)/100, power = 1, biomass = TRUE, print_it = TRUE,
-  total = FALSE, plankton = TRUE, ...)
+  min_w = min(object@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -36,6 +36,9 @@ object.}
 \item{min_w}{Minimum weight to be plotted (useful for truncating the
 background spectrum). Default value is a hundredth of the minimum size
 value of the community.}
+
+\item{ylim}{A numeric vector of length two providing limits of for the
+y axis. Use NA to refer to the existing minimum or maximum.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass 

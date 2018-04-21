@@ -343,6 +343,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' @param min_w Minimum weight to be plotted (useful for truncating the
 #'   background spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
+#' @param ylim A numeric vector of length two providing limits of for the
+#'   y axis. Use NA to refer to the existing minimum or maximum.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to \code{power}. The default \code{power = 1} gives the biomass 
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -380,7 +382,8 @@ setGeneric('plotSpectra', function(object, ...)
 setMethod('plotSpectra', signature(object='MizerSim'),
     function(object, species = as.character(object@params@species_params$species),
              time_range = max(as.numeric(dimnames(object@n)$time)), 
-             min_w = min(object@params@w)/100, power = 1, biomass = TRUE, 
+             min_w = min(object@params@w)/100, ylim = c(NA, NA), 
+             power = 1, biomass = TRUE, 
              print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
         # to deal with old-type biomass argument
         if (missing(power)) {
@@ -390,7 +393,7 @@ setMethod('plotSpectra', signature(object='MizerSim'),
         spec_n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
         background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
         plot_spectra(object@params, spec_n, background_n, 
-                     species, min_w, power, print_it, total, plankton)
+                     species, min_w, ylim, power, print_it, total, plankton)
     }
 )
 
@@ -398,20 +401,21 @@ setMethod('plotSpectra', signature(object='MizerSim'),
 #' @rdname plotSpectra
 setMethod('plotSpectra', signature(object='MizerParams'),
           function(object, species = as.character(object@species_params$species),
-                   min_w = min(object@w)/100, power = 1, biomass = TRUE, 
+                   min_w = min(object@w)/100, ylim = c(NA, NA), 
+                   power = 1, biomass = TRUE, 
                    print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
               # to deal with old-type biomass argument
               if (missing(power)) {
                   power <- as.numeric(biomass)
               }
               plot_spectra(object, object@initial_n, object@initial_n_pp, 
-                           species, min_w, power, print_it, total, plankton)
+                           species, min_w, ylim, power, print_it, total, plankton)
           }
 )
 
 plot_spectra <- function(params, spec_n, background_n,
          species = as.character(params@species_params$species),
-         min_w = min(params@w)/100, power = 1,
+         min_w = min(params@w)/100, ylim, power = 1,
          print_it = TRUE, total = FALSE, plankton = TRUE) {
     if (total) {
         # Calculate total community abundance
@@ -449,8 +453,14 @@ plot_spectra <- function(params, spec_n, background_n,
                                      Species = "Total", 
                                      w = params@w_full))
     }
-    # lop off 0s in background and apply min_w
+    # lop off 0s and apply min_w
     plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
+    if (!is.na(ylim[1])) {
+        plot_dat <- plot_dat[plot_dat$value < ylim[1], ]
+    }
+    if (!is.na(ylim[2])) {
+        plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
+    }
     if (length(species) > 12) {
         p <- ggplot(plot_dat) + 
             geom_line(aes(x=w, y = value, group = Species))
@@ -459,8 +469,10 @@ plot_spectra <- function(params, spec_n, background_n,
             geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) 
     }
     p <- p + 
-        scale_x_continuous(name = "Size [g]", trans="log10", breaks=log_breaks()) + 
-        scale_y_continuous(name = y_label, trans="log10", breaks=log_breaks())
+        scale_x_continuous(name = "Size [g]", trans="log10", 
+                           breaks=log_breaks()) + 
+        scale_y_continuous(name = y_label, trans="log10",
+                           breaks=log_breaks())
     if (print_it)
         print(p)
     return(p)
