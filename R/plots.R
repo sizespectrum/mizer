@@ -441,11 +441,14 @@ plot_spectra <- function(params, spec_n, background_n,
                            w = rep(params@w, 
                                    each = length(species)))
     if (plankton) {
-        background_n <- background_n * params@w_full^power
+        plankton_sel <- params@w_full >= min_w &
+                        params@w_full <= min(params@species_params$w_mat)
+        w_plankton <- params@w_full[plankton_sel]
+        background_n <- background_n[plankton_sel] * w_plankton^power
         plot_dat <- rbind(plot_dat, 
                           data.frame(value = c(background_n), 
                                      Species = "Plankton", 
-                                     w = params@w_full))
+                                     w = w_plankton))
     }
     if (total) {
         plot_dat <- rbind(plot_dat, 
