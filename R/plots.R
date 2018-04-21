@@ -128,20 +128,20 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
 #' Plot the total yield of species through time
 #'
 #' After running a projection, the total yield of each species across all 
-#' fishing gears can be plotted against time. 
-#' 
-#' This plot is pretty easy to do by
-#' hand. It just gets the biomass using the \code{\link{getYield}} method and
-#' plots using the ggplot2 package. You can then fiddle about with colours and
-#' linetypes etc. Just look at the source code for details.
+#' fishing gears can be plotted against time. The yield is obtained with
+#' \code{\link{getYield}}.
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
+#' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
+#'   this is provided its yields will be shown on the same plot in bolder lines.
 #' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
+#'   default all species contained in \code{sim} are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to TRUE
-#' @param total A boolean value that determines whether the total Yield from
+#' @param total A boolean value that determines whether the total yield from
 #'   all species in the system is plotted as well. Default is FALSE
+#' @param log Boolean whether yield should be plotted on a logarithmic axis. 
+#'   Defaults to true.
 #' @param ... Other arguments to pass to \code{getYield} method
 #'
 #' @return A ggplot2 object
@@ -155,39 +155,102 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 #' plotYield(sim)
 #' plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
+#' 
+#' # Comparing with yield from twice the effort
+#' sim2 <- project(params, effort=2, t_max=20, t_save = 0.2)
+#' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #' }
-setGeneric('plotYield', function(sim, ...)
+setGeneric('plotYield', function(sim, sim2, ...)
     standardGeneric('plotYield'))
 
 #' Plot the yield using a \code{MizerSim} object.
 #' @rdname plotYield
-setMethod('plotYield', signature(sim='MizerSim'),
+setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
     function(sim, species = as.character(sim@params@species_params$species),
-             print_it = TRUE, total = FALSE, ...){
+             print_it = TRUE, total = FALSE, log = TRUE, ...){
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
-        y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y)>0, 
+        y <- y[, (as.character(dimnames(y)[[2]]) %in% species), 
                drop=FALSE]
         if (total) {
             # Include total
             y <- cbind(y, Total = y_total)
         }
-        names(dimnames(y)) <- c("time", "Species")
-        ym <- reshape2::melt(y)
-        ym$Species <- as.character(ym$Species)
-        if (dim(y)[2] > 12) {
+        ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
+                             value.name = "Yield")
+        ym$Species <- as.factor(ym$Species)
+        ym <- subset(ym, ym$Yield > 0)
+        if (nlevels(ym$Species) > 12) {
             p <- ggplot(ym) + 
-                geom_line(aes(x=time,y=value, group=Species))
+                geom_line(aes(x=Year, y=Yield, group=Species))
         } else {
             p <- ggplot(ym) + 
-                geom_line(aes(x=time,y=value, colour=Species, linetype=Species))
+                geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species))
         }
-        p <- p + scale_y_continuous(trans="log10", name="Yield [g]") + 
-            scale_x_continuous(name="Year")
-    if (print_it)
+        if (log) {
+            p <- p + scale_y_continuous(trans="log10", name="Yield [g]")
+        } else {
+            p <- p + scale_y_continuous(name="Yield [g]")
+        }
+    if (print_it) {
         print(p)
+    }
 	return(p)
     }
+)
+
+#' Plot the yield using two \code{MizerSim} objects.
+#' @rdname plotYield
+setMethod('plotYield', signature(sim='MizerSim', sim2='MizerSim'),
+          function(sim, sim2, 
+                   species = as.character(sim@params@species_params$species),
+                   print_it = TRUE, total = FALSE, log = TRUE, ...){
+              if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
+                  stop("The two simulations do not have the same times")
+              }
+              y <- getYield(sim, ...)
+              y2 <- getYield(sim2, ...)
+              y_total <- rowSums(y)
+              y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y)>0, 
+                     drop=FALSE]
+              y2_total <- rowSums(y2)
+              y2 <- y2[, (as.character(dimnames(y2)[[2]]) %in% species), 
+                     drop=FALSE]
+              if (total) {
+                  # Include total
+                  y <- cbind(y, Total = y_total)
+                  y2 <- cbind(y2, Total = y2_total)
+              }
+              ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
+                                   value.name = "Yield")
+              ym2 <- reshape2::melt(y2, varnames = c("Year", "Species"), 
+                                   value.name = "Yield")
+              ym$Simulation = 1
+              ym2$Simulation = 2
+              ym <- rbind(ym, ym2)
+              ym$Species <- as.factor(ym$Species)
+              ym$Simulation <- as.factor(ym$Simulation)
+              ym <- subset(ym, ym$Yield > 0)
+              if (nlevels(ym$Species) > 12) {
+                  p <- ggplot(ym) + 
+                      geom_line(aes(x=Year, y=Yield, size=Simulation,
+                                    group=interaction(Species, Simulation)))
+              } else {
+                  p <- ggplot(ym) + 
+                      geom_line(aes(x=Year, y=Yield, colour=Species, 
+                                    linetype=Species, size=Simulation))
+              }
+              p <- p + scale_size_manual(values = c(0.3, 0.6))
+              if (log) {
+                  p <- p + scale_y_continuous(trans="log10", name="Yield [g]")
+              } else {
+                  p <- p + scale_y_continuous(name="Yield [g]")
+              }
+              if (print_it) {
+                  print(p)
+              }
+              return(p)
+          }
 )
 
 
@@ -521,7 +584,7 @@ setMethod('plotM2', signature(sim='MizerSim'),
     }
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
-	    scale_y_continuous(name = "Mortality rate [1/year]", 
+	    scale_y_continuous(name = "Predation mortality [1/year]", 
 	                       limits=c(0,max(plot_dat$value)))
     if (print_it) {
         print(p)
@@ -584,7 +647,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
     }
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
-	    scale_y_continuous(name = "Total fishing mortality [1/Year]", 
+	    scale_y_continuous(name = "Fishing mortality [1/Year]", 
 	                       limits=c(0,max(plot_dat$value)))
     if (print_it) {
         print(p)
