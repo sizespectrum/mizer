@@ -2624,8 +2624,8 @@ species_params <- data.frame(
 Foreground species of specific interest can be introduced into our background using the following command:
 
 <<label=mullet_add>>=
-params_out <- add_species(params, species_params, biomass = 2*10^9, 
-min_w_observed = species_params$w_mat, rfac = 2)
+params@A[] <- NA
+params_out <- add_species(params, species_params)
 @
 
 This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{add\_species()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
