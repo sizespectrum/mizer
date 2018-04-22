@@ -689,7 +689,7 @@ set_scaling_model <- function(no_sp = 11,
     # Cut off plankton at maximum size of smallest species
     plankton_vec[w >= min_w_inf] <- 0
     # Do not allow negative plankton abundance
-    if (sum(plankton_vec < 0) > 0) {
+    if (any(plankton_vec < 0)) {
         message("Note: Negative abundance values in background resource overwritten with zeros")
         plankton_vec[plankton_vec < 0] <- 0
     }
@@ -708,7 +708,7 @@ set_scaling_model <- function(no_sp = 11,
         params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
         params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
-        if (sum(params@mu_b[i,] < 0) > 0) {
+        if (any(params@mu_b[i,] < 0)) {
             message("Note: Negative background mortality rates overwritten with zeros")
         }
         params@mu_b[i, params@mu_b[i,] < 0] <- 0
@@ -740,6 +740,8 @@ set_scaling_model <- function(no_sp = 11,
     # compensate for using a stock recruitment relationship.
     params@species_params$r_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
+    # Indicate that these are all background species
+    params@A <- as.numeric(rep(NA, no_sp))
     return(params)
 }
 
@@ -770,7 +772,6 @@ set_scaling_model <- function(no_sp = 11,
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model()
-#' params@A[] <- NA
 #' params@A[length(params@A)] <- 1
 #' retune_abundance(params)
 #' }
@@ -834,7 +835,7 @@ retune_abundance <- function(params) {
     # yield our power law
     A2[L] <- solve(RR, QQ)
     print(A2)
-    if (sum(A2 < 0) > 0) {
+    if (any(A2 < 0)) {
         stop('Abundance multipliers generated with negative entries')
         #! we should add an extra iteration to solve this issue of -ve
         # abundance multipliers by holding certain species off.
@@ -871,7 +872,6 @@ retune_abundance <- function(params) {
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
-#' params@A[] <- NA
 #' a_m <- 0.0085
 #' b_m <- 3.11
 #' L_inf_m <- 24.3
