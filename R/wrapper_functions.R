@@ -391,7 +391,7 @@ set_trait_model <- function(no_sp = 10,
 #### set_scaling_model ####
 #' Sets up parameters for a scale free trait-based model
 #'
-#' This functions creates a \code{MizerParams} object so that scale free
+#' This functions creates a \code{MizerParamsBg} object so that scale free
 #' trait-based-type models can be easily set up and run. The scale free
 #' trait-based size spectrum model can be derived as a simplification of the
 #' general size-based model used in \code{mizer}. All the species-specific
@@ -448,7 +448,7 @@ set_trait_model <- function(no_sp = 10,
 #' length of \code{knife_edge_size} has the same length as the number of species
 #' and the order of selectivity size is that of the asymptotic size).
 #'
-#' The resulting \code{MizerParams} object can be projected forward using
+#' The resulting \code{MizerParamsBg} object can be projected forward using
 #' \code{project()} like any other \code{MizerParams} object. When projecting
 #' the model it may be necessary to reduce \code{dt} to 0.1 to avoid any
 #' instabilities with the solver. You can check this by plotting the biomass or
@@ -496,7 +496,7 @@ set_trait_model <- function(no_sp = 10,
 #'   The default is Inf.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
-#' @return An object of type \code{MizerParams}
+#' @return An object of type \code{MizerParamsBg}
 #' @seealso \linkS4class{MizerParams}
 #' @examples
 #' \dontrun{
@@ -740,7 +740,7 @@ set_scaling_model <- function(no_sp = 11,
     # compensate for using a stock recruitment relationship.
     params@species_params$r_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
-    return(params)
+    return(new("MizerParamsBg", A = as.numeric(rep(NA, no_sp)), params))
 }
 
 
@@ -756,21 +756,18 @@ set_scaling_model <- function(no_sp = 11,
 #' is close to sc(w), which is the aggregate abundance of all but the last
 #' species. We are assuming this last species is newly added, with A_i=1.
 #'
-#' retune_abundance operates of a params object, with a slot A. If i is a
+#' retune_abundance operates on a params object, with a slot A. If i is a
 #' background species, then A_i=NA, indicating we are allowed to retune the
 #' abundance multiplier.
 #'
-#' @param params A mizer params object with an A slot with 1's for species we
-#'   wish to hold fixed the abundance multiplier of, and NA's for species that
-#'   we shall vary the abundance multiplier of.
+#' @param params A \linkS4class{MizerParamsBg} object
 #'   
-#' @return An object of type \code{MizerParams}
+#' @return An object of type \linkS4class{MizerParamsBg}
 #' @seealso \linkS4class{MizerParams}
 #' @export
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model()
-#' params@A[] <- NA
 #' params@A[length(params@A)] <- 1
 #' retune_abundance(params)
 #' }
@@ -846,13 +843,10 @@ retune_abundance <- function(params) {
 #### add_species ####
 #' Add more species into an ecosystem with scaling background species.
 #'
-#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' Takes a \linkS4class{MizerParamsBg} object and adds additional species with
 #' given parameters to the ecosystem.
 #'
-#' @param params A mizer params object for the original system. The A slot holds
-#'   1's for foreground species we wish to hold fixed the abundance multiplier
-#'   of, and NA's for for background species that we shall vary the abundance
-#'   multiplier of.
+#' @param params A \linkS4class{MizerParamsBg} object for the original system.
 #' @param species_params The species parameters of the foreground species we
 #'   want to add to the system.
 #' @param biomass The total biomass of members of the newly added species which
@@ -866,12 +860,11 @@ retune_abundance <- function(params) {
 #' @param effort Default value is 0.
 #' 
 #' @export
-#' @return An object of type \code{MizerParams}
+#' @return An object of type \linkS4class{MizerParamsBg}
 #' @seealso \linkS4class{MizerParams}
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
-#' params@A[] <- NA
 #' a_m <- 0.0085
 #' b_m <- 3.11
 #' L_inf_m <- 24.3

@@ -312,8 +312,7 @@ setClass(
         lambda = "numeric",
         q = "numeric",
         f0 = "numeric",
-        kappa = "numeric",
-        A = "numeric"
+        kappa = "numeric"
     ),
     prototype = prototype(
         w = NA_real_,
@@ -339,7 +338,6 @@ setClass(
         cc_pp = NA_real_,
         sc = NA_real_,
         initial_n_pp = NA_real_,
-        A = NA_real_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
@@ -509,7 +507,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
 	    rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, species_params = species_params,
-	    interaction = interaction, srr = srr, A=as.numeric(rep(NA, dim(interaction)[1]))) 
+	    interaction = interaction, srr = srr) 
 	return(res)
     }
 )
@@ -722,7 +720,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
 	res@initial_n <- res@psi
 	res@initial_n <- get_initial_n(res)
-	res@A <- rep(1,no_sp)
 	return(res)
     }
 )
@@ -755,4 +752,18 @@ check_species_params_dataframe <- function(species_params){
     }
     return(TRUE)
 }
+
+#### MizerParamsBg ####
+#' A class to hold the parameters for a size based model with background
+#' species
+#' 
+#' A subclass of \linkS4class{MizerParams} with additional slots
+#' 
+#' @slot A Abundance multipliers.
+#'
+#' @export
+setClass("MizerParamsBg", contains = "MizerParams",
+         representation(A = "numeric"),
+         prototype = prototype(A = NA_real_)
+)
 

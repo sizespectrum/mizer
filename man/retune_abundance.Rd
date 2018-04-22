@@ -8,12 +8,10 @@ a power law.}
 retune_abundance(params)
 }
 \arguments{
-\item{params}{A mizer params object with an A slot with 1's for species we
-wish to hold fixed the abundance multiplier of, and NA's for species that
-we shall vary the abundance multiplier of.}
+\item{params}{A \linkS4class{MizerParamsBg} object}
 }
 \value{
-An object of type \code{MizerParams}
+An object of type \linkS4class{MizerParamsBg}
 }
 \description{
 If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with
@@ -25,14 +23,13 @@ is close to sc(w), which is the aggregate abundance of all but the last
 species. We are assuming this last species is newly added, with A_i=1.
 }
 \details{
-retune_abundance operates of a params object, with a slot A. If i is a
+retune_abundance operates on a params object, with a slot A. If i is a
 background species, then A_i=NA, indicating we are allowed to retune the
 abundance multiplier.
 }
 \examples{
 \dontrun{
 params <- set_scaling_model()
-params@A[] <- NA
 params@A[length(params@A)] <- 1
 retune_abundance(params)
 }
