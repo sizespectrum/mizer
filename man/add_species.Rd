@@ -8,7 +8,10 @@ add_species(params, species_params, biomass = NA,
   min_w_observed = species_params$w_mat, rfac = 10, effort = 0)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParamsBg} object for the original system.}
+\item{params}{A mizer params object for the original system. The A slot holds
+1's for foreground species we wish to hold fixed the abundance multiplier
+of, and NA's for for background species that we shall vary the abundance
+multiplier of.}
 
 \item{species_params}{The species parameters of the foreground species we
 want to add to the system.}
@@ -27,15 +30,16 @@ is the maturity size of the new species.}
 \item{effort}{Default value is 0.}
 }
 \value{
-An object of type \linkS4class{MizerParamsBg}
+An object of type \code{MizerParams}
 }
 \description{
-Takes a \linkS4class{MizerParamsBg} object and adds additional species with
+Takes a \linkS4class{MizerParams} object and adds additional species with
 given parameters to the ecosystem.
 }
 \examples{
 \dontrun{
 params <- set_scaling_model(max_w_inf = 5000)
+params@A[] <- NA
 a_m <- 0.0085
 b_m <- 3.11
 L_inf_m <- 24.3

@@ -76,10 +76,10 @@ The default is Inf.}
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
 \value{
-An object of type \code{MizerParamsBg}
+An object of type \code{MizerParams}
 }
 \description{
-This functions creates a \code{MizerParamsBg} object so that scale free
+This functions creates a \code{MizerParams} object so that scale free
 trait-based-type models can be easily set up and run. The scale free
 trait-based size spectrum model can be derived as a simplification of the
 general size-based model used in \code{mizer}. All the species-specific
@@ -137,7 +137,7 @@ gear (\code{knife_edge_size} has a length of 1) or by a different gear (the
 length of \code{knife_edge_size} has the same length as the number of species
 and the order of selectivity size is that of the asymptotic size).
 
-The resulting \code{MizerParamsBg} object can be projected forward using
+The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting
 the model it may be necessary to reduce \code{dt} to 0.1 to avoid any
 instabilities with the solver. You can check this by plotting the biomass or
