@@ -50,7 +50,8 @@ log_breaks <- function(n = 6){
 #'   time series.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum.
+#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
+#'   below 1e-20 are always cut off.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
 #'   value is TRUE
 #' @param total A boolean value that determines whether the total biomass from
@@ -107,9 +108,8 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         # Force Species column to be a character (if numbers used - may be
         # interpreted as integer and hence continuous)
         bm$Species <- as.character(bm$Species)
-        # Due to log10, need to set a minimum value, seems like a feature in
-        # ggplot
-        min_value <- 1e-30
+        # Implement ylim and a minimal cutoff
+        min_value <- 1e-20
         bm <- bm[bm$value >= min_value & 
                      (is.na(ylim[1]) | bm$value >= ylim[1]) &
                      (is.na(ylim[2]) | bm$value <= ylim[1]),]
@@ -347,10 +347,10 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' What is plotted is the number density multiplied by a power of
 #' the weight, with the power specified by the \code{power} argument.
 #'
-#' When called with a \linkS4class{MizerSim} object, the abundance is averaged over
-#' the specified time range (a single value for the time range can be used to
-#' plot a single time step). When called with a \linkS4class{MizerParams} object the
-#' initial abundance is plotted.
+#' When called with a \linkS4class{MizerSim} object, the abundance is averaged
+#' over the specified time range (a single value for the time range can be used
+#' to plot a single time step). When called with a \linkS4class{MizerParams}
+#' object the initial abundance is plotted.
 #' 
 #' @param object An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.
 #' @param species Name or vector of names of the species to be plotted. By
@@ -363,7 +363,8 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #'   background spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
 #' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum.
+#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
+#'   below 1e-20 are always cut off.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to \code{power}. The default \code{power = 1} gives the biomass 
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -494,9 +495,11 @@ plot_spectra <- function(params, n, n_pp,
     if (!is.na(ylim[1])) {
         plot_dat <- plot_dat[plot_dat$value < ylim[1], ]
     }
-    if (!is.na(ylim[2])) {
-        plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
+    if (is.na(ylim[2])) {
+        ylim[2] <- 1e-20
     }
+    plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
+
     # Create plot
     p <- ggplot(plot_dat, aes(x=w, y = value)) + 
         scale_x_continuous(name = "Size [g]", trans="log10", 
@@ -515,9 +518,7 @@ plot_spectra <- function(params, n, n_pp,
         if (!is.na(ylim[1])) {
             plot_back <- plot_back[plot_back$value < ylim[1], ]
         }
-        if (!is.na(ylim[2])) {
-            plot_dat <- plot_back[plot_back$value > ylim[2], ]
-        }
+        plot_back <- plot_back[plot_back$value > ylim[2], ]
         # Add background species in light grey
         p <- p + 
             geom_line(aes(group = Species), colour = "lightgrey",

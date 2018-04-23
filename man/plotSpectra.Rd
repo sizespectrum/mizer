@@ -38,7 +38,8 @@ background spectrum). Default value is a hundredth of the minimum size
 value of the community.}
 
 \item{ylim}{A numeric vector of length two providing limits of for the
-y axis. Use NA to refer to the existing minimum or maximum.}
+y axis. Use NA to refer to the existing minimum or maximum. Any values
+below 1e-20 are always cut off.}
 
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass 
@@ -74,10 +75,10 @@ Plot the abundance spectra using a \code{MizerSim} object.
 Plot the abundance spectra using a \code{MizerParams} object.
 }
 \details{
-When called with a \linkS4class{MizerSim} object, the abundance is averaged over
-the specified time range (a single value for the time range can be used to
-plot a single time step). When called with a \linkS4class{MizerParams} object the
-initial abundance is plotted.
+When called with a \linkS4class{MizerSim} object, the abundance is averaged
+over the specified time range (a single value for the time range can be used
+to plot a single time step). When called with a \linkS4class{MizerParams}
+object the initial abundance is plotted.
 }
 \examples{
 \dontrun{

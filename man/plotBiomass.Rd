@@ -36,7 +36,8 @@ time series.}
 value is TRUE}
 
 \item{ylim}{A numeric vector of length two providing limits of for the
-y axis. Use NA to refer to the existing minimum or maximum.}
+y axis. Use NA to refer to the existing minimum or maximum. Any values
+below 1e-20 are always cut off.}
 
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE}
