@@ -16,6 +16,9 @@ we shall vary the abundance multiplier of.}
 An object of type \code{MizerParams}
 }
 \description{
+An unexported helper function
+}
+\details{
 If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with
 fixed growth and death rates, then A_i*N_i(w) is also a steady state, where
 A_i is an abundance multiplier. When we add a foreground species to our
@@ -23,19 +26,10 @@ model, we want to choose new abundance multipliers of the background species
 so that we the abundance, summed over all species and background resources,
 is close to sc(w), which is the aggregate abundance of all but the last
 species. We are assuming this last species is newly added, with A_i=1.
-}
-\details{
+
 retune_abundance operates of a params object, with a slot A. If i is a
 background species, then A_i=NA, indicating we are allowed to retune the
 abundance multiplier.
-}
-\examples{
-\dontrun{
-params <- set_scaling_model()
-params@A[] <- NA
-params@A[length(params@A)] <- 1
-retune_abundance(params)
-}
 }
 \seealso{
 \linkS4class{MizerParams}
