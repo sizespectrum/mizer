@@ -9,10 +9,10 @@
 plotBiomass(sim, ...)
 
 \S4method{plotBiomass}{MizerSim}(sim,
-  species = as.character(sim@params@species_params$species),
+  species = sim@params@species_params$species[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), y_ticks = 6,
-  print_it = TRUE, total = FALSE, ...)
+  print_it = TRUE, total = FALSE, background = TRUE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}.}
@@ -36,6 +36,10 @@ value is TRUE}
 
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
 }
 \value{
 A ggplot2 object

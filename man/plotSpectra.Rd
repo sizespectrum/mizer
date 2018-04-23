@@ -9,16 +9,16 @@
 \usage{
 plotSpectra(object, ...)
 
-\S4method{plotSpectra}{MizerSim}(object,
-  species = as.character(object@params@species_params$species),
+\S4method{plotSpectra}{MizerSim}(object, species = NULL,
   time_range = max(as.numeric(dimnames(object@n)$time)),
   min_w = min(object@params@w)/100, ylim = c(NA, NA), power = 1,
-  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE, ...)
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
 
-\S4method{plotSpectra}{MizerParams}(object,
-  species = as.character(object@species_params$species),
+\S4method{plotSpectra}{MizerParams}(object, species = NULL,
   min_w = min(object@w)/100, ylim = c(NA, NA), power = 1,
-  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE, ...)
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -56,6 +56,10 @@ Defaults to TRUE}
 species in the system is plotted as well. Default is FALSE}
 
 \item{plankton}{A boolean value that determines whether plankton is included.
+Default is TRUE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
 Default is TRUE.}
 }
 \value{

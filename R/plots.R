@@ -53,6 +53,9 @@ log_breaks <- function(n = 6){
 #'   value is TRUE
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
 #' @param ... Other arguments to pass to \code{getBiomass} method, for example
 #'   \code{min_w} and \code{max_w}
 #'   
@@ -77,10 +80,12 @@ setGeneric('plotBiomass', function(sim, ...)
 #' Plot the biomass using a \code{MizerSim} object.
 #' @rdname plotBiomass
 setMethod('plotBiomass', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+    function(sim, 
+             species = sim@params@species_params$species[!is.na(sim@params@A)],
              start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
              end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-             y_ticks = 6, print_it = TRUE, total = FALSE, ...){
+             y_ticks = 6, print_it = TRUE, 
+             total = FALSE, background = TRUE, ...){
         b <- getBiomass(sim, ...)
         if(start_time >= end_time){
             stop("start_time must be less than end_time")
@@ -89,11 +94,10 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & 
                    (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
         b_total = rowSums(b)
-        # Select species
-        b <- b[, as.character(dimnames(b)[[2]]) %in% species, drop = FALSE]
         # Include total
         if (total) {
             b <- cbind(b, Total = b_total)
+            species <- c("Total", species)
         }
         names(dimnames(b)) <- c("time", "Species")
         bm <- reshape2::melt(b)
@@ -104,18 +108,28 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         # ggplot
         min_value <- 1e-30
         bm <- bm[bm$value >= min_value,]
+        # Select species
+        spec_bm <- bm[bm$Species %in% species, ]
         x_label <- "Year"
         y_label <- "Biomass [g]"
-        if (length(species) > 12) {
-            p <- ggplot(bm) + geom_line(aes(x=time, y=value, group=Species)) 
-        } else {
-            p <- ggplot(bm) + 
-                geom_line(aes(x=time, y=value, colour=Species, linetype=Species))
-        }
-        p <- p  + 
+        p <- ggplot(spec_bm, aes(x=time, y=value)) + 
             scale_y_continuous(trans="log10", breaks=log_breaks(n=y_ticks), 
                                labels = prettyNum, name=y_label) + 
             scale_x_continuous(name=x_label)
+        
+        if (background) {  # Add background species in light grey 
+            back_sp <- sim@params@species_params$species[is.na(sim@params@A)]
+            back_bm <- bm[bm$Species %in% back_sp, ]
+            p <- p + geom_line(aes(group=Species), data = back_bm,
+                               colour = "lightgrey") 
+        }
+        
+        if ((length(species) + total) > 12) {
+            p <- p + geom_line(aes(group=Species)) 
+        } else {
+            p <- p + 
+                geom_line(aes(colour=Species, linetype=Species))
+        }
         if (print_it) {
             print(p)
         }
@@ -358,6 +372,9 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #'   species in the system is plotted as well. Default is FALSE
 #' @param plankton A boolean value that determines whether plankton is included.
 #'   Default is TRUE.
+#' @param background A boolean value that determines whether background species
+#'   are included. Ignored if the model does not contain background species.
+#'   Default is TRUE.
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
@@ -380,73 +397,83 @@ setGeneric('plotSpectra', function(object, ...)
 #' Plot the abundance spectra using a \code{MizerSim} object.
 #' @rdname plotSpectra
 setMethod('plotSpectra', signature(object='MizerSim'),
-    function(object, species = as.character(object@params@species_params$species),
+    function(object, species = NULL,
              time_range = max(as.numeric(dimnames(object@n)$time)), 
              min_w = min(object@params@w)/100, ylim = c(NA, NA), 
-             power = 1, biomass = TRUE, 
-             print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
+             power = 1, biomass = TRUE, print_it = TRUE, 
+             total = FALSE, plankton = TRUE, background = TRUE, ...) {
         # to deal with old-type biomass argument
         if (missing(power)) {
             power <- as.numeric(biomass)
         }
         time_elements <- get_time_elements(object,time_range)
-        spec_n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
-        background_n <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-        plot_spectra(object@params, spec_n, background_n, 
-                     species, min_w, ylim, power, print_it, total, plankton)
+        n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
+        n_pp <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
+        plot_spectra(object@params, n = n, n_pp = n_pp, 
+                     species = species, min_w = min_w, ylim = ylim, 
+                     power = power, print_it = print_it, 
+                     total = total, plankton = plankton, 
+                     background = background)
     }
 )
 
 #' Plot the abundance spectra using a \code{MizerParams} object.
 #' @rdname plotSpectra
 setMethod('plotSpectra', signature(object='MizerParams'),
-          function(object, species = as.character(object@species_params$species),
+          function(object, species = NULL,
                    min_w = min(object@w)/100, ylim = c(NA, NA), 
-                   power = 1, biomass = TRUE, 
-                   print_it = TRUE, total = FALSE, plankton = TRUE, ...) {
+                   power = 1, biomass = TRUE, print_it = TRUE, 
+                   total = FALSE, plankton = TRUE, background = TRUE, ...) {
               # to deal with old-type biomass argument
               if (missing(power)) {
                   power <- as.numeric(biomass)
               }
-              plot_spectra(object, object@initial_n, object@initial_n_pp, 
-                           species, min_w, ylim, power, print_it, total, plankton)
+              plot_spectra(object, n = object@initial_n, 
+                           n_pp = object@initial_n_pp, 
+                           species = species, min_w = min_w, ylim = ylim, 
+                           power = power, print_it = print_it, 
+                           total = total, plankton = plankton, 
+                           background = background)
           }
 )
 
-plot_spectra <- function(params, spec_n, background_n,
-         species = as.character(params@species_params$species),
-         min_w = min(params@w)/100, ylim, power = 1,
-         print_it = TRUE, total = FALSE, plankton = TRUE) {
+plot_spectra <- function(params, n, n_pp,
+         species, min_w, ylim, power, print_it,
+         total, plankton, background) {
     if (total) {
         # Calculate total community abundance
         fish_idx <- (length(params@w_full)-length(params@w)+1):
             length(params@w_full)
-        total_n <- background_n
-        total_n[fish_idx] <- total_n[fish_idx] + colSums(spec_n)
+        total_n <- n_pp
+        total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
         total_n <- total_n * params@w_full^power
     }
-    # Select only the desired species
-    spec_n <- spec_n[as.character(dimnames(spec_n)[[1]]) %in% species, ,
-                     drop = FALSE]
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- params@species_params$species[!is.na(params@A)]
+    }
+    # Deal with power argument
     if (power %in% c(0, 1, 2)) {
         y_label = c("Number density [1/g]", "Biomass density", 
                     "Biomass density [g]")[power+1]
     } else {
         y_label = paste0("Number density * w^", power)
     }
-    spec_n <- sweep(spec_n, 2, params@w^power, "*")
+    n <- sweep(n, 2, params@w^power, "*")
+    # Select only the desired species and background species
+    spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
     plot_dat <- data.frame(value = c(spec_n), 
-                           Species = dimnames(spec_n)[[1]], 
+                           Species = as.factor(dimnames(spec_n)[[1]]), 
                            w = rep(params@w, 
-                                   each = length(species)))
+                                   each = dim(spec_n)[[1]]))
     if (plankton) {
         plankton_sel <- params@w_full >= min_w &
-                        params@w_full <= min(params@species_params$w_mat)
+                        params@w_full < min(params@species_params$w_mat)
         w_plankton <- params@w_full[plankton_sel]
-        background_n <- background_n[plankton_sel] * w_plankton^power
+        plank_n <- n_pp[plankton_sel] * w_plankton^power
         plot_dat <- rbind(plot_dat, 
-                          data.frame(value = c(background_n), 
+                          data.frame(value = c(plank_n), 
                                      Species = "Plankton", 
                                      w = w_plankton))
     }
@@ -458,24 +485,44 @@ plot_spectra <- function(params, spec_n, background_n,
     }
     # lop off 0s and apply min_w
     plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
+    # Impose ylim
     if (!is.na(ylim[1])) {
         plot_dat <- plot_dat[plot_dat$value < ylim[1], ]
     }
     if (!is.na(ylim[2])) {
         plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
     }
-    if (length(species) > 12) {
-        p <- ggplot(plot_dat) + 
-            geom_line(aes(x=w, y = value, group = Species))
-    } else {
-        p <- ggplot(plot_dat) + 
-            geom_line(aes(x=w, y = value, colour = Species, linetype=Species)) 
-    }
-    p <- p + 
+    # Create plot
+    p <- ggplot(plot_dat, aes(x=w, y = value)) + 
         scale_x_continuous(name = "Size [g]", trans="log10", 
                            breaks=log_breaks()) + 
         scale_y_continuous(name = y_label, trans="log10",
                            breaks=log_breaks())
+    if (background) {
+        back_n <- n[is.na(params@A), , drop = FALSE]
+        plot_back <- data.frame(value = c(back_n), 
+                               Species = as.factor(dimnames(back_n)[[1]]),
+                               w = rep(params@w, 
+                                       each = dim(back_n)[[1]]))
+        # lop off 0s and apply min_w
+        plot_back <- plot_back[(plot_back$value > 0) & (plot_back$w >= min_w),]
+        # Impose ylim
+        if (!is.na(ylim[1])) {
+            plot_back <- plot_back[plot_back$value < ylim[1], ]
+        }
+        if (!is.na(ylim[2])) {
+            plot_dat <- plot_back[plot_back$value > ylim[2], ]
+        }
+        # Add background species in light grey
+        p <- p + 
+            geom_line(aes(group = Species), colour = "lightgrey",
+                      data = plot_back)
+    }
+    if ((length(species) + plankton + total) > 12) {
+        p <- p + geom_line(aes(group = Species))
+    } else {
+        p <- p + geom_line(aes(colour = Species, linetype = Species)) 
+    }
     if (print_it)
         print(p)
     return(p)
