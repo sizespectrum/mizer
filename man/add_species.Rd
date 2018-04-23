@@ -39,7 +39,7 @@ given parameters to the ecosystem.
 \examples{
 \dontrun{
 params <- set_scaling_model(max_w_inf = 5000)
-params@A[] <- NA
+params <- setBackground(params)
 a_m <- 0.0085
 b_m <- 3.11
 L_inf_m <- 24.3
@@ -63,10 +63,10 @@ species_params <- data.frame(
     a = a_m,
     b = b_m
 )
-params_out <- add_species(params, species_params, biomass = 3070953023, 
-                          min_w_observed = 0)
-sim <- project(params_out, t_max = 5, effort = 0)
-plot(sim)
+params <- add_species(params, species_params)
+plotSpectra(params)
+sim <- project(params, t_max = 5, effort = 0)
+plotBiomass(sim)
 }
 }
 \seealso{

@@ -740,8 +740,6 @@ set_scaling_model <- function(no_sp = 11,
     # compensate for using a stock recruitment relationship.
     params@species_params$r_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
-    # Indicate that these are all background species
-    params@A <- as.numeric(rep(NA, no_sp))
     return(params)
 }
 
@@ -872,6 +870,7 @@ retune_abundance <- function(params) {
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
+#' params <- setBackground(params)
 #' a_m <- 0.0085
 #' b_m <- 3.11
 #' L_inf_m <- 24.3
@@ -895,10 +894,10 @@ retune_abundance <- function(params) {
 #'     a = a_m,
 #'     b = b_m
 #' )
-#' params_out <- add_species(params, species_params, biomass = 3070953023, 
-#'                           min_w_observed = 0)
-#' sim <- project(params_out, t_max = 5, effort = 0)
-#' plot(sim)
+#' params <- add_species(params, species_params)
+#' plotSpectra(params)
+#' sim <- project(params, t_max = 5, effort = 0)
+#' plotBiomass(sim)
 #' }
 # The code adds a new species into the system, and sets its abundance to the
 # steady state in the system where the new species does not self interact. Then
@@ -916,7 +915,8 @@ retune_abundance <- function(params) {
 # Note that we are assuming that the first species is a background species, and
 # the last species is a foreground species, with abundance multiplier mult.
 add_species <- function(params, species_params, biomass = NA, 
-                        min_w_observed = species_params$w_mat, rfac=10, effort = 0) {
+                        min_w_observed = species_params$w_mat, 
+                        rfac=10, effort = 0) {
     
     # Set r_max to Inf if absent
     if (is.null(params@species_params$r_max)){
@@ -1113,3 +1113,48 @@ add_species <- function(params, species_params, biomass = NA,
         (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
     return(p)
 }
+
+#### setBackground ####
+#' Designate species as background species
+#'
+#' Background species are handled differently in some plots and their
+#' abundance is automatically adjusted in add_species() to keep the community
+#' close to the Sheldon spectrum.
+#' 
+#' @param object An object of class \linkS4class{MizerParams} or 
+#'   \linkS4class{MizerSim}.
+#' @param species Name or vector of names of the species to be designated as
+#'   background species. By default this is set to all species.
+#' 
+#' @return An object of the same class as the \code{object} argument
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+#' sim <- setBackground(sim, species = c("Sprat", "Sandeel", 
+#'                                             "N.pout", "Dab", "Saithe"))
+#' plotSpectra(sim)
+#' }
+setGeneric('setBackground', function(object, ...)
+    standardGeneric('setBackground'))
+
+#' Set species to background species in MizerParams object
+#' @rdname setBackground
+setMethod('setBackground', signature(object = 'MizerParams'),
+    function(object, species = object@species_params@species) {
+        params@A[object@species_params$species %in% species] <- NA
+        return(object)
+    } 
+)
+
+#' Set species to background species in MizerSim object
+#' @rdname setBackground
+setMethod('setBackground', signature(object = 'MizerSim'),
+    function(object, species = object@params@species_params@species) {
+        object@params@A[object@params@species_params$species %in% species] <- NA
+        return(object)
+    } 
+)
