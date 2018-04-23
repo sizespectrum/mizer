@@ -9,7 +9,7 @@
 addSpecies(params, ...)
 
 \S4method{addSpecies}{MizerParams}(params, species_params, SSB = NA,
-  rfac = 10, effort = 0)
+  rfac = 10, effort = 0, iterate = TRUE)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -18,8 +18,8 @@ addSpecies(params, ...)
 want to add to the system.}
 
 \item{SSB}{The spawning stock biomass of the new species. If not provided, 
-it will be set equal to that of the species with the next smaller maturity 
-size.}
+the abundance of the new species will be chosen so that its maximal 
+biomass density lies on the community power law.}
 
 \item{rfac}{A number that determines the strength of the non-linearity in
 the Beverton-Holt stock-recruitment relationship. The maximal recruitment
@@ -27,6 +27,11 @@ will be set to rfac times the normal steady-state recruitment.
 Default value is 10.}
 
 \item{effort}{Default value is 0.}
+
+\item{iterate}{Boolean parameter that determines whether the within-species
+distributions should be recalculated after retuning the abundances. This
+is only a temporary parameter while we are exploring the consequences.
+Defaults to TRUE.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -64,5 +69,7 @@ species_params <- data.frame(
 )
 params <- addSpecies(params, species_params)
 plotSpectra(params)
+sim <- project(params, t_max=50)
+plotBiomass(sim)
 }
 }

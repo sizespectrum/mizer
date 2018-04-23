@@ -799,6 +799,9 @@ retune_abundance <- function(params, retune) {
     # Now we solve the linear system to find the abundance multipliers
     A2 <- rep(1, no_sp) 
     A2[retune] <- solve(RR, QQ)
+    if (any(is.na(A2))) {
+        stop("Solving the linear system to find abundance multipliers failed.")
+    }
     # We may have to repeat this if any of the multipliers is negative
     if (any(A2 < 0)) {
         # Set abundance of those species to tiny
@@ -813,6 +816,8 @@ retune_abundance <- function(params, retune) {
     } else {
         # Use these abundance multipliers to rescale the abundance curves
         p@initial_n <- p@initial_n * A2
+        # update SSB
+        p@A <- p@A * A2
     }
     return(params)
 }
@@ -828,13 +833,17 @@ retune_abundance <- function(params, retune) {
 #' @param species_params The species parameters of the new species we
 #'   want to add to the system.
 #' @param SSB The spawning stock biomass of the new species. If not provided, 
-#'   it will be set equal to that of the species with the next smaller maturity 
-#'   size.
+#'   the abundance of the new species will be chosen so that its maximal 
+#'   biomass density lies at half the community power law.
 #' @param rfac A number that determines the strength of the non-linearity in
 #'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
 #' @param effort Default value is 0.
+#' @param iterate Boolean parameter that determines whether the within-species
+#'   distributions should be recalculated after retuning the abundances. This
+#'   is only a temporary parameter while we are exploring the consequences.
+#'   Defaults to TRUE.
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -865,6 +874,8 @@ retune_abundance <- function(params, retune) {
 #' )
 #' params <- addSpecies(params, species_params)
 #' plotSpectra(params)
+#' sim <- project(params, t_max=50)
+#' plotBiomass(sim)
 #' }
 setGeneric('addSpecies', function(params, ...)
     standardGeneric('addSpecies'))
@@ -888,7 +899,7 @@ setGeneric('addSpecies', function(params, ...)
 # the last species is a foreground species, with abundance multiplier mult.
 setMethod('addSpecies', signature(params = 'MizerParams'),
     function(params, species_params, SSB = NA,
-             rfac=10, effort = 0) {
+             rfac=10, effort = 0, iterate = TRUE) {
         
         # Set r_max to Inf if absent
         if (is.null(params@species_params$r_max)){
@@ -996,6 +1007,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         p@initial_n_pp <- params@initial_n_pp
         p@cc_pp <- params@cc_pp
         new_sp <- length(params@species_params$species) + 1
+        no_sp <- new_sp
         # Initially use abundance curves for pre-existing species 
         # (we shall retune the abundance multipliers of such 
         # species from the background later)
@@ -1017,16 +1029,14 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         
         # Compute integral to solve MVF for new species
         w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
-        if (any(gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]==0)) {
+        idx <- p@species_params$w_min_idx[new_sp]:w_inf_idx
+        if (any(gg[idx]==0)) {
             stop("Can not compute steady state due to zero growth rates")
         }
         integrand <-
-            params@dw[p@species_params$w_min_idx[new_sp]:w_inf_idx] * 
-            mumu[p@species_params$w_min_idx[new_sp]:w_inf_idx] /
-            gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]
+            params@dw[idx] * mumu[idx] / gg[idx]
         p@initial_n[new_sp, ] <- 0
-        p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <-
-            exp(-cumsum(integrand)) / gg[p@species_params$w_min_idx[new_sp]:w_inf_idx]
+        p@initial_n[new_sp, idx] <- exp(-cumsum(integrand)) / gg[idx]
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
         }
@@ -1036,17 +1046,20 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         
         # Normalise solution
         if (is.na(SSB)) {
-            # If spawning stock biomass of new species is not supplied, set it
-            # to that of the species with the next-smaller maturity size.
-            idx <- which.min(p@species_params$w_mat < species_params$w_mat) - 1
-            SSB <- sum(p@initial_n[idx, ] * p@w * p@dw * 
-                               (p@w >= p@species_params$w_mat[idx]))
+            # If spawning stock biomass of new species is not supplied, 
+            # normalise solution so that at its maximum it lies at half the 
+            # power law, and then calculate its SSB.
+            # We choose the maximum of the biomass density in log space
+            # because that is always an increasing function at small size.
+            idx <- which.max(p@initial_n[new_sp, ] * p@w^2)
+            p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] *
+                p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[new_sp, idx] / 2
+            SSB <- sum(p@initial_n[new_sp, ] * p@w * p@dw * p@psi[new_sp, ])
+        } else {
+            unnormalised_SSB <- sum(p@initial_n[new_sp,] * p@w * p@dw * 
+                                        p@psi[new_sp, ])
+            p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * SSB / unnormalised_SSB
         }
-        unnormalised_SSB <- sum(p@initial_n[new_sp,] * p@w * p@dw *
-                                        (p@w >= species_params$w_mat))
-        p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * SSB / unnormalised_SSB /
-            (p@species_params$w_inf[idx] / p@species_params$w_mat[idx]) *
-            (species_params$w_inf / species_params$w_mat)
         p@A <- c(params@A, SSB)
         
         # Turn self interaction back on
@@ -1057,16 +1070,44 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # First identify the retunable species. These are all background
         # species except the largest one
         retune <- is.na(p@A)
-        largest_background <- which.max(params@species_params$w_inf[retune])
-        retune[largest_background] <- FALSE
+        largest_back_idx <- which.max(params@species_params$w_inf[retune])
+        retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
+        
+        # The following is only temporarily in a conditional
+        if (iterate) {
+            # Recalculate solutions in the new environment
+            mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+            gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+            for (sp in 1:no_sp) {  # TODO: vectorize
+                # Compute integral to solve MVF
+                w_inf_idx <- sum(p@w < p@species_params$w_inf[sp])
+                idx <- p@species_params$w_min_idx[sp]:w_inf_idx
+                if (!all(gg[sp, idx] > 0)) {
+                    stop("Can not compute steady state due to zero growth rates")
+                }
+                integrand <- params@dw[idx] * mumu[sp, idx] / gg[sp, idx]
+                sol <- exp(-cumsum(integrand)) / gg[sp, idx]
+                p@initial_n[sp, idx] <- sol * p@initial_n[sp, idx[1]] / sol[1]
+                # Rescale to get desired SSB
+                if (!is.na(params@A[sp])) {
+                    unnormalised_SSB <- sum(p@initial_n[sp,] * p@w * p@dw *
+                                                p@psi[sp, ])
+                    p@initial_n[new_sp, ] <- p@initial_n[sp, ] * p@A[sp] / 
+                        unnormalised_SSB
+                }
+            }
+            # Now we may want to retune the background species again
+            # p <- retune_abundance(p, retune)
+            # However this tends to lead to a singular linear system
+            # So we leave this for now
+        }
         
         # Retune the values of erepro, so that we are at steady state.
         # First get death and growth rates
         mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
-        no_sp <- new_sp
         erepro_final <- 1:no_sp  # set up vector of right dimension
         for (i in (1:no_sp)) {
             gg0 <- gg[i, p@species_params$w_min_idx[i]]
