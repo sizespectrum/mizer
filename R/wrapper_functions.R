@@ -744,22 +744,16 @@ set_scaling_model <- function(no_sp = 11,
 }
 
 
-#' Retunes abundance multipliers of background species so aggregate abundance is
-#' a power law.
+#' Retunes abundance of background species.
 #' 
-#' An unexported helper function
+#' An unexported helper function.
 #'
 #' If N_i(w) is a steady state of the McKendrik-von Foerster (MVF) equation with
 #' fixed growth and death rates, then A_i*N_i(w) is also a steady state, where
 #' A_i is an abundance multiplier. When we add a foreground species to our
 #' model, we want to choose new abundance multipliers of the background species
-#' so that we the abundance, summed over all species and background resources,
-#' is close to sc(w), which is the aggregate abundance of all but the last
-#' species. We are assuming this last species is newly added, with A_i=1.
-#'
-#' retune_abundance operates of a params object, with a slot A. If i is a
-#' background species, then A_i=NA, indicating we are allowed to retune the
-#' abundance multiplier.
+#' so that the community abundance after adding the new species is close to
+#' the original community abundance, stored in \code{params@sc}.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @param retune A boolean vector that determines whether a species can be 
@@ -768,60 +762,47 @@ set_scaling_model <- function(no_sp = 11,
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
 retune_abundance <- function(params, retune) {
-    no_sp <- length(params@species_params$w_inf)
+    no_sp <- length(params@species_params$w_inf)  # Number of species
     if (length(retune) != no_sp) {
         stop("retune argument has the wrong length")
     }
-    # Determine the indices of the limits we shall integrate between
+    # We try to match the original abundance between the maturity size
+    # of the smallest species and the maximum size of the largest species.
+    # Determine the indices of these limits
     idx_start <- sum(params@w <= min(params@species_params$w_mat))
     idx_stop <- sum(params@w < max(params@species_params$w_inf))
-    # The problem is to vary the abundance multupliers of species in L so that,
-    # between the limits, to sum of the abundances of the species is "close" to
-    # the power law. More precisely, we find the abundance multipliers A_i so
-    # that the integral of the square of the relative distance (sum_{i not in L}
-    # A_i*N_i(w) + sum_{i not in L} N_i(w) - c(w))/c(w) over w, between our
-    # limits, is minimized. Here c(w) is the sum of the abundances of all but
-    # the last (newly added) species, and L is the set of all background
-    # species, except the largest (that we keep the abundance multipliers of
-    # fixed).
-    # 
-    #! how to define sc in general ? should it be smoothed ?
-    # sc used to be defined as
-    # sc <- colSums(params@initial_n[all_background, ])
-    # but now we are assuming that the newly added species
-    # is the last one, and we are retunning to
-    # get similar to the aggregate abundance of the
-    # species (1:(no_sp-1))
-    sc <- params@sc
+    # More precisely, we find the abundance multipliers A_i so
+    # that the integral of the square of the relative distance 
+    # (sum_{i not in L} A_i*N_i(w) + sum_{i not in L} N_i(w) - sc(w))/sc(w) 
+    # over w, between our limits, is minimized, where  L is the set of all
+    # retuneable species.
     L <- (1:no_sp)[retune]
-    # rho is the total abundance of all the species that have their abundance
-    # multipliers held fixed.
+    # rho is the total abundance of all the non-tunable species
     Lcomp <- (1:no_sp)[!retune]
     rho <- colSums(params@initial_n[Lcomp, , drop=FALSE])
-    # We solve a linear system to find the abundance multipliers, first we initialize
-    # the matrix RR and vector QQ
+    # We solve a linear system to find the abundance multipliers.
+    # First we initialize the matrix RR and vector QQ
     RR <- matrix(0, nrow = length(L), ncol = length(L))
     QQ <- (1:length(L))
-    den <- sc ^ 2
-    den[den == 0] <- 10 ^ (-50)
+    den <- params@sc ^ 2
     # Next we fill out the values of QQ and RR
     for (i in (1:length(L))) {
         QQ[i] <-
-            sum((params@initial_n[L[i],] * (sc - rho) * params@dw / (den))[idx_start:idx_stop])
+            sum((params@initial_n[L[i],] * (params@sc - rho) * 
+                     params@dw / (den))[idx_start:idx_stop])
         for (j in (1:length(L))) {
             RR[i, j] <-
-                sum((
-                    params@initial_n[L[i],] * params@initial_n[L[j],] * params@dw / (den)
-                )[idx_start:idx_stop])
+                sum((params@initial_n[L[i],] * params@initial_n[L[j],] * 
+                        params@dw / (den))[idx_start:idx_stop])
         }
     }
-    # Now we solve the linear system to find the abundance multipliers that
-    # yield our power law
+    # Now we solve the linear system to find the abundance multipliers
     A2 <- rep(1, no_sp) 
     A2[retune] <- solve(RR, QQ)
+    # We may have to repeat this if any of the multipliers is negative
     if (any(A2 < 0)) {
         # Set abundance of those species to tiny
-        params@initial_n[A2 < 0, ] <- params@initial_n[A2 < 0, ] * 1e-10
+        params@initial_n[A2 < 0, ] <- params@initial_n[A2 < 0, ] * 1e-40
         # and try again retuning the remaining retunable species
         retune <- retune & (A2 > 0)
         if (any(retune)) {
@@ -888,7 +869,7 @@ retune_abundance <- function(params, retune) {
 setGeneric('addSpecies', function(params, ...)
     standardGeneric('addSpecies'))
 
-#' Add species to a MizerParams object
+#' Add species to a MizerParams object 
 #' @rdname addSpecies
 # The code adds a new species into the system, and sets its abundance to the
 # steady state in the system where the new species does not self interact. Then
