@@ -49,6 +49,8 @@ log_breaks <- function(n = 6){
 #' @param end_time The last time to be plotted. Default is the end of the
 #'   time series.
 #' @param y_ticks The approximate number of ticks desired on the y axis
+#' @param ylim A numeric vector of length two providing limits of for the
+#'   y axis. Use NA to refer to the existing minimum or maximum.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
 #'   value is TRUE
 #' @param total A boolean value that determines whether the total biomass from
@@ -84,7 +86,8 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
              species = sim@params@species_params$species[!is.na(sim@params@A)],
              start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
              end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-             y_ticks = 6, print_it = TRUE, 
+             y_ticks = 6, print_it = TRUE,
+             ylim = c(NA, NA),
              total = FALSE, background = TRUE, ...){
         b <- getBiomass(sim, ...)
         if(start_time >= end_time){
@@ -107,7 +110,9 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         # Due to log10, need to set a minimum value, seems like a feature in
         # ggplot
         min_value <- 1e-30
-        bm <- bm[bm$value >= min_value,]
+        bm <- bm[bm$value >= min_value & 
+                     (is.na(ylim[1]) | bm$value >= ylim[1]) &
+                     (is.na(ylim[2]) | bm$value <= ylim[1]),]
         # Select species
         spec_bm <- bm[bm$Species %in% species, ]
         x_label <- "Year"

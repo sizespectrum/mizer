@@ -4,43 +4,38 @@
 \name{addSpecies}
 \alias{addSpecies}
 \alias{addSpecies,MizerParams-method}
-\title{Add more species into an ecosystem with scaling background species.}
+\title{Add more species into an ecosystem with background species.}
 \usage{
 addSpecies(params, ...)
 
-\S4method{addSpecies}{MizerParams}(params, species_params, biomass = NA,
-  min_w_observed = species_params$w_mat, rfac = 10, effort = 0)
+\S4method{addSpecies}{MizerParams}(params, species_params, SSB = NA,
+  rfac = 10, effort = 0)
 }
 \arguments{
-\item{params}{A mizer params object for the original system. The A slot holds
-1's for foreground species we wish to hold fixed the abundance multiplier
-of, and NA's for for background species that we shall vary the abundance
-multiplier of.}
+\item{params}{A mizer params object for the original system.}
 
-\item{species_params}{The species parameters of the foreground species we
+\item{species_params}{The species parameters of the new species we
 want to add to the system.}
 
-\item{biomass}{The total biomass of members of the newly added species which
-have weights greater than min_w_observed. If not provided, the abundance
-of new species will be chosen so that the biomass of its mature fish is
-the same as that of the species with the next smaller maturity size.}
+\item{SSB}{The spawning stock biomass of the new species. If not provided, 
+it will be set equal to that of the species with the next smaller maturity 
+size.}
 
-\item{min_w_observed}{The minimum weight of fish of the new species that
-contribute to the biomass which we setup for the new species. Default value
-is the maturity size of the new species.}
-
-\item{rfac}{Default value is 10.}
+\item{rfac}{A number that determines the strength of the non-linearity in
+the Beverton-Holt stock-recruitment relationship. The maximal recruitment
+will be set to rfac times the normal steady-state recruitment.
+Default value is 10.}
 
 \item{effort}{Default value is 0.}
 }
 \value{
-An object of type \code{MizerParams}
+An object of type \linkS4class{MizerParams}
 }
 \description{
-Takes a \linkS4class{MizerParams} object and adds additional species with
+Takes a \linkS4class{MizerParams} object and adds an additional species with
 given parameters to the ecosystem.
 
-Set species to background species in MizerParams object
+Add species to a MizerParams object
 }
 \examples{
 \dontrun{
@@ -58,13 +53,11 @@ species_params <- data.frame(
     beta = 283, 
     sigma = 1.8, 
     z0 = 0,
-    alpha = 0.6, 
-    erepro = 0.1, 
+    alpha = 0.6,
     sel_func = "knife_edge", 
     knife_edge_size = 100, 
     gear = "knife_edge_gear",
     k = 0,
-    r_max = Inf,
     k_vb = 0.6,
     a = a_m,
     b = b_m
@@ -72,7 +65,4 @@ species_params <- data.frame(
 params <- addSpecies(params, species_params)
 plotSpectra(params)
 }
-}
-\seealso{
-\linkS4class{MizerParams}
 }

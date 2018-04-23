@@ -5,12 +5,13 @@
 \title{Retunes abundance multipliers of background species so aggregate abundance is
 a power law.}
 \usage{
-retune_abundance(params)
+retune_abundance(params, retune)
 }
 \arguments{
-\item{params}{A mizer params object with an A slot with 1's for species we
-wish to hold fixed the abundance multiplier of, and NA's for species that
-we shall vary the abundance multiplier of.}
+\item{params}{A \linkS4class{MizerParams} object}
+
+\item{retune}{A boolean vector that determines whether a species can be 
+retuned or not.}
 }
 \value{
 An object of type \code{MizerParams}

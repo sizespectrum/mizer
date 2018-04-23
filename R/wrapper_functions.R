@@ -761,26 +761,17 @@ set_scaling_model <- function(no_sp = 11,
 #' background species, then A_i=NA, indicating we are allowed to retune the
 #' abundance multiplier.
 #'
-#' @param params A mizer params object with an A slot with 1's for species we
-#'   wish to hold fixed the abundance multiplier of, and NA's for species that
-#'   we shall vary the abundance multiplier of.
+#' @param params A \linkS4class{MizerParams} object
+#' @param retune A boolean vector that determines whether a species can be 
+#'   retuned or not.
 #'   
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
-retune_abundance <- function(params) {
+retune_abundance <- function(params, retune) {
     no_sp <- length(params@species_params$w_inf)
-    # get a list of the species that we can tune abundance mulpliers of
-    all_background <- is.na(params@A)
-    largest_background <-
-        which.max(params@species_params$w_inf[all_background])
-    # we are assuming that the abundance multiplier of the largest backgroud
-    # species should be held fixed at 1, if though it was initially an NA.
-    # to represent this we make a new background indicator A2
-    A2 <- params@A
-    A2[largest_background] <- 1
-    # we make a list L of species we will vary the abundance parameters of
-    # (everything but largest background)
-    L <- (1:no_sp)[is.na(A2)]
+    if (length(retune) != no_sp) {
+        stop("retune argument has the wrong length")
+    }
     # Determine the indices of the limits we shall integrate between
     idx_start <- sum(params@w <= min(params@species_params$w_mat))
     idx_stop <- sum(params@w < max(params@species_params$w_inf))
@@ -802,9 +793,10 @@ retune_abundance <- function(params) {
     # get similar to the aggregate abundance of the
     # species (1:(no_sp-1))
     sc <- params@sc
-    # rho is the total abundance of all the species that have their abundance multipliers
-    # held fixed.
-    Lcomp <- (1:no_sp)[!is.na(A2)]
+    L <- (1:no_sp)[retune]
+    # rho is the total abundance of all the species that have their abundance
+    # multipliers held fixed.
+    Lcomp <- (1:no_sp)[!retune]
     rho <- colSums(params@initial_n[Lcomp, , drop=FALSE])
     # We solve a linear system to find the abundance multipliers, first we initialize
     # the matrix RR and vector QQ
@@ -825,42 +817,46 @@ retune_abundance <- function(params) {
     }
     # Now we solve the linear system to find the abundance multipliers that
     # yield our power law
-    A2[L] <- solve(RR, QQ)
-    print(A2)
+    A2 <- rep(1, no_sp) 
+    A2[retune] <- solve(RR, QQ)
     if (any(A2 < 0)) {
-        stop('Abundance multipliers generated with negative entries')
-        #! we should add an extra iteration to solve this issue of -ve
-        # abundance multipliers by holding certain species off.
+        # Set abundance of those species to tiny
+        params@initial_n[A2 < 0, ] <- params@initial_n[A2 < 0, ] * 1e-10
+        # and try again retuning the remaining retunable species
+        retune <- retune & (A2 > 0)
+        if (any(retune)) {
+            params <- retune_abundance(params, retune)
+        } else {
+            stop("Unable to retune.")
+        }
+    } else {
+        # Use these abundance multipliers to rescale the abundance curves
+        p@initial_n <- p@initial_n * A2
     }
-    return(A2)
+    return(params)
 }
 
 
 #### addSpecies ####
-#' Add more species into an ecosystem with scaling background species.
+#' Add more species into an ecosystem with background species.
 #'
-#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' Takes a \linkS4class{MizerParams} object and adds an additional species with
 #' given parameters to the ecosystem.
 #'
-#' @param params A mizer params object for the original system. The A slot holds
-#'   1's for foreground species we wish to hold fixed the abundance multiplier
-#'   of, and NA's for for background species that we shall vary the abundance
-#'   multiplier of.
-#' @param species_params The species parameters of the foreground species we
+#' @param params A mizer params object for the original system. 
+#' @param species_params The species parameters of the new species we
 #'   want to add to the system.
-#' @param biomass The total biomass of members of the newly added species which
-#'   have weights greater than min_w_observed. If not provided, the abundance
-#'   of new species will be chosen so that the biomass of its mature fish is
-#'   the same as that of the species with the next smaller maturity size.
-#' @param min_w_observed The minimum weight of fish of the new species that
-#'   contribute to the biomass which we setup for the new species. Default value
-#'   is the maturity size of the new species.
-#' @param rfac Default value is 10.
+#' @param SSB The spawning stock biomass of the new species. If not provided, 
+#'   it will be set equal to that of the species with the next smaller maturity 
+#'   size.
+#' @param rfac A number that determines the strength of the non-linearity in
+#'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
+#'   will be set to rfac times the normal steady-state recruitment.
+#'   Default value is 10.
 #' @param effort Default value is 0.
 #' 
+#' @return An object of type \linkS4class{MizerParams}
 #' @export
-#' @return An object of type \code{MizerParams}
-#' @seealso \linkS4class{MizerParams}
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
@@ -877,13 +873,11 @@ retune_abundance <- function(params) {
 #'     beta = 283, 
 #'     sigma = 1.8, 
 #'     z0 = 0,
-#'     alpha = 0.6, 
-#'     erepro = 0.1, 
+#'     alpha = 0.6,
 #'     sel_func = "knife_edge", 
 #'     knife_edge_size = 100, 
 #'     gear = "knife_edge_gear",
 #'     k = 0,
-#'     r_max = Inf,
 #'     k_vb = 0.6,
 #'     a = a_m,
 #'     b = b_m
@@ -912,8 +906,7 @@ setGeneric('addSpecies', function(params, ...)
 # Note that we are assuming that the first species is a background species, and
 # the last species is a foreground species, with abundance multiplier mult.
 setMethod('addSpecies', signature(params = 'MizerParams'),
-    function(params, species_params, biomass = NA, 
-             min_w_observed = species_params$w_mat, 
+    function(params, species_params, SSB = NA,
              rfac=10, effort = 0) {
         
         # Set r_max to Inf if absent
@@ -994,6 +987,9 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # calculate w_min_idx if it is missing
         species_params$w_min_idx <- sum(params@w<=species_params$w_min)
         
+        # provide erepro column that is later overwritten
+        species_params$erepro <- 0.1
+        
         # add the new species (with parameters described by species_params), 
         # to make a larger species_params dataframe.
         combi_species_params <- rbind(params@species_params, species_params)
@@ -1058,28 +1054,31 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         }
         
         # Normalise solution
-        if (is.na(biomass)) {
-            # If biomass of new species is not supplied, set it to the biomass of
-            # the species with the next-smaller maturity size.
+        if (is.na(SSB)) {
+            # If spawning stock biomass of new species is not supplied, set it
+            # to that of the species with the next-smaller maturity size.
             idx <- which.min(p@species_params$w_mat < species_params$w_mat) - 1
-            biomass <- sum(p@initial_n[idx, ] * p@w * p@dw * (p@w >= min_w_observed))
+            SSB <- sum(p@initial_n[idx, ] * p@w * p@dw * 
+                               (p@w >= p@species_params$w_mat[idx]))
         }
-        unnormalised_biomass <- sum(p@initial_n[new_sp,] * p@w * p@dw *
-                                        (p@w >= min_w_observed))
-        p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * biomass / 
-            unnormalised_biomass
+        unnormalised_SSB <- sum(p@initial_n[new_sp,] * p@w * p@dw *
+                                        (p@w >= species_params$w_mat))
+        p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] * SSB / unnormalised_SSB /
+            (p@species_params$w_inf[idx] / p@species_params$w_mat[idx]) *
+            (species_params$w_inf / species_params$w_mat)
+        p@A <- c(params@A, SSB)
         
         # Turn self interaction back on
         p@interaction[new_sp, new_sp] <- 1
-        # Arrange background inidicators A, so show the new species is in the
-        # foreground
-        p@A <- c(params@A, 1)
+        
         # Retune the abundance multipliers to recreate the aggregate abundance
         # spectrum of the old params object.
-        AA <- retune_abundance(p)
-        # Use these abundance multipliers to rescale the abundance curves so that 
-        # their aggregation is close to the power law
-        p@initial_n <- p@initial_n * AA
+        # First identify the retunable species. These are all background
+        # species except the largest one
+        retune <- is.na(p@A)
+        largest_background <- which.max(params@species_params$w_inf[retune])
+        retune[largest_background] <- FALSE
+        p <- retune_abundance(p, retune)
         
         # Retune the values of erepro, so that we are at steady state.
         # First get death and growth rates

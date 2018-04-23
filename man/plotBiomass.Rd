@@ -12,7 +12,8 @@ plotBiomass(sim, ...)
   species = sim@params@species_params$species[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), y_ticks = 6,
-  print_it = TRUE, total = FALSE, background = TRUE, ...)
+  print_it = TRUE, ylim = c(NA, NA), total = FALSE, background = TRUE,
+  ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}.}
@@ -33,6 +34,9 @@ time series.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object. Default
 value is TRUE}
+
+\item{ylim}{A numeric vector of length two providing limits of for the
+y axis. Use NA to refer to the existing minimum or maximum.}
 
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE}
