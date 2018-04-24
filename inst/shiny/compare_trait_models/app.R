@@ -80,7 +80,8 @@ ui <- fluidPage(
             sliderInput("effort", "Fishing effort",
                         value=0, min=0, max=2, step=0.1),
             sliderInput("log_knife_edge_size", "Log10 of minimum fishing size",
-                        value=2, min=1, max=3, step=0.1)
+                        value=2, min=1, max=3, step=0.1),
+            img(src = "logo_minouw_blue.png", width = "400px")
         ), #endsidebarpanel
         
         mainPanel(
