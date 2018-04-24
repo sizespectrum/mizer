@@ -9,7 +9,7 @@ These parameters include the model species, their life history parameters and
 the size ranges of the model.
 }
 \details{
-\code{MizerParams} objects can be created using a range of
+\linkS4class{MizerParams} objects can be created using a range of
 \code{MizerParams} constructor methods.
 
 Dynamic simulations are performed using the \code{\link{project}} method on
@@ -103,7 +103,7 @@ the abundance of the background background resource at each weight.}
 }}
 
 \note{
-The \code{MizerParams} class is fairly complex with a large number of
+The \linkS4class{MizerParams} class is fairly complex with a large number of
   slots, many of which are multidimensional arrays. The dimensions of these
   arrays is strictly enforced so that \code{MizerParams} objects are
   consistent in terms of number of species and number of size classes.
@@ -113,7 +113,7 @@ The \code{MizerParams} class is fairly complex with a large number of
   
   The \code{MizerParams} class does not hold any dynamic information, e.g.
   abundances or harvest effort through time. These are held in
-  \code{\link{MizerSim}} objects.
+  \linkS4class{MizerSim} objects.
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}

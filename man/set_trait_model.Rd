@@ -49,10 +49,10 @@ is 1.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 4.}
 
-\item{kappa}{Carrying capacity of the resource spectrum. Default value is
+\item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}
 
-\item{lambda}{Exponent of the resource spectrum. Default value is (2+q-n).}
+\item{lambda}{Exponent of the abundance power law. Default value is (2+q-n).}
 
 \item{alpha}{The assimilation efficiency of the community. The default value
 is 0.6}

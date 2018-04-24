@@ -1,7 +1,11 @@
-# Class outline for sbm base parameters class
+# Class specification and constructors for mizer base parameters class
 # Class has members to store parameters of size based model
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -198,14 +202,13 @@ valid_MizerParams <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-# Soundtrack: White Hills - Glitter Glamour Atrocity
-
+#### Class definition ####
 #' A class to hold the parameters for a size based model. 
 #' 
 #' These parameters include the model species, their life history parameters and
 #' the size ranges of the model.
 #' 
-#' \code{MizerParams} objects can be created using a range of
+#' \linkS4class{MizerParams} objects can be created using a range of
 #' \code{MizerParams} constructor methods.
 #' 
 #' Dynamic simulations are performed using the \code{\link{project}} method on
@@ -266,7 +269,7 @@ valid_MizerParams <- function(object) {
 #' @slot kappa Magnitude of resource spectrum.
 #' @slot A Abundance multipliers.
 
-#' @note The \code{MizerParams} class is fairly complex with a large number of
+#' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
 #'   arrays is strictly enforced so that \code{MizerParams} objects are
 #'   consistent in terms of number of species and number of size classes.
@@ -276,7 +279,7 @@ valid_MizerParams <- function(object) {
 #'   
 #'   The \code{MizerParams} class does not hold any dynamic information, e.g.
 #'   abundances or harvest effort through time. These are held in
-#'   \code{\link{MizerSim}} objects.
+#'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #' @export
 setClass(
@@ -352,8 +355,7 @@ setClass(
 )
 
 
-# Generic constructor
-
+#### Constructors ####
 #' Constructors for objects of \code{MizerParams} class
 #'
 #' Constructor method for the \linkS4class{MizerParams} class. Provides the
@@ -434,6 +436,7 @@ setClass(
 setGeneric('MizerParams', function(object, interaction, ...)
     standardGeneric('MizerParams'))
 
+#### Basic constructor ####
 #' Basic constructor with only the number of species as dispatching argument
 #' 
 #' Only really used to make MizerParams of the right size and shouldn't be used
@@ -511,6 +514,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
     }
 )
 
+
+#### Main constructor ####
 #' Constructor that takes the species_params data.frame and the interaction matrix
 #' @rdname MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
@@ -684,7 +689,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Can add more functional forms or user specifies own
 	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
-	    return(species_params$r_max * rdi / (species_params$r_max+rdi))
+	    return(rdi / (1 + rdi/species_params$r_max))
 	}
 
 	# Set fishing parameters: selectivity and catchability
@@ -722,6 +727,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     }
 )
 
+
+#### theta = 1 constructor ####
 # If interaction is missing, make one of the right size and fill with 1s
 #' Constructor based on the species_params data.frame only with no interaction
 #' @rdname MizerParams
