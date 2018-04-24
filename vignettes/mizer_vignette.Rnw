@@ -2471,7 +2471,7 @@ By comparing Figure~\ref{fig:plot_scale_demo} with Figure~\ref{fig:plot_trait_de
 
 
 <<label=demo_trait_model_insensitive>>=
-params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
 sim_trait <- project(params_trait,
@@ -2479,7 +2479,7 @@ sim_trait <- project(params_trait,
                          sim_trait_initial@n)[1],,],
                      initial_n_pp = sim_trait_initial@
                          n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
-                     effort = 10)
+                     effort = 1)
 @
 
 We make a plot of how biomass changes over time (Figure~\ref{fig:plot_trait_ins}).  
@@ -2503,7 +2503,7 @@ Notice that even though the fishing mortality rate is very high (orders of magni
 params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                             min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
                             knife_edge_size = 100,kappa = 0.005)
-sim <- project(params, t_max=15, effort = 10)
+sim <- project(params, t_max=15, effort = 1)
 @
 
 We make a plot of how biomass changes over time (Figure~\ref{fig:plot_scale_sense}).   
