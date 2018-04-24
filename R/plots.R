@@ -29,6 +29,110 @@ log_breaks <- function(n = 6){
    }
 }
 
+
+#' Display frames
+#' 
+#' @param f1
+#' @param f2
+#' 
+#' @return ggplot2 object
+#' @export
+display_frames <- function(f1, f2) {
+    var_names <- names(f1)
+    if (!(length(var_names) == 3)) {
+        stop("A frame needs to have three variables.")
+    }
+    if (!all(names(f2) == var_names)) {
+        stop("Both frames need to have the same variable names.")
+    }
+    f <- rbind(cbind(f1, Simulation = 1), cbind(f2, Simulation = 2))
+    p <- ggplot(f, aes_string(x = names(f)[1], y = names(f)[3], 
+                              colour=names(f)[2], linetype=names(f)[2])) +
+        scale_y_log10() +
+        geom_line() +
+        facet_wrap(~ Simulation)
+    return(p)
+}
+
+#### getBiomassFrame ####
+#' Get data frame of biomass of species through time, ready for ggplot2
+#'
+#' After running a projection, the biomass of each species can be plotted
+#' against time. The biomass is calculated within user defined size limits 
+#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
+#' 
+#' @param sim An object of class \linkS4class{MizerSim}
+#' @param species Name or vector of names of the species to be plotted. By
+#'   default all species are plotted.
+#' @param start_time The first time to be plotted. Default is the beginning
+#'   of the time series.
+#' @param end_time The last time to be plotted. Default is the end of the
+#'   time series.
+#' @param ylim A numeric vector of length two providing limits of for the
+#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
+#'   below 1e-20 are always cut off.
+#' @param total A boolean value that determines whether the total biomass from
+#'   all species is plotted as well. Default is FALSE
+#' @param ... Other arguments to pass to \code{getBiomass} method, for example
+#'   \code{min_w} and \code{max_w}
+#'   
+#' @return A data frame that can be used in \code{\link{display_frames()}}
+#' @export
+#' @seealso \code{\link{getBiomass}}
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+#' plotBiomass(sim)
+#' plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
+#' plotBiomass(sim, min_w = 10, max_w = 1000)
+#' plotBiomass(sim, start_time = 10, end_time = 15)
+#' plotBiomass(sim, y_ticks = 3)
+#' }
+setGeneric('getBiomassFrame', function(sim, ...)
+    standardGeneric('getBiomassFrame'))
+
+#' Get the biomass frame from a \code{MizerSim} object.
+#' @rdname getBiomassFrame
+setMethod('getBiomassFrame', signature(sim='MizerSim'),
+          function(sim, 
+                   species = sim@params@species_params$species[!is.na(sim@params@A)],
+                   start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
+                   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+                   ylim = c(NA, NA), total = FALSE, ...){
+              b <- getBiomass(sim, ...)
+              if(start_time >= end_time){
+                  stop("start_time must be less than end_time")
+              }
+              # Select time range
+              b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & 
+                         (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
+              b_total = rowSums(b)
+              # Include total
+              if (total) {
+                  b <- cbind(b, Total = b_total)
+                  species <- c("Total", species)
+              }
+              bm <- reshape2::melt(b)
+              # Implement ylim and a minimal cutoff
+              min_value <- 1e-20
+              bm <- bm[bm$value >= min_value & 
+                           (is.na(ylim[1]) | bm$value >= ylim[1]) &
+                           (is.na(ylim[2]) | bm$value <= ylim[1]),]
+              names(bm) <- c("Year", "Species", "Biomass")
+              # Force Species column to be a factor (otherwise if numeric labels are
+              # used they may be interpreted as integer and hence continuous)
+              bm$Species <- as.factor(bm$Species)
+              # Select species
+              bm <- bm[bm$Species %in% species, ]
+              
+              return(bm)
+          }
+)
+
+
 #### plotBiomass ####
 #' Plot the biomass of species through time
 #'
@@ -36,12 +140,7 @@ log_breaks <- function(n = 6){
 #' against time. The biomass is calculated within user defined size limits 
 #' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
 #' 
-#' This plot is pretty easy to do by hand. It just
-#' gets the biomass using the \code{\link{getBiomass}} method and plots using
-#' the ggplot2 package. You can then fiddle about with colours and linetypes
-#' etc. Just look at the source code for details.
-#' 
-#' @param sim An object of class \linkS4class{MizerSim}.
+#' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param start_time The first time to be plotted. Default is the beginning
@@ -141,7 +240,6 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         return(p)
     }
 )
-
 
 #### plotYield ####
 #' Plot the total yield of species through time
@@ -252,19 +350,18 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='MizerSim'),
               ym <- subset(ym, ym$Yield > 0)
               if (nlevels(ym$Species) > 12) {
                   p <- ggplot(ym) + 
-                      geom_line(aes(x=Year, y=Yield, size=Simulation,
-                                    group=interaction(Species, Simulation)))
+                      geom_line(aes(x=Year, y=Yield, group = Species))
               } else {
                   p <- ggplot(ym) + 
                       geom_line(aes(x=Year, y=Yield, colour=Species, 
-                                    linetype=Species, size=Simulation))
+                                    linetype=Species))
               }
-              p <- p + scale_size_manual(values = c(0.3, 0.6))
               if (log) {
                   p <- p + scale_y_continuous(trans="log10", name="Yield [g]")
               } else {
                   p <- p + scale_y_continuous(name="Yield [g]")
               }
+              p <- p + facet_wrap(~ Simulation)
               if (print_it) {
                   print(p)
               }
