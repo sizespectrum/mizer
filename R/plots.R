@@ -105,9 +105,9 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         }
         names(dimnames(b)) <- c("time", "Species")
         bm <- reshape2::melt(b)
-        # Force Species column to be a character (if numbers used - may be
-        # interpreted as integer and hence continuous)
-        bm$Species <- as.character(bm$Species)
+        # Force Species column to be a factor (otherwise if numeric labels are
+        # used they may be interpreted as integer and hence continuous)
+        bm$Species <- as.factor(bm$Species)
         # Implement ylim and a minimal cutoff
         min_value <- 1e-20
         bm <- bm[bm$value >= min_value & 
@@ -325,6 +325,7 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 	    ym <- rbind(ym, yt)
 	}
 	ym <- subset(ym, ym$value > 0)
+	ym$Species <- as.factor(ym$Species)
     if (length(species) > 12) {
         p <- ggplot(ym) + geom_line(aes(x=time,y=value, group=Species))
     } else {
@@ -499,7 +500,6 @@ plot_spectra <- function(params, n, n_pp,
         ylim[2] <- 1e-20
     }
     plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
-
     # Create plot
     p <- ggplot(plot_dat, aes(x=w, y = value)) + 
         scale_x_continuous(name = "Size [g]", trans="log10", 
