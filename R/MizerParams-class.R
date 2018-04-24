@@ -600,10 +600,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    stop("One or more of your w_min values is less than the smallest size of the community spectrum")
 
 	# Add w_min_idx column which has the reference index of the size class closest
-	# to w_min - this is a short cut for later on and prevents repetition
-	object$w_min_idx <- as.vector(
-	    tapply(object$w_min,1:length(object$w_min),
-	           function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
+	# to w_min - this is a short cut for later on and prevents repetition.
+    if (!("w_min_idx" %in% names(object))) {
+        object$w_min_idx <- as.vector(
+            tapply(object$w_min,1:length(object$w_min),
+                   function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
+    }
 
 	# Start filling the slots
 	res@species_params <- object

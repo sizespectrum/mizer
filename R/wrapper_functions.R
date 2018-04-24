@@ -579,6 +579,7 @@ set_scaling_model <- function(no_sp = 11,
     # species spacing away from max_w_inf
     j <- round((log10(max_w) - log10(min_w_inf)) / (delt * (no_sp - 1)))
     min_w_inf <- 10 ^ (log10(max_w) - j * (no_sp - 1) * delt)
+    w_min_idx <- seq(1, by = j, length.out = no_sp)
     # Determine maximum egg size
     max_egg <- max_w * min_egg / min_w_inf
     log10_minimum_egg <- log10(min_egg)
@@ -598,6 +599,7 @@ set_scaling_model <- function(no_sp = 11,
         w_min = w_min,
         w_inf = w_inf,
         w_mat = w_mat,
+        w_min_idx = w_min_idx,
         h = h,
         ks = ks,
         beta = beta,
