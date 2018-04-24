@@ -2509,14 +2509,16 @@ sim <- project(params, t_max=15, effort = 1)
 We make a plot of how biomass changes over time (Figure~\ref{fig:plot_scale_sense}).   
 
 <<plot_scale_sense2, eval=FALSE>>=
-plotBiomass(sim)
+b_trait <- getBiomassFrame(sim_trait)
+b <- getBiomassFrame(sim)
+display_frames(b_trait, b)
 @
 
 \begin{figure}
 <<label=print_plot_scale_sense, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_scale_sense2>>
 @
-\caption{A biomass plot of the scale-invariant trait-based model under significant fishing.}
+\caption{A biomass plot comparing the behaviours of the two trait-based model under significant fishing.}
 \label{fig:plot_scale_sense}
 \end{figure}
 
