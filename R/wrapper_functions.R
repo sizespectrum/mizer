@@ -331,7 +331,7 @@ set_trait_model <- function(no_sp = 10,
 
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
-            species = 1:no_sp,
+            species = as.factor(1:no_sp),
             w_inf = w_inf,
             w_mat = w_mat,
             h = h, # max food intake
@@ -595,7 +595,7 @@ set_scaling_model <- function(no_sp = 11,
     # Build Params Object
     erepro <- 0.1  # Will be changed later to achieve coexistence
     species_params <- data.frame(
-        species = 1:no_sp,
+        species = as.factor(1:no_sp),
         w_min = w_min,
         w_inf = w_inf,
         w_mat = w_mat,
@@ -1095,7 +1095,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
                 if (!is.na(p@A[sp])) {
                     unnormalised_SSB <- sum(p@initial_n[sp,] * p@w * p@dw *
                                                 p@psi[sp, ])
-                    p@initial_n[new_sp, ] <- p@initial_n[sp, ] * p@A[sp] / 
+                    p@initial_n[sp, ] <- p@initial_n[sp, ] * p@A[sp] / 
                         unnormalised_SSB
                 }
             }
