@@ -2390,168 +2390,373 @@ p + theme(legend.position = "none")
 
 %---------------------------------------------------
 
-% eq:psi
-% eq:mu_b 
-\section{Implementing a scale-invariant trait-based model}
+\section{Scale-invariant, trait-based model}
 \label{sec:scale_invariant_trait_based_model}
 
 \subsection{Introduction}
 
-Constructing models that allow fish species to coexist is not trivial.  This
+Constructing models that allow fish species to coexist is not trivial. This
 applies as much to size-spectrum models that use the mizer software tool, as 
 it does to other kinds of multispecies models.  Current size-spectrum models 
 achieve coexistence by assuming that stock-recruitment relationships are strong 
 enough within species to guarantee persistence of the species.  They do this 
 by making the controlling parameter $R_{max.i}$ in Equation~\ref{eq:R} sufficiently 
 small. Although coexistence can be achieved in this way, it can necessitate 
-rather small values of $R_{max.i}$.
+rather small values of $R_{max.i}$, with major effects on persistence and 
+stability of species.
 
-This and Section~\ref{sec:explicit} provide an alternative way of generating
-sets of coexisting species without strong stock-recruitment relationships. In these 
-models the stock is more sensitive to changes in the environment, because it 
-is allowed to react to such changes naturally, rather than being heavily controlled 
-by a stock recruitment relationship. The key is a special power-law between body weight and density, which marine ecosystems are often observed to be near {\bf(Sheldon)}.  
-On the exact power-law, it can be proved that an arbitrary number of 
-species coexist {\bf(Cuesta et al)}. This is not to suggest 
-that real assemblages of fish species are at rest on the exact power-law. 
-Rather it is to construct a \emph{background} assemblage of a form that 
-facilitates coexistence of observed fish species (\emph{foreground} species), without calling for strong stock-recruitment relationships. 
+\begin{figure}
+{\bf fishing comparison plot here}
+%<<label=print_plot_trait_ins, echo=FALSE, fig.height=4, fig.keep='last'>>=
+%<<plot_trait_ins>>
+%@
+\caption{Biomass plots following introduction of fishing (a) in the trait-based 
+model from Section {\bf(reference to Section 6)}, and (b) in the scale-invariant 
+model developed here.  There are ten species; $W$ is taken over a range 10 g
+to 100 kg, uniformly spaced on the log-scaled mass axis. The 
+initial state is close to the steady state in the absence of fishing.  
+Recruitment to the multispecies fishery is knife-edge at 1 kg for all 
+species with $W > 1$ kg, and fishing mortality rate is set 
+at $F = 0.75$ yr$^{-1}$.}
+\label{fig:plot_biomass_tb_vs_si}
+\end{figure}
 
-We do this in two steps.  First, this section describes a background
-spectrum designed to restrict the trait-based model (see Section~\ref{sec:trait_based_model}) to a scale-invariant form (see Section~\ref{sec:appendix}), for which the steady-state is known
-analytically (Equation~\ref{eq:steady}).  Second, in Section~\ref{sec:explicit}, 
-these species are replaced, one at a time, by foreground species 
-with specified properties in a fish assemblage.  
+This and the next Section~\ref{sec:explicit} provide an alternative way of 
+generating sets of coexisting species, without the need for such strong 
+stock-recruitment relationships. This makes stocks more sensitive to changes 
+in the environment, such as those caused by fishing. To motivate the new approach, 
+Figure~\ref{fig:plot_biomass_tb_vs_si} compares it with the trait-based model 
+in Section~\ref{sec:trait_based_model} in the presence of a substantial
+amount of fishing.  In the case of the trait-based model, all species
+persist under fishing (Figure~\ref{fig:plot_biomass_tb_vs_si}a).
+In this instance, the species with largest maximum weight enters the 
+fishery at about 1/25 of its weight at maturation, and persists because
+its stock-recruitment relationship is sufficiently strong to boost its 
+rate of increase when rare. You can construct 
+Figure~\ref{fig:plot_biomass_tb_vs_si}a, using the following code 
+{\bf(currently commented out)}:
 
-We shall describe how to run our scale invariant model, and make some comparisons with the old trait based model. Details about our scale invariant model and its motivations are given in Section~\ref{sec:appendix}.
+%<<label=demo_trait_model_insensitive>>=
+%params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+%                          knife_edge_size = 1000)
+%sim_trait <- project(params_trait, t_max=5, effort = 0.75)
+%@
 
-\subsection{Implementing the scale invariant model}
+%We make a plot of how biomass changes over time (Figure~\ref{fig:plot_trait_ins}).  
+
+%<<plot_trait_ins, eval=FALSE>>=
+%plotBiomass(sim_trait)
+%@
+
+%\begin{figure}
+%<<label=print_plot_trait_ins, echo=FALSE, fig.height=4, fig.keep='last'>>=
+%<<plot_trait_ins>>
+%@
+%\caption{A biomass plot of the original trait-based model under significant fishing.}
+%\label{fig:plot_trait_ins}
+%\end{figure}
+
+The approach developed below allows the stock-recruitment relationship
+to be weakened or completely removed, with the result that species are 
+more sensitive to fishing (Figure~\ref{fig:plot_biomass_tb_vs_si}b).  
+In the example shown, fishing drives the largest and most vulnerable species 
+to extinction (there is no stock-recruitment relationship in this instance).  
+Some density-dependent feedbacks still remain, but they emerge from the 
+internal dynamics. {\bf (Rossberg)  Please tell me if you think I'm wrong 
+about the emerging SR.}
+You can construct Figure~\ref{fig:plot_biomass_tb_vs_si}b, using the 
+following code {\bf(currently commented out)}:
+
+%<<label=demo_scale_model_sensitive>>=
+%params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
+%                            min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
+%                            knife_edge_size = 100,kappa = 0.005)
+%sim <- project(params, t_max=5, effort = 100)
+%@
+
+%We make a plot of how biomass changes over time (Figure~\ref{fig:plot_scale_sense}).   
+
+%<<plot_scale_sense, eval=FALSE>>=
+%plotBiomass(sim)
+%@
+
+%\begin{figure}
+%<<label=print_plot_scale_sense, echo=FALSE, fig.height=4, fig.keep='last'>>=
+%<<plot_scale_sense>>
+%@
+%\caption{A biomass plot of the scale-invariant trait-based model under significant fishing.}
+%\label{fig:plot_scale_sense}
+%\end{figure}
+
+The key for constructing these models is a special power-law relationship 
+between body weight and density, which marine ecosystems are often observed 
+to be near, after aggregating over species {\bf(Sheldon)}.  The significance 
+of the power law is that, in its neighbourhood, coexistence of species 
+becomes easier to achieve.  In fact, on the exact power-law, it has been 
+proved that an infinite number of species coexist in a unicellular plankton 
+model {\bf(Cuesta et al)}.  Related numerical simulations using  finite
+number of species support the proposition that coexistence of multiple 
+species is easier to achieve near the power law {\bf (Law et al arxiv paper)}.  
+These properties readily extend to multicellular fish assemblages 
+{\bf (Southwell, Delius unpublished results)}.
+
+We build the alternative approach here in two steps.  First, this section 
+describes a background spectrum designed to bring the trait-based model 
+(see Section~\ref{sec:trait_based_model}) close to a scale-invariant form 
+(see Section~\ref{sec:appendix}), for which the steady-state is known
+analytically (Equation~\ref{eq:steady}).  For want of a better 
+term, we call this model the \emph{scale-invariant}, trait-based model, 
+with the caveat that the model is close to, but not exactly, scale invariant.  
+
+Second, in the following 
+Section~\ref{sec:explicit}, these background species are replaced 
+by foreground species with specified properties in a fish assemblage.  
 
 
-To help set up a scale invariant trait-based model, there is a wrapper function, \code{set\_scaling\_model()}. Like the \code{set\_community\_model()} and \code{set\_tait\_model()} functions described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
+\subsection{Scale invariance}
 
-<<label=help_set_scaling_model, eval=FALSE>>=
-?set_scaling_model
-@
+Dynamical systems with scale-invariant properties are not standard 
+currency in ecology, and this subsection can be skipped.  However the approach 
+is underpinned by scale invariance with respect to body weight, so we 
+briefly introduce some key concepts here.  There is little more in this
+than allometric scalings of ecological rates with respect to body weight, 
+for the most part familiar and widely documented in ecology {\bf(Peters book?)}. 
 
-The main parameters of interest are the number of the species in the model (\args{no\_sp}), the minimum egg size (\args{min\_egg}), the minimum maturity size of a species (\args{min\_w\_mat}) and the minimum and maximum asymptotic sizes (\args{min\_w\_inf}) and (\args{max\_w\_inf}) respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The Beverton-Holt stock recruitment relationship is turned off by default.  
+{\bf What is scale invariance?}  
+{\bf (Gustav: can you see if this makes sense? It is hard to define this 
+stuff without going in to all the details.)}  
+Consider a species with some characteristic weight (maximum weight $W$
+will do for the purpose), and with a density 
+function $N(w,t)$ that has dynamics given by the size-spectrum model 
+(Equation~\ref{eq:MvF}).  Consider a second species with maximum 
+weight $cW,$ where $c$ is a positive rescaling factor. Then Equation~\ref{eq:MvF} 
+would be scale-invariant, if the latter species had dynamics the same as the 
+first when rescaled as $c^{\lambda + 1} N(c w, c^{1-n} t),$ for any $c>0$. 
+Here $\lambda$ is the exponent of the resource spectrum, and $n$ is the 
+exponent for maximum food intake. 
 
-<<label=demo_scaling_model_params>>=
-params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
-                            min_egg = 1e-4, min_w_mat = 10^(0.4), 
-                            knife_edge_size = 100, kappa = 0.005)
-@
+This rather delphic statement basically says that, under scale invariance, 
+knowing the dynamics of one species is enough to know the dynamics of 
+every species.  Strictly speaking, it could only apply to Equation~\ref{eq:MvF} 
+if there was a continuum of maximum weights, with a species at
+every $W > 0$.  Clearly, this cannot be the case in a multispecies spectrum with 
+a finite set of species, because the $W$s are typically separated by finite 
+intervals, and the spectrum has fixed lower and upper boundaries, outside which 
+there are no species.  Therefore, a scale-invariant system is, at best, an 
+idealisation of a size-spectrum model with a finite number of species.
 
-Once a \class{MizerParams} object has been created for the scaling invariant model it can be run in the usual way:
 
-<<label = scale_run>>=
-sim <- project(params, t_max=5, effort = 0)
-@
+%These boundaries are dealt with by special assumptions described below, 
+%to retain the property of 'close-to-scale-invariance'.
+
+%We avoid the problem of having to model arbitrarily small species by replacing them with the background resource, so the 
+%smallest species we explicitly model still have something to eat. We avoid the 
+%problem of having to model arbitrarily large species by choosing the background 
+%mortality term $\mu_b (w)$ to emulate the effect of predators larger than the 
+%explicitly modelled species.
+  
+{\bf Why bother with scale invariance?} 
+There is an ecological reason and a mathematical one.  The ecological reason 
+is that, in marine ecosystems, abundance (aggregated over species) as a 
+function of body mass, is often observed to be quite close to a power law 
+{\bf (Sheldon)}.  The existence of this remarkable regularity, plus the 
+fact that it promotes coexistence of species, supports the development 
+of scale-invariant models.
+
+The mathematical reason is that scale-invariant systems possess symmetries 
+which make them easier to understand.  For instance, the assumption of scale 
+invariance in the system with a continuum of maximum weights allows an exact 
+analytic expression for a steady state of the system to be derived. Although 
+scale invariance cannot be met exactly in the system with a finite number of 
+species, it can still guide the choice of parameter values that are likely 
+to permit coexistence of species. 
+
+Note that we are not suggesting that real assemblages of fish species are 
+at rest on an exact power-law.  Rather we use scale invariance to 
+construct \emph{background} assemblages that facilitate coexistence of 
+observed fish species (\emph{foreground} species), without calling for 
+strong stock-recruitment relationships. 
+
+
+\subsection{Implementing the scale-invariant model}
+
+Here we describe how to run the scale-invariant model, and make some 
+comparisons with the trait-based model in Section~\ref{sec:trait_based_model}. 
+Details about our scale-invariant model and its motivations are given in
+Section~\ref{sec:appendix}.
+
+To help set up a scale invariant trait-based model, there is a wrapper function, 
+%\code{set\_scaling\_model()}. 
+Like the %\code{set\_community\_model()} 
+and 
+%\code{set\_tait\_model()} 
+functions described above, this function can take many arguments. Most of 
+them have default values so you don't need to worry about them for the moment. 
+See the help page for more details.
+
+%<<label=help_set_scaling_model, eval=FALSE>>=
+%?set_scaling_model
+%@
+
+The main parameters of interest are the number of the species in the model 
+%(\args{no\_sp}), 
+the minimum egg size %(\args{min\_egg}), 
+the minimum maturity size of a species %(\args{min\_w\_mat}) 
+and the minimum and maximum asymptotic sizes %(\args{min\_w\_inf}) 
+and 
+%(\args{max\_w\_inf}) 
+respectively. The egg, maturity and asymptotic sizes are spread evenly on a logarithmic scale. The Beverton-Holt stock recruitment relationship is turned off by default.  
+
+%<<label=demo_scaling_model_params>>=
+%params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
+%                            min_egg = 1e-4, min_w_mat = 10^(0.4), 
+%                            knife_edge_size = 100, kappa = 0.005)
+%@
+
+Once a 
+%\class{MizerParams} 
+object has been created for the scale-invariant model, it can be run in the 
+usual way:
+
+%<<label = scale_run>>=
+%sim <- project(params, t_max=5, effort = 0)
+%@
 
 Let us make a picture of the results:
 
-<<plot_scale_sim, eval=FALSE>>=
-plot(sim)
-@
+%<<plot_scale_sim, eval=FALSE>>=
+%plot(sim)
+%@
 
 \begin{figure}
-<<label=print_plot_scale_sim, echo=FALSE, fig.height=9>>=
-<<plot_scale_sim>>
-@
+%<<label=print_plot_scale_sim, echo=FALSE, fig.height=9>>=
+%<<plot_scale_sim>>
+%@
 \caption{Example plot of the scale invariant trait-based model with no fishing.}
 \label{fig:plot_scale_demo}
 \end{figure}
 
-One can see from the plot of time versus biomass that the system is initiated very close to a steady state, and it is further attracted to the steady state without the need to impose any stock recruitment relationship (at least under default settings).
+One can see from the plot of time versus biomass that the system is 
+initiated very close to a steady state, and it is further attracted to 
+the steady state without the need to impose any stock recruitment 
+relationship (at least under default settings).
 
-\subsection{Comparing with the trait based model}
-
-
-By comparing Figure~\ref{fig:plot_scale_demo} with Figure~\ref{fig:plot_trait_demo} one can see that the output of the scale-invariant trait-based model is somewhat similar to that of the previous trait-based model. The key difference between these two models is that a strong stock recruitment relationship is present in the original trait based model. In the original trait based model the number of fish grow rapidly, initially, until the population growth is eventually halted by the stock recruitment relationship. If one removed the stock recruitment relationship, the populations in the original trait based model would continue to grow rapidly, but they are being \emph{held back} by the stock recruitment relationship. The result is that the stock in the original trait based model is somewhat insensitive to changes in the environment, because its steady state is the result of a strong force for population growth being halted by a strong breaking force (the stock recruitment relationship) . To see this let us run the original trait based model, with a large amount of new effort put into fishing:
-
-
-<<label=demo_trait_model_insensitive>>=
-params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
-                          knife_edge_size = 100)
-sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
-sim_trait <- project(params_trait,
-                     initial_n = sim_trait_initial@n[dim(
-                         sim_trait_initial@n)[1],,],
-                     initial_n_pp = sim_trait_initial@
-                         n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
-                     effort = 1)
-@
-
-We make a plot of how biomass changes over time (Figure~\ref{fig:plot_trait_ins}).  
-
-<<plot_trait_ins3, eval=FALSE>>=
-plotBiomass(sim_trait)
-@
-
-\begin{figure}
-<<label=print_plot_trait_ins2, echo=FALSE, fig.height=4, fig.keep='last'>>=
-<<plot_trait_ins3>>
-@
-\caption{A biomass plot of the original trait-based model under significant fishing.}
-\label{fig:plot_trait_ins}
-\end{figure}
+By comparing Figure~\ref{fig:plot_scale_demo} with 
+Figure~\ref{fig:plot_trait_demo}, one can see that the output of the 
+scale-invariant, trait-based model is somewhat similar to that of the 
+previous trait-based model. The key difference
+is that a strong stock-recruitment relationship is present in the original 
+trait-based model. This allows the number of fish to increase rapidly, 
+initially, until the population growth is eventually halted 
+by the stock-recruitment relationship. If one removed the stock recruitment 
+relationship, the populations in the original trait based model would 
+continue to grow rapidly, but they are being \emph{held back} by the stock 
+recruitment relationship. The result is that the stock in the original 
+trait based model is somewhat insensitive to changes in the environment, 
+because its steady state is the result of a strong force for population 
+growth being halted by a strong breaking force (the stock-recruitment 
+relationship) . 
 
 
-Notice that even though the fishing mortality rate is very high (orders of magnitude more than the predation mortality rate), no species are going extinct. Let us compare this with the analogous situation, where a high fishing effort is put into the scale-invariant trait-based model. We run the system under a high fishing effort:
 
-<<label=demo_scale_model_sensitive>>=
-params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
-                            min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
-                            knife_edge_size = 100,kappa = 0.005)
-sim <- project(params, t_max=15, effort = 1)
-@
+\subsection{Details of changes to the trait-based model}
 
-We make a plot of how biomass changes over time (Figure~\ref{fig:plot_scale_sense}).   
+Here we document the changes made to the Mizer software tool described in 
+Section~\ref{sec:principles}, in order to generate species assemblages close to 
+scale invariance.  The new model is similar to the original trait-based model of 
+Section~\ref{sec:explicit}, but includes some modifications and restrictions to 
+get assemblages that are close to scale invariance.  The changes are as follows.
 
-<<plot_scale_sense2, eval=FALSE>>=
-b_trait <- getBiomassFrame(sim_trait)
-b <- getBiomassFrame(sim)
-display_frames(b_trait, b)
-@
+%The scale invariant trait-based model corresponds to a special case 
+%of the general size spectrum model described in Section~\ref{sec:principles}. 
+%Essentially the scale invariant trait-based model is very similar to the 
+%original trait-based model of Section~\ref{sec:explicit}, however there are 
+%the following differences:
 
-\begin{figure}
-<<label=print_plot_scale_sense, echo=FALSE, fig.height=4, fig.keep='last'>>=
-<<plot_scale_sense2>>
-@
-\caption{A biomass plot comparing the behaviours of the two trait-based model under significant fishing.}
-\label{fig:plot_scale_sense}
-\end{figure}
-
-In Figure~\ref{fig:plot_trait_ins} the large fishing effort just pushes down the final abundance of effected species, but these still remain because of their strong inclination towards population growth. In Figure~\ref{fig:plot_scale_sense}, on the other hand, the heavily fished species are actually going extinct, which seems more realistic. In summary the scale-invariant trait based model is more sensitive to the effects of fishing, and other changes in the environment, unlike the original trait-based model which is somewhat held in place by a strong stock recruitment relationship. 
-
-\subsection{Modifications to the trait-based model}
-
-The scale invariant trait-based model corresponds to a special case of the general size spectrum model described in Section~\ref{sec:principles}.  Essentially the scale invariant trait-based model is very similar to the original trait-based model of Section~\ref{sec:explicit}, however there are the following differences:
-
-{\bf Richard.L: could you rephrase these as you see fit ? }
 \begin{itemize}
- \item By default the scale-invariant trait-based model is initialized at a steady state (Equation~\ref{eq:steady}) (provided no fishing is being performed), whereas the original 
- trait based model is not initialized near its steady state.
- \item In order for our model to be scale-invariant we require that the exponent of metabolic intake $n$ equals the 
-exponent $p$ of metabolic loss. 
-\item In order for our model to be scale invariant we require that the exponent of the resource spectrum $\lambda$, the exponent of metabolic intake $n$ and the exponent of the volumetric search rate $q$ are related by the equation $\lambda = 2-n+q.$  
-\item Scale invariance requires similarity on every size scale, and so we cannot have any special sizes such as a constant egg weight shared by all species. In fact, we 
-require that the egg size $w_{0,i}$ of each species is equal to a fixed fraction of their asymptotic size. Although there is some evidence of such variations in egg size, the common belief is 
-that the egg size of most fish is constant at around one milligram, and so our assumption of egg size being proportional to asymptotic size could be taken as an idealization for mathematical simplicity. 
- \item Although a stock recruitment relationship is not required to create a steady state in the scale-invariant trait-based model (unlike the original trait-based model), a stock recruitment relationship can be included in the in the scale-invariant trait-based model by setting the value of \args{r\_fac}. Here \args{r\_fac} equals the maximum recruitment $R_{max.i}$ divided by the actual recruitment $R_i$ at our steady state. By default the stock recruitment relationship is turned off, by setting \args{r\_fac} to go to infinity. This has the effect of also making $R_{max.i}\rightarrow \infty$, and so Equation~\ref{eq:R} is effectively replaced with the simple relationship $R_i = R_{p.i}.$ 
-\item The total mortality
+
+ \item For the model to be scale invariant, the exponent of 
+ metabolic intake $n$ needs to be equal to the exponent $p$ of metabolic loss.
+ 
+ \item Scale invariance also requires that the exponent of the resource 
+ spectrum $\lambda$ must satisfy the relation $\lambda = 2-n+q$, where 
+ $n$ is the exponent of metabolic intake and $q$ is the exponent of the 
+ volumetric search rate.  
+ 
+ \item {\bf(Ref to Eqn 3.4)}  Feeding depends on prey body size, but not on 
+ prey species identity, so $\theta_{ij}=1$ for all $i,j$. Note however 
+ that the feeding preference function $\phi_i(w_p/w)$ already has scale 
+ invariance built into it, because predation depends on the ratio of prey 
+ to predator weight.  Thus no modification to growth and mortality 
+ caused by predation is needed in moving to scale invariance.
+ 
+ \item {\bf(Ref to Eqn 3.8)} {\bf(this piece wants dropping if we don't use 
+ a step-like psi)}.  We assume that the proportion of energy allocated to 
+ reproduction $\psi_i(w)$ is given by the step-like function
+ \begin{equation}
+ \psi_i(w)=\begin{cases}
+ 0 & \text{if \ensuremath{w<w_{*.i}}}\\
+ \left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
+ \end{cases}
+ \end{equation}
+ This can be achieved by taking the form given by Equation~\ref{eq:psi}, 
+ and letting $u \rightarrow \infty.$  This is not a requirement 
+ for scale invariance;  the assumption was made for the mathemaical 
+ reason that it is then possible to get a closed-form expression for 
+ the steady state.
+
+ \item {\bf(Ref to Eqn 3.11)} Scale invariance requires egg weight to 
+ be a fixed fraction of maximum weight.  It is therefore indexed by 
+ species $w_{0,i}$, rather than taking a single size $w_0$.
+ Egg size does vary over about two orders of magnitude in teleosts,
+ but there is evidence that at least the larger teleosts are unusual in 
+ marine systems in lacking a scaling relationship between egg wight and 
+ adult weight {\bf (Andersen et al. review)}.  Scale invariance of egg 
+ weight should therefore be seen as a mathematical restriction required 
+ to generate the scale-invariant background assemblage, in so far as the 
+ background comprises teleost fish.  
+
+ \item {\bf(Ref to Eqn 3.12)}  A stock-recruitment relationship is not 
+ required to create a steady state in the scale-invariant, trait-based model.  
+ However, a stock-recruitment relationship can be included in the 
+ scale-invariant trait-based model by setting the value of 
+ %\args{r\_fac}. 
+ Here %\args{r\_fac} 
+ equals the maximum recruitment $R_{max.i}$ divided by the actual 
+ recruitment $R_i$ at our steady state. By default the stock-recruitment 
+ relationship is turned off, by setting 
+ %\args{r\_fac} 
+ to go to infinity. This has the effect of also making 
+ $R_{max.i}\rightarrow \infty$, and so Equation~\ref{eq:R} is effectively 
+ replaced with the simple relationship $R_i = R_{p.i}.$ 
+
+ \item {\bf(Ref to Eqn 3.14)}: beyond the upper limit of body weight. 
+ The total mortality
  needs to scale with body weight. In practice, body weight always has an upper 
  limit in a real ecosystem, and predation mortality goes to zero as this limit 
  is approached.  Some compensation is needed for this in the background 
- mortality.  Thus, rather then defining background mortality by Equation~\ref{eq:mu_b} we have a somewhat complicated expression for the background mortality $\mu_b(w)$ given by Equation~\ref{eq:newmub}. Essentially this term represents the predation mortality which would be induced by predators beyond the size ranges we explicitly model at -under the assumption that the abundance of such predators continue the scale invariant pattern. 
+ mortality.  Thus, we replace the background mortality in 
+ Equation~\ref{eq:mu_b} with a more intricate expression $\mu_b(w)$ given by 
+ Equation~\ref{eq:newmub}. 
+ Essentially this term represents the predation mortality which would be 
+ induced by predators beyond the upper limit of body sizes explicitly modelled, 
+ under the assumption that the abundance of such predators continue the scale 
+ invariant pattern. 
  %We arrived at our expression for $\mu_b(w)$ by considering that in the inf use the expression $ \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w),0 \}$ where 
  %\begin{equation}
  %\mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right),
  %\end{equation}
  %and $\mu_{f.i}(w)$ is the fishing mortality (as determined by the fishing gears), and %$\mu_{p.i} (w)$ is the predation mortality, given by (Equation~\ref{eq:mup}), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 %We have to choose parameters so that $\mu _0$ is sufficiently large that $ \mu_{b.i}(w) = \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w)\geq 0. $ 
- \item The resource spectrum extends from the smallest weight at which an explicitly modeled fish may eat. We define the carrying capacity $c_p(w)$ of the background resource so when our system is at steady state, the 
-combination of the background resource spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ An expression for how we set $c_p(w)$ within the scale-invariant trait-based model is given by Equation~\ref{eq:cp}. 
+
+\item {\bf(Ref to Eqn 3.15)} 
+The resource spectrum extends from the smallest weight at which an explicitly 
+modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
+background resource so when our system is at steady state, the 
+combination of the background resource spectrum and the aggregate abundance of 
+the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
+An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
+model is given by Equation~\ref{eq:cp}. 
 %This is achieved choosing the carrying capacity of the background resource to be 
 %\begin{equation} c_{p} (w)=
 %   \begin{cases}
@@ -2561,23 +2766,19 @@ combination of the background resource spectrum and the aggregate abundance of t
 %\end{equation}
 %Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 %so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the background resource declines to zero.  
-\item {\bf this piece wants dropping if we dont use step-like psi} In order for us to be able to obtain a closed form expression for a steady state, we assume that the proportion of energy allocated to reproduction $\psi_i(w)$ is given by the step-like function
-\begin{equation}
-\psi_i(w)=\begin{cases}
-0 & \text{if \ensuremath{w<w_{*.i}}}\\
-\left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
-\end{cases}
-\end{equation}
-This can be achieved by taking the form given by Equation~\ref{eq:psi}, and letting $u \rightarrow \infty.$ Note that this is not a requirement for scale invariance, and the only reason this assumption is made is that is so we can get a closed form steady state expression. 
+
+\item By default the scale-invariant trait-based model is initialized at a 
+ steady state (Equation~\ref{eq:steady}) (provided no fishing is being 
+ performed), whereas the original trait based model is not initialized 
+ near its steady state.
+
 \end{itemize}
 
-Note that scale invariance in predation exists as standard feature in the
-mizer software tool (Equation~\ref{eq:MvF}), because predation depends on the ratio of predator
-to prey weight.  Thus no modification to growth and mortality caused by 
-predation is needed when the scale-invariant model is implemented.
 
 
 
+
+%---------------------------------------------------
 
 %---------------------------------------------------
 
@@ -2588,20 +2789,23 @@ predation is needed when the scale-invariant model is implemented.
 
 \subsection{Introduction}
 
-In Section * we saw that using strong stock recruitment relationships, as implemented within the models discussed in Sections * and * can lead to scenarios where the stock levels are unrealistically insensitive to changes in the envioment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach for doing this is to use species from the scale-invariant trait based model as a type of background or substrait, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. The scale-invariant background species essentially act to model the presence of species that one has little knowledge about, or interest in modelling explicitly. 
+In Section~\ref{sec:scale_invariant_trait_based_model} we saw that using strong stock recruitment relationships, as implemented within the models discussed in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example} can lead to scenarios where the stock levels are unrealistically insensitive to changes in the envioment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach for doing this is to use species from the scale-invariant trait based model as a type of background or substrait, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. The scale-invariant background species essentially act to model the presence of species that one has little knowledge about, or interest in modelling explicitly. 
 
 The key to our approach (of creating a system where species coexist without imposing strong stock recruitment relationships), is that when we add a new species to our system, we do so in such a way that the resulting system will still be at steady state. To do this, we try to ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survivle is based on the transplanted entity and its surrounds recieving similar stimulii before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to \emph{make room} for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
 
 \subsection{Adding a foreground species to a scale-invariant background}
 
 
-Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section *) as follows:
+Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section \ref{sec:scale_invariant_trait_based_model}) as follows:
 
 <<label=seed_scaling_model_params>>=
-params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
-                            min_egg = 1e-4, min_w_mat = 10^(0.4), 
+params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e4,
+                            min_egg = 1e-4, min_w_mat = 10^(0.4),
                             knife_edge_size = 100, kappa = 0.005)
+params@A[] <- NA
 @
+
+Here \args{params@A[i]} should be set to $1$ if $i$ is a foreground species, and \args{params@A[i]} should be set to \args{NA} if $i$ is a background species.    
 
 Let us introduce a species which we are interested in modelling explicityly into this background using our \code{add\_species()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
 
@@ -2614,25 +2818,22 @@ species_params <- data.frame(
     beta = 283, 
     sigma = 1.8, 
     z0 = 0,
-    alpha = 0.6,
+    alpha = 0.6, 
     erepro = 0.1, 
-    sel_func = "sigmoid_length", 
+    sel_func = "knife_edge",
     knife_edge_size = 100, 
-    gear = "sigmoid_length_gear",
+    gear = "knife_edge_gear",
     k = 0,
     r_max = 10^50,
     k_vb = 0.6,
     a = 0.0085,
-    b = 3.11,
-    l25 = 15.65244,
-    l50 = 16.16
+    b = 3.11
 )
 @
 
 Foreground species of specific interest can be introduced into our background using the following command:
 
 <<label=mullet_add>>=
-params@A[] <- NA
 params_out <- add_species(params, species_params)
 @
 
@@ -2642,38 +2843,79 @@ including the new species. This is done by decreasing the abundance of the pre-e
 The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is neglidible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
 will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundanced of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
 
-The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection *.
+The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection \ref{subsec:modtrait}.
 
 We can perform a simulation with our new system, including the mullet, in the usual way: 
 
 <<label = mullet_run>>=
-sim <- project(params, t_max=5, effort = 0)
+sim <- project(params_out, t_max = 50, effort = 0)
 @
 
-We now picture the results (Figure~\ref{fig:plot_mullet_demo}):
+We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state (Figure~\ref{fig:plot_mullet_demo}):
 
 <<plot_mullet_sim, eval=FALSE>>=
-plot(sim)
+plotBiomass(sim)
 @
 
 \begin{figure}
-<<label=print_plot_mullet_sim, echo=FALSE, fig.height=9>>=
+<<label=print_plot_mullet_sim, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_mullet_sim>>
 @
-\caption{Example plot of the scale invariant trait-based model plus mullet with no fishing.}
+\caption{Example plot of time vs biomass for the scale invariant trait-based model plus mullet with no fishing.}
 \label{fig:plot_mullet_demo}
 \end{figure}
 
+We can also visualize the relative abundances of the different species (Figure~\ref{fig:plot_mullet_demo2}) with the following command:
+
+<<plot_mullet_sim2, eval=FALSE>>=
+plotSpectra(sim)
+@
+
+\begin{figure}
+<<label=print_plot_mullet_sim2, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_mullet_sim2>>
+@
+\caption{Example plot of weight vs abundance for the scale invariant trait-based model plus mullet with no fishing, in the final state of our simulation.}
+\label{fig:plot_mullet_demo2}
+\end{figure}
+
+
+
+
+We can compare the growth curves of the mullet with the predictions from the von Bertalanffy model (Figure~\ref{fig:plot_mullet_growth}) using the following command:
+
+
+<<plot_mullet_growth, eval=FALSE>>=
+plotGrowthCurves(sim, species = "mullet", max_age = 15)
+@
+
+\begin{figure}
+<<label=print_plot_mullet_growth, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_mullet_growth>>
+@
+\caption{A plot showing the growth (time vs weight) of the mullet. The black curve shows the von Bertalanffy growth curve and the red curve shows the prediction of our model with mullet in a scale-invariant background}
+\label{fig:plot_mullet_growth}
+\end{figure}
+ 
+
 \subsection{Adding another species}
 
-In practical fisheries science one will have many species that one wishes to model explicitly. Further species can be added into our system by repeated use of the \code{add\_species()} function. Let us demonstrait this by adding hake into our system with background and mullet. 
+In practical fisheries science one will have many species that one wishes to model explicitly. Further species can be added into our system by repeated use of the \code{add\_species()} command. Let us demonstrait this by adding hake into our system with background and mullet. 
 
 Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
 
+
+
 \subsection{Adding fishing}
+
+In order to model the effect of fishing one could simply take the previous setup, and turn on fishing effort, but that would likely lead to the extinction of some species. The reason is that the system was setup to be at steady state for a system without any fishing, and without a strong stock recruitment relationship imposed the system reacts more sensitively to dramatic changes in the enviroment than the models in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example}. 
+
+In order to model the effects of fishing in our systems we organize include fishing effort within the \code{add\_species()} command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting \class{MizerParams} object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
 
 \subsection{Comparing fishing gears}
 
+The scenario discussed just previously corresponds to a system in the Medeterian sea where * fishing gear is used to catch mullet and hake. One focus of {\bf Assessment of the relative catch performance of hake, red mullet and striped
+red mullet in a modified trawl extension with T90 netting} was to determine the effect using a T90 exension to the fishing gear to alter its selectivty curve. We can see the effects of such a change as follows.  
 
 %---------------------------------------------------
 
