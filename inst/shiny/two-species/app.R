@@ -9,37 +9,24 @@ library(progress)
 server <- function(input, output, session) {
     
     p_bg  <- reactive({
-        setBackground(set_scaling_model(no_sp = 10, 
-                        min_w_inf = 10, max_w_inf = 1e4,
+        setBackground(set_scaling_model(no_sp = input$no_sp, 
+                        min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 100, kappa = 0.005,
-                        lambda = input$lambda
-        ))
+                        knife_edge_size = 100, kappa = 0.005))
     })
     
     p <- reactive({
         
         ######### add mullet
-        # some data from fishbase at 
-        # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
-        # some parameter info is in this table
-        # https://www.dropbox.com/s/iqiydcrxqrx0k0w/paramsTable.jpg?dl=0
-        # length to weight conversion constants from 
-        # http://www.fishbase.org/popdyn/LWRelationshipList.php?ID=790&GenusName=Mullus&SpeciesName=barbatus+barbatus&fc=332
         a_m <- 0.0085
         b_m <- 3.11
-        # asymptotic length from
-        # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=790&GenusName=Mullus&SpeciesName=barbatus+barbatus&fc=332
         L_inf_m <- 24.3
-        # length at maturity from 
         # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
         L_mat <- 11.1
         species_params <- data.frame(
             species = "mullet",
             w_min = 0.001, # mizer's default egg weight, used in NS
-            # w_inf = 251.94, #is the old value we used. Where is it from ? It differs to below
             w_inf = a_m*L_inf_m^b_m, # from fishbase
-            # w_mat = 16.48, #is the old value we used. Where is it from ? It differs to below
             w_mat = a_m*L_mat^b_m, # from fishbase
             beta = 283, # = beta_gurnard from North sea. Silvia says gurnard is similar.
             sigma = 1.8, # = sigma_gurnard from North sea. Silvia says gurnard is similar.
@@ -53,27 +40,17 @@ server <- function(input, output, session) {
             r_max = 10^50,
             k_vb = 0.6,
             a = a_m,
-            b = b_m
+            b = b_m,
+            h = input$h_mullet
         )
-        # k_vb is from 
-        # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=790&GenusName=Mullus&SpeciesName=barbatus+barbatus&fc=332
         p <- addSpecies(p_bg(), species_params)
         
         ############# add hake 
         # Merluccius merluccius  (European hake)
-        # http://www.fishbase.org/summary/Merluccius-merluccius.html
-        #! Currently hake and mullet are both using the same feeding level. What to do about it ?
-        # length to weight conversion: w=a*L^b, a = 0.0046, b = 3.12
-        # http://www.fishbase.org/popdyn/LWRelationshipList.php?ID=30&GenusName=Merluccius&SpeciesName=merluccius&fc=184
         a <- 0.0046
         b <- 3.12
-        # characteristic weights from
-        # http://www.fishbase.org/Reproduction/MaturityList.php?ID=30&GenusName=Merluccius&SpeciesName=merluccius&fc=184
-        # http://www.fishbase.org/graph/graphLengthFM01.php?RequestTimeout=50000&ID=30&genusname=Merluccius&speciesname=merluccius&fc=184&gm_lm=29.832069860776&gm_loo=81.220460002349
         L_inf <- 81.2
         L_mat <- 29.83
-        # Some information below is from Richard Law's document (RLD) at
-        # https://www.dropbox.com/s/g701wgcnhr12qpg/species%20%282%29.pdf?dl=0
         
         species_params <- data.frame(
             species = "hake",
@@ -92,11 +69,10 @@ server <- function(input, output, session) {
             r_max = 10^50, #why do I need r_max after combining before
             k_vb = 0.1, # from FB website below
             a = a,
-            b = b
+            b = b,
+            h = input$h_hake
         )
-        #k_vb <- 0.1 # from FB website below
-        # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=30&GenusName=Merluccius&SpeciesName=merluccius&fc=184
-        add_species(p, species_params)
+        addSpecies(p, species_params)
     })
     
     s <- reactive({
@@ -128,16 +104,17 @@ ui <- fluidPage(
         sidebarPanel(
             tabsetPanel(type = "pills",
                 tabPanel("Background",
-                         sliderInput("lambda", "Sheldon exponent",
-                                     value=2, min=1.8, max=2.2, step=0.05)
+                         sliderInput("no_sp", "Number of species",
+                                     value=10, min=4, max=20, step=1,
+                                     round = TRUE)
                         ),
                 tabPanel("Mullet",
-                         sliderInput("h", "max feeding rate",
-                                     value=30, min=1.8, max=2.2, step=0.05)
+                         sliderInput("h_mullet", "max feeding rate",
+                                     value=62, min=10, max=100, step=2)
                          ),
                 tabPanel("Hake",
-                         sliderInput("h", "max feeding rate",
-                                     value=30, min=1.8, max=2.2, step=0.05)
+                         sliderInput("h_hake", "max feeding rate",
+                                     value=30, min=10, max=100, step=2)
                          )
             )
         ),  # endsidebarpanel

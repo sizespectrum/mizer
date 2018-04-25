@@ -650,10 +650,10 @@ set_scaling_model <- function(no_sp = 11,
     n_mult[w >= w_inf[1]] <- 0
     # Create steady state solution n_exact for species 1
     n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
-    n_exact <- n_exact[w >= w_min[1] & w <= w_inf[1]]
+    n_exact <- n_exact[w >= w_min[1] & w < w_inf[1]]
     # rescale fish abundance to line up with background resource spectrum
     mult <- kappa / 
-        sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w <= w_inf[1]])
+        sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w < w_inf[1]])
     n_exact <- n_exact * mult * 
         (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
     # Use n_exact as a template to create solution initial_n for all species
@@ -817,9 +817,9 @@ retune_abundance <- function(params, retune) {
         }
     } else {
         # Use these abundance multipliers to rescale the abundance curves
-        p@initial_n <- p@initial_n * A2
+        params@initial_n <- params@initial_n * A2
         # update SSB
-        p@A <- p@A * A2
+        params@A <- params@A * A2
     }
     return(params)
 }
@@ -1031,12 +1031,11 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         
         # Compute integral to solve MVF for new species
         w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
-        idx <- p@species_params$w_min_idx[new_sp]:w_inf_idx
+        idx <- p@species_params$w_min_idx[new_sp]:(w_inf_idx-1)
         if (any(gg[idx]==0)) {
             stop("Can not compute steady state due to zero growth rates")
         }
-        integrand <-
-            params@dw[idx] * mumu[idx] / gg[idx]
+        integrand <- p@dw[idx] * mumu[idx] / gg[idx]
         p@initial_n[new_sp, ] <- 0
         p@initial_n[new_sp, idx] <- exp(-cumsum(integrand)) / gg[idx]
         if (any(is.infinite(p@initial_n))) {
@@ -1053,7 +1052,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
             # power law, and then calculate its SSB.
             # We choose the maximum of the biomass density in log space
             # because that is always an increasing function at small size.
-            idx <- which.max(p@initial_n[new_sp, ] * p@w^2)
+            idx <- which.max(p@initial_n[new_sp, ] * p@w^p@lambda)
             p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] *
                 p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[new_sp, idx] / 2
             SSB <- sum(p@initial_n[new_sp, ] * p@w * p@dw * p@psi[new_sp, ])
@@ -1072,7 +1071,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # First identify the retunable species. These are all background
         # species except the largest one
         retune <- is.na(p@A)
-        largest_back_idx <- which.max(params@species_params$w_inf[retune])
+        largest_back_idx <- which.max(p@species_params$w_inf[retune])
         retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
         
@@ -1084,15 +1083,16 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
             for (sp in 1:no_sp) {  # TODO: vectorize
                 # Compute integral to solve MVF
                 w_inf_idx <- sum(p@w < p@species_params$w_inf[sp])
-                idx <- p@species_params$w_min_idx[sp]:w_inf_idx
+                idx <- p@species_params$w_min_idx[sp]:(w_inf_idx-1)
                 if (!all(gg[sp, idx] > 0)) {
                     stop("Can not compute steady state due to zero growth rates")
                 }
-                integrand <- params@dw[idx] * mumu[sp, idx] / gg[sp, idx]
+                integrand <- p@dw[idx] * mumu[sp, idx] / gg[sp, idx]
                 sol <- exp(-cumsum(integrand)) / gg[sp, idx]
                 p@initial_n[sp, idx] <- sol * p@initial_n[sp, idx[1]] / sol[1]
+                p@initial_n[sp, w_inf_idx] <- 0
                 # Rescale to get desired SSB
-                if (!is.na(params@A[sp])) {
+                if (!is.na(p@A[sp])) {
                     unnormalised_SSB <- sum(p@initial_n[sp,] * p@w * p@dw *
                                                 p@psi[sp, ])
                     p@initial_n[new_sp, ] <- p@initial_n[sp, ] * p@A[sp] / 
@@ -1114,7 +1114,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         for (i in (1:no_sp)) {
             gg0 <- gg[i, p@species_params$w_min_idx[i]]
             mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-            DW <- params@dw[p@species_params$w_min_idx[i]]
+            DW <- p@dw[p@species_params$w_min_idx[i]]
             erepro_final[i] <- p@species_params$erepro[i] *
                 (p@initial_n[i, p@species_params$w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
