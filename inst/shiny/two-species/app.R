@@ -12,7 +12,7 @@ server <- function(input, output, session) {
         setBackground(set_scaling_model(no_sp = input$no_sp, 
                         min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 100, kappa = 0.005))
+                        knife_edge_size = 100, kappa = 500))
     })
     
     p <- reactive({
@@ -24,7 +24,7 @@ server <- function(input, output, session) {
         # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
         L_mat <- 11.1
         species_params <- data.frame(
-            species = "mullet",
+            species = "Mullet",
             w_min = 0.001, # mizer's default egg weight, used in NS
             w_inf = a_m*L_inf_m^b_m, # from fishbase
             w_mat = a_m*L_mat^b_m, # from fishbase
@@ -43,7 +43,7 @@ server <- function(input, output, session) {
             b = b_m,
             h = input$h_mullet
         )
-        p <- addSpecies(p_bg(), species_params)
+        p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet)
         
         ############# add hake 
         # Merluccius merluccius  (European hake)
@@ -53,7 +53,7 @@ server <- function(input, output, session) {
         L_mat <- 29.83
         
         species_params <- data.frame(
-            species = "hake",
+            species = "Hake",
             w_min = 0.001, # mizer default
             w_inf = a*L_inf^b, # from fishbase
             w_mat = a*L_mat^b, # from fishbase
@@ -72,7 +72,7 @@ server <- function(input, output, session) {
             b = b,
             h = input$h_hake
         )
-        addSpecies(p, species_params)
+        addSpecies(p, species_params, SSB = input$SSB_hake)
     })
     
     s <- reactive({
@@ -90,6 +90,18 @@ server <- function(input, output, session) {
     
     output$plotSpectra <- renderPlot({
         plotSpectra(p())
+    })
+    
+    output$plotGrowthCurveMullet <- renderPlot({
+        plotGrowthCurves(p(), species=c("Mullet"))
+    })
+    
+    output$plotGrowthCurveHake <- renderPlot({
+        plotGrowthCurves(p(), species=c("Hake"))
+    })
+    
+    output$erepro <- renderPrint({
+        p()@species_params$erepro
     })
 
 } #the server
@@ -110,19 +122,29 @@ ui <- fluidPage(
                         ),
                 tabPanel("Mullet",
                          sliderInput("h_mullet", "max feeding rate",
-                                     value=62, min=10, max=100, step=2)
+                                     value=62, min=10, max=100, step=2),
+                         sliderInput("SSB_mullet", "SSB",
+                                     value=100, min=1, max=400)
                          ),
                 tabPanel("Hake",
                          sliderInput("h_hake", "max feeding rate",
-                                     value=30, min=10, max=100, step=2)
+                                     value=30, min=10, max=100, step=2),
+                         sliderInput("SSB_hake", "SSB",
+                                     value=200, min=1, max=400)
                          )
-            )
+            ),
+            textOutput("erepro")
         ),  # endsidebarpanel
         
         mainPanel(
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
-                tabPanel("Total Biomass", plotOutput("plotBiomass"))
+                tabPanel("Total Biomass", plotOutput("plotBiomass")),
+                tabPanel("Growth", 
+                    fluidRow(column(6, plotOutput("plotGrowthCurveMullet")),
+                             column(6, plotOutput("plotGrowthCurveHake"))
+                             )
+                )
             )
         )  # end mainpanel
     )  # end sidebarlayout
