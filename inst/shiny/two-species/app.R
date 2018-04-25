@@ -12,7 +12,9 @@ server <- function(input, output, session) {
         setBackground(set_scaling_model(no_sp = input$no_sp, 
                         min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 100, kappa = 500))
+                        knife_edge_size = 100, kappa = 500,
+                        lambda = input$lambda, gamma = input$gamma,
+                        h = input$h))
     })
     
     p <- reactive({
@@ -25,7 +27,7 @@ server <- function(input, output, session) {
         L_mat <- 11.1
         species_params <- data.frame(
             species = "Mullet",
-            w_min = 0.001, # mizer's default egg weight, used in NS
+            w_min = input$w_min_mullet,
             w_inf = a_m*L_inf_m^b_m, # from fishbase
             w_mat = a_m*L_mat^b_m, # from fishbase
             beta = 283, # = beta_gurnard from North sea. Silvia says gurnard is similar.
@@ -41,7 +43,8 @@ server <- function(input, output, session) {
             k_vb = 0.6,
             a = a_m,
             b = b_m,
-            h = input$h_mullet
+            h = input$h_mullet,
+            gamma = input$gamma_mullet
         )
         p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet)
         
@@ -54,7 +57,7 @@ server <- function(input, output, session) {
         
         species_params <- data.frame(
             species = "Hake",
-            w_min = 0.001, # mizer default
+            w_min = input$w_min_hake,
             w_inf = a*L_inf^b, # from fishbase
             w_mat = a*L_mat^b, # from fishbase
             beta = exp(2.4), #RLD and Blanchard thesis p 88
@@ -70,7 +73,8 @@ server <- function(input, output, session) {
             k_vb = 0.1, # from FB website below
             a = a,
             b = b,
-            h = input$h_hake
+            h = input$h_hake,
+            gamma = input$gamma_hake
         )
         addSpecies(p, species_params, SSB = input$SSB_hake)
     })
@@ -80,7 +84,7 @@ server <- function(input, output, session) {
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p(), t_max = 15, effort = 0, 
+        project(p(), t_max = 15, t_save = 0.2, effort = 0, 
                 shiny_progress = progress)
     })
     
@@ -89,7 +93,7 @@ server <- function(input, output, session) {
     })
     
     output$plotSpectra <- renderPlot({
-        plotSpectra(p())
+        plotSpectra(p(), total=TRUE)
     })
     
     output$plotGrowthCurveMullet <- renderPlot({
@@ -97,11 +101,12 @@ server <- function(input, output, session) {
     })
     
     output$plotGrowthCurveHake <- renderPlot({
-        plotGrowthCurves(p(), species=c("Hake"))
+        plotGrowthCurves(p(), species=c("Hake", max_age = 50))
     })
     
-    output$erepro <- renderPrint({
-        p()@species_params$erepro
+    output$plot_erepro <- renderPlot({
+        ggplot(p()@species_params, aes(x = species, y = erepro)) + 
+            geom_col() + geom_hline(yintercept = 1, color="red")
     })
 
 } #the server
@@ -116,35 +121,49 @@ ui <- fluidPage(
         sidebarPanel(
             tabsetPanel(type = "pills",
                 tabPanel("Background",
+                         sliderInput("lambda", "Sheldon exponent",
+                                     value=2.14, min=1.9, max=2.2, step = 0.01),
+                         sliderInput("gamma_mullet", "Predation rate coefficient",
+                                     value=0.017, min=0.001, max=0.1),
+                         sliderInput("h", "max feeding rate",
+                                     value=30, min=10, max=100, step=2),
                          sliderInput("no_sp", "Number of species",
                                      value=10, min=4, max=20, step=1,
                                      round = TRUE)
                         ),
                 tabPanel("Mullet",
-                         sliderInput("h_mullet", "max feeding rate",
-                                     value=62, min=10, max=100, step=2),
                          sliderInput("SSB_mullet", "SSB",
-                                     value=100, min=1, max=400)
+                                     value=100, min=1, max=400),
+                         sliderInput("w_min_mullet", "Egg weight",
+                                     value=0.001, min=0.0001, max=0.01),
+                         sliderInput("gamma_mullet", "Predation rate coefficient",
+                                     value=0.017, min=0.001, max=0.1),
+                         sliderInput("h_mullet", "max feeding rate",
+                                     value=50, min=10, max=100, step=2)
                          ),
                 tabPanel("Hake",
-                         sliderInput("h_hake", "max feeding rate",
-                                     value=30, min=10, max=100, step=2),
                          sliderInput("SSB_hake", "SSB",
-                                     value=200, min=1, max=400)
+                                     value=200, min=1, max=400),
+                         sliderInput("w_min_hake", "Egg weight",
+                                     value=0.001, min=0.0001, max=0.01),
+                         sliderInput("gamma_hake", "Predation rate coefficient",
+                                     value=0.025, min=0.001, max=0.1),
+                         sliderInput("h_hake", "max feeding rate",
+                                     value=30, min=10, max=100, step=2)
                          )
             ),
-            textOutput("erepro")
+            plotOutput("plot_erepro")
         ),  # endsidebarpanel
         
         mainPanel(
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
-                tabPanel("Total Biomass", plotOutput("plotBiomass")),
-                tabPanel("Growth", 
+                tabPanel("Growth Curves", 
                     fluidRow(column(6, plotOutput("plotGrowthCurveMullet")),
                              column(6, plotOutput("plotGrowthCurveHake"))
                              )
-                )
+                ),
+                tabPanel("Total Biomass", plotOutput("plotBiomass"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
