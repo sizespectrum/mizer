@@ -930,8 +930,9 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 #### plotGrowthCurves ####
 #' Plot growth curves giving weight as a function of age
 #' 
-#' Uses the growth rates at the final time of a simulation to calculate
-#' the size at age.
+#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+#' time of a simulation to calculate the size at age. If given a
+#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
 #' 
 #' When the growth curve for only a single species is plotted, horizontal
 #' lines are included that indicate the maturity size and the maximum size for 
@@ -939,7 +940,7 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 #' a and b for length to weight conversion and the von Bertalanffy parameter
 #' k_vb, then the von Bertalanffy growth curve is superimposed in black.
 #' 
-#' @param sim MizerSim object
+#' @param sim MizerSim or MizerParams object
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param max_age The age up to which the weight is to be plotted. Default is 20
@@ -960,14 +961,15 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' }
-setGeneric('plotGrowthCurves', function(sim, ...)
+setGeneric('plotGrowthCurves', function(object, ...)
     standardGeneric('plotGrowthCurves'))
 
 #' Plot growth curves using a \code{MizerSim} object.
 #' @rdname plotGrowthCurves
-setMethod('plotGrowthCurves', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+setMethod('plotGrowthCurves', signature(object = 'MizerSim'),
+    function(object, species = as.character(sim@params@species_params$species),
              max_age = 20, percentage = FALSE, print_it = TRUE) {
+        sim <- object
         # reorder list of species to coincide with order in sim
         idx <- which(sim@params@species_params$species %in% species)
         species <- sim@params@species_params$species[idx]
@@ -1014,6 +1016,73 @@ setMethod('plotGrowthCurves', signature(sim='MizerSim'),
                 a <- sim@params@species_params$a[idx[1]]
                 b <- sim@params@species_params$b[idx[1]]
                 k_vb <- sim@params@species_params$k_vb[idx[1]]
+                L_inf <- (w_inf/a)^(1/b)
+                vb <- a * (L_inf * (1 - exp(-k_vb * age)))^b
+                dat <- data.frame(x = age, y = vb)
+                p <- p + geom_line(data = dat, aes(x = x, y = y))
+            }
+        }
+        
+        if (print_it) {
+            print(p)
+        }
+        return(p)
+    }
+)
+
+# TODO: avoid the duplication below. See how it was done with plotSpectra
+#' Plot growth curves using a \code{MizerSim} object.
+#' @rdname plotGrowthCurves
+setMethod('plotGrowthCurves', signature(object = 'MizerParams'),
+    function(object, species = as.character(params@species_params$species),
+             max_age = 20, percentage = FALSE, print_it = TRUE) {
+        params <- object
+        # reorder list of species to coincide with order in params
+        idx <- which(params@species_params$species %in% species)
+        species <- params@species_params$species[idx]
+        age <- seq(0, max_age, length.out = 50)
+        ws <- array(dim = c(length(species), length(age)), 
+                    dimnames = list(Species = species, Age = age))
+        g <- getEGrowth(params, params@initial_n, params@initial_n_pp)
+        for (j in 1:length(species)) {
+            i <- idx[j]
+            g_fn <- stats::approxfun(params@w, g[i, ])
+            myodefun <- function(t, state, parameters){
+                return(list(g_fn(state)))
+            }
+            ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                    times = age, func = myodefun)[,2]
+            if (percentage) {
+                ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
+            }
+        }	
+        plot_dat <- reshape2::melt(ws)
+        plot_dat$Species <- as.character(plot_dat$Species)
+        if (length(species) > 12) {
+            p <- ggplot(plot_dat) + 
+                geom_line(aes(x=Age, y = value, group = Species))
+        } else {
+            p <- ggplot(plot_dat) + 
+                geom_line(aes(x = Age, y = value, 
+                              colour = Species, linetype=Species))
+        }
+        y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
+        p <- p + 
+            scale_x_continuous(name = "Age [Years]") + 
+            scale_y_continuous(name = y_label)
+        
+        # Extra stuff for single-species case
+        if (length(species) == 1 && !percentage) {
+            w_inf <- params@species_params$w_inf[idx[1]]
+            p <- p + geom_hline(yintercept = w_inf) +
+                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+            w_mat <- params@species_params$w_mat[idx[1]]
+            p <- p + geom_hline(yintercept = w_mat) +
+                annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
+            if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
+                a <- params@species_params$a[idx[1]]
+                b <- params@species_params$b[idx[1]]
+                k_vb <- params@species_params$k_vb[idx[1]]
                 L_inf <- (w_inf/a)^(1/b)
                 vb <- a * (L_inf * (1 - exp(-k_vb * age)))^b
                 dat <- data.frame(x = age, y = vb)

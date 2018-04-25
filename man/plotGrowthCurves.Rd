@@ -4,17 +4,20 @@
 \name{plotGrowthCurves}
 \alias{plotGrowthCurves}
 \alias{plotGrowthCurves,MizerSim-method}
+\alias{plotGrowthCurves,MizerParams-method}
 \title{Plot growth curves giving weight as a function of age}
 \usage{
-plotGrowthCurves(sim, ...)
+plotGrowthCurves(object, ...)
 
-\S4method{plotGrowthCurves}{MizerSim}(sim,
+\S4method{plotGrowthCurves}{MizerSim}(object,
   species = as.character(sim@params@species_params$species), max_age = 20,
+  percentage = FALSE, print_it = TRUE)
+
+\S4method{plotGrowthCurves}{MizerParams}(object,
+  species = as.character(params@species_params$species), max_age = 20,
   percentage = FALSE, print_it = TRUE)
 }
 \arguments{
-\item{sim}{MizerSim object}
-
 \item{...}{Other arguments (unused)}
 
 \item{species}{Name or vector of names of the species to be plotted. By
@@ -27,13 +30,18 @@ of the maximal size.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
 Defaults to TRUE}
+
+\item{sim}{MizerSim or MizerParams object}
 }
 \value{
 A ggplot2 object
 }
 \description{
-Uses the growth rates at the final time of a simulation to calculate
-the size at age.
+If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+time of a simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.
+
+Plot growth curves using a \code{MizerSim} object.
 
 Plot growth curves using a \code{MizerSim} object.
 }
