@@ -659,14 +659,23 @@ set_scaling_model <- function(no_sp = 11,
     mumu <- mu0 * w^(n-1)  # Death rate
     gg <- hbar * w^n * (1-params@psi[1, ])  # Growth rate
     
-    # Compute integral to solve MVF for new species
     w_inf_idx <- sum(w < w_inf[1])
     idx <- 1:(w_inf_idx-1)
-    integrand <- dw[idx] * mumu[idx] / gg[idx]
-    n_exact <- exp(-cumsum(integrand)) / gg[idx]
+    # Compute integral in analytic solution to McKvF
+    # We do not use this because it is not in agreement with scheme in project
+    # w_inf_idx <- sum(w < w_inf[1])
+    # idx <- 1:(w_inf_idx-1)
+    # integrand <- dw[idx] * mumu[idx] / gg[idx]
+    # n_exact <- exp(-cumsum(integrand)) / gg[idx]
+    
+    # Steady state solution of the upwind-difference scheme used in project
+    lg <- log(gg[idx])
+    lgm <- log((gg + mumu * dw)[idx+1])
+    n_exact <- exp(c(0, cumsum(lg - lgm)))
+    
     # rescale fish abundance to line up with background resource spectrum
     mult <- kappa / 
-        sum(n_exact * (w^(lambda-1)*dw)[idx])
+        sum(n_exact * (w^(lambda-1)*dw)[1:w_inf_idx])
     n_exact <- n_exact * mult * 
         (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
     
