@@ -676,7 +676,7 @@ plot_spectra <- function(params, n, n_pp,
             geom_line(aes(group = Species), colour = "lightgrey",
                       data = plot_back)
     }
-    if ((length(species) + plankton + total) > 12) {
+    if ((length(species) + plankton + total) > 13) {
         p <- p + geom_line(aes(group = Species))
     } else {
         p <- p + geom_line(aes(colour = Species, linetype = Species)) 
