@@ -5,7 +5,31 @@ test_that("scaling model is set up correctly", {
   sim <- project(p, t_max=5, effort = 0)
   # Check that total biomass changes little (relatively)
   bm <- getBiomass(sim)
-  expect_lt(abs(max(bm[1, ]-bm[6, ])), 2.6*10^(-6))
+  expect_lt(max(abs(bm[1, ]-bm[6, ])), 4*10^(-5))
+})
+
+test_that("retune_abundance reproduces scaling model", {
+    p <- set_scaling_model()
+    initial_n <- p@initial_n
+    p@initial_n[5, ] <- 5 * p@initial_n[5, ]
+    retune <- c(rep(TRUE, length(p@A)-1), FALSE)
+    pr <- retune_abundance(p, retune)
+    expect_lt(max(abs(initial_n - pr@initial_n)), 8e-12)
+})
+
+test_that("addSpecies works when adding a second identical species", {
+    p <- set_scaling_model()
+    no_sp <- length(p@A)
+    p <- setBackground(p)
+    species_params <- p@species_params[5,]
+    species_params$species = "new"
+    SSB <- sum(p@initial_n[5, ] * p@w * p@dw * p@psi[5, ])
+    # Adding species 5 again at half its background biomass should lead two
+    # two copies of the species each with half the biomass
+    pa <- addSpecies(p, species_params, SSB/2)
+    pa@initial_n[5, ] <- pa@initial_n[5, ] + pa@initial_n[no_sp+1, ]
+    expect_lt(max(abs(p@initial_n - pa@initial_n[1:no_sp, ])), 1.8)
+    expect_lt(max(abs(p@initial_n[5,] - pa@initial_n[5, ])), 0.7)
 })
 
 test_that("trait-based model multiple gears",{
