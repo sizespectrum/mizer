@@ -632,7 +632,8 @@ set_scaling_model <- function(no_sp = 11,
     gamma <- params@species_params$gamma[1]
     w <- params@w
     dw <- params@dw
-    # Get constants for analytic solution
+    
+    # Get constants for steady-state solution
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
     hbar <- alpha * h * f0 - ks
@@ -644,18 +645,31 @@ set_scaling_model <- function(no_sp = 11,
         message("The ratio of death rate to growth rate is too small, leading to
                 an accumulation of fish at their largest size.")
     }
-    n_mult <- (1 - (w / w_inf[1]) ^ (1 - n)) ^ (pow - 1) * 
-                  (1 - (w_mat[1] / w_inf[1]) ^(1 - n)) ^ (-pow)
-    n_mult[w < w_mat[1]] <- 1
-    n_mult[w >= w_inf[1]] <- 0
+    
     # Create steady state solution n_exact for species 1
-    n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
-    n_exact <- n_exact[w >= w_min[1] & w < w_inf[1]]
+    # The following would calculate the analytic solution in the case
+    # of the simplified discontinuous allocation to reproduction.
+    # n_mult <- (1 - (w / w_inf[1]) ^ (1 - n)) ^ (pow - 1) * 
+    #               (1 - (w_mat[1] / w_inf[1]) ^(1 - n)) ^ (-pow)
+    # n_mult[w < w_mat[1]] <- 1
+    # n_mult[w >= w_inf[1]] <- 0
+    # n_exact <- ((w_min[1] / w) ^ (mu0 / hbar) / (hbar * w ^ n)) * n_mult
+    # n_exact <- n_exact[w >= w_min[1] & w < w_inf[1]]
+    # We instead evaluate the integral in the analytic solution numerically
+    mumu <- mu0 * w^(n-1)  # Death rate
+    gg <- hbar * w^n * (1-params@psi[1, ])  # Growth rate
+    
+    # Compute integral to solve MVF for new species
+    w_inf_idx <- sum(w < w_inf[1])
+    idx <- 1:(w_inf_idx-1)
+    integrand <- dw[idx] * mumu[idx] / gg[idx]
+    n_exact <- exp(-cumsum(integrand)) / gg[idx]
     # rescale fish abundance to line up with background resource spectrum
     mult <- kappa / 
-        sum(n_exact * (w^(lambda-1)*dw)[w >= w_min[1] & w < w_inf[1]])
+        sum(n_exact * (w^(lambda-1)*dw)[idx])
     n_exact <- n_exact * mult * 
         (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
+    
     # Use n_exact as a template to create solution initial_n for all species
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
@@ -706,9 +720,11 @@ set_scaling_model <- function(no_sp = 11,
     # Setup background death and steplike psi
     m2 <- getM2(params, initial_n, initial_n_pp)
     for (i in 1:no_sp) {
-        params@psi[i,] <- (w / w_inf[i]) ^ (1 - n)
-        params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
-        params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
+        # The steplike psi was only needed when we wanted to use the analytic
+        # expression for the steady-state solution
+        # params@psi[i,] <- (w / w_inf[i]) ^ (1 - n)
+        # params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
+        # params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
         if (any(params@mu_b[i,] < 0)) {
             message("Note: Negative background mortality rates overwritten with zeros")
