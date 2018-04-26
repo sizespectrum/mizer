@@ -1054,15 +1054,17 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # compute growth rate for new species
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[new_sp, ]
         
-        # Compute integral to solve MVF for new species
+        # Compute solution for new species
         w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
         idx <- p@species_params$w_min_idx[new_sp]:(w_inf_idx-1)
         if (any(gg[idx]==0)) {
             stop("Can not compute steady state due to zero growth rates")
         }
-        integrand <- p@dw[idx] * mumu[idx] / gg[idx]
+        lg <- log(gg[idx])
+        lgm <- log((gg + mumu * p@dw)[idx+1])
         p@initial_n[new_sp, ] <- 0
-        p@initial_n[new_sp, idx] <- exp(-cumsum(integrand)) / gg[idx]
+        p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <- 
+            exp(c(0, cumsum(lg - lgm)))
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
         }
@@ -1112,10 +1114,10 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
                 if (!all(gg[sp, idx] > 0)) {
                     stop("Can not compute steady state due to zero growth rates")
                 }
-                integrand <- p@dw[idx] * mumu[sp, idx] / gg[sp, idx]
-                sol <- exp(-cumsum(integrand)) / gg[sp, idx]
-                p@initial_n[sp, idx] <- sol * p@initial_n[sp, idx[1]] / sol[1]
-                p@initial_n[sp, w_inf_idx] <- 0
+                sol <- exp(c(0, cumsum(log(gg[sp, idx]) - 
+                            log(gg[sp, idx+1] + mumu[sp, idx+1]*p@dw[idx+1]))))
+                p@initial_n[sp, idx[1]:w_inf_idx] <- 
+                    sol * p@initial_n[sp, idx[1]] / sol[1]
                 # Rescale to get desired SSB
                 if (!is.na(p@A[sp])) {
                     unnormalised_SSB <- sum(p@initial_n[sp,] * p@w * p@dw *
