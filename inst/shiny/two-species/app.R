@@ -48,7 +48,7 @@ server <- function(input, output, session) {
             gamma = input$gamma_mullet
         )
         p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet, 
-                        effort = input$effort, rfac=2)
+                        effort = input$effort)
         
         ############# add hake 
         # Merluccius merluccius  (European hake)
@@ -80,7 +80,7 @@ server <- function(input, output, session) {
             gamma = input$gamma_hake
         )
         addSpecies(p, species_params, SSB = input$SSB_hake, 
-                   effort = input$effort, rfac=2)
+                   effort = input$effort)
     })
     
     s <- reactive({
@@ -88,7 +88,7 @@ server <- function(input, output, session) {
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p(), t_max = 15, t_save = 0.2, effort = 0, 
+        project(p(), t_max = 15, t_save = 0.2, effort = input$effort, 
                 shiny_progress = progress)
     })
     
