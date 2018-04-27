@@ -360,7 +360,9 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
                 geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species))
         }
         if (log) {
-            p <- p + scale_y_continuous(trans="log10", name="Yield [g]")
+            p <- p + scale_y_continuous(trans="log10", name="Yield [g]",
+                                        breaks=log_breaks(), 
+                                        labels = prettyNum)
         } else {
             p <- p + scale_y_continuous(name="Yield [g]")
         }
