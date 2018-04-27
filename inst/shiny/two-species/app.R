@@ -12,8 +12,8 @@ server <- function(input, output, session) {
         setBackground(set_scaling_model(no_sp = input$no_sp, 
                         min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 100, kappa = 500,
-                        lambda = input$lambda, gamma = input$gamma,
+                        knife_edge_size = 10^5, kappa = 500,
+                        lambda = input$lambda, f0 = input$f0,
                         h = input$h, r_pp = 10^input$log_r_pp))
     })
     
@@ -35,9 +35,10 @@ server <- function(input, output, session) {
             z0 = 0,
             alpha = 0.6, # unknown, mizer default=0.6
             erepro = 0.1, # unknown
-            sel_func = "knife_edge", # not used but required
-            knife_edge_size = 100, # we can choose
-            gear = "knife_edge_gear",
+            sel_func = "sigmoid_length", # not used but required
+            gear = "sigmoid_gear",
+            l25 = input$l25_mullet,
+            l50 = input$l50_mullet,
             k = 0,
             r_max = 10^50,
             k_vb = 0.6,
@@ -46,7 +47,8 @@ server <- function(input, output, session) {
             h = input$h_mullet,
             gamma = input$gamma_mullet
         )
-        p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet)
+        p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet, 
+                        effort = input$effort, rfac=2)
         
         ############# add hake 
         # Merluccius merluccius  (European hake)
@@ -65,9 +67,10 @@ server <- function(input, output, session) {
             z0 = 0,
             alpha = 0.6, # unknown, using mizer default=0.6
             erepro = 0.1, # unknown
-            sel_func = "knife_edge", # not used but required
-            knife_edge_size = 100, # can choose
-            gear = "knife_edge_gear",
+            sel_func = "sigmoid_length", # not used but required
+            gear = "sigmoid_gear",
+            l25 = input$l25_hake,
+            l50 = input$l50_hake,
             k = 0,
             r_max = 10^50, #why do I need r_max after combining before
             k_vb = 0.1, # from FB website below
@@ -76,7 +79,8 @@ server <- function(input, output, session) {
             h = input$h_hake,
             gamma = input$gamma_hake
         )
-        addSpecies(p, species_params, SSB = input$SSB_hake)
+        addSpecies(p, species_params, SSB = input$SSB_hake, 
+                   effort = input$effort, rfac=2)
     })
     
     s <- reactive({
@@ -122,37 +126,47 @@ ui <- fluidPage(
             tabsetPanel(
                 tabPanel("General",
                          sliderInput("lambda", "Sheldon exponent",
-                                     value=2.14, min=1.9, max=2.2, step = 0.01),
-                         sliderInput("gamma", "Predation rate coefficient",
-                                     value=0.017, min=0.001, max=0.1),
+                                     value=2.08, min=1.9, max=2.2, step=0.005),
+                         sliderInput("f0", "Feeding level",
+                                     value=0.6, min=0, max=1),
                          sliderInput("h", "max feeding rate",
-                                     value=30, min=10, max=100, step=2),
+                                     value=34, min=10, max=100, step=2),
                          sliderInput("log_r_pp", "log10 Plankton replenishment rate",
-                                     value=-1, min=-4, max=3),
+                                     value=-2, min=-4, max=0),
+                         sliderInput("effort", "Fishing effort",
+                                     value=0.4, min=0, max=2, step=0.1),
                          sliderInput("no_sp", "Number of species",
                                      value=10, min=4, max=20, step=1,
                                      round = TRUE)
                         ),
                 tabPanel("Mullet",
                          sliderInput("SSB_mullet", "SSB",
-                                     value=100, min=1, max=400),
+                                     value=140, min=1, max=200),
                          sliderInput("w_min_mullet", "Egg weight",
                                      value=0.001, min=0.0001, max=0.01),
                          sliderInput("gamma_mullet", "Predation rate coefficient",
                                      value=0.017, min=0.001, max=0.1),
                          sliderInput("h_mullet", "max feeding rate",
                                      value=50, min=10, max=100, step=2),
+                         sliderInput("l50_mullet", "L50",
+                                     value=16.16, min=10, max=20),
+                         sliderInput("l25_mullet", "L25",
+                                     value=10, min=5, max=15),
                          plotOutput("plotGrowthCurveMullet")
                          ),
                 tabPanel("Hake",
                          sliderInput("SSB_hake", "SSB",
-                                     value=200, min=1, max=400),
+                                     value=60, min=1, max=200),
                          sliderInput("w_min_hake", "Egg weight",
                                      value=0.001, min=0.0001, max=0.01),
                          sliderInput("gamma_hake", "Predation rate coefficient",
-                                     value=0.025, min=0.001, max=0.1),
+                                     value=0.03, min=0.001, max=0.1),
                          sliderInput("h_hake", "max feeding rate",
-                                     value=30, min=10, max=100, step=2),
+                                     value=20, min=10, max=100, step=2),
+                         sliderInput("l50_hake", "L50",
+                                     value=16.16, min=10, max=20),
+                         sliderInput("l25_hake", "L25",
+                                     value=10, min=5, max=15),
                          plotOutput("plotGrowthCurveHake")
                          )
             )
