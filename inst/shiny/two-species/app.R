@@ -1,6 +1,6 @@
 library(shiny)
 library(ggplot2)
-## Uncomment the following 3 lines before publishing the app
+# Uncomment the following 3 lines before publishing the app
 #library(devtools)
 #install_github("gustavdelius/mizer", ref="scaling")
 #library(mizer)
@@ -14,7 +14,7 @@ server <- function(input, output, session) {
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
                         knife_edge_size = 100, kappa = 500,
                         lambda = input$lambda, gamma = input$gamma,
-                        h = input$h))
+                        h = input$h, r_pp = 10^input$log_r_pp))
     })
     
     p <- reactive({
@@ -101,7 +101,7 @@ server <- function(input, output, session) {
     })
     
     output$plotGrowthCurveHake <- renderPlot({
-        plotGrowthCurves(p(), species=c("Hake", max_age = 50))
+        plotGrowthCurves(p(), species=c("Hake"), max_age = 50)
     })
     
     output$plot_erepro <- renderPlot({
@@ -119,14 +119,16 @@ ui <- fluidPage(
     sidebarLayout(
         
         sidebarPanel(
-            tabsetPanel(type = "pills",
-                tabPanel("Background",
+            tabsetPanel(
+                tabPanel("General",
                          sliderInput("lambda", "Sheldon exponent",
                                      value=2.14, min=1.9, max=2.2, step = 0.01),
-                         sliderInput("gamma_mullet", "Predation rate coefficient",
+                         sliderInput("gamma", "Predation rate coefficient",
                                      value=0.017, min=0.001, max=0.1),
                          sliderInput("h", "max feeding rate",
                                      value=30, min=10, max=100, step=2),
+                         sliderInput("log_r_pp", "log10 Plankton replenishment rate",
+                                     value=-1, min=-4, max=3),
                          sliderInput("no_sp", "Number of species",
                                      value=10, min=4, max=20, step=1,
                                      round = TRUE)
@@ -139,7 +141,8 @@ ui <- fluidPage(
                          sliderInput("gamma_mullet", "Predation rate coefficient",
                                      value=0.017, min=0.001, max=0.1),
                          sliderInput("h_mullet", "max feeding rate",
-                                     value=50, min=10, max=100, step=2)
+                                     value=50, min=10, max=100, step=2),
+                         plotOutput("plotGrowthCurveMullet")
                          ),
                 tabPanel("Hake",
                          sliderInput("SSB_hake", "SSB",
@@ -149,20 +152,16 @@ ui <- fluidPage(
                          sliderInput("gamma_hake", "Predation rate coefficient",
                                      value=0.025, min=0.001, max=0.1),
                          sliderInput("h_hake", "max feeding rate",
-                                     value=30, min=10, max=100, step=2)
+                                     value=30, min=10, max=100, step=2),
+                         plotOutput("plotGrowthCurveHake")
                          )
-            ),
-            plotOutput("plot_erepro")
+            )
         ),  # endsidebarpanel
         
         mainPanel(
+            plotOutput("plot_erepro", height = "150px"),
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
-                tabPanel("Growth Curves", 
-                    fluidRow(column(6, plotOutput("plotGrowthCurveMullet")),
-                             column(6, plotOutput("plotGrowthCurveHake"))
-                             )
-                ),
                 tabPanel("Total Biomass", plotOutput("plotBiomass"))
             )
         )  # end mainpanel
