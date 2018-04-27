@@ -1009,6 +1009,11 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # provide erepro column that is later overwritten
         species_params$erepro <- 0.1
         
+        # Make sure that all columns exist in both data frames
+        diffnames <- setdiff(names(params@species_params), names(species_params))
+        params@species_params[diffnames] <- NA
+        species_params[diffnames] <- NA
+        
         # add the new species (with parameters described by species_params), 
         # to make a larger species_params dataframe.
         combi_species_params <- rbind(params@species_params, species_params)
