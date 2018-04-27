@@ -532,8 +532,8 @@ set_scaling_model <- function(no_sp = 11,
     }
     # check validity of parameters
     if (rfac <= 1) {
-        message("rfac can not be smaller than 1. Setting rfac=1.1")
-        rfac <- 1.1
+        message("rfac can not be smaller than 1. Setting rfac=1.01")
+        rfac <- 1.01
     }
     no_w <- round(no_w)
     if (no_w < 1) {
@@ -669,9 +669,7 @@ set_scaling_model <- function(no_sp = 11,
     # n_exact <- exp(-cumsum(integrand)) / gg[idx]
     
     # Steady state solution of the upwind-difference scheme used in project
-    lg <- log(gg[idx])
-    lgm <- log((gg + mumu * dw)[idx+1])
-    n_exact <- exp(c(0, cumsum(lg - lgm)))
+    n_exact <- c(1, cumprod(gg[idx] / ((gg + mumu * dw)[idx+1])))
     
     # rescale fish abundance to line up with background resource spectrum
     mult <- kappa / 
@@ -1065,11 +1063,9 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         if (any(gg[idx]==0)) {
             stop("Can not compute steady state due to zero growth rates")
         }
-        lg <- log(gg[idx])
-        lgm <- log((gg + mumu * p@dw)[idx+1])
         p@initial_n[new_sp, ] <- 0
         p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <- 
-            exp(c(0, cumsum(lg - lgm)))
+            c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx+1])))
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
         }
@@ -1119,8 +1115,8 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
                 if (!all(gg[sp, idx] > 0)) {
                     stop("Can not compute steady state due to zero growth rates")
                 }
-                sol <- exp(c(0, cumsum(log(gg[sp, idx]) - 
-                            log(gg[sp, idx+1] + mumu[sp, idx+1]*p@dw[idx+1]))))
+                sol <- c(1, cumprod(gg[sp, idx] /
+                            (gg[sp, idx+1] + mumu[sp, idx+1]*p@dw[idx+1])))
                 p@initial_n[sp, idx[1]:w_inf_idx] <- 
                     sol * p@initial_n[sp, idx[1]] / sol[1]
                 # Rescale to get desired SSB
