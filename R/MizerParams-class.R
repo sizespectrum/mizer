@@ -523,7 +523,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
              kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, 
              max_w = max(object$w_inf)*1.1, f0 = 0.6, 
              z0pre = 0.6, z0exp = n-1, ...){
-
+    row.names(object) <- object$species
 	# Set default values for column values if missing
 	# If no gear_name column in object, then named after species
 	if(!("gear" %in% colnames(object)))
@@ -539,7 +539,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# If no erepro column in object, then set to 1
 	if(!("erepro" %in% colnames(object)))
 	    object$erepro <- 1
-	# If no sel_func column in species_params, set to 'sigmoid_length'
+	# If no sel_func column in species_params, set to 'knife_edge'
 	if(!("sel_func" %in% colnames(object))){
         message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
 	    object$sel_func <- 'knife_edge'
