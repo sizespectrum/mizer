@@ -3,14 +3,15 @@
 
 #### set background ####
 p_bg  <- setBackground(
-    set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+    set_scaling_model(no_sp = 10, no_w = 400,
+                      min_w_inf = 10, max_w_inf = 1e5,
                       min_egg = 1e-4, min_w_mat = 10^(0.4),
-                      knife_edge_size = 10^5, kappa = 500,
+                      knife_edge_size = 10^5, kappa = 5000,
                       lambda = 2.08, f0 = 0.6, h = 34)
 )
 
 rfac <- 1.01
-
+effort <- 0.4
 ######### add mullet ####
 # some data from fishbase at 
 # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
@@ -27,7 +28,7 @@ L_inf_m <- 24.3
 # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
 L_mat <- 11.1
 species_params <- data.frame(
-    species = "mullet",
+    species = "Mullet",
     w_min = 0.001, # mizer's default egg weight, used in NS
     # w_inf = 251.94, #is the old value we used. Where is it from ? It differs to below
     w_inf = a_m*L_inf_m^b_m, # from fishbase
@@ -46,12 +47,12 @@ species_params <- data.frame(
     k_vb = 0.6,
     a = a_m,
     b = b_m,
-    gamma = 0.017,
+    gamma = 0.0017,
     h = 50
 )
 # k_vb is from 
 # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=790&GenusName=Mullus&SpeciesName=barbatus+barbatus&fc=332
-p <- addSpecies(p_bg, species_params, SSB = 140, effort=0.4, 
+p <- addSpecies(p_bg, species_params, SSB = 1400, effort=effort, 
                 rfac = rfac, iterate=FALSE)
 # plotSpectra(p)
 
@@ -72,7 +73,7 @@ L_mat <- 29.83
 # https://www.dropbox.com/s/g701wgcnhr12qpg/species%20%282%29.pdf?dl=0
 
 species_params <- data.frame(
-    species = "hake",
+    species = "Hake",
     w_min = 0.001, # mizer default
     w_inf = a*L_inf^b, # from fishbase
     w_mat = a*L_mat^b, # from fishbase
@@ -90,20 +91,67 @@ species_params <- data.frame(
     k_vb = 0.1, # from FB website below
     a = a,
     b = b,
-    gamma = 0.03,
+    gamma = 0.003,
     h = 20
 )
 #k_vb <- 0.1 # from FB website below
 # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=30&GenusName=Merluccius&SpeciesName=merluccius&fc=184
-p <- addSpecies(p, species_params, SSB = 60, effort=0.4, 
+p <- addSpecies(p, species_params, SSB = 600, effort=effort, 
                 rfac = rfac, iterate=FALSE)
 plotSpectra(p)
 
-#### run simulation ####
-s2 <- project(p, t_max = 5, t_save=0.1, effort = 0.4)
-plotBiomass(s2)
+p@species_params$erepro <- 1000
 
-s <- project(p, t_max = 1, t_save=0.1, effort = 0.4)
+#### run simulation ####
+sim <- project(p, t_max = 50, t_save = 5, effort = effort)
+plotBiomass(sim)
+p@initial_n <- sim@n[11, , ]
+p@initial_n_pp <- sim@n_pp[11, ]
+p@species_params$r_max <- Inf
+
+# Retune the values of erepro so that we get the correct level of
+# recruitment without stock-recruitment relationship
+mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
+# TODO: vectorise this
+no_sp <- length(p@species_params$species)
+erepro <- 1:no_sp  # set up vector of right dimension
+for (i in (1:no_sp)) {
+    gg0 <- gg[i, p@species_params$w_min_idx[i]]
+    mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
+    DW <- p@dw[p@species_params$w_min_idx[i]]
+    erepro[i] <- p@species_params$erepro[i] *
+        (p@initial_n[i, p@species_params$w_min_idx[i]] *
+             (gg0 + DW * mumu0)) / rdi[i]
+}
+p@species_params$erepro <- erepro
+s1 <- project(p, t_max=15, effort = 0.4)
+plotBiomass(s1)
+yield_old <- getYield(s1)[11, ]
+
+a <- p@species_params["Hake", "a"]
+b <- p@species_params["Hake", "b"]
+l50 <- 20.50
+sd <- 0.331
+l25 = l50 - log(3) * sd
+p@species_params["Hake", "l50"] <- l50
+p@species_params["Hake", "l25"] <- l25
+p@selectivity["sigmoid_gear", "Hake", ] <- sigmoid_length(p@w, l25, l50, a, b)
+s2 <- project(p, t_max=15, effort = 0.4)
+plotBiomass(s2)
+plotYield(s2)
+y <- getYield(s2)
+y[1, ] <- yield_old
+ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
+                     value.name = "Yield")
+ym <- subset(ym, ym$Yield > 0)
+p <- ggplot(ym) + 
+    geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species)) +
+    scale_y_continuous(name="Yield [g/year]", limits = c(0, NA))
+p
+
+s <- project(p, t_max = 1, effort = 0.4)
 t_max = 1; t_save=0.1; effort = 0.4; shiny_progress = NULL
 dt = 0.1
 initial_n <- p@initial_n; initial_n_pp <- p@initial_n_pp

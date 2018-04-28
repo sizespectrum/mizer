@@ -8,11 +8,16 @@ library(progress)
 
 server <- function(input, output, session) {
     
+    l50_mullet_old <- 16.16
+    l25_mullet_old <- 10
+    l50_hake_old <- 16.16
+    l25_hake_old <- 10
+    
     p_bg  <- reactive({
-        setBackground(set_scaling_model(no_sp = input$no_sp, 
+        setBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
                         min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 10^5, kappa = 500,
+                        knife_edge_size = 10^5, kappa = 5000,
                         lambda = input$lambda, f0 = input$f0,
                         h = input$h, r_pp = 10^input$log_r_pp))
     })
@@ -37,8 +42,8 @@ server <- function(input, output, session) {
             erepro = 0.1, # unknown
             sel_func = "sigmoid_length", # not used but required
             gear = "sigmoid_gear",
-            l25 = input$l25_mullet,
-            l50 = input$l50_mullet,
+            l25 = l25_mullet_old,
+            l50 = l50_mullet_old,
             k = 0,
             r_max = 10^50,
             k_vb = 0.6,
@@ -48,7 +53,7 @@ server <- function(input, output, session) {
             gamma = input$gamma_mullet
         )
         p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet, 
-                        effort = input$effort)
+                        effort = input$effort, rfac = 1.01)
         
         ############# add hake 
         # Merluccius merluccius  (European hake)
@@ -69,8 +74,8 @@ server <- function(input, output, session) {
             erepro = 0.1, # unknown
             sel_func = "sigmoid_length", # not used but required
             gear = "sigmoid_gear",
-            l25 = input$l25_hake,
-            l50 = input$l50_hake,
+            l25 = l25_hake_old,
+            l50 = l50_hake_old,
             k = 0,
             r_max = 10^50, #why do I need r_max after combining before
             k_vb = 0.1, # from FB website below
@@ -79,17 +84,69 @@ server <- function(input, output, session) {
             h = input$h_hake,
             gamma = input$gamma_hake
         )
-        addSpecies(p, species_params, SSB = input$SSB_hake, 
-                   effort = input$effort)
+        p <- addSpecies(p, species_params, SSB = input$SSB_hake, 
+                   effort = input$effort, rfac = 1.01)
+        
+        p
     })
     
-    s <- reactive({
+    si <- reactive({
         # Create a Progress object
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p(), t_max = 15, t_save = 0.2, effort = input$effort, 
+        project(p(), t_max = 50, t_save = 5, effort = input$effort, 
                 shiny_progress = progress)
+    })
+    
+    s <- reactive({
+        sim <- si()
+        p <- sim@params
+        no_sp <- length(p@species_params$species)
+        no_t <- dim(sim@n)[1]
+        p@initial_n <- sim@n[no_t, , ]
+        p@initial_n_pp <- sim@n_pp[no_t, ]
+        p@species_params$r_max <- Inf
+        
+        # Retune the values of erepro so that we get the correct level of
+        # recruitment without stock-recruitment relationship
+        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+        gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+        rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
+        for (i in (1:no_sp)) {
+            gg0 <- gg[i, p@species_params$w_min_idx[i]]
+            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
+            DW <- p@dw[p@species_params$w_min_idx[i]]
+            p@species_params$erepro[i] <- p@species_params$erepro[i] *
+                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                     (gg0 + DW * mumu0)) / rdi[i]
+        }
+        
+        # # Set new gear for hake
+        # a <- p@species_params["Hake", "a"]
+        # b <- p@species_params["Hake", "b"]
+        # p@species_params["Hake", "l50"] <- input$l50_hake
+        # p@species_params["Hake", "l25"] <- input$l25_hake
+        # p@selectivity["sigmoid_gear", "Hake", ] <- 
+        #     sigmoid_length(p@w, l25, l50, a, b)
+        # # Set new gear for mullet
+        # a <- p@species_params["Mullet", "a"]
+        # b <- p@species_params["Mullet", "b"]
+        # p@species_params["Mullet", "l50"] <- l50
+        # p@species_params["Mullet", "l50"] <- l25
+        # p@selectivity["sigmoid_gear", "Mullet", ] <- 
+        #     sigmoid_length(p@w, l25, l50, a, b)
+        
+        # Create a Progress object
+        progress <- shiny::Progress$new(session)
+        on.exit(progress$close())
+        
+        project(p, t_max = 15, effort = input$effort, 
+                shiny_progress = progress)
+    })
+    
+    output$plotYield <- renderPlot({
+        plotYield(s())
     })
     
     output$plotBiomass <- renderPlot({
@@ -109,7 +166,26 @@ server <- function(input, output, session) {
     })
     
     output$plot_erepro <- renderPlot({
-        ggplot(p()@species_params, aes(x = species, y = erepro)) + 
+        p <- p()
+        p@species_params$r_max <- Inf
+        # Retune the values of erepro so that we get the correct level of
+        # recruitment without stock-recruitment relationship
+        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+        gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+        rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
+        # TODO: vectorise this
+        no_sp <- length(p@species_params$species)
+        erepro <- 1:no_sp  # set up vector of right dimension
+        for (i in (1:no_sp)) {
+            gg0 <- gg[i, p@species_params$w_min_idx[i]]
+            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
+            DW <- p@dw[p@species_params$w_min_idx[i]]
+            erepro[i] <- p@species_params$erepro[i] *
+                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                     (gg0 + DW * mumu0)) / rdi[i]
+        }
+        p@species_params$erepro <- erepro
+        ggplot(p@species_params, aes(x = species, y = erepro)) + 
             geom_col() + geom_hline(yintercept = 1, color="red")
     })
 
@@ -125,50 +201,53 @@ ui <- fluidPage(
         sidebarPanel(
             tabsetPanel(
                 tabPanel("General",
-                         sliderInput("lambda", "Sheldon exponent",
-                                     value=2.08, min=1.9, max=2.2, step=0.005),
-                         sliderInput("f0", "Feeding level",
-                                     value=0.6, min=0, max=1),
-                         sliderInput("h", "max feeding rate",
-                                     value=34, min=10, max=100, step=2),
-                         sliderInput("log_r_pp", "log10 Plankton replenishment rate",
-                                     value=-2, min=-4, max=0),
-                         sliderInput("effort", "Fishing effort",
-                                     value=0.4, min=0, max=2, step=0.1),
-                         sliderInput("no_sp", "Number of species",
-                                     value=10, min=4, max=20, step=1,
-                                     round = TRUE)
-                        ),
+                    sliderInput("lambda", "Sheldon exponent",
+                                value=2.08, min=1.9, max=2.2, step=0.005),
+                    sliderInput("f0", "Feeding level",
+                                value=0.6, min=0, max=1),
+                    sliderInput("h", "max feeding rate",
+                                value=34, min=10, max=100, step=2),
+                    sliderInput("log_r_pp", "log10 Plankton replenishment rate",
+                                value=-2, min=-4, max=0),
+                    sliderInput("effort", "Fishing effort",
+                                value=0.4, min=0, max=2, step=0.1),
+                    sliderInput("no_sp", "Number of species",
+                                value=10, min=4, max=20, step=1, round = TRUE)
+                ),
                 tabPanel("Mullet",
-                         sliderInput("SSB_mullet", "SSB",
-                                     value=140, min=1, max=200),
-                         sliderInput("w_min_mullet", "Egg weight",
-                                     value=0.001, min=0.0001, max=0.01),
-                         sliderInput("gamma_mullet", "Predation rate coefficient",
-                                     value=0.017, min=0.001, max=0.1),
-                         sliderInput("h_mullet", "max feeding rate",
-                                     value=50, min=10, max=100, step=2),
-                         sliderInput("l50_mullet", "L50",
-                                     value=16.16, min=10, max=20),
-                         sliderInput("l25_mullet", "L25",
-                                     value=10, min=5, max=15),
-                         plotOutput("plotGrowthCurveMullet")
-                         ),
+                    sliderInput("SSB_mullet", "SSB",
+                                value=1400, min=10, max=2000),
+                    sliderInput("w_min_mullet", "Egg weight",
+                                value=0.001, min=0.0001, max=0.01),
+                    sliderInput("gamma_mullet", "Predation rate coefficient",
+                                value=0.0017, min=0.0001, max=0.01),
+                    sliderInput("h_mullet", "max feeding rate",
+                                value=50, min=10, max=100, step=2),
+                    plotOutput("plotGrowthCurveMullet")
+                ),
                 tabPanel("Hake",
-                         sliderInput("SSB_hake", "SSB",
-                                     value=60, min=1, max=200),
-                         sliderInput("w_min_hake", "Egg weight",
-                                     value=0.001, min=0.0001, max=0.01),
-                         sliderInput("gamma_hake", "Predation rate coefficient",
-                                     value=0.03, min=0.001, max=0.1),
-                         sliderInput("h_hake", "max feeding rate",
-                                     value=20, min=10, max=100, step=2),
-                         sliderInput("l50_hake", "L50",
-                                     value=16.16, min=10, max=20),
-                         sliderInput("l25_hake", "L25",
-                                     value=10, min=5, max=15),
+                    sliderInput("SSB_hake", "SSB",
+                                value=600, min=10, max=2000),
+                    sliderInput("w_min_hake", "Egg weight",
+                                value=0.001, min=0.0001, max=0.01),
+                    sliderInput("gamma_hake", "Predation rate coefficient",
+                                value=0.003, min=0.0001, max=0.01),
+                    sliderInput("h_hake", "max feeding rate",
+                                value=20, min=10, max=100, step=2),
                          plotOutput("plotGrowthCurveHake")
-                         )
+                ),
+                tabPanel("Gear",
+                    h1("Hake selectivity"),
+                    sliderInput("l50_hake", "L50",
+                                value=16.16, min=10, max=20),
+                    sliderInput("l25_hake", "L25",
+                                value=10, min=5, max=15),
+                    h1("Mullet selectivity"),
+                    sliderInput("l50_mullet", "L50",
+                                value=16.16, min=10, max=20),
+                    sliderInput("l25_mullet", "L25",
+                                value=10, min=5, max=15)
+                )
             )
         ),  # endsidebarpanel
         
@@ -176,6 +255,7 @@ ui <- fluidPage(
             plotOutput("plot_erepro", height = "150px"),
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
+                tabPanel("Yield", plotOutput("plotYield")),
                 tabPanel("Total Biomass", plotOutput("plotBiomass"))
             )
         )  # end mainpanel
