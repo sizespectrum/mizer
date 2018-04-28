@@ -360,11 +360,11 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
                 geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species))
         }
         if (log) {
-            p <- p + scale_y_continuous(trans="log10", name="Yield [g]",
+            p <- p + scale_y_continuous(trans="log10", name="Yield [g/year]",
                                         breaks=log_breaks(), 
                                         labels = prettyNum)
         } else {
-            p <- p + scale_y_continuous(name="Yield [g]")
+            p <- p + scale_y_continuous(name="Yield [g/year]")
         }
     if (print_it) {
         print(p)
@@ -414,9 +414,9 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='MizerSim'),
                                     linetype=Species))
               }
               if (log) {
-                  p <- p + scale_y_continuous(trans="log10", name="Yield [g]")
+                  p <- p + scale_y_continuous(trans="log10", name="Yield [g/year]")
               } else {
-                  p <- p + scale_y_continuous(name="Yield [g]")
+                  p <- p + scale_y_continuous(name="Yield [g/year]")
               }
               p <- p + facet_wrap(~ Simulation)
               if (print_it) {
