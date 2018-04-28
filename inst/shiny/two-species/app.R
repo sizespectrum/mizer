@@ -8,9 +8,9 @@ library(progress)
 
 server <- function(input, output, session) {
     
-    l50_mullet_old <- 16.16
+    l50_mullet_old <- 16.6
     l25_mullet_old <- 10
-    l50_hake_old <- 16.16
+    l50_hake_old <- 16.6
     l25_hake_old <- 10
     
     p_bg  <- reactive({
@@ -110,7 +110,7 @@ server <- function(input, output, session) {
         
         # Retune the values of erepro so that we get the correct level of
         # recruitment without stock-recruitment relationship
-        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = input$effort)
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
         for (i in (1:no_sp)) {
@@ -122,31 +122,48 @@ server <- function(input, output, session) {
                      (gg0 + DW * mumu0)) / rdi[i]
         }
         
-        # # Set new gear for hake
-        # a <- p@species_params["Hake", "a"]
-        # b <- p@species_params["Hake", "b"]
-        # p@species_params["Hake", "l50"] <- input$l50_hake
-        # p@species_params["Hake", "l25"] <- input$l25_hake
-        # p@selectivity["sigmoid_gear", "Hake", ] <- 
-        #     sigmoid_length(p@w, l25, l50, a, b)
-        # # Set new gear for mullet
-        # a <- p@species_params["Mullet", "a"]
-        # b <- p@species_params["Mullet", "b"]
-        # p@species_params["Mullet", "l50"] <- l50
-        # p@species_params["Mullet", "l50"] <- l25
-        # p@selectivity["sigmoid_gear", "Mullet", ] <- 
-        #     sigmoid_length(p@w, l25, l50, a, b)
+        # Set new gear for hake
+        a <- p@species_params["Hake", "a"]
+        b <- p@species_params["Hake", "b"]
+        p@species_params["Hake", "l50"] <- input$l50_hake
+        p@species_params["Hake", "l25"] <- input$l25_hake
+        p@selectivity["sigmoid_gear", "Hake", ] <-
+             sigmoid_length(p@w, input$l25_hake, input$l50_hake, a, b)
+        # Set new gear for mullet
+        a <- p@species_params["Mullet", "a"]
+        b <- p@species_params["Mullet", "b"]
+        p@species_params["Mullet", "l50"] <- input$l50_mullet
+        p@species_params["Mullet", "l50"] <- input$l25_mullet
+        p@selectivity["sigmoid_gear", "Mullet", ] <-
+            sigmoid_length(p@w, input$l25_mullet, input$l50_mullet, a, b)
         
         # Create a Progress object
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p, t_max = 15, effort = input$effort, 
+        project(p, t_max = 15, effort = input$effort_new, 
                 shiny_progress = progress)
     })
     
     output$plotYield <- renderPlot({
-        plotYield(s())
+        y <- getYield(s())
+        y[1, ] <- getYield(si())[dim(si()@n)[1], ]
+        ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
+                             value.name = "Yield")
+        ym <- subset(ym, ym$Yield > 0)
+        ggplot(ym) + 
+            geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species)) +
+            scale_y_continuous(name="Yield [g/year]", limits = c(0, NA))
+    })
+    
+    output$plotSSB <- renderPlot({
+        b <- getSSB(s())
+        bm <- reshape2::melt(b, varnames = c("Year", "Species"), 
+                             value.name = "SSB")
+        bm <- subset(bm, bm$SSB > 0)
+        ggplot(bm) + 
+            geom_line(aes(x=Year, y=SSB, colour=Species, linetype=Species)) +
+            scale_y_continuous(name="SSB [g]", limits = c(0, NA))
     })
     
     output$plotBiomass <- renderPlot({
@@ -170,7 +187,7 @@ server <- function(input, output, session) {
         p@species_params$r_max <- Inf
         # Retune the values of erepro so that we get the correct level of
         # recruitment without stock-recruitment relationship
-        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+        mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = input$effort)
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
         # TODO: vectorise this
@@ -237,14 +254,16 @@ ui <- fluidPage(
                          plotOutput("plotGrowthCurveHake")
                 ),
                 tabPanel("Gear",
+                    sliderInput("effort_new", "Effort",
+                                value=0.4, min=0.3, max=0.5),
                     h1("Hake selectivity"),
                     sliderInput("l50_hake", "L50",
-                                value=16.16, min=10, max=20),
+                                value=16.6, min=10, max=20),
                     sliderInput("l25_hake", "L25",
                                 value=10, min=5, max=15),
                     h1("Mullet selectivity"),
                     sliderInput("l50_mullet", "L50",
-                                value=16.16, min=10, max=20),
+                                value=16.6, min=10, max=20),
                     sliderInput("l25_mullet", "L25",
                                 value=10, min=5, max=15)
                 )
@@ -256,6 +275,7 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
                 tabPanel("Yield", plotOutput("plotYield")),
+                tabPanel("SSB", plotOutput("plotSSB")),
                 tabPanel("Total Biomass", plotOutput("plotBiomass"))
             )
         )  # end mainpanel
