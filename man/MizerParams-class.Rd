@@ -100,6 +100,12 @@ the abundance of the background background resource at each weight.}
 \item{\code{kappa}}{Magnitude of resource spectrum.}
 
 \item{\code{A}}{Abundance multipliers.}
+
+\item{\code{linecolour}}{A named vector of colour values, named by species. Used 
+to give consistent colours to species in plots.}
+
+\item{\code{linetype}}{A named vector of linetypes, named by species. Used 
+to give consistent colours to species in plots.}
 }}
 
 \note{
