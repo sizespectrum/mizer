@@ -268,6 +268,10 @@ valid_MizerParams <- function(object) {
 #' @slot f0 Initial feeding level.
 #' @slot kappa Magnitude of resource spectrum.
 #' @slot A Abundance multipliers.
+#' @slot linecolour A named vector of colour values, named by species. Used 
+#'   to give consistent colours to species in plots.
+#' @slot linetype A named vector of linetypes, named by species. Used 
+#'   to give consistent colours to species in plots.
 
 #' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
@@ -313,7 +317,9 @@ setClass(
         q = "numeric",
         f0 = "numeric",
         kappa = "numeric",
-        A = "numeric"
+        A = "numeric",
+        linecolour = "character",
+        linetype = "character"
     ),
     prototype = prototype(
         w = NA_real_,
@@ -340,6 +346,8 @@ setClass(
         sc = NA_real_,
         initial_n_pp = NA_real_,
         A = NA_real_,
+        linecolour = NA_character_,
+        linetype = NA_character_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
@@ -450,7 +458,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Some checks
 	if (length(species_names) != object)
 	    stop("species_names must be the same length as the value of object argument")
-
+    no_sp <- length(species_names)
+    
 	# Set up grids:
 	# Community grid
 	w <- 10^(seq(from=log10(min_w),to=log10(max_w),length.out=no_w))
@@ -472,19 +481,29 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	dw_full[no_w_full] <- dw_full[no_w_full-1]*(dw_full[no_w_full-1]/dw_full[no_w_full-2])	
 	
 	# Basic arrays for templates
-	mat1 <- array(NA, dim=c(object,no_w), dimnames = list(sp=species_names,w=signif(w,3)))
-	mat2 <- array(NA, dim=c(object,no_w,no_w_full), dimnames = list(sp=species_names,w_pred=signif(w,3), w_prey=signif(w_full,3)))
+	mat1 <- array(NA, dim=c(no_sp, no_w), 
+	              dimnames = list(sp=species_names, w=signif(w,3)))
+	mat2 <- array(NA, dim=c(no_sp, no_w, no_w_full), 
+	              dimnames = list(sp=species_names, w_pred=signif(w,3), 
+	                              w_prey=signif(w_full,3)))
 	
-	ft_pred_kernel_e <- array(NA, dim=c(object,no_w_full), dimnames = list(sp=species_names, k=1:no_w_full))
+	ft_pred_kernel_e <- array(NA, dim=c(no_sp, no_w_full), 
+	                          dimnames = list(sp=species_names, k=1:no_w_full))
 	
 	# We do not know the second dimension of ft_pred_kernel_p until the species
 	# parameters determining the predation kernel are know. 
 	# So for now we set it to 2
-	ft_pred_kernel_p <- array(NA, dim=c(object, 2), dimnames = list(sp=species_names, k=1:2))
+	ft_pred_kernel_p <- array(NA, dim=c(no_sp, 2), 
+	                          dimnames = list(sp=species_names, k=1:2))
 	
-	selectivity <- array(0, dim=c(length(gear_names), object, no_w), dimnames=list(gear=gear_names, sp=species_names, w=signif(w,3)))
-	catchability <- array(0, dim=c(length(gear_names), object), dimnames = list(gear=gear_names, sp=species_names))
-	interaction <- array(1, dim=c(object,object), dimnames = list(predator = species_names, prey = species_names))
+	selectivity <- array(0, dim=c(length(gear_names), no_sp, no_w), 
+	                     dimnames=list(gear=gear_names, sp=species_names, 
+	                                   w=signif(w,3)))
+	catchability <- array(0, dim=c(length(gear_names), no_sp), 
+	                      dimnames = list(gear=gear_names, sp=species_names))
+	interaction <- array(1, dim=c(no_sp, no_sp), 
+	                     dimnames = list(predator = species_names, 
+	                                     prey = species_names))
 	vec1 <- as.numeric(rep(NA, no_w_full))
 	names(vec1) <- signif(w_full,3)
 	
@@ -499,17 +518,31 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 
 	# Make an empty srr function, just to pass validity check
 	srr <- function(rdi, species_params) return(0)
+	
+	# Make colour and linetype scales for use in plots
+	linecolour <- # Colour-blind-friendly palette
+	              rep(c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+	                    "#F0E442", "#0072B2", "#D55E00", "#CC79A7"),
+	                  length.out = no_sp)
+	names(linecolour) <- as.character(species_names)
+	linetype <-rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
+	                 "twodash"), length.out = no_sp)
+	names(linetype) <- as.character(species_names)
 
 	# Make the new object
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
-	    psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
+	    psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, 
+	    activity = mat1, 
 	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
-	    rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, species_params = species_params,
-	    interaction = interaction, srr = srr, A=as.numeric(rep(NA, dim(interaction)[1]))) 
+	    rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
+	    species_params = species_params,
+	    interaction = interaction, srr = srr, 
+	    A=as.numeric(rep(NA, dim(interaction)[1])),
+	    linecolour = linecolour, linetype = linetype) 
 	return(res)
     }
 )
@@ -717,6 +750,16 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    res@selectivity[as.character(object[g,'gear']), g, ] <- sel
 	    # Now do catchability
 	    res@catchability[as.character(object[g,'gear']), g] <- object[g,"catchability"]
+	}
+	
+	# Store colours and linetypes in slots if contained in species parameters
+	if ("linetype" %in% names(object)) {
+	    res@linetype[!is.na(object$linetype)] <- 
+	        object$linetype[!is.na(object$linetype)]
+	}
+	if ("linecolour" %in% names(object)) {
+	    res@linecolour[!is.na(object$linetype)] <- 
+	        object$linecolour[!is.na(object$linecolour)]
 	}
 
 	# Remove catchabiliy from species data.frame, now stored in slot

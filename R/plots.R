@@ -274,7 +274,9 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         p <- ggplot(spec_bm, aes(x=time, y=value)) + 
             scale_y_continuous(trans="log10", breaks=log_breaks(n=y_ticks), 
                                labels = prettyNum, name=y_label) + 
-            scale_x_continuous(name=x_label)
+            scale_x_continuous(name=x_label) +
+            scale_colour_manual(values = sim@params@linecolour) +
+            scale_linetype_manual(values = sim@params@linetype)
         
         if (background) {  # Add background species in light grey 
             back_sp <- sim@params@species_params$species[is.na(sim@params@A)]
@@ -366,6 +368,9 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
         } else {
             p <- p + scale_y_continuous(name="Yield [g/year]")
         }
+        p <- p +
+            scale_colour_manual(values = sim@params@linecolour) +
+            scale_linetype_manual(values = sim@params@linetype)
     if (print_it) {
         print(p)
     }
@@ -487,7 +492,9 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
             geom_line(aes(x=time,y=value, colour=Species, linetype=gear))
     }
 	p <- p + scale_y_continuous(trans="log10", name="Yield [g]") + 
-	    scale_x_continuous(name="Year")
+	    scale_x_continuous(name="Year") +
+	    scale_colour_manual(values = sim@params@linecolour) +
+	    scale_linetype_manual(values = sim@params@linetype)
     if (print_it) {
         print(p)
     }
@@ -630,7 +637,8 @@ plot_spectra <- function(params, n, n_pp,
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
         plankton_sel <- params@w_full >= min_w &
-                        params@w_full < min(params@species_params$w_mat)
+                        (params@w_full < min(params@species_params$w_mat) |
+                             is.na(params@species_params$w_mat))
         w_plankton <- params@w_full[plankton_sel]
         plank_n <- n_pp[plankton_sel] * w_plankton^power
         plot_dat <- rbind(plot_dat, 
@@ -659,7 +667,11 @@ plot_spectra <- function(params, n, n_pp,
         scale_x_continuous(name = "Size [g]", trans="log10", 
                            breaks=log_breaks()) + 
         scale_y_continuous(name = y_label, trans="log10",
-                           breaks=log_breaks())
+                           breaks=log_breaks()) +
+        scale_colour_manual(values = c(params@linecolour, "Total" = "black",
+                                       "Plankton" = "green")) +
+        scale_linetype_manual(values = c(params@linetype, "Total" = "dotted",
+                                         "Plankton" = "dashed"))
     if (background) {
         back_n <- n[is.na(params@A), , drop = FALSE]
         plot_back <- data.frame(value = c(back_n), 
@@ -743,7 +755,9 @@ setMethod('plotFeedingLevel', signature(sim='MizerSim'),
         }
         p <- p + 
             scale_x_continuous(name = "Size [g]", trans="log10") + 
-            scale_y_continuous(name = "Feeding Level", limits=c(0,1))
+            scale_y_continuous(name = "Feeding Level", limits=c(0,1)) +
+            scale_colour_manual(values = sim@params@linecolour) +
+            scale_linetype_manual(values = sim@params@linetype)
         if (print_it) {
             print(p)
         }
@@ -807,7 +821,9 @@ setMethod('plotM2', signature(sim='MizerSim'),
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
 	    scale_y_continuous(name = "Predation mortality [1/year]", 
-	                       limits=c(0,max(plot_dat$value)))
+	                       limits=c(0,max(plot_dat$value))) +
+	    scale_colour_manual(values = sim@params@linecolour) +
+	    scale_linetype_manual(values = sim@params@linetype)
     if (print_it) {
         print(p)
     }
@@ -870,7 +886,9 @@ setMethod('plotFMort', signature(sim='MizerSim'),
 	p <- p + 
 	    scale_x_continuous(name = "Size [g]", trans="log10") + 
 	    scale_y_continuous(name = "Fishing mortality [1/Year]", 
-	                       limits=c(0,max(plot_dat$value)))
+	                       limits=c(0,max(plot_dat$value))) +
+	    scale_colour_manual(values = sim@params@linecolour) +
+	    scale_linetype_manual(values = sim@params@linetype)
     if (print_it) {
         print(p)
     }
@@ -1004,7 +1022,9 @@ setMethod('plotGrowthCurves', signature(object = 'MizerSim'),
         y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
         p <- p + 
             scale_x_continuous(name = "Age [Years]") + 
-            scale_y_continuous(name = y_label)
+            scale_y_continuous(name = y_label) +
+            scale_colour_manual(values = sim@params@linecolour) +
+            scale_linetype_manual(values = sim@params@linetype)
         
         # Extra stuff for single-species case
         if (length(species) == 1 && !percentage) {
@@ -1071,7 +1091,9 @@ setMethod('plotGrowthCurves', signature(object = 'MizerParams'),
         y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
         p <- p + 
             scale_x_continuous(name = "Age [Years]") + 
-            scale_y_continuous(name = y_label)
+            scale_y_continuous(name = y_label) +
+            scale_colour_manual(values = params@linecolour) +
+            scale_linetype_manual(values = params@linetype)
         
         # Extra stuff for single-species case
         if (length(species) == 1 && !percentage) {
