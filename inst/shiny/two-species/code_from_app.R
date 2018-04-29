@@ -48,7 +48,9 @@ species_params <- data.frame(
     a = a_m,
     b = b_m,
     gamma = 0.0017,
-    h = 50
+    h = 50,
+    linecolour = "red",
+    linetype = "dashed"
 )
 # k_vb is from 
 # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=790&GenusName=Mullus&SpeciesName=barbatus+barbatus&fc=332
@@ -92,7 +94,9 @@ species_params <- data.frame(
     a = a,
     b = b,
     gamma = 0.003,
-    h = 20
+    h = 20,
+    linecolour = "blue",
+    linetype = "solid"
 )
 #k_vb <- 0.1 # from FB website below
 # http://www.fishbase.org/popdyn/PopGrowthList.php?ID=30&GenusName=Merluccius&SpeciesName=merluccius&fc=184
