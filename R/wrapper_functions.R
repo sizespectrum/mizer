@@ -1008,9 +1008,10 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         species_params$erepro <- 0.1
         
         # Make sure that all columns exist in both data frames
-        diffnames <- setdiff(names(params@species_params), names(species_params))
-        params@species_params[diffnames] <- NA
-        species_params[diffnames] <- NA
+        missing <- setdiff(names(params@species_params), names(species_params))
+        species_params[missing] <- NA
+        missing <- setdiff(names(species_params), names(params@species_params))
+        params@species_params[missing] <- NA
         
         # add the new species (with parameters described by species_params), 
         # to make a larger species_params dataframe.
