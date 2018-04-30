@@ -1,10 +1,10 @@
 library(shiny)
 library(shinyBS)
 library(ggplot2)
-# # Uncomment the following 3 lines before publishing the app
-# library(devtools)
-# install_github("gustavdelius/mizer", ref="scaling")
-# library(mizer)
+# Uncomment the following 3 lines before publishing the app
+library(devtools)
+install_github("gustavdelius/mizer", ref="scaling")
+library(mizer)
 library(progress)
 
 #### Server ####
@@ -127,12 +127,6 @@ server <- function(input, output, session) {
         "SSB" = rep(getSSB(sim_old)[11, 11:12], times = 2),
         "Gear" = "Current"
     )
-    
-    # Data frame for Yield by Size plot
-    catch_old <- sim_old@params@selectivity[2, 11:12, w_sel] * 
-        sim_old@n[11, 11:12,w_sel] * fixed_effort * rep(w, each = 2)
-    catchf_old <- reshape2::melt(catch_old)
-    catchf_old$Gear <- "Current"
     
     # Set params ####
     params <- reactive({
@@ -309,10 +303,14 @@ server <- function(input, output, session) {
         w_max_idx <- which.min(p@w < 200)
         w_sel <- seq(w_min_idx, w_max_idx, by = 1)
         w <- p@w[w_sel]
+        catch_old <- sim_old@params@selectivity[2, 11:12, w_sel] * 
+            sim_old@n[11, 11:12,w_sel] * fixed_effort * rep(w, each = 2)
+        catchf_old <- reshape2::melt(catch_old)
+        catchf_old$Gear <- "Current"
         catch <- p@selectivity[2, 11:12, w_sel] * s2@n[10*year+1, 11:12,w_sel] * 
             fixed_effort * rep(w, each = 2)
         catchf <- reshape2::melt(catch)
-        catchf$Gear <- "Modfied"
+        catchf$Gear <- "Modified"
         catchf <- rbind(catchf, catchf_old)
         names(catchf)[1] <- "Species"
         if (input$catch_x == "Weight") {
@@ -325,14 +323,15 @@ server <- function(input, output, session) {
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
         } else {
-            a <- p@species_params$a
-            names(a) <- p@species_params$species
-            b <- p@species_params$b
-            names(b) <- p@species_params$species
+            a <- p@species_params$a[11:12]
+            names(a) <- p@species_params$species[11:12]
+            b <- p@species_params$b[11:12]
+            names(b) <- p@species_params$species[11:12]
             ggplot(catchf, aes(x = (w/a[Species])^(1/b[Species]), y = value)) +
                 geom_line(aes(colour = Species, linetype = Gear)) +
                 scale_x_continuous(name = "Length [cm]", labels = prettyNum) +
                 scale_y_continuous(name = "Yield distribution") +
+                scale_colour_manual(values = p@linecolour) +
                 scale_linetype_manual(values = c("Current" = "dotted", 
                                                  "Modified" = "solid")) +
                 theme(text = element_text(size = 18))
