@@ -9,7 +9,7 @@
 addSpecies(params, ...)
 
 \S4method{addSpecies}{MizerParams}(params, species_params, SSB = NA,
-  rfac = 10, effort = 0, iterate = TRUE)
+  rfac = 10, effort = 0)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -27,11 +27,6 @@ will be set to rfac times the normal steady-state recruitment.
 Default value is 10.}
 
 \item{effort}{Default value is 0.}
-
-\item{iterate}{Boolean parameter that determines whether the within-species
-distributions should be recalculated after retuning the abundances. This
-is only a temporary parameter while we are exploring the consequences.
-Defaults to TRUE.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
