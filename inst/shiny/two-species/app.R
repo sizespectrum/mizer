@@ -1,23 +1,23 @@
 library(shiny)
 library(ggplot2)
-# Uncomment the following 3 lines before publishing the app
-#library(devtools)
-#install_github("gustavdelius/mizer", ref="scaling")
-#library(mizer)
+# # Uncomment the following 3 lines before publishing the app
+# library(devtools)
+# install_github("gustavdelius/mizer", ref="scaling")
+# library(mizer)
 library(progress)
 
 server <- function(input, output, session) {
     
-    l50_mullet_old <- 16.6
-    l25_mullet_old <- 10
-    l50_hake_old <- 16.6
-    l25_hake_old <- 10
+    l50 <- c(16.6, 15.48, 20.5, 15.85)
+    names(l50) <- c("hake_old", "mullet_old", "hake_new", "mullet_new")
+    sd <- c(0.462, 2.10, 0.331, 2.05)
+    l25 = l50 - log(3) * sd
     
     p_bg  <- reactive({
         setBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
                         min_w_inf = 10, max_w_inf = 1e5,
                         min_egg = 1e-4, min_w_mat = 10^(0.4),
-                        knife_edge_size = 10^5, kappa = 5000,
+                        knife_edge_size = Inf, kappa = 10000,
                         lambda = input$lambda, f0 = input$f0,
                         h = input$h, r_pp = 10^input$log_r_pp))
     })
@@ -39,18 +39,19 @@ server <- function(input, output, session) {
             sigma = 1.8, # = sigma_gurnard from North sea. Silvia says gurnard is similar.
             z0 = 0,
             alpha = 0.6, # unknown, mizer default=0.6
-            erepro = 0.1, # unknown
-            sel_func = "sigmoid_length", # not used but required
+            erepro = 0.1, # unknown, determined later
+            sel_func = "sigmoid_length",
             gear = "sigmoid_gear",
-            l25 = l25_mullet_old,
-            l50 = l50_mullet_old,
+            l25 = l25["mullet_old"],
+            l50 = l50["mullet_old"],
             k = 0,
-            r_max = 10^50,
             k_vb = 0.6,
             a = a_m,
             b = b_m,
+            gamma = input$gamma_mullet,
             h = input$h_mullet,
-            gamma = input$gamma_mullet
+            linecolour = "red",
+            linetype = "solid"
         )
         p <- addSpecies(p_bg(), species_params, SSB = input$SSB_mullet, 
                         effort = input$effort, rfac = 1.01)
@@ -74,19 +75,19 @@ server <- function(input, output, session) {
             erepro = 0.1, # unknown
             sel_func = "sigmoid_length", # not used but required
             gear = "sigmoid_gear",
-            l25 = l25_hake_old,
-            l50 = l50_hake_old,
+            l25 = l25["hake_old"],
+            l50 = l50["hake_old"],
             k = 0,
-            r_max = 10^50, #why do I need r_max after combining before
             k_vb = 0.1, # from FB website below
             a = a,
             b = b,
+            gamma = input$gamma_hake,
             h = input$h_hake,
-            gamma = input$gamma_hake
+            linecolour = "blue",
+            linetype = "solid"
         )
         p <- addSpecies(p, species_params, SSB = input$SSB_hake, 
                    effort = input$effort, rfac = 1.01)
-        
         p
     })
     
@@ -141,7 +142,7 @@ server <- function(input, output, session) {
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p, t_max = 15, effort = input$effort_new, 
+        project(p, t_max = 15, t_save = 0.1, effort = input$effort_new, 
                 shiny_progress = progress)
     })
     
@@ -153,7 +154,9 @@ server <- function(input, output, session) {
         ym <- subset(ym, ym$Yield > 0)
         ggplot(ym) + 
             geom_line(aes(x=Year, y=Yield, colour=Species, linetype=Species)) +
-            scale_y_continuous(name="Yield [g/year]", limits = c(0, NA))
+            scale_y_continuous(name="Yield [g/year]", limits = c(0, NA)) +
+            scale_colour_manual(values = s()@params@linecolour) +
+            scale_linetype_manual(values = s()@params@linetype)
     })
     
     output$plotSSB <- renderPlot({
@@ -163,7 +166,9 @@ server <- function(input, output, session) {
         bm <- subset(bm, bm$SSB > 0)
         ggplot(bm) + 
             geom_line(aes(x=Year, y=SSB, colour=Species, linetype=Species)) +
-            scale_y_continuous(name="SSB [g]", limits = c(0, NA))
+            scale_y_continuous(name="SSB [g]", limits = c(0, NA)) +
+            scale_colour_manual(values = s()@params@linecolour) +
+            scale_linetype_manual(values = s()@params@linetype)
     })
     
     output$plotBiomass <- renderPlot({
@@ -233,22 +238,22 @@ ui <- fluidPage(
                 ),
                 tabPanel("Mullet",
                     sliderInput("SSB_mullet", "SSB",
-                                value=1400, min=10, max=2000),
+                                value=2800, min=100, max=4000),
                     sliderInput("w_min_mullet", "Egg weight",
                                 value=0.001, min=0.0001, max=0.01),
                     sliderInput("gamma_mullet", "Predation rate coefficient",
-                                value=0.0017, min=0.0001, max=0.01),
+                                value=0.00085, min=0.00005, max=0.005),
                     sliderInput("h_mullet", "max feeding rate",
                                 value=50, min=10, max=100, step=2),
                     plotOutput("plotGrowthCurveMullet")
                 ),
                 tabPanel("Hake",
                     sliderInput("SSB_hake", "SSB",
-                                value=600, min=10, max=2000),
+                                value=1200, min=100, max=4000),
                     sliderInput("w_min_hake", "Egg weight",
                                 value=0.001, min=0.0001, max=0.01),
                     sliderInput("gamma_hake", "Predation rate coefficient",
-                                value=0.003, min=0.0001, max=0.01),
+                                value=0.0015, min=0.00005, max=0.005),
                     sliderInput("h_hake", "max feeding rate",
                                 value=20, min=10, max=100, step=2),
                          plotOutput("plotGrowthCurveHake")
@@ -258,14 +263,14 @@ ui <- fluidPage(
                                 value=0.4, min=0.3, max=0.5),
                     h1("Hake selectivity"),
                     sliderInput("l50_hake", "L50",
-                                value=16.6, min=10, max=20),
+                                value=l50["hake_old"], min=12, max=24),
                     sliderInput("l25_hake", "L25",
-                                value=10, min=5, max=15),
+                                value=l25["hake_old"], min=12, max=24),
                     h1("Mullet selectivity"),
                     sliderInput("l50_mullet", "L50",
-                                value=16.6, min=10, max=20),
+                                value=l50["mullet_old"], min=12, max=24),
                     sliderInput("l25_mullet", "L25",
-                                value=10, min=5, max=15)
+                                value=l25["mullet_old"], min=12, max=24)
                 )
             )
         ),  # endsidebarpanel
