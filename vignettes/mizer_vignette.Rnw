@@ -68,16 +68,15 @@ opts_chunk$set(width = 7)
 @
 
 
-\title{Multispecies, trait-based and community size spectrum ecological modelling in \R (\pkg{mizer})}
-%\author{F. Scott, J. L. Blanchard, K. H. Andersen}
-\author[1,4]{Finlay Scott}
-\author[2]{Julia L. Blanchard}
-\author[3]{Ken. H. Andersen}
-\affil[1]{Cefas, Lowestoft, UK}
-\affil[2]{University of Sheffield, UK}
-\affil[3]{DTU Aqua, Copenhagen, DK}
-\affil[4]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
-\renewcommand\Authands{ and }
+\title{Multispecies, trait-based and community size spectrum ecological modelling in \R (\pkg{mizer})\thanks{mizer version 0.2 authored by Finlay Scott (Cefas, Lowestoft, UK, Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT), Julia L. Blanchard (University of Sheffield, UK) and  Ken. H. Andersen (DTU Aqua, Copenhagen, DK. Further improvements were made by Gustav Delius, Richard Southwell and Richard Law (University of York), which resulted in the current version of mizer.)}}
+%\author[1,4]{Finlay Scott}
+%\author[2]{Julia L. Blanchard}
+%\author[3]{Ken. H. Andersen}
+%\affil[1]{Cefas, Lowestoft, UK}
+%\affil[2]{University of Sheffield, UK}
+%\affil[3]{DTU Aqua, Copenhagen, DK}
+%\affil[4]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
+%\renewcommand\Authands{ and }
 \date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
 \maketitle
 
@@ -2421,7 +2420,7 @@ params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
 sim <- project(params, t_max=15, effort = 1)
 b_trait <- getBiomassFrame(sim_trait)
 b <- getBiomassFrame(sim)
-display_frames(b_trait, b)
+display_frames(b_trait, b, params)
 @
 
 
@@ -2811,9 +2810,11 @@ model is given by Equation~\ref{eq:cp}.
 
 \subsection{Introduction}
 
-In Section~\ref{sec:scale_invariant_trait_based_model} we saw that using strong stock recruitment relationships, as implemented within the models discussed in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example} can lead to scenarios where the stock levels are unrealistically insensitive to changes in the environment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach for doing this is to use species from the scale-invariant trait based model as a type of background or substrate, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. The scale-invariant background species essentially act to model the presence of species that one has little knowledge about, or interest in modelling explicitly. 
+In Section~\ref{sec:scale_invariant_trait_based_model} we saw that using strong stock recruitment relationships, as implemented within the models discussed in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example} can lead to scenarios where the stock levels are unrealistically insensitive to changes in the environment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach is to use species from the scale-invariant trait based model as a type of background or substrate, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. 
 
-The key to our approach (of creating a system where species coexist without imposing strong stock recruitment relationships), is that when we add a new species to our system, we do so in such a way that the resulting system will still be at steady state. To do this, we try to ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survival is based on the transplanted entity and its surrounds receiving similar stimuli before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to \emph{make room} for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
+We begin with only the scale-invariant background, which is setup close to a steady state by the \code{set\_scaling\_model()} command. We add new species using the \code{add\_species()} command, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under Equation~\ref{eq:MvF}. Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under Equation~\ref{eq:MvF}, and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
+
+%We get relatively close to a steady state by altering the abundance of the background species when a foreground species This is basically achieved by ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survival is based on the transplanted entity and its surrounds receiving similar stimuli before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to \emph{make room} for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
 
 \subsection{Adding a foreground species to a scale-invariant background}
 
@@ -2821,56 +2822,79 @@ The key to our approach (of creating a system where species coexist without impo
 Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section \ref{sec:scale_invariant_trait_based_model}) as follows:
 
 <<label=seed_scaling_model_params>>=
-params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e4,
-                            min_egg = 1e-4, min_w_mat = 10^(0.4),
-                            knife_edge_size = 100, kappa = 0.005)
-params@A[] <- NA
+p_bg  <- setBackground(
+  set_scaling_model(no_sp = 10, no_w = 400,
+                    min_w_inf = 10, max_w_inf = 1e5,
+                    min_egg = 1e-4, min_w_mat = 10^(0.4),
+                    knife_edge_size = Inf, kappa = 10000,
+                    lambda = 2.08, f0 = 0.6, h = 34)
+)
 @
 
-Here \args{params@A[i]} should be set to $1$ if $i$ is a foreground species, and \args{params@A[i]} should be set to \args{NA} if $i$ is a background species.    
+We shall also setup some fishing parameters that we will refer to later.
+
+<<label=add_sp_fishing_parameters>>=
+effort <- 0.4
+l50 <- c(16.6, 15.48, 20.5, 15.85)
+names(l50) <- c("hake_old", "mullet_old", "hake_new", "mullet_new")
+sd <- c(0.462, 2.10, 0.331, 2.05)
+l25 = l50 - log(3) * sd
+@
 
 Let us introduce a species which we are interested in modelling explicitly into this background using our \code{add\_species()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
 
 <<label=mullet_data>>=
+a_m <- 0.0085
+b_m <- 3.11
+L_inf_m <- 24.3
+L_mat <- 11.1
 species_params <- data.frame(
-    species = "mullet",
+    species = "Mullet",
     w_min = 0.001, 
-    w_inf = 173.2425, 
-    w_mat = 15.14863, 
+    w_inf = a_m*L_inf_m^b_m, 
+    w_mat = a_m*L_mat^b_m, 
     beta = 283, 
     sigma = 1.8, 
     z0 = 0,
     alpha = 0.6, 
     erepro = 0.1, 
-    sel_func = "knife_edge",
-    knife_edge_size = 100, 
-    gear = "knife_edge_gear",
+    sel_func = "sigmoid_length", 
+    gear = "sigmoid_gear",
+    l25 = l25["mullet_old"],
+    l50 = l50["mullet_old"],
     k = 0,
-    r_max = 10^50,
     k_vb = 0.6,
-    a = 0.0085,
-    b = 3.11
+    a = a_m,
+    b = b_m,
+    gamma = 0.0017,
+    h = 50,
+    linecolour = "red",
+    linetype = "solid"
 )
 @
 
 Foreground species of specific interest can be introduced into our background using the following command:
 
 <<label=mullet_add>>=
-params_out <- add_species(params, species_params)
+rfac <- 1.01
+p <- addSpecies(p_bg, species_params, SSB = 2800, effort=effort, 
+                rfac = rfac)
 @
 
 This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{add\_species()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
-including the new species. This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight \args{min\_w\_observed} is \args{biomass}), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
+including the new species. 
 
-The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is negligible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
-will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundance of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
+%This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight \args{min\_w\_observed} is \args{biomass}), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
+
+%The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is negligible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
+%will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundance of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
 
 The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection \ref{subsec:modtrait}.
 
 We can perform a simulation with our new system, including the mullet, in the usual way: 
 
 <<label = mullet_run>>=
-sim <- project(params_out, t_max = 50, effort = 0)
+sim <- project(p, t_max = 25, effort = effort)
 @
 
 We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state (Figure~\ref{fig:plot_mullet_demo}):
@@ -2883,7 +2907,7 @@ plotBiomass(sim)
 <<label=print_plot_mullet_sim, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_mullet_sim>>
 @
-\caption{Example plot of time vs biomass for the scale invariant trait-based model plus mullet with no fishing.}
+\caption{Example plot of time vs biomass for the scale invariant trait-based model plus mullet.}
 \label{fig:plot_mullet_demo}
 \end{figure}
 
@@ -2897,7 +2921,7 @@ plotSpectra(sim)
 <<label=print_plot_mullet_sim2, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_mullet_sim2>>
 @
-\caption{Example plot of weight vs abundance for the scale invariant trait-based model plus mullet with no fishing, in the final state of our simulation.}
+\caption{Example plot of weight vs abundance for the scale invariant trait-based model plus mullet, in the final state of our simulation.}
 \label{fig:plot_mullet_demo2}
 \end{figure}
 
@@ -3029,6 +3053,10 @@ so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative 
 
 Finlay Scott would like to thank the Cefas Seedcorn Project DP266 and the Defra project MF1225 for supporting this work.
 This project has received funding from the European Union's Horizon 2020 Research and Innovation programme under Grant Agreement No 634495 (MINOUW).
+
+The work of Gustav Delius, Richard Southwell and Richard Law on updating mizer was funded by the European Commission Horizon 2020
+Research and Innovation Programme under Grant Agreement No. 634495
+for the project MINOUW (\url{http://minouw-project.eu/}).
 
 %-------------------------------------------------------------------------
 % References
