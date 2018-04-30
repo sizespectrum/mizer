@@ -530,12 +530,12 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	linecolour <- rep(cbbPalette, length.out = no_sp)
 	names(linecolour) <- as.character(species_names)
 	linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
-	                "Background" = "#999999")
+	                "Background" = "grey")
 	linetype <-rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
 	                 "twodash"), length.out = no_sp)
 	names(linetype) <- as.character(species_names)
 	linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
-	              "Background" = "dotted")
+	              "Background" = "solid")
 
 	# Make the new object
 	# Should Z0, rrPP and ccPP have names (species names etc)?
