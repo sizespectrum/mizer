@@ -1140,3 +1140,57 @@ setMethod('setBackground', signature(object = 'MizerSim'),
         return(object)
     } 
 )
+
+#' Tune params object to be at steady state
+#' 
+#' @param params A \linkS4class{MizerParams} object
+#' @param rfac A number that determines the strength of the non-linearity in
+#'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
+#'   will be set to rfac times the normal steady-state recruitment.
+#'   Default value is 10.
+#' @param effort The fishing effort. Default is 0
+#' @export
+steady <- function(params, rfac = Inf, effort = 0) {
+    p <- params
+    # Force the recruitment to stay at this level
+    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+    p@srr <- function(rdi, species_params) {rdd}
+    sim_old <- project(p, t_max = 50, t_save = 5, effort = effort)
+    # Restore original stock-recruitment relationship
+    p@srr <- params@srr
+    
+    no_sp <- length(p@species_params$species)
+    no_t <- dim(sim_old@n)[1]
+    p@initial_n <- sim_old@n[no_t, , ]
+    p@initial_n_pp <- sim_old@n_pp[no_t, ]
+    
+    # Retune the values of erepro so that we get the correct level of
+    # recruitment without stock-recruitment relationship
+    mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+    rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
+    # TODO: vectorise this
+    for (i in (1:no_sp)) {
+        gg0 <- gg[i, p@species_params$w_min_idx[i]]
+        mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
+        DW <- p@dw[p@species_params$w_min_idx[i]]
+        p@species_params$erepro[i] <- p@species_params$erepro[i] *
+            (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                 (gg0 + DW * mumu0)) / rdi[i]
+    }
+    
+    if (is.finite(rfac)) {
+        # We impose a Beverton-Hold stock recruitment relationship 
+        # RDD = rmax * RDI / (RDI + rmax)
+        # with rmax chosen so that at steady state rmax = rfac * RDD
+        # Thus at steady state RDD = (rfac - 1)/rfac * RDI and thus
+        # rmax = (rfac - 1) * RDI
+        p@species_params$r_max <-
+            (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
+        # erepro has to be rescaled by (rfac/(rfac-1)) to compensate for this.
+        p@species_params$erepro <- (rfac / (rfac - 1)) * p@species_params$erepro
+    } else {
+        p@species_params$r_max <- Inf
+    }
+    return(p)
+}

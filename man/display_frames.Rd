@@ -4,12 +4,14 @@
 \alias{display_frames}
 \title{Display frames}
 \usage{
-display_frames(f1, f2, y_ticks = 6)
+display_frames(f1, f2, params, y_ticks = 6)
 }
 \arguments{
 \item{f1}{Data frame for left plot}
 
 \item{f2}{Data frame for right plot}
+
+\item{params}{A MizerParams object}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 }
