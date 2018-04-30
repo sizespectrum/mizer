@@ -16,7 +16,8 @@ project(object, effort, ...)
   dt = 0.1, ...)
 
 \S4method{project}{MizerParams,array}(object, effort, t_save = 1, dt = 0.1,
-  initial_n = object@initial_n, initial_n_pp = object@initial_n_pp, ...)
+  initial_n = object@initial_n, initial_n_pp = object@initial_n_pp,
+  shiny_progress = NULL, ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object}
@@ -43,6 +44,9 @@ See the notes below.}
 should be a numeric vector of the same length as the \code{w_full} slot of
 the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 \linkS4class{MizerParams} argument is used.}
+
+\item{shiny_progress}{A shiny progress object used to update shiny progress bar.
+Default NULL.}
 }
 \value{
 An object of type \code{MizerSim}.

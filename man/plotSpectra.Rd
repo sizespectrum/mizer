@@ -9,16 +9,16 @@
 \usage{
 plotSpectra(object, ...)
 
-\S4method{plotSpectra}{MizerSim}(object,
-  species = as.character(object@params@species_params$species),
+\S4method{plotSpectra}{MizerSim}(object, species = NULL,
   time_range = max(as.numeric(dimnames(object@n)$time)),
-  min_w = min(object@params@w)/100, power = 1, biomass = TRUE,
-  print_it = TRUE, total = FALSE, plankton = TRUE, ...)
+  min_w = min(object@params@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
 
-\S4method{plotSpectra}{MizerParams}(object,
-  species = as.character(object@species_params$species),
-  min_w = min(object@w)/100, power = 1, biomass = TRUE, print_it = TRUE,
-  total = FALSE, plankton = TRUE, ...)
+\S4method{plotSpectra}{MizerParams}(object, species = NULL,
+  min_w = min(object@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -37,6 +37,10 @@ object.}
 background spectrum). Default value is a hundredth of the minimum size
 value of the community.}
 
+\item{ylim}{A numeric vector of length two providing limits of for the
+y axis. Use NA to refer to the existing minimum or maximum. Any values
+below 1e-20 are always cut off.}
+
 \item{power}{The abundance is plotted as the number density times the weight
 raised to \code{power}. The default \code{power = 1} gives the biomass 
 density, whereas \code{power = 2} gives the biomass density with respect
@@ -54,6 +58,10 @@ species in the system is plotted as well. Default is FALSE}
 
 \item{plankton}{A boolean value that determines whether plankton is included.
 Default is TRUE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
 }
 \value{
 A ggplot2 object
@@ -67,10 +75,10 @@ Plot the abundance spectra using a \code{MizerSim} object.
 Plot the abundance spectra using a \code{MizerParams} object.
 }
 \details{
-When called with a \linkS4class{MizerSim} object, the abundance is averaged over
-the specified time range (a single value for the time range can be used to
-plot a single time step). When called with a \linkS4class{MizerParams} object the
-initial abundance is plotted.
+When called with a \linkS4class{MizerSim} object, the abundance is averaged
+over the specified time range (a single value for the time range can be used
+to plot a single time step). When called with a \linkS4class{MizerParams}
+object the initial abundance is plotted.
 }
 \examples{
 \dontrun{
