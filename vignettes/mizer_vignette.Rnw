@@ -111,7 +111,7 @@ The results of the simulations can then be explored using a range of plots and s
 The models created can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
 
-This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Finally, there is a detailed example of a multispecies size spectrum model of the North Sea, including running projections using historical fishing patterns. 
+This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Next, there is a detailed example of a multispecies size spectrum model of the North Sea, including running projections using historical fishing patterns. After this, we introduce the scale-invariant trait-based model, which can be thought of as a modified version of the trait-based model that can be organized into a well understood steady state without the need to impose external stock-recruitment relationships. Next we describe how species from the scale-invariant can act as a type of background into which  explicit species of particular interest can be added. Finally we describe improvements that have been made to the previous version of mizer, and discuss some technical details in the appendix.
 
 %-------------------------------------------------------------------------------
 \section{Package installation and getting help}
@@ -2683,6 +2683,7 @@ plotSpectra(sim, total = TRUE)
 
 
 \subsection{Details of changes to the trait-based model}
+\label{subsec:bullets}
 
 Here we document the changes made to the Mizer software tool described in 
 Section~\ref{sec:principles}, in order to generate species assemblages close to 
@@ -2822,7 +2823,7 @@ We begin with only the scale-invariant background, which is setup close to a ste
 Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section \ref{sec:scale_invariant_trait_based_model}) as follows:
 
 <<label=seed_scaling_model_params>>=
-p_bg  <- setBackground(
+params_bg  <- setBackground(
   set_scaling_model(no_sp = 10, no_w = 400,
                     min_w_inf = 10, max_w_inf = 1e5,
                     min_egg = 1e-4, min_w_mat = 10^(0.4),
@@ -2831,54 +2832,40 @@ p_bg  <- setBackground(
 )
 @
 
-We shall also setup some fishing parameters that we will refer to later.
-
-<<label=add_sp_fishing_parameters>>=
-effort <- 0.4
-l50 <- c(16.6, 15.48, 20.5, 15.85)
-names(l50) <- c("hake_old", "mullet_old", "hake_new", "mullet_new")
-sd <- c(0.462, 2.10, 0.331, 2.05)
-l25 = l50 - log(3) * sd
-@
 
 Let us introduce a species which we are interested in modelling explicitly into this background using our \code{addSpecies()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
 
 <<label=mullet_data>>=
-a_m <- 0.0085
-b_m <- 3.11
-L_inf_m <- 24.3
-L_mat <- 11.1
 species_params <- data.frame(
-    species = "Mullet",
-    w_min = 0.001, 
-    w_inf = a_m*L_inf_m^b_m, 
-    w_mat = a_m*L_mat^b_m, 
-    beta = 283, 
-    sigma = 1.8, 
-    z0 = 0,
-    alpha = 0.6, 
-    erepro = 0.1, 
-    sel_func = "sigmoid_length", 
-    gear = "sigmoid_gear",
-    l25 = l25["mullet_old"],
-    l50 = l50["mullet_old"],
-    k = 0,
-    k_vb = 0.6,
-    a = a_m,
-    b = b_m,
-    gamma = 0.0017,
-    h = 50,
-    linecolour = "red",
-    linetype = "solid"
+  species = "Mullet",
+  w_min = 0.001, 
+  w_inf = 173.2425, 
+  w_mat = 15.14863, 
+  beta = 283, 
+  sigma = 1.8, 
+  z0 = 0,
+  alpha = 0.6, 
+  erepro = 0.1, 
+  sel_func = "sigmoid_length", 
+  gear = "sigmoid_gear",
+  l25 = 13.17291,
+  l50 = 15.48,
+  k = 0,
+  k_vb = 0.6,
+  a = 0.0085,
+  b = 3.11,
+  gamma = 0.0017,
+  h = 50,
+  linecolour = "red",
+  linetype = "solid"
 )
 @
 
 Foreground species of specific interest can be introduced into our background using the following command:
 
 <<label=mullet_add>>=
-rfac <- 1.01
-p <- addSpecies(p_bg, species_params, SSB = 2800, effort=effort, 
-                rfac = rfac)
+params_bg_m <- addSpecies(params_bg, species_params, SSB = 2800, effort=0.4, 
+                rfac = 1.01)
 @
 
 This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{addSpecies()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
@@ -2889,12 +2876,12 @@ including the new species.
 %The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is negligible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
 %will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundance of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
 
-The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, in a similar way to as described in Subsection \ref{subsec:modtrait}.
+The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, as described in Subsection \ref{subsec:bullets}.
 
 We can perform a simulation with our new system, including the mullet, in the usual way: 
 
 <<label = mullet_run>>=
-sim <- project(p, t_max = 25, effort = effort)
+sim <- project(params_bg_m, t_max = 25, effort = 0.4)
 @
 
 We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state (Figure~\ref{fig:plot_mullet_demo}):
@@ -2952,28 +2939,24 @@ In practical fisheries science one will have several species that one wishes to 
 %Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
 
 <<label=hake_data>>=
-a <- 0.0046
-b <- 3.12
-L_inf <- 81.2
-L_mat <- 29.83
 species_params <- data.frame(
   species = "Hake",
   w_min = 0.001, 
-  w_inf = a*L_inf^b, 
-  w_mat = a*L_mat^b, 
-  beta = exp(2.4), 
+  w_inf = 4174.194, 
+  w_mat = 183.5169, 
+  beta = 11.02318, 
   sigma = 1.1, 
   z0 = 0,
   alpha = 0.6, 
   erepro = 0.1, 
   sel_func = "sigmoid_length", 
   gear = "sigmoid_gear",
-  l25 = l25["hake_old"],
-  l50 = l50["hake_old"],
+  l25 = 16.09244,
+  l50 = 16.6,
   k = 0,
   k_vb = 0.1, 
-  a = a,
-  b = b,
+  a = 0.0046,
+  b = 3.12,
   gamma = 0.003,
   h = 20,
   linecolour = "blue",
@@ -2984,15 +2967,15 @@ species_params <- data.frame(
 Now we add the hake into our system:
 
 <<label=add_hake>>=
-p_old <- addSpecies(p, species_params, SSB = 1200, effort=effort, 
-                    rfac = rfac)
+params_bg_m_h <- addSpecies(params_bg_m, species_params, SSB = 1200,
+                            effort=0.4, rfac = 1.01)
 @
 
 We visualize the initial condition, close to steady state (Figure~\ref{fig:plot_mullet_hake_spectra}) using the following command:
 
 
 <<plot_mullet_hake_spectra, eval=FALSE>>=
-plotSpectra(p_old)
+plotSpectra(params_bg_m_h)
 @
 
 \begin{figure}
@@ -3006,8 +2989,8 @@ plotSpectra(p_old)
 To see that this is close to a steady state we shall evolve the system and show how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass}):
 
 <<plot_mullet_hake_biomass, eval=FALSE>>=
-sim_old <- project(p_old, t_max = 50, t_save = 5, effort = effort)
-plotBiomass(sim_old)
+sim <- project(params_bg_m_h, t_max = 50, t_save = 5, effort = 0.4)
+plotBiomass(sim)
 @
 
 \begin{figure}
@@ -3021,22 +3004,22 @@ plotBiomass(sim_old)
 The \code{steady()} command can be used to fine tune the initial condition to be very close to a steady state:
 
 <<mullet_hake_steady>>=
-p_old2 <- steady(p_old, effort = effort )
+params_bg_m_h2 <- steady(params_bg_m_h, effort = 0.4)
 @
 
 
 This results in a a configuration very close to a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass_steady}):
 
 <<plot_mullet_hake_biomass_steady, eval=FALSE>>=
-sim_old2 <- project(p_old2, t_max = 50, t_save = 5, effort = effort)
-plotBiomass(sim_old2)
+sim2 <- project(params_bg_m_h2, t_max = 50, t_save = 5, effort = 0.4)
+plotBiomass(sim2)
 @
 
 \begin{figure}
 <<label=print_plot_mullet_hake_biomass_steady, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_mullet_hake_biomass_steady>>
 @
-\caption{A plot of time vs biomass showing our system with background species, mullet and hake evolving from our fine tunned nearby steady state.}
+\caption{A plot of time vs biomass showing our system with background species, mullet and hake evolving from our fine tuned nearby steady state.}
 \label{fig:plot_mullet_hake_biomass_steady}
 \end{figure}
 
@@ -3057,7 +3040,7 @@ plotBiomass(sim_old2)
 \section{Improvements to the previous version }
 \label{sec:news}
 
-The original version of mizer was authored by Finlay Scott, Julia Blanchard and Ken Andersen. In January 2017 Gustav Delius and Richard Southwell took over the job of improving mizer and made the following additions:
+Version 0.2 of mizer was authored by Finlay Scott, Julia Blanchard and Ken Andersen. In January 2017 Gustav Delius and Richard Southwell took over the job of improving mizer and made the following additions:
 
 \begin{itemize}
 
