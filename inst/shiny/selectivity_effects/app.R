@@ -1,10 +1,10 @@
 library(shiny)
 library(shinyBS)
 library(ggplot2)
-# # Uncomment the following 3 lines before publishing the app
-# library(devtools)
-# install_github("gustavdelius/mizer", ref="scaling")
-# library(mizer)
+# Uncomment the following 3 lines before publishing the app
+library(devtools)
+install_github("gustavdelius/mizer")
+library(mizer)
 library(progress)
 
 #### Server ####
@@ -195,8 +195,9 @@ server <- function(input, output, session) {
             theme(text = element_text(size = 18))
     })
     
+    # Plot SSB ####
     output$plotSSB <- renderPlot({
-        b <- getSSB(s2)[, 11:12]
+        b <- getSSB(sim())[, 11:12]
         bm <- reshape2::melt(b, varnames = c("Year", "Species"), 
                              value.name = "SSB")
         bm$Gear <- "Modified"
@@ -205,7 +206,7 @@ server <- function(input, output, session) {
         ggplot(bm) + 
             geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear)) +
             scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
-            scale_colour_manual(values = p@linecolour) +
+            scale_colour_manual(values = params()@linecolour) +
             scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
             theme(text = element_text(size = 18))
     })
@@ -514,7 +515,10 @@ ui <- fluidPage(
                 ),
                 tabPanel(
                     "Catch by Size",
-                    p("Some text"),
+                    br(),
+                    p("Biomass catch as a function of size. This shows how the
+                      improved selectivity leads to more of the caught biomass
+                      to consist of larger fish."),
                     wellPanel(
                         sliderInput("catch_year", "Year",
                                     value = 2023, min = 2018, 
