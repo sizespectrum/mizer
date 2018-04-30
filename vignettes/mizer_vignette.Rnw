@@ -2812,7 +2812,7 @@ model is given by Equation~\ref{eq:cp}.
 
 In Section~\ref{sec:scale_invariant_trait_based_model} we saw that using strong stock recruitment relationships, as implemented within the models discussed in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example} can lead to scenarios where the stock levels are unrealistically insensitive to changes in the environment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach is to use species from the scale-invariant trait based model as a type of background or substrate, into which the heterogeneous species of specific interest (the \emph{foreground species}) can added. 
 
-We begin with only the scale-invariant background, which is setup close to a steady state by the \code{set\_scaling\_model()} command. We add new species using the \code{add\_species()} command, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under Equation~\ref{eq:MvF}. Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under Equation~\ref{eq:MvF}, and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
+We begin with only the scale-invariant background, which is setup close to a steady state by the \code{set\_scaling\_model()} command. We add new species using the \code{addSpecies()} command, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under Equation~\ref{eq:MvF}. Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under Equation~\ref{eq:MvF}, and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
 
 %We get relatively close to a steady state by altering the abundance of the background species when a foreground species This is basically achieved by ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survival is based on the transplanted entity and its surrounds receiving similar stimuli before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to \emph{make room} for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
 
@@ -2841,7 +2841,7 @@ sd <- c(0.462, 2.10, 0.331, 2.05)
 l25 = l50 - log(3) * sd
 @
 
-Let us introduce a species which we are interested in modelling explicitly into this background using our \code{add\_species()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
+Let us introduce a species which we are interested in modelling explicitly into this background using our \code{addSpecies()} command. For the sake of example we shall introduce a red mullet, we start by specifying its parameters using a dataframe with a single row:
 
 <<label=mullet_data>>=
 a_m <- 0.0085
@@ -2881,7 +2881,7 @@ p <- addSpecies(p_bg, species_params, SSB = 2800, effort=effort,
                 rfac = rfac)
 @
 
-This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{add\_species()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
+This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{addSpecies()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
 including the new species. 
 
 %This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight \args{min\_w\_observed} is \args{biomass}), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
@@ -2947,7 +2947,7 @@ plotSpectra(sim)
 
 \subsection{Adding another species}
 
-In practical fisheries science one will have several species that one wishes to model explicitly. Further foreground species can be added into our system by repeated use of the \code{add\_species()} command. Let us demonstrate this by adding hake into our system with background and mullet. We start by specifying the data for the hake:
+In practical fisheries science one will have several species that one wishes to model explicitly. Further foreground species can be added into our system by repeated use of the \code{addSpecies()} command. Let us demonstrate this by adding hake into our system with background and mullet. We start by specifying the data for the hake:
 
 %Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
 
@@ -3025,7 +3025,7 @@ p_old2 <- steady(p_old, effort = effort )
 @
 
 
-This results in a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass_steady}):
+This results in a a configuration very close to a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass_steady}):
 
 <<plot_mullet_hake_biomass_steady, eval=FALSE>>=
 sim_old2 <- project(p_old2, t_max = 50, t_save = 5, effort = effort)
@@ -3036,7 +3036,7 @@ plotBiomass(sim_old2)
 <<label=print_plot_mullet_hake_biomass_steady, echo=FALSE, fig.height=4, fig.keep='last'>>=
 <<plot_mullet_hake_biomass_steady>>
 @
-\caption{A plot of time vs biomass showing our system with background species, mullet and hake,  evolving our fine tunned nearby steady state.}
+\caption{A plot of time vs biomass showing our system with background species, mullet and hake evolving from our fine tunned nearby steady state.}
 \label{fig:plot_mullet_hake_biomass_steady}
 \end{figure}
 
@@ -3045,7 +3045,7 @@ plotBiomass(sim_old2)
 
 %In order to model the effect of fishing one could simply take the previous setup, and turn on fishing effort, but that would likely lead to the extinction of some species. The reason is that the system was setup to be at steady state for a system without any fishing, and without a strong stock recruitment relationship imposed the system reacts more sensitively to dramatic changes in the environment than the models in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example}. 
 
-%In order to model the effects of fishing in our systems we organize include fishing effort within the \code{add\_species()} command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting \class{MizerParams} object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
+%In order to model the effects of fishing in our systems we organize include fishing effort within the \code{addSpecies()} command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting \class{MizerParams} object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
 
 %\subsection{Comparing fishing gears}
 
