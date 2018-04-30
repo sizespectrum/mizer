@@ -305,14 +305,14 @@ ui <- fluidPage(
                         value=0.4, min=0.3, max=0.5),
             h4("Hake selectivity"),
             sliderInput("l50_hake", "L50",
-                        value=l50["hake_new"], min=12, max=24, step = 0.01),
+                        value=20.5, min=12, max=24, step = 0.01),
             sliderInput("l25_hake", "L25",
-                        value=l25["hake_new"], min=12, max=24, step = 0.01),
+                        value=20.1, min=12, max=24, step = 0.01),
             h4("Mullet selectivity"),
             sliderInput("l50_mullet", "L50",
-                        value=l50["mullet_new"], min=12, max=24, step = 0.01),
+                        value=15.8, min=12, max=24, step = 0.01),
             sliderInput("l25_mullet", "L25",
-                        value=l25["mullet_new"], min=12, max=24, step = 0.01),
+                        value=13.6, min=12, max=24, step = 0.01),
             img(src = "logo_minouw_blue.png", width = "200px")
         ),  # endsidebarpanel
         
