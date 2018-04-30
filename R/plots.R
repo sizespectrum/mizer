@@ -34,11 +34,12 @@ log_breaks <- function(n = 6){
 #' 
 #' @param f1 Data frame for left plot
 #' @param f2 Data frame for right plot
+#' @param params A MizerParams object
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' 
 #' @return ggplot2 object
 #' @export
-display_frames <- function(f1, f2, y_ticks = 6) {
+display_frames <- function(f1, f2, params, y_ticks = 6) {
     var_names <- names(f1)
     if (!(length(var_names) == 3)) {
         stop("A frame needs to have three variables.")
@@ -51,7 +52,9 @@ display_frames <- function(f1, f2, y_ticks = 6) {
                               colour=names(f)[2], linetype=names(f)[2])) +
         scale_y_log10(breaks=log_breaks(n=y_ticks), labels = prettyNum) +
         geom_line() +
-        facet_wrap(~ Simulation)
+        facet_wrap(~ Simulation) +
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype)
     return(p)
 }
 
@@ -687,9 +690,9 @@ plot_spectra <- function(params, n, n_pp,
             plot_back <- plot_back[plot_back$value < ylim[1], ]
         }
         plot_back <- plot_back[plot_back$value > ylim[2], ]
-        # Add background species in light grey
+        # Add background species in grey
         p <- p + 
-            geom_line(aes(group = Species), colour = "lightgrey",
+            geom_line(aes(group = Species), colour = "grey",
                       data = plot_back)
     }
     if ((length(species) + plankton + total) > 13) {
