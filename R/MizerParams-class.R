@@ -520,14 +520,22 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	srr <- function(rdi, species_params) return(0)
 	
 	# Make colour and linetype scales for use in plots
-	linecolour <- # Colour-blind-friendly palette
-	              rep(c("#000000", "#E69F00", "#56B4E9", "#009E73", 
-	                    "#F0E442", "#0072B2", "#D55E00", "#CC79A7"),
-	                  length.out = no_sp)
+	# Colour-blind-friendly palettes
+	# From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+	# cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+	#                 "#CC79A7", "#F0E442")
+	# From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+	cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
+	               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+	linecolour <- rep(cbbPalette, length.out = no_sp)
 	names(linecolour) <- as.character(species_names)
+	linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
+	                "Background" = "#999999")
 	linetype <-rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
 	                 "twodash"), length.out = no_sp)
 	names(linetype) <- as.character(species_names)
+	linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
+	              "Background" = "dotted")
 
 	# Make the new object
 	# Should Z0, rrPP and ccPP have names (species names etc)?
@@ -753,13 +761,13 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	}
 	
 	# Store colours and linetypes in slots if contained in species parameters
-	if ("linetype" %in% names(object)) {
-	    res@linetype[!is.na(object$linetype)] <- 
-	        object$linetype[!is.na(object$linetype)]
+	if (hasName(object, "linetype")) {
+	    linetype <- object$linetype[!is.na(object$linetype)]
+	    res@linetype[object$species[!is.na(object$linetype)]] <- linetype
 	}
-	if ("linecolour" %in% names(object)) {
-	    res@linecolour[!is.na(object$linetype)] <- 
-	        object$linecolour[!is.na(object$linecolour)]
+	if (hasName(object, "linecolour")) {
+	    linecolour <- object$linecolour[!is.na(object$linecolour)]
+	    res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
 	}
 
 	# Remove catchabiliy from species data.frame, now stored in slot

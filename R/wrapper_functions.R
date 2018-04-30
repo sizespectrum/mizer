@@ -865,10 +865,6 @@ retune_abundance <- function(params, retune) {
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
 #' @param effort Default value is 0.
-#' @param iterate Boolean parameter that determines whether the within-species
-#'   distributions should be recalculated after retuning the abundances. This
-#'   is only a temporary parameter while we are exploring the consequences.
-#'   Defaults to TRUE.
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -924,60 +920,16 @@ setGeneric('addSpecies', function(params, ...)
 # the last species is a foreground species, with abundance multiplier mult.
 setMethod('addSpecies', signature(params = 'MizerParams'),
     function(params, species_params, SSB = NA,
-             rfac=10, effort = 0, iterate = TRUE) {
+             rfac=10, effort = 0) {
         
-        # Set r_max to Inf if absent
-        if (is.null(params@species_params$r_max)){
-            params@species_params$r_max <- params@species_params$w_inf
-            params@species_params$r_max[] <- Inf
+        if (any(species_params$species %in% params@species_params$species)) {
+            stop("You can not add species that are already there.")
         }
-        if (is.null(species_params$r_max)){
-            species_params$r_max <- Inf
-        }
-        
-        # ensure dataframes to be merged have the same columns, 
-        # regarding k_vb, a and b
-        if (is.null(params@species_params$k_vb)&(!is.null(species_params$k_vb))){
-            params@species_params$k_vb <- params@species_params$w_inf
-            params@species_params$k_vb[] <- NA
-        }
-        if (!is.null(params@species_params$k_vb)&(is.null(species_params$k_vb))){
-            species_params$k_vb <- NA
-        }
-        if ((!("a" %in% colnames(params@species_params)))&(("a" %in% colnames(species_params)))){
-            params@species_params$a <- params@species_params$w_inf
-            params@species_params$a[] <- NA
-        }
-        if ((("a" %in% colnames(params@species_params)))&(!("a" %in% colnames(species_params)))){
-            species_params$a <- NA
-        }
-        if ((!("b" %in% colnames(params@species_params)))&(("b" %in% colnames(species_params)))){
-            params@species_params$b <- params@species_params$w_inf
-            params@species_params$b[] <- NA
-        }
-        if ((("b" %in% colnames(params@species_params)))&(!("b" %in% colnames(species_params)))){
-            species_params$b <- NA
-        }
-        if ((!("l25" %in% colnames(params@species_params)))&(("l25" %in% colnames(species_params)))){
-            params@species_params$l25 <- params@species_params$w_inf
-            params@species_params$l25[] <- NA
-        }
-        if ((("l25" %in% colnames(params@species_params)))&(!("l25" %in% colnames(species_params)))){
-            species_params$l25 <- NA
-        }
-        if ((!("l50" %in% colnames(params@species_params)))&(("l50" %in% colnames(species_params)))){
-            params@species_params$l50 <- params@species_params$w_inf
-            params@species_params$l50[] <- NA
-        }
-        if ((("l50" %in% colnames(params@species_params)))&(!("l50" %in% colnames(species_params)))){
-            species_params$l50 <- NA
-        }
-        
         # calculate h if it is missing
-        if (is.null(species_params$h) || is.na(species_params$h)){
+        if (!hasName(species_params, "h") || is.na(species_params$h)) {
             message("Note: \tNo h column in new species data frame so using f0 and k_vb to
                 calculate it.")
-            if(!("k_vb" %in% colnames(species_params))){
+            if(!hasName(species_params, "k_vb")) {
                 stop("\t\tExcept I can't because there is no k_vb column in the new species data frame")
             }
             fc <- 0.2/species_params$alpha
@@ -986,13 +938,13 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         }
         
         # calculate ks if it is missing
-        if (is.null(species_params$ks) || is.na(species_params$ks)){
+        if (!hasName(species_params, "ks") || is.na(species_params$ks)){
             message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
             species_params$ks <- 0.2*species_params$h # mizer's default setting
         }
         
         # calculate gamma if it is missing
-        if (is.null(species_params$gamma) || is.na(species_params$gamma)){
+        if (!hasName(species_params, "gamma") || is.na(species_params$gamma)){
             message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
             ae <- sqrt(2*pi) * species_params$sigma * 
                 species_params$beta^(params@lambda-2) * 
@@ -1001,11 +953,18 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
                 (params@f0 / (1 - params@f0))
         }
         
-        # calculate w_min_idx if it is missing
+        # calculate w_min_idx
         species_params$w_min_idx <- sum(params@w<=species_params$w_min)
         
         # provide erepro column that is later overwritten
         species_params$erepro <- 0.1
+        
+        # Move linecolour and linetype into species_params
+        params@species_params$linetype <- 
+            params@linetype[params@species_params$species]
+        params@species_params$linecolour <- 
+            params@linecolour[params@species_params$species]
+        # TODO: Check if we need to do this with selectivity as well
         
         # Make sure that all columns exist in both data frames
         missing <- setdiff(names(params@species_params), names(species_params))
@@ -1104,36 +1063,6 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
         
-        # The following is only temporarily in a conditional
-        if (iterate) {
-            # Recalculate solutions in the new environment
-            mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
-            gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-            for (sp in 1:no_sp) {  # TODO: vectorize
-                # Compute integral to solve MVF
-                w_inf_idx <- sum(p@w < p@species_params$w_inf[sp])
-                idx <- p@species_params$w_min_idx[sp]:(w_inf_idx-1)
-                if (!all(gg[sp, idx] > 0)) {
-                    stop("Can not compute steady state due to zero growth rates")
-                }
-                sol <- c(1, cumprod(gg[sp, idx] /
-                            (gg[sp, idx+1] + mumu[sp, idx+1]*p@dw[idx+1])))
-                p@initial_n[sp, idx[1]:w_inf_idx] <- 
-                    sol * p@initial_n[sp, idx[1]] / sol[1]
-                # Rescale to get desired SSB
-                if (!is.na(p@A[sp])) {
-                    unnormalised_SSB <- sum(p@initial_n[sp,] * p@w * p@dw *
-                                                p@psi[sp, ])
-                    p@initial_n[sp, ] <- p@initial_n[sp, ] * p@A[sp] / 
-                        unnormalised_SSB
-                }
-            }
-            # Now we may want to retune the background species again
-            # p <- retune_abundance(p, retune)
-            # However this tends to lead to a singular linear system
-            # So we leave this for now
-        }
-        
         # Retune the values of erepro, so that we are at steady state.
         # First get death and growth rates
         mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
@@ -1198,6 +1127,7 @@ setGeneric('setBackground', function(object, ...)
 setMethod('setBackground', signature(object = 'MizerParams'),
     function(object, species = object@species_params$species) {
         object@A[object@species_params$species %in% species] <- NA
+        object@linecolour[species] <- "grey"
         return(object)
     } 
 )
@@ -1206,7 +1136,7 @@ setMethod('setBackground', signature(object = 'MizerParams'),
 #' @rdname setBackground
 setMethod('setBackground', signature(object = 'MizerSim'),
     function(object, species = object@params@species_params$species) {
-        object@params@A[object@params@species_params$species %in% species] <- NA
+        object@params <- setBackground(object@params, species)
         return(object)
     } 
 )

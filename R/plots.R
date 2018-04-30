@@ -636,9 +636,13 @@ plot_spectra <- function(params, n, n_pp,
                            w = rep(params@w, 
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
+        # Decide where to cut off plankton
+        max_w <- min(params@species_params$w_mat)
+        if (is.na(max_w)) {
+            max_w <- Inf
+        }
         plankton_sel <- params@w_full >= min_w &
-                        (params@w_full < min(params@species_params$w_mat) |
-                             is.na(params@species_params$w_mat))
+                        params@w_full < max_w
         w_plankton <- params@w_full[plankton_sel]
         plank_n <- n_pp[plankton_sel] * w_plankton^power
         plot_dat <- rbind(plot_dat, 
@@ -668,10 +672,8 @@ plot_spectra <- function(params, n, n_pp,
                            breaks=log_breaks()) + 
         scale_y_continuous(name = y_label, trans="log10",
                            breaks=log_breaks()) +
-        scale_colour_manual(values = c(params@linecolour, "Total" = "black",
-                                       "Plankton" = "green")) +
-        scale_linetype_manual(values = c(params@linetype, "Total" = "dotted",
-                                         "Plankton" = "dashed"))
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype)
     if (background) {
         back_n <- n[is.na(params@A), , drop = FALSE]
         plot_back <- data.frame(value = c(back_n), 
