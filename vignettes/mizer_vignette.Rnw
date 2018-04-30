@@ -2928,40 +2928,129 @@ plotSpectra(sim)
 
 
 
-We can compare the growth curves of the mullet with the predictions from the von Bertalanffy model (Figure~\ref{fig:plot_mullet_growth}) using the following command:
+%We can compare the growth curves of the mullet with the predictions from the von Bertalanffy model (Figure~\ref{fig:plot_mullet_growth}) using the following command:
+
+%
+%<<plot_mullet_growth, eval=FALSE>>=
+%plotGrowthCurves(sim, species = "mullet", max_age = 15)
+%@
 
 
-<<plot_mullet_growth, eval=FALSE>>=
-plotGrowthCurves(sim, species = "mullet", max_age = 15)
-@
-
-\begin{figure}
-<<label=print_plot_mullet_growth, echo=FALSE, fig.height=4, fig.keep='last'>>=
-<<plot_mullet_growth>>
-@
-\caption{A plot showing the growth (time vs weight) of the mullet. The black curve shows the von Bertalanffy growth curve and the red curve shows the prediction of our model with mullet in a scale-invariant background}
-\label{fig:plot_mullet_growth}
-\end{figure}
+%\begin{figure}
+%<<label=print_plot_mullet_growth, echo=FALSE, fig.height=4, fig.keep='last'%>>=
+%<<plot_mullet_growth>>
+%@
+%\caption{A plot showing the growth (time vs weight) of the mullet. The black curve shows the von Bertalanffy growth curve and the red curve shows the prediction of our model with mullet in a scale-invariant background}
+%\label{fig:plot_mullet_growth}
+%\end{figure}
  
 
 \subsection{Adding another species}
 
-In practical fisheries science one will have many species that one wishes to model explicitly. Further species can be added into our system by repeated use of the \code{add\_species()} command. Let us demonstrate this by adding hake into our system with background and mullet. 
+In practical fisheries science one will have several species that one wishes to model explicitly. Further foreground species can be added into our system by repeated use of the \code{add\_species()} command. Let us demonstrate this by adding hake into our system with background and mullet. We start by specifying the data for the hake:
 
-Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
+%Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
+
+<<label=hake_data>>=
+a <- 0.0046
+b <- 3.12
+L_inf <- 81.2
+L_mat <- 29.83
+species_params <- data.frame(
+  species = "Hake",
+  w_min = 0.001, 
+  w_inf = a*L_inf^b, 
+  w_mat = a*L_mat^b, 
+  beta = exp(2.4), 
+  sigma = 1.1, 
+  z0 = 0,
+  alpha = 0.6, 
+  erepro = 0.1, 
+  sel_func = "sigmoid_length", 
+  gear = "sigmoid_gear",
+  l25 = l25["hake_old"],
+  l50 = l50["hake_old"],
+  k = 0,
+  k_vb = 0.1, 
+  a = a,
+  b = b,
+  gamma = 0.003,
+  h = 20,
+  linecolour = "blue",
+  linetype = "solid"
+)
+@
+
+Now we add the hake into our system:
+
+<<label=add_hake>>=
+p_old <- addSpecies(p, species_params, SSB = 1200, effort=effort, 
+                    rfac = rfac)
+@
+
+We visualize the initial condition, close to steady state (Figure~\ref{fig:plot_mullet_hake_spectra}) using the following command:
 
 
+<<plot_mullet_hake_spectra, eval=FALSE>>=
+plotSpectra(p_old)
+@
 
-\subsection{Adding fishing}
+\begin{figure}
+<<label=print_plot_mullet_hake_spectra, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_mullet_hake_spectra>>
+@
+\caption{A plot of weight vs biomass density for the near steady state created by adding mullet and hake to a scale-invariant background.}
+\label{fig:plot_mullet_hake_spectra}
+\end{figure}
 
-In order to model the effect of fishing one could simply take the previous setup, and turn on fishing effort, but that would likely lead to the extinction of some species. The reason is that the system was setup to be at steady state for a system without any fishing, and without a strong stock recruitment relationship imposed the system reacts more sensitively to dramatic changes in the environment than the models in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example}. 
+To see that this is close to a steady state we shall evolve the system and show how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass}):
 
-In order to model the effects of fishing in our systems we organize include fishing effort within the \code{add\_species()} command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting \class{MizerParams} object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
+<<plot_mullet_hake_biomass, eval=FALSE>>=
+sim_old <- project(p_old, t_max = 50, t_save = 5, effort = effort)
+plotBiomass(sim_old)
+@
 
-\subsection{Comparing fishing gears}
+\begin{figure}
+<<label=print_plot_mullet_hake_biomass, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_mullet_hake_biomass>>
+@
+\caption{A plot of time vs biomass showing our system with background species, mullet and hake,  evolving to a nearby steady state.}
+\label{fig:plot_mullet_hake_biomass}
+\end{figure}
 
-The scenario discussed just previously corresponds to a system in the Mediterranean sea where * fishing gear is used to catch mullet and hake. One focus of {\bf Assessment of the relative catch performance of hake, red mullet and striped
-red mullet in a modified trawl extension with T90 netting} was to determine the effect using a T90 extension to the fishing gear to alter its selectivity curve. We can see the effects of such a change as follows.  
+The \code{steady()} command can be used to fine tune the initial condition to be very close to a steady state:
+
+<<mullet_hake_steady>>=
+p_old2 <- steady(p_old, effort = effort )
+@
+
+
+This results in a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\ref{fig:plot_mullet_hake_biomass_steady}):
+
+<<plot_mullet_hake_biomass_steady, eval=FALSE>>=
+sim_old2 <- project(p_old2, t_max = 50, t_save = 5, effort = effort)
+plotBiomass(sim_old2)
+@
+
+\begin{figure}
+<<label=print_plot_mullet_hake_biomass_steady, echo=FALSE, fig.height=4, fig.keep='last'>>=
+<<plot_mullet_hake_biomass_steady>>
+@
+\caption{A plot of time vs biomass showing our system with background species, mullet and hake,  evolving our fine tunned nearby steady state.}
+\label{fig:plot_mullet_hake_biomass_steady}
+\end{figure}
+
+
+%\subsection{Adding fishing}
+
+%In order to model the effect of fishing one could simply take the previous setup, and turn on fishing effort, but that would likely lead to the extinction of some species. The reason is that the system was setup to be at steady state for a system without any fishing, and without a strong stock recruitment relationship imposed the system reacts more sensitively to dramatic changes in the environment than the models in sections \ref{sec:trait_based_model} and \ref{sec:north_sea_example}. 
+
+%In order to model the effects of fishing in our systems we organize include fishing effort within the \code{add\_species()} command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting \class{MizerParams} object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
+
+%\subsection{Comparing fishing gears}
+
+%The scenario discussed just previously corresponds to a system in the Mediterranean sea where * fishing gear is used to catch mullet and hake. One focus of {\bf Assessment of the relative catch performance of hake, red mullet and striped
+%red mullet in a modified trawl extension with T90 netting} was to determine the effect using a T90 extension to the fishing gear to alter its selectivity curve. We can see the effects of such a change as follows.  
 
 %---------------------------------------------------
 
