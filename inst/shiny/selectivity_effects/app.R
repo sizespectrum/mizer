@@ -1,12 +1,17 @@
 library(shiny)
+library(shinyBS)
 library(ggplot2)
-# Uncomment the following 3 lines before publishing the app
-library(devtools)
-install_github("gustavdelius/mizer", ref="scaling")
-library(mizer)
+# # Uncomment the following 3 lines before publishing the app
+# library(devtools)
+# install_github("gustavdelius/mizer", ref="scaling")
+# library(mizer)
 library(progress)
 
+#### Server ####
 server <- function(input, output, session) {
+    
+    # Show Introduction
+    toggleModal(session, "Intro", toggle = "open")
     
     # Fishing parameters
     effort <- 0.4 
@@ -134,7 +139,7 @@ server <- function(input, output, session) {
         p@species_params["Hake", "l50"] <- input$l50_hake
         p@species_params["Hake", "l25"] <- input$l25_hake
         p@selectivity["sigmoid_gear", "Hake", ] <-
-             sigmoid_length(p@w, input$l25_hake, input$l50_hake, a, b)
+            sigmoid_length(p@w, input$l25_hake, input$l50_hake, a, b)
         # Set new gear for mullet
         a <- p@species_params["Mullet", "a"]
         b <- p@species_params["Mullet", "b"]
@@ -289,13 +294,16 @@ server <- function(input, output, session) {
     output$plotSpectrum <- renderPlot({
         plotSpectra(sim(), time_range = input$spectrum_year)
     })
+    
+}
 
-} #the server
-
-#### user interface
+#### user interface ####
 ui <- fluidPage(
     
     titlePanel("Effect of modfied gear"),
+    
+    bsModal("Intro", "Welcome", "introBut", size = "large",
+            "Here comes some explanation"),
     
     sidebarLayout(
         
@@ -303,57 +311,60 @@ ui <- fluidPage(
             h3("Modified fishing"),
             sliderInput("effort", "Effort",
                         value=0.4, min=0.3, max=0.5),
+            bsTooltip("effort", "Explanation of this slider", "right"),
             h4("Hake selectivity"),
-            sliderInput("l50_hake", "L50",
+            sliderInput("l50_hake", "L50", post = "cm",
                         value=20.5, min=12, max=24, step = 0.01),
-            sliderInput("l25_hake", "L25",
+            sliderInput("l25_hake", "L25", post = "cm",
                         value=20.1, min=12, max=24, step = 0.01),
             h4("Mullet selectivity"),
-            sliderInput("l50_mullet", "L50",
+            sliderInput("l50_mullet", "L50", post = "cm",
                         value=15.8, min=12, max=24, step = 0.01),
-            sliderInput("l25_mullet", "L25",
+            sliderInput("l25_mullet", "L25", post = "cm",
                         value=13.6, min=12, max=24, step = 0.01),
-            img(src = "logo_minouw_blue.png", width = "200px")
+            img(src = "logo_minouw_blue.png", width = "200px"),
+            actionButton("introBut", "View Introduction again")
         ),  # endsidebarpanel
         
         mainPanel(
             tabsetPanel(type = "tabs",
-                tabPanel("Yield", plotOutput("plotYield")),
-                tabPanel("Spectrum",
-                         wellPanel(
-                             sliderInput("spectrum_year", "Year",
-                                         value = 5, min = 0, max = 15, step = 1, 
-                                         animate = TRUE)
-                         ),
-                         plotOutput("plotSpectrum")
-                ),
-                tabPanel("Change",
-                         wellPanel(
-                             sliderInput("change_year", "Year",
-                                         value = 5, min = 0, max = 15, step = 1, 
-                                         animate = TRUE)
-                         ),
-                         plotOutput("plotChange")
-                ),
-                tabPanel("SSB", plotOutput("plotSSB")),
-                tabPanel("Selectivity",
-                         plotOutput("plotSelectivity"),
-                         radioButtons("selectivity_x", "Show size in:",
-                                      choices = c("Weight", "Length"), 
-                                      selected = "Length") 
-                ),
-                tabPanel("Catch",
-                         wellPanel(
-                             sliderInput("catch_year", "Year",
-                                         value = 5, min = 0, max = 15, step = 1, 
-                                         animate = TRUE)
-                         ),
-                         plotOutput("plotCatch"),
-                         radioButtons("catch_x", "Show size in:",
-                                      choices = c("Weight", "Length"), 
-                                      selected = "Length") 
-                )
-                #tabPanel("Spectra", plotOutput("plotSpectra"))
+                        tabPanel("Intro", "Introductory text"),
+                        tabPanel("Yield", plotOutput("plotYield")),
+                        tabPanel("Spectrum",
+                                 wellPanel(
+                                     sliderInput("spectrum_year", "Year",
+                                                 value = 5, min = 0, max = 15, step = 1, 
+                                                 animate = TRUE)
+                                 ),
+                                 plotOutput("plotSpectrum")
+                        ),
+                        tabPanel("Change",
+                                 wellPanel(
+                                     sliderInput("change_year", "Year",
+                                                 value = 5, min = 0, max = 15, step = 1, 
+                                                 animate = TRUE)
+                                 ),
+                                 plotOutput("plotChange")
+                        ),
+                        tabPanel("SSB", plotOutput("plotSSB")),
+                        tabPanel("Selectivity",
+                                 plotOutput("plotSelectivity"),
+                                 radioButtons("selectivity_x", "Show size in:",
+                                              choices = c("Weight", "Length"), 
+                                              selected = "Length") 
+                        ),
+                        tabPanel("Catch",
+                                 wellPanel(
+                                     sliderInput("catch_year", "Year",
+                                                 value = 5, min = 0, max = 15, step = 1, 
+                                                 animate = TRUE)
+                                 ),
+                                 plotOutput("plotCatch"),
+                                 radioButtons("catch_x", "Show size in:",
+                                              choices = c("Weight", "Length"), 
+                                              selected = "Length") 
+                        )
+                        #tabPanel("Spectra", plotOutput("plotSpectra"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
