@@ -1,10 +1,10 @@
 library(shiny)
 library(shinyBS)
 library(ggplot2)
-# Uncomment the following 3 lines before publishing the app
-library(devtools)
-install_github("gustavdelius/mizer", ref="scaling")
-library(mizer)
+# # Uncomment the following 3 lines before publishing the app
+# library(devtools)
+# install_github("gustavdelius/mizer", ref="scaling")
+# library(mizer)
 library(progress)
 
 #### Server ####
@@ -443,10 +443,7 @@ ui <- fluidPage(
                     plotOutput("plotSelectivity"),
                     radioButtons("selectivity_x", "Show size in:",
                                  choices = c("Weight", "Length"), 
-                                 selected = "Length", inline = TRUE),
-                    bsTooltip("selectivity_x", 
-                              "Explanation of this", 
-                              "left")
+                                 selected = "Length", inline = TRUE)
                 ),
                 tabPanel(
                     "Total Catch",
