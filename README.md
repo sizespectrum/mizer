@@ -1,8 +1,3 @@
-# Shiny app for mizer
-
-In this branch I will learn how to use shiny and then work towards a
-useful shiny front-end for mizer, see [issue #23](https://github.com/gustavdelius/mizer/issues/23)
-
 # mizer
 
 mizer is a package that implements size-based ecological models.
