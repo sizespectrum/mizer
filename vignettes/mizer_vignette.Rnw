@@ -10,7 +10,6 @@
 \setcounter{secnumdepth}{3}	% Elimate the section numbering starting from a specific depth (see WikiBook)
 \usepackage[round,sort]{natbib} 
 \usepackage[english]{babel} % No idea what this is but stops the et~al problem from natbib
-\usepackage{fixltx2e}
 \usepackage{graphicx}	% To manage external pictures
 \usepackage{float}
 \usepackage{subfig}	% To add subfigures within figures, with labels (see WikiBooks)
@@ -53,7 +52,7 @@
 
 <<include=FALSE, cache=FALSE>>=
 library(knitr)
-opts_chunk$set(concordance=TRUE, cache=TRUE)
+opts_chunk$set(concordance=TRUE, cache=TRUE, message=FALSE)
 @
 
 % Makes the ACTUAL images the same width as the text
@@ -77,6 +76,7 @@ opts_chunk$set(width = 7)
 %\affil[3]{DTU Aqua, Copenhagen, DK}
 %\affil[4]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
 %\renewcommand\Authands{ and }
+\author{}
 \date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
 \maketitle
 
