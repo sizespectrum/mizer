@@ -49,10 +49,10 @@ is 1.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 4.}
 
-\item{kappa}{Carrying capacity of the resource spectrum. Default value is
+\item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}
 
-\item{lambda}{Exponent of the resource spectrum. Default value is (2+q-n).}
+\item{lambda}{Exponent of the abundance power law. Default value is (2+q-n).}
 
 \item{alpha}{The assimilation efficiency of the community. The default value
 is 0.6}
@@ -144,7 +144,8 @@ other_gears <- w_inf > 500
 gear_names <- rep("Industrial", no_sp)
 gear_names[other_gears] <- "Other"
 params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
-    max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+    max_w_inf = max_w_inf, knife_edge_size = knife_edges, 
+    gear_names = gear_names)
 ## Only turn on Industrial fishery. Set effort of the Other gear to 0
 sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
 }

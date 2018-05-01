@@ -9,7 +9,7 @@ These parameters include the model species, their life history parameters and
 the size ranges of the model.
 }
 \details{
-\code{MizerParams} objects can be created using a range of
+\linkS4class{MizerParams} objects can be created using a range of
 \code{MizerParams} constructor methods.
 
 Dynamic simulations are performed using the \code{\link{project}} method on
@@ -48,6 +48,9 @@ species at size, \eqn{k_i w}}
 \item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
 for each species at size, \eqn{k_{s.i} w^p}}
 
+\item{\code{mu_b}}{An array (species x size) that holds the background death 
+\eqn{\mu_{b.i}(w)}}
+
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
 the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the available energy integral}
@@ -62,6 +65,8 @@ growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}}
 
+\item{\code{sc}}{The community abundance of the scaling community}
+
 \item{\code{species_params}}{A data.frame to hold the species specific parameters
 (see the mizer vignette, Table 2, for details)}
 
@@ -75,10 +80,36 @@ each gear for species and size, \eqn{S_{g,i,w}}}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
 each species by each gear, \eqn{Q_{g,i}}}
+
+\item{\code{initial_n}}{An array (species x size) that holds abundance of each species
+at each weight at our candidate steady state solution.}
+
+\item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
+the abundance of the background background resource at each weight.}
+
+\item{\code{n}}{Exponent of maximum intake rate.}
+
+\item{\code{p}}{Exponent of metabolic cost.}
+
+\item{\code{lambda}}{Exponent of resource spectrum.}
+
+\item{\code{q}}{Exponent for volumetric search rate.}
+
+\item{\code{f0}}{Initial feeding level.}
+
+\item{\code{kappa}}{Magnitude of resource spectrum.}
+
+\item{\code{A}}{Abundance multipliers.}
+
+\item{\code{linecolour}}{A named vector of colour values, named by species. Used 
+to give consistent colours to species in plots.}
+
+\item{\code{linetype}}{A named vector of linetypes, named by species. Used 
+to give consistent colours to species in plots.}
 }}
 
 \note{
-The \code{MizerParams} class is fairly complex with a large number of
+The \linkS4class{MizerParams} class is fairly complex with a large number of
   slots, many of which are multidimensional arrays. The dimensions of these
   arrays is strictly enforced so that \code{MizerParams} objects are
   consistent in terms of number of species and number of size classes.
@@ -88,7 +119,7 @@ The \code{MizerParams} class is fairly complex with a large number of
   
   The \code{MizerParams} class does not hold any dynamic information, e.g.
   abundances or harvest effort through time. These are held in
-  \code{\link{MizerSim}} objects.
+  \linkS4class{MizerSim} objects.
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}

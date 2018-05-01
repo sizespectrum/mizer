@@ -1,7 +1,11 @@
-# Class outline for sbm base parameters class
+# Class specification and constructors for mizer base parameters class
 # Class has members to store parameters of size based model
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -38,11 +42,12 @@ valid_MizerParams <- function(object) {
 	length(dim(object@search_vol)),
 	length(dim(object@activity)),
 	length(dim(object@std_metab)),
+	length(dim(object@mu_b)),
 	length(dim(object@ft_pred_kernel_e)),
 	length(dim(object@ft_pred_kernel_p)),
 	length(dim(object@interaction)),
 	length(dim(object@catchability))) == 2)){
-	    msg <- "psi, intake_max, search_vol, activity, std_metab, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
+	    msg <- "psi, intake_max, search_vol, activity, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
 	    errors <- c(errors, msg)
     }
     # 3D arrays
@@ -59,12 +64,13 @@ valid_MizerParams <- function(object) {
 	dim(object@ft_pred_kernel_e)[1],
 	dim(object@ft_pred_kernel_p)[1],
 	dim(object@activity)[1],
+	dim(object@mu_b)[1],
 	dim(object@selectivity)[2],
 	dim(object@catchability)[2],
 	dim(object@interaction)[1],
 	dim(object@interaction)[2]) == 
 	    dim(object@species_params)[1])){
-	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
+	    msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, mu_b, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
 	    errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -92,11 +98,12 @@ valid_MizerParams <- function(object) {
 	names(dimnames(object@search_vol))[1],
 	names(dimnames(object@activity))[1],
 	names(dimnames(object@std_metab))[1],
+	names(dimnames(object@mu_b))[1],
 	names(dimnames(object@ft_pred_kernel_e))[1],
 	names(dimnames(object@ft_pred_kernel_p))[1],
 	names(dimnames(object@selectivity))[2],
 	names(dimnames(object@catchability))[2]) == "sp")){
-	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
+	    msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity, mu_b, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
 	    errors <- c(errors, msg)
 	}
     #interaction dimension names
@@ -136,12 +143,13 @@ valid_MizerParams <- function(object) {
 	dimnames(object@ft_pred_kernel_e)[[1]],
 	dimnames(object@ft_pred_kernel_p)[[1]],
 	dimnames(object@activity)[[1]],
+	dimnames(object@mu_b)[[1]],
 	dimnames(object@selectivity)[[2]],
 	dimnames(object@catchability)[[2]],
 	dimnames(object@interaction)[[1]],
 	dimnames(object@interaction)[[2]]) ==
 	    object@species_params$species)){
-	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, ft_pred_kernel_e, ft_pred_kernel_p, activity, selectivity, catchability and interaction must all be the same"
+	    msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, activity, selectivity, catchability and interaction must all be the same"
 	    errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -194,14 +202,13 @@ valid_MizerParams <- function(object) {
     if (length(errors) == 0) TRUE else errors
 }
 
-# Soundtrack: White Hills - Glitter Glamour Atrocity
-
+#### Class definition ####
 #' A class to hold the parameters for a size based model. 
 #' 
 #' These parameters include the model species, their life history parameters and
 #' the size ranges of the model.
 #' 
-#' \code{MizerParams} objects can be created using a range of
+#' \linkS4class{MizerParams} objects can be created using a range of
 #' \code{MizerParams} constructor methods.
 #' 
 #' Dynamic simulations are performed using the \code{\link{project}} method on
@@ -228,6 +235,8 @@ valid_MizerParams <- function(object) {
 #'   species at size, \eqn{k_i w}
 #' @slot std_metab An array (species x size) that holds the standard metabolism
 #'   for each species at size, \eqn{k_{s.i} w^p}
+#' @slot mu_b An array (species x size) that holds the background death 
+#'   \eqn{\mu_{b.i}(w)}
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the available energy integral
@@ -238,6 +247,7 @@ valid_MizerParams <- function(object) {
 #'   growth rate of the background spectrum, \eqn{r_0 w^{p-1}}
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}
+#' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
@@ -247,8 +257,23 @@ valid_MizerParams <- function(object) {
 #'   each gear for species and size, \eqn{S_{g,i,w}}
 #' @slot catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}
-#'   
-#' @note The \code{MizerParams} class is fairly complex with a large number of
+#' @slot initial_n An array (species x size) that holds abundance of each species
+#'  at each weight at our candidate steady state solution.
+#' @slot initial_n_pp A vector the same length as the w_full slot that describes
+#'  the abundance of the background background resource at each weight.
+#' @slot n Exponent of maximum intake rate.
+#' @slot p Exponent of metabolic cost.
+#' @slot lambda Exponent of resource spectrum.
+#' @slot q Exponent for volumetric search rate.
+#' @slot f0 Initial feeding level.
+#' @slot kappa Magnitude of resource spectrum.
+#' @slot A Abundance multipliers.
+#' @slot linecolour A named vector of colour values, named by species. Used 
+#'   to give consistent colours to species in plots.
+#' @slot linetype A named vector of linetypes, named by species. Used 
+#'   to give consistent colours to species in plots.
+
+#' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
 #'   arrays is strictly enforced so that \code{MizerParams} objects are
 #'   consistent in terms of number of species and number of size classes.
@@ -258,7 +283,7 @@ valid_MizerParams <- function(object) {
 #'   
 #'   The \code{MizerParams} class does not hold any dynamic information, e.g.
 #'   abundances or harvest effort through time. These are held in
-#'   \code{\link{MizerSim}} objects.
+#'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #' @export
 setClass(
@@ -269,36 +294,60 @@ setClass(
         w_full = "numeric",
         dw_full = "numeric",
         psi = "array",
+        initial_n = "array",
         intake_max = "array",
         search_vol = "array",
         activity = "array",
         std_metab = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
-        #z0 = "numeric",
+        mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric", # was NinPP, carrying capacity of background
+        sc = "numeric",
+        initial_n_pp = "numeric",
         species_params = "data.frame",
         interaction = "array",
         srr  = "function",
         selectivity = "array",
-        catchability = "array"
+        catchability = "array",
+        n = "numeric",
+        p = "numeric",
+        lambda = "numeric",
+        q = "numeric",
+        f0 = "numeric",
+        kappa = "numeric",
+        A = "numeric",
+        linecolour = "character",
+        linetype = "character"
     ),
     prototype = prototype(
         w = NA_real_,
         dw = NA_real_,
         w_full = NA_real_,
         dw_full = NA_real_,
+        n = NA_real_,
+        p = NA_real_,
+        lambda = NA_real_,
+        q = NA_real_,
+        f0 = NA_real_,
+        kappa = NA_real_,
         psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
-        #z0 = NA_real_,
+        mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         rr_pp = NA_real_,
         cc_pp = NA_real_,
+        sc = NA_real_,
+        initial_n_pp = NA_real_,
+        A = NA_real_,
+        linecolour = NA_character_,
+        linetype = NA_character_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
@@ -314,8 +363,7 @@ setClass(
 )
 
 
-# Generic constructor
-
+#### Constructors ####
 #' Constructors for objects of \code{MizerParams} class
 #'
 #' Constructor method for the \linkS4class{MizerParams} class. Provides the
@@ -396,6 +444,7 @@ setClass(
 setGeneric('MizerParams', function(object, interaction, ...)
     standardGeneric('MizerParams'))
 
+#### Basic constructor ####
 #' Basic constructor with only the number of species as dispatching argument
 #' 
 #' Only really used to make MizerParams of the right size and shouldn't be used
@@ -409,7 +458,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Some checks
 	if (length(species_names) != object)
 	    stop("species_names must be the same length as the value of object argument")
-
+    no_sp <- length(species_names)
+    
 	# Set up grids:
 	# Community grid
 	w <- 10^(seq(from=log10(min_w),to=log10(max_w),length.out=no_w))
@@ -431,19 +481,29 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	dw_full[no_w_full] <- dw_full[no_w_full-1]*(dw_full[no_w_full-1]/dw_full[no_w_full-2])	
 	
 	# Basic arrays for templates
-	mat1 <- array(NA, dim=c(object,no_w), dimnames = list(sp=species_names,w=signif(w,3)))
-	mat2 <- array(NA, dim=c(object,no_w,no_w_full), dimnames = list(sp=species_names,w_pred=signif(w,3), w_prey=signif(w_full,3)))
+	mat1 <- array(NA, dim=c(no_sp, no_w), 
+	              dimnames = list(sp=species_names, w=signif(w,3)))
+	mat2 <- array(NA, dim=c(no_sp, no_w, no_w_full), 
+	              dimnames = list(sp=species_names, w_pred=signif(w,3), 
+	                              w_prey=signif(w_full,3)))
 	
-	ft_pred_kernel_e <- array(NA, dim=c(object,no_w_full), dimnames = list(sp=species_names, k=1:no_w_full))
+	ft_pred_kernel_e <- array(NA, dim=c(no_sp, no_w_full), 
+	                          dimnames = list(sp=species_names, k=1:no_w_full))
 	
 	# We do not know the second dimension of ft_pred_kernel_p until the species
 	# parameters determining the predation kernel are know. 
 	# So for now we set it to 2
-	ft_pred_kernel_p <- array(NA, dim=c(object, 2), dimnames = list(sp=species_names, k=1:2))
+	ft_pred_kernel_p <- array(NA, dim=c(no_sp, 2), 
+	                          dimnames = list(sp=species_names, k=1:2))
 	
-	selectivity <- array(0, dim=c(length(gear_names), object, no_w), dimnames=list(gear=gear_names, sp=species_names, w=signif(w,3)))
-	catchability <- array(0, dim=c(length(gear_names), object), dimnames = list(gear=gear_names, sp=species_names))
-	interaction <- array(1, dim=c(object,object), dimnames = list(predator = species_names, prey = species_names))
+	selectivity <- array(0, dim=c(length(gear_names), no_sp, no_w), 
+	                     dimnames=list(gear=gear_names, sp=species_names, 
+	                                   w=signif(w,3)))
+	catchability <- array(0, dim=c(length(gear_names), no_sp), 
+	                      dimnames = list(gear=gear_names, sp=species_names))
+	interaction <- array(1, dim=c(no_sp, no_sp), 
+	                     dimnames = list(predator = species_names, 
+	                                     prey = species_names))
 	vec1 <- as.numeric(rep(NA, no_w_full))
 	names(vec1) <- signif(w_full,3)
 	
@@ -458,21 +518,45 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 
 	# Make an empty srr function, just to pass validity check
 	srr <- function(rdi, species_params) return(0)
+	
+	# Make colour and linetype scales for use in plots
+	# Colour-blind-friendly palettes
+	# From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+	# cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+	#                 "#CC79A7", "#F0E442")
+	# From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+	cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
+	               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+	linecolour <- rep(cbbPalette, length.out = no_sp)
+	names(linecolour) <- as.character(species_names)
+	linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
+	                "Background" = "grey")
+	linetype <-rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
+	                 "twodash"), length.out = no_sp)
+	names(linetype) <- as.character(species_names)
+	linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
+	              "Background" = "solid")
 
 	# Make the new object
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
 	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
-	    psi = mat1, intake_max = mat1, search_vol = mat1, activity = mat1, 
-	    std_metab = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
+	    psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, 
+	    activity = mat1, 
+	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
 	    ft_pred_kernel_p = ft_pred_kernel_p,
 	    selectivity=selectivity, catchability=catchability,
-	    rr_pp = vec1, cc_pp = vec1, species_params = species_params,
-	    interaction = interaction, srr = srr) 
+	    rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
+	    species_params = species_params,
+	    interaction = interaction, srr = srr, 
+	    A=as.numeric(rep(NA, dim(interaction)[1])),
+	    linecolour = linecolour, linetype = linetype) 
 	return(res)
     }
 )
 
+
+#### Main constructor ####
 #' Constructor that takes the species_params data.frame and the interaction matrix
 #' @rdname MizerParams
 setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
@@ -480,7 +564,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
              kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, 
              max_w = max(object$w_inf)*1.1, f0 = 0.6, 
              z0pre = 0.6, z0exp = n-1, ...){
-
+    row.names(object) <- object$species
 	# Set default values for column values if missing
 	# If no gear_name column in object, then named after species
 	if(!("gear" %in% colnames(object)))
@@ -496,7 +580,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# If no erepro column in object, then set to 1
 	if(!("erepro" %in% colnames(object)))
 	    object$erepro <- 1
-	# If no sel_func column in species_params, set to 'sigmoid_length'
+	# If no sel_func column in species_params, set to 'knife_edge'
 	if(!("sel_func" %in% colnames(object))){
         message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
 	    object$sel_func <- 'knife_edge'
@@ -542,6 +626,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	# Make an empty object of the right dimensions
 	res <- MizerParams(no_sp, species_names=object$species, 
 	                   gear_names=unique(object$gear), max_w=max_w,...)
+    res@n <- n
+    res@p <- p
+    res@lambda <- lambda
+    res@q <- q
+    res@f0 <- f0
+    res@kappa <- kappa
 
 	# If not w_min column in species_params, set to w_min of community
 	if (!("w_min" %in% colnames(object)))
@@ -551,10 +641,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    stop("One or more of your w_min values is less than the smallest size of the community spectrum")
 
 	# Add w_min_idx column which has the reference index of the size class closest
-	# to w_min - this is a short cut for later on and prevents repetition
-	object$w_min_idx <- as.vector(
-	    tapply(object$w_min,1:length(object$w_min),
-	           function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
+	# to w_min - this is a short cut for later on and prevents repetition.
+    if (!("w_min_idx" %in% names(object))) {
+        object$w_min_idx <- as.vector(
+            tapply(object$w_min,1:length(object$w_min),
+                   function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
+    }
 
 	# Start filling the slots
 	res@species_params <- object
@@ -579,11 +671,13 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@psi[unlist(tapply(res@w,1:length(res@w),function(wx,w_mat)wx<(w_mat*0.1)  ,w_mat=object$w_mat))] <- 0
 	# Set all w > w_inf to 1 # Check this is right...
 	res@psi[unlist(tapply(res@w,1:length(res@w),function(wx,w_inf)(wx/w_inf)>1,w_inf=object$w_inf))] <- 1
+	# note sure what a and n0_mult are in get_initial_n
 
 	res@intake_max[] <- unlist(tapply(res@w,1:length(res@w),function(wx,h,n)h * wx^n,h=object$h,n=n))
 	res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
+	res@mu_b[] <- res@species_params$z0
             
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
@@ -636,8 +730,9 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@cc_pp[res@w_full>w_pp_cutoff] <- 0      #set density of sizes < plankton cutoff size
 	# Set the SRR to be a Beverton Holt esque relationship
 	# Can add more functional forms or user specifies own
+	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
-	    return(species_params$r_max * rdi / (species_params$r_max+rdi))
+	    return(rdi / (1 + rdi/species_params$r_max))
 	}
 
 	# Set fishing parameters: selectivity and catchability
@@ -664,14 +759,29 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    # Now do catchability
 	    res@catchability[as.character(object[g,'gear']), g] <- object[g,"catchability"]
 	}
+	
+	# Store colours and linetypes in slots if contained in species parameters
+	if (hasName(object, "linetype")) {
+	    linetype <- object$linetype[!is.na(object$linetype)]
+	    res@linetype[object$species[!is.na(object$linetype)]] <- linetype
+	}
+	if (hasName(object, "linecolour")) {
+	    linecolour <- object$linecolour[!is.na(object$linecolour)]
+	    res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
+	}
 
 	# Remove catchabiliy from species data.frame, now stored in slot
 	#params@species_params[,names(params@species_params) != "catchability"]
 	res@species_params <- res@species_params[,-which(names(res@species_params)=="catchability")]
+	res@initial_n <- res@psi
+	res@initial_n <- get_initial_n(res)
+	res@A <- rep(1,no_sp)
 	return(res)
     }
 )
 
+
+#### theta = 1 constructor ####
 # If interaction is missing, make one of the right size and fill with 1s
 #' Constructor based on the species_params data.frame only with no interaction
 #' @rdname MizerParams

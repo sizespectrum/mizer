@@ -1,6 +1,10 @@
 # Project method for the size based modelling package mizer
 
-# Copyright 2012 Finlay Scott and Julia Blanchard. 
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2018 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission’s Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
@@ -11,6 +15,7 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+#### project ####
 #' project method for the size based modelling
 #' 
 #' Runs the size-based model simulation and projects the size based model
@@ -20,7 +25,7 @@ NULL
 #' \linkS4class{MizerSim} which can then be explored with a range of summary and
 #' plotting methods.
 #' 
-#' @param object A \code{MizerParams} object
+#' @param object A \linkS4class{MizerParams} object
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The maximum time the projection runs for. The default value is
 #'   100. However, this argument is not needed if an array is used for the
@@ -29,11 +34,15 @@ NULL
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
-#' @param initial_n The initial populations of the species. See the notes below.
+#' @param initial_n The initial populations of the species. By default the 
+#'   \code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
+#'   See the notes below.
 #' @param initial_n_pp The initial population of the background spectrum. It
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
-#'   the \code{MizerParams} argument. By default the \code{cc_pp} slot of the
-#'   \code{\link{MizerParams}} argument is used.
+#'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
+#'   \linkS4class{MizerParams} argument is used.
+#' @param shiny_progress A shiny progress object used to update shiny progress bar.
+#'   Default NULL.
 #' @param ... Currently unused.
 #' 
 #' @note The \code{effort} argument specifies the level of fishing effort during
@@ -129,7 +138,8 @@ setMethod('project', signature(object='MizerParams', effort='numeric'),
 #' Project with time varying effort
 #' @rdname project
 setMethod('project', signature(object='MizerParams', effort='array'),
-    function(object, effort, t_save=1, dt=0.1, initial_n=get_initial_n(object), initial_n_pp=object@cc_pp,  ...){
+    function(object, effort, t_save=1, dt=0.1, initial_n=object@initial_n, 
+             initial_n_pp=object@initial_n_pp, shiny_progress = NULL, ...){
         validObject(object)
         # Check that number and names of gears in effort array is same as in MizerParams object
         no_gears <- dim(object@catchability)[1]
@@ -210,6 +220,15 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         dimnames(n) <- dimnames(sim@n)[2:3]
         n_pp <- sim@n_pp[1,]
         t_steps <- dim(effort_dt)[1]-1
+        # Set up progress bar
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = length(t_dimnames_index), width= 60)
+        if (hasArg(shiny_progress)) {
+            # We have been passed a shiny progress object
+            shiny_progress$set(message = "Running simulation", value = 0)
+            proginc <- 1/length(t_dimnames_index)
+        }
         for (i_time in 1:t_steps){
             # Do it piece by piece to save repeatedly calling methods
             # Calculate amount E_{a,i}(w) of available food
@@ -264,6 +283,12 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             # Store results only every t_step steps.
             store <- t_dimnames_index %in% (i_time+1)
             if (any(store)){
+                # Advance progress bar
+                pb$tick()
+                if (hasArg(shiny_progress)) {
+                    shiny_progress$inc(amount = proginc)
+                }
+                # Store result
                 sim@n[which(store),,] <- n 
                 sim@n_pp[which(store),] <- n_pp
             }
@@ -280,7 +305,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
 #' abundances should be reasonable guesses at the equilibrium values. The 
 #' returned population can be passed to the \code{project} method.
 #' 
-#' @param params The model parameters. An object of type \code{MizerParams}.
+#' @param params The model parameters. An object of type \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.
 #' @param n0_mult Multiplier for the abundance at size 0. Default value is
 #'   kappa/1000.

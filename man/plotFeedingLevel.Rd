@@ -4,18 +4,21 @@
 \name{plotFeedingLevel}
 \alias{plotFeedingLevel}
 \alias{plotFeedingLevel,MizerSim-method}
-\title{Plot the feeding level of each species by size}
+\title{Plot the feeding level of species by size}
 \usage{
-plotFeedingLevel(object, ...)
+plotFeedingLevel(sim, ...)
 
-\S4method{plotFeedingLevel}{MizerSim}(object,
-  time_range = max(as.numeric(dimnames(object@n)$time)), print_it = TRUE,
-  ...)
+\S4method{plotFeedingLevel}{MizerSim}(sim,
+  species = as.character(sim@params@species_params$species),
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \linkS4class{MizerSim}.}
 
 \item{...}{Other arguments to pass to \code{getFeedingLevel} method}
+
+\item{species}{Name or vector of names of the species to be plotted. By
+default all species are plotted.}
 
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is

@@ -5,7 +5,7 @@
 \alias{getESpawning}
 \alias{getESpawning,MizerParams,matrix,numeric,matrix-method}
 \alias{getESpawning,MizerParams,matrix,numeric,missing-method}
-\title{getESpawning method for the size based model}
+\title{Get energy rate available for reproduction}
 \usage{
 getESpawning(object, n, n_pp, e)
 
@@ -28,9 +28,10 @@ internally using the \code{getEReproAndGrowth()} method.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy rate available by species and size for reproduction after
-metabolism and movement have been accounted for: \eqn{\psi_i(w)E_{r.i}(w)}.
-Used by the \code{project} method for performing simulations.
+Calculates the energy rate available by species and size for reproduction
+after metabolism and movement have been accounted for:
+\eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} method for performing
+simulations.
 
 \code{getESpawning} method with \code{e} argument.
 

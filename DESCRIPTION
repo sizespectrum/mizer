@@ -15,22 +15,26 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     role=c("ctb", "cre")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
-Version: 0.4
+Version: 1.0
 License: GPL-3
 Imports:
+    deSolve,
     ggplot2,
     grid,
     methods,
     plyr,
+    progress,
     Rcpp,
     reshape2
 LinkingTo: Rcpp
 Depends:
-    R (>= 3.0)
+    R (>= 3.4)
 Suggests:
     testthat,
     roxygen2,
-    knitr
+    knitr,
+    shiny,
+    shinyBS
 Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'

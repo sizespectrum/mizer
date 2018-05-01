@@ -1,3 +1,8 @@
+# Shiny app for mizer
+
+In this branch I will learn how to use shiny and then work towards a
+useful shiny front-end for mizer, see [issue #23](https://github.com/gustavdelius/mizer/issues/23)
+
 # mizer
 
 mizer is a package that implements size-based ecological models.
@@ -17,3 +22,4 @@ See the accompanying vignette, "mizer_vignette", for more details on how
 the package works including detailed examples.
 
 [![Travis-CI Build Status](https://travis-ci.org/sizespectrum/mizer.svg?branch=master)](https://travis-ci.org/sizespectrum/mizer)
+

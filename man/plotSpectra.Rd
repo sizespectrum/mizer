@@ -4,44 +4,81 @@
 \name{plotSpectra}
 \alias{plotSpectra}
 \alias{plotSpectra,MizerSim-method}
-\title{Plot the abundance spectra of each species and the background population}
+\alias{plotSpectra,MizerParams-method}
+\title{Plot the abundance spectra}
 \usage{
 plotSpectra(object, ...)
 
-\S4method{plotSpectra}{MizerSim}(object,
+\S4method{plotSpectra}{MizerSim}(object, species = NULL,
   time_range = max(as.numeric(dimnames(object@n)$time)),
-  min_w = min(object@params@w)/100, biomass = TRUE, print_it = TRUE, ...)
+  min_w = min(object@params@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
+
+\S4method{plotSpectra}{MizerParams}(object, species = NULL,
+  min_w = min(object@w)/100, ylim = c(NA, NA), power = 1,
+  biomass = TRUE, print_it = TRUE, total = FALSE, plankton = TRUE,
+  background = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
 
 \item{...}{Other arguments (currently unused)}
 
+\item{species}{Name or vector of names of the species to be plotted. By
+default all species are plotted.}
+
 \item{time_range}{The time range (either a vector of values, a vector of min
 and max time, or a single value) to average the abundances over. Default is
-the final time step.}
+the final time step. Ignored when called with a \linkS4class{MizerParams}
+object.}
 
 \item{min_w}{Minimum weight to be plotted (useful for truncating the
 background spectrum). Default value is a hundredth of the minimum size
 value of the community.}
 
-\item{biomass}{A boolean value. Should the biomass spectrum (TRUE) be plotted
-or the abundance in numbers (FALSE). Default is TRUE.}
+\item{ylim}{A numeric vector of length two providing limits of for the
+y axis. Use NA to refer to the existing minimum or maximum. Any values
+below 1e-20 are always cut off.}
+
+\item{power}{The abundance is plotted as the number density times the weight
+raised to \code{power}. The default \code{power = 1} gives the biomass 
+density, whereas \code{power = 2} gives the biomass density with respect
+to logarithmic size bins.}
+
+\item{biomass}{Obsolete. Only used if \code{power} argument is missing. Then
+\code{biomass = TRUE} is equivalent to \code{power=1} and 
+\code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
 Defaults to TRUE}
+
+\item{total}{A boolean value that determines whether the total over all
+species in the system is plotted as well. Default is FALSE}
+
+\item{plankton}{A boolean value that determines whether plankton is included.
+Default is TRUE.}
+
+\item{background}{A boolean value that determines whether background species
+are included. Ignored if the model does not contain background species.
+Default is TRUE.}
 }
 \value{
 A ggplot2 object
 }
 \description{
-After running a projection, the spectra of the abundance of each species and
-the background population can be plotted. The abundance is averaged over the
-specified time range (a single value for the time range can be used to plot a
-single time step). The abundance can be in terms of numbers or biomass,
-depending on the \code{biomass} argument.
+What is plotted is the number density multiplied by a power of
+the weight, with the power specified by the \code{power} argument.
 
 Plot the abundance spectra using a \code{MizerSim} object.
+
+Plot the abundance spectra using a \code{MizerParams} object.
+}
+\details{
+When called with a \linkS4class{MizerSim} object, the abundance is averaged
+over the specified time range (a single value for the time range can be used
+to plot a single time step). When called with a \linkS4class{MizerParams}
+object the initial abundance is plotted.
 }
 \examples{
 \dontrun{
@@ -52,6 +89,7 @@ sim <- project(params, effort=1, t_max=20, t_save = 2)
 plotSpectra(sim)
 plotSpectra(sim, min_w = 1e-6)
 plotSpectra(sim, time_range = 10:20)
-plotSpectra(sim, time_range = 10:20, biomass = FALSE)
+plotSpectra(sim, time_range = 10:20, power = 0)
+plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 }
 }
