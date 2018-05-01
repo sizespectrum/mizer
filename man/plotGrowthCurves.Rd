@@ -18,6 +18,8 @@ plotGrowthCurves(object, ...)
   percentage = FALSE, print_it = TRUE)
 }
 \arguments{
+\item{object}{MizerSim or MizerParams object}
+
 \item{...}{Other arguments (unused)}
 
 \item{species}{Name or vector of names of the species to be plotted. By
@@ -30,8 +32,6 @@ of the maximal size.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
 Defaults to TRUE}
-
-\item{sim}{MizerSim or MizerParams object}
 }
 \value{
 A ggplot2 object

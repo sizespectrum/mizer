@@ -15,7 +15,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     role=c("ctb", "cre")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
-Version: 0.4
+Version: 1.0
 License: GPL-3
 Imports:
     deSolve,
@@ -32,7 +32,9 @@ Depends:
 Suggests:
     testthat,
     roxygen2,
-    knitr
+    knitr,
+    shiny,
+    shinyBS
 Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'

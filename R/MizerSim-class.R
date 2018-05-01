@@ -8,9 +8,6 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-# Hackiness to get past the 'no visible binding ... ' warning when running check
- utils::globalVariables(c("lm"))
-
 # Validity check
 valid_MizerSim <- function(object){
     errors <- character()

@@ -865,6 +865,7 @@ retune_abundance <- function(params, retune) {
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
 #' @param effort Default value is 0.
+#' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -1106,6 +1107,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
 #'   \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be designated as
 #'   background species. By default this is set to all species.
+#' @param ... Other arguments (unused)
 #' 
 #' @return An object of the same class as the \code{object} argument
 #' @export

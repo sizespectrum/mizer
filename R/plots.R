@@ -9,7 +9,8 @@
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
- utils::globalVariables(c("time", "value", "Species", "w", "gear"))
+ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
+                          "x", "y", "Year", "Yield"))
  
  #' Helper function to produce nice breaks on logarithmic axes
  #'
@@ -80,7 +81,7 @@ display_frames <- function(f1, f2, params, y_ticks = 6) {
 #' @param ... Other arguments to pass to \code{getSBB} method, currently 
 #'   unused.
 #'   
-#' @return A data frame that can be used in \code{\link{display_frames()}}
+#' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
 #' @seealso \code{\link{getSSB}}
 setGeneric('getSSBFrame', function(sim, ...)
@@ -146,7 +147,7 @@ setMethod('getSSBFrame', signature(sim='MizerSim'),
 #' @param ... Other arguments to pass to \code{getBiomass} method, for example
 #'   \code{min_w} and \code{max_w}
 #'   
-#' @return A data frame that can be used in \code{\link{display_frames()}}
+#' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
 #' @seealso \code{\link{getBiomass}}
 setGeneric('getBiomassFrame', function(sim, ...)
@@ -351,7 +352,7 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
                drop=FALSE]
         if (total) {
             # Include total
-            y <- cbind(y, Total = y_total)
+            y <- cbind(y, "Total" = y_total)
         }
         ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
                              value.name = "Yield")
@@ -965,7 +966,7 @@ setMethod("plot", signature(x="MizerSim", y="missing"),
 #' a and b for length to weight conversion and the von Bertalanffy parameter
 #' k_vb, then the von Bertalanffy growth curve is superimposed in black.
 #' 
-#' @param sim MizerSim or MizerParams object
+#' @param object MizerSim or MizerParams object
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param max_age The age up to which the weight is to be plotted. Default is 20
@@ -1000,7 +1001,7 @@ setMethod('plotGrowthCurves', signature(object = 'MizerSim'),
         species <- sim@params@species_params$species[idx]
         age <- seq(0, max_age, length.out = 50)
         ws <- array(dim = c(length(species), length(age)), 
-                    dimnames = list(Species = species, Age = age))
+                    dimnames = list("Species" = species, "Age" = age))
         g <- getEGrowth(sim@params, sim@n[dim(sim@n)[1], , ], sim@n_pp[dim(sim@n)[1], ])
         for (j in 1:length(species)) {
             i <- idx[j]
@@ -1045,7 +1046,7 @@ setMethod('plotGrowthCurves', signature(object = 'MizerSim'),
                 k_vb <- sim@params@species_params$k_vb[idx[1]]
                 L_inf <- (w_inf/a)^(1/b)
                 vb <- a * (L_inf * (1 - exp(-k_vb * age)))^b
-                dat <- data.frame(x = age, y = vb)
+                dat <- data.frame("x" = age, "y" = vb)
                 p <- p + geom_line(data = dat, aes(x = x, y = y))
             }
         }

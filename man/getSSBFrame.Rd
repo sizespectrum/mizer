@@ -38,7 +38,7 @@ below 1e-20 are always cut off.}
 all species is plotted as well. Default is FALSE}
 }
 \value{
-A data frame that can be used in \code{\link{display_frames()}}
+A data frame that can be used in \code{\link{display_frames}}
 }
 \description{
 After running a projection, the spawning stock biomass of each species can be

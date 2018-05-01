@@ -1,9 +1,6 @@
 library(shiny)
 library(shinyBS)
 library(ggplot2)
-# Uncomment the following 3 lines before publishing the app
-library(devtools)
-install_github("gustavdelius/mizer")
 library(mizer)
 library(progress)
 

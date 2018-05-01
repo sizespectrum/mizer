@@ -14,6 +14,8 @@ addSpecies(params, ...)
 \arguments{
 \item{params}{A mizer params object for the original system.}
 
+\item{...}{Other arguments (unused)}
+
 \item{species_params}{The species parameters of the new species we
 want to add to the system.}
 

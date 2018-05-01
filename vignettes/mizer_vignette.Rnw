@@ -77,7 +77,7 @@ opts_chunk$set(width = 7)
 %\affil[4]{Maritime Affairs Unit, IPSC, European Commission Joint Research Centre, IT}
 %\renewcommand\Authands{ and }
 \author{}
-\date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]} , \Sexpr{Sys.Date()} }
+\date{\pkg{mizer} version \Sexpr{packageDescription("mizer")[["Version"]]}, 30 April 2018. }
 \maketitle
 
 \tableofcontents
@@ -3036,31 +3036,31 @@ plotBiomass(sim2)
 %red mullet in a modified trawl extension with T90 netting} was to determine the effect using a T90 extension to the fishing gear to alter its selectivity curve. We can see the effects of such a change as follows.  
 
 %---------------------------------------------------
-
-\section{Improvements to the previous version }
-\label{sec:news}
-
-Version 0.2 of mizer was authored by Finlay Scott, Julia Blanchard and Ken Andersen. In January 2017 Gustav Delius and Richard Southwell took over the job of improving mizer and made the following additions:
-
-\begin{itemize}
-
-\item {\bf Applied spectral methods to speed up integration:} Each time step mizer has to compute integrals to determine the growth rates and death rates. These integrals are convolution integrals. The mizer code was modified so these integrals are performed using spectral methods (using the fast Fourier transform). This led to a dramatic speedup of mizer.
-
-\item {\bf Used C++ code for faster numerical solving of the PDE:} Used C++ for the inner loop in the project method for extra speed.
-
-\item {\bf Improved plotting:} Added new plotting methods, fixed bugs, and added a progress bar while the simulation is running.
-
-\item {\bf Added the scale-invariant model:} Added a function that computes parameters and a steady state for scale free trait-based models.
-
-\item {\bf Allowed explicit species to be added to the a scale-invariant background:} Added a function that adds news species to a scale-invariant background, and computes an approximately steady state close to the power law.
-
-\item {\bf Created web interface:} Made a shiny app to allow people to use mizer through a web browser without having to install the software.
-
-\item {\bf Created tutorial videos:} Made videos explaining how to install and use mizer.
-
-
-\end{itemize}
-
+% 
+% \section{Improvements to the previous version }
+% \label{sec:news}
+% 
+% Version 0.2 of mizer was authored by Finlay Scott, Julia Blanchard and Ken Andersen. In January 2017 Gustav Delius and Richard Southwell took over the job of improving mizer and made the following additions:
+% 
+% \begin{itemize}
+% 
+% \item {\bf Applied spectral methods to speed up integration:} Each time step mizer has to compute integrals to determine the growth rates and death rates. These integrals are convolution integrals. The mizer code was modified so these integrals are performed using spectral methods (using the fast Fourier transform). This led to a dramatic speedup of mizer.
+% 
+% \item {\bf Used C++ code for faster numerical solving of the PDE:} Used C++ for the inner loop in the project method for extra speed.
+% 
+% \item {\bf Improved plotting:} Added new plotting methods, fixed bugs, and added a progress bar while the simulation is running.
+% 
+% \item {\bf Added the scale-invariant model:} Added a function that computes parameters and a steady state for scale free trait-based models.
+% 
+% \item {\bf Allowed explicit species to be added to the a scale-invariant background:} Added a function that adds news species to a scale-invariant background, and computes an approximately steady state close to the power law.
+% 
+% \item {\bf Created web interface:} Made an example shiny app that allow people to use mizer through a web browser to explore the effect of more selective fishing gear without having to install the software.
+% 
+% \item {\bf Created tutorial videos:} Made videos explaining how to install and use mizer.
+% 
+% 
+% \end{itemize}
+% 
 
 %---------------------------------------------------%%
 
