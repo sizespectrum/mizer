@@ -13,8 +13,11 @@ calculation of community indicators such as the slope of the size spectrum.
 Size-based models can be complicated so mizer contains many default
 options that can be easily changed by the user.
 
-See the accompanying vignette, "mizer_vignette", for more details on how
-the package works including detailed examples.
+The package is on CRAN and therefore available from R's build-it package manager.
+
+See the accompanying [vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) 
+for more details on how the package works, including detailed examples.
+
+[![Rdoc](http://www.rdocumentation.org/badges/version/mizer)](http://www.rdocumentation.org/packages/mizer)
 
 [![Travis-CI Build Status](https://travis-ci.org/sizespectrum/mizer.svg?branch=master)](https://travis-ci.org/sizespectrum/mizer)
-
