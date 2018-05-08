@@ -28,7 +28,7 @@ Imports:
     reshape2
 LinkingTo: Rcpp
 Depends:
-    R (>= 3.4)
+    R (>= 3.1)
 Suggests:
     testthat,
     roxygen2,

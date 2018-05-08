@@ -761,11 +761,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	}
 	
 	# Store colours and linetypes in slots if contained in species parameters
-	if (hasName(object, "linetype")) {
+	if ("linetype" %in% names(object)) {
 	    linetype <- object$linetype[!is.na(object$linetype)]
 	    res@linetype[object$species[!is.na(object$linetype)]] <- linetype
 	}
-	if (hasName(object, "linecolour")) {
+	if ("linecolour" %in% names(object)) {
 	    linecolour <- object$linecolour[!is.na(object$linecolour)]
 	    res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
 	}

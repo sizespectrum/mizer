@@ -17,7 +17,10 @@
 #' \item{k_vb}{The von Bertalanffy k parameter}
 #' }
 #' @source{Blanchard et al.}
-"NS_species_params"
+#' @docType data
+#' @name NS_species_params
+NULL
+# "NS_species_params"
 
 #' Example parameter set based on the North Sea with different gears
 #'
@@ -37,11 +40,17 @@
 #' \item{gear}{Name of the fishing gear}
 #' }
 #' @source{Blanchard et al.}
-"NS_species_params_gears"
+#' @docType data
+#' @name NS_species_params_gears
+NULL
+# "NS_species_params_gears"
 
 #' Example interaction matrix for the North Sea example
 #'
 #' The interaction coefficient between predators and preys in the North Sea.
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}
-"inter"
+#' @docType data
+#' @name inter
+NULL
+# "inter"

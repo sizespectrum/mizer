@@ -8,10 +8,6 @@
 \source{
 {Blanchard et al.}
 }
-\usage{
-inter
-}
 \description{
 The interaction coefficient between predators and preys in the North Sea.
 }
-\keyword{datasets}

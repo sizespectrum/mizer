@@ -17,9 +17,6 @@
 \source{
 {Blanchard et al.}
 }
-\usage{
-NS_species_params
-}
 \description{
 This data set is based on species in the North Sea (Blanchard et al.).
 It is a data.frame that contains all the necessary information to be used by the
@@ -27,4 +24,3 @@ It is a data.frame that contains all the necessary information to be used by the
 As there is no gear column, each species is assumed to be fished by a
 separate gear.
 }
-\keyword{datasets}

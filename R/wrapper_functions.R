@@ -927,10 +927,10 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
             stop("You can not add species that are already there.")
         }
         # calculate h if it is missing
-        if (!hasName(species_params, "h") || is.na(species_params$h)) {
+        if (!("h" %in% names(species_params)) || is.na(species_params$h)) {
             message("Note: \tNo h column in new species data frame so using f0 and k_vb to
                 calculate it.")
-            if(!hasName(species_params, "k_vb")) {
+            if (!("k_vb" %in% names(species_params)))  {
                 stop("\t\tExcept I can't because there is no k_vb column in the new species data frame")
             }
             fc <- 0.2/species_params$alpha
@@ -939,13 +939,13 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         }
         
         # calculate ks if it is missing
-        if (!hasName(species_params, "ks") || is.na(species_params$ks)){
+        if (!("ks" %in% names(species_params)) || is.na(species_params$ks)){
             message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
             species_params$ks <- 0.2*species_params$h # mizer's default setting
         }
         
         # calculate gamma if it is missing
-        if (!hasName(species_params, "gamma") || is.na(species_params$gamma)){
+        if (!("gamma" %in% names(species_params)) || is.na(species_params$gamma)){
             message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
             ae <- sqrt(2*pi) * species_params$sigma * 
                 species_params$beta^(params@lambda-2) * 
