@@ -256,21 +256,21 @@ ui <- fluidPage(
                                 value=0.0015, min=0.00005, max=0.005),
                     sliderInput("h_hake", "max feeding rate",
                                 value=20, min=10, max=100, step=2),
-                         plotOutput("plotGrowthCurveHake")
+                    plotOutput("plotGrowthCurveHake")
                 ),
                 tabPanel("Gear",
                     sliderInput("effort_new", "Effort",
                                 value=0.4, min=0.3, max=0.5),
                     h1("Hake selectivity"),
                     sliderInput("l50_hake", "L50",
-                                value=l50["hake_old"], min=12, max=24),
+                                value=16.6, min=12, max=24),
                     sliderInput("l25_hake", "L25",
-                                value=l25["hake_old"], min=12, max=24),
+                                value=16.1, min=12, max=24),
                     h1("Mullet selectivity"),
                     sliderInput("l50_mullet", "L50",
-                                value=l50["mullet_old"], min=12, max=24),
+                                value=15.5, min=12, max=24),
                     sliderInput("l25_mullet", "L25",
-                                value=l25["mullet_old"], min=12, max=24)
+                                value=13.2, min=12, max=24)
                 )
             )
         ),  # endsidebarpanel
