@@ -24,7 +24,8 @@
 #' @import plyr ggplot2 methods
 #' @importFrom reshape2 melt
 #' @importFrom stats fft mvfft lm
-#' @importFrom utils hasName
+#' @importFrom deSolve ode
+#' @importFrom progress progress_bar
 #'
 #' @docType package
 #' @name mizer

@@ -18,13 +18,9 @@
 \source{
 {Blanchard et al.}
 }
-\usage{
-NS_species_params_gears
-}
 \description{
 This data set is based on species in the North Sea (Blanchard et al.).
 It is similar to the data set \code{NS_species_params} except that
 this one has an additional column specifying the fishing gear that
 operates on each species.
 }
-\keyword{datasets}
