@@ -320,3 +320,7 @@ ui <- fluidPage(
 )
 
 shinyApp(ui = ui, server = server) # this launches your app
+
+# added extra species to Gustav's multispecies app, that currently
+#looks just like the jack mackerel. The next goals will be to understand
+#more about how to use shiny, and improve the interface for setting up the new species.
