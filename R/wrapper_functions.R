@@ -801,32 +801,27 @@ retune_abundance <- function(params, retune) {
     # (sum_{i not in L} A_i*N_i(w) + sum_{i not in L} N_i(w) - sc(w))/sc(w) 
     # over w, between our limits, is minimized, where  L is the set of all
     # retuneable species.
-    L <- (1:no_sp)[retune]
+    
+    # deal with zero entries in params@sc
+    nonzero <- params@sc > 0
+    sc <- params@sc[nonzero]
     # rho is the total abundance of all the non-tunable species
-    Lcomp <- (1:no_sp)[!retune]
-    rho <- colSums(params@initial_n[Lcomp, , drop=FALSE])
-    # We solve a linear system to find the abundance multipliers.
-    # First we initialize the matrix RR and vector QQ
-    RR <- matrix(0, nrow = length(L), ncol = length(L))
-    QQ <- (1:length(L))
-    den <- params@sc ^ 2
-    # Next we fill out the values of QQ and RR
-    for (i in (1:length(L))) {
-        QQ[i] <-
-            sum((params@initial_n[L[i],] * (params@sc - rho) * 
-                     params@dw / (den))[idx_start:idx_stop])
-        for (j in (1:length(L))) {
-            RR[i, j] <-
-                sum((params@initial_n[L[i],] * params@initial_n[L[j],] * 
-                        params@dw / (den))[idx_start:idx_stop])
-        }
-    }
-    # Now we solve the linear system to find the abundance multipliers
+    rho <- colSums(params@initial_n[!retune, nonzero, drop=FALSE])
+    
+    # Use Singular Value Decomposition to find optimal abundance multipliers.
+    # See Numerical Recipes section 15.4.2
+    #
+    # Rescale by sc
+    A <- t(sweep(params@initial_n[retune, nonzero], 2, sc, "/"))
+    b <- (sc - rho) / sc
+    
+    sv <- svd(A)
+    di <- 1/sv$d  # inverse of singular values
+    di[di > 10^8] <- 0  # cut off
+    x <- sweep(sv$v, 2, di, "*") %*% t(sv$u) %*% b
     A2 <- rep(1, no_sp) 
-    A2[retune] <- solve(RR, QQ)
-    if (any(is.na(A2))) {
-        stop("Solving the linear system to find abundance multipliers failed.")
-    }
+    A2[retune] <- x
+    
     # We may have to repeat this if any of the multipliers is negative
     if (any(A2 < 0)) {
         # Set abundance of those species to tiny
