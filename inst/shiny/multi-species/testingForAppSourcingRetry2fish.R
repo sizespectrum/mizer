@@ -1,7 +1,7 @@
 
-effort <- 1
 
 source("C:/Users/user/Desktop/mizer projects/retune/mizer/inst/shiny/multi-species/ModeloMIZER_NCME_v1DirAlt.R")
+effort <- 0.6
 
 params_data <- read.csv("C:/Users/user/Desktop/mizer projects/retune/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
 
@@ -84,7 +84,7 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
     #! SSB and effort need making dynamic
   #  p <- addSpecies(p, species_params, SSB = 2800, 
    #                 effort = 0, rfac = 1.01)
-    effort <- 1
+    #effort <- 1
     p <- addSpecies(p, species_params,
                     effort = effort, rfac = 1.01)
     
@@ -123,10 +123,19 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   # make effort variable
 
 
-# Am running mariella's code and using csv to generate params information. Some values still need to be set, and 
+  p@species_params$erepro
+  plotGrowthCurves(p, species=as.character(p@species_params$species[11:18]))
+  plotGrowthCurves(p, species=as.character(p@species_params$species[12]))
+  
+  
+  # Am running mariella's code and using csv to generate params information. Some values still need to be set, and 
   # we still need to implement fishing properly. 
   
+  # decreased fishing effort to 0.6, and added growth curves
   
-# This unfished system seems unstable, but perhaps it might be improved when fishing is included
+  
+# Just pushed testingForAppSourcingRetry2fish.R This unfished system seems unstable, but is improved when fishing
+  #is included
   # This code is like testingForAppSourcingRetry.R, but we have included proper l25 and l50 values, 
-  # and are using mizer to determine the gamma.
+  # and are using mizer to determine the gamma. The system looks ok with fishing effort 0.6, but some erepro 
+  # values are off, and there are some deviations in growth rates (although nothing really far out)
