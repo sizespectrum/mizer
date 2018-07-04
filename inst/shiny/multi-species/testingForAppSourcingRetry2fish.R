@@ -17,7 +17,8 @@ l25 = l50 - log(3) * sd
 
 # changed l25[5] from 3 to 2.9
 # changed l50[2] from 2 to 1.9
-l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+01,     4.9e+01 )
+# changed l25[7] to from 4.9e+01 to 4.9e+00
+l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
 l50 <-  c(1.0e+30,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
 names(l25) <- as.character(params_data$species)
 names(l50) <- as.character(params_data$species)
@@ -139,3 +140,5 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   # This code is like testingForAppSourcingRetry.R, but we have included proper l25 and l50 values, 
   # and are using mizer to determine the gamma. The system looks ok with fishing effort 0.6, but some erepro 
   # values are off, and there are some deviations in growth rates (although nothing really far out)
+  
+  # fixed l25 that was too big
