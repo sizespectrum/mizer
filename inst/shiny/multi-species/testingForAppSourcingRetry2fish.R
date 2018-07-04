@@ -93,8 +93,8 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   }
   # # #
   
-  sim <- project(p, t_max = 10, t_save = 5, effort = effort)
-  
+  sim <- project(p, t_max = 500, t_save = 5, effort = effort)
+  #plot(sim)
   #########
   p <- sim@params
   no_sp <- length(p@species_params$species)
@@ -142,3 +142,5 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   # values are off, and there are some deviations in growth rates (although nothing really far out)
   
   # fixed l25 that was too big
+
+  #made sure initialization runs for long enough to reach a steady state in fished system.
