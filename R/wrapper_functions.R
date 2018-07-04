@@ -812,7 +812,7 @@ retune_abundance <- function(params, retune) {
     # See Numerical Recipes section 15.4.2
     #
     # Rescale by sc
-    A <- t(sweep(params@initial_n[retune, nonzero], 2, sc, "/"))
+    A <- t(sweep(params@initial_n[retune, nonzero, drop=FALSE], 2, sc, "/"))
     b <- (sc - rho) / sc
     
     sv <- svd(A)
@@ -821,11 +821,10 @@ retune_abundance <- function(params, retune) {
     x <- sweep(sv$v, 2, di, "*") %*% t(sv$u) %*% b
     A2 <- rep(1, no_sp) 
     A2[retune] <- x
-    
     # We may have to repeat this if any of the multipliers is negative
-    if (any(A2 < 0)) {
+    if (any(A2 <= 0)) {
         # Set abundance of those species to tiny
-        params@initial_n[A2 < 0, ] <- params@initial_n[A2 < 0, ] * 1e-40
+        params@initial_n[A2 <= 0, ] <- max(params@initial_n[A2 <= 0, ] * 1e-40, 1e-40)
         # and try again retuning the remaining retunable species
         retune <- retune & (A2 > 0)
         if (any(retune)) {
@@ -1068,9 +1067,14 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
             gg0 <- gg[i, p@species_params$w_min_idx[i]]
             mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
             DW <- p@dw[p@species_params$w_min_idx[i]]
-            erepro_final[i] <- p@species_params$erepro[i] *
+           if (!rdi[i]==0){
+             erepro_final[i] <- p@species_params$erepro[i] *
                 (p@initial_n[i, p@species_params$w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
+           }
+            else {
+              erepro_final[i] <- 0.1
+            }
         }
         if (is.finite(rfac)) {
             # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
