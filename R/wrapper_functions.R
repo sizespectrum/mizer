@@ -822,12 +822,12 @@ retune_abundance <- function(params, retune) {
     A2 <- rep(1, no_sp) 
     A2[retune] <- x
     
-    # We may have to repeat this if any of the multipliers is negative
-    if (any(A2 < 0)) {
-        # Set abundance of those species to tiny
-        params@initial_n[A2 < 0, ] <- params@initial_n[A2 < 0, ] * 1e-40
+    # We may have to repeat this if any of the multipliers is negative or zero
+    if (any(A2 <= 0)) {
+        # Remove those species
+        params <- removeSpecies(params, A2<=0)
         # and try again retuning the remaining retunable species
-        retune <- retune & (A2 > 0)
+        retune <- retune[A2 > 0]
         if (any(retune)) {
             params <- retune_abundance(params, retune)
         } else {
@@ -839,9 +839,82 @@ retune_abundance <- function(params, retune) {
         # update SSB
         params@A <- params@A * A2
     }
+    # Remove low abundance background species
+    # TODO: this could be vectorised
+    for (i in 1:no_sp) {
+        # index of maturity size of this species
+        w_mat_idx <- which(params@w == params@species_params$w_mat[i])
+        # community abundance at this species' maturity size
+        community <- params@kappa * params@species_params$w_mat[i]^(-params@lambda)
+        # If species abundance at maturity is less than 1% of community 
+        # abundance at that weight, then remove the species.
+        if (params@initial_n[w_mat_idx] < community/100) {
+            params <- removeSpecies(params, i)
+        }
+    }
     return(params)
 }
 
+#### removeSpecies ####
+#' Remove species from an ecosystem
+#' 
+#' This method simply removes all entries from the MizerParams object that 
+#' refer to the selected species. It does not recalculate the initial 
+#' abundances.
+#' 
+#' @param params A mizer params object for the original system.
+#' @param species A vector of species names or species indices of the species 
+#'                to be deleted or a boolean vector indicating for each species 
+#'                whether it is to be removed (TRUE) or not.
+#' 
+#' @return An object of type \linkS4class{MizerParams}
+#' @export
+setGeneric('removeSpecies', function(params, species, ...)
+    standardGeneric('removeSpecies'))
+
+#' Remove species from a \code{MizerParams} object.
+#' @rdname removeSpecies
+setMethod('removeSpecies', signature(params = 'MizerParams'),
+    function(params, species, ...) {
+        no_sp <- length(params@species_params$species)
+        if (is.logical(species)) {
+            if (length(species) != no_sp) {
+                stop("The boolean species argument has the wrong length")
+            }
+            remove <- species
+        } else if (is.numeric(species)) {
+            if (!all(species %in$ 1:no_sp)) {
+                stop("The numeric species argument does not match actual species indices")
+            }
+            remove <- rep(FALSE, no_sp)
+            remove[species] <- TRUE
+        } else {
+            remove <- params@species_params$species %in% species
+            if (length(remove) == 0) {
+                warning("The species argument matches none of the species in the params object")
+                return(params)
+            }
+        }
+        keep <- !remove
+        p <- params
+        p@psi <- p@psi[keep, , drop=FALSE]
+        p@initial_n <- p@initial_n[keep, , drop=FALSE]
+        p@intake_max <- p@intake_max[keep, , drop=FALSE]
+        p@search_vol <- p@search_vol[keep, , drop=FALSE]
+        p@activity <- p@activity[keep, , drop=FALSE]
+        p@std_metab <- p@std_metab[keep, , drop=FALSE]
+        p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop=FALSE]
+        p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop=FALSE]
+        p@mu_b <- p@mu_b[keep, , drop=FALSE]
+        p@species_params <- p@species_params[keep, , drop=FALSE]
+        p@interaction <- p@interaction[keep, keep, drop=FALSE]
+        p@selectivity <- p@selectivity[, keep, , drop=FALSE]
+        p@catchability <- p@catchability[, keep, drop=FALSE]
+        p@A <- p@A[keep]
+        
+        return(p)
+    }
+)
 
 #### addSpecies ####
 #' Add more species into an ecosystem with background species.
@@ -1057,6 +1130,8 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         largest_back_idx <- which.max(p@species_params$w_inf[retune])
         retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
+        
+        
         
         # Retune the values of erepro, so that we are at steady state.
         # First get death and growth rates
