@@ -787,9 +787,13 @@ set_scaling_model <- function(no_sp = 11,
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
 retune_abundance <- function(params, retune) {
-    no_sp <- length(params@species_params$w_inf)  # Number of species
+    no_sp <- length(params@species_params$species)  # Number of species
     if (length(retune) != no_sp) {
         stop("retune argument has the wrong length")
+    }
+    if (!any(retune)) {
+        # nothing to retune
+        return(params)
     }
     # We try to match the original abundance between the maturity size
     # of the smallest species and the maximum size of the largest species.
@@ -831,7 +835,7 @@ retune_abundance <- function(params, retune) {
         if (any(retune)) {
             params <- retune_abundance(params, retune)
         } else {
-            stop("Unable to retune.")
+            message("All background species have been removed.")
         }
     } else {
         # Use these abundance multipliers to rescale the abundance curves
@@ -839,19 +843,24 @@ retune_abundance <- function(params, retune) {
         # update SSB
         params@A <- params@A * A2
     }
-    # Remove low abundance background species
+    # Remove low abundance species
     # TODO: this could be vectorised
-    for (i in 1:no_sp) {
+    no_sp <- length(params@species_params$species)
+    remove <- c()
+    for (i in seq_along(params@species_params$species)) {
         # index of maturity size of this species
-        w_mat_idx <- which(params@w == params@species_params$w_mat[i])
+        w_mat_idx <- min(which(params@w > params@species_params$w_mat[i]))
         # community abundance at this species' maturity size
         community <- params@kappa * params@species_params$w_mat[i]^(-params@lambda)
-        # If species abundance at maturity is less than 1% of community 
+        # If species abundance at maturity is less than 0.1% of community 
         # abundance at that weight, then remove the species.
-        if (params@initial_n[w_mat_idx] < community/100) {
-            params <- removeSpecies(params, i)
+        if (params@initial_n[i, w_mat_idx] < community/1000) {
+            remove <- c(remove, params@species_params$species[i])
         }
     }
+    
+    params <- removeSpecies(params, remove)
+    
     return(params)
 }
 
@@ -863,7 +872,7 @@ retune_abundance <- function(params, retune) {
 #' abundances.
 #' 
 #' @param params A mizer params object for the original system.
-#' @param species A vector of species names or species indices of the species 
+#' @param species A vector of the names of the species 
 #'                to be deleted or a boolean vector indicating for each species 
 #'                whether it is to be removed (TRUE) or not.
 #' 
@@ -882,12 +891,6 @@ setMethod('removeSpecies', signature(params = 'MizerParams'),
                 stop("The boolean species argument has the wrong length")
             }
             remove <- species
-        } else if (is.numeric(species)) {
-            if (!all(species %in$ 1:no_sp)) {
-                stop("The numeric species argument does not match actual species indices")
-            }
-            remove <- rep(FALSE, no_sp)
-            remove[species] <- TRUE
         } else {
             remove <- params@species_params$species %in% species
             if (length(remove) == 0) {
@@ -1130,7 +1133,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         largest_back_idx <- which.max(p@species_params$w_inf[retune])
         retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
-        
+        no_sp <- length(p@species_params$species)
         
         
         # Retune the values of erepro, so that we are at steady state.
