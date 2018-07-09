@@ -45,11 +45,42 @@ for (i in (1:no_sp)) {
 }
 
 # Run to steady state
-p <- steady(p, effort = effort, t_max = 100, plot = TRUE)
+p <- steady(p, effort = effort, t_max = 40, plot = TRUE)
 
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
 
 p@species_params$erepro
 plotGrowthCurves(p, species="Sardine")
-  
+
+# Now change one of the parameters
+
+p@species_params["Sardine", "gamma"] <- 
+    p@species_params["Sardine", "gamma"] * 1.1
+
+pc <- MizerParams(
+    p@species_params,
+    p = p@p,
+    n = p@n,
+    q = p@q,
+    lambda = p@lambda,
+    f0 = p@f0,
+    kappa = p@kappa,
+    min_w = min(p@w),
+    max_w = max(p@w),
+    no_w = length(p@w),
+    min_w_pp = min(p@w_full),
+    w_pp_cutoff = max(p@w_full),
+    r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
+)
+pc@linetype <- p@linetype
+pc@linecolour <- p@linecolour
+pc@A <- p@A
+pc@sc <- p@sc
+pc@cc_pp <- p@cc_pp
+pc@mu_b <- p@mu_b
+
+pc@initial_n <- p@initial_n
+pc@initial_n_pp <- p@initial_n_pp
+# Run to steady state
+p <- steady(pc, effort = effort, t_max = 10, plot = TRUE)
