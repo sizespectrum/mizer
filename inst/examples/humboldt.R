@@ -9,15 +9,13 @@ names(l25) <- as.character(params_data$species)
 names(l50) <- as.character(params_data$species)
 
 p <- setBackground(
-    set_scaling_model(
+    set_scaling_model(min_w_pp = 1e-12,
         no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
         min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
         knife_edge_size = Inf)
 )
-plotSpectra(p)
 
-pa <- c()
-for (i in (1:no_sp)) {
+for (i in (2:no_sp)) {
     a_m <- params_data$a2[i]
     b_m <- params_data$b2[i]
     L_inf_m <- params_data$Linf[i]
@@ -42,40 +40,11 @@ for (i in (1:no_sp)) {
         b = b_m
     )
 
-    p <- addSpecies(p, species_params, effort = effort)
-    
-    # Run to steady state
-    t_max = 50
-    # Force the recruitment to stay at this level
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
-    p@srr <- function(rdi, species_params) {rdd}
-    sim_old <- project(p, t_max = t_max, t_save = 50, effort = effort)
-    # Restore original stock-recruitment relationship
-    p@srr <- params@srr
-    plotBiomass(sim_old)
-    
-    no_sp <- length(p@species_params$species)
-    no_t <- dim(sim_old@n)[1]
-    p@initial_n <- sim_old@n[no_t, , ]
-    p@initial_n_pp <- sim_old@n_pp[no_t, ]
-    
-    # Retune the values of erepro so that we get the correct level of
-    # recruitment
-    mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
-    # TODO: vectorise this
-    for (i in (1:no_sp)) {
-        gg0 <- gg[i, p@species_params$w_min_idx[i]]
-        mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-        DW <- p@dw[p@species_params$w_min_idx[i]]
-        p@species_params$erepro[i] <- p@species_params$erepro[i] *
-            (p@initial_n[i, p@species_params$w_min_idx[i]] *
-                 (gg0 + DW * mumu0)) / rdd[i]
-    }
-    #p <- steady(p, effort = effort, t_max = 10)
-    pa <- c(p, pa)
+    p <- addSpecies(p, species_params, effort = effort, rfac=Inf)
 }
+
+# Run to steady state
+p <- steady(p, effort = effort, t_max = 100, plot = TRUE)
 
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
