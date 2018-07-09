@@ -1082,7 +1082,8 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         p@psi[1:(new_sp - 1), ] <- params@psi
         p@sc <- params@sc
         p@mu_b[1:(new_sp - 1), ] <- params@mu_b
-        p@mu_b[new_sp, ] <- params@mu_b[1, ]
+        p@mu_b[new_sp, ] <- params@mu_b[1, ]  # NOTE: we assume same
+                                              # background death for all species
         p@srr <- params@srr
         
         # Turn off self-interaction of the new species, so we can determine the
@@ -1135,8 +1136,6 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         # First identify the retunable species. These are all background
         # species except the largest one
         retune <- is.na(p@A)
-        largest_back_idx <- which.max(p@species_params$w_inf[retune])
-        retune[largest_back_idx] <- FALSE
         p <- retune_abundance(p, retune)
         no_sp <- length(p@species_params$species)
         
