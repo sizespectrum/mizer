@@ -4,18 +4,16 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, rfac = Inf, effort = 0)
+steady(params, effort = 0, t_max = 50)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{rfac}{A number that determines the strength of the non-linearity in
-the Beverton-Holt stock-recruitment relationship. The maximal recruitment
-will be set to rfac times the normal steady-state recruitment.
-Default value is 10.}
-
 \item{effort}{The fishing effort. Default is 0}
 }
 \description{
-Tune params object to be at steady state
+This is done by running the dynamics for a specified number of years
+while keeping recruitment constant to reach steady state. Then
+the reproductive efficiencies are retuned to achieve that level of
+recruitment.
 }
