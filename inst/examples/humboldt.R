@@ -1,5 +1,5 @@
 params_data <- read.csv(system.file("extdata", "speciesNCME_edited2.csv", package = "mizer"))
-effort <- 0.6
+effort <- 1.4
 
 no_sp <- dim(params_data)[1]
 
@@ -12,10 +12,11 @@ p <- setBackground(
     set_scaling_model(min_w_pp = 1e-12,
         no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
         min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
+        lambda = 2.12,
         knife_edge_size = Inf)
 )
 
-for (i in (2:no_sp)) {
+for (i in (1:no_sp)) {
     a_m <- params_data$a2[i]
     b_m <- params_data$b2[i]
     L_inf_m <- params_data$Linf[i]
@@ -50,6 +51,5 @@ sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
 
 p@species_params$erepro
-plotGrowthCurves(p, species=as.character(p@species_params$species[11:18]))
-plotGrowthCurves(p, species=as.character(p@species_params$species[12]))
+plotGrowthCurves(p, species="Sardine")
   
