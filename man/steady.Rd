@@ -4,12 +4,17 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 0, t_max = 50)
+steady(params, effort = 0, t_max = 50, plot = FALSE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{effort}{The fishing effort. Default is 0}
+
+\item{t_max}{The number of years to run the simulation. Default is 50.}
+
+\item{plot}{Boolean. If true then a plot of the change of biomass during
+the simulation is shown. Default FALSE}
 }
 \description{
 This is done by running the dynamics for a specified number of years

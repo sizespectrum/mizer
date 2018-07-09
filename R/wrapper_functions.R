@@ -1225,20 +1225,31 @@ setMethod('setBackground', signature(object = 'MizerSim'),
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort. Default is 0
+#' @param t_max The number of years to run the simulation. Default is 50.
+#' @param plot Boolean. If true then a plot of the change of biomass during
+#'             the simulation is shown. Default FALSE
 #' @export
-steady <- function(params, effort = 0, t_max = 50) {
+steady <- function(params, effort = 0, t_max = 50, plot = FALSE) {
     p <- params
+    # Do not bother saving multiple time points unless we are asked to 
+    # produce plot, in which case save about 200
+    t_save <- t_max
+    if (plot) {
+        # the following ensures that t_save is a multiple of dt=0.1
+        t_save <- round(t_max/20)/10
+    }
+    
     # Force the recruitment to stay at this level
     rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
     p@srr <- function(rdi, species_params) {rdd}
-    sim_old <- project(p, t_max = t_max, t_save = 5, effort = effort)
+    sim <- project(p, t_max = t_max, t_save = 5, effort = effort)
     # Restore original stock-recruitment relationship
     p@srr <- params@srr
     
     no_sp <- length(p@species_params$species)
-    no_t <- dim(sim_old@n)[1]
-    p@initial_n <- sim_old@n[no_t, , ]
-    p@initial_n_pp <- sim_old@n_pp[no_t, ]
+    no_t <- dim(sim@n)[1]
+    p@initial_n <- sim@n[no_t, , ]
+    p@initial_n_pp <- sim@n_pp[no_t, ]
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
@@ -1253,6 +1264,10 @@ steady <- function(params, effort = 0, t_max = 50) {
         p@species_params$erepro[i] <- p@species_params$erepro[i] *
             (p@initial_n[i, p@species_params$w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdd[i]
+    }
+    
+    if (plot) {
+        plotBiomass(sim)
     }
     return(p)
 }
