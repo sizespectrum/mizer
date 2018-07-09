@@ -1236,13 +1236,13 @@ steady <- function(params, effort = 0, t_max = 50, plot = FALSE) {
     t_save <- t_max
     if (plot) {
         # the following ensures that t_save is a multiple of dt=0.1
-        t_save <- round(t_max/20)/10
+        t_save <- ceiling(t_max/20) * 0.1
     }
     
     # Force the recruitment to stay at this level
     rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
     p@srr <- function(rdi, species_params) {rdd}
-    sim <- project(p, t_max = t_max, t_save = 5, effort = effort)
+    sim <- project(p, t_max = t_max, t_save = t_save, effort = effort)
     # Restore original stock-recruitment relationship
     p@srr <- params@srr
     
