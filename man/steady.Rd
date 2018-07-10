@@ -4,7 +4,7 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 0, t_max = 50, plot = FALSE)
+steady(params, effort = 0, t_max = 50, t_per = 2, tol = 1/1000)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -13,8 +13,12 @@ steady(params, effort = 0, t_max = 50, plot = FALSE)
 
 \item{t_max}{The number of years to run the simulation. Default is 50.}
 
-\item{plot}{Boolean. If true then a plot of the change of biomass during
-the simulation is shown. Default FALSE}
+\item{t_per}{The simulation is broken up into shorter runs of t_per years,
+after each of which we check for convergence. Default value is 2}
+
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over a t_per is less than rel_tol for every background
+species. Default value is 1/1000}
 }
 \description{
 This is done by running the dynamics for a specified number of years
