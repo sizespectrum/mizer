@@ -6,8 +6,7 @@ library(ggplot2)
 # library(mizer)
 library(progress)
 
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
-
+params_data <- read.csv(system.file("extdata", "speciesNCME_edited2.csv", package = "mizer"))
 
 server <- function(input, output, session) {
     no_sp <- dim(params_data)[1]
