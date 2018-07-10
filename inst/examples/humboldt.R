@@ -45,7 +45,9 @@ for (i in (1:no_sp)) {
 }
 
 # Run to steady state
-p <- steady(p, effort = effort, t_max = 40, plot = TRUE)
+
+#p <- steady(p, effort = effort, t_max = 40, plot = TRUE)
+p <- steady(p, effort = effort, t_max = 40, plot = TRUE, stop_res = 10^(-2))
 
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)

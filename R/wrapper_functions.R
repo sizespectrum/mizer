@@ -1233,8 +1233,12 @@ setMethod('setBackground', signature(object = 'MizerSim'),
 #' @param t_max The number of years to run the simulation. Default is 50.
 #' @param plot Boolean. If true then a plot of the change of biomass during
 #'             the simulation is shown. Default FALSE
-#' @export
-steady <- function(params, effort = 0, t_max = 50, plot = FALSE) {
+#' @param t_per The simulation is broken up into shorter runs of t_per, after each of
+#' which we check for convergence. Default value is 2
+#' @export stop_res The simulation stops when the relative change in the egg production 
+#' RDI over a t_per is less than stop_res for each none background species. Default value is 1/1000
+#' 
+steady <- function(params, effort = 0, t_max = 50, plot = FALSE, t_per = 2, stop_res = 1/1000) {
     p <- params
     # Do not bother saving multiple time points unless we are asked to 
     # produce plot, in which case save about 200
@@ -1247,7 +1251,45 @@ steady <- function(params, effort = 0, t_max = 50, plot = FALSE) {
     # Force the recruitment to stay at this level
     rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
     p@srr <- function(rdi, species_params) {rdd}
-    sim <- project(p, t_max = t_max, t_save = t_save, effort = effort)
+    
+    
+    
+    
+    #sim <- project(p, t_max = t_max, t_save = t_save, effort = effort)
+    ######################
+    
+    my_n <- p@initial_n
+    my_n_pp <- p@initial_n_pp
+    old_rdi <- getRDI(p, my_n, my_n_pp)
+    # I think t_max is divisable by t_save
+    stoppedQ <- 0
+    for (ti in (1:ceiling(t_max/t_per))){
+      #sim <- project(p, t_max = t_save, t_save = t_save/10, effort = effort, initial_n = my_n, initial_n_pp = my_n_pp)
+      sim <- project(p, t_max = t_per, t_save = t_per, effort = effort, initial_n = my_n, initial_n_pp = my_n_pp)
+      my_n <- sim@n[dim(sim@n)[1],,]
+      my_n_pp <- sim@n_pp[dim(sim@n_pp)[1],]
+      new_rdi <- getRDI(p, my_n, my_n_pp)
+      deviation <- max(abs((new_rdi - old_rdi)/old_rdi)[!is.na(p@A)])
+      if (deviation< stop_res){
+        stoppedQ <- 1
+        break
+      }
+      old_rdi <- new_rdi
+      
+    }
+    if (stoppedQ==0){
+      warning(paste("Simulation run in steady() did not converge, fraction deviation = ",
+                    deviation))
+    }
+    
+    
+    
+    # still need to subset on explicit species
+    # do I want to go in increnents of t_save
+    #####################
+    
+    
+    
     # Restore original stock-recruitment relationship
     p@srr <- params@srr
     
