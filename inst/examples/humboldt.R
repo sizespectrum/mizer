@@ -47,7 +47,8 @@ for (i in (1:no_sp)) {
 # Run to steady state
 
 #p <- steady(p, effort = effort, t_max = 40, plot = TRUE)
-p <- steady(p, effort = effort, t_max = 40, plot = TRUE, stop_res = 10^(-2))
+#p <- steady(p, effort = effort, t_max = 40, plot = TRUE, stop_res = 10^(-2))
+p <- steady(p, effort = effort, t_max = 40,  stop_res = 10^(-2))
 
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
@@ -85,4 +86,5 @@ pc@mu_b <- p@mu_b
 pc@initial_n <- p@initial_n
 pc@initial_n_pp <- p@initial_n_pp
 # Run to steady state
-p <- steady(pc, effort = effort, t_max = 10, plot = TRUE)
+#p <- steady(pc, effort = effort, t_max = 10, plot = TRUE)
+p <- steady(pc, effort = effort, t_max = 10)
