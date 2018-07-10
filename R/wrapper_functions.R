@@ -1230,14 +1230,14 @@ setMethod('setBackground', signature(object = 'MizerSim'),
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort. Default is 0
-#' @param t_max The number of years to run the simulation. Default is 50.
+#' @param t_max The maximum number of years to run the simulation. Default is 50.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
-#'   after each of which we check for convergence. Default value is 2
+#'   after each of which we check for convergence. Default value is 2.
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over a t_per is less than rel_tol for every background
-#'   species. Default value is 1/1000
+#'   species. Default value is 1/100.
 #' @export
-steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 1/1000) {
+steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2)) {
     p <- params
     
     # Force the recruitment to stay at the current level

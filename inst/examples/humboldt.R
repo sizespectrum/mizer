@@ -84,4 +84,4 @@ pc@initial_n <- p@initial_n
 pc@initial_n_pp <- p@initial_n_pp
 # Run to steady state
 #p <- steady(pc, effort = effort, t_max = 10, plot = TRUE)
-p <- steady(pc, effort = effort, t_max = 10)
+p <- steady(pc, effort = effort, t_max = 20, stop_res = 10^(-2))
