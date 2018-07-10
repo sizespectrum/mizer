@@ -1234,9 +1234,9 @@ setMethod('setBackground', signature(object = 'MizerSim'),
 #' @param t_per The simulation is broken up into shorter runs of t_per, after each of
 #' which we check for convergence. Default value is 2
 #' @export stop_res The simulation stops when the relative change in the egg production 
-#' RDI over a t_per is less than stop_res for each none background species. Default value is 1/1000
+#' RDI over a t_per is less than stop_res for each none background species. Default value is 1/100
 #' 
-steady <- function(params, effort = 0, t_max = 50, t_per = 2, stop_res = 1/1000) {
+steady <- function(params, effort = 0, t_max = 50, t_per = 2, stop_res = 10^(-2)) {
     p <- params
     # Do not bother saving multiple time points unless we are asked to 
     # produce plot, in which case save about 200
