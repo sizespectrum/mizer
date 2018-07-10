@@ -4,13 +4,16 @@
 \alias{retune_abundance}
 \title{Retunes abundance of background species.}
 \usage{
-retune_abundance(params, retune)
+retune_abundance(params, retune, cutoff = 0.001)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{retune}{A boolean vector that determines whether a species can be 
 retuned or not.}
+
+\item{cutoff}{Species with an abundance at maturity size that is less than 
+cutoff times community abundance will be removed. Default 1e-3.}
 }
 \value{
 An object of type \code{MizerParams}

@@ -12,7 +12,7 @@ test_that("retune_abundance reproduces scaling model", {
     p <- set_scaling_model()
     initial_n <- p@initial_n
     p@initial_n[5, ] <- 5 * p@initial_n[5, ]
-    retune <- c(rep(TRUE, length(p@A)-1), FALSE)
+    retune <- rep(TRUE, length(p@A))
     pr <- retune_abundance(p, retune)
     expect_lt(max(abs(initial_n - pr@initial_n)), 8e-12)
 })
@@ -26,9 +26,9 @@ test_that("addSpecies works when adding a second identical species", {
     SSB <- sum(p@initial_n[5, ] * p@w * p@dw * p@psi[5, ])
     # Adding species 5 again at half its background biomass should lead two
     # two copies of the species each with half the biomass
-    pa <- addSpecies(p, species_params, SSB/2)
+    pa <- addSpecies(p, species_params, SSB = SSB/2, rfac=Inf)
     pa@initial_n[5, ] <- pa@initial_n[5, ] + pa@initial_n[no_sp+1, ]
-    expect_lt(max(abs(p@initial_n - pa@initial_n[1:no_sp, ])), 1.8)
+    expect_lt(max(abs(p@initial_n - pa@initial_n[1:no_sp, ])), 1)
     expect_lt(max(abs(p@initial_n[5,] - pa@initial_n[5, ])), 0.7)
 })
 

@@ -1,20 +1,6 @@
-getwd()
-params_data <- read.csv("NS_species_params.csv") 
 
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited_final.csv")
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
+source("C:/Users/user/Desktop/mizer projects/retune/mizer/inst/shiny/multi-species/ModeloMIZER_NCME_v1DirAlt.R")
 
-params_data$beta <- 10^params_data$log10_beta
-
-params_data$sigma <- ln(10^params_data$log10_sigma)
-
-dim(params_data)[1]
-
-
-############
-
-#params_data <- 
-#  read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")[,c(2,7,8,13,14,10,29)]
 params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
 
 no_sp <- dim(params_data)[1]
@@ -33,7 +19,8 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
                                   min_w_inf = 10, max_w_inf = 1e5,
                                   min_egg = 1e-4, min_w_mat = 10^(0.4),
                                   knife_edge_size = Inf, kappa = 10000,
-                                  lambda = 2.08, f0 = 0.6,
+                                  #lambda = 2.08, f0 = 0.6,
+                                  lambda = params@lambda, f0 = params@f0,
                                   h = 34, r_pp = 10^(-2)))
 # Choose kappa and weights properly
 # distinguish between no_sp and no_extra_sp
@@ -57,8 +44,8 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
       sigma = params_data$sigma[i],
       z0 = 0,
       #alpha = input$alpha_anchovy, # unknown, mizer default=0.6
-      alpha = 0.6, # unknown, mizer default=0.6
-      
+      #alpha = 0.6, # unknown, mizer default=0.6
+      alpha = params@species_params$alpha[i],
       erepro = 0.1, # unknown, determined later
       sel_func = "sigmoid_length",
       gear = "sigmoid_gear",
@@ -74,7 +61,10 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
       #! does not look like we have a previous value for gamma or h
       #gamma = params_data$gamma[i],
       gamma = 0.00085,
-      h = 50,
+      #! need to choose gamma better, 
+      # gamma = params@species_params$gamma[i],
+      #h = 50,
+      h = params@species_params$h[i],
       linecolour = c("darkolivegreen1", "darkolivegreen2", "darkolivegreen3", "darkolivegreen4", "darkorange", 
                      "darkorange1", "darkorange2", "darkorange3")[i],
       linetype = "solid"
@@ -116,3 +106,6 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   
   # make effort variable
 
+
+# Am running mariella's code and using csv to generate params information. Some values still need to be set, and 
+  # we still need to implement fishing properly. 

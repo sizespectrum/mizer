@@ -1,21 +1,13 @@
-getwd()
-params_data <- read.csv("NS_species_params.csv") 
 
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited_final.csv")
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
+# fill out parameter choices
+# create dropdowns for fine tuneing.
 
-params_data$beta <- 10^params_data$log10_beta
-
-params_data$sigma <- ln(10^params_data$log10_sigma)
-
-dim(params_data)[1]
+source("C:/Users/user/Desktop/mizer projects/retune/mizer/inst/shiny/multi-species/ModeloMIZER_NCME_v1DirAlt.R")
 
 
-############
+params_data <- params@species_params
+params_data2 <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
 
-#params_data <- 
-#  read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")[,c(2,7,8,13,14,10,29)]
-params_data <- read.csv("C:/Users/user/Desktop/mizer projects/scaling/mizer/inst/shiny/multi-species/speciesNCME_edited2.csv")
 
 no_sp <- dim(params_data)[1]
 #l50 <- c(12.5, 15.48, 15.48)
@@ -28,27 +20,34 @@ l25 = l50 - log(3) * sd
 
 
 # do we want to make ks variable too ?
+#! background settings on the next three lines have to be chosen
+# also h and r_pp need to be chosen
 
 p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
                                   min_w_inf = 10, max_w_inf = 1e5,
                                   min_egg = 1e-4, min_w_mat = 10^(0.4),
                                   knife_edge_size = Inf, kappa = 10000,
-                                  lambda = 2.08, f0 = 0.6,
+                                  lambda = params@lambda, f0 = params@f0,
                                   h = 34, r_pp = 10^(-2)))
 # Choose kappa and weights properly
 # distinguish between no_sp and no_extra_sp
 # are the f0, h and lambda, r_pp chen here consistent with Mariella's choices ?
   
+
+# its a bit messy at the moment but params_data2 comes from Mariella's csv file which has a and b, whereas params_data has 
+# gamma etc., from old mizer source code
+
   # # #
   for (i in (1:no_sp)){
 #for (i in (1:3)){
-    a_m <- params_data$a2[i]
-    b_m <- params_data$b2[i]
-    L_inf_m <- params_data$Linf[i]
-    L_mat <- params_data$Lmat[i]
+    a_m <- params_data2$a2[i]
+    b_m <- params_data2$b2[i]
+    L_inf_m <- params_data2$Linf[i]
+    L_mat <- params_data2$Lmat[i]
     species_params <- data.frame(
       species = as.character(params_data$species[i]),
-      w_min = params_data$Wegg[i],
+      #w_min = params_data$Wegg[i],
+      w_min = params_data$w_min[i],
       #w_inf = a_m*L_inf_m^b_m,
       w_inf = params_data$w_inf[i],
       #w_mat = a_m*L_mat^b_m,
@@ -57,7 +56,7 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
       sigma = params_data$sigma[i],
       z0 = 0,
       #alpha = input$alpha_anchovy, # unknown, mizer default=0.6
-      alpha = 0.6, # unknown, mizer default=0.6
+      alpha = params_data$alpha[i], # unknown, mizer default=0.6
       
       erepro = 0.1, # unknown, determined later
       sel_func = "sigmoid_length",
@@ -68,13 +67,15 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
       l50 = l50[i],
       k = 0,
       k_vb = params_data$k_vb[i],
-      a = a_m,
-      b = b_m,
+     #! need to put a and b back in later
+       a = a_m,
+       b = b_m,
       #gamma = input$gamma_anchovy,
       #! does not look like we have a previous value for gamma or h
-      #gamma = params_data$gamma[i],
-      gamma = 0.00085,
-      h = 50,
+      gamma = params_data$gamma[i],
+      #gamma = 0.00085,
+      #h = 50,
+      h = params_data$h[i],
       linecolour = c("darkolivegreen1", "darkolivegreen2", "darkolivegreen3", "darkolivegreen4", "darkorange", 
                      "darkorange1", "darkorange2", "darkorange3")[i],
       linetype = "solid"
@@ -115,4 +116,6 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   plot(sim)
   
   # make effort variable
+
+
 
