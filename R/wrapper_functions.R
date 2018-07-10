@@ -783,10 +783,12 @@ set_scaling_model <- function(no_sp = 11,
 #' @param params A \linkS4class{MizerParams} object
 #' @param retune A boolean vector that determines whether a species can be 
 #'   retuned or not.
+#' @param cutoff Species with an abundance at maturity size that is less than 
+#'               cutoff times community abundance will be removed. Default 1e-3.
 #'   
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
-retune_abundance <- function(params, retune) {
+retune_abundance <- function(params, retune, cutoff = 1e-3) {
     no_sp <- length(params@species_params$species)  # Number of species
     if (length(retune) != no_sp) {
         stop("retune argument has the wrong length")
@@ -850,11 +852,9 @@ retune_abundance <- function(params, retune) {
     for (i in seq_along(params@species_params$species)) {
         # index of maturity size of this species
         w_mat_idx <- min(which(params@w > params@species_params$w_mat[i]))
-        # community abundance at this species' maturity size
-        community <- params@kappa * params@species_params$w_mat[i]^(-params@lambda)
-        # If species abundance at maturity is less than 0.1% of community 
+        # If species abundance at maturity is less than cutoof * community 
         # abundance at that weight, then remove the species.
-        if (params@initial_n[i, w_mat_idx] < community/1000) {
+        if (params@initial_n[i, w_mat_idx] < params@sc[w_mat_idx] * cutoff) {
             remove <- c(remove, params@species_params$species[i])
         }
     }
