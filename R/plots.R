@@ -1058,7 +1058,7 @@ setMethod('plotGrowthCurves', signature(object = 'MizerSim'),
 )
 
 # TODO: avoid the duplication below. See how it was done with plotSpectra
-#' Plot growth curves using a \code{MizerSim} object.
+#' Plot growth curves using a \code{MizerParams} object.
 #' @rdname plotGrowthCurves
 setMethod('plotGrowthCurves', signature(object = 'MizerParams'),
     function(object, species = as.character(params@species_params$species),

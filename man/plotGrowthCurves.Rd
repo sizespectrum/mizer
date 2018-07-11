@@ -43,7 +43,7 @@ time of a simulation to calculate the size at age. If given a
 
 Plot growth curves using a \code{MizerSim} object.
 
-Plot growth curves using a \code{MizerSim} object.
+Plot growth curves using a \code{MizerParams} object.
 }
 \details{
 When the growth curve for only a single species is plotted, horizontal
