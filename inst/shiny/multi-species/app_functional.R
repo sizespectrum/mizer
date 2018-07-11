@@ -1,13 +1,10 @@
 library(shiny)
 library(ggplot2)
-library(abind)
 # # Uncomment the following 3 lines before publishing the app
 # library(devtools)
 # install_github("gustavdelius/mizer", ref="scaling")
 # library(mizer)
 library(progress)
-
-first_time <<- TRUE
 
 server <- function(input, output, session) {
     
@@ -74,6 +71,7 @@ server <- function(input, output, session) {
     # parameter value in the params object and run to steady state
     # starting at previous steady state
     observeEvent(input$sp_go, {
+        req(input$gamma, input$h)
 
         # Create a Progress object
         progress <- shiny::Progress$new(session)
@@ -82,20 +80,13 @@ server <- function(input, output, session) {
         p <- params()
         # Create updated species params data frame
         species_params <- p@species_params
-        levels(species_params$gear) <- c(levels(species_params$gear),"sigmoid_gear_Anchovy")
-        p@catchability <- rbind(p@catchability, p@catchability["sigmoid_gear",])
-        rownames(p@catchability)[3] <- "sigmoid_gear_Anchovy"
-        p@selectivity <- abind(p@selectivity, p@selectivity["sigmoid_gear",,], along = 1)
-        rownames(p@selectivity)[3] <- "sigmoid_gear_Anchovy"
-        species_params["Anchovy", "gear"]     <- "sigmoid_gear_Anchovy"
-        req(input$gamma, input$h)
         species_params[input$sp_sel, "gamma"] <- input$gamma
         species_params[input$sp_sel, "h"]     <- input$h
-        species_params[input$sp_sel, "alpha"]     <- input$alpha
-        species_params[input$sp_sel, "ks"]     <- input$ks
-        species_params[input$sp_sel, "beta"]     <- input$beta
-        species_params[input$sp_sel, "sigma"]     <- input$sigma
-        species_params[input$sp_sel, "k_vb"]     <- input$k_vb
+        species_params[input$sp_sel, "alpha"] <- input$alpha
+        species_params[input$sp_sel, "ks"]    <- input$ks
+        species_params[input$sp_sel, "beta"]  <- input$beta
+        species_params[input$sp_sel, "sigma"] <- input$sigma
+        species_params[input$sp_sel, "k_vb"]  <- input$k_vb
         species_params[input$sp_sel, "a"]     <- input$a
         species_params[input$sp_sel, "b"]     <- input$b
         # Create new params object identical to old one except for changed
@@ -157,12 +148,17 @@ server <- function(input, output, session) {
         )
         # Loop over all foreground species and add them one-by-one to the new
         # background
+        effort <- 0
+        names(effort) <- "knife_edge_gear"
+        all_efforts <- c(0, input$effort, input$Anchovy_effort)
+        names(all_efforts) <- c("knife_edge_gear", "sigmoid_gear", "sigmoid_gear_Anchovy")
         no_sp <- length(p_old@A)
         for (sp in (1:no_sp)[!is.na(p_old@A)]) {
-            #p <- addSpecies(p, p_old@species_params[sp, ],
-            #                     effort = input$effort, rfac=Inf)
-          p <- addSpecies(p, p_old@species_params[sp, ],
-                          effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, sigmoid_gear_Anchovy = input$Anchovy_effort),
+            if (!(p_old@species_params[sp, "gear"] %in% names(effort))) {
+                effort <- c(effort, all_efforts[p_old@species_params[sp, "gear"]])
+            }
+            p <- addSpecies(p, p_old@species_params[sp, ],
+                              effort = effort,
                           rfac=Inf)
         }
 

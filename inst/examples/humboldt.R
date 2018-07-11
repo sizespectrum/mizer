@@ -16,11 +16,23 @@ p <- setBackground(
         knife_edge_size = Inf)
 )
 
+
+all_efforts <- c(0, 1.4, 1.1)
+names(all_efforts) <- c("knife_edge_gear", "sigmoid_gear", "sigmoid_gear_Anchovy")
+effort <- all_efforts[1:2]
 for (i in (1:no_sp)) {
+    if (params_data$species[i] == "Anchovy") {
+        effort <- c(effort, all_efforts[3])
+    }
     a_m <- params_data$a2[i]
     b_m <- params_data$b2[i]
     L_inf_m <- params_data$Linf[i]
     L_mat <- params_data$Lmat[i]
+    if (params_data$species[i] == "Anchovy") {
+        gear <- "sigmoid_gear_Anchovy"
+    } else {
+        gear <- "sigmoid_gear"
+    }
     species_params <- data.frame(
         species = as.character(params_data$species[i]),
         w_min = params_data$Wegg[i],
@@ -32,7 +44,7 @@ for (i in (1:no_sp)) {
         alpha = 0.6,
         erepro = 0.1, # unknown, determined later
         sel_func = "sigmoid_length",
-        gear = "sigmoid_gear",
+        gear = gear,
         l25 = l25[i],
         l50 = l50[i],
         k = 0,
@@ -47,8 +59,14 @@ for (i in (1:no_sp)) {
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 100,  tol = 1e-3)
 
-saveRDS(p, "humboldt.rds")
+humboldt_params <- p
+devtools::use_data(humboldt_params)
 
+save(humboldt_params, file="humboldt_params.rda")
+data("humboldt_params")
+p <- humboldt_params
+
+effort <- 1.4
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
 
@@ -57,15 +75,19 @@ plotGrowthCurves(p, species="Sardine")
 
 # Now change one of the parameters
 
-p@species_params["Sardine", "gamma"] <- 
-    p@species_params["Sardine", "gamma"] * 1.1
-p@species_params["JMackerel", "w_mat"] <-
-    p@species_params["JMackerel", "w_mat"] * 0.9
-p@species_params["JMackerel", "w_min"] <-
-    p@species_params["JMackerel", "w_min"] * 10
+species_params <- p@species_params
+
+species_params["Sardine", "gamma"] <- 
+    species_params["Sardine", "gamma"] * 1.1
+species_params["JMackerel", "w_mat"] <-
+    species_params["JMackerel", "w_mat"] * 0.9
+species_params["JMackerel", "w_min"] <-
+    species_params["JMackerel", "w_min"] * 10
+
+effort <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, sigmoid_gear_Anchovy = 1.1)
 
 pc <- MizerParams(
-    p@species_params,
+    species_params,
     p = p@p,
     n = p@n,
     q = p@q,
@@ -93,3 +115,44 @@ p <- steady(pc, effort = effort, t_max = 20, tol = 1e-2)
 
 p@species_params$erepro
 plotSpectra(p)
+
+
+# Testing changing a general parameter
+
+p_old <- p
+
+p <- setBackground(
+    set_scaling_model(
+        #min_w_pp = input$min_w_pp, no_sp = input$no_bg_sp, no_w = 400,
+        # min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = 400,
+        # min_w_inf = 2, max_w_inf = 6e5,
+        # min_egg = 1e-4, min_w_mat = 2 / 10^0.6,
+        # lambda = input$lambda, knife_edge_size = Inf,
+        # f0 = input$f0, h = input$h_bkgd, r_pp = 10^input$log_r_pp
+        min_w_pp = 1e-12,
+        no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
+        min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
+        lambda = 2.12,
+        knife_edge_size = Inf,
+        
+    )
+)
+# Loop over all foreground species and add them one-by-one to the new
+# background
+effort <- 0
+names(effort) <- "knife_edge_gear"
+all_efforts <- c(0, 1.4, 1.1)
+names(all_efforts) <- c("knife_edge_gear", "sigmoid_gear", "sigmoid_gear_Anchovy")
+no_sp <- length(p_old@A)
+for (sp in (1:no_sp)[!is.na(p_old@A)]) {
+    if (!(p_old@species_params[sp, "gear"] %in% names(effort))) {
+        effort <- c(effort, all_efforts[p_old@species_params[sp, "gear"]])
+    }
+    p <- addSpecies(p, p_old@species_params[sp, ],
+                    effort = effort,
+                    rfac=Inf)
+}
+
+# Run to steady state
+p <- steady(p, effort = effort, 
+            t_max = 100, tol = 1e-2)
