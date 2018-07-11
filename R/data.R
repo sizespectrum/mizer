@@ -50,18 +50,13 @@ NULL
 #' The interaction coefficient between predators and preys in the North Sea.
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}
-<<<<<<< HEAD
-"inter"
+#' @docType data
+#' @name inter
+NULL
 
 #' Parameter object for Humboldt current ecosystem
 #'
 #' @format A MizerParams object
-"humboldt_params"
-||||||| merged common ancestors
-"inter"
-=======
 #' @docType data
 #' @name inter
 NULL
-# "inter"
->>>>>>> master
