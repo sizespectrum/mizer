@@ -177,7 +177,9 @@ server <- function(input, output, session) {
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        project(p(), t_max = 15, t_save = 0.1, effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, sigmoid_gear_Anchovy = input$Anchovy_effort), 
+        project(params(), t_max = 15, t_save = 0.1, 
+                effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
+                           sigmoid_gear_Anchovy = input$Anchovy_effort), 
                 shiny_progress = progress)
     })
     
@@ -187,6 +189,10 @@ server <- function(input, output, session) {
     
     output$plotSpectra <- renderPlot({
         plotSpectra(params(), total=TRUE)
+    })
+    
+    output$plotBiomass <- renderPlot({
+        plotBiomass(sim())
     })
     
     output$plot_erepro <- renderPlot({
@@ -229,7 +235,7 @@ ui <- fluidPage(
                     sliderInput("effort", "General Effort",
                                 value=1.4, min=0.3, max=2),
                     sliderInput("Anchovy_effort", "Anchovy Effort",
-                                value=1.4, min=0.3, max=2)
+                                value=1.1, min=0.3, max=2)
                 )
             )
         ),  # endsidebarpanel
@@ -238,7 +244,8 @@ ui <- fluidPage(
             plotOutput("plot_erepro", height = "150px"),
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
-                tabPanel("Growth", plotOutput("plotGrowthCurve"))
+                tabPanel("Growth", plotOutput("plotGrowthCurve")),
+                tabPanel("Biomass", plotOutput("plotBiomass"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
