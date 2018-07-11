@@ -1,8 +1,8 @@
 Package: mizer
 Title: Multi-Species sIZE Spectrum Modelling in R
 Type: Package
-Description: A set of classes and methods to set up and run multispecies, trait
-    based and community size spectrum ecological models, focussed on the marine
+Description: A set of classes and methods to set up and run multi-species, trait
+    based and community size spectrum ecological models, focused on the marine
     environment.
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
 Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
@@ -15,7 +15,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     role=c("ctb", "cre")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
-Version: 0.4
+Version: 1.0
 License: GPL-3
 Imports:
     deSolve,
@@ -28,11 +28,13 @@ Imports:
     reshape2
 LinkingTo: Rcpp
 Depends:
-    R (>= 3.4)
+    R (>= 3.1)
 Suggests:
     testthat,
     roxygen2,
-    knitr
+    knitr,
+    shiny,
+    shinyBS
 Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'

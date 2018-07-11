@@ -19,6 +19,8 @@ setBackground(object, ...)
 \item{object}{An object of class \linkS4class{MizerParams} or 
 \linkS4class{MizerSim}.}
 
+\item{...}{Other arguments (unused)}
+
 \item{species}{Name or vector of names of the species to be designated as
 background species. By default this is set to all species.}
 }

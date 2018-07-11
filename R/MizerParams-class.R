@@ -3,7 +3,7 @@
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission’s Horizon 2020 
+# Development has received funding from the European Commission's Horizon 2020 
 # Research and Innovation Programme under Grant Agreement No. 634495 
 # for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
@@ -761,11 +761,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	}
 	
 	# Store colours and linetypes in slots if contained in species parameters
-	if (hasName(object, "linetype")) {
+	if ("linetype" %in% names(object)) {
 	    linetype <- object$linetype[!is.na(object$linetype)]
 	    res@linetype[object$species[!is.na(object$linetype)]] <- linetype
 	}
-	if (hasName(object, "linecolour")) {
+	if ("linecolour" %in% names(object)) {
 	    linecolour <- object$linecolour[!is.na(object$linecolour)]
 	    res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
 	}

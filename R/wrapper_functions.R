@@ -21,7 +21,7 @@ NULL
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission’s Horizon 2020 
+# Development has received funding from the European Commission's Horizon 2020 
 # Research and Innovation Programme under Grant Agreement No. 634495 
 # for the project MINOUW (http://minouw-project.eu/).
 # Distributed under the GPL 3 or later 
@@ -936,6 +936,7 @@ setMethod('removeSpecies', signature(params = 'MizerParams'),
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
 #' @param effort Default value is 0.
+#' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
@@ -1002,10 +1003,10 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
             stop("You can not add species that are already there.")
         }
         # calculate h if it is missing
-        if (!hasName(species_params, "h") || is.na(species_params$h)) {
+        if (!("h" %in% names(species_params)) || is.na(species_params$h)) {
             message("Note: \tNo h column in new species data frame so using f0 and k_vb to
                 calculate it.")
-            if(!hasName(species_params, "k_vb")) {
+            if (!("k_vb" %in% names(species_params)))  {
                 stop("\t\tExcept I can't because there is no k_vb column in the new species data frame")
             }
             fc <- 0.2/species_params$alpha
@@ -1014,13 +1015,13 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         }
         
         # calculate ks if it is missing
-        if (!hasName(species_params, "ks") || is.na(species_params$ks)){
+        if (!("ks" %in% names(species_params)) || is.na(species_params$ks)){
             message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
             species_params$ks <- 0.2*species_params$h # mizer's default setting
         }
         
         # calculate gamma if it is missing
-        if (!hasName(species_params, "gamma") || is.na(species_params$gamma)){
+        if (!("gamma" %in% names(species_params)) || is.na(species_params$gamma)){
             message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
             ae <- sqrt(2*pi) * species_params$sigma * 
                 species_params$beta^(params@lambda-2) * 
@@ -1186,6 +1187,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
 #'   \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be designated as
 #'   background species. By default this is set to all species.
+#' @param ... Other arguments (unused)
 #' 
 #' @return An object of the same class as the \code{object} argument
 #' @export
