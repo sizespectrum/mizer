@@ -4,21 +4,22 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 0, t_max = 50, t_per = 2, tol = 1/1000)
+steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
+  shiny_progress = NULL)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{effort}{The fishing effort. Default is 0}
 
-\item{t_max}{The number of years to run the simulation. Default is 50.}
+\item{t_max}{The maximum number of years to run the simulation. Default is 50.}
 
 \item{t_per}{The simulation is broken up into shorter runs of t_per years,
-after each of which we check for convergence. Default value is 2}
+after each of which we check for convergence. Default value is 2.}
 
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over a t_per is less than rel_tol for every background
-species. Default value is 1/1000}
+species. Default value is 1/100.}
 }
 \description{
 This is done by running the dynamics for a specified number of years

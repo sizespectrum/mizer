@@ -1237,9 +1237,15 @@ setMethod('setBackground', signature(object = 'MizerSim'),
 #'   production RDI over a t_per is less than rel_tol for every background
 #'   species. Default value is 1/100.
 #' @export
-steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2)) {
+steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
+                   shiny_progress = NULL) {
     p <- params
     
+    if (hasArg(shiny_progress)) {
+        # We have been passed a shiny progress object
+        shiny_progress$set(message = "Finding steady state", value = 0)
+        proginc <- 1/ceiling(t_max/t_per)
+    }
     # Force the recruitment to stay at the current level
     rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
     p@srr <- function(rdi, species_params) {rdd}
@@ -1250,6 +1256,10 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2)) {
     for (ti in (1:ceiling(t_max/t_per))){
         sim <- project(p, t_max = t_per, t_save = t_per, effort = effort, 
                        initial_n = n, initial_n_pp = n_pp)
+        # advance shiny progress bar
+        if (hasArg(shiny_progress)) {
+            shiny_progress$inc(amount = proginc)
+        }
         n <- sim@n[dim(sim@n)[1],,]
         n_pp <- sim@n_pp[dim(sim@n_pp)[1],]
         new_rdi <- getRDI(p, n, n_pp)
@@ -1262,8 +1272,10 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2)) {
     }
     if (deviation >= tol) {
         warning(paste(
-            "Simulation run in steady() did not converge. Fractional deviation = ",
-            deviation))
+            "Simulation run in steady() did not converge after ", ti, 
+            "years. Residual relative rate of change = ", deviation))
+    } else {
+        message(paste("Steady state was reached after ", ti, "years."))
     }
     
     # Restore original stock-recruitment relationship
