@@ -45,3 +45,8 @@
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}
 "inter"
+
+#' Parameter object for Humboldt current ecosystem
+#'
+#' @format A MizerParams object
+"humboldt_params"

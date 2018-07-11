@@ -45,7 +45,9 @@ for (i in (1:no_sp)) {
 }
 
 # Run to steady state
-p <- steady(p, effort = effort, t_max = 100,  tol = 1e-2)
+p <- steady(p, effort = effort, t_max = 100,  tol = 1e-3)
+
+saveRDS(p, "humboldt.rds")
 
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plot(sim)
@@ -57,6 +59,10 @@ plotGrowthCurves(p, species="Sardine")
 
 p@species_params["Sardine", "gamma"] <- 
     p@species_params["Sardine", "gamma"] * 1.1
+p@species_params["JMackerel", "w_mat"] <-
+    p@species_params["JMackerel", "w_mat"] * 0.9
+p@species_params["JMackerel", "w_min"] <-
+    p@species_params["JMackerel", "w_min"] * 10
 
 pc <- MizerParams(
     p@species_params,
@@ -83,5 +89,7 @@ pc@mu_b <- p@mu_b
 pc@initial_n <- p@initial_n
 pc@initial_n_pp <- p@initial_n_pp
 # Run to steady state
-#p <- steady(pc, effort = effort, t_max = 10, plot = TRUE)
-p <- steady(pc, effort = effort, t_max = 20, stop_res = 10^(-2))
+p <- steady(pc, effort = effort, t_max = 20, tol = 1e-2)
+
+p@species_params$erepro
+plotSpectra(p)
