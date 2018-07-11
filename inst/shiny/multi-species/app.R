@@ -6,101 +6,140 @@ library(ggplot2)
 # library(mizer)
 library(progress)
 
+first_time <<- TRUE
+
 server <- function(input, output, session) {
     
-    params_data <- read.csv(system.file("extdata", "speciesNCME_edited2.csv", package = "mizer"))
+    ## Load params object and store it as a reactive value
+    data("humboldt_params")
+    params <- reactiveVal()
+    params(humboldt_params)
+    
+    ## Create dynamic ui for species parameters
+    output$sp_sel <- renderUI({
+        p <- isolate(params())
+        species <- as.character(p@species_params$species[!is.na(p@A)])
+        selectInput("sp_sel", "Species:", species) 
+    })
+    output$params_sliders <- renderUI({
+        req(input$sp_sel)
+        sp <- params()@species_params[input$sp_sel, ]
+        list(numericInput("gamma", "Predation rate coefficient gamma",
+                          value = sp$gamma,
+                          min = sp$gamma/10,
+                          max = sp$gamma*2,
+                          step = 1),
+             numericInput("h", "max feeding rate h",
+                          value = sp$h,
+                          min = sp$h/10,
+                          max = sp$h*2)
+             )
+    })
+    
+    ## When a species parameter input is changed, only change that
+    # parameter value in the params object and run to steady state
+    # starting at previous steady state
+    observeEvent(input$sp_go, {
 
-    no_sp <- dim(params_data)[1]
-    
-    l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
-    l50 <-  c(1.1e+29,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
-    names(l25) <- as.character(params_data$species)
-    names(l50) <- as.character(params_data$species)
-    
-    effort <- 1.4
-    
-    p_bg  <- reactive({
-        setBackground(
+        # Create a Progress object
+        progress <- shiny::Progress$new(session)
+        on.exit(progress$close())
+
+        p <- params()
+        # Create updated species params data frame
+        species_params <- p@species_params
+        req(input$gamma, input$h)
+        species_params[input$sp_sel, "gamma"] <- input$gamma
+        species_params[input$sp_sel, "h"]     <- input$h
+        # Create new params object identical to old one except for changed
+        # species params
+        pc <- MizerParams(
+            species_params,
+            p = p@p,
+            n = p@n,
+            q = p@q,
+            lambda = p@lambda,
+            f0 = p@f0,
+            kappa = p@kappa,
+            min_w = min(p@w),
+            max_w = max(p@w),
+            no_w = length(p@w),
+            min_w_pp = min(p@w_full),
+            w_pp_cutoff = max(p@w_full),
+            r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
+        )
+        pc@linetype <- p@linetype
+        pc@linecolour <- p@linecolour
+        pc@A <- p@A
+        pc@sc <- p@sc
+        pc@cc_pp <- p@cc_pp
+        pc@mu_b <- p@mu_b
+
+        pc@initial_n <- p@initial_n
+        pc@initial_n_pp <- p@initial_n_pp
+
+        # Run to steady state
+        pc <- steady(pc, effort = input$effort, t_max = 100, tol = 1e-2,
+                     shiny_progress = progress)
+        # Update the reactive params object
+        params(pc)
+    })
+
+    ## If a general parameter changes the entire params object is recalculated
+    # from scratch
+    observeEvent(input$bg_go, {
+
+        # Create a Progress object
+        progress <- shiny::Progress$new(session)
+        on.exit(progress$close())
+
+        p_old <- params()
+
+        p <- setBackground(
             set_scaling_model(
-                min_w_pp = 1e-12, no_sp = 10, no_w = 400, 
+                min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = 400,
                 min_w_inf = 2, max_w_inf = 6e5,
-                min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
-                lambda = 2.12, knife_edge_size = Inf
+                min_egg = 1e-4, min_w_mat = 2 / 10^0.6,
+                lambda = input$lambda, knife_edge_size = Inf,
+                f0 = input$f0, h = input$h_bkgd, r_pp = 10^input$log_r_pp
             )
         )
-    })
-    
-    p <- reactive({
-        p <- p_bg()
-        for (i in (1:no_sp)) {
-            a_m <- params_data$a2[i]
-            b_m <- params_data$b2[i]
-            L_inf_m <- params_data$Linf[i]
-            L_mat <- params_data$Lmat[i]
-            species_params <- data.frame(
-                species = as.character(params_data$species[i]),
-                w_min = params_data$Wegg[i],
-                w_inf = params_data$w_inf[i],
-                w_mat = params_data$w_mat[i],
-                beta = params_data$beta[i],
-                sigma = log(params_data$sigma[i]),
-                z0 = 0,
-                alpha = 0.6,
-                erepro = 0.1, # unknown, determined later
-                sel_func = "sigmoid_length",
-                gear = "sigmoid_gear",
-                l25 = l25[i],
-                l50 = l50[i],
-                k = 0,
-                k_vb = params_data$k_vb[i],
-                a = a_m,
-                b = b_m
-            )
-            
-            p <- addSpecies(p, species_params, effort = effort, rfac=Inf)
+        # Loop over all foreground species and add them one-by-one to the new
+        # background
+        no_sp <- length(p_old@A)
+        for (sp in (1:no_sp)[!is.na(p_old@A)]) {
+            p <- addSpecies(p, p_old@species_params[sp, ],
+                                 effort = input$effort, rfac=Inf)
         }
-        p
+
+        # Run to steady state
+        p <- steady(p, effort = input$effort, t_max = 100, tol = 1e-2,
+                    shiny_progress = progress)
+        # Update the reactive params object
+        params(p)
     })
     
-    p_steady <- reactive({
+    # Run a simulation
+    sim <- reactive({
+        
         # Create a Progress object
         progress <- shiny::Progress$new(session)
         on.exit(progress$close())
         
-        steady(p(), effort = effort, t_max = 100, tol = 1e-2)
-    })
-    
-    s <- reactive({
-        
-        # Create a Progress object
-        progress <- shiny::Progress$new(session)
-        on.exit(progress$close())
-        
-        project(p, t_max = 15, t_save = 0.1, effort = input$effort, 
+        project(p(), t_max = 15, t_save = 0.1, effort = input$effort, 
                 shiny_progress = progress)
     })
     
-    output$params_sliders <- renderUI({
-        sp <- p()@species_params[input$species_sel, ]
-        list(sliderInput("gamma", "Predation rate coefficient gamma",
-                    value = sp$gamma, 
-                    min = sp$gamma/10, 
-                    max = sp$gamma*2),
-        sliderInput("h", "max feeding rate h",
-                    value = sp$h, 
-                    min = sp$h/10, 
-                    max = sp$h*2))
-    })
-    output$species_sel <- renderUI({
-        selectInput("species_sel", "Species:", as.character(params_data$species)) 
+    output$plotGrowthCurve <- renderPlot({
+        plotGrowthCurves(params(), species = input$sp_sel)
     })
     
-    output$plotGrowthCurve <- renderPlot({
-        plotGrowthCurves(p_steady(), species=input$species_sel)
+    output$plotSpectra <- renderPlot({
+        plotSpectra(params(), total=TRUE)
     })
     
     output$plot_erepro <- renderPlot({
-        ggplot(p_steady()@species_params, aes(x = species, y = erepro)) + 
+        ggplot(params()@species_params, aes(x = species, y = erepro)) + 
             geom_col() + geom_hline(yintercept = 1, color="red")
     })
 
@@ -115,28 +154,27 @@ ui <- fluidPage(
         
         sidebarPanel(
             tabsetPanel(
+                tabPanel("Species",
+                    uiOutput("sp_sel"),
+                    actionButton("sp_go", "Go"),
+                    uiOutput("params_sliders")
+                ),
                 tabPanel("General",
-                    sliderInput("lambda", "Sheldon exponent",
-                                value=2.08, min=1.9, max=2.2, step=0.005),
+                    actionButton("bg_go", "Go"),
+                    numericInput("lambda", "Sheldon exponent",
+                                value=2.12, min=1.9, max=2.2, step=0.005),
                     sliderInput("f0", "Feeding level",
                                 value=0.6, min=0, max=1),
-                    sliderInput("h", "max feeding rate",
-                                value=34, min=10, max=100, step=2),
+                    sliderInput("h_bkgd", "max feeding rate",
+                                value=30, min=10, max=100, step=2),
                     sliderInput("log_r_pp", "log10 Plankton replenishment rate",
-                                value=-2, min=-4, max=0),
-                    sliderInput("effort", "Fishing effort",
-                                value=0.4, min=0, max=2, step=0.1),
-                    sliderInput("no_sp", "Number of species",
+                                value=-1, min=-4, max=0),
+                    sliderInput("no_bg_sp", "Number of background species",
                                 value=10, min=4, max=20, step=1, round = TRUE)
                 ),
-                tabPanel("Species",
-                    uiOutput("species_sel"),
-                    uiOutput("params_sliders")
-                    #plotOutput("plotGrowthCurve")
-                ),
-                tabPanel("Gear",
+                tabPanel("Fishing",
                     sliderInput("effort", "Effort",
-                                value=1.4, min=0.3, max=0.5)
+                                value=1.4, min=0.3, max=2)
                 )
             )
         ),  # endsidebarpanel
@@ -144,10 +182,8 @@ ui <- fluidPage(
         mainPanel(
             plotOutput("plot_erepro", height = "150px"),
             tabsetPanel(type = "tabs",
-                tabPanel("Growth", plotOutput("plotGrowthCurve")),
-                tabPanel("Yield", plotOutput("plotYield")),
-                tabPanel("SSB", plotOutput("plotSSB")),
-                tabPanel("Total Biomass", plotOutput("plotBiomass"))
+                tabPanel("Spectra", plotOutput("plotSpectra")),
+                tabPanel("Growth", plotOutput("plotGrowthCurve"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
