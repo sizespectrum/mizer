@@ -216,6 +216,24 @@ server <- function(input, output, session) {
       lines((1:length(b))/10, b)
     })
     
+    output$plotSSBgg <- renderPlot({
+      ss <- sim()
+      pp <- ss@params
+      b <- getSSB(ss)[, "Anchovy"]
+      
+      b_df <- data.frame(
+        "Year" = (1:length(b))/10,
+        "Species" = rep("Anchovy",length(b)),
+        "SSB" = b,
+        "Gear" = rep("sigmoid_gear_Anchovy",length(b))
+      )
+      
+      ggplot(b_df) + 
+            geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear))
+      
+     
+    })
+    
     
     #output$plotSSB <- renderPlot({
     #  b <- getSSB(sim())[, 11:12]
@@ -289,7 +307,8 @@ ui <- fluidPage(
                 tabPanel("Spectra", plotOutput("plotSpectra")),
                 tabPanel("Growth", plotOutput("plotGrowthCurve")),
                 tabPanel("Biomass", plotOutput("plotBiomass")),
-                tabPanel("SSB Anchovy", plotOutput("plotSSB"))
+                tabPanel("SSB Anchovy", plotOutput("plotSSB")),
+                tabPanel("ggplot practice", plotOutput("plotSSBgg"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
