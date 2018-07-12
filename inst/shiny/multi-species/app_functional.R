@@ -219,7 +219,8 @@ server <- function(input, output, session) {
       b <- getSSB(sim())[, "Anchovy"]
       b_new <- getSSB(sim_new())[, "Anchovy"]
       b_df <- data.frame(
-        "Year" = rep((1:length(b))/10,2),
+        #"Year" = rep((1:length(b))/10,2),
+        "Year" = rep(as.numeric(names(b)),2),
         "Species" = rep(rep("Anchovy",length(b)),2),
         "SSB" = c(b,b_new),
         "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
