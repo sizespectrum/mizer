@@ -217,21 +217,31 @@ server <- function(input, output, session) {
     })
     
     output$plotSSBgg <- renderPlot({
-      ss <- sim()
-      pp <- ss@params
-      b <- getSSB(ss)[, "Anchovy"]
       
+      ######################
+     # ss <- sim()
+     # pp <- ss@params
+    #  b <- getSSB(ss)[, "Anchovy"]
+    #  b_df <- data.frame(
+    #    "Year" = (1:length(b))/10,
+    #    "Species" = rep("Anchovy",length(b)),
+    #    "SSB" = b,
+    #    "Gear" = rep("sigmoid_gear_Anchovy",length(b))
+    #  )
+    #  ggplot(b_df) + 
+    #        geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear))
+      ###############
+     b <- getSSB(sim())[, "Anchovy"]
+      b_new <- getSSB(sim_new())[, "Anchovy"]
       b_df <- data.frame(
-        "Year" = (1:length(b))/10,
-        "Species" = rep("Anchovy",length(b)),
-        "SSB" = b,
-        "Gear" = rep("sigmoid_gear_Anchovy",length(b))
+        "Year" = rep((1:length(b))/10,2),
+        "Species" = rep(rep("Anchovy",length(b)),2),
+        "SSB" = c(b,b_new),
+        "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
       )
-      
       ggplot(b_df) + 
-            geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear))
+        geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort))
       
-     
     })
     
     
