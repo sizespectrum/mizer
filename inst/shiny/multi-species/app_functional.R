@@ -237,7 +237,7 @@ server <- function(input, output, session) {
         geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort)) +
             scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
           #  scale_colour_manual(values = params()@linecolour) +
-            scale_linetype_manual(values = c("New" = "dotted", "Default" = "solid")) +
+            scale_linetype_manual(values = c("New" = "solid", "Default" = "dotted")) +
             theme(text = element_text(size = 18))
     })
    
@@ -252,7 +252,7 @@ server <- function(input, output, session) {
         geom_line(aes(x = Year, y = Biomass, colour = Species, linetype = Effort)) +
         scale_y_continuous(name="Biomass [tonnes]", limits = c(0, NA)) +
           scale_colour_manual(values = params()@linecolour) +
-        scale_linetype_manual(values = c("New" = "dotted", "Default" = "solid")) +
+        scale_linetype_manual(values = c("New" = "solid", "Default" = "dotted")) +
         theme(text = element_text(size = 18))
     })
     
