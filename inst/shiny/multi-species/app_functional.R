@@ -209,29 +209,14 @@ server <- function(input, output, session) {
     })
     
     output$plotSSB <- renderPlot({
-      b_new <- getSSB(sim_new())[, "Anchovy"]
-      b <- getSSB(sim())[, "Anchovy"]
-      plot((1:length(b_new))/10, b_new, sub="solid => Anchovy under old effort, dashed => Anchovy under new effort",xlab ="Time",
-            ylab="SSB",type="l",lty=2)
-      lines((1:length(b))/10, b)
-    })
-    
-    output$plotSSBgg <- renderPlot({
+      #b_new <- getSSB(sim_new())[, "Anchovy"]
+      #b <- getSSB(sim())[, "Anchovy"]
+      #plot((1:length(b_new))/10, b_new, sub="solid => Anchovy under old effort, dashed => Anchovy under new effort",xlab ="Time",
+      #      ylab="SSB",type="l",lty=2)
+      #lines((1:length(b))/10, b)
       
-      ######################
-     # ss <- sim()
-     # pp <- ss@params
-    #  b <- getSSB(ss)[, "Anchovy"]
-    #  b_df <- data.frame(
-    #    "Year" = (1:length(b))/10,
-    #    "Species" = rep("Anchovy",length(b)),
-    #    "SSB" = b,
-    #    "Gear" = rep("sigmoid_gear_Anchovy",length(b))
-    #  )
-    #  ggplot(b_df) + 
-    #        geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear))
-      ###############
-     b <- getSSB(sim())[, "Anchovy"]
+      
+      b <- getSSB(sim())[, "Anchovy"]
       b_new <- getSSB(sim_new())[, "Anchovy"]
       b_df <- data.frame(
         "Year" = rep((1:length(b))/10,2),
@@ -240,27 +225,12 @@ server <- function(input, output, session) {
         "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
       )
       ggplot(b_df) + 
-        geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort))
-      
+        geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort)) +
+            scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
+          #  scale_colour_manual(values = params()@linecolour) +
+            scale_linetype_manual(values = c("New" = "dotted", "Default" = "solid")) +
+            theme(text = element_text(size = 18))
     })
-    
-    
-    #output$plotSSB <- renderPlot({
-    #  b <- getSSB(sim())[, 11:12]
-    #  bm <- reshape2::melt(b, varnames = c("Year", "Species"), 
-    #                       value.name = "SSB")
-    #  bm$Gear <- "Modified"
-    #  bm$Year <- bm$Year + 2018
-    #  bm <- rbind(bm_old, bm)
-    #  ggplot(bm) + 
-    #    geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear)) +
-    #    scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
-    #    scale_colour_manual(values = params()@linecolour) +
-    #    scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
-    #    theme(text = element_text(size = 18))
-    #})
-    
-    
     
     output$plot_erepro <- renderPlot({
         ggplot(params()@species_params, aes(x = species, y = erepro)) + 
@@ -317,8 +287,7 @@ ui <- fluidPage(
                 tabPanel("Spectra", plotOutput("plotSpectra")),
                 tabPanel("Growth", plotOutput("plotGrowthCurve")),
                 tabPanel("Biomass", plotOutput("plotBiomass")),
-                tabPanel("SSB Anchovy", plotOutput("plotSSB")),
-                tabPanel("ggplot practice", plotOutput("plotSSBgg"))
+                tabPanel("SSB Anchovy", plotOutput("plotSSB"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
