@@ -215,16 +215,24 @@ server <- function(input, output, session) {
       #      ylab="SSB",type="l",lty=2)
       #lines((1:length(b))/10, b)
       
+      # manual construction of SSB dataframe for ggplot (obselete, but I leave it i to remind)
+      #b <- getSSB(sim())[, "Anchovy"]
+      #b_new <- getSSB(sim_new())[, "Anchovy"]
+      #b_df <- data.frame(
+      #  #"Year" = rep((1:length(b))/10,2),
+      #  "Year" = rep(as.numeric(names(b)),2),
+      #  "Species" = rep(rep("Anchovy",length(b)),2),
+      #  "SSB" = c(b,b_new),
+      #  "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
+      #)
       
-      b <- getSSB(sim())[, "Anchovy"]
-      b_new <- getSSB(sim_new())[, "Anchovy"]
-      b_df <- data.frame(
-        #"Year" = rep((1:length(b))/10,2),
-        "Year" = rep(as.numeric(names(b)),2),
-        "Species" = rep(rep("Anchovy",length(b)),2),
-        "SSB" = c(b,b_new),
-        "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
-      )
+      b <- getSSBFrame(sim(), species="Anchovy")
+      b_new <- getSSBFrame(sim_new(), species="Anchovy")
+      b$Effort <- "Default"
+      b_new$Effort <- "New"
+      b_df <- rbind(b, b_new)
+      
+      
       ggplot(b_df) + 
         geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort)) +
             scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
