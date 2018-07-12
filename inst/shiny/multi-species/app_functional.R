@@ -184,7 +184,7 @@ server <- function(input, output, session) {
     })
     
     # Run a simulation with homogenous fishing efforts
-    sim_hom <- reactive({
+    sim_new <- reactive({
       
       # Create a Progress object
       progress <- shiny::Progress$new(session)
@@ -192,7 +192,7 @@ server <- function(input, output, session) {
       
       project(params(), t_max = 15, t_save = 0.1, 
               effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
-                         sigmoid_gear_Anchovy = input$effort), 
+                         sigmoid_gear_Anchovy = input$new_Anchovy_effort), 
               shiny_progress = progress)
     })
     
@@ -209,11 +209,11 @@ server <- function(input, output, session) {
     })
     
     output$plotSSB <- renderPlot({
+      b_new <- getSSB(sim_new())[, "Anchovy"]
       b <- getSSB(sim())[, "Anchovy"]
-      b_hom <- getSSB(sim_hom())[, "Anchovy"]
-      plot((1:length(b_hom))/10, b_hom, sub="solid => Anchovy under general effort, dashed => Anchovy under Anchovy_effort",xlab ="Time",
-            ylab="SSB",type="l")
-      lines((1:length(b))/10, b, lty=2)
+      plot((1:length(b_new))/10, b_new, sub="solid => Anchovy under old effort, dashed => Anchovy under new effort",xlab ="Time",
+            ylab="SSB",type="l",lty=2)
+      lines((1:length(b))/10, b)
     })
     
     
@@ -270,11 +270,15 @@ ui <- fluidPage(
                     numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
                                 value=1e-12,  step=1e-13)
                 ),
-                tabPanel("Fishing",
+                tabPanel("Fishing @ steady state",
                     sliderInput("effort", "General Effort",
                                 value=1.4, min=0.3, max=2),
                     sliderInput("Anchovy_effort", "Anchovy Effort",
                                 value=1.1, min=0.3, max=2)
+                ),
+                tabPanel("Changed Fishing",
+                         sliderInput("new_Anchovy_effort", "New Anchovy Effort",
+                                     value=1.1, min=0.3, max=2)
                 )
             )
         ),  # endsidebarpanel
