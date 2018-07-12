@@ -240,7 +240,24 @@ server <- function(input, output, session) {
             scale_linetype_manual(values = c("New" = "dotted", "Default" = "solid")) +
             theme(text = element_text(size = 18))
     })
+   
+    output$plotBiomasscomp <- renderPlot({
+      ss <- sim()
+      b <- getBiomassFrame(ss, species=ss@params@species_params$species[!is.na(ss@params@A)])
+      b_new <- getBiomassFrame(sim_new(), species=ss@params@species_params$species[!is.na(ss@params@A)])
+      b$Effort <- "Default"
+      b_new$Effort <- "New"
+      b_df <- rbind(b, b_new)
+      ggplot(b_df) + 
+        geom_line(aes(x = Year, y = Biomass, colour = Species, linetype = Effort)) +
+        scale_y_continuous(name="Biomass [tonnes]", limits = c(0, NA)) +
+          scale_colour_manual(values = params()@linecolour) +
+        scale_linetype_manual(values = c("New" = "dotted", "Default" = "solid")) +
+        theme(text = element_text(size = 18))
+    })
     
+    
+     
     output$plot_erepro <- renderPlot({
         ggplot(params()@species_params, aes(x = species, y = erepro)) + 
             geom_col() + geom_hline(yintercept = 1, color="red")
@@ -296,6 +313,7 @@ ui <- fluidPage(
                 tabPanel("Spectra", plotOutput("plotSpectra")),
                 tabPanel("Growth", plotOutput("plotGrowthCurve")),
                 tabPanel("Biomass", plotOutput("plotBiomass")),
+                tabPanel("Biomass (perturbed)", plotOutput("plotBiomasscomp")),
                 tabPanel("SSB Anchovy", plotOutput("plotSSB"))
             )
         )  # end mainpanel
