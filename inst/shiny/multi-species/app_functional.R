@@ -183,6 +183,19 @@ server <- function(input, output, session) {
                 shiny_progress = progress)
     })
     
+    # Run a simulation with homogenous fishing efforts
+    sim_hom <- reactive({
+      
+      # Create a Progress object
+      progress <- shiny::Progress$new(session)
+      on.exit(progress$close())
+      
+      project(params(), t_max = 15, t_save = 0.1, 
+              effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
+                         sigmoid_gear_Anchovy = input$effort), 
+              shiny_progress = progress)
+    })
+    
     output$plotGrowthCurve <- renderPlot({
         plotGrowthCurves(params(), species = input$sp_sel)
     })
@@ -194,6 +207,32 @@ server <- function(input, output, session) {
     output$plotBiomass <- renderPlot({
         plotBiomass(sim())
     })
+    
+    output$plotSSB <- renderPlot({
+      b <- getSSB(sim())[, "Anchovy"]
+      b_hom <- getSSB(sim_hom())[, "Anchovy"]
+      plot((1:length(b_hom))/10, b_hom, sub="solid => Anchovy under general effort, dashed => Anchovy under Anchovy_effort",xlab ="Time",
+            ylab="SSB",type="l")
+      lines((1:length(b))/10, b, lty=2)
+    })
+    
+    
+    #output$plotSSB <- renderPlot({
+    #  b <- getSSB(sim())[, 11:12]
+    #  bm <- reshape2::melt(b, varnames = c("Year", "Species"), 
+    #                       value.name = "SSB")
+    #  bm$Gear <- "Modified"
+    #  bm$Year <- bm$Year + 2018
+    #  bm <- rbind(bm_old, bm)
+    #  ggplot(bm) + 
+    #    geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Gear)) +
+    #    scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
+    #    scale_colour_manual(values = params()@linecolour) +
+    #    scale_linetype_manual(values = c("Current" = "dotted", "Modified" = "solid")) +
+    #    theme(text = element_text(size = 18))
+    #})
+    
+    
     
     output$plot_erepro <- renderPlot({
         ggplot(params()@species_params, aes(x = species, y = erepro)) + 
@@ -245,7 +284,8 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
                 tabPanel("Spectra", plotOutput("plotSpectra")),
                 tabPanel("Growth", plotOutput("plotGrowthCurve")),
-                tabPanel("Biomass", plotOutput("plotBiomass"))
+                tabPanel("Biomass", plotOutput("plotBiomass")),
+                tabPanel("SSB Anchovy", plotOutput("plotSSB"))
             )
         )  # end mainpanel
     )  # end sidebarlayout
