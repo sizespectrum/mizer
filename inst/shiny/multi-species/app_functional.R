@@ -309,13 +309,11 @@ ui <- fluidPage(
                     numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
                                 value=1e-12,  step=1e-13)
                 ),
-                tabPanel("Fishing @ steady state",
+                tabPanel("Fishing",
                     sliderInput("effort", "General Effort",
                                 value=1.4, min=0.3, max=2),
                     sliderInput("Anchovy_effort", "Anchovy Effort",
-                                value=1.1, min=0.3, max=2)
-                ),
-                tabPanel("Changed Fishing",
+                                value=1.1, min=0.3, max=2),
                          sliderInput("new_Anchovy_effort", "New Anchovy Effort",
                                      value=1.1, min=0.3, max=2)
                 ),
