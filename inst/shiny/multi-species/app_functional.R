@@ -13,6 +13,21 @@ server <- function(input, output, session) {
     params <- reactiveVal()
     params(humboldt_params)
     
+    ## Handle params object uploaded by user
+    observeEvent(input$upload, {
+        inFile <- input$upload
+        load(inFile$datapath)
+        params(humboldt_params)
+    })
+    
+    ## Prepare for download of params object
+    output$params <- downloadHandler(
+        filename = "humboldt.RData", 
+        content = function(file) {
+            humboldt_params <- params()
+            save(humboldt_params, file = file)
+        })
+    
     ## Create dynamic ui for species parameters
     output$sp_sel <- renderUI({
         p <- isolate(params())
@@ -262,13 +277,6 @@ server <- function(input, output, session) {
         ggplot(params()@species_params, aes(x = species, y = erepro)) + 
             geom_col() + geom_hline(yintercept = 1, color="red")
     })
-    
-   output$params <- downloadHandler(
-       filename = "humboldt.RData", 
-       content = function(file) {
-           p <- params()
-           save(p, file = file)
-       })
 
 } #the server
 
@@ -287,7 +295,6 @@ ui <- fluidPage(
                     uiOutput("params_sliders")
                 ),
                 tabPanel("General",
-                    downloadButton("params"),
                     actionButton("bg_go", "Go"),
                     numericInput("lambda", "Sheldon exponent",
                                 value=2.12, min=1.9, max=2.2, step=0.005),
@@ -311,6 +318,10 @@ ui <- fluidPage(
                 tabPanel("Changed Fishing",
                          sliderInput("new_Anchovy_effort", "New Anchovy Effort",
                                      value=1.1, min=0.3, max=2)
+                ),
+                tabPanel("File",
+                    downloadButton("params", "Download current params object"),
+                    fileInput("upload", "Upload new params object")
                 )
             )
         ),  # endsidebarpanel
