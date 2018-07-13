@@ -262,6 +262,13 @@ server <- function(input, output, session) {
         ggplot(params()@species_params, aes(x = species, y = erepro)) + 
             geom_col() + geom_hline(yintercept = 1, color="red")
     })
+    
+   output$params <- downloadHandler(
+       filename = "humboldt.RData", 
+       content = function(file) {
+           p <- params()
+           save(p, file = file)
+       })
 
 } #the server
 
@@ -280,6 +287,7 @@ ui <- fluidPage(
                     uiOutput("params_sliders")
                 ),
                 tabPanel("General",
+                    downloadButton("params"),
                     actionButton("bg_go", "Go"),
                     numericInput("lambda", "Sheldon exponent",
                                 value=2.12, min=1.9, max=2.2, step=0.005),
