@@ -59,7 +59,10 @@ for (i in (1:no_sp)) {
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 100,  tol = 1e-3)
 
+############### investigate how close to a power law the steady state is
 
+plot(p@w,colSums(p@initial_n)+p@initial_n_pp[p@w_full>=min(p@w)],log="xy",type="l")
+lines(p@w,p@kappa*p@w^(-p@lambda),col="red")
 
 ######### growth stuff #######################
 
