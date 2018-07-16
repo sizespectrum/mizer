@@ -59,6 +59,140 @@ for (i in (1:no_sp)) {
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 100,  tol = 1e-3)
 
+
+
+######### growth stuff #######################
+
+
+getAgesAtMaturity <- function(p){
+  no_sp <- length(p@species_params$species)
+  age_at_maturity <- rep(2,no_sp)
+  for (i in (1:no_sp)[!is.na(p@A)]){
+    age_at_maturity[i] <- -log(1-((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
+    )/p@species_params$k_vb[i]  
+  }
+  # age_at_maturity[is.na(p@A)] <- 2
+  return(age_at_maturity)
+}
+
+
+age_at_maturity <- getAgesAtMaturity(p)
+
+#((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
+
+# actually use VB to compute this
+retune_h_for_growth <- function(p,age_at_maturity){
+  q <- p
+  for (i in  (1:no_sp)[!is.na(p@A)]){
+    q@species_params$h[i] <- p@species_params$ks[i] +
+      (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
+        age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0
+      )
+  }
+  return(q)
+}
+
+
+
+retune_h_and_ks_for_growth <- function(p,age_at_maturity){
+  q <- p
+  for (i in  (1:no_sp)[!is.na(p@A)]){
+    q@species_params$h[i] <- (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
+      age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0 -0.2
+    )
+    q@species_params$k_s[i] <-0.2* q@species_params$h[i] 
+  }
+  return(q)
+}
+
+
+get_mizer_growth_rates <- function(p){
+  no_sp <- dim(p@species_params)[1]
+  
+  max_age <- 20
+  age <- seq(0, max_age, length.out = 50)
+  species <- p@species_params$species[!is.na(p@A)]
+  ws <- array(dim = c(length(species), length(age)), 
+              dimnames = list(Species = species, Age = age))
+  g <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+  
+  
+  for (j in 1:sum(!is.na(p@A))){
+    #j <- 1
+    i <- (1:no_sp)[!is.na(p@A)][j]
+    g_fn <- stats::approxfun(p@w, g[i, ])
+    myodefun <- function(t, state, parameters){
+      return(list(g_fn(state)))
+    }
+    ws[j, ] <- deSolve::ode(y = p@species_params$w_min[i], 
+                            times = age, func = myodefun)[,2]
+  }
+  X <- list(times=age,weights=ws)
+  return(X)
+}
+
+
+age_at_maturity_mizer <- function(p){
+  
+  no_sp <- dim(p@species_params)[1]
+  
+  
+  XX <- get_mizer_growth_rates(p)
+  
+  age_out <- rep(2,dim(XX$weights)[1])
+  
+  
+  for (i in 1:dim(XX$weights)[1]){
+    flip_fn <- g_fn <- stats::approxfun(XX$weights[i,], XX$times)
+    my_idx <- ((1:no_sp)[!is.na(p@A)])[i]
+    age_out[i] <- flip_fn(p@species_params$w_mat[my_idx])
+  }
+  return(age_out)
+  
+}
+
+age_at_maturity_mizer(p)
+target_ages <- getAgesAtMaturity(p)
+target_ages
+qq <- retune_h_for_growth(p,target_ages)
+qq <- steady(qq, effort = effort, 
+             t_max = 100, tol = 1e-2)
+age_at_maturity_mizer(qq)
+qqq <- retune_h_for_growth(p,2*target_ages)
+age_at_maturity_mizer(qqq)
+
+############################## although I changed the value of h of qq, why does it still give 
+# the same growth rate. I guess the object needs to be reconstructed so that the change in h takes effect.
+
+qq <- retune_h_for_growth(p,age_at_maturity)
+plotGrowthCurves(qq, species="Sardine")
+qq <- steady(qq, effort = effort, 
+             t_max = 100, tol = 1e-2)
+plotGrowthCurves(qq, species="Sardine")
+
+XX <- get_mizer_growth_rates(p)
+plot(XX$times,XX$weights[3,])
+
+
+age_at_maturity[7:length(age_at_maturity)]
+age_at_maturity_mizer(p)
+age_at_maturity_mizer(qq)
+
+# the third entries of these agree, so we have set 
+# the age at maturity to the value age_at_maturity we want, 
+# but looking at the black curve below, it appears there 
+# might be an error with the way we extracted this from VB
+
+plotGrowthCurves(qq, species="Sardine")
+
+
+
+# Need to make these plots etc. have universal format
+# need to agree with the growth rates I observe
+# need to check 
+
+###############################################
+
 humboldt_params <- p
 devtools::use_data(humboldt_params)
 
@@ -156,56 +290,4 @@ for (sp in (1:no_sp)[!is.na(p_old@A)]) {
 # Run to steady state
 p <- steady(p, effort = effort, 
             t_max = 100, tol = 1e-2)
-
-############################################################################
-
-plotGrowthCurves(p, species="Sardine")
-
-
-getAgesAtMaturity <- function(p){
-  no_sp <- length(p@species_params$species)
-  age_at_maturity <- rep(2,no_sp)
-  for (i in (1:no_sp)[!is.na(p@A)]){
-    age_at_maturity[i] <- -log(1-((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
-)/p@species_params$k_vb[i]  
-  }
- # age_at_maturity[is.na(p@A)] <- 2
-  return(age_at_maturity)
-}
-
-
-age_at_maturity <- getAgesAtMaturity(p)
-
-#((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
-
-# actually use VB to compute this
-retune_h_for_growth <- function(p,age_at_maturity){
-  q <- p
-  for (i in  (1:no_sp)[!is.na(p@A)]){
-    q@species_params$h[i] <- p@species_params$ks[i] +
-      (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
-        age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0
-      )
-  }
-  return(q)
-}
-
-
-qq <- retune_h_for_growth(p,age_at_maturity)
-plotGrowthCurves(qq, species="Sardine")
-qq <- steady(qq, effort = effort, 
-            t_max = 100, tol = 1e-2)
-plotGrowthCurves(qq, species="Sardine")
-
-
-retune_h_and_ks_for_growth <- function(p,age_at_maturity){
-  q <- p
-  for (i in  (1:no_sp)[!is.na(p@A)]){
-    q@species_params$h[i] <- (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
-        age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0 -0.2
-      )
-    q@species_params$k_s[i] <-0.2* q@species_params$h[i] 
-  }
-  return(q)
-}
 
