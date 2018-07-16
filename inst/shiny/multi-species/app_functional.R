@@ -13,6 +13,21 @@ server <- function(input, output, session) {
     params <- reactiveVal()
     params(humboldt_params)
     
+    ## Handle params object uploaded by user
+    observeEvent(input$upload, {
+        inFile <- input$upload
+        load(inFile$datapath)
+        params(humboldt_params)
+    })
+    
+    ## Prepare for download of params object
+    output$params <- downloadHandler(
+        filename = "humboldt.RData", 
+        content = function(file) {
+            humboldt_params <- params()
+            save(humboldt_params, file = file)
+        })
+    
     ## Create dynamic ui for species parameters
     output$sp_sel <- renderUI({
         p <- isolate(params())
@@ -294,15 +309,17 @@ ui <- fluidPage(
                     numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
                                 value=1e-12,  step=1e-13)
                 ),
-                tabPanel("Fishing @ steady state",
+                tabPanel("Fishing",
                     sliderInput("effort", "General Effort",
                                 value=1.4, min=0.3, max=2),
                     sliderInput("Anchovy_effort", "Anchovy Effort",
-                                value=1.1, min=0.3, max=2)
-                ),
-                tabPanel("Changed Fishing",
+                                value=1.1, min=0.3, max=2),
                          sliderInput("new_Anchovy_effort", "New Anchovy Effort",
                                      value=1.1, min=0.3, max=2)
+                ),
+                tabPanel("File",
+                    downloadButton("params", "Download current params object"),
+                    fileInput("upload", "Upload new params object")
                 )
             )
         ),  # endsidebarpanel

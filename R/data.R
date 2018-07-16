@@ -58,5 +58,5 @@ NULL
 #'
 #' @format A MizerParams object
 #' @docType data
-#' @name inter
+#' @name humboldt
 NULL
