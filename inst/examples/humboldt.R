@@ -156,3 +156,56 @@ for (sp in (1:no_sp)[!is.na(p_old@A)]) {
 # Run to steady state
 p <- steady(p, effort = effort, 
             t_max = 100, tol = 1e-2)
+
+############################################################################
+
+plotGrowthCurves(p, species="Sardine")
+
+
+getAgesAtMaturity <- function(p){
+  no_sp <- length(p@species_params$species)
+  age_at_maturity <- rep(2,no_sp)
+  for (i in (1:no_sp)[!is.na(p@A)]){
+    age_at_maturity[i] <- -log(1-((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
+)/p@species_params$k_vb[i]  
+  }
+ # age_at_maturity[is.na(p@A)] <- 2
+  return(age_at_maturity)
+}
+
+
+age_at_maturity <- getAgesAtMaturity(p)
+
+#((p@species_params$w_mat[i]/p@species_params$w_inf[i])^(1/p@species_params$b[i]))
+
+# actually use VB to compute this
+retune_h_for_growth <- function(p,age_at_maturity){
+  q <- p
+  for (i in  (1:no_sp)[!is.na(p@A)]){
+    q@species_params$h[i] <- p@species_params$ks[i] +
+      (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
+        age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0
+      )
+  }
+  return(q)
+}
+
+
+qq <- retune_h_for_growth(p,age_at_maturity)
+plotGrowthCurves(qq, species="Sardine")
+qq <- steady(qq, effort = effort, 
+            t_max = 100, tol = 1e-2)
+plotGrowthCurves(qq, species="Sardine")
+
+
+retune_h_and_ks_for_growth <- function(p,age_at_maturity){
+  q <- p
+  for (i in  (1:no_sp)[!is.na(p@A)]){
+    q@species_params$h[i] <- (p@species_params$w_mat[i]^(1-p@n) - p@species_params$w_min[i]^(1-p@n))/(
+        age_at_maturity[i]*(1-p@n)*p@species_params$alpha[i]*p@f0 -0.2
+      )
+    q@species_params$k_s[i] <-0.2* q@species_params$h[i] 
+  }
+  return(q)
+}
+
