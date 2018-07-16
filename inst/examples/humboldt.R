@@ -112,7 +112,7 @@ retune_h_and_ks_for_growth <- function(p,age_at_maturity){
 get_mizer_growth_rates <- function(p){
   no_sp <- dim(p@species_params)[1]
   
-  max_age <- 20
+  max_age <- 40
   age <- seq(0, max_age, length.out = 50)
   species <- p@species_params$species[!is.na(p@A)]
   ws <- array(dim = c(length(species), length(age)), 
