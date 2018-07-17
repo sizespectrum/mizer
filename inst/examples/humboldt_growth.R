@@ -160,3 +160,7 @@ ages_at_maturity_theory(p)
 ################################# demonstrait that we can retune h to fit
 
 ############################### make new code with ks and h inititalization
+
+
+# restarted looking at humbolt growth rates. Compared theory and practice. An interesting case is when we only 
+# have scale invariant species, here again we see deviations from the power law predictions
