@@ -722,8 +722,8 @@ set_scaling_model <- function(no_sp = 11,
     plankton_vec <- (kappa * w ^ (-lambda)) - sc
     # Cut off plankton at w_pp_cutoff
     plankton_vec[w >= w_pp_cutoff] <- 0
-    # Do not allow negative plankton abundance
-    if (any(plankton_vec < 0)) {
+    if (!perfect && any(plankton_vec < 0)) {
+        # Do not allow negative plankton abundance
         message("Note: Negative abundance values in background resource overwritten with zeros")
         plankton_vec[plankton_vec < 0] <- 0
     }
