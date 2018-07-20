@@ -605,7 +605,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     # Sorting out gamma column
     if(!("gamma" %in% colnames(object))){
         message("Note: \tNo gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        ae <- sqrt(2*pi) * object$sigma * object$beta^(lambda-2) * exp((lambda-2)^2 * object$sigma^2 / 2)
+        lm2 <- lambda - 2
+        # Below we include the factor involving pnorm to account for the cutoff
+        # of the feeding kernel at 5 sigma
+        ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
+            exp(lm2^2 * object$sigma^2 / 2) *
+            (pnorm(5 - lm2 * object$sigma) + pnorm(5 + lm2 * object$sigma) - 1)
         object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
     }
     # Sort out z0 column

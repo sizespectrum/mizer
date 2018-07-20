@@ -1,14 +1,14 @@
 context("Wrapper functions for trait and community models")
 
 test_that("scaling model is set up correctly", {
-  p <- set_scaling_model(perfect = Inf)
+  p <- set_scaling_model(perfect = TRUE)
   sim <- project(p, t_max=5, effort = 0)
   
   # Check some dimensions
   no_sp <- length(p@species_params$species)
   expect_equal(no_sp, 11)
   
-  # Check growth and death rates
+  # Check against analytic results
   sp <- 6  # check middle species
   gamma <- p@species_params$gamma[sp]
   sigma <- p@species_params$sigma[sp]
@@ -17,27 +17,39 @@ test_that("scaling model is set up correctly", {
   h <- p@species_params$h[sp]
   ks <- p@species_params$ks[sp]
   mu0 <- (1 - p@f0) * sqrt(2 * pi) * p@kappa * gamma * sigma *
-      (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
-  hbar <- alpha * h * f0 - ks
+      (beta ^ (p@n - 1)) * exp(sigma ^ 2 * (p@n - 1) ^ 2 / 2)
+  hbar <- alpha * h * p@f0 - ks
+  # Check available energy
+  ea <- getPhiPrey(p, p@initial_n, p@initial_n_pp)[sp, ]
+  lm2 <- p@lambda - 2
+  ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
+      beta^lm2 * sqrt(2 * pi) * sigma * 
+      (pnorm(5 - lm2 * sigma) + pnorm(5 + lm2 * sigma) - 1) *
+      p@w^(-lm2)
+  expect_equal(ea, ae, tolerance = 1e-15)
+  # Check feeding level
+  f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
+  names(f) <- NULL
+  expect_equal(f, rep(f[1], length(f)), tolerance = 1e-14)
   # Death rate
   mu <- getZ(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
   mumu <- mu  # To set the right names
-  mumu[] <- mu0 * w^(n-1)
-  expect_equal(mu, mumu)
+  mumu[] <- mu0 * p@w^(p@n-1)
+  expect_equal(mu, mumu, tolerance = 1e-15)
   # Growth rate
-  g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[1, ]
+  g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
   gg <- g  # To set the right names
-  gg[] <- hbar * w^n * (1-p@psi[1, ])
+  gg[] <- hbar * p@w^p@n * (1-p@psi[sp, ])
   expect_equal(g, gg)
   
   # Check that community is perfect power law
-  expect_equal(p@sc, colSums(p@initial_n))
+  expect_equal(p@sc, colSums(p@initial_n), tolerance = 1e-20)
   total <- p@initial_n_pp
   fish_idx <- (length(p@w_full)-length(p@w)+1):length(p@w_full)
   total[fish_idx] <- total[fish_idx] + p@sc
   expected <- total  # To set the names
   expected[] <- p@kappa * p@w_full ^ (-p@lambda)
-  expect_equal(total, expected)
+  expect_equal(total, expected, tolerance = 1e-20)
   
   # All erepros should be equal
   expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))
