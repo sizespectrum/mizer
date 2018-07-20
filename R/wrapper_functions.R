@@ -733,7 +733,7 @@ set_scaling_model <- function(no_sp = 11,
         plankton_vec
     initial_n_pp <- params@cc_pp
     m2_background <- getM2Background(params, initial_n, initial_n_pp)
-    params@cc_pp <- (1 + m2_background / params@rr_pp) * initial_n_pp
+    params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
 
     # Setup background death
     m2 <- getM2(params, initial_n, initial_n_pp)

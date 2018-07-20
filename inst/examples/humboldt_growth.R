@@ -164,3 +164,48 @@ ages_at_maturity_theory(p)
 
 # restarted looking at humbolt growth rates. Compared theory and practice. An interesting case is when we only 
 # have scale invariant species, here again we see deviations from the power law predictions
+
+
+m2_background <- getM2Background(params, initial_n, initial_n_pp)
+params@cc_pp <- (1 + m2_background / params@rr_pp) * initial_n_pp
+
+
+p <- setBackground(
+  set_scaling_model(min_w_pp = 1e-12,
+                    no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
+                    min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
+                    lambda = 2.12,
+                    knife_edge_size = Inf)
+)
+
+m2_background <- getM2Background(p, p@initial_n, p@initial_n_pp)
+guess_n_pp <- p@cc_pp/(1 + m2_background / p@rr_pp) 
+
+plot(p@w_full,p@initial_n_pp-guess_n_pp,log="x")
+
+
+tmp1 <- p@rr_pp*p@cc_pp/(p@rr_pp+getM2Background(p,p@initial_n,p@initial_n_pp))
+plot(p@w_full,p@initial_n_pp-tmp1,log="x")
+
+tmp2 <-p@cc_pp/(1+getM2Background(p,p@initial_n,p@initial_n_pp)/ p@rr_pp)
+plot(p@w_full,p@initial_n_pp-tmp2,log="x")
+
+plot(p@w_full[1:100],(tmp1-tmp2)[1:100],log="x",type="l")
+plot(p@w_full[1:100],p@rr_pp[1:100],log="x",type="l")
+plot(p@w_full[1:100],getM2Background(p,p@initial_n,p@initial_n_pp)[1:100],log="x",type="l")
+
+diff <- (tmp1-tmp2)
+ii <- which(diff==max(diff))
+p@rr_pp[ii]
+getM2Background(p,p@initial_n,p@initial_n_pp)[ii]
+
+diff 
+
+com <- colSums(p@initial_n) + p@initial_n_pp[p@w_full>=min(p@w)]
+plot(p@w,com-p@kappa*p@w^(-p@lambda),log="x")
+
+
+pp <- steady(p, effort = 0, t_max = 100,  tol = 1e-2)
+
+com <- colSums(pp@initial_n) + pp@initial_n_pp[pp@w_full>=min(pp@w)]
+plot(pp@w,com-pp@kappa*pp@w^(-pp@lambda),log="x")
