@@ -468,6 +468,8 @@ set_trait_model <- function(no_sp = 10,
 #' @param min_w_pp The smallest size of the background spectrum. Default value
 #'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
 #'   feeding kernel of even the smallest fish larva.
+#' @param w_pp_cutoff The largest size of the background spectrum. Default
+#'   value is max_w_inf unless \code{perfect = TRUE} when it is Inf.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param q Exponent of the search volume. Default value is 3/4 unless 
 #'   \code{lambda} is provided, in which case this argument is ignored and
@@ -494,6 +496,9 @@ set_trait_model <- function(no_sp = 10,
 #'   recruitment allowed and R is the steady-state recruitment. Thus the larger
 #'   \code{rfac} the less the impact of the non-linear stock-recruitment curve.
 #'   The default is Inf.
+#' @param perfect Boolean. Default FALSE. If TRUE then parameters are set so
+#'   that the community abundance, growth before reproduction and death are
+#'   perfect power laws.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -511,6 +516,7 @@ set_scaling_model <- function(no_sp = 11,
                               min_w_mat = 10 ^ (0.4),
                               no_w = log10(max_w_inf / min_egg) * 100 + 1,
                               min_w_pp = min_egg / (beta * exp(5 * sigma)),
+                              w_pp_cutoff = min_w_inf,
                               n = 2 / 3,
                               q = 3 / 4,
                               lambda = 2 + q - n,
@@ -525,6 +531,7 @@ set_scaling_model <- function(no_sp = 11,
                               knife_edge_size = 100,
                               gear_names = "knife_edge_gear",
                               rfac = Inf,
+                              perfect = FALSE,
                               ...) {
     if (hasArg(lambda)) {
         # The lambda argument overrules any q argument
@@ -561,6 +568,10 @@ set_scaling_model <- function(no_sp = 11,
     }
     if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
         stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
+    }
+    
+    if (perfect) {
+        w_pp_cutoff <- Inf
     }
     # Set exponents
     p <- n
@@ -709,8 +720,8 @@ set_scaling_model <- function(no_sp = 11,
     
     # Setup plankton
     plankton_vec <- (kappa * w ^ (-lambda)) - sc
-    # Cut off plankton at maximum size of smallest species
-    plankton_vec[w >= min_w_inf] <- 0
+    # Cut off plankton at w_pp_cutoff
+    plankton_vec[w >= w_pp_cutoff] <- 0
     # Do not allow negative plankton abundance
     if (any(plankton_vec < 0)) {
         message("Note: Negative abundance values in background resource overwritten with zeros")
@@ -724,7 +735,7 @@ set_scaling_model <- function(no_sp = 11,
     m2_background <- getM2Background(params, initial_n, initial_n_pp)
     params@cc_pp <- (1 + m2_background / params@rr_pp) * initial_n_pp
 
-    # Setup background death and steplike psi
+    # Setup background death
     m2 <- getM2(params, initial_n, initial_n_pp)
     for (i in 1:no_sp) {
         # The steplike psi was only needed when we wanted to use the analytic
@@ -733,10 +744,10 @@ set_scaling_model <- function(no_sp = 11,
         # params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
         # params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
-        if (any(params@mu_b[i,] < 0)) {
+        if (!perfect && any(params@mu_b[i,] < 0)) {
             message("Note: Negative background mortality rates overwritten with zeros")
+            params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
-        params@mu_b[i, params@mu_b[i,] < 0] <- 0
     }
     # Set erepro to meet boundary condition
     rdi <- getRDI(params, initial_n, initial_n_pp)
