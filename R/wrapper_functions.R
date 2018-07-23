@@ -1251,10 +1251,10 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     }
     if (deviation >= tol) {
         warning(paste(
-            "Simulation run in steady() did not converge after ", ti, 
+            "Simulation run in steady() did not converge after ", ti * t_per, 
             "years. Residual relative rate of change = ", deviation))
     } else {
-        message(paste("Steady state was reached after ", ti, "years."))
+        message(paste("Steady state was reached after ", ti * t_per, "years."))
     }
     
     # Restore original stock-recruitment relationship
