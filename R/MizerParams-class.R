@@ -15,7 +15,7 @@
 #functions a_function
 
 
-# Validity function - pretty long...
+# Validity function ---------------------------------------------------------
 # Not documented as removed later on
 valid_MizerParams <- function(object) {
 
@@ -363,7 +363,6 @@ setClass(
 )
 
 
-#### Constructors ####
 #' Constructors for objects of \code{MizerParams} class
 #'
 #' Constructor method for the \linkS4class{MizerParams} class. Provides the
@@ -564,8 +563,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
              kappa = 1e11, lambda = (2+q-n), w_pp_cutoff = 10, 
              max_w = max(object$w_inf)*1.1, f0 = 0.6, 
              z0pre = 0.6, z0exp = n-1, ...){
+        
     row.names(object) <- object$species
-	# Set default values for column values if missing
+    no_sp <- nrow(object)
+    
+	## Set default values for column values if missing ------------------------
 	# If no gear_name column in object, then named after species
 	if(!("gear" %in% colnames(object)))
 	    object$gear <- object$species
@@ -633,9 +635,8 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 
 	# Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
 	check_species_params_dataframe(object)
-
-	no_sp <- nrow(object)
-	# Make an empty object of the right dimensions
+	
+	## Make an empty object of the right dimensions -----------------------------
 	res <- MizerParams(no_sp, species_names=object$species, 
 	                   gear_names=unique(object$gear), max_w=max_w,...)
     res@n <- n
@@ -660,7 +661,7 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
                    function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
     }
 
-	# Start filling the slots
+	## Start filling the slots ---------------------------------------------
 	res@species_params <- object
 	# Check dims of interaction argument - make sure it's right
 	if (!isTRUE(all.equal(dim(res@interaction), dim(interaction))))
@@ -690,34 +691,40 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
 	res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
 	res@mu_b[] <- res@species_params$z0
-            
+
+    # Set up predation kernels ------------------------------------------------
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
 	# w_full has the weights from the smallest relevant plankton, to the largest fish
 	xFull <- log(res@w_full)
+	# We choose the origin of the x axis to be at the smallest plankton size
 	xFull <- xFull - xFull[1]
 	dx <- xFull[2]-xFull[1]
-	# TODO: Which of the following choices for Dx do we want?
 	# The first choice makes the calculation agree with the old mizer
 	# Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx, 
-	# The second choice gives a better agreement with analytic results
+	# The following gives a better agreement with analytic results
 	Dx <- dx
-
-	# ft_pred_kernel_e is an array (species x log of predator/prey size ratio) 
-	# that holds the Fourier transform of the feeding kernel in a form 
-	# appropriate for evaluating the available energy integral
-	res@ft_pred_kernel_e <- matrix(0, nrow = dim(res@interaction)[1], ncol=length(xFull))
-	noSpecies <- dim(res@interaction)[1]
-	for(i in 1:noSpecies){
-	    # We compute the feeding kernel terms and their fft.
-	    res@ft_pred_kernel_e[i, ] <- Dx*fft(exp(-(xFull - Beta[i])^2/(2*sigma[i]^2)))
-	}
-
+	
 	# rr is the log of the maximal predator/prey mass ratio
-    # Here we use default rr= beta + 3*sigma
+	# Here we use default rr = Beta + 3*sigma
 	rr <- Beta + 3*sigma
 	# Perturb rr so it falls on grid points
 	rr <- dx*ceiling(rr/dx)
+
+	# ft_pred_kernel_e is an array (no_sp x no_w_full) 
+	# that holds the Fourier transform of the feeding kernel in a form 
+	# appropriate for evaluating the available energy integral
+	res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol=length(xFull))
+	for(i in 1:no_sp){
+	    # We compute the feeding kernel terms and their fft.
+	    psi <- exp(-(xFull - Beta[i])^2/(2*sigma[i]^2))
+	    psi[xFull > rr[i]] <- 0
+	    res@ft_pred_kernel_e[i, ] <- Dx*fft(psi)
+	}
+
+	# ft_pred_kernel_p is an array (no_sp x P (to be determined below)) 
+	# that holds the Fourier transform of the feeding kernel in a form 
+	# appropriate for evaluating the predation mortality rate integral
 	# Determine period used
 	P <- max(xFull[length(xFull)] + rr)
 	# Determine number of x points used in period
@@ -727,10 +734,10 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	
 	# The dimension of ft_pred_kernel_p was not know at the time the res object
 	# was initialised. Hence we need to create it with the right dimension here.
-	res@ft_pred_kernel_p <- matrix(0, nrow = noSpecies, ncol = no_P)
+	res@ft_pred_kernel_p <- matrix(0, nrow = no_sp, ncol = no_P)
 	dimnames(res@ft_pred_kernel_p) <- list(sp=rownames(res@std_metab),k=(1:no_P))
 	
-	for (j in 1:noSpecies){
+	for (j in 1:no_sp){
 	    phi <- rep(0, no_P)
 	    # Our phi is a periodic extension of the normal feeding kernel.
 	    # For 0<=x<=P we use phi[x-P] as our
@@ -740,18 +747,18 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	    res@ft_pred_kernel_p[j, ] <- Dx*fft(phi)
 	}
 
-	# Background spectrum
+	# Background spectrum -------------------------------------------------
 	res@rr_pp[] <- r_pp * res@w_full^(n-1) #weight specific plankton growth rate ##
 	res@cc_pp[] <- kappa*res@w_full^(-lambda) # the resource carrying capacity - one for each mp and m (130 of them)
 	res@cc_pp[res@w_full>w_pp_cutoff] <- 0      #set density of sizes < plankton cutoff size
-	# Set the SRR to be a Beverton Holt esque relationship
+	# Beverton Holt esque stock-recruitment relationship ----------------------
 	# Can add more functional forms or user specifies own
 	res@initial_n_pp <- res@cc_pp
 	res@srr <- function(rdi, species_params){
 	    return(rdi / (1 + rdi/species_params$r_max))
 	}
 
-	# Set fishing parameters: selectivity and catchability
+	# Set fishing parameters: selectivity and catchability -------------
 	# At the moment, each species is only caught by 1 gear so in species_params
 	# there are the columns: gear_name and sel_func.
 	# BEWARE! This routine assumes that each species has only one gear operating on it

@@ -21,22 +21,21 @@ sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
 
 test_that("getAvailEnergy produces correct result for power law", {
     no_w <- 1000
-    p <- set_scaling_model(no_sp = 2, lambda = 2, perfect = TRUE, no_w = no_w)
+    p <- set_scaling_model(no_sp = 2, lambda = 1.5, perfect = TRUE, no_w = no_w)
     sp <- 1  # check first species
     sigma <- p@species_params$sigma[sp]
     beta <- p@species_params$beta[sp]
     p@initial_n[] <- 0
     p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
+    lm2 <- p@lambda - 2
     ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
     # Check that this is constant
-    expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-15)
-    lm2 <- p@lambda - 2
+    expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
     ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * 
         # The following factor takes into account the cutoff in the integral
-        #(pnorm(3 + lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) 
-    (pnorm(3 - lm2 * sigma)) 
-    expect_equal(ea[no_w], ae, tolerance = 1e-15)
+        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) 
+    expect_equal(ea[no_w], ae, tolerance = 1e-7)
 })
 
 test_that("Test that fft based integrator gives similar result as old code",{
