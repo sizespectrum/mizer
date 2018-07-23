@@ -21,7 +21,7 @@ test_that("scaling model is set up correctly", {
   hbar <- alpha * h * p@f0 - ks
   # Check available energy
   lm2 <- p@lambda - 2
-  ea <- getPhiPrey(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^lm2
+  ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^lm2
   ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
       beta^lm2 * sqrt(2 * pi) * sigma * 
       # The following factor takes into account the cutoff in the integral

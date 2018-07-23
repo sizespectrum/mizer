@@ -8,13 +8,13 @@
 \alias{getFeedingLevel,MizerSim,missing,missing,missing-method}
 \title{Get feeding level}
 \usage{
-getFeedingLevel(object, n, n_pp, phi_prey, ...)
+getFeedingLevel(object, n, n_pp, avail_energy, ...)
 
 \S4method{getFeedingLevel}{MizerParams,matrix,numeric,matrix}(object, n, n_pp,
-  phi_prey, ...)
+  avail_energy, ...)
 
 \S4method{getFeedingLevel}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  phi_prey, ...)
+  avail_energy, ...)
 
 \S4method{getFeedingLevel}{MizerSim,missing,missing,missing}(object,
   time_range = dimnames(object@n)$time, drop = FALSE, ...)
@@ -28,9 +28,9 @@ getFeedingLevel(object, n, n_pp, phi_prey, ...)
 \item{n_pp}{A vector of the background abundance by size. Only used if 
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{phi_prey}{The PhiPrey matrix (optional) of dimension no. species x no. 
+\item{avail_energy}{The available energy matrix (optional) of dimension no. species x no. 
 size bins. If not passed in, it is calculated internally using the 
-\code{\link{getPhiPrey}} method. Only used if \code{object} argument is of type 
+\code{\link{getAvailEnergy}} method. Only used if \code{object} argument is of type 
 \code{MizerParams}.}
 
 \item{...}{Other arguments (currently unused).}
@@ -49,9 +49,11 @@ availability, search volume and maximum intake. The feeding level is the
 proportion of the encountered food that is actually consumed.This method is
 used by the \code{\link{project}} method for performing simulations.
 
-getFeedingLevel method for a \code{MizerParams} object with already calculated \code{phi_prey} matrix.
+getFeedingLevel method for a \code{MizerParams} object with already 
+calculated \code{avail_energy} matrix.
 
-getFeedingLevel method for a \code{MizerParams} object without the \code{phi_prey} matrix argument.
+getFeedingLevel method for a \code{MizerParams} object without the 
+\code{avail_energy} matrix argument.
 
 getFeedingLevel method for a \code{MizerSim} object.
 }
@@ -82,5 +84,5 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 }
 \seealso{
-\code{\link{getPhiPrey}}
+\code{\link{getAvailEnergy}}
 }

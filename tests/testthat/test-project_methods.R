@@ -17,9 +17,9 @@ n_full <- abs(rnorm(no_w_full))
 sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
 
 
-# getPhiPrey --------------------------------------------------------------
+# getAvailEnergy --------------------------------------------------------------
 
-test_that("getPhiPrey produces correct result for power law", {
+test_that("getAvailEnergy produces correct result for power law", {
     no_w <- 1000
     p <- set_scaling_model(no_sp = 2, lambda = 2, perfect = TRUE, no_w = no_w)
     sp <- 1  # check first species
@@ -27,7 +27,7 @@ test_that("getPhiPrey produces correct result for power law", {
     beta <- p@species_params$beta[sp]
     p@initial_n[] <- 0
     p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
-    ea <- getPhiPrey(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
+    ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
     # Check that this is constant
     expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-15)
     lm2 <- p@lambda - 2
@@ -43,7 +43,7 @@ test_that("Test that fft based integrator gives similar result as old code",{
     # Agreement will not be very good because we now prefer the new code to be
     # close to analytic results rather than close to old mizer code.
     
-    old_getPhiPrey <- function(params, n, n_pp, pk) {
+    old_getAvailEnergy <- function(params, n, n_pp, pk) {
         # Calculate phi with old code
         n_eff_prey <- sweep(params@interaction %*% n, 2, w * params@dw, "*", check.margin=FALSE)
         idx_sp <- (length(w_full) - length(w) + 1):length(w_full)
@@ -64,8 +64,8 @@ test_that("Test that fft based integrator gives similar result as old code",{
     # Initial n and n_pp
     n <- get_initial_n(params)
     n_pp <- params@cc_pp
-    old <- old_getPhiPrey(params, n, n_pp, pk)
-    new <- getPhiPrey(params, n, n_pp)
+    old <- old_getAvailEnergy(params, n, n_pp, pk)
+    new <- getAvailEnergy(params, n, n_pp)
     expect_lt(max(abs(log(old/new))), 0.1)
     
     # Different egg sizes
@@ -73,8 +73,8 @@ test_that("Test that fft based integrator gives similar result as old code",{
     params <- MizerParams(NS_species_params_gears, inter)
     n <- get_initial_n(params)
     n_pp <- params@cc_pp
-    old <- old_getPhiPrey(params, n, n_pp, pk)
-    new <- getPhiPrey(params, n, n_pp)
+    old <- old_getAvailEnergy(params, n, n_pp, pk)
+    new <- getAvailEnergy(params, n, n_pp)
     expect_lt(max(abs(log(old/new))), 0.1)
     
 })
@@ -87,19 +87,19 @@ test_that("getFeedingLevel for MizerParams", {
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
     # A crap test - just returns what's already in the method
-    phi_prey <- getPhiPrey(params, n = n, n_pp = n_full)
-    encount <- params@search_vol * phi_prey
+    avail_energy <- getAvailEnergy(params, n = n, n_pp = n_full)
+    encount <- params@search_vol * avail_energy
     f <- encount / (encount + params@intake_max)
     expect_identical(fl, f)
-    # passing in phi_prey gives the same as not
+    # passing in avail_energy gives the same as not
     fl1 <- getFeedingLevel(params, n, n_full)
-    phiprey <- getPhiPrey(params, n, n_full)
-    fl2 <- getFeedingLevel(params, n, n_full, phi_prey = phi_prey)
+    avail_energy <- getAvailEnergy(params, n, n_full)
+    fl2 <- getFeedingLevel(params, n, n_full, avail_energy = avail_energy)
     expect_identical(fl1, fl2)
-    # calling with phi_prey of wrong dimension gives error
-    phi_prey = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
-    expect_error(getFeedingLevel(params, n, n_full, phi_prey = phi_prey),
-                 'phi_prey argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)')
+    # calling with avail_energy of wrong dimension gives error
+    avail_energy = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
+    expect_error(getFeedingLevel(params, n, n_full, avail_energy = avail_energy),
+                 'avail_energy argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)')
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -447,7 +447,7 @@ test_that("project methods return objects of correct dimension when community on
 	n_pp <- sim@n_pp[1,]
     nw <- length(params@w)
     # MizerParams methods
-    expect_that(dim(getPhiPrey(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getAvailEnergy(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getFeedingLevel(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getPredRate(params,n,n_pp)), equals(c(1,length(params@w_full))))
     expect_that(dim(getM2(params,n,n_pp)), equals(c(1,nw)))

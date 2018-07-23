@@ -232,11 +232,13 @@ setMethod('project', signature(object='MizerParams', effort='array'),
         for (i_time in 1:t_steps){
             # Do it piece by piece to save repeatedly calling methods
             # Calculate amount E_{a,i}(w) of available food
-            phi_prey <- getPhiPrey(sim@params, n=n, n_pp=n_pp)
+            avail_energy <- getAvailEnergy(sim@params, n=n, n_pp=n_pp)
             # Calculate amount f_i(w) of food consumed
-            feeding_level <- getFeedingLevel(sim@params, n=n, n_pp=n_pp, phi_prey=phi_prey)
+            feeding_level <- getFeedingLevel(sim@params, n=n, n_pp=n_pp, 
+                                             avail_energy=avail_energy)
             # Calculate the predation rate
-            pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
+            pred_rate <- getPredRate(sim@params, n=n, n_pp=n_pp, 
+                                     feeding_level=feeding_level)
             # Calculate predation mortality on fish \mu_{p,i}(w)
             #m2 <- getM2(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
             m2 <- getM2(sim@params, pred_rate=pred_rate)
