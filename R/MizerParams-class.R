@@ -686,10 +686,15 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
             
 	Beta <- log(res@species_params$beta)
 	sigma <- res@species_params$sigma
-	Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx
 	# w_full has the weights from the smallest relevant plankton, to the largest fish
 	xFull <- log(res@w_full)
 	xFull <- xFull - xFull[1]
+	dx <- xFull[2]-xFull[1]
+	# TODO: Which of the following choices for Dx do we want?
+	# The first choice makes the calculation agree with the old mizer
+	# Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx, 
+	# The second choice gives a better agreement with analytic results
+	Dx <- dx
 
 	# ft_pred_kernel_e is an array (species x log of predator/prey size ratio) 
 	# that holds the Fourier transform of the feeding kernel in a form 
@@ -705,7 +710,6 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     # Here we use default rr= beta + 3*sigma
 	rr <- Beta + 3*sigma
 	# Perturb rr so it falls on grid points
-	dx <- xFull[2]-xFull[1]
 	rr <- dx*ceiling(rr/dx)
 	# Determine period used
 	P <- max(xFull[length(xFull)] + rr)

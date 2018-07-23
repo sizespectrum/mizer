@@ -942,7 +942,7 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
         if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
             stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
-        e_spawning_pop <- (e_spawning*n) %*% object@dw
+        e_spawning_pop <- drop((e_spawning*n) %*% object@dw)
         rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro)/object@w[object@species_params$w_min_idx] 
         return(rdi)
     }
@@ -972,11 +972,9 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
 #' @param object An \code{MizerParams} object
 #' @param n A matrix of species abundance (species x size)
 #' @param n_pp A vector of the background abundance by size
-#' @param rdi A matrix of density independent recruitment (optional) with
-#'   dimensions no. sp x 1. If not specified rdi is calculated internally using
+#' @param rdi A vector of density independent recruitment for each species. 
+#'   If not specified rdi is calculated internally using
 #'   the \code{\link{getRDI}} method.
-#' @param sex_ratio Proportion of the population that is female. Default value
-#'   is 0.5
 #' @param ... Other arguments (currently unused).
 #'   
 #' @return A numeric vector the length of the number of species. 
@@ -997,11 +995,8 @@ setGeneric('getRDD', function(object, n, n_pp, rdi, ...)
 #' \code{getRDD} method with \code{rdi} argument.
 #' @rdname getRDD
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', 
-                              n_pp = 'numeric', rdi='matrix'),
-    function(object, n, n_pp, rdi, sex_ratio = 0.5){
-        if (!all(dim(rdi) == c(nrow(object@species_params),1))){
-            stop("rdi argument must have dimensions: no. species (",nrow(object@species_params),") x 1")
-        }
+                              n_pp = 'numeric', rdi='numeric'),
+    function(object, n, n_pp, rdi){
         rdd <- object@srr(rdi = rdi, species_params = object@species_params)
         return(rdd)
 })
@@ -1011,7 +1006,7 @@ setMethod('getRDD', signature(object='MizerParams', n = 'matrix',
 setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', rdi='missing'),
     function(object, n, n_pp, sex_ratio = 0.5){
     	rdi <- getRDI(object, n=n, n_pp=n_pp, sex_ratio = sex_ratio)
-    	rdd <- getRDD(object, n=n, n_pp=n_pp, rdi=rdi, sex_ratio=sex_ratio)
+    	rdd <- getRDD(object, n=n, n_pp=n_pp, rdi=rdi)
     	return(rdd)
     }
 )

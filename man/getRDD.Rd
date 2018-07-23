@@ -3,14 +3,13 @@
 \docType{methods}
 \name{getRDD}
 \alias{getRDD}
-\alias{getRDD,MizerParams,matrix,numeric,matrix-method}
+\alias{getRDD,MizerParams,matrix,numeric,numeric-method}
 \alias{getRDD,MizerParams,matrix,numeric,missing-method}
 \title{Get density dependent recruitment}
 \usage{
 getRDD(object, n, n_pp, rdi, ...)
 
-\S4method{getRDD}{MizerParams,matrix,numeric,matrix}(object, n, n_pp, rdi,
-  sex_ratio = 0.5)
+\S4method{getRDD}{MizerParams,matrix,numeric,numeric}(object, n, n_pp, rdi)
 
 \S4method{getRDD}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
   sex_ratio = 0.5)
@@ -22,14 +21,11 @@ getRDD(object, n, n_pp, rdi, ...)
 
 \item{n_pp}{A vector of the background abundance by size}
 
-\item{rdi}{A matrix of density independent recruitment (optional) with
-dimensions no. sp x 1. If not specified rdi is calculated internally using
+\item{rdi}{A vector of density independent recruitment for each species. 
+If not specified rdi is calculated internally using
 the \code{\link{getRDI}} method.}
 
 \item{...}{Other arguments (currently unused).}
-
-\item{sex_ratio}{Proportion of the population that is female. Default value
-is 0.5}
 }
 \value{
 A numeric vector the length of the number of species.

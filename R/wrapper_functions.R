@@ -775,7 +775,7 @@ set_scaling_model <- function(no_sp = 11,
     # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
     # compensate for using a stock recruitment relationship.
     params@species_params$r_max <-
-        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)[,1]
+        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
     return(params)
 }
 
@@ -1181,7 +1181,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         p@species_params$r_max <- p@species_params$w_inf
         # set rmax = rfac*RDD = (rfac - 1)*RDI
         p@species_params$r_max <-
-            (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)[,1]
+            (rfac - 1) * getRDI(p, p@initial_n, p@initial_n_pp)
         return(p)
     }
 )
