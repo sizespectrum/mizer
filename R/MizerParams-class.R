@@ -606,11 +606,12 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
     if(!("gamma" %in% colnames(object))){
         message("Note: \tNo gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         lm2 <- lambda - 2
-        # Below we include the factor involving pnorm to account for the cutoff
-        # of the feeding kernel at 5 sigma
         ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
             exp(lm2^2 * object$sigma^2 / 2) *
-            (pnorm(5 - lm2 * object$sigma) + pnorm(5 + lm2 * object$sigma) - 1)
+            # The factor on the following line takes into account the cutoff
+            # of the integral at 0 and at beta + 3 sigma
+            (pnorm(3 - lm2 * object$sigma) + 
+             pnorm(log(object$beta)/object$sigma + lm2 * object$sigma) - 1)
         object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
     }
     # Sort out z0 column
