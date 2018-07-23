@@ -24,7 +24,8 @@ test_that("scaling model is set up correctly", {
   lm2 <- p@lambda - 2
   ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
       beta^lm2 * sqrt(2 * pi) * sigma * 
-      (pnorm(5 - lm2 * sigma) + pnorm(5 + lm2 * sigma) - 1) *
+      # The following factor takes into account the cutoff in the integral
+      (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) *
       p@w^(-lm2)
   expect_equal(ea, ae, tolerance = 1e-15)
   # Check feeding level
