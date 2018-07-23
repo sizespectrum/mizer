@@ -20,14 +20,13 @@ test_that("scaling model is set up correctly", {
       (beta ^ (p@n - 1)) * exp(sigma ^ 2 * (p@n - 1) ^ 2 / 2)
   hbar <- alpha * h * p@f0 - ks
   # Check available energy
-  ea <- getPhiPrey(p, p@initial_n, p@initial_n_pp)[sp, ]
   lm2 <- p@lambda - 2
+  ea <- getPhiPrey(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^lm2
   ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
       beta^lm2 * sqrt(2 * pi) * sigma * 
       # The following factor takes into account the cutoff in the integral
-      (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) *
-      p@w^(-lm2)
-  expect_equal(ea, ae, tolerance = 1e-15)
+      (pnorm(3 + lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
+  expect_equal(ea, rep(ae, length(ea)), tolerance = 1e-15)
   # Check feeding level
   f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
   names(f) <- NULL
@@ -44,13 +43,13 @@ test_that("scaling model is set up correctly", {
   expect_equal(g, gg)
   
   # Check that community is perfect power law
-  expect_equal(p@sc, colSums(p@initial_n), tolerance = 1e-20)
+  expect_identical(p@sc, colSums(p@initial_n))
   total <- p@initial_n_pp
   fish_idx <- (length(p@w_full)-length(p@w)+1):length(p@w_full)
   total[fish_idx] <- total[fish_idx] + p@sc
-  expected <- total  # To set the names
-  expected[] <- p@kappa * p@w_full ^ (-p@lambda)
-  expect_equal(total, expected, tolerance = 1e-20)
+  total <- total * p@w_full^p@lambda
+  expected <- rep(p@kappa, length(p@w_full))
+  expect_equivalent(total, expected, tolerance = 1e-15, check.names = FALSE)
   
   # All erepros should be equal
   expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))
