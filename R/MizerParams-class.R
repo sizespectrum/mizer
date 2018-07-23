@@ -603,16 +603,22 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
         object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
     }
     # Sorting out gamma column
-    if(!("gamma" %in% colnames(object))){
-        message("Note: \tNo gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+    if(!("gamma" %in% colnames(object))) {
+        object$gamma <- NA
+    }
+    if (any(is.na(object$gamma))) {
+        message("Note: \tNo gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         lm2 <- lambda - 2
         ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
             exp(lm2^2 * object$sigma^2 / 2) *
-            # The factor on the following line takes into account the cutoff
+            # The factor on the following lines takes into account the cutoff
             # of the integral at 0 and at beta + 3 sigma
             (pnorm(3 - lm2 * object$sigma) + 
              pnorm(log(object$beta)/object$sigma + lm2 * object$sigma) - 1)
-        object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
+        gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
+        # Only overwrite missing gammas with calculated values
+        missing <- is.na(object$gamma)
+        object$gamma[missing] <- gamma[missing]
     }
     # Sort out z0 column
     if(!("z0" %in% colnames(object))){

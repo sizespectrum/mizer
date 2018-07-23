@@ -307,14 +307,7 @@ set_trait_model <- function(no_sp = 10,
                             ...){
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
-    # If not supplied, calculate gamma using equation 2.1 in A&P 2010
-    # TODO: remove this here because it is already calculated in MizerParams()
-    #       Having the same code in two locations is not a good idea
-    if(is.na(gamma)){
-        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * 
-            exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
-        gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
-    }
+
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
 
@@ -1013,34 +1006,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         if (any(species_params$species %in% params@species_params$species)) {
             stop("You can not add species that are already there.")
         }
-        # calculate h if it is missing
-        if (!("h" %in% names(species_params)) || is.na(species_params$h)) {
-            message("Note: \tNo h column in new species data frame so using f0 and k_vb to
-                calculate it.")
-            if (!("k_vb" %in% names(species_params)))  {
-                stop("\t\tExcept I can't because there is no k_vb column in the new species data frame")
-            }
-            fc <- 0.2/species_params$alpha
-            species_params$h <- 3*species_params$k_vb*(species_params$w_inf^(1/3))/
-                (species_params$alpha*params@f0-0.2)
-        }
-        
-        # calculate ks if it is missing
-        if (!("ks" %in% names(species_params)) || is.na(species_params$ks)){
-            message("Note: \tNo ks column in new species data frame. Setting ks = 0.2*h.")
-            species_params$ks <- 0.2*species_params$h # mizer's default setting
-        }
-        
-        # calculate gamma if it is missing
-        if (!("gamma" %in% names(species_params)) || is.na(species_params$gamma)){
-            message("Note: \tNo gamma column in new species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-            ae <- sqrt(2*pi) * species_params$sigma * 
-                species_params$beta^(params@lambda-2) * 
-                exp((params@lambda-2)^2 * species_params$sigma^2 / 2)
-            species_params$gamma <- (species_params$h / (params@kappa * ae)) * 
-                (params@f0 / (1 - params@f0))
-        }
-        
+
         # calculate w_min_idx
         species_params$w_min_idx <- sum(params@w<=species_params$w_min)
         
