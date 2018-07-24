@@ -3,6 +3,7 @@ context("Methods used in project")
 
 # Initialise --------------------------------------------------------------
 
+# North sea
 data(NS_species_params_gears)
 data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
@@ -10,73 +11,74 @@ no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
 no_w_full <- length(params@w_full)
+sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
 
+# Random abundances
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_full <- abs(rnorm(no_w_full))
 
-sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+# Power law
+p <- set_scaling_model(no_sp = 2, lambda = 1.5, perfect = TRUE, no_w = 1000)
+p@initial_n[] <- 0
+p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
+sp <- 1  # check first species
+sigma <- p@species_params$sigma[sp]
+beta <- p@species_params$beta[sp]
+lm2 <- p@lambda - 2
+avail_energy_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
+    beta^lm2 * sqrt(2 * pi) * sigma * 
+    # The following factor takes into account the cutoff in the integral
+    (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) 
 
 
 # getAvailEnergy --------------------------------------------------------------
 
-test_that("getAvailEnergy produces correct result for power law", {
-    no_w <- 1000
-    p <- set_scaling_model(no_sp = 2, lambda = 1.5, perfect = TRUE, no_w = no_w)
-    sp <- 1  # check first species
-    sigma <- p@species_params$sigma[sp]
-    beta <- p@species_params$beta[sp]
-    p@initial_n[] <- 0
-    p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
-    lm2 <- p@lambda - 2
+test_that("getAvailEnergy approximates analytic result", {
     ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
     # Check that this is constant
     expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
-    ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
-        beta^lm2 * sqrt(2 * pi) * sigma * 
-        # The following factor takes into account the cutoff in the integral
-        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) 
-    expect_equal(ea[no_w], ae, tolerance = 1e-7)
+    expect_equal(ea[1], avail_energy_analytic, tolerance = 1e-7)
 })
 
-test_that("Test that fft based integrator gives similar result as old code",{
-    # Agreement will not be very good because we now prefer the new code to be
-    # close to analytic results rather than close to old mizer code.
-    
-    old_getAvailEnergy <- function(params, n, n_pp, pk) {
-        # Calculate phi with old code
-        n_eff_prey <- sweep(params@interaction %*% n, 2, w * params@dw, "*", check.margin=FALSE)
-        idx_sp <- (length(w_full) - length(w) + 1):length(w_full)
-        phi_prey_species <- rowSums(sweep(pk[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
-        phi_prey_background <- rowSums(sweep(pk,3,params@dw_full*w_full*n_pp,"*", check.margin=FALSE),dims=2)
-        return(phi_prey_background + phi_prey_species)
-    }
-    
-    # Calculate predation kernel using old code
-    beta <- params@species_params$beta
-    sigma <- params@species_params$sigma
-    w <- params@w
-    w_full <- params@w_full
-    pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-    pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
-    pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
-    
-    # Initial n and n_pp
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getAvailEnergy(params, n, n_pp, pk)
-    new <- getAvailEnergy(params, n, n_pp)
-    expect_lt(max(abs(log(old/new))), 0.1)
-    
-    # Different egg sizes
-    NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- MizerParams(NS_species_params_gears, inter)
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getAvailEnergy(params, n, n_pp, pk)
-    new <- getAvailEnergy(params, n, n_pp)
-    expect_lt(max(abs(log(old/new))), 0.1)
-    
-})
+# test_that("Test that fft based integrator gives similar result as old code",{
+#     # Agreement will not be very good because we now prefer the new code to be
+#     # close to analytic results rather than close to old mizer code.
+#     
+#     old_getAvailEnergy <- function(params, n, n_pp, pk) {
+#         # Calculate phi with old code
+#         n_eff_prey <- sweep(params@interaction %*% n, 2, w * params@dw, "*", check.margin=FALSE)
+#         idx_sp <- (length(w_full) - length(w) + 1):length(w_full)
+#         phi_prey_species <- rowSums(sweep(pk[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
+#         phi_prey_background <- rowSums(sweep(pk,3,params@dw_full*w_full*n_pp,"*", check.margin=FALSE),dims=2)
+#         return(phi_prey_background + phi_prey_species)
+#     }
+#     
+#     # Calculate predation kernel using old code
+#     beta <- params@species_params$beta
+#     sigma <- params@species_params$sigma
+#     w <- params@w
+#     w_full <- params@w_full
+#     pk = array(beta, dim = c(no_sp, no_w, no_w_full))
+#     pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
+#     pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
+#     
+#     # Initial n and n_pp
+#     n <- get_initial_n(params)
+#     n_pp <- params@cc_pp
+#     old <- old_getAvailEnergy(params, n, n_pp, pk)
+#     new <- getAvailEnergy(params, n, n_pp)
+#     expect_lt(max(abs(log(old/new))), 0.1)
+#     
+#     # Different egg sizes
+#     NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
+#     params <- MizerParams(NS_species_params_gears, inter)
+#     n <- get_initial_n(params)
+#     n_pp <- params@cc_pp
+#     old <- old_getAvailEnergy(params, n, n_pp, pk)
+#     new <- getAvailEnergy(params, n, n_pp)
+#     expect_lt(max(abs(log(old/new))), 0.1)
+#     
+# })
 
 
 # getFeedingLevel -----------------------------------------
@@ -111,6 +113,14 @@ test_that("getFeedingLevel for MizerSim", {
         getFeedingLevel(sim@params, sim@n[as.character(time_range), , ], 
                         sim@n_pp[as.character(time_range), ])
     )
+})
+
+test_that("getFeedingLevel approximates analytic result", {
+    f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
+    # Check that this is constant
+    expect_equivalent(f, rep(f[1], length(f)), 
+                      tolerance = 1e-12, check.names = FALSE)
+    expect_equivalent(f[1], 0.6, tolerance = 1.2e-5, check.names = FALSE)
 })
 
 
