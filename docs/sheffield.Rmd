@@ -1,0 +1,97 @@
+---
+title: "Sheffield mizer meeting"
+author: "Gustav Delius"
+date: "24 July 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(mizer)
+library(ggplot2)
+```
+
+## Overview
+
+- Speed-up with Fast Fourier Transform
+- Coexistence without imposed stock-recruitment relationship
+- Shiny app for parameter tuning
+- Shiny app investigating effect of more selective gear
+- Our plans
+
+## We need good size resolution
+
+- Want to investigate the consequences of changing mesh size of nets
+- High resolution at large sizes means ultra-high resolution at small sizes
+- Number of size bins n > 1000
+- Calculation of predation integrals by Riemann sums scales as $n^2$.
+
+## The problem with stock-recruitment
+
+Consider North Sea model for example
+```{r}
+data(NS_species_params_gears)
+data(inter)
+params <- MizerParams(NS_species_params_gears, inter)
+sim <- project(params, effort=1, t_max=20, t_save = 0.5)
+plotBiomass(sim, print_it = FALSE)
+```
+## Steady state looks sensible
+```{r}
+plotSpectra(sim, print_it = FALSE)
+```
+
+
+
+## Predictions dominated by r_max
+
+```{r}
+no_t <- dim(sim@n)[1]
+n <- sim@n[no_t, , ]
+n_pp <- sim@n_pp[no_t, ]
+frac <- getRDD(params, n, n_pp) / params@species_params$r_max
+ggplot(data.frame(Species = names(frac), Fraction = frac)) + 
+    geom_col(aes(Species, Fraction)) + coord_flip() +
+    geom_hline(yintercept = 1) +
+    labs(title = "Recruitment as fraction of maximal recruitment")
+```
+
+## Insensitive to changes in SSB
+
+Dependence of cod recruitment on cod SSB
+```{r}
+sp <- 12
+r_max <- params@species_params$r_max[sp]
+ssb <- getSSB(sim)[no_t, sp]
+rdi <- getRDI(params, n, n_pp)[sp]
+factor <- rdi/ssb
+SSB <- seq(0, 1.2*ssb, length.out = 100)
+Recruitment <- SSB*factor / (1 + SSB*factor/r_max)
+ggplot(data.frame(SSB, Recruitment), aes(SSB, Recruitment)) +
+    geom_line(color="blue") + 
+    geom_vline(xintercept = ssb)
+```
+
+## Fraction of eggs used
+
+```{r}
+frac <- getRDD(params, n, n_pp) / getRDI(params, n, n_pp)
+ggplot(data.frame(Species = names(frac), Fraction = frac)) + 
+    geom_col(aes(Species, Fraction)) + coord_flip() +
+    geom_hline(yintercept = 1) +
+    labs(title = "Fraction of eggs used")
+```
+
+## Coexistence without imposed SRR
+
+Requires fine-tuning of parameters at steady state.
+Method:
+
+- Start with trait-based model of background community (with known steady state)
+- One by one add foreground species into the existing community (without self-interaction)
+- Reduce background abundance to stay close to Sheldon spectrum
+- Retune parameters so that species can coexist (with all interactions)
+- Repeat until all species of interest have been added
+- Allow exploration of parameter changes by hand, while tracking steady state
+
+
