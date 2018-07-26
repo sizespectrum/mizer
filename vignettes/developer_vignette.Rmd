@@ -57,10 +57,142 @@ version
 # Finding your way around the mizer code
 
 ## The MizerParams object
+An object of class 'MizerParams' holds all the information needed for the
+'project()' method to simulate a model. 
 
 ## The MizerSim object
 
 ## Implementation of the model
+
+### The size spectrum
+The model framework builds on two central assumption and a number of lesser 
+standard assumption.  
+
+The first central assumption is that an individual can be characterized by its 
+weight $w$ and its species number $i$ only. The aim of the model is to calculate 
+the size spectrum ${\cal N}_i(w,t)$, which is the *density* of individuals of
+species $i$ such that ${\cal N}_i(w,t)dw$ is the *number* of individuals of
+species $i$ in the size interval $[w:w+dw]$ at time $t$. 
+
+In the code the size spectrum is stored as an array such that `n[i, j, k]`
+holds the density ${\cal N}_i(w_j,t_k)$ at a set of discrete weights $w_j$ and 
+times $t_k$.
+
+The time evolution of the size spectrum is described by the 
+McKendrik-von Foerster equation, which is simply a conservation equation:
+
+\begin{equation}
+  \label{eq:MvF}
+  \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
+  = -\mu_i(w) N_i(w)
+\end{equation}
+
+where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
+below. 
+
+This differential equation is approximated in mizer by a
+finite-difference approximation (to be described in section ...). This
+allows the `project()` method in mizer to project the size spectrum 
+forwards in time: Given the spectrum at one time the `project()` method
+calculates it at a set of later times.
+
+### Predator-prey encounter
+The second central assumption is that the preference of food is determined by 
+individual weight combined with a species preference. The preference of
+an individual of species $i$ and weight $w$ for prey of species $j$ and
+weight $w_p$ is assumed to factorize as $\theta_{ij}\phi(w_p/w)$ into
+a species preference matrix $\theta_{ij}$ and a weight selection function
+$\phi(w_p/w)$. Note that the assumption that the weight selection function
+depends on the ratio of the predator and prey weights is central in mizer.
+
+The choice of the function $\phi_i(w_p/w)$ is not central. By default it is set 
+to the log-normal function
+
+\begin{equation}
+  \label{eq:4}
+  \phi_i(w_p/w) = \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right],
+\end{equation}
+where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
+width of the weight selection function.
+
+The available food (mass per volume) for a predator of weight $w$ is determined 
+by integrating over all species and the background resource weighted by the 
+size selection function: 
+
+\begin{equation}
+  \label{eq:1}
+  E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+  \phi_i(w_p/w) w_p \, dw_p.
+\end{equation}
+
+This available energy is calculated by the `getAvailEnergy()` method, which
+uses Fast Fourier Transform to efficiently evaluate the integral for all $w$.
+
+The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
+rate (volume per time) which is assumed to scale with individual weight as 
+$\gamma_i w^q$:
+
+\begin{equation}
+  \label{eq:Ee}
+  E_{e.i}(w) = \gamma_i w^q E_{a.i}(w).
+\end{equation}
+
+### Consumption
+The encountered food is consumed subjected to a standard Holling functional 
+response type II to represent satiation. This determines the 
+\emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 
+(no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the
+encountered food that is consumed. It is given by
+
+\begin{equation}
+  \label{eq:f}
+  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + h_i w^n},
+\end{equation}
+
+where $h_i w^n$ is the maximum consumption rate. The rate at which food is
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) h_i w^n$.
+
+The feeding level is calculated with the method `getFeedingLevel()`.
+The maximum consumption rate is stored in the `intake_max` slot of the
+MizerParams object and by default is initialised to 
+`intake_max[i,w_j]`$=h_i w_j^n$, corresponding to
+the above expression for the feeding level. However the value of
+`intake_max` could be overwritten by something of the user's choice.
+
+### Growth
+
+The consumed food is assimilated with an efficiency $\alpha$ and 
+used to fuel the needs for standard metabolism (at a rate $k_{s.i} w^p$) and 
+activity and movement (at a rate $k_i w$). The remaining rate, if any,
+\begin{equation}
+  \label{eq:Er}
+  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - k_{s.i} w^p - k_i w)
+\end{equation}
+is used for growth and reproduction.
+
+When food supply does not cover the requirements of metabolism and activity, 
+growth and reproduction stops, i.e.~there is no negative growth\footnote{
+The individual would then be subjected to a starvation mortality.
+Starvation is usually not an important process in the multispecies model with Beverton-Holt recruitment.
+It is therefore not implemented in mizer at the moment.}.
+
+The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
+a function $\psi_i(w)$ that changes between 
+zero around the weight of maturation $w_{m.i}$ to one at the asymptotic weight 
+$W_i$ where all available energy is used for reproduction:
+\begin{equation}
+  \label{eq:psi}
+  \psi_i(w) = \left[ 1 + \left( \frac{w}{w_{m.i}} \right)^{-u} \right]^{-1} \left( \frac{w}{W_i} \right)^{1-n},
+\end{equation}
+The default value of $u$ is $10.$ The term in the square bracket is a function that varies smoothly from 0 to 1 around the weight at maturation.  The last term describes how the relative amount of energy invested in reproduction increases as the weight approaches the asymptotic weight.  
+
+Thus the somatic growth function is given by
+\begin{equation}
+  \label{eq:growth}
+  g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
+\end{equation}
+
+
 
 ## Shiny apps
 
