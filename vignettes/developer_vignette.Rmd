@@ -4,7 +4,7 @@ author: "Gustav Delius and Richard Southwell"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Mizer Developer Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,50 +16,68 @@ knitr::opts_chunk$set(
 )
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+# Introduction
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+This vignette is for you if you need to extend mizer 
+to meet the needs of your research project.
+You will already have read the [main mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) and thus be
+familiar with what mizer can do out of the box.
+You now want to implement the extension or modification of the
+model required for your research, and for that you need to dive into 
+the internal workings of mizer. This vignette is meant to make
+that as easy as possible.
 
-## Vignette Info
+# Preparation
+In this section we describe how to set up your working environment
+to allow you to easily work with the mizer code. Much of it you
+may already have in place, so feel free to skip ahead.
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+## Installing R, RStudio
 
-## Styles
+Mizer is compatible with R versions 3.1 and later.
+If you still need to [install R](https://www.r-project.org/), simply install 
+the latest version. 
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+This guide assumes that you will be using RStudio to work with R. There is
+really no reason not to use RStudio and it makes a lot of things much easier.
+RStudio develops rapidly and adds useful features all the time and so it pays 
+to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
+frequently. This guide was written with version 1.2.830.
+version 
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
+## Forking mizer from github
 
-## Figures
+### Installing git
 
-The figure sizes have been customised so that you can easily put two images side-by-side. 
+### Using git inside RStudio
 
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
+## Working with an R package
 
-You can enable figure captions by `fig_caption: yes` in YAML:
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+# Finding your way around the mizer code
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+## The MizerParams object
 
-## More Examples
+## The MizerSim object
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+## Implementation of the model
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
+## Shiny apps
 
-Also a quote using `>`:
+# Developer guidelines
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+## Collaborating on Github
+
+## Coding style
+
+## Always write tests for your code
+We use [testthat](http://testthat.r-lib.org/) and
+[shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+
+# Technical details
+
+## The numerical scheme
+
+## Fast Fourier Transform
+
+## Tuning to Steady State
