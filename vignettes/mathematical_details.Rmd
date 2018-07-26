@@ -179,7 +179,7 @@ if the final term is included in the sum or not.
 
 ## Spectral Integration
 
-### Spectral Integration For available energy {#subsec:spec energy}
+### Spectral Integration For available energy
 
 Now we shall discuss how we use spectral methods to evaluate the available
 energy integral:
