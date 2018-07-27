@@ -68,7 +68,7 @@ setGeneric('getAvailEnergy', function(object, n, n_pp,...)
 #' @rdname getAvailEnergy
 setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
     function(object, n, n_pp, ...){
-#        cat("In getAvailEnergy\n")
+
 	# Check n dims
 	if(dim(n)[1] != dim(object@interaction)[1])
 	    stop("n does not have the right number of species (first dimension)")
@@ -82,15 +82,15 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 	# values of object@w_full such that (object@w_full)[idx_sp]=object@w
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 
-	fishEaten <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
+	prey <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
 	# Looking at Equation (3.4), for available energy in the mizer vignette, 
-	# we have, for our predator species i, that fishEaten[k] equals 
+	# we have, for our predator species i, that prey[k] equals 
 	# the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
-	fishEaten[, idx_sp] <- object@interaction %*% n
+	prey[, idx_sp] <- object@interaction %*% n
 	# The vector f2 equals everything inside integral (3.4) except the feeding 
 	# kernel phi_i(w_p/w). 
 	# We work in log-space so an extra multiplier w_p is introduced.
-	f2 <- sweep(sweep(fishEaten, 2, n_pp, "+"), 2, object@w_full^2, "*")
+	f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
 	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
 	# We approximate the integral by the trapezoidal method. Using the
 	# convolution theorem we can evaluate the resulting sum via fast fourier
@@ -98,11 +98,12 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
-	fullEnergy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), 
+	                           inverse=TRUE)))/length(object@w_full)
 	# Due to numerical errors we might get negative entries. They should be 0
-	fullEnergy[fullEnergy<0] <- 0
+	avail_energy[avail_energy<0] <- 0
 
-	return(fullEnergy[, idx_sp, drop=FALSE])
+	return(avail_energy[, idx_sp, drop=FALSE])
 })
 
 
