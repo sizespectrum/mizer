@@ -27,6 +27,11 @@ model required for your research, and for that you need to dive into
 the internal workings of mizer. This vignette is meant to make
 that as easy as possible.
 
+The first thing you should do, even before reading this vignette, is to
+go to https://github.com/sizespectrum/mizer/issues and create a new "issue""
+to share your ideas and plans with the mizer community. You may get back 
+valuable feedback and advice.
+
 # Preparation
 In this section we describe how to set up your working environment
 to allow you to easily work with the mizer code. Much of it you
@@ -76,7 +81,9 @@ species $i$ in the size interval $[w:w+dw]$ at time $t$.
 
 In the code the size spectrum is stored as an array such that `n[i, j, k]`
 holds the density ${\cal N}_i(w_j,t_k)$ at a set of discrete weights $w_j$ and 
-times $t_k$.
+times $t_k$. Note that contrary to what one might have expected,
+`n[i, j, k]` is not the *number* of individuals but the *density*.
+The number of individuals in size bin $j$ is given by  `n[i, j, k]*dw[j]`.
 
 The time evolution of the size spectrum is described by the 
 McKendrik-von Foerster equation, which is simply a conservation equation:
@@ -96,7 +103,7 @@ allows the `project()` method in mizer to project the size spectrum
 forwards in time: Given the spectrum at one time the `project()` method
 calculates it at a set of later times.
 
-### Predator-prey encounter
+### Predator-prey preference
 The second central assumption is that the preference of food is determined by 
 individual weight combined with a species preference. The preference of
 an individual of species $i$ and weight $w$ for prey of species $j$ and
@@ -106,11 +113,15 @@ $\phi(w_p/w)$. Note that the assumption that the weight selection function
 depends on the ratio of the predator and prey weights is central in mizer.
 
 The choice of the function $\phi_i(w_p/w)$ is not central. By default it is set 
-to the log-normal function
+to the truncated log-normal function
 
 \begin{equation}
   \label{eq:4}
-  \phi_i(w_p/w) = \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right],
+  \phi_i(w_p/w) = \begin{cases}
+  \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right]
+  &\text{ if }w/w_p\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
+  0&\text{ otherwise,}
+  \end{cases}
 \end{equation}
 where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
 width of the weight selection function.
@@ -128,16 +139,19 @@ size selection function:
 This available energy is calculated by the `getAvailEnergy()` method, which
 uses Fast Fourier Transform to efficiently evaluate the integral for all $w$.
 
+### Consumption
+
 The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
-rate (volume per time) which is assumed to scale with individual weight as 
-$\gamma_i w^q$:
+volume rate (volume per time):
 
 \begin{equation}
   \label{eq:Ee}
-  E_{e.i}(w) = \gamma_i w^q E_{a.i}(w).
+  E_{e.i}(w) = \text{search_vol}_i(w) E_{a.i}(w).
 \end{equation}
 
-### Consumption
+By default the search volume rate is assumed to scale with individual weight as 
+$\text{search_vol}_i(w)=\gamma_i w^q$.
+
 The encountered food is consumed subjected to a standard Holling functional 
 response type II to represent satiation. This determines the 
 \emph{feeding level}, $f_i(w)$, which is a dimensionless number between 0 
@@ -146,18 +160,20 @@ encountered food that is consumed. It is given by
 
 \begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + h_i w^n},
+  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + \text{intake_max}_i(w)},
 \end{equation}
 
-where $h_i w^n$ is the maximum consumption rate. The rate at which food is
-consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) h_i w^n$.
+where intake_max is the maximum consumption rate.
 
 The feeding level is calculated with the method `getFeedingLevel()`.
 The maximum consumption rate is stored in the `intake_max` slot of the
 MizerParams object and by default is initialised to 
-`intake_max[i,w_j]`$=h_i w_j^n$, corresponding to
+`intake_max[i,j]`$=h_i w_j^n$, corresponding to
 the above expression for the feeding level. However the value of
 `intake_max` could be overwritten by something of the user's choice.
+
+The rate at which food is
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) \text{intake_max}_i(w)$.
 
 ### Growth
 
@@ -168,13 +184,13 @@ activity and movement (at a rate $k_i w$). The remaining rate, if any,
   \label{eq:Er}
   E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - k_{s.i} w^p - k_i w)
 \end{equation}
-is used for growth and reproduction.
+is used for growth and reproduction. This is calculated with the 
+`getEReproAndGrowth()` method.
 
 When food supply does not cover the requirements of metabolism and activity, 
-growth and reproduction stops, i.e.~there is no negative growth\footnote{
-The individual would then be subjected to a starvation mortality.
-Starvation is usually not an important process in the multispecies model with Beverton-Holt recruitment.
-It is therefore not implemented in mizer at the moment.}.
+growth and reproduction stops, i.e. there is no negative growth.
+The individual should then be subjected to a starvation mortality, but starvation
+mortality is not implemented in mizer at the moment.
 
 The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
 a function $\psi_i(w)$ that changes between 
