@@ -270,7 +270,6 @@ getPredRate <- function(object, n,  n_pp,
 #' @param drop Only used when object is of type \code{MizerSim}. Should
 #'   dimensions of length 1 in the output be dropped, simplifying the output.
 #'   Defaults to TRUE
-#' @param ... Other arguments (currently unused).
 #'
 #' @return
 #'   If a \code{MizerParams} object is passed in, the method returns a two
@@ -351,14 +350,7 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
 #' n_pp <- sim@@n_pp[21,]
 #' getM2Background(params,n,n_pp)
 #' }
-setGeneric('getM2Background', function(object, n, n_pp, pred_rate)
-    standardGeneric('getM2Background'))
-
-#' \code{getM2Background} method with \code{pred_array} argument.
-#' @rdname getM2Background
-setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric', pred_rate='array'),
-    function(object, n, n_pp, pred_rate){
+getM2Background <- function(object, n, n_pp, pred_rate = getPredRate(object,n=n,n_pp=n_pp)){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
             stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
@@ -367,21 +359,6 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
         M2background <- colSums(pred_rate)
         return(M2background)
     }
-)
-
-#' \code{getM2Background} method without \code{pred_array} argument.
-#' @rdname getM2Background
-setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric',  pred_rate='missing'),
-    function(object, n, n_pp, pred_rate){
-        pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
-        # Since pred_rate here is the result of calling getPredRate, we have
-        # that M2background equals the sum of rows of pred_rate
-        M2background <- getM2Background(object, n=n, n_pp=n_pp, 
-                                        pred_rate=pred_rate)
-        return(M2background)
-    }
-)
 
 #### getFMortGear ####
 #' Get the fishing mortality by time, gear, species and size
