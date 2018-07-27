@@ -374,7 +374,6 @@ getM2Background <- function(object, n, n_pp, pred_rate = getPredRate(object,n=n,
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
 #'   \code{object} argument is of type \code{MizerSim}.
-#' @param ... Other arguments (currently unused).
 #'   
 #' @return An array. If the effort argument has a time dimension, or a
 #'   \code{MizerSim} is passed in, the output array has four dimensions (time x
@@ -419,15 +418,17 @@ getM2Background <- function(object, n, n_pp, pred_rate = getPredRate(object,n=n,
 #' getFMortGear(sim)
 #' getFMortGear(sim, time_range=c(10,20))
 #' }
-setGeneric('getFMortGear', function(object, effort, ...)
-    standardGeneric('getFMortGear'))
-
-#' \code{getFMortGear} method for \code{MizerParams} object with constant effort.
-#' @rdname getFMortGear
-# Effort is a single value or a numeric vector.
-# Effort has no time time dimension
-setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
-	function(object, effort, ...){
+#' 
+getFMortGear <- function(object,effort,time_range){
+    if (is(object,"MizerSim")){
+        if (missing(time_range)){
+            time_range <- dimnames(object@effort)$time
+        }
+        time_elements <- get_time_elements(object,time_range, slot_name="effort")
+        f_mort_gear <- getFMortGear(object@params, object@effort)
+        return(f_mort_gear[time_elements,,,,drop=FALSE])
+    } else {
+    if (is(effort, 'numeric')){
         no_gear <- dim(object@catchability)[1]
         # If a single value, just repeat it for all gears
         if(length(effort) == 1)
@@ -438,36 +439,20 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
         out <- object@selectivity
         out[] <- effort * c(object@catchability) * c(object@selectivity)
         return(out)
-    }
-)
-
-#' \code{getFMortGear} method for \code{MizerParams} object with time changing effort.
-#' @rdname getFMortGear
-# Always returns a 4D array: time x gear x species x size
-setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
-    function(object, effort, ...){
-	no_gear <- dim(object@catchability)[1]
-	if (dim(effort)[2] != no_gear)
-	    stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
-    # Make the output array - note that we put time as last dimension and then aperm before returning 
-    # This is because of the order of the values when we call the other getFMortGear method
-    # Fill it up with by calling the other method and passing in each line of the effort matrix
-    out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
-    out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
-    out <- aperm(out, c(4,1,2,3))
-    return(out)
-    }
-)
-
-# Returns the fishing mortality: time * gear * species * size
-#' \code{getFMortGear} method for \code{MizerSim} object.
-#' @rdname getFMortGear
-setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
-    function(object,effort, time_range=dimnames(object@effort)$time, ...){
-        time_elements <- get_time_elements(object,time_range, slot_name="effort")
-        f_mort_gear <- getFMortGear(object@params, object@effort, ...)
-        return(f_mort_gear[time_elements,,,,drop=FALSE])
-})
+    } else {
+        # assuming effort is a matrix, and object is of MizerParams class
+        no_gear <- dim(object@catchability)[1]
+        if (dim(effort)[2] != no_gear)
+            stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
+        # Make the output array - note that we put time as last dimension and then aperm before returning 
+        # This is because of the order of the values when we call the other getFMortGear method
+        # Fill it up with by calling the other method and passing in each line of the effort matrix
+        out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
+        out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
+        out <- aperm(out, c(4,1,2,3))
+        return(out)
+    }}
+}
 
 
 #### getFMort ####
