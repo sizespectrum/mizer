@@ -151,7 +151,7 @@ getAvailEnergy <- function(object, n, n_pp){
 getFeedingLevel <- function(object, n, n_pp, avail_energy, 
                             time_range=NA, drop=FALSE){
     if (is(object, "MizerParams")) {
-        if (!hasArg(avail_energy)){ # Did user call this function with this argument?
+        if (missing(avail_energy)){
             avail_energy <- getAvailEnergy(object, n, n_pp)
         }
         # Check dims of avail_energy
