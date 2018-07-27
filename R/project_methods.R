@@ -149,7 +149,7 @@ getAvailEnergy <- function(object, n, n_pp){
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
 getFeedingLevel <- function(object, n, n_pp, avail_energy, 
-                            time_range=NA, drop=FALSE){
+                            time_range, drop=FALSE){
     if (is(object, "MizerParams")) {
         if (missing(avail_energy)){
             avail_energy <- getAvailEnergy(object, n, n_pp)
@@ -165,7 +165,7 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
         f <- encount/(encount + object@intake_max)
         return(f)
     } else {
-        if(is.na(time_range)){
+        if(missing(time_range)){
             time_range <- dimnames(object@n)$time
         }
         time_elements <- get_time_elements(object,time_range)
