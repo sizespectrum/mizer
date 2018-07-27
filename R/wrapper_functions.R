@@ -686,7 +686,7 @@ set_scaling_model <- function(no_sp = 11,
     initial_n[, ] <- 0
     for (i in 1:no_sp) {
         # smallest index for species
-        w_min_idx <- params@species_params$w_min_idx[i]
+        w_min_idx <- params@w_min_idx[i]
         # range of indices
         idxs <- w_min_idx:(w_min_idx+length(n_exact)-1)  
         initial_n[i, idxs] <- n_exact * (w_min[1] / w_min[i]) ^ lambda
@@ -702,7 +702,7 @@ set_scaling_model <- function(no_sp = 11,
     # sc <- rep(0, no_w)
     # idxs <- seq_along(n_exact)
     # fac <- (w[1]/w[2])^lambda
-    # for (i in seq_len(max(params@species_params$w_min_idx) - 1)) {
+    # for (i in seq_len(max(params@w_min_idx) - 1)) {
     #     sc[idxs] <- sc[idxs] + n_exact * fac^(i-1)
     #     idxs <- idxs+1
     # }
@@ -748,11 +748,11 @@ set_scaling_model <- function(no_sp = 11,
     mumu <- getZ(params, initial_n, initial_n_pp, effort = 0)
     erepro_final <- 1:no_sp  # set up vector of right dimension
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, params@species_params$w_min_idx[i]]
-        mumu0 <- mumu[i, params@species_params$w_min_idx[i]]
-        DW <- params@dw[params@species_params$w_min_idx[i]]
+        gg0 <- gg[i, params@w_min_idx[i]]
+        mumu0 <- mumu[i, params@w_min_idx[i]]
+        DW <- params@dw[params@w_min_idx[i]]
         erepro_final[i] <- erepro * 
-            (initial_n[i, params@species_params$w_min_idx[i]] *
+            (initial_n[i, params@w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdi[i]
     }
     if (is.finite(rfac)) {
@@ -1006,9 +1006,6 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         if (any(species_params$species %in% params@species_params$species)) {
             stop("You can not add species that are already there.")
         }
-
-        # calculate w_min_idx
-        species_params$w_min_idx <- sum(params@w<=species_params$w_min)
         
         # provide erepro column that is later overwritten
         species_params$erepro <- 0.1
@@ -1074,12 +1071,12 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         
         # Compute solution for new species
         w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
-        idx <- p@species_params$w_min_idx[new_sp]:(w_inf_idx-1)
+        idx <- p@w_min_idx[new_sp]:(w_inf_idx-1)
         if (any(gg[idx]==0)) {
             stop("Can not compute steady state due to zero growth rates")
         }
         p@initial_n[new_sp, ] <- 0
-        p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <- 
+        p@initial_n[new_sp, p@w_min_idx[new_sp]:w_inf_idx] <- 
             c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx+1])))
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
@@ -1125,12 +1122,12 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
         erepro_final <- 1:no_sp  # set up vector of right dimension
         for (i in (1:no_sp)) {
-            gg0 <- gg[i, p@species_params$w_min_idx[i]]
-            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-            DW <- p@dw[p@species_params$w_min_idx[i]]
+            gg0 <- gg[i, p@w_min_idx[i]]
+            mumu0 <- mumu[i, p@w_min_idx[i]]
+            DW <- p@dw[p@w_min_idx[i]]
            if (!rdi[i]==0){
              erepro_final[i] <- p@species_params$erepro[i] *
-                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                (p@initial_n[i, p@w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
            }
             else {
@@ -1272,11 +1269,11 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
     # TODO: vectorise this
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, p@species_params$w_min_idx[i]]
-        mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-        DW <- p@dw[p@species_params$w_min_idx[i]]
+        gg0 <- gg[i, p@w_min_idx[i]]
+        mumu0 <- mumu[i, p@w_min_idx[i]]
+        DW <- p@dw[p@w_min_idx[i]]
         p@species_params$erepro[i] <- p@species_params$erepro[i] *
-            (p@initial_n[i, p@species_params$w_min_idx[i]] *
+            (p@initial_n[i, p@w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdd[i]
     }
     

@@ -941,7 +941,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
             stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         e_spawning_pop <- drop((e_spawning*n) %*% object@dw)
-        rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro)/object@w[object@species_params$w_min_idx] 
+        rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro) /
+            object@w[object@w_min_idx] 
         return(rdi)
     }
 )

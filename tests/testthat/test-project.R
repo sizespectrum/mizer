@@ -196,7 +196,7 @@ test_that("w_min array reference is working OK",{
     NS_species_params_gears$w_min[1] <- 1
     params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=5)
-    expect_that(all(sim@n[6,1,1:(sim@params@species_params$w_min_idx[1]-1)]==0),is_true())
+    expect_that(all(sim@n[6,1,1:(sim@params@w_min_idx[1]-1)]==0),is_true())
 })
 
 test_that("Gear checking and sorting is OK",{

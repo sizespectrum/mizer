@@ -406,7 +406,7 @@ test_that("getRDI", {
     e_spawning <- getESpawning(params, n = n, n_pp = n_full)
     e_spawning_pop <- apply(sweep(e_spawning * n, 2, params@dw, "*"), 1, sum)
     rdix <- sex_ratio * (e_spawning_pop * params@species_params$erepro) / 
-        params@w[params@species_params$w_min_idx]
+        params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
     e_spawning <- getESpawning(params, n = n, n_pp = n_full)
