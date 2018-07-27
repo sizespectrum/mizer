@@ -322,61 +322,6 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
             return(m2_time) 
         }
 }
-##******************
-setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
-    standardGeneric('getM2'))
-
-#' \code{getM2} method for \code{MizerParams} object with \code{pred_rate} argument.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerParams', n = 'missing', 
-                             n_pp='missing', pred_rate = 'array'),
-    function(object, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
-            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
-        }
-        # Get indexes such that w_full[idx_sp[k]]==w[[k]]
-        idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-        
-        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
-        return(m2)
-    }
-)
-
-#' \code{getM2} method for \code{MizerParams} object without \code{pred_rate} argument.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
-                             n_pp='numeric', pred_rate = 'missing'),
-    function(object, n, n_pp){
-      feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-      
-      pred_rate <- getPredRate(object= object, n = n, 
-                                   n_pp=n_pp, feeding_level = feeding_level)
-      
-      # Get indexes such that w_full[idx_sp[k]]==w[[k]]
-      idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-      
-      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
-      return(m2)
-    }
-)
-
-#' \code{getM2} method for \code{MizerSim} object.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', 
-                             pred_rate = 'missing'),
-	function(object, time_range=dimnames(object@n)$time, drop=TRUE, ...){
-		time_elements <- get_time_elements(object,time_range)
-		m2_time <- aaply(which(time_elements), 1, function(x){
-            n <- array(object@n[x,,],dim=dim(object@n)[2:3])
-            dimnames(n) <- dimnames(object@n)[2:3]
-			m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
-			return(m2)
-		}, .drop=drop)
-	return(m2_time)
-	}
-)
-
-
 #### getM2Background ####
 #' Get predation mortality rate for plankton
 #' 
