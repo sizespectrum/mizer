@@ -296,6 +296,33 @@ getPredRate <- function(object, n,  n_pp,
 #' # Get M2 over the time 15 - 20
 #' getM2(sim, time_range = c(15,20))
 #' }
+getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
+    if (is(object, "MizerParams")) {
+        if (missing(pred_rate)){
+            feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+            
+            pred_rate <- getPredRate(object= object, n = n, 
+                                     n_pp=n_pp, feeding_level = feeding_level)
+        }
+        idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+        
+        m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
+        return(m2)
+    } else {
+        if (missing(time_range)){
+            time_range <- dimnames(object@n)$time
+        }
+            time_elements <- get_time_elements(object,time_range)
+            m2_time <- aaply(which(time_elements), 1, function(x){
+                n <- array(object@n[x,,],dim=dim(object@n)[2:3])
+                dimnames(n) <- dimnames(object@n)[2:3]
+                m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
+                return(m2)
+            }, .drop=drop)
+            return(m2_time) 
+        }
+}
+##******************
 setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
     standardGeneric('getM2'))
 
