@@ -33,6 +33,9 @@ scale}
 w_full slot. A vector the same length as the w_full slot. The final value
 is the same as the second to last value}
 
+\item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
+of each species}
+
 \item{\code{psi}}{An array (species x size) that holds the allocation to reproduction
 for each species at size, \eqn{\psi_i(w)}}
 

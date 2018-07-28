@@ -79,17 +79,17 @@ test_that("w_min_idx is being set correctly",{
     # default - no w_min in params data so set to first size
     params <- MizerParams(NS_species_params_gears, inter)
     expect_that(all(params@species_params$w_min == params@w[1]), is_true())
-    expect_that(all(params@species_params$w_min_idx == 1), is_true())
+    expect_that(all(params@w_min_idx == 1), is_true())
     # Set w_min to be the min by hand
     NS_species_params_gears$w_min <- 0.001
     params <- MizerParams(NS_species_params_gears, inter)
-    expect_that(all(params@species_params$w_min_idx == 1), is_true())
+    expect_that(all(params@w_min_idx == 1), is_true())
     # Change w_min of one of the species
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[7] <- 10
     params <- MizerParams(NS_species_params_gears, inter)
-    expect_that(all(params@species_params$w_min_idx[c(1:6,8:12)] == 1), is_true())
-    expect_that(params@species_params$w_min_idx[7], equals(max(which(params@w <= 10))))
+    expect_that(all(params@w_min_idx[c(1:6,8:12)] == 1), is_true())
+    expect_that(params@w_min_idx[7], equals(max(which(params@w <= 10))))
     expect_error(MizerParams(NS_species_params_gears,inter, min_w = 1))
 })
 

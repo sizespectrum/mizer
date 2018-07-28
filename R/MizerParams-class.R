@@ -225,6 +225,8 @@ valid_MizerParams <- function(object) {
 #' @slot dw_full The absolute difference between the size bins specified in the
 #'   w_full slot. A vector the same length as the w_full slot. The final value
 #'   is the same as the second to last value
+#' @slot w_min_idx A vector holding the index of the weight of the egg size
+#'   of each species
 #' @slot psi An array (species x size) that holds the allocation to reproduction
 #'   for each species at size, \eqn{\psi_i(w)}
 #' @slot intake_max An array (species x size) that holds the maximum intake for
@@ -293,6 +295,7 @@ setClass(
         dw = "numeric",
         w_full = "numeric",
         dw_full = "numeric",
+        w_min_idx = "numeric",
         psi = "array",
         initial_n = "array",
         intake_max = "array",
@@ -326,6 +329,7 @@ setClass(
         dw = NA_real_,
         w_full = NA_real_,
         dw_full = NA_real_,
+        w_min_idx = NA_real_,
         n = NA_real_,
         p = NA_real_,
         lambda = NA_real_,
@@ -505,6 +509,8 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	                                     prey = species_names))
 	vec1 <- as.numeric(rep(NA, no_w_full))
 	names(vec1) <- signif(w_full,3)
+	w_min_idx <- rep(1, no_sp)
+	names(w_min_idx) = species_names
 	
 	# Make an empty data.frame for species_params
 	# This is just to pass validity check. 
@@ -539,7 +545,7 @@ setMethod('MizerParams', signature(object='numeric', interaction='missing'),
 	# Make the new object
 	# Should Z0, rrPP and ccPP have names (species names etc)?
 	res <- new("MizerParams",
-	    w = w, dw = dw, w_full = w_full, dw_full = dw_full,
+	    w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
 	    psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, 
 	    activity = mat1, 
 	    std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
@@ -653,16 +659,11 @@ setMethod('MizerParams', signature(object='data.frame', interaction='matrix'),
 	if(any(object$w_min < min(res@w)))
 	    stop("One or more of your w_min values is less than the smallest size of the community spectrum")
 
-	# Add w_min_idx column which has the reference index of the size class closest
-	# to w_min - this is a short cut for later on and prevents repetition.
-    if (!("w_min_idx" %in% names(object))) {
-        object$w_min_idx <- as.vector(
-            tapply(object$w_min,1:length(object$w_min),
-                   function(w_min,wx) max(which(wx<=w_min)),wx=res@w))
-    }
-
 	## Start filling the slots ---------------------------------------------
 	res@species_params <- object
+    res@w_min_idx <- as.vector(
+        tapply(object$w_min, 1:length(object$w_min),
+               function(w_min, wx) max(which(wx<=w_min)), wx=res@w))
 	# Check dims of interaction argument - make sure it's right
 	if (!isTRUE(all.equal(dim(res@interaction), dim(interaction))))
 	    stop("interaction matrix is not of the right dimensions. Must be number of species x number of species")

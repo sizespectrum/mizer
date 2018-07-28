@@ -151,11 +151,11 @@ server <- function(input, output, session) {
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
         for (i in (1:no_sp)) {
-            gg0 <- gg[i, p@species_params$w_min_idx[i]]
-            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-            DW <- p@dw[p@species_params$w_min_idx[i]]
+            gg0 <- gg[i, p@w_min_idx[i]]
+            mumu0 <- mumu[i, p@w_min_idx[i]]
+            DW <- p@dw[p@w_min_idx[i]]
             p@species_params$erepro[i] <- p@species_params$erepro[i] *
-                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                (p@initial_n[i, p@w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
         }
         
@@ -224,11 +224,11 @@ server <- function(input, output, session) {
         no_sp <- length(p@species_params$species)
         erepro <- 1:no_sp  # set up vector of right dimension
         for (i in (1:no_sp)) {
-            gg0 <- gg[i, p@species_params$w_min_idx[i]]
-            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-            DW <- p@dw[p@species_params$w_min_idx[i]]
+            gg0 <- gg[i, p@w_min_idx[i]]
+            mumu0 <- mumu[i, p@w_min_idx[i]]
+            DW <- p@dw[p@w_min_idx[i]]
             erepro[i] <- p@species_params$erepro[i] *
-                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                (p@initial_n[i, p@w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
         }
         p@species_params$erepro <- erepro

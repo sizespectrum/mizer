@@ -46,7 +46,6 @@ NULL
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the background abundance by size
-#' @param ... Other arguments (currently unused)
 #'   
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
@@ -62,13 +61,7 @@ NULL
 #' n_pp <- sim@@n_pp[21,]
 #' getAvailEnergy(params,n,n_pp)
 #' }
-setGeneric('getAvailEnergy', function(object, n, n_pp,...)
-    standardGeneric('getAvailEnergy'))
-
-#' @rdname getAvailEnergy
-setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='numeric'),
-    function(object, n, n_pp, ...){
-#        cat("In getAvailEnergy\n")
+getAvailEnergy <- function(object, n, n_pp){
 	# Check n dims
 	if(dim(n)[1] != dim(object@interaction)[1])
 	    stop("n does not have the right number of species (first dimension)")
@@ -82,15 +75,15 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 	# values of object@w_full such that (object@w_full)[idx_sp]=object@w
 	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
 
-	fishEaten <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
+	prey <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
 	# Looking at Equation (3.4), for available energy in the mizer vignette, 
-	# we have, for our predator species i, that fishEaten[k] equals 
+	# we have, for our predator species i, that prey[k] equals 
 	# the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
-	fishEaten[, idx_sp] <- object@interaction %*% n
+	prey[, idx_sp] <- object@interaction %*% n
 	# The vector f2 equals everything inside integral (3.4) except the feeding 
 	# kernel phi_i(w_p/w). 
 	# We work in log-space so an extra multiplier w_p is introduced.
-	f2 <- sweep(sweep(fishEaten, 2, n_pp, "+"), 2, object@w_full^2, "*")
+	f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
 	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
 	# We approximate the integral by the trapezoidal method. Using the
 	# convolution theorem we can evaluate the resulting sum via fast fourier
@@ -98,12 +91,13 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 	# mvfft() does a Fourier transform of each column of its argument, but
 	# we need the Fourier transforms of each row, so we need to apply mvfft()
 	# to the transposed matrices and then transpose again at the end.
-	fullEnergy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), inverse=TRUE)))/length(object@w_full)
+	avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), 
+	                           inverse=TRUE)))/length(object@w_full)
 	# Due to numerical errors we might get negative entries. They should be 0
-	fullEnergy[fullEnergy<0] <- 0
+	avail_energy[avail_energy<0] <- 0
 
-	return(fullEnergy[, idx_sp, drop=FALSE])
-})
+	return(avail_energy[, idx_sp, drop=FALSE])
+}
 
 
 #### getFeedingLevel ####
@@ -128,7 +122,6 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 #'   \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped, 
 #'   simplifying the output. Defaults to TRUE.
-#' @param ... Other arguments (currently unused).
 #'   
 #' @note If a \code{MizerParams} object is passed in, the method returns a two 
 #' dimensional array (predator species x predator size) based on the abundances 
@@ -155,16 +148,14 @@ setMethod('getAvailEnergy', signature(object='MizerParams', n = 'matrix', n_pp='
 #' # Get the feeding level for time 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
-setGeneric('getFeedingLevel', function(object, n, n_pp, avail_energy, ...)
-    standardGeneric('getFeedingLevel'))
-
-#' getFeedingLevel method for a \code{MizerParams} object with already 
-#' calculated \code{avail_energy} matrix.
-#' @rdname getFeedingLevel
-setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric', avail_energy='matrix'),
-    function(object, n, n_pp, avail_energy, ...){
-    # Check dims of avail_energy
+getFeedingLevel <- function(object, n, n_pp, avail_energy, 
+                            time_range, drop=FALSE){
+    if (is(object, "MizerParams")) {
+        if (missing(avail_energy)){
+            avail_energy <- getAvailEnergy(object, n, n_pp)
+        }
+        # Check dims of avail_energy
+        
         if (!all(dim(avail_energy) == c(nrow(object@species_params),length(object@w)))){
             stop("avail_energy argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
@@ -173,37 +164,23 @@ setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix',
         # calculate feeding level
         f <- encount/(encount + object@intake_max)
         return(f)
-    }
-)
-
-#' getFeedingLevel method for a \code{MizerParams} object without the 
-#' \code{avail_energy} matrix argument.
-#' @rdname getFeedingLevel
-setMethod('getFeedingLevel', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric', avail_energy='missing'),
-    function(object, n, n_pp, ...){
-        avail_energy <- getAvailEnergy(object, n=n, n_pp=n_pp)
-        f <- getFeedingLevel(object=object, n=n, n_pp=n_pp, avail_energy=avail_energy)
-	    return(f)
-    }
-)
-
-#' getFeedingLevel method for a \code{MizerSim} object.
-#' @rdname getFeedingLevel
-setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing', 
-                                       n_pp='missing', avail_energy='missing'),
-    function(object, time_range=dimnames(object@n)$time, drop=FALSE, ...){
+    } else {
+        if(missing(time_range)){
+            time_range <- dimnames(object@n)$time
+        }
         time_elements <- get_time_elements(object,time_range)
         feed_time <- aaply(which(time_elements), 1, function(x){
             # Necessary as we only want single time step but may only have 1
             # species which makes using drop impossible
             n <- array(object@n[x,,],dim=dim(object@n)[2:3])
             dimnames(n) <- dimnames(object@n)[2:3]
-			feed <- getFeedingLevel(object@params, n=n, n_pp = object@n_pp[x,])
-			return(feed)}, .drop=drop)
+            feed <- getFeedingLevel(object@params, n=n, n_pp = object@n_pp[x,])
+            return(feed)}, .drop=drop)
         return(feed_time)
     }
-)
+}
+
+
 
 #### getPredRate ####
 #' Get predation rate
@@ -237,56 +214,36 @@ setMethod('getFeedingLevel', signature(object='MizerSim', n = 'missing',
 #' n_pp <- sim@@n_pp[21,]
 #' getPredRate(params,n,n_pp)
 #' }
-setGeneric('getPredRate', function(object, n, n_pp, feeding_level)
-    standardGeneric('getPredRate'))
 
-#' \code{getPredRate} method with \code{feeding_level} argument.
-#' @rdname getPredRate
-# Called from project ->
-setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
-                                   n_pp='numeric', feeding_level = 'matrix'),
-    function(object, n, n_pp, feeding_level){
-        if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))) {
-            stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        noSpecies <- dim(object@interaction)[1]
-        # Get indices of w_full that give w
-        idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-        # get period used in spectral integration
-        no_P <- length(object@ft_pred_kernel_p[1,])
-        # We express the intermediate values as a a convolution integral involving
-        # two objects: Q[i,] and ft_pred_kernel_p[i,]. 
-        # Here Q[i,] is all the integrand of (3.12) except the feeding kernel
-        # and theta, and we sample it from 0 to P, but it is only non-zero from
-        # fishEggSize to X, where P = X + beta + 3*sigma, and X is the max fish
-        # size in the log space
-        
-        Q <- matrix(0, nrow = noSpecies, ncol = no_P )
-        # We fill the middle of each row of Q with the proper values
-        Q[, idx_sp] <- sweep((1-feeding_level)*object@search_vol*n, 2, object@w, "*")
-        
-        # We do our spectral integration in parallel over the different species 
-        mortLonger <- Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
-        # Unfortunately due to numerical errors some entries might be negative
-        # So we have to set them to zero. Is this the fastest way to do that?
-        mortLonger[mortLonger<0] <- 0
-        # We drop some of the final columns to get our output
-        return(mortLonger[, 1:length(object@w_full), drop = FALSE])
+getPredRate <- function(object, n,  n_pp, 
+                        feeding_level = getFeedingLevel(object, n=n, n_pp=n_pp)){
+    if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))) {
+        stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getPredRate} method without \code{feeding_level} argument.
-#' @rdname getPredRate
-setMethod('getPredRate', signature(object='MizerParams', n = 'matrix', 
-                                   n_pp='numeric', feeding_level = 'missing'),
-    function(object, n, n_pp){
-        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        pred_rate <- getPredRate(object=object, n=n, n_pp=n_pp, 
-                                 feeding_level = feeding_level)
-        return(pred_rate)
-    }
-)
-
+    noSpecies <- dim(object@interaction)[1]
+    # Get indices of w_full that give w
+    idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+    # get period used in spectral integration
+    no_P <- length(object@ft_pred_kernel_p[1,])
+    # We express the intermediate values as a a convolution integral involving
+    # two objects: Q[i,] and ft_pred_kernel_p[i,]. 
+    # Here Q[i,] is all the integrand of (3.12) except the feeding kernel
+    # and theta, and we sample it from 0 to P, but it is only non-zero from
+    # fishEggSize to X, where P = X + beta + 3*sigma, and X is the max fish
+    # size in the log space
+    
+    Q <- matrix(0, nrow = noSpecies, ncol = no_P )
+    # We fill the middle of each row of Q with the proper values
+    Q[, idx_sp] <- sweep((1-feeding_level)*object@search_vol*n, 2, object@w, "*")
+    
+    # We do our spectral integration in parallel over the different species 
+    mortLonger <- Re(t(mvfft(t(object@ft_pred_kernel_p) * mvfft(t(Q)), inverse=TRUE)))/no_P
+    # Unfortunately due to numerical errors some entries might be negative
+    # So we have to set them to zero. Is this the fastest way to do that?
+    mortLonger[mortLonger<0] <- 0
+    # We drop some of the final columns to get our output
+    return(mortLonger[, 1:length(object@w_full), drop = FALSE])
+}
 
 #### getM2 ####
 # This uses the predation rate which is also used in M2background
@@ -313,7 +270,6 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
 #' @param drop Only used when object is of type \code{MizerSim}. Should
 #'   dimensions of length 1 in the output be dropped, simplifying the output.
 #'   Defaults to TRUE
-#' @param ... Other arguments (currently unused).
 #'
 #' @return
 #'   If a \code{MizerParams} object is passed in, the method returns a two
@@ -339,60 +295,32 @@ setMethod('getPredRate', signature(object='MizerParams', n = 'matrix',
 #' # Get M2 over the time 15 - 20
 #' getM2(sim, time_range = c(15,20))
 #' }
-setGeneric('getM2', function(object, n, n_pp, pred_rate, ...)
-    standardGeneric('getM2'))
-
-#' \code{getM2} method for \code{MizerParams} object with \code{pred_rate} argument.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerParams', n = 'missing', 
-                             n_pp='missing', pred_rate = 'array'),
-    function(object, pred_rate){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
-            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
+getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
+    if (is(object, "MizerParams")) {
+        if (missing(pred_rate)){
+            feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
+            
+            pred_rate <- getPredRate(object= object, n = n, 
+                                     n_pp=n_pp, feeding_level = feeding_level)
         }
-        # Get indexes such that w_full[idx_sp[k]]==w[[k]]
         idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
         
         m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
         return(m2)
-    }
-)
-
-#' \code{getM2} method for \code{MizerParams} object without \code{pred_rate} argument.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerParams', n = 'matrix', 
-                             n_pp='numeric', pred_rate = 'missing'),
-    function(object, n, n_pp){
-      feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-      
-      pred_rate <- getPredRate(object= object, n = n, 
-                                   n_pp=n_pp, feeding_level = feeding_level)
-      
-      # Get indexes such that w_full[idx_sp[k]]==w[[k]]
-      idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-      
-      m2 <- (t(object@interaction) %*% pred_rate)[, idx_sp, drop=FALSE]
-      return(m2)
-    }
-)
-
-#' \code{getM2} method for \code{MizerSim} object.
-#' @rdname getM2
-setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing', 
-                             pred_rate = 'missing'),
-	function(object, time_range=dimnames(object@n)$time, drop=TRUE, ...){
-		time_elements <- get_time_elements(object,time_range)
-		m2_time <- aaply(which(time_elements), 1, function(x){
-            n <- array(object@n[x,,],dim=dim(object@n)[2:3])
-            dimnames(n) <- dimnames(object@n)[2:3]
-			m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
-			return(m2)
-		}, .drop=drop)
-	return(m2_time)
-	}
-)
-
-
+    } else {
+        if (missing(time_range)){
+            time_range <- dimnames(object@n)$time
+        }
+            time_elements <- get_time_elements(object,time_range)
+            m2_time <- aaply(which(time_elements), 1, function(x){
+                n <- array(object@n[x,,],dim=dim(object@n)[2:3])
+                dimnames(n) <- dimnames(object@n)[2:3]
+                m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
+                return(m2)
+            }, .drop=drop)
+            return(m2_time) 
+        }
+}
 #### getM2Background ####
 #' Get predation mortality rate for plankton
 #' 
@@ -422,14 +350,7 @@ setMethod('getM2', signature(object='MizerSim', n = 'missing', n_pp='missing',
 #' n_pp <- sim@@n_pp[21,]
 #' getM2Background(params,n,n_pp)
 #' }
-setGeneric('getM2Background', function(object, n, n_pp, pred_rate)
-    standardGeneric('getM2Background'))
-
-#' \code{getM2Background} method with \code{pred_array} argument.
-#' @rdname getM2Background
-setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric', pred_rate='array'),
-    function(object, n, n_pp, pred_rate){
+getM2Background <- function(object, n, n_pp, pred_rate = getPredRate(object,n=n,n_pp=n_pp)){
         if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
             stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
         }
@@ -438,21 +359,6 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
         M2background <- colSums(pred_rate)
         return(M2background)
     }
-)
-
-#' \code{getM2Background} method without \code{pred_array} argument.
-#' @rdname getM2Background
-setMethod('getM2Background', signature(object='MizerParams', n = 'matrix', 
-                                       n_pp='numeric',  pred_rate='missing'),
-    function(object, n, n_pp, pred_rate){
-        pred_rate <- getPredRate(object,n=n,n_pp=n_pp)
-        # Since pred_rate here is the result of calling getPredRate, we have
-        # that M2background equals the sum of rows of pred_rate
-        M2background <- getM2Background(object, n=n, n_pp=n_pp, 
-                                        pred_rate=pred_rate)
-        return(M2background)
-    }
-)
 
 #### getFMortGear ####
 #' Get the fishing mortality by time, gear, species and size
@@ -468,7 +374,6 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
 #'   \code{object} argument is of type \code{MizerSim}.
-#' @param ... Other arguments (currently unused).
 #'   
 #' @return An array. If the effort argument has a time dimension, or a
 #'   \code{MizerSim} is passed in, the output array has four dimensions (time x
@@ -513,15 +418,17 @@ setMethod('getM2Background', signature(object='MizerParams', n = 'matrix',
 #' getFMortGear(sim)
 #' getFMortGear(sim, time_range=c(10,20))
 #' }
-setGeneric('getFMortGear', function(object, effort, ...)
-    standardGeneric('getFMortGear'))
-
-#' \code{getFMortGear} method for \code{MizerParams} object with constant effort.
-#' @rdname getFMortGear
-# Effort is a single value or a numeric vector.
-# Effort has no time time dimension
-setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
-	function(object, effort, ...){
+#' 
+getFMortGear <- function(object,effort,time_range){
+    if (is(object,"MizerSim")){
+        if (missing(time_range)){
+            time_range <- dimnames(object@effort)$time
+        }
+        time_elements <- get_time_elements(object,time_range, slot_name="effort")
+        f_mort_gear <- getFMortGear(object@params, object@effort)
+        return(f_mort_gear[time_elements,,,,drop=FALSE])
+    } else {
+    if (is(effort, 'numeric')){
         no_gear <- dim(object@catchability)[1]
         # If a single value, just repeat it for all gears
         if(length(effort) == 1)
@@ -532,36 +439,20 @@ setMethod('getFMortGear', signature(object='MizerParams', effort = 'numeric'),
         out <- object@selectivity
         out[] <- effort * c(object@catchability) * c(object@selectivity)
         return(out)
-    }
-)
-
-#' \code{getFMortGear} method for \code{MizerParams} object with time changing effort.
-#' @rdname getFMortGear
-# Always returns a 4D array: time x gear x species x size
-setMethod('getFMortGear', signature(object='MizerParams', effort = 'matrix'),
-    function(object, effort, ...){
-	no_gear <- dim(object@catchability)[1]
-	if (dim(effort)[2] != no_gear)
-	    stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
-    # Make the output array - note that we put time as last dimension and then aperm before returning 
-    # This is because of the order of the values when we call the other getFMortGear method
-    # Fill it up with by calling the other method and passing in each line of the effort matrix
-    out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
-    out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
-    out <- aperm(out, c(4,1,2,3))
-    return(out)
-    }
-)
-
-# Returns the fishing mortality: time * gear * species * size
-#' \code{getFMortGear} method for \code{MizerSim} object.
-#' @rdname getFMortGear
-setMethod('getFMortGear', signature(object='MizerSim', effort='missing'),
-    function(object,effort, time_range=dimnames(object@effort)$time, ...){
-        time_elements <- get_time_elements(object,time_range, slot_name="effort")
-        f_mort_gear <- getFMortGear(object@params, object@effort, ...)
-        return(f_mort_gear[time_elements,,,,drop=FALSE])
-})
+    } else {
+        # assuming effort is a matrix, and object is of MizerParams class
+        no_gear <- dim(object@catchability)[1]
+        if (dim(effort)[2] != no_gear)
+            stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
+        # Make the output array - note that we put time as last dimension and then aperm before returning 
+        # This is because of the order of the values when we call the other getFMortGear method
+        # Fill it up with by calling the other method and passing in each line of the effort matrix
+        out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
+        out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
+        out <- aperm(out, c(4,1,2,3))
+        return(out)
+    }}
+}
 
 
 #### getFMort ####
@@ -941,7 +832,8 @@ setMethod('getRDI', signature(object='MizerParams', n = 'matrix',
             stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
         }
         e_spawning_pop <- drop((e_spawning*n) %*% object@dw)
-        rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro)/object@w[object@species_params$w_min_idx] 
+        rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro) /
+            object@w[object@w_min_idx] 
         return(rdi)
     }
 )

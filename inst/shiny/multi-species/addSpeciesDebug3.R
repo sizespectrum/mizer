@@ -261,12 +261,12 @@ gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[new_sp, ]
 
 # Compute solution for new species
 w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
-idx <- p@species_params$w_min_idx[new_sp]:(w_inf_idx-1)
+idx <- p@w_min_idx[new_sp]:(w_inf_idx-1)
 if (any(gg[idx]==0)) {
   stop("Can not compute steady state due to zero growth rates")
 }
 p@initial_n[new_sp, ] <- 0
-p@initial_n[new_sp, p@species_params$w_min_idx[new_sp]:w_inf_idx] <- 
+p@initial_n[new_sp, p@w_min_idx[new_sp]:w_inf_idx] <- 
   c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx+1])))
 if (any(is.infinite(p@initial_n))) {
   stop("Candidate steady state holds infinities")
@@ -312,12 +312,12 @@ gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
 rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
 erepro_final <- 1:no_sp  # set up vector of right dimension
 for (i in (1:no_sp)) {
-  gg0 <- gg[i, p@species_params$w_min_idx[i]]
-  mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-  DW <- p@dw[p@species_params$w_min_idx[i]]
+  gg0 <- gg[i, p@w_min_idx[i]]
+  mumu0 <- mumu[i, p@w_min_idx[i]]
+  DW <- p@dw[p@w_min_idx[i]]
   if (!rdi[i]==0){
     erepro_final[i] <- p@species_params$erepro[i] *
-      (p@initial_n[i, p@species_params$w_min_idx[i]] *
+      (p@initial_n[i, p@w_min_idx[i]] *
          (gg0 + DW * mumu0)) / rdi[i]
   }
   else {
@@ -365,11 +365,11 @@ mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = effort)
 gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
 rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
 for (ii in (1:no_sp)) {
-  gg0 <- gg[ii, p@species_params$w_min_idx[ii]]
-  mumu0 <- mumu[i, p@species_params$w_min_idx[ii]]
-  DW <- p@dw[p@species_params$w_min_idx[ii]]
+  gg0 <- gg[ii, p@w_min_idx[ii]]
+  mumu0 <- mumu[i, p@w_min_idx[ii]]
+  DW <- p@dw[p@w_min_idx[ii]]
   p@species_params$erepro[i] <- p@species_params$erepro[ii] *
-    (p@initial_n[i, p@species_params$w_min_idx[ii]] *
+    (p@initial_n[i, p@w_min_idx[ii]] *
        (gg0 + DW * mumu0)) / rdi[ii]
 }
 

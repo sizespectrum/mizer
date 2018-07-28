@@ -92,11 +92,11 @@ p <- setBackground(set_scaling_model(no_sp = 10, no_w = 400,
   gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
   rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
   for (i in (1:no_sp)) {
-    gg0 <- gg[i, p@species_params$w_min_idx[i]]
-    mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-    DW <- p@dw[p@species_params$w_min_idx[i]]
+    gg0 <- gg[i, p@w_min_idx[i]]
+    mumu0 <- mumu[i, p@w_min_idx[i]]
+    DW <- p@dw[p@w_min_idx[i]]
     p@species_params$erepro[i] <- p@species_params$erepro[i] *
-      (p@initial_n[i, p@species_params$w_min_idx[i]] *
+      (p@initial_n[i, p@w_min_idx[i]] *
          (gg0 + DW * mumu0)) / rdi[i]
   }
   
