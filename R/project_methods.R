@@ -62,41 +62,41 @@ NULL
 #' getAvailEnergy(params,n,n_pp)
 #' }
 getAvailEnergy <- function(object, n, n_pp){
-	# Check n dims
-	if(dim(n)[1] != dim(object@interaction)[1])
-	    stop("n does not have the right number of species (first dimension)")
-	if(dim(n)[2] != length(object@w))
-	    stop("n does not have the right number of size groups (second dimension)")
-	if(length(n_pp) != length(object@w_full))
-	    stop("n_pp does not have the right number of size groups")
-
-	# The object@w vector only gives weights from the egg size up to the max fish size. 
-	# However object@w_full gives more smaller weights and idx_sp are the index 
-	# values of object@w_full such that (object@w_full)[idx_sp]=object@w
-	idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
-
-	prey <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
-	# Looking at Equation (3.4), for available energy in the mizer vignette, 
-	# we have, for our predator species i, that prey[k] equals 
-	# the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
-	prey[, idx_sp] <- object@interaction %*% n
-	# The vector f2 equals everything inside integral (3.4) except the feeding 
-	# kernel phi_i(w_p/w). 
-	# We work in log-space so an extra multiplier w_p is introduced.
-	f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
-	# Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
-	# We approximate the integral by the trapezoidal method. Using the
-	# convolution theorem we can evaluate the resulting sum via fast fourier
-	# transform.
-	# mvfft() does a Fourier transform of each column of its argument, but
-	# we need the Fourier transforms of each row, so we need to apply mvfft()
-	# to the transposed matrices and then transpose again at the end.
-	avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), 
-	                           inverse=TRUE)))/length(object@w_full)
-	# Due to numerical errors we might get negative entries. They should be 0
-	avail_energy[avail_energy<0] <- 0
-
-	return(avail_energy[, idx_sp, drop=FALSE])
+    # Check n dims
+    if(dim(n)[1] != dim(object@interaction)[1])
+        stop("n does not have the right number of species (first dimension)")
+    if(dim(n)[2] != length(object@w))
+        stop("n does not have the right number of size groups (second dimension)")
+    if(length(n_pp) != length(object@w_full))
+        stop("n_pp does not have the right number of size groups")
+    
+    # The object@w vector only gives weights from the egg size up to the max fish size. 
+    # However object@w_full gives more smaller weights and idx_sp are the index 
+    # values of object@w_full such that (object@w_full)[idx_sp]=object@w
+    idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+    
+    prey <- matrix(0, nrow = dim(n)[1], ncol=length(object@w_full))
+    # Looking at Equation (3.4), for available energy in the mizer vignette, 
+    # we have, for our predator species i, that prey[k] equals 
+    # the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])        
+    prey[, idx_sp] <- object@interaction %*% n
+    # The vector f2 equals everything inside integral (3.4) except the feeding 
+    # kernel phi_i(w_p/w). 
+    # We work in log-space so an extra multiplier w_p is introduced.
+    f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
+    # Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
+    # We approximate the integral by the trapezoidal method. Using the
+    # convolution theorem we can evaluate the resulting sum via fast fourier
+    # transform.
+    # mvfft() does a Fourier transform of each column of its argument, but
+    # we need the Fourier transforms of each row, so we need to apply mvfft()
+    # to the transposed matrices and then transpose again at the end.
+    avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)), 
+                               inverse=TRUE)))/length(object@w_full)
+    # Due to numerical errors we might get negative entries. They should be 0
+    avail_energy[avail_energy<0] <- 0
+    
+    return(avail_energy[, idx_sp, drop=FALSE])
 }
 
 
@@ -311,15 +311,15 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
         if (missing(time_range)){
             time_range <- dimnames(object@n)$time
         }
-            time_elements <- get_time_elements(object,time_range)
-            m2_time <- aaply(which(time_elements), 1, function(x){
-                n <- array(object@n[x,,],dim=dim(object@n)[2:3])
-                dimnames(n) <- dimnames(object@n)[2:3]
-                m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
-                return(m2)
-            }, .drop=drop)
-            return(m2_time) 
-        }
+        time_elements <- get_time_elements(object,time_range)
+        m2_time <- aaply(which(time_elements), 1, function(x){
+            n <- array(object@n[x,,],dim=dim(object@n)[2:3])
+            dimnames(n) <- dimnames(object@n)[2:3]
+            m2 <- getM2(object@params, n=n, n_pp = object@n_pp[x,])
+            return(m2)
+        }, .drop=drop)
+        return(m2_time) 
+    }
 }
 #### getM2Background ####
 #' Get predation mortality rate for plankton
@@ -351,14 +351,14 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE){
 #' getM2Background(params,n,n_pp)
 #' }
 getM2Background <- function(object, n, n_pp, pred_rate = getPredRate(object,n=n,n_pp=n_pp)){
-        if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
-            stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
-        }
-        # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
-        # the sum of rows of pred_rate
-        M2background <- colSums(pred_rate)
-        return(M2background)
+    if ((!all(dim(pred_rate) == c(nrow(object@species_params),length(object@w_full)))) | (length(dim(pred_rate))!=2)){
+        stop("pred_rate argument must have 2 dimensions: no. species (",nrow(object@species_params),") x no. size bins in community + background (",length(object@w_full),")")
     }
+    # Since pred_rate here is the result of calling getPredRate, we have that M2background equals 
+    # the sum of rows of pred_rate
+    M2background <- colSums(pred_rate)
+    return(M2background)
+}
 
 #### getFMortGear ####
 #' Get the fishing mortality by time, gear, species and size
@@ -428,30 +428,30 @@ getFMortGear <- function(object,effort,time_range){
         f_mort_gear <- getFMortGear(object@params, object@effort)
         return(f_mort_gear[time_elements,,,,drop=FALSE])
     } else {
-    if (is(effort, 'numeric')){
-        no_gear <- dim(object@catchability)[1]
-        # If a single value, just repeat it for all gears
-        if(length(effort) == 1)
-            effort <- rep(effort, no_gear)
-        if (length(effort) != no_gear)
-            stop("Effort must be a single value or a vector as long as the number of gears\n")
-        # Streamlined for speed increase - note use of recycling
-        out <- object@selectivity
-        out[] <- effort * c(object@catchability) * c(object@selectivity)
-        return(out)
-    } else {
-        # assuming effort is a matrix, and object is of MizerParams class
-        no_gear <- dim(object@catchability)[1]
-        if (dim(effort)[2] != no_gear)
-            stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
-        # Make the output array - note that we put time as last dimension and then aperm before returning 
-        # This is because of the order of the values when we call the other getFMortGear method
-        # Fill it up with by calling the other method and passing in each line of the effort matrix
-        out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
-        out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
-        out <- aperm(out, c(4,1,2,3))
-        return(out)
-    }}
+        if (is(effort, 'numeric')){
+            no_gear <- dim(object@catchability)[1]
+            # If a single value, just repeat it for all gears
+            if(length(effort) == 1)
+                effort <- rep(effort, no_gear)
+            if (length(effort) != no_gear)
+                stop("Effort must be a single value or a vector as long as the number of gears\n")
+            # Streamlined for speed increase - note use of recycling
+            out <- object@selectivity
+            out[] <- effort * c(object@catchability) * c(object@selectivity)
+            return(out)
+        } else {
+            # assuming effort is a matrix, and object is of MizerParams class
+            no_gear <- dim(object@catchability)[1]
+            if (dim(effort)[2] != no_gear)
+                stop("Effort array must have a single value or a vector as long as the number of gears for each time step\n")
+            # Make the output array - note that we put time as last dimension and then aperm before returning 
+            # This is because of the order of the values when we call the other getFMortGear method
+            # Fill it up with by calling the other method and passing in each line of the effort matrix
+            out <- array(NA, dim=c(dim(object@selectivity), dim(effort)[1]), dimnames= c(dimnames(object@selectivity), list(time = dimnames(effort)[[1]])))
+            out[] <- apply(effort, 1, function(x) getFMortGear(object, x))
+            out <- aperm(out, c(4,1,2,3))
+            return(out)
+        }}
 }
 
 
@@ -776,7 +776,7 @@ get_time_elements <- function(sim,time_range,slot_name="n"){
     sim_times <- as.numeric(dimnames(sim@effort)$time)
     sim_time_range <- range(sim_times)
     if ((time_range[1] < sim_time_range[1]) | (time_range[2] > sim_time_range[2]))
-	    stop("Time range is outside the time range of the model")
+        stop("Time range is outside the time range of the model")
     time_elements <- (sim_times >= time_range[1]) & (sim_times <= time_range[2])
     names(time_elements) <- dimnames(sim@effort)$time
     return(time_elements)
