@@ -743,7 +743,6 @@ getRDI <- function(object, n, n_pp, e_spawning=getESpawning(object, n=n, n_pp=n_
 #' @param rdi A vector of density independent recruitment for each species. 
 #'   If not specified rdi is calculated internally using
 #'   the \code{\link{getRDI}} method.
-#' @param ... Other arguments (currently unused).
 #'   
 #' @return A numeric vector the length of the number of species. 
 #' @export
@@ -757,28 +756,11 @@ getRDI <- function(object, n, n_pp, e_spawning=getESpawning(object, n=n, n_pp=n_
 #' # Get the energy at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-setGeneric('getRDD', function(object, n, n_pp, rdi, ...)
-    standardGeneric('getRDD'))
-
-#' \code{getRDD} method with \code{rdi} argument.
-#' @rdname getRDD
-setMethod('getRDD', signature(object='MizerParams', n = 'matrix', 
-                              n_pp = 'numeric', rdi='numeric'),
-    function(object, n, n_pp, rdi){
-        rdd <- object@srr(rdi = rdi, species_params = object@species_params)
-        return(rdd)
-})
-
-#' \code{getRDD} method without \code{rdi} argument.
-#' @rdname getRDD
-setMethod('getRDD', signature(object='MizerParams', n = 'matrix', n_pp = 'numeric', rdi='missing'),
-    function(object, n, n_pp, sex_ratio = 0.5){
-    	rdi <- getRDI(object, n=n, n_pp=n_pp, sex_ratio = sex_ratio)
-    	rdd <- getRDD(object, n=n, n_pp=n_pp, rdi=rdi)
-    	return(rdd)
-    }
-)
-
+getRDD <- function(object, n, n_pp, sex_ratio = 0.5, 
+                   rdi = getRDI(object, n=n, n_pp=n_pp, sex_ratio = sex_ratio)){
+    rdd <- object@srr(rdi = rdi, species_params = object@species_params)
+    return(rdd)    
+}
 
 # get_time_elements
 # internal function to get the array element references of the time dimension
