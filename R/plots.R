@@ -140,13 +140,7 @@ getSSBFrame <- function(sim,
 #' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
 #' @seealso \code{\link{getBiomass}}
-setGeneric('getBiomassFrame', function(sim, ...)
-    standardGeneric('getBiomassFrame'))
-
-#' Get the biomass frame from a \code{MizerSim} object.
-#' @rdname getBiomassFrame
-setMethod('getBiomassFrame', signature(sim='MizerSim'),
-          function(sim, 
+getBiomassFrame <- function(sim, 
                    species = sim@params@species_params$species[!is.na(sim@params@A)],
                    start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
                    end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
@@ -179,7 +173,6 @@ setMethod('getBiomassFrame', signature(sim='MizerSim'),
               
               return(bm)
           }
-)
 
 
 #### plotBiomass ####
