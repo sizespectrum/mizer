@@ -431,13 +431,7 @@ plotYield <- function(sim, sim2, species = as.character(sim@params@species_param
 #' plotYieldGear(sim)
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 #' }
-setGeneric('plotYieldGear', function(sim, ...)
-    standardGeneric('plotYieldGear'))
-
-#' Plot the yield of each gear using a \code{MizerSim} object.
-#' @rdname plotYieldGear
-setMethod('plotYieldGear', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+plotYieldGear <- function(sim, species = as.character(sim@params@species_params$species),
              print_it=TRUE, total = FALSE, ...){
 	y <- getYieldGear(sim, ...)
 	y_total <- rowSums(y, dims = 2)
@@ -467,7 +461,6 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
     }
 	return(p)
     }
-)
 
 
 #### plotSpectra ####
