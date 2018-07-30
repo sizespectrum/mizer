@@ -675,42 +675,19 @@ getESpawning <- function(object, n, n_pp, e=getEReproAndGrowth(object,n=n,n_pp=n
 #' # Get the energy at a particular time step
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-setGeneric('getEGrowth', function(object, n, n_pp, e_spawning, e)
-    standardGeneric('getEGrowth'))
-
-#' \code{getEGrowth} method with \code{e_spawning} and \code{e} arguments.
-#' @rdname getEGrowth 
-setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', 
-                                  n_pp = 'numeric', e_spawning='matrix', e='matrix'),
-    function(object, n, n_pp, e_spawning, e){
-        if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
-            stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
-            stop("e argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        # Assimilated intake less activity and metabolism
-        # energy for growth is intake - energy for growth
-        e_growth <- e - e_spawning
-        return(e_growth)
+getEGrowth <- function(object, n, n_pp, e_spawning = getESpawning(object,n=n,n_pp=n_pp), 
+                       e=getEReproAndGrowth(object,n=n,n_pp=n_pp)){
+    if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
+        stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getEGrowth} method without \code{e_spawning} and \code{e} arguments.
-#' @rdname getEGrowth
-setMethod('getEGrowth', signature(object='MizerParams', n = 'matrix', 
-                                  n_pp = 'numeric', e_spawning='missing', 
-                                  e='missing'),
-    function(object, n, n_pp){
-        # Assimilated intake less activity and metabolism
-        e <- getEReproAndGrowth(object,n=n,n_pp=n_pp)
-        e_spawning <- getESpawning(object,n=n,n_pp=n_pp)
-        # energy for growth is intake - energy for growth
-        e_growth <- getEGrowth(object, n=n, n_pp=n_pp, e_spawning=e_spawning, e=e)
-        return(e_growth)
+    if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
+        stop("e argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
+    # Assimilated intake less activity and metabolism
+    # energy for growth is intake - energy for growth
+    e_growth <- e - e_spawning
+    return(e_growth)
+}
 
 #### getRDI ####
 #' Get density independent recruitment
