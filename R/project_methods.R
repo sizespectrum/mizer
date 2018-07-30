@@ -474,7 +474,6 @@ getFMortGear <- function(object,effort,time_range){
 #' @param drop Only used when object is of type \code{MizerSim}. Should
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
 #'   species it might make presentation of results easier. Default is TRUE
-#' @param ... Other arguments passed to \code{getFMortGear} method.
 #'
 #' @return An array. If the effort argument has a time dimension, or object is
 #'   of class \code{MizerSim}, the output array has three dimensions (time x
@@ -520,40 +519,24 @@ getFMortGear <- function(object,effort,time_range){
 #' getFMort(sim)
 #' getFMort(sim, time_range = c(10,20))
 #' }
-setGeneric('getFMort', function(object, effort, ...)
-    standardGeneric('getFMort'))
-
-#' \code{getFMort} method for \code{MizerParams} object with constant effort.
-#' @rdname getFMort
-# Called from project -> getZ -> 
-setMethod('getFMort', signature(object='MizerParams', effort='numeric'),
-    function(object, effort, ...){
-	fMortGear <- getFMortGear(object, effort, ...)
-	fMort <- colSums(fMortGear)
-	return(fMort)
-})
-
-#' \code{getFMort} method for \code{MizerParams} object with time changing effort.
-#' @rdname getFMort
-setMethod('getFMort', signature(object='MizerParams', effort='matrix'),
-    function(object, effort, ...){
-	fMortGear <- getFMortGear(object, effort, ...)
-	fMort <- apply(fMortGear, c(1,3,4), sum)
-	return(fMort)
-})
-
-#' \code{getFMort} method for \code{MizerSim} object.
-#' @rdname getFMort
-setMethod('getFMort', signature(object='MizerSim', effort='missing'),
-    function(object, effort, time_range=dimnames(object@effort)$time, 
-             drop=TRUE, ...){
-    	time_elements <- get_time_elements(object,time_range, slot_name="effort")
-    	fMort <- getFMort(object@params, object@effort, ...)
-    	return(fMort[time_elements,,,drop=drop])
-    }
-)
-
-
+getFMort <- function(object, effort, time_range, drop=TRUE){
+    if (is(object, "MizerParams")) {
+        if (is(effort, "numeric")) {
+            fMortGear <- getFMortGear(object, effort)
+            fMort <- colSums(fMortGear)
+            return(fMort)
+        } else { #assuming effort is a matrix
+            fMortGear <- getFMortGear(object, effort)
+            fMort <- apply(fMortGear, c(1,3,4), sum)
+            return(fMort)
+        }} else { #case where object is mizersim, and we use effort from there
+            if (missing(time_range)){
+                time_range <- dimnames(object@effort)$time
+            }
+            time_elements <- get_time_elements(object,time_range, slot_name="effort")
+            fMort <- getFMort(object@params, object@effort)
+            return(fMort[time_elements,,,drop=drop])
+        }}
 ##### getZ ####
 #' Get total mortality rate
 #'
