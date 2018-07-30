@@ -637,34 +637,13 @@ getEReproAndGrowth <- function(object, n, n_pp,
 #' # Get the energy at a particular time step
 #' getESpawning(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-setGeneric('getESpawning', function(object, n, n_pp, e)
-    standardGeneric('getESpawning'))
-
-#' \code{getESpawning} method with \code{e} argument.
-#' @rdname getESpawning
-setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', 
-                                    n_pp = 'numeric', e = 'matrix'),
-    function(object, n, n_pp, e){
-        if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
-            stop("e argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        e_spawning <- object@psi * e 
-        return(e_spawning)
+getESpawning <- function(object, n, n_pp, e=getEReproAndGrowth(object,n=n,n_pp=n_pp)){
+    if (!all(dim(e) == c(nrow(object@species_params),length(object@w)))){
+        stop("e argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getESpawning} method without \code{e} argument.
-#' @rdname getESpawning
-setMethod('getESpawning', signature(object='MizerParams', n = 'matrix', 
-                                    n_pp = 'numeric', e = 'missing'),
-    function(object, n, n_pp){
-	    e <- getEReproAndGrowth(object,n=n,n_pp=n_pp)
-        e_spawning <- getESpawning(object, n=n, n_pp=n_pp, e=e)
-	    return(e_spawning)
-    }
-)
-
-
+    e_spawning <- object@psi * e 
+    return(e_spawning)
+}
 #### getEGrowth ####
 #' Get energy rate available for growth
 #'
