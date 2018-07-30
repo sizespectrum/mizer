@@ -738,13 +738,7 @@ plotFeedingLevel <- function(sim, species = as.character(sim@params@species_para
 #' plotM2(sim)
 #' plotM2(sim, time_range = 10:20)
 #' }
-setGeneric('plotM2', function(sim, ...)
-    standardGeneric('plotM2'))
-
-#' Plot M2 using a \code{MizerSim} object.
-#' @rdname plotM2
-setMethod('plotM2', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+plotM2 <- function(sim, species = as.character(sim@params@species_params$species),
              time_range = max(as.numeric(dimnames(sim@n)$time)), 
              print_it = TRUE, ...) {
 	m2_time <- getM2(sim, time_range=time_range, drop=FALSE, ...)
@@ -772,8 +766,6 @@ setMethod('plotM2', signature(sim='MizerSim'),
     }
     return(p)
     }
-)
-
 
 #### plotFMort ####
 #' Plot total fishing mortality of each species by size
@@ -805,13 +797,7 @@ setMethod('plotM2', signature(sim='MizerSim'),
 #' plotFMort(sim)
 #' plotFMort(sim, time_range = 10:20)
 #' }
-setGeneric('plotFMort', function(sim, ...)
-    standardGeneric('plotFMort'))
-
-#' Plot total fishing mortality using a \code{MizerSim} object.
-#' @rdname plotFMort
-setMethod('plotFMort', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+plotFMort <- function(sim, species = as.character(sim@params@species_params$species),
              time_range = max(as.numeric(dimnames(sim@n)$time)), 
              print_it = TRUE, ...){
 	f_time <- getFMort(sim, time_range=time_range, drop=FALSE, ...)
@@ -837,7 +823,7 @@ setMethod('plotFMort', signature(sim='MizerSim'),
     }
 	return(p)
     }
-)
+
 
 
 #### plot ####
