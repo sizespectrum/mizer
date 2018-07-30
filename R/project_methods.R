@@ -703,7 +703,6 @@ getEGrowth <- function(object, n, n_pp, e_spawning = getESpawning(object,n=n,n_p
 #'   using the \code{\link{getESpawning}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
-#' @param ... Other arguments (currently unused).
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
@@ -718,35 +717,16 @@ getEGrowth <- function(object, n, n_pp, e_spawning = getESpawning(object,n=n,n_p
 #' # Get the recruitment at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-setGeneric('getRDI', function(object, n, n_pp, e_spawning, ...)
-    standardGeneric('getRDI'))
-
-#' \code{getRDI} method with \code{e_spawning} argument.
-#' @rdname getRDI
-setMethod('getRDI', signature(object='MizerParams', n = 'matrix', 
-                              n_pp = 'numeric', e_spawning='matrix'),
-    function(object, n, n_pp, e_spawning, sex_ratio = 0.5){
-        if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
-            stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        e_spawning_pop <- drop((e_spawning*n) %*% object@dw)
-        rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro) /
-            object@w[object@w_min_idx] 
-        return(rdi)
+getRDI <- function(object, n, n_pp, e_spawning=getESpawning(object, n=n, n_pp=n_pp),
+                   sex_ratio=0.5){
+    if (!all(dim(e_spawning) == c(nrow(object@species_params),length(object@w)))){
+        stop("e_spawning argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getRDI} method without \code{e_spawning} argument.
-#' @rdname getRDI
-setMethod('getRDI', signature(object='MizerParams', n = 'matrix', 
-                              n_pp = 'numeric', e_spawning='missing'),
-    function(object, n, n_pp, sex_ratio = 0.5){
-        e_spawning <- getESpawning(object, n=n, n_pp=n_pp)
-        rdi <- getRDI(object, n=n, n_pp=n_pp, e_spawning=e_spawning, sex_ratio=sex_ratio)
-        return(rdi)
-    }
-)
-
+    e_spawning_pop <- drop((e_spawning*n) %*% object@dw)
+    rdi <- sex_ratio*(e_spawning_pop * object@species_params$erepro) /
+        object@w[object@w_min_idx] 
+    return(rdi)
+}
 
 #### getRDD ####
 #' Get density dependent recruitment
