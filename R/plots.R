@@ -315,14 +315,9 @@ plotBiomass <- function(sim,
 #' sim2 <- project(params, effort=2, t_max=20, t_save = 0.2)
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #' }
-setGeneric('plotYield', function(sim, sim2, ...)
-    standardGeneric('plotYield'))
-
-#' Plot the yield using a \code{MizerSim} object.
-#' @rdname plotYield
-setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
-    function(sim, species = as.character(sim@params@species_params$species),
-             print_it = TRUE, total = FALSE, log = TRUE, ...){
+plotYield <- function(sim, sim2, species = as.character(sim@params@species_params$species),
+                               print_it = TRUE, total = FALSE, log = TRUE, ...){
+    if (missing(sim2)){
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species), 
@@ -352,66 +347,57 @@ setMethod('plotYield', signature(sim='MizerSim', sim2='missing'),
         p <- p +
             scale_colour_manual(values = sim@params@linecolour) +
             scale_linetype_manual(values = sim@params@linetype)
-    if (print_it) {
-        print(p)
+        if (print_it) {
+            print(p)
+        }
+        return(p)
+    } else {
+        if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
+            stop("The two simulations do not have the same times")
+        }
+        y <- getYield(sim, ...)
+        y2 <- getYield(sim2, ...)
+        y_total <- rowSums(y)
+        y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y)>0, 
+               drop=FALSE]
+        y2_total <- rowSums(y2)
+        y2 <- y2[, (as.character(dimnames(y2)[[2]]) %in% species), 
+                 drop=FALSE]
+        if (total) {
+            # Include total
+            y <- cbind(y, Total = y_total)
+            y2 <- cbind(y2, Total = y2_total)
+        }
+        ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
+                             value.name = "Yield")
+        ym2 <- reshape2::melt(y2, varnames = c("Year", "Species"), 
+                              value.name = "Yield")
+        ym$Simulation = 1
+        ym2$Simulation = 2
+        ym <- rbind(ym, ym2)
+        ym$Species <- as.factor(ym$Species)
+        ym$Simulation <- as.factor(ym$Simulation)
+        ym <- subset(ym, ym$Yield > 0)
+        if (nlevels(ym$Species) > 12) {
+            p <- ggplot(ym) + 
+                geom_line(aes(x=Year, y=Yield, group = Species))
+        } else {
+            p <- ggplot(ym) + 
+                geom_line(aes(x=Year, y=Yield, colour=Species, 
+                              linetype=Species))
+        }
+        if (log) {
+            p <- p + scale_y_continuous(trans="log10", name="Yield [g/year]")
+        } else {
+            p <- p + scale_y_continuous(name="Yield [g/year]")
+        }
+        p <- p + facet_wrap(~ Simulation)
+        if (print_it) {
+            print(p)
+        }
+        return(p)
     }
-	return(p)
-    }
-)
-
-#' Plot the yield using two \code{MizerSim} objects.
-#' @rdname plotYield
-setMethod('plotYield', signature(sim='MizerSim', sim2='MizerSim'),
-          function(sim, sim2, 
-                   species = as.character(sim@params@species_params$species),
-                   print_it = TRUE, total = FALSE, log = TRUE, ...){
-              if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
-                  stop("The two simulations do not have the same times")
-              }
-              y <- getYield(sim, ...)
-              y2 <- getYield(sim2, ...)
-              y_total <- rowSums(y)
-              y <- y[, (as.character(dimnames(y)[[2]]) %in% species) & colSums(y)>0, 
-                     drop=FALSE]
-              y2_total <- rowSums(y2)
-              y2 <- y2[, (as.character(dimnames(y2)[[2]]) %in% species), 
-                     drop=FALSE]
-              if (total) {
-                  # Include total
-                  y <- cbind(y, Total = y_total)
-                  y2 <- cbind(y2, Total = y2_total)
-              }
-              ym <- reshape2::melt(y, varnames = c("Year", "Species"), 
-                                   value.name = "Yield")
-              ym2 <- reshape2::melt(y2, varnames = c("Year", "Species"), 
-                                   value.name = "Yield")
-              ym$Simulation = 1
-              ym2$Simulation = 2
-              ym <- rbind(ym, ym2)
-              ym$Species <- as.factor(ym$Species)
-              ym$Simulation <- as.factor(ym$Simulation)
-              ym <- subset(ym, ym$Yield > 0)
-              if (nlevels(ym$Species) > 12) {
-                  p <- ggplot(ym) + 
-                      geom_line(aes(x=Year, y=Yield, group = Species))
-              } else {
-                  p <- ggplot(ym) + 
-                      geom_line(aes(x=Year, y=Yield, colour=Species, 
-                                    linetype=Species))
-              }
-              if (log) {
-                  p <- p + scale_y_continuous(trans="log10", name="Yield [g/year]")
-              } else {
-                  p <- p + scale_y_continuous(name="Yield [g/year]")
-              }
-              p <- p + facet_wrap(~ Simulation)
-              if (print_it) {
-                  print(p)
-              }
-              return(p)
-          }
-)
-
+}
 
 #### plotYieldGear ####
 #' Plot the total yield of each species by gear through time
