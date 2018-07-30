@@ -218,13 +218,7 @@ getBiomassFrame <- function(sim,
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
 #' }
-setGeneric('plotBiomass', function(sim, ...)
-    standardGeneric('plotBiomass'))
-
-#' Plot the biomass using a \code{MizerSim} object.
-#' @rdname plotBiomass
-setMethod('plotBiomass', signature(sim='MizerSim'),
-    function(sim, 
+plotBiomass <- function(sim, 
              species = sim@params@species_params$species[!is.na(sim@params@A)],
              start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
              end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
@@ -283,7 +277,7 @@ setMethod('plotBiomass', signature(sim='MizerSim'),
         }
         return(p)
     }
-)
+
 
 #### plotYield ####
 #' Plot the total yield of species through time
