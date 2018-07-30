@@ -5,13 +5,9 @@
 \alias{MizerParams-class}
 \title{A class to hold the parameters for a size based model.}
 \description{
-These parameters include the model species, their life history parameters and
-the size ranges of the model.
+MizerParams objects can be created using a range of constructor functions.
 }
 \details{
-\linkS4class{MizerParams} objects can be created using a range of
-\code{MizerParams} constructor methods.
-
 Dynamic simulations are performed using the \code{\link{project}} method on
 objects of this class.
 }
