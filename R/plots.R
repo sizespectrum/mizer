@@ -78,52 +78,42 @@ display_frames <- function(f1, f2, params, y_ticks = 6) {
 #'   below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total SSB from
 #'   all species is plotted as well. Default is FALSE
-#' @param ... Other arguments to pass to \code{getSBB} method, currently 
-#'   unused.
 #'   
 #' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
 #' @seealso \code{\link{getSSB}}
-setGeneric('getSSBFrame', function(sim, ...)
-    standardGeneric('getSSBFrame'))
-
-#' Get the biomass frame from a \code{MizerSim} object.
-#' @rdname getSSBFrame
-setMethod('getSSBFrame', signature(sim='MizerSim'),
-          function(sim, 
-                   species = sim@params@species_params$species[!is.na(sim@params@A)],
-                   start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
-                   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-                   ylim = c(NA, NA), total = FALSE, ...){
-              b <- getSSB(sim, ...)
-              if(start_time >= end_time){
-                  stop("start_time must be less than end_time")
-              }
-              # Select time range
-              b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & 
-                         (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
-              b_total = rowSums(b)
-              # Include total
-              if (total) {
-                  b <- cbind(b, Total = b_total)
-                  species <- c("Total", species)
-              }
-              bm <- reshape2::melt(b)
-              # Implement ylim and a minimal cutoff
-              min_value <- 1e-20
-              bm <- bm[bm$value >= min_value & 
-                           (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                           (is.na(ylim[2]) | bm$value <= ylim[1]),]
-              names(bm) <- c("Year", "Species", "SSB")
-              # Force Species column to be a factor (otherwise if numeric labels are
-              # used they may be interpreted as integer and hence continuous)
-              bm$Species <- as.factor(bm$Species)
-              # Select species
-              bm <- bm[bm$Species %in% species, ]
-              
-              return(bm)
-          }
-)
+getSSBFrame <- function(sim, 
+         species = sim@params@species_params$species[!is.na(sim@params@A)],
+         start_time = as.numeric(dimnames(sim@n)[[1]][1]), 
+         end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+         ylim = c(NA, NA), total = FALSE, ...){
+    b <- getSSB(sim, ...)
+    if(start_time >= end_time){
+        stop("start_time must be less than end_time")
+    }
+    # Select time range
+    b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) & 
+               (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
+    b_total = rowSums(b)
+    # Include total
+    if (total) {
+        b <- cbind(b, Total = b_total)
+        species <- c("Total", species)
+    }
+    bm <- reshape2::melt(b)
+    # Implement ylim and a minimal cutoff
+    min_value <- 1e-20
+    bm <- bm[bm$value >= min_value & 
+                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
+                 (is.na(ylim[2]) | bm$value <= ylim[1]),]
+    names(bm) <- c("Year", "Species", "SSB")
+    # Force Species column to be a factor (otherwise if numeric labels are
+    # used they may be interpreted as integer and hence continuous)
+    bm$Species <- as.factor(bm$Species)
+    # Select species
+    bm <- bm[bm$Species %in% species, ]
+    return(bm)
+}
 
 #### getBiomassFrame ####
 #' Get data frame of biomass of species through time, ready for ggplot2
