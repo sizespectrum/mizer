@@ -598,37 +598,18 @@ getZ <- function(object, n, n_pp, effort, m2 = getM2(object, n=n, n_pp=n_pp)){
 #' # Get the energy at a particular time step
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-setGeneric('getEReproAndGrowth', function(object, n, n_pp, feeding_level)
-    standardGeneric('getEReproAndGrowth'))
-
-#' \code{getEReproAndGrowth} method with \code{feeding_level} argument.
-#' @rdname getEReproAndGrowth
-setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', 
-                                          n_pp = 'numeric', feeding_level='matrix'),
-    function(object, n, n_pp, feeding_level){
-        if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
-            stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        # assimilated intake
-        e <- sweep(feeding_level * object@intake_max,1,object@species_params$alpha,"*", check.margin=FALSE)
-        # Subtract basal metabolism and activity 
-        e <- e - object@std_metab - object@activity
-        e[e<0] <- 0 # Do not allow negative growth
-        return(e)
+getEReproAndGrowth <- function(object, n, n_pp, 
+                               feeding_level=getFeedingLevel(object, n=n, n_pp=n_pp)){
+    if (!all(dim(feeding_level) == c(nrow(object@species_params),length(object@w)))){
+        stop("feeding_level argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getEReproAndGrowth} method without \code{feeding_level} argument.
-#' @rdname getEReproAndGrowth
-setMethod('getEReproAndGrowth', signature(object='MizerParams', n = 'matrix', 
-                                          n_pp = 'numeric', feeding_level='missing'),
-    function(object, n, n_pp){
-        feeding_level <- getFeedingLevel(object, n=n, n_pp=n_pp)
-        e <- getEReproAndGrowth(object, n=n, n_pp=n_pp, feeding_level=feeding_level)
-        return(e)
-    }
-)
-
+    # assimilated intake
+    e <- sweep(feeding_level * object@intake_max,1,object@species_params$alpha,"*", check.margin=FALSE)
+    # Subtract basal metabolism and activity 
+    e <- e - object@std_metab - object@activity
+    e[e<0] <- 0 # Do not allow negative growth
+    return(e)
+}
 #### getESpawning ####
 #' Get energy rate available for reproduction
 #'
