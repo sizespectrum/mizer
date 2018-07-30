@@ -519,17 +519,12 @@ plotYieldGear <- function(sim, species = as.character(sim@params@species_params$
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' }
-setGeneric('plotSpectra', function(object, ...)
-    standardGeneric('plotSpectra'))
-
-#' Plot the abundance spectra using a \code{MizerSim} object.
-#' @rdname plotSpectra
-setMethod('plotSpectra', signature(object='MizerSim'),
-    function(object, species = NULL,
+plotSpectra <- function(object, species = NULL,
              time_range = max(as.numeric(dimnames(object@n)$time)), 
              min_w = min(object@params@w)/100, ylim = c(NA, NA), 
              power = 1, biomass = TRUE, print_it = TRUE, 
              total = FALSE, plankton = TRUE, background = TRUE, ...) {
+    if (is(object, "MizerSim")) {
         # to deal with old-type biomass argument
         if (missing(power)) {
             power <- as.numeric(biomass)
@@ -537,33 +532,26 @@ setMethod('plotSpectra', signature(object='MizerSim'),
         time_elements <- get_time_elements(object,time_range)
         n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
         n_pp <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-        plot_spectra(object@params, n = n, n_pp = n_pp, 
+        ps <- plot_spectra(object@params, n = n, n_pp = n_pp, 
                      species = species, min_w = min_w, ylim = ylim, 
                      power = power, print_it = print_it, 
                      total = total, plankton = plankton, 
                      background = background)
+        return(ps)
+    } else {
+        if (missing(power)) {
+            power <- as.numeric(biomass)
+        }
+        ps <- plot_spectra(object, n = object@initial_n, 
+                     n_pp = object@initial_n_pp, 
+                     species = species, min_w = min_w, ylim = ylim, 
+                     power = power, print_it = print_it, 
+                     total = total, plankton = plankton, 
+                     background = background)
+        return(ps)
     }
-)
+    }
 
-#' Plot the abundance spectra using a \code{MizerParams} object.
-#' @rdname plotSpectra
-setMethod('plotSpectra', signature(object='MizerParams'),
-          function(object, species = NULL,
-                   min_w = min(object@w)/100, ylim = c(NA, NA), 
-                   power = 1, biomass = TRUE, print_it = TRUE, 
-                   total = FALSE, plankton = TRUE, background = TRUE, ...) {
-              # to deal with old-type biomass argument
-              if (missing(power)) {
-                  power <- as.numeric(biomass)
-              }
-              plot_spectra(object, n = object@initial_n, 
-                           n_pp = object@initial_n_pp, 
-                           species = species, min_w = min_w, ylim = ylim, 
-                           power = power, print_it = print_it, 
-                           total = total, plankton = plankton, 
-                           background = background)
-          }
-)
 
 plot_spectra <- function(params, n, n_pp,
          species, min_w, ylim, power, print_it,
@@ -691,13 +679,7 @@ plot_spectra <- function(params, n, n_pp,
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20)
 #' }
-setGeneric('plotFeedingLevel', function(sim, ...)
-    standardGeneric('plotFeedingLevel'))
-
-#' Plot the feeding level using a \code{MizerSim} object.
-#' @rdname plotFeedingLevel
-setMethod('plotFeedingLevel', signature(sim='MizerSim'),
-    function(sim, species = as.character(sim@params@species_params$species),
+plotFeedingLevel <- function(sim, species = as.character(sim@params@species_params$species),
              time_range = max(as.numeric(dimnames(sim@n)$time)), 
              print_it = TRUE, ...) {
         feed_time <- getFeedingLevel(sim, time_range=time_range, 
@@ -725,7 +707,6 @@ setMethod('plotFeedingLevel', signature(sim='MizerSim'),
         }
         return(p)
     }
-)
 
 
 #### plotM2 ####
