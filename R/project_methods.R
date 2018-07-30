@@ -566,34 +566,12 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' # Get the total mortality at a particular time step
 #' getZ(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
-setGeneric('getZ', function(object, n, n_pp, effort, m2)
-    standardGeneric('getZ'))
-
-#' \code{getZ} method with \code{m2} argument.
-#' @rdname getZ
-# Called from project()
-setMethod('getZ', signature(object='MizerParams', n = 'matrix', 
-                            n_pp = 'numeric', effort='numeric', m2 = 'matrix'),
-    function(object, n, n_pp, effort, m2){
-        if (!all(dim(m2) == c(nrow(object@species_params),length(object@w)))){
-            stop("m2 argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
-        }
-        return(m2 + object@mu_b + getFMort(object, effort = effort))
+getZ <- function(object, n, n_pp, effort, m2 = getM2(object, n=n, n_pp=n_pp)){
+    if (!all(dim(m2) == c(nrow(object@species_params),length(object@w)))){
+        stop("m2 argument must have dimensions: no. species (",nrow(object@species_params),") x no. size bins (",length(object@w),")")
     }
-)
-
-#' \code{getZ} method without \code{m2} argument.
-#' @rdname getZ
-setMethod('getZ', signature(object='MizerParams', n = 'matrix', 
-                            n_pp = 'numeric', effort='numeric', m2 = 'missing'),
-    function(object, n, n_pp, effort){
-        m2 <- getM2(object, n=n, n_pp=n_pp)
-        z <- getZ(object, n=n, n_pp=n_pp, effort=effort, m2=m2)
-        return(z)
-    }
-)
-
-
+    return(m2 + object@mu_b + getFMort(object, effort = effort))
+}
 #### getEReproAndGrowth ####
 #' Get energy after metabolism and movement
 #'
