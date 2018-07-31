@@ -29,17 +29,10 @@
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
 #' }
-setGeneric('getSSB', function(object)
-    standardGeneric('getSSB'))
-
-#' Calculate the SSB from a \code{MizerSim} object
-#' @rdname getSSB
-setMethod('getSSB', signature(object='MizerSim'),
-    function(object){
+getSSB <- function(object){
 	ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
 	return(ssb)
     }
-)
 
 
 #### getBiomass ####
