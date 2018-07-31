@@ -75,7 +75,7 @@ setMethod('getBiomass', signature(object='MizerSim'),
 )
 #@@@@@@@@@@@@@@@@@@@@@@
 # getBiomass <- function(object){
-#     size_range <- get_size_range_array(object@params,...)
+#     size_range <- get_size_range_array(object@params)
 #     biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
 #     return(biomass)
 # }
