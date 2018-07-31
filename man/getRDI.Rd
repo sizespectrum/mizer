@@ -4,7 +4,7 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n, n_pp, e_spawning = getESpawning(object, n = n, n_pp = n_pp),
+getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp = n_pp),
   sex_ratio = 0.5)
 }
 \arguments{
@@ -16,7 +16,7 @@ getRDI(object, n, n_pp, e_spawning = getESpawning(object, n = n, n_pp = n_pp),
 
 \item{e_spawning}{The energy available for spawning (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link{getESpawning}} method.}
+using the \code{\link{getERepro}} method.}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}

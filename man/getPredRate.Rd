@@ -28,7 +28,7 @@ In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 This method is used by the \code{\link{project}} method for performing
 simulations. In the simulations, it is combined with the interaction matrix
 (see \code{\link{MizerParams}}) to calculate the realised predation mortality
-(see \code{\link{getM2}}).
+(see \code{\link{getPredMort}}).
 }
 \examples{
 \dontrun{
@@ -44,6 +44,6 @@ getPredRate(params,n,n_pp)
 }
 }
 \seealso{
-\code{\link{project}}, \code{\link{getM2}}, 
+\code{\link{project}}, \code{\link{getPredMort}}, 
   \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 }

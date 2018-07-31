@@ -2,9 +2,9 @@
 % Please edit documentation in R/project_methods.R
 \name{getZ}
 \alias{getZ}
-\title{Get total mortality rate}
+\title{Alias for getMort}
 \usage{
-getZ(object, n, n_pp, effort, m2 = getM2(object, n = n, n_pp = n_pp))
+getZ(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -18,27 +18,14 @@ effort value which is used for all gears.}
 
 \item{m2}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the \code{getM2()} method.}
+calculated using the \code{getPredMort()} method.}
 }
 \value{
 A two dimensional array (prey species x prey size).
 }
 \description{
-Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
-from predation mortality, background mortality and fishing mortality
-for a single time step.
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# Project with constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get the total mortality at a particular time step
-getZ(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
-}
+An alias provided for backward compatibility with mizer version <= 1.0
 }
 \seealso{
-\code{\link{getM2}}, \code{\link{getFMort}}
+\code{\link{getPredMort}}, \code{\link{getFMort}}
 }
