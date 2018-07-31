@@ -60,6 +60,7 @@ getSSB <- function(object){
 #' getBiomass(sim)
 #' getBiomass(sim, min_w = 10, max_w = 1000)
 #' }
+#@@@@@@@@@@@@@@@@@@@@@@
 setGeneric('getBiomass', function(object, ...)
     standardGeneric('getBiomass'))
 
@@ -72,7 +73,13 @@ setMethod('getBiomass', signature(object='MizerSim'),
         return(biomass)
     }
 )
-
+#@@@@@@@@@@@@@@@@@@@@@@
+# getBiomass <- function(object){
+#     size_range <- get_size_range_array(object@params,...)
+#     biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
+#     return(biomass)
+# }
+#@@@@@@@@@@@@@@@@@@@@@@
 
 #### getN ####
 #' Calculate the total abundance in terms of numbers of species within a size range
