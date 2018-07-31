@@ -90,20 +90,11 @@ getBiomass <- function(object,...){
 #' getN(sim)
 #' getN(sim, min_w = 10, max_w = 1000)
 #' }
-setGeneric('getN', function(object, ...)
-    standardGeneric('getN'))
-
-#' Calculate the total abundance from a \code{MizerSim} object
-#' @rdname getN
-setMethod('getN', signature(object='MizerSim'),
-    function(object, ...){
+getN <- function(object, ...){
 	    size_range <- get_size_range_array(object@params,...)
 	    n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
     	return(n)
     }
-)
-
-
 #### getYieldGear ####
 #' Calculate the total yield per gear and species
 #'
