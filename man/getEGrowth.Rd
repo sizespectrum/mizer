@@ -4,7 +4,7 @@
 \alias{getEGrowth}
 \title{Get energy rate available for growth}
 \usage{
-getEGrowth(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
+getEGrowth(object, n, n_pp, e_repro = getERepro(object, n = n, n_pp =
   n_pp), e = getEReproAndGrowth(object, n = n, n_pp = n_pp))
 }
 \arguments{
@@ -14,13 +14,13 @@ getEGrowth(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
 
 \item{n_pp}{A vector of the plankton abundance by size.}
 
-\item{e_spawning}{The energy available for spawning (optional, although if
+\item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
 size bins. If not supplied, is calculated internally using the
 \code{\link{getERepro}} method.}
 
 \item{e}{The energy available for reproduction and growth (optional, although
-if specified, e_spawning must also be specified). A matrix of size no.
+if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
 the \code{\link{getEReproAndGrowth}} method.}
 }

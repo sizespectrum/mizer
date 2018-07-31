@@ -422,7 +422,7 @@ test_that("getEReproAndGrowth", {
     # Check number in final prey size group
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
-    e <- e - params@std_metab[1, ] - params@activity[1, ]
+    e <- e - params@metab[1, ]
     e[e < 0] <- 0 # Do not allow negative growth
     expect_identical(e, erg[1, ])
     # Adding feeding level gives the same result
@@ -441,8 +441,8 @@ test_that("getERepro", {
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    e_spawning <- params@psi * e
-    expect_identical(es, e_spawning)
+    e_repro <- params@psi * e
+    expect_identical(es, e_repro)
     e_growth <- getEGrowth(params, n, n_full)
     expect_identical(e_growth, e - es)
     # Including ESpawningAndGrowth gives the same
@@ -462,16 +462,16 @@ test_that("getRDI", {
     # test dim
     expect_length(rdi, no_sp)
     # test values
-    e_spawning <- getERepro(params, n = n, n_pp = n_full)
-    e_spawning_pop <- apply(sweep(e_spawning * n, 2, params@dw, "*"), 1, sum)
-    rdix <- sex_ratio * (e_spawning_pop * params@species_params$erepro) / 
+    e_repro <- getERepro(params, n = n, n_pp = n_full)
+    e_repro_pop <- apply(sweep(e_repro * n, 2, params@dw, "*"), 1, sum)
+    rdix <- sex_ratio * (e_repro_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
-    e_spawning <- getERepro(params, n = n, n_pp = n_full)
+    e_repro <- getERepro(params, n = n, n_pp = n_full)
     rdi1 <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
-                   e_spawning = e_spawning)
+                   e_repro = e_repro)
     expect_identical(rdi1, rdi2)
 })
 
@@ -493,13 +493,13 @@ test_that("getRDD", {
 
 test_that("getEGrowth is working", {
     n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    e_spawning <- getERepro(params, n = n, n_pp = n_full)
+    e_repro <- getERepro(params, n = n, n_pp = n_full)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
     eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
-                      e_spawning = e_spawning)
+                      e_repro = e_repro)
     expect_identical(eg1, eg2)
-    expect_identical(e - e_spawning, eg1)
+    expect_identical(e - e_repro, eg1)
 })
 
 

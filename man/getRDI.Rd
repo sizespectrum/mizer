@@ -4,8 +4,8 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
-  n_pp), sex_ratio = 0.5)
+getRDI(object, n, n_pp, e_repro = getERepro(object, n = n, n_pp = n_pp),
+  sex_ratio = 0.5)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -14,7 +14,7 @@ getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
 
 \item{n_pp}{A vector of the plankton abundance by size.}
 
-\item{e_spawning}{The energy available for spawning (optional). A matrix of
+\item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
 using the \code{\link{getERepro}} method.}
 
