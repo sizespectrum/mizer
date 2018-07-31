@@ -25,22 +25,6 @@ A vector of mortality rate by plankton size.
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
-<<<<<<< HEAD
-=======
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get plankton mortality at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getPlanktonMort(params,n,n_pp)
-}
-}
->>>>>>> 134907704afa9e0e0a6ce3314b4afebf2c485dfa
 \seealso{
 \code{\link{project}} and \code{\link{getPredMort}}.
 }
