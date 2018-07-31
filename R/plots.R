@@ -560,183 +560,48 @@ setMethod('plotYieldGear', signature(sim='MizerSim'),
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' }
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# plotSpectra <- function(object, species = NULL,
-#                         time_range = max(as.numeric(dimnames(object@n)$time)), 
-#                         min_w = min(object@params@w)/100, ylim = c(NA, NA), 
-#                         power = 1, biomass = TRUE, print_it = TRUE, 
-#                         total = FALSE, plankton = TRUE, background = TRUE, ...) {
-#     if (is(object, "MizerSim")) {
-#         # to deal with old-type biomass argument
-#         if (missing(power)) {
-#             power <- as.numeric(biomass)
-#         }
-#         time_elements <- get_time_elements(object,time_range)
-#         n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
-#         n_pp <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-#         ps <- plot_spectra(object@params, n = n, n_pp = n_pp, 
-#                            species = species, min_w = min_w, ylim = ylim, 
-#                            power = power, print_it = print_it, 
-#                            total = total, plankton = plankton, 
-#                            background = background)
-#         return(ps)
-#     } else {
-#         if (missing(power)) {
-#             power <- as.numeric(biomass)
-#         }
-#         ps <- plot_spectra(object, n = object@initial_n, 
-#                            n_pp = object@initial_n_pp, 
-#                            species = species, min_w = min_w, ylim = ylim, 
-#                            power = power, print_it = print_it, 
-#                            total = total, plankton = plankton, 
-#                            background = background)
-#         return(ps)
-#     }
-# }
-# 
-# 
-# plot_spectra <- function(params, n, n_pp,
-#                          species, min_w, ylim, power, print_it,
-#                          total, plankton, background) {
-#     if (total) {
-#         # Calculate total community abundance
-#         fish_idx <- (length(params@w_full)-length(params@w)+1):
-#             length(params@w_full)
-#         total_n <- n_pp
-#         total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
-#         total_n <- total_n * params@w_full^power
-#     }
-#     # Set species if missing to list of all non-background species
-#     if (is.null(species)) {
-#         species <- params@species_params$species[!is.na(params@A)]
-#     }
-#     # Deal with power argument
-#     if (power %in% c(0, 1, 2)) {
-#         y_label = c("Number density [1/g]", "Biomass density", 
-#                     "Biomass density [g]")[power+1]
-#     } else {
-#         y_label = paste0("Number density * w^", power)
-#     }
-#     n <- sweep(n, 2, params@w^power, "*")
-#     # Select only the desired species and background species
-#     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
-#     # Make data.frame for plot
-#     plot_dat <- data.frame(value = c(spec_n), 
-#                            Species = as.factor(dimnames(spec_n)[[1]]), 
-#                            w = rep(params@w, 
-#                                    each = dim(spec_n)[[1]]))
-#     if (plankton) {
-#         # Decide where to cut off plankton
-#         max_w <- min(params@species_params$w_mat)
-#         if (is.na(max_w)) {
-#             max_w <- Inf
-#         }
-#         plankton_sel <- params@w_full >= min_w &
-#             params@w_full < max_w
-#         w_plankton <- params@w_full[plankton_sel]
-#         plank_n <- n_pp[plankton_sel] * w_plankton^power
-#         plot_dat <- rbind(plot_dat, 
-#                           data.frame(value = c(plank_n), 
-#                                      Species = "Plankton", 
-#                                      w = w_plankton))
-#     }
-#     if (total) {
-#         plot_dat <- rbind(plot_dat, 
-#                           data.frame(value = c(total_n), 
-#                                      Species = "Total", 
-#                                      w = params@w_full))
-#     }
-#     # lop off 0s and apply min_w
-#     plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w),]
-#     # Impose ylim
-#     if (!is.na(ylim[1])) {
-#         plot_dat <- plot_dat[plot_dat$value < ylim[1], ]
-#     }
-#     if (is.na(ylim[2])) {
-#         ylim[2] <- 1e-20
-#     }
-#     plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
-#     # Create plot
-#     p <- ggplot(plot_dat, aes(x=w, y = value)) + 
-#         scale_x_continuous(name = "Size [g]", trans="log10", 
-#                            breaks=log_breaks()) + 
-#         scale_y_continuous(name = y_label, trans="log10",
-#                            breaks=log_breaks()) +
-#         scale_colour_manual(values = params@linecolour) +
-#         scale_linetype_manual(values = params@linetype)
-#     if (background) {
-#         back_n <- n[is.na(params@A), , drop = FALSE]
-#         plot_back <- data.frame(value = c(back_n), 
-#                                 Species = as.factor(dimnames(back_n)[[1]]),
-#                                 w = rep(params@w, 
-#                                         each = dim(back_n)[[1]]))
-#         # lop off 0s and apply min_w
-#         plot_back <- plot_back[(plot_back$value > 0) & (plot_back$w >= min_w),]
-#         # Impose ylim
-#         if (!is.na(ylim[1])) {
-#             plot_back <- plot_back[plot_back$value < ylim[1], ]
-#         }
-#         plot_back <- plot_back[plot_back$value > ylim[2], ]
-#         # Add background species in grey
-#         p <- p + 
-#             geom_line(aes(group = Species), colour = "grey",
-#                       data = plot_back)
-#     }
-#     if ((length(species) + plankton + total) > 13) {
-#         p <- p + geom_line(aes(group = Species))
-#     } else {
-#         p <- p + geom_line(aes(colour = Species, linetype = Species)) 
-#     }
-#     if (print_it)
-#         print(p)
-#     return(p)
-# }
-# @ @ @
-setGeneric('plotSpectra', function(object, ...)
-    standardGeneric('plotSpectra'))
-
-#' Plot the abundance spectra using a \code{MizerSim} object.
-#' @rdname plotSpectra
-setMethod('plotSpectra', signature(object='MizerSim'),
-          function(object, species = NULL,
-                   time_range = max(as.numeric(dimnames(object@n)$time)), 
-                   min_w = min(object@params@w)/100, ylim = c(NA, NA), 
-                   power = 1, biomass = TRUE, print_it = TRUE, 
-                   total = FALSE, plankton = TRUE, background = TRUE, ...) {
-              # to deal with old-type biomass argument
-              if (missing(power)) {
-                  power <- as.numeric(biomass)
-              }
-              time_elements <- get_time_elements(object,time_range)
-              n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
-              n_pp <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
-              plot_spectra(object@params, n = n, n_pp = n_pp, 
-                           species = species, min_w = min_w, ylim = ylim, 
-                           power = power, print_it = print_it, 
-                           total = total, plankton = plankton, 
+plotSpectra <- function(object, species = NULL,
+                        time_range,
+                        min_w, ylim = c(NA, NA),
+                        power = 1, biomass = TRUE, print_it = TRUE,
+                        total = FALSE, plankton = TRUE, background = TRUE, ...) {
+    if (is(object, "MizerSim")) {
+        if (missing(time_range)){
+            time_range  <- max(as.numeric(dimnames(object@n)$time)) 
+        }
+        if (missing(min_w)){
+            min_w <- min(object@params@w)/100
+        }
+        # to deal with old-type biomass argument
+        if (missing(power)) {
+            power <- as.numeric(biomass)
+        }
+        time_elements <- get_time_elements(object,time_range)
+        n <- apply(object@n[time_elements, , ,drop=FALSE], c(2,3), mean)
+        n_pp <- apply(object@n_pp[time_elements,,drop=FALSE],2,mean)
+        ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
+                           species = species, min_w = min_w, ylim = ylim,
+                           power = power, print_it = print_it,
+                           total = total, plankton = plankton,
                            background = background)
-          }
-)
-
-#' Plot the abundance spectra using a \code{MizerParams} object.
-#' @rdname plotSpectra
-setMethod('plotSpectra', signature(object='MizerParams'),
-          function(object, species = NULL,
-                   min_w = min(object@w)/100, ylim = c(NA, NA), 
-                   power = 1, biomass = TRUE, print_it = TRUE, 
-                   total = FALSE, plankton = TRUE, background = TRUE, ...) {
-              # to deal with old-type biomass argument
-              if (missing(power)) {
-                  power <- as.numeric(biomass)
-              }
-              plot_spectra(object, n = object@initial_n, 
-                           n_pp = object@initial_n_pp, 
-                           species = species, min_w = min_w, ylim = ylim, 
-                           power = power, print_it = print_it, 
-                           total = total, plankton = plankton, 
+        return(ps)
+    } else {
+        if (missing(power)) {
+            power <- as.numeric(biomass)
+        }
+        if (missing(min_w)){
+            min_w <- min(object@w)/100
+        }
+        ps <- plot_spectra(object, n = object@initial_n,
+                           n_pp = object@initial_n_pp,
+                           species = species, min_w = min_w, ylim = ylim,
+                           power = power, print_it = print_it,
+                           total = total, plankton = plankton,
                            background = background)
-          }
-)
+        return(ps)
+    }
+}
+
 
 plot_spectra <- function(params, n, n_pp,
                          species, min_w, ylim, power, print_it,
@@ -755,7 +620,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     # Deal with power argument
     if (power %in% c(0, 1, 2)) {
-        y_label = c("Number density [1/g]", "Biomass density", 
+        y_label = c("Number density [1/g]", "Biomass density",
                     "Biomass density [g]")[power+1]
     } else {
         y_label = paste0("Number density * w^", power)
@@ -764,9 +629,9 @@ plot_spectra <- function(params, n, n_pp,
     # Select only the desired species and background species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
-    plot_dat <- data.frame(value = c(spec_n), 
-                           Species = as.factor(dimnames(spec_n)[[1]]), 
-                           w = rep(params@w, 
+    plot_dat <- data.frame(value = c(spec_n),
+                           Species = as.factor(dimnames(spec_n)[[1]]),
+                           w = rep(params@w,
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
         # Decide where to cut off plankton
@@ -778,15 +643,15 @@ plot_spectra <- function(params, n, n_pp,
             params@w_full < max_w
         w_plankton <- params@w_full[plankton_sel]
         plank_n <- n_pp[plankton_sel] * w_plankton^power
-        plot_dat <- rbind(plot_dat, 
-                          data.frame(value = c(plank_n), 
-                                     Species = "Plankton", 
+        plot_dat <- rbind(plot_dat,
+                          data.frame(value = c(plank_n),
+                                     Species = "Plankton",
                                      w = w_plankton))
     }
     if (total) {
-        plot_dat <- rbind(plot_dat, 
-                          data.frame(value = c(total_n), 
-                                     Species = "Total", 
+        plot_dat <- rbind(plot_dat,
+                          data.frame(value = c(total_n),
+                                     Species = "Total",
                                      w = params@w_full))
     }
     # lop off 0s and apply min_w
@@ -800,18 +665,18 @@ plot_spectra <- function(params, n, n_pp,
     }
     plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
     # Create plot
-    p <- ggplot(plot_dat, aes(x=w, y = value)) + 
-        scale_x_continuous(name = "Size [g]", trans="log10", 
-                           breaks=log_breaks()) + 
+    p <- ggplot(plot_dat, aes(x=w, y = value)) +
+        scale_x_continuous(name = "Size [g]", trans="log10",
+                           breaks=log_breaks()) +
         scale_y_continuous(name = y_label, trans="log10",
                            breaks=log_breaks()) +
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype)
     if (background) {
         back_n <- n[is.na(params@A), , drop = FALSE]
-        plot_back <- data.frame(value = c(back_n), 
+        plot_back <- data.frame(value = c(back_n),
                                 Species = as.factor(dimnames(back_n)[[1]]),
-                                w = rep(params@w, 
+                                w = rep(params@w,
                                         each = dim(back_n)[[1]]))
         # lop off 0s and apply min_w
         plot_back <- plot_back[(plot_back$value > 0) & (plot_back$w >= min_w),]
@@ -821,20 +686,19 @@ plot_spectra <- function(params, n, n_pp,
         }
         plot_back <- plot_back[plot_back$value > ylim[2], ]
         # Add background species in grey
-        p <- p + 
+        p <- p +
             geom_line(aes(group = Species), colour = "grey",
                       data = plot_back)
     }
     if ((length(species) + plankton + total) > 13) {
         p <- p + geom_line(aes(group = Species))
     } else {
-        p <- p + geom_line(aes(colour = Species, linetype = Species)) 
+        p <- p + geom_line(aes(colour = Species, linetype = Species))
     }
     if (print_it)
         print(p)
     return(p)
 }
-# @ @ @
 
 #### plotFeedingLevel ####
 #' Plot the feeding level of species by size
