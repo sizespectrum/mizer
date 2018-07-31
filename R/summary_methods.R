@@ -9,7 +9,6 @@
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Soundtrack: The Definitive Lead Belly
-#### getSSB ####
 #' Calculate the SSB of species
 #' 
 #' Calculates the spawning stock biomass (SSB) through time of the species in
@@ -30,12 +29,10 @@
 #' getSSB(sim)
 #' }
 getSSB <- function(object){
-	ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
-	return(ssb)
-    }
+    ssb <- apply(sweep(sweep(object@n, c(2,3), object@params@psi,"*"), 3, object@params@w * object@params@dw, "*"),c(1,2),sum) 
+    return(ssb)
+}
 
-
-#### getBiomass ####
 #' Calculate the total biomass of each species within a size range at each time step.
 #' 
 #' Calculates the total biomass through time of the species in the
@@ -65,7 +62,6 @@ getBiomass <- function(object,...){
     biomass <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@w * object@params@dw, "*"),c(1,2),sum)
     return(biomass)
 }
-#### getN ####
 #' Calculate the total abundance in terms of numbers of species within a size range
 #'
 #' Calculates the total numbers through time of the species in the
@@ -91,11 +87,10 @@ getBiomass <- function(object,...){
 #' getN(sim, min_w = 10, max_w = 1000)
 #' }
 getN <- function(object, ...){
-	    size_range <- get_size_range_array(object@params,...)
-	    n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
-    	return(n)
-    }
-#### getYieldGear ####
+    size_range <- get_size_range_array(object@params,...)
+    n <- apply(sweep(sweep(object@n,c(2,3),size_range,"*"),3,object@params@dw, "*"),c(1,2),sum)
+    return(n)
+}
 #' Calculate the total yield per gear and species
 #'
 #' Calculates the total yield per gear and species at each simulation
@@ -121,16 +116,14 @@ setGeneric('getYieldGear', function(object)
 #' Calculate the total yield per gear from a \code{MizerSim} object
 #' @rdname getYieldGear
 setMethod('getYieldGear', signature(object='MizerSim'),
-    function(object){
-        biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")
-        f_gear <- getFMortGear(object)
-        yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
-        return(yield_species_gear)
-    }
+          function(object){
+              biomass <- sweep(object@n,3,object@params@w * object@params@dw, "*")
+              f_gear <- getFMortGear(object)
+              yield_species_gear <- apply(sweep(f_gear,c(1,3,4),biomass,"*"),c(1,2,3),sum)
+              return(yield_species_gear)
+          }
 )
 
-
-#### getYield ####
 #' Calculate the total yield of each species
 #'
 #' Calculates the total yield of each species across all gears at each
@@ -150,10 +143,10 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' y <- getYield(sim)
 #' }
 getYield <- function(object){
-    	# biomass less the first time step
-    	yield_gear_species <- getYieldGear(object)
-    	return(apply(yield_gear_species,c(1,3),sum))
-    }
+    # biomass less the first time step
+    yield_gear_species <- getYieldGear(object)
+    return(apply(yield_gear_species,c(1,3),sum))
+}
 # Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
 # the size limits specified by the arguments
 # If min_l or max_l are supplied they take precendence over the min_w and max_w
@@ -197,33 +190,33 @@ get_size_range_array <- function(params, min_w = min(params@w), max_w = max(para
 #' summary(params)
 #' }
 setMethod("summary", signature(object="MizerParams"),
-    function(object, ...){
-	#cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
-	cat("An object of class \"", as.character(class(object)), "\" \n", sep="")
-	cat("Community size spectrum:\n")
-	cat("\tminimum size:\t", signif(min(object@w)), "\n", sep="")
-	cat("\tmaximum size:\t", signif(max(object@w)), "\n", sep="")
-	cat("\tno. size bins:\t", length(object@w), "\n", sep="")
-	# Length of background? 
-	cat("Background size spectrum:\n")
-	cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep="")
-	cat("\tmaximum size:\t", signif(max(object@w_full)), "\n", sep="")
-	cat("\tno. size bins:\t", length(object@w_full), "\n", sep="")
-	# w range - min, max, number of w
-	# w background min max
-	# no species and names and wInf,  - not all these wMat, beta, sigma
-	# no gears, gear names catching what
-	cat("Species details:\n")
-	#cat("\tSpecies\t\tw_inf\n")
-#	for (i in 1:nrow(object@species_params))
-#	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep="")
-	print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
-	cat("Fishing gear details:\n")
-	cat("\tGear\t\t\tTarget species\n")
-	for (i in 1:dim(object@catchability)[1]){
-	    cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
-	}
-})
+          function(object, ...){
+              #cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
+              cat("An object of class \"", as.character(class(object)), "\" \n", sep="")
+              cat("Community size spectrum:\n")
+              cat("\tminimum size:\t", signif(min(object@w)), "\n", sep="")
+              cat("\tmaximum size:\t", signif(max(object@w)), "\n", sep="")
+              cat("\tno. size bins:\t", length(object@w), "\n", sep="")
+              # Length of background? 
+              cat("Background size spectrum:\n")
+              cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep="")
+              cat("\tmaximum size:\t", signif(max(object@w_full)), "\n", sep="")
+              cat("\tno. size bins:\t", length(object@w_full), "\n", sep="")
+              # w range - min, max, number of w
+              # w background min max
+              # no species and names and wInf,  - not all these wMat, beta, sigma
+              # no gears, gear names catching what
+              cat("Species details:\n")
+              #cat("\tSpecies\t\tw_inf\n")
+              #	for (i in 1:nrow(object@species_params))
+              #	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep="")
+              print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
+              cat("Fishing gear details:\n")
+              cat("\tGear\t\t\tTarget species\n")
+              for (i in 1:dim(object@catchability)[1]){
+                  cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
+              }
+          })
 
 #### summary for MizerSim ####
 #' Summarize MizerSim object 
@@ -241,19 +234,18 @@ setMethod("summary", signature(object="MizerParams"),
 #' summary(sim)
 #' }
 setMethod("summary", signature(object="MizerSim"),
-    function(object, ...){
-	#cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
-	cat("An object of class \"", as.character(class(object)), "\" \n", sep="")
-	cat("Parameters:\n")
-	summary(object@params)
-	cat("Simulation parameters:\n")
-	# Need to store t_max and dt in a description slot? Or just in simulation time parameters? Like a list?
-	cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), "\n", sep="")
-	cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep="")
-})
+          function(object, ...){
+              #cat("An object of class \"", as.character(class(object)), "\" with:\n", sep="")
+              cat("An object of class \"", as.character(class(object)), "\" \n", sep="")
+              cat("Parameters:\n")
+              summary(object@params)
+              cat("Simulation parameters:\n")
+              # Need to store t_max and dt in a description slot? Or just in simulation time parameters? Like a list?
+              cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), "\n", sep="")
+              cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep="")
+          })
 
 
-#### getProportionOfLargeFish ####
 #' Calculate the proportion of large fish
 #' 
 #' Calculates the proportion of large fish through time in the \code{MizerSim}
@@ -293,26 +285,25 @@ setMethod("summary", signature(object="MizerSim"),
 #'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
 getProportionOfLargeFish <- function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
-	check_species(object,species)
-	# This args stuff is pretty ugly - couldn't work out another way of using ...
-	args <- list(...)
-	args[["params"]] <- object@params
-	total_size_range <- do.call("get_size_range_array",args=args)
-	args[["max_w"]] <- threshold_w
-	args[["max_l"]] <- threshold_l
-	large_size_range <- do.call("get_size_range_array",args=args)
-	w <- object@params@w
-	if(!biomass_proportion) # based on abundance numbers
-	    w[] <- 1
-	total_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
-	upto_threshold_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
-	#lfi = data.frame(time = as.numeric(dimnames(object@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
-	#return(lfi)
-	return(1-(upto_threshold_measure / total_measure))
+    check_species(object,species)
+    # This args stuff is pretty ugly - couldn't work out another way of using ...
+    args <- list(...)
+    args[["params"]] <- object@params
+    total_size_range <- do.call("get_size_range_array",args=args)
+    args[["max_w"]] <- threshold_w
+    args[["max_l"]] <- threshold_l
+    large_size_range <- do.call("get_size_range_array",args=args)
+    w <- object@params@w
+    if(!biomass_proportion) # based on abundance numbers
+        w[] <- 1
+    total_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),total_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
+    upto_threshold_measure <- apply(sweep(sweep(object@n[,species,,drop=FALSE],c(2,3),large_size_range[species,,drop=FALSE],"*"),3,w * object@params@dw, "*"),1,sum)
+    #lfi = data.frame(time = as.numeric(dimnames(object@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
+    #return(lfi)
+    return(1-(upto_threshold_measure / total_measure))
 }
 
 
-#### getMeanWeight ####
 #' Calculate the mean weight of the community
 #'
 #' Calculates the mean weight of the community through time.
@@ -337,16 +328,15 @@ getProportionOfLargeFish <- function(object, species = 1:nrow(object@params@spec
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
 #' }
 getMeanWeight <- function(object, species = 1:nrow(object@params@species_params),...){
-              check_species(object,species)
-	n_species <- getN(object,...)
-	biomass_species <- getBiomass(object,...)
-	n_total <- apply(n_species[,species,drop=FALSE],1,sum)
-	biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
-	return(biomass_total / n_total)
+    check_species(object,species)
+    n_species <- getN(object,...)
+    biomass_species <- getBiomass(object,...)
+    n_total <- apply(n_species[,species,drop=FALSE],1,sum)
+    biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
+    return(biomass_total / n_total)
 }
 
 
-#### getMeanMaxWeight ####
 #' Calculate the mean maximum weight of the community
 #'
 #' Calculates the mean maximum weight of the community through time. This can be
@@ -374,32 +364,25 @@ getMeanWeight <- function(object, species = 1:nrow(object@params@species_params)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 #' }
-setGeneric('getMeanMaxWeight', function(object, ...)
-    standardGeneric('getMeanMaxWeight'))
-
-#' Calculate the mean maximum weight of the community from a \code{MizerSim} object.
-#' @rdname getMeanMaxWeight
-setMethod('getMeanMaxWeight', signature(object='MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params), measure = "both",...){
-	if (!(measure %in% c("both","numbers","biomass")))
-	    stop("measure must be one of 'both', 'numbers' or 'biomass'")
-	check_species(object,species)
-	n_species <- getN(object,...)
-	biomass_species <- getBiomass(object,...)
-	n_winf <- apply(sweep(n_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
-	biomass_winf <- apply(sweep(biomass_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
-	mmw_numbers <- n_winf / apply(n_species, 1, sum)
-	mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
-	if (measure == "numbers")
-	    return(mmw_numbers)
-	if (measure == "biomass")
-	    return(mmw_biomass)
-	if (measure == "both")
-	    return(cbind(mmw_numbers, mmw_biomass)) 
-})
+getMeanMaxWeight <- function(object, species = 1:nrow(object@params@species_params), measure = "both",...){
+    if (!(measure %in% c("both","numbers","biomass")))
+        stop("measure must be one of 'both', 'numbers' or 'biomass'")
+    check_species(object,species)
+    n_species <- getN(object,...)
+    biomass_species <- getBiomass(object,...)
+    n_winf <- apply(sweep(n_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
+    biomass_winf <- apply(sweep(biomass_species, 2, object@params@species_params$w_inf,"*")[,species,drop=FALSE], 1, sum)
+    mmw_numbers <- n_winf / apply(n_species, 1, sum)
+    mmw_biomass <- biomass_winf / apply(biomass_species, 1, sum)
+    if (measure == "numbers")
+        return(mmw_numbers)
+    if (measure == "biomass")
+        return(mmw_biomass)
+    if (measure == "both")
+        return(cbind(mmw_numbers, mmw_biomass)) 
+}
 
 
-#### getCommunitySlope ####
 #' Calculate the slope of the community abundance
 #'
 #' Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
@@ -435,51 +418,45 @@ setMethod('getMeanMaxWeight', signature(object='MizerSim'),
 #' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 #' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 #' }
-setGeneric('getCommunitySlope', function(object, ...)
-    standardGeneric('getCommunitySlope'))
+getCommunitySlope <- function(object, species = 1:nrow(object@params@species_params),
+                              biomass = TRUE, ...) {
+    check_species(object,species)
+    size_range <- get_size_range_array(object@params,...)
+    # set entries for unwanted sizes to zero and sum over wanted species, giving
+    # array (time x size)
+    total_n <-
+        apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop = FALSE],c(1,3),sum)
+    # numbers or biomass?
+    if (biomass)
+        total_n <- sweep(total_n,2,object@params@w,"*")
+    # previously unwanted entries were set to zero, now set them to NA
+    # so that they will be ignored when fitting the linear model
+    total_n[total_n <= 0] <- NA
+    # fit linear model at every time and put result in data frame
+    slope <- adply(total_n,1,function(x,w) {
+        summary_fit <- summary(lm(log(x) ~ log(w)))
+        out_df <- data.frame(
+            slope = summary_fit$coefficients[2,1],
+            intercept = summary_fit$coefficients[1,1],
+            r2 = summary_fit$r.squared
+        )
+    }, w = object@params@w)
+    dimnames(slope)[[1]] <- slope[,1]
+    slope <- slope[,-1]
+    return(slope)
+}
 
-#' Calculate the slope of the community abundance from a \code{MizerSim} object.
-#' @rdname getCommunitySlope
-setMethod('getCommunitySlope', signature(object = 'MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params),
-             biomass = TRUE, ...) {
-        check_species(object,species)
-        size_range <- get_size_range_array(object@params,...)
-        # set entries for unwanted sizes to zero and sum over wanted species, giving
-        # array (time x size)
-        total_n <-
-            apply(sweep(object@n,c(2,3),size_range,"*")[,species,,drop = FALSE],c(1,3),sum)
-        # numbers or biomass?
-        if (biomass)
-            total_n <- sweep(total_n,2,object@params@w,"*")
-        # previously unwanted entries were set to zero, now set them to NA
-        # so that they will be ignored when fitting the linear model
-        total_n[total_n <= 0] <- NA
-        # fit linear model at every time and put result in data frame
-        slope <- adply(total_n,1,function(x,w) {
-            summary_fit <- summary(lm(log(x) ~ log(w)))
-            out_df <- data.frame(
-                slope = summary_fit$coefficients[2,1],
-                intercept = summary_fit$coefficients[1,1],
-                r2 = summary_fit$r.squared
-            )
-        }, w = object@params@w)
-        dimnames(slope)[[1]] <- slope[,1]
-        slope <- slope[,-1]
-        return(slope)
-    }
-)
 
 # internal
 check_species <- function(object,species){
     if (!(is(species,"character") | is(species,"numeric")))
-	stop("species argument must be either a numeric or character vector")
+        stop("species argument must be either a numeric or character vector")
     if (is(species,"character"))
-       check <- all(species %in% dimnames(object@n)$sp)  
+        check <- all(species %in% dimnames(object@n)$sp)  
     if (is(species,"numeric"))
-       check <- all(species %in% 1:dim(object@n)[2])
+        check <- all(species %in% 1:dim(object@n)[2])
     if(!check)
-	stop("species argument not in the model species. species must be a character vector of names in the model, or a numeric vector referencing the species")
+        stop("species argument not in the model species. species must be a character vector of names in the model, or a numeric vector referencing the species")
     return(check)
 }
 
