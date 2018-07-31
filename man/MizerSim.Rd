@@ -17,8 +17,6 @@ slots. Default = NA.}
 
 \item{t_save}{How often should the results of the simulation be stored. Only
 used if t_dimnames = NA. Default value = 1.}
-
-\item{...}{Other arguments (currently not used).}
 }
 \value{
 An object of type \linkS4class{MizerSim}
@@ -27,16 +25,4 @@ An object of type \linkS4class{MizerSim}
 A constructor for the \code{MizerSim} class. This is used by the
 \code{project} method to create \code{MizerSim} objects of the right
 dimensions. It is not necessary for users to use this constructor.
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params)
-}
-}
-\seealso{
-\code{\link{project}} \linkS4class{MizerParams}
-  \linkS4class{MizerSim}
 }

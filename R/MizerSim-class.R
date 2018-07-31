@@ -154,19 +154,8 @@ remove(valid_MizerSim)
 #'   = NA. Default value = 100.
 #' @param t_save How often should the results of the simulation be stored. Only
 #'   used if t_dimnames = NA. Default value = 1.
-#' @param ... Other arguments (currently not used).
 #'   
 #' @return An object of type \linkS4class{MizerSim}
-#' @seealso \code{\link{project}} \linkS4class{MizerParams}
-#'   \linkS4class{MizerSim}
-#' @export
-#' @examples
-#' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params)
-#' }
 MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     # If the dimnames for the time dimension not passed in, calculate them
     # from t_max and t_save
