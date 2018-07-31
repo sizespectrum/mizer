@@ -9,39 +9,39 @@ getFeedingLevel(object, n, n_pp, avail_energy, time_range, drop = FALSE)
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object}
 
-\item{n}{A matrix of species abundance (species x size). Only used if 
+\item{n}{A matrix of species abundance (species x size). Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{n_pp}{A vector of the background abundance by size. Only used if 
+\item{n_pp}{A vector of the background abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{avail_energy}{The available energy matrix (optional) of dimension no. species x no. 
-size bins. If not passed in, it is calculated internally using the 
-\code{\link{getAvailEnergy}} method. Only used if \code{object} argument is of type 
-\code{MizerParams}.}
+\item{avail_energy}{The available energy matrix (optional) of dimension no.
+species x no. size bins. If not passed in, it is calculated internally
+using the \code{\link{getAvailEnergy}} method. Only used if \code{object}
+argument is of type \code{MizerParams}.}
 
-\item{time_range}{Subset the returned fishing mortalities by time. The time 
-range is either a vector of values, a vector of min and max time, or a 
-single value. Default is the whole time range. Only used if the 
+\item{time_range}{Subset the returned fishing mortalities by time. The time
+range is either a vector of values, a vector of min and max time, or a
+single value. Default is the whole time range. Only used if the
 \code{object} argument is of type \code{MizerSim}.}
 
-\item{drop}{should extra dimensions of length 1 in the output be dropped, 
+\item{drop}{should extra dimensions of length 1 in the output be dropped,
 simplifying the output. Defaults to TRUE.}
 }
 \description{
 Calculates the feeding level \eqn{f_i(w)} as a by predator size based on food
 availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed.This method is
+proportion of the encountered food that is actually consumed. This method is
 used by the \code{\link{project}} method for performing simulations.
 }
 \note{
-If a \code{MizerParams} object is passed in, the method returns a two 
-dimensional array (predator species x predator size) based on the abundances 
-also passed in.
+If a \code{MizerParams} object is passed in, the method returns a two
+  dimensional array (predator species x predator size) based on the
+  abundances also passed in.
 
-If a \code{MizerSim} object is passed in, the method returns a three
-dimensional array (time step x predator species x predator size) with the
-feeding level calculated at every time step in the simulation.
+  If a \code{MizerSim} object is passed in, the method returns a three
+  dimensional array (time step x predator species x predator size) with the
+  feeding level calculated at every time step in the simulation.
 }
 \examples{
 \dontrun{

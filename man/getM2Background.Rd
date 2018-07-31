@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getM2Background}
 \alias{getM2Background}
-\title{Get predation mortality rate for plankton}
+\title{Alias for getPlanktonPredMort}
 \usage{
 getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n, n_pp =
   n_pp))
@@ -23,23 +23,8 @@ it is calculated by the \code{getPredRate()} method.}
 A vector of predation mortalities by background prey size.
 }
 \description{
-Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
-spectrum by plankton size. Used by the \code{project} method for running size
-based simulations.
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get M2 of the background spectrum at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getM2Background(params,n,n_pp)
-}
+An alias provided for backward compatibility with mizer version <= 1.0
 }
 \seealso{
-\code{\link{project}} and \code{\link{getM2}}.
+\code{\link{project}} and \code{\link{getPredMort}}.
 }

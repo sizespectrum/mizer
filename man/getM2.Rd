@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getM2}
 \alias{getM2}
-\title{getM2 method for the size based model}
+\title{Alias for getPredMort}
 \usage{
 getM2(object, n, n_pp, pred_rate, time_range, drop = TRUE)
 }
@@ -37,26 +37,7 @@ If a \code{MizerParams} object is passed in, the method returns a two
   predation mortality calculated at every time step in the simulation.
 }
 \description{
-Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
-prey species by prey size. This method is used by the \code{\link{project}}
-method for performing simulations.
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get M2 at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getM2(params,n,n_pp)
-# Get M2 at all saved time steps
-getM2(sim)
-# Get M2 over the time 15 - 20
-getM2(sim, time_range = c(15,20))
-}
+An alias provided for backward compatibility with mizer version <= 1.0
 }
 \seealso{
 \code{\link{getPredRate}} and \code{\link{project}}.
