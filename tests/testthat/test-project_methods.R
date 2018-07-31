@@ -24,6 +24,7 @@ p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
 sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
+gamma <- p@species_params$gamma[sp]
 lm2 <- p@lambda - 2
 
 
@@ -39,6 +40,7 @@ test_that("getAvailEnergy approximates analytic result", {
         # The following factor takes into account the cutoff in the integral
         (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
     expect_equal(ea[1], avail_energy_analytic, tolerance = 1e-6)
+    
     # Check that it agrees with Riemann sum from w-Beta-3*sigma to w 
     Beta <- log(beta)
     x_full <- log(p@w_full)
@@ -134,6 +136,7 @@ test_that("getFeedingLevel for MizerSim", {
 })
 
 test_that("getFeedingLevel approximates analytic result", {
+    skip("This is still too imprecise.")
     f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
     # Check that this is constant
     expect_equivalent(f, rep(f[1], length(f)), 
@@ -143,6 +146,44 @@ test_that("getFeedingLevel approximates analytic result", {
 
 
 # getPredRate -------------------------------------------------------------
+
+test_that("getPredRate approximates analytic result", {
+    skip("Still need to understand this.")
+    # We use a power law for the species spectrum
+    p@initial_n[sp, ] <- p@kappa * p@w^(-p@lambda)
+    # and constant feeding level
+    f0 <- 0.6
+    f <- matrix(f0, nrow = 2, ncol = no_w)
+    # Calculate the coefficient of the power law
+    pr <- getPredRate(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w_full^(1 - p@n)
+    # Check that this is constant
+    expect_equal(pr, rep(pr[1], length(pr)), tolerance = 1e-20)
+    # Check that it agrees with analytic result
+    pred_rate_analytic <- p@kappa * gamma * (1 - f0)
+        exp(lm2^2 * sigma^2 / 2) *
+        beta^lm2 * sqrt(2 * pi) * sigma * 
+        # The following factor takes into account the cutoff in the integral
+        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
+    expect_equal(pr[1], pred_rate_analytic, tolerance = 1e-6)
+    
+    # Check that it agrees with Riemann sum from w to w+Beta-3*sigma
+    Beta <- log(beta)
+    x_full <- log(p@w_full)
+    dx <- x_full[2] - x_full[1]
+    rr <- Beta + 3*sigma
+    jj <- ceiling(rr/dx)
+    # Choose some prey weight w[i]
+    i <- 100
+    ear <- 0
+    # The following corresponds to the right Riemann sum because the sum
+    # goes all the way to the right limit of j == i
+    for (j in i:(i + jj)) {
+        ear <- ear + p@w_full[j]^(p@n - 1) * 
+            exp(-(x_full[j] - x_full[i] - Beta)^2 / (2 * sigma^2))
+    }
+    ear <- ear * (1 - f0) * p@kappa * gamma * p@w_full[i]^(1 - p@n) * dx
+    expect_equal(unname(pr[i]), ear, tolerance = 1e-14)
+})
 
 test_that("getPredRate gives similar result as old code", {
     # We calculate predation rate using old code without fft
