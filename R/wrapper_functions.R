@@ -68,16 +68,16 @@ NULL
 #' @param sigma The width of the prey preference. Default value is 2.0.
 #' @param q The search volume exponent. Default value is 0.8.
 #' @param n The scaling of the intake. Default value is 2/3.
-#' @param kappa The carrying capacity of the background spectrum. Default value
+#' @param kappa The carrying capacity of the plankton spectrum. Default value
 #'   is 1000.
-#' @param lambda The exponent of the background spectrum. Default value is 2 + q
+#' @param lambda The exponent of the plankton spectrum. Default value is 2 + q
 #'   - n.
 #' @param r_pp Growth rate of the primary productivity. Default value is 10.
 #' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 #'   \code{kappa} if not supplied.
 #' @param recruitment The constant recruitment in the smallest size class of the
 #'   community spectrum. This should be set so that the community spectrum 
-#'   continues the background spectrum. Default value = \code{kappa} * 
+#'   continues the plankton spectrum. Default value = \code{kappa} * 
 #'   \code{min_w}^-\code{lambda}.
 #' @param rec_mult Additional multiplier for the constant recruitment. Default 
 #'   value is 1.
@@ -215,11 +215,11 @@ set_community_model <- function(max_w = 1e6,
 #' @param min_w The smallest size of the community spectrum.
 #' @param max_w The largest size of the community spectrum. Default value is the
 #'   largest w_inf in the community x 1.1.
-#' @param min_w_pp The smallest size of the background spectrum.
+#' @param min_w_pp The smallest size of the plankton spectrum.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
-#' @param w_pp_cutoff The cut off size of the background spectrum. Default value
+#' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
 #'   is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3.
@@ -458,10 +458,10 @@ set_trait_model <- function(no_sp = 10,
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
 #'   is such that there are 100 bins for each factor of 10 in weight.
-#' @param min_w_pp The smallest size of the background spectrum. Default value
+#' @param min_w_pp The smallest size of the plankton spectrum. Default value
 #'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
 #'   feeding kernel of even the smallest fish larva.
-#' @param w_pp_cutoff The largest size of the background spectrum. Default
+#' @param w_pp_cutoff The largest size of the plankton spectrum. Default
 #'   value is max_w_inf unless \code{perfect = TRUE} when it is Inf.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param q Exponent of the search volume. Default value is 3/4 unless 
@@ -675,7 +675,7 @@ set_scaling_model <- function(no_sp = 11,
     # Steady state solution of the upwind-difference scheme used in project
     n_exact <- c(1, cumprod(gg[idx] / ((gg + mumu * dw)[idx+1])))
     
-    # rescale fish abundance to line up with background resource spectrum
+    # rescale fish abundance to line up with plankton spectrum
     mult <- kappa / 
         sum(n_exact * (w^(lambda-1)*dw)[1:w_inf_idx])
     n_exact <- n_exact * mult * 
@@ -717,7 +717,7 @@ set_scaling_model <- function(no_sp = 11,
     plankton_vec[w >= w_pp_cutoff] <- 0
     if (!perfect && any(plankton_vec < 0)) {
         # Do not allow negative plankton abundance
-        message("Note: Negative abundance values in background resource overwritten with zeros")
+        message("Note: Negative plankton abundance values overwritten with zeros")
         plankton_vec[plankton_vec < 0] <- 0
     }
     # The cc_pp factor needs to be higher than the desired steady state in

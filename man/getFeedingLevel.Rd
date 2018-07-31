@@ -12,7 +12,7 @@ getFeedingLevel(object, n, n_pp, avail_energy, time_range, drop = FALSE)
 \item{n}{A matrix of species abundance (species x size). Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{n_pp}{A vector of the background abundance by size. Only used if
+\item{n_pp}{A vector of the plankton abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
 \item{avail_energy}{The available energy matrix (optional) of dimension no.

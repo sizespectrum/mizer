@@ -13,7 +13,7 @@
 #'   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
 #'   \code{\link{getPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
-#'   \code{\link{getPlanktonPredMort}} \tab \eqn{\mu_{p}(w)} \tab Predation mortality on background \tab 3.8 \cr
+#'   \code{\link{getPlanktonMort}} \tab \eqn{\mu_{p}(w)} \tab Mortality on plankton \tab 3.8 \cr
 #'   \code{\link{getFMortGear}} \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
 #'   \code{\link{getFMort}} \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
 #'   \code{\link{getMort}} \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
@@ -44,7 +44,7 @@ NULL
 #' performing simulations.
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the background abundance by size
+#' @param n_pp A vector of the plankton abundance by size
 #'   
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
@@ -107,7 +107,7 @@ getPhiPrey <- getAvailEnergy
 #' @param object A \code{MizerParams} or \code{MizerSim} object
 #' @param n A matrix of species abundance (species x size). Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
-#' @param n_pp A vector of the background abundance by size. Only used if
+#' @param n_pp A vector of the plankton abundance by size. Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
 #' @param avail_energy The available energy matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
@@ -193,13 +193,13 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 #' (see \code{\link{getPredMort}}).
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
 #'   
 #' @return A two dimensional array (predator species x prey size), 
-#'   where the prey size runs over community plus background spectrum.
+#'   where the prey size runs over fish community plus plankton spectrum.
 #' @export
 #' @seealso \code{\link{project}}, \code{\link{getPredMort}}, 
 #'   \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
@@ -263,11 +263,11 @@ getPredRate <- function(object, n,  n_pp,
 #' @param object A \code{MizerParams} or \code{MizerSim} object.
 #' @param n A matrix of species abundance (species x size). Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
-#' @param n_pp A vector of the background abundance by size. Only used if
+#' @param n_pp A vector of the plankton abundance by size. Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   background, the w_full slot). The array is optional. If it is not provided
+#'   plankton, the w_full slot). The array is optional. If it is not provided
 #'   it is calculated by the \code{getPredRate()} method.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
@@ -343,13 +343,13 @@ getM2 <- getPredMort
 #' based simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   background, the w_full slot). The array is optional. If it is not provided
+#'   plankton, the w_full slot). The array is optional. If it is not provided
 #'   it is calculated by the \code{getPredRate()} method.
 #'
-#' @return A vector of predation mortalities by background prey size.
+#' @return A vector of mortality rate by plankton size.
 #' @seealso \code{\link{project}} and \code{\link{getPredMort}}.
 #' @export
 #' @examples
@@ -359,12 +359,12 @@ getM2 <- getPredMort
 #' params <- MizerParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get M2 of the background spectrum at one time step
+#' # Get plankton mortality at one time step
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getPlanktonPredMort(params,n,n_pp)
+#' getPlanktonMort(params,n,n_pp)
 #' }
-getPlanktonPredMort <- 
+getPlanktonMort <- 
     function(object, n, n_pp,
              pred_rate = getPredRate(object, n = n, n_pp = n_pp)) {
 
@@ -373,20 +373,18 @@ getPlanktonPredMort <-
          (length(dim(pred_rate)) != 2)) {
         stop("pred_rate argument must have 2 dimensions: no. species (",
              nrow(object@species_params),
-             ") x no. size bins in community + background (",
+             ") x no. size bins in community + plankton (",
              length(object@w_full), ")")
     }
-
-    m2_background <- colSums(pred_rate)
-    return(m2_background)
+    return(colSums(pred_rate))
 }
 
-#' Alias for getPlanktonPredMort
+#' Alias for getPlanktonMort
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit getPlanktonPredMort
+#' @inherit getPlanktonMort
 #' @export
-getM2Background <- getPlanktonPredMort
+getM2Background <- getPlanktonMort
 
 #' Get the fishing mortality by time, gear, species and size
 #'
@@ -582,7 +580,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' for a single time step.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
@@ -628,7 +626,7 @@ getZ <- getMort
 #' Used by the \code{project} method for performing simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
@@ -672,7 +670,7 @@ getEReproAndGrowth <- function(object, n, n_pp,
 #' simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param e The energy available for reproduction and growth (optional). A
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using the \code{getEReproAndGrowth()} method.
@@ -716,7 +714,7 @@ getESpawning <- getERepro
 #' Used by the \code{\link{project}} method for performing simulations.
 #' @param object A \linkS4class{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param e The energy available for reproduction and growth (optional, although
 #'   if specified, e_spawning must also be specified). A matrix of size no.
 #'   species x no. size bins. If not supplied, is calculated internally using
@@ -766,7 +764,7 @@ getEGrowth <- function(object, n, n_pp,
 #' \code{project} method for performing simulations.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
-#' @param n_pp A vector of the background abundance by size.
+#' @param n_pp A vector of the plankton abundance by size.
 #' @param e_spawning The energy available for spawning (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{\link{getERepro}} method.
@@ -811,7 +809,7 @@ getRDI <- function(object, n, n_pp,
 #' \code{project} method for performing simulations.
 #' @param object An \code{MizerParams} object
 #' @param n A matrix of species abundance (species x size)
-#' @param n_pp A vector of the background abundance by size
+#' @param n_pp A vector of the plankton abundance by size
 #' @param rdi A vector of density independent recruitment for each species. 
 #'   If not specified rdi is calculated internally using
 #'   the \code{\link{getRDI}} method.

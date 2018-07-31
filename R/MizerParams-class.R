@@ -219,7 +219,7 @@ validMizerParams <- function(object) {
 #'   slot. A vector the same length as the w slot. The final value is the same
 #'   as the second to last value
 #' @slot w_full A numeric vector of size bins used for the whole model (i.e. the
-#'   community and background spectra) . These are usually spaced on a log10
+#'   community and plankton spectra) . These are usually spaced on a log10
 #'   scale
 #' @slot dw_full The absolute difference between the size bins specified in the
 #'   w_full slot. A vector the same length as the w_full slot. The final value
@@ -245,9 +245,9 @@ validMizerParams <- function(object) {
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the predation mortality integral
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the background spectrum, \eqn{r_0 w^{p-1}}
+#'   growth rate of the plankton spectrum, \eqn{r_0 w^{p-1}}
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}
+#'   carrying capacity of the plankton spectrum, \eqn{\kappa w^{-\lambda}}
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -261,7 +261,7 @@ validMizerParams <- function(object) {
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'  at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
-#'  the abundance of the background background resource at each weight.
+#'  the plankton abundance at each weight.
 #' @slot n Exponent of maximum intake rate.
 #' @slot p Exponent of metabolic cost.
 #' @slot lambda Exponent of resource spectrum.
@@ -305,7 +305,7 @@ setClass(
         ft_pred_kernel_p = "array",
         mu_b = "array",
         rr_pp = "numeric",
-        cc_pp = "numeric", # was NinPP, carrying capacity of background
+        cc_pp = "numeric", # was NinPP, carrying capacity of plankton
         sc = "numeric",
         initial_n_pp = "numeric",
         species_params = "data.frame",
@@ -396,7 +396,7 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     # (successive dw's have a fixed ratio). 
     dw[no_w] <- dw[no_w - 1] * (dw[no_w - 1] / dw[no_w - 2])	
     
-    # Set up full grid - background + community
+    # Set up full grid - plankton + community
     # ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
     if (w[1] <= dw[1]) {
         stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
@@ -510,7 +510,7 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' @param max_w The largest size of the community spectrum.
 #'    Default value is the largest w_inf in the community x 1.1.
 #' @param no_w The number of size bins in the community spectrum.
-#' @param min_w_pp The smallest size of the background spectrum.
+#' @param min_w_pp The smallest size of the plankton spectrum.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
@@ -522,7 +522,7 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #'       value is 1e11.
 #' @param lambda Exponent of the resource spectrum. Default value is
 #'       (2+q-n).
-#' @param w_pp_cutoff The cut off size of the background spectrum.
+#' @param w_pp_cutoff The cut off size of the plankton spectrum.
 #'       Default value is 10.
 #' @param f0 Average feeding level. Used to calculated \code{h} and
 #'       \code{gamma} if those are not columns in the species data frame. Also
@@ -776,7 +776,7 @@ multispeciesParams <- function(object, interaction,
         res@ft_pred_kernel_p[j, ] <- Dx*fft(phi)
     }
     
-    # Background spectrum -------------------------------------------------
+    # plankton spectrum -------------------------------------------------
     res@rr_pp[] <- r_pp * res@w_full^(n - 1) # weight specific plankton growth rate
     res@cc_pp[] <- kappa*res@w_full^(-lambda) # the resource carrying capacity - one for each mp and m (130 of them)
     res@cc_pp[res@w_full > w_pp_cutoff] <- 0  # set density of sizes < plankton cutoff size

@@ -11,7 +11,7 @@ getZ(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp = n_pp))
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{effort}{A numeric vector of the effort by gear or a single numeric
 effort value which is used for all gears.}

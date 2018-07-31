@@ -12,7 +12,7 @@ getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n, n_pp =
 
 \item{n}{A matrix of species abundance (species x size)}
 
-\item{n_pp}{A vector of the background abundance by size}
+\item{n_pp}{A vector of the plankton abundance by size}
 
 \item{rdi}{A vector of density independent recruitment for each species. 
 If not specified rdi is calculated internally using

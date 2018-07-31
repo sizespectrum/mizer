@@ -12,12 +12,12 @@ getPredMort(object, n, n_pp, pred_rate, time_range, drop = TRUE)
 \item{n}{A matrix of species abundance (species x size). Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{n_pp}{A vector of the background abundance by size. Only used if
+\item{n_pp}{A vector of the plankton abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
-background, the w_full slot). The array is optional. If it is not provided
+plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{getPredRate()} method.}
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time

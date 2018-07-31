@@ -11,7 +11,7 @@ getERepro(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp = n_pp))
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated

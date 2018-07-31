@@ -31,10 +31,10 @@ default value is 1e6.}
 
 \item{n}{The scaling of the intake. Default value is 2/3.}
 
-\item{kappa}{The carrying capacity of the background spectrum. Default value
+\item{kappa}{The carrying capacity of the plankton spectrum. Default value
 is 1000.}
 
-\item{lambda}{The exponent of the background spectrum. Default value is 2 + q
+\item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
 - n.}
 
 \item{f0}{The average feeding level of individuals who feed mainly on the 
@@ -54,7 +54,7 @@ function. Default value is 1000.}
 
 \item{recruitment}{The constant recruitment in the smallest size class of the
 community spectrum. This should be set so that the community spectrum 
-continues the background spectrum. Default value = \code{kappa} * 
+continues the plankton spectrum. Default value = \code{kappa} * 
 \code{min_w}^-\code{lambda}.}
 
 \item{rec_mult}{Additional multiplier for the constant recruitment. Default 

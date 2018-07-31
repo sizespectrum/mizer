@@ -11,7 +11,7 @@ getPhiPrey(object, n, n_pp)
 
 \item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the background abundance by size}
+\item{n_pp}{A vector of the plankton abundance by size}
 }
 \value{
 A two dimensional array (predator species x predator size)

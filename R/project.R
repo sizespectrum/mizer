@@ -37,7 +37,7 @@ NULL
 #' @param initial_n The initial populations of the species. By default the 
 #'   \code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
 #'   See the notes below.
-#' @param initial_n_pp The initial population of the background spectrum. It
+#' @param initial_n_pp The initial population of the plankton spectrum. It
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
 #'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \linkS4class{MizerParams} argument is used.
@@ -240,7 +240,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             m2 <- getM2(sim@params, pred_rate=pred_rate)
             # Calculate total mortality \mu_i(w)
             z <- getZ(sim@params, n=n, n_pp=n_pp, effort=effort_dt[i_time,], m2=m2)
-            # Calculate predation mortality on the background spectrum
+            # Calculate mortality on the plankton spectrum
             m2_background <- getM2Background(sim@params, n=n, n_pp=n_pp, pred_rate=pred_rate)
             # Calculate the resources available for reproduction and growth
             e <- getEReproAndGrowth(sim@params, n=n, n_pp=n_pp, feeding_level=feeding_level)
@@ -273,7 +273,7 @@ setMethod('project', signature(object='MizerParams', effort='array'),
             n <- inner_project_loop(no_sp=no_sp, no_w=no_w, n=n, A=A, B=B, S=S,
                                     w_min_idx=sim@params@w_min_idx)
 
-            # Dynamics of background spectrum uses a semi-chemostat model (de Roos - ask Ken)
+            # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
             # We use the exact solution under the assumption of constant mortality during timestep
             tmp <- (sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background))
             n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp+m2_background)*dt)
