@@ -39,23 +39,6 @@ If a \code{MizerParams} object is passed in, the method returns a two
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get predation mortality at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getPredMort(params,n,n_pp)
-# Get predation mortality at all saved time steps
-getPredMort(sim)
-# Get predation mortality over the time 15 - 20
-getPredMort(sim, time_range = c(15,20))
-}
-}
 \seealso{
 \code{\link{getPredRate}} and \code{\link{project}}.
 }

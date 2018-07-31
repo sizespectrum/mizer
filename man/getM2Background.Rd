@@ -4,8 +4,8 @@
 \alias{getM2Background}
 \title{Alias for getPlanktonPredMort}
 \usage{
-getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n,
-  n_pp = n_pp))
+getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n, n_pp =
+  n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -24,19 +24,6 @@ A vector of predation mortalities by background prey size.
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get M2 of the background spectrum at one time step
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getPlanktonPredMort(params,n,n_pp)
-}
 }
 \seealso{
 \code{\link{project}} and \code{\link{getPredMort}}.

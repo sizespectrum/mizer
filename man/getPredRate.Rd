@@ -4,8 +4,8 @@
 \alias{getPredRate}
 \title{Get predation rate}
 \usage{
-getPredRate(object, n, n_pp, feeding_level = getFeedingLevel(object, n =
-  n, n_pp = n_pp))
+getPredRate(object, n, n_pp, feeding_level = getFeedingLevel(object, n = n,
+  n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

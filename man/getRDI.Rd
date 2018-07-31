@@ -4,8 +4,8 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
-  n_pp), sex_ratio = 0.5)
+getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp = n_pp),
+  sex_ratio = 0.5)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

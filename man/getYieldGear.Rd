@@ -19,6 +19,8 @@ An array containing the total yield (time x gear x species)
 \description{
 Calculates the total yield per gear and species at each simulation
 time step.
+
+Calculate the total yield per gear from a \code{MizerSim} object
 }
 \examples{
 \dontrun{

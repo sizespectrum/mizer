@@ -4,8 +4,8 @@
 \alias{getRDD}
 \title{Get density dependent recruitment}
 \usage{
-getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n,
-  n_pp = n_pp, sex_ratio = sex_ratio))
+getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n, n_pp =
+  n_pp, sex_ratio = sex_ratio))
 }
 \arguments{
 \item{object}{An \code{MizerParams} object}

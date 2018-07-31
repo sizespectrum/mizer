@@ -4,8 +4,7 @@
 \alias{getMort}
 \title{Get total mortality rate}
 \usage{
-getMort(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp =
-  n_pp))
+getMort(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

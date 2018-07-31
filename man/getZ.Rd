@@ -4,8 +4,7 @@
 \alias{getZ}
 \title{Alias for getMort}
 \usage{
-getZ(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp =
-  n_pp))
+getZ(object, n, n_pp, effort, m2 = getPredMort(object, n = n, n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -26,17 +25,6 @@ A two dimensional array (prey species x prey size).
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# Project with constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get the total mortality at a particular time step
-getMort(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
-}
 }
 \seealso{
 \code{\link{getPredMort}}, \code{\link{getFMort}}

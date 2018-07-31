@@ -15,9 +15,9 @@ project(object, effort, ...)
 \S4method{project}{MizerParams,numeric}(object, effort, t_max = 100,
   dt = 0.1, ...)
 
-\S4method{project}{MizerParams,array}(object, effort, t_save = 1,
-  dt = 0.1, initial_n = object@initial_n,
-  initial_n_pp = object@initial_n_pp, shiny_progress = NULL, ...)
+\S4method{project}{MizerParams,array}(object, effort, t_save = 1, dt = 0.1,
+  initial_n = object@initial_n, initial_n_pp = object@initial_n_pp,
+  shiny_progress = NULL, ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object}
@@ -58,6 +58,12 @@ through time. \code{project} is called using an object of type
 fishing gears through time. The method returns an object of type
 \linkS4class{MizerSim} which can then be explored with a range of summary and
 plotting methods.
+
+Project without an effort argument.
+
+Project with a constant effort.
+
+Project with time varying effort
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during

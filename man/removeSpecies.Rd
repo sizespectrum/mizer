@@ -24,4 +24,6 @@ An object of type \linkS4class{MizerParams}
 This method simply removes all entries from the MizerParams object that 
 refer to the selected species. It does not recalculate the initial 
 abundances.
+
+Remove species from a \code{MizerParams} object.
 }

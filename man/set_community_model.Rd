@@ -4,11 +4,11 @@
 \alias{set_community_model}
 \title{Sets up parameters for a community-type model}
 \usage{
-set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 0.1,
-  alpha = 0.2, h = 10, beta = 100, sigma = 2, q = 0.8, n = 2/3,
-  kappa = 1000, lambda = 2 + q - n, f0 = 0.7, r_pp = 10,
-  gamma = NA, knife_edge_size = 1000, knife_is_min = TRUE,
-  recruitment = kappa * min_w^-lambda, rec_mult = 1, ...)
+set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 0.1, alpha = 0.2,
+  h = 10, beta = 100, sigma = 2, q = 0.8, n = 2/3, kappa = 1000,
+  lambda = 2 + q - n, f0 = 0.7, r_pp = 10, gamma = NA,
+  knife_edge_size = 1000, knife_is_min = TRUE, recruitment = kappa *
+  min_w^-lambda, rec_mult = 1, ...)
 }
 \arguments{
 \item{max_w}{The maximum size of the community. The \code{w_inf} of the 

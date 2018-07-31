@@ -32,6 +32,8 @@ An object of type \linkS4class{MizerSim}
 A constructor for the \code{MizerSim} class. This is used by the
 \code{project} method to create \code{MizerSim} objects of the right
 dimensions. It is not necessary for users to use this constructor.
+
+MizerSim constructor taking only a \code{MizerParams} object.
 }
 \examples{
 \dontrun{

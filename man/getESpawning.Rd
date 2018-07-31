@@ -4,8 +4,8 @@
 \alias{getESpawning}
 \title{Alias for getERepro}
 \usage{
-getESpawning(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp
-  = n_pp))
+getESpawning(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp =
+  n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -23,17 +23,6 @@ A two dimensional array (prey species x prey size)
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
-}
-\examples{
-\dontrun{
-data(NS_species_params_gears)
-data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# Project with constant fishing effort for all gears for 20 time steps
-sim <- project(params, t_max = 20, effort = 0.5)
-# Get the energy at a particular time step
-getERepro(params,sim@n[21,,],sim@n_pp[21,])
-}
 }
 \seealso{
 \code{\link{project}} and \code{\link{getEReproAndGrowth}}.

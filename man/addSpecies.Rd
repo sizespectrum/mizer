@@ -36,6 +36,8 @@ An object of type \linkS4class{MizerParams}
 \description{
 Takes a \linkS4class{MizerParams} object and adds an additional species with
 given parameters to the ecosystem.
+
+Add species to a MizerParams object
 }
 \examples{
 \dontrun{
