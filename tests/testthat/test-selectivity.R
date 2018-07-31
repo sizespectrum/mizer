@@ -23,7 +23,7 @@ test_that("knife-edge selectivity function is working properly",{
     expect_that(all(params@selectivity["Otter",otter_trawl_species,params@w >= 1000] == 1), is_true())
     expect_that(all(params@selectivity["Otter",otter_trawl_species,params@w < 1000] == 0), is_true())
 
-    sim <- project(params,t_max=10, effort = 1)
+    sim <- project(params, t_max = 10, effort = 1)
     fm <- getFMortGear(sim)
     expect_that(all(fm[10,"Industrial",industrial_species,sim@params@w < 500] == 0), is_true())
     expect_that(all(fm[10,"Industrial",industrial_species,sim@params@w >= 500] > 0), is_true())
@@ -33,4 +33,9 @@ test_that("knife-edge selectivity function is working properly",{
     expect_that(all(fm[10,"Beam",beam_trawl_species,sim@params@w < 1000] == 0), is_true())
     expect_that(all(fm[10,"Otter",otter_trawl_species,sim@params@w >= 1000] > 0), is_true())
     expect_that(all(fm[10,"Otter",otter_trawl_species,sim@params@w < 1000] == 0), is_true())
+})
+
+test_that("sigmoid_length checks its arguments", {
+    expect_error(sigmoid_length(1, l25 = 1, l50 = 1, a = 1, b = 1), "l25 must be smaller than l50")
+    expect_error(sigmoid_length(1, l25 = 1, l50 = 2, a = -1, b = 1), "a and b must be positive")
 })
