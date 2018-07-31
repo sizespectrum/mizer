@@ -4,8 +4,8 @@
 \alias{getPlanktonMort}
 \title{Get predation mortality rate for plankton}
 \usage{
-getPlanktonMort(object, n, n_pp, pred_rate = getPredRate(object, n = n, n_pp =
-  n_pp))
+getPlanktonMort(object, n, n_pp, pred_rate = getPredRate(object, n = n,
+  n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

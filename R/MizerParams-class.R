@@ -724,10 +724,10 @@ multispeciesParams <- function(object, interaction,
     Beta <- log(res@species_params$beta)
     sigma <- res@species_params$sigma
     # w_full has the weights from the smallest relevant plankton, to the largest fish
-    xFull <- log(res@w_full)
+    x_full <- log(res@w_full)
     # We choose the origin of the x axis to be at the smallest plankton size
-    xFull <- xFull - xFull[1]
-    dx <- xFull[2] - xFull[1]
+    x_full <- x_full - x_full[1]
+    dx <- x_full[2] - x_full[1]
     # The first choice makes the calculation agree with the old mizer
     # Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx, 
     # The following gives a better agreement with analytic results
@@ -742,19 +742,19 @@ multispeciesParams <- function(object, interaction,
     # ft_pred_kernel_e is an array (no_sp x no_w_full) 
     # that holds the Fourier transform of the feeding kernel in a form 
     # appropriate for evaluating the available energy integral
-    res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = length(xFull))
+    res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = length(x_full))
     for (i in 1:no_sp) {
         # We compute the feeding kernel terms and their fft.
-        psi <- exp(-(xFull - Beta[i])^2 / (2 * sigma[i]^2))
-        psi[xFull > rr[i]] <- 0
-        res@ft_pred_kernel_e[i, ] <- Dx * fft(psi)
+        phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
+        phi[x_full > rr[i]] <- 0
+        res@ft_pred_kernel_e[i, ] <- Dx * fft(phi)
     }
     
     # ft_pred_kernel_p is an array (no_sp x P (to be determined below)) 
     # that holds the Fourier transform of the feeding kernel in a form 
     # appropriate for evaluating the predation mortality rate integral
     # Determine period used
-    P <- max(xFull[length(xFull)] + rr)
+    P <- max(x_full[length(x_full)] + rr)
     # Determine number of x points used in period
     no_P <- 1 + ceiling(P/dx)  # P/dx should already be integer
     # vector of values for log predator/prey mass ratio

@@ -6,9 +6,9 @@
 \usage{
 multispeciesParams(object, interaction, min_w = 0.001,
   max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
-  no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11,
-  lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6,
-  z0exp = n - 1)
+  no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
+  kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
+  z0pre = 0.6, z0exp = n - 1)
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes

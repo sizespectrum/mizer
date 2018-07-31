@@ -4,8 +4,8 @@
 \alias{plotSpectra}
 \title{Plot the abundance spectra}
 \usage{
-plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA, NA),
-  power = 1, biomass = TRUE, print_it = TRUE, total = FALSE,
+plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA,
+  NA), power = 1, biomass = TRUE, print_it = TRUE, total = FALSE,
   plankton = TRUE, background = TRUE, ...)
 }
 \arguments{

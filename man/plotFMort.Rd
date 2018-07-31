@@ -5,7 +5,8 @@
 \title{Plot total fishing mortality of each species by size}
 \usage{
 plotFMort(sim, species = dimnames(sim@n)$sp,
-  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE,
+  ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}.}

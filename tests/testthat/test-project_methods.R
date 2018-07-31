@@ -18,17 +18,13 @@ n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_full <- abs(rnorm(no_w_full))
 
 # Power law
-p <- set_scaling_model(no_sp = 2, lambda = 1.5, perfect = TRUE, no_w = 1000)
+p <- set_scaling_model(no_sp = 2, lambda = 1.5, perfect = TRUE, no_w = 100)
 p@initial_n[] <- 0
 p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
 sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 lm2 <- p@lambda - 2
-avail_energy_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
-    beta^lm2 * sqrt(2 * pi) * sigma * 
-    # The following factor takes into account the cutoff in the integral
-    (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) 
 
 
 # getAvailEnergy --------------------------------------------------------------
@@ -37,7 +33,29 @@ test_that("getAvailEnergy approximates analytic result", {
     ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
     # Check that this is constant
     expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
-    expect_equal(ea[1], avail_energy_analytic, tolerance = 1e-7)
+    # Check that it agrees with analytic result
+    avail_energy_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
+        beta^lm2 * sqrt(2 * pi) * sigma * 
+        # The following factor takes into account the cutoff in the integral
+        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
+    expect_equal(ea[1], avail_energy_analytic, tolerance = 1e-6)
+    # Check that it agrees with Riemann sum from w-Beta-3*sigma to w 
+    Beta <- log(beta)
+    x_full <- log(p@w_full)
+    dx <- x_full[2] - x_full[1]
+    rr <- Beta + 3*sigma
+    jj <- ceiling(rr/dx)
+    # Choose some predator weight w[i]
+    i <- jj + 100
+    ear <- 0
+    # The following corresponds to the right Riemann sum because the sum
+    # goes all the way to the right limit of j == i
+    for (j in (i - jj + 1):i) {
+        ear <- ear + p@w_full[j]^(2 - p@lambda) * 
+            exp(-(x_full[i] - x_full[j] - Beta)^2 / (2 * sigma^2))
+    }
+    ear <- ear * p@kappa * p@w_full[i]^(p@lambda - 2) * dx
+    expect_equal(ea[1], ear, tolerance = 1e-14)
 })
 
 # test_that("Test that fft based integrator gives similar result as old code",{
@@ -126,7 +144,7 @@ test_that("getFeedingLevel approximates analytic result", {
 
 # getPredRate -------------------------------------------------------------
 
-test_that("getPredRate", {
+test_that("getPredRate gives similar result as old code", {
     # We calculate predation rate using old code without fft
     old_getPredRate <- function(params, n, n_pp, pk) {
         feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp)
@@ -172,9 +190,9 @@ test_that("getPredRate", {
 })
 
 
-# getM2 -------------------------------------------------------------------
+# getPredMort -------------------------------------------------------------------
 
-test_that("getM2 for MizerParams", {
+test_that("getPredMort for MizerParams", {
     # Randomize selectivity and catchability for proper test
     params@catchability[] <-
         runif(prod(dim(params@catchability)), min = 0, max = 1)
@@ -185,8 +203,8 @@ test_that("getM2 for MizerParams", {
     # Params + n + n_pp
     
     pred_rate <- getPredRate(params, n, n_full)
-    m21 <- getM2(params, pred_rate = pred_rate)
-    m22 <- getM2(params, n, n_full)
+    m21 <- getPredMort(params, pred_rate = pred_rate)
+    m22 <- getPredMort(params, n, n_full)
     # Test dims
     expect_identical(dim(m21), c(no_sp, no_w))
     expect_identical(dim(m21), c(no_sp, no_w))
@@ -204,14 +222,14 @@ test_that("getM2 for MizerParams", {
     expect_equal(m2temp, m21[sp, ], check.names = FALSE)
 })
 
-test_that("getM2 for MizerSim", {
+test_that("getPredMort for MizerSim", {
     time_range <- 15:20
-    expect_length(dim(getM2(sim, time_range = time_range)), 3)
+    expect_length(dim(getPredMort(sim, time_range = time_range)), 3)
     time_range <- 20
-    expect_length(dim(getM2(sim, time_range = time_range)), 2)
-    ##expect_that(getM2(sim, time_range=time_range), equals(getM2(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
-    aq1 <- getM2(sim, time_range = time_range)
-    aq2 <- getM2(sim@params, sim@n[as.character(time_range), , ],
+    expect_length(dim(getPredMort(sim, time_range = time_range)), 2)
+    ##expect_that(getPredMort(sim, time_range=time_range), equals(getPredMort(sim@params, sim@n[as.character(time_range),,], sim@n_pp[as.character(time_range),])))
+    aq1 <- getPredMort(sim, time_range = time_range)
+    aq2 <- getPredMort(sim@params, sim@n[as.character(time_range), , ],
                  sim@n_pp[as.character(time_range), ])
     
     ttot <- 0
@@ -222,18 +240,18 @@ test_that("getM2 for MizerSim", {
     expect_equal(ttot, 0)
 })
 
-test_that("interaction is right way round in getM2 method", {
+test_that("interaction is right way round in getPredMort method", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
     params <- MizerParams(NS_species_params_gears, inter)
-    m2 <- getM2(params, get_initial_n(params), params@cc_pp)
+    m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2["Dab", ] == 0))
 })
 
 
-# getM2Background ---------------------------------------------------------
+# getPlanktonMort ---------------------------------------------------------
 
-test_that("getM2Background", {
-    m2 <- getM2Background(params, n, n_full)
+test_that("getPlanktonMort", {
+    m2 <- getPlanktonMort(params, n, n_full)
     # test dim
     expect_length(m2, no_w_full)
     # Check number in final prey size group
@@ -241,8 +259,8 @@ test_that("getM2Background", {
     expect_identical(m22, m2)
     # Passing in pred_rate gives the same
     pr <- getPredRate(params, n, n_full)
-    m2b1 <- getM2Background(params, n, n_full)
-    m2b2 <- getM2Background(params, n, n_full, pred_rate = pr)
+    m2b1 <- getPlanktonMort(params, n, n_full)
+    m2b2 <- getPlanktonMort(params, n, n_full, pred_rate = pr)
     expect_identical(m2b1, m2b2)
 })
 
@@ -331,24 +349,24 @@ test_that("getFMort", {
 })
 
 
-# getZ --------------------------------------------------------------------
+# getMort --------------------------------------------------------------------
 
-test_that("getZ", {
+test_that("getMort", {
     no_gear <- dim(params@catchability)[1]
     effort1 <- 0.5
     effort2 <- rep(effort1, no_gear)
-    z <- getZ(params, n, n_full, effort2)
+    z <- getMort(params, n, n_full, effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
     # Look at numbers in species 1
     f <- getFMort(params, effort2)
-    m2 <- getM2(params, n, n_full)
+    m2 <- getPredMort(params, n, n_full)
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
     expect_equal(z1, z[1, ], check.names = FALSE)
     # Passing in M2 gives the same
-    m2 <- getM2(params, n, n_full)
-    z1 <- getZ(params, n, n_full, effort = effort2)
-    z2 <- getZ(params, n, n_full, effort = effort2, m2 = m2)
+    m2 <- getPredMort(params, n, n_full)
+    z1 <- getMort(params, n, n_full, effort = effort2)
+    z2 <- getMort(params, n, n_full, effort = effort2, m2 = m2)
     expect_identical(z1, z2)
 })
 
@@ -374,11 +392,11 @@ test_that("getEReproAndGrowth", {
 })
 
 
-# getESpawning ------------------------------------------------------------
+# getERepro ------------------------------------------------------------
 
-test_that("getESpawning", {
+test_that("getERepro", {
     n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    es <- getESpawning(params, n, n_full)
+    es <- getERepro(params, n, n_full)
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
@@ -388,8 +406,8 @@ test_that("getESpawning", {
     expect_identical(e_growth, e - es)
     # Including ESpawningAndGrowth gives the same
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    es1 <- getESpawning(params, n, n_full)
-    es2 <- getESpawning(params, n, n_full, e = e)
+    es1 <- getERepro(params, n, n_full)
+    es2 <- getERepro(params, n, n_full, e = e)
     expect_identical(es1, es2)
 })
 
@@ -403,13 +421,13 @@ test_that("getRDI", {
     # test dim
     expect_length(rdi, no_sp)
     # test values
-    e_spawning <- getESpawning(params, n = n, n_pp = n_full)
+    e_spawning <- getERepro(params, n = n, n_pp = n_full)
     e_spawning_pop <- apply(sweep(e_spawning * n, 2, params@dw, "*"), 1, sum)
     rdix <- sex_ratio * (e_spawning_pop * params@species_params$erepro) / 
         params@w[params@w_min_idx]
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
-    e_spawning <- getESpawning(params, n = n, n_pp = n_full)
+    e_spawning <- getERepro(params, n = n, n_pp = n_full)
     rdi1 <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
                    e_spawning = e_spawning)
@@ -434,7 +452,7 @@ test_that("getRDD", {
 
 test_that("getEGrowth is working", {
     n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    e_spawning <- getESpawning(params, n = n, n_pp = n_full)
+    e_spawning <- getERepro(params, n = n, n_pp = n_full)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
     eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
@@ -459,23 +477,23 @@ test_that("project methods return objects of correct dimension when community on
     expect_that(dim(getAvailEnergy(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getFeedingLevel(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getPredRate(params,n,n_pp)), equals(c(1,length(params@w_full))))
-    expect_that(dim(getM2(params,n,n_pp)), equals(c(1,nw)))
-    expect_that(length(getM2Background(params,n,n_pp)), equals(length(params@w_full)))
+    expect_that(dim(getPredMort(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(length(getPlanktonMort(params,n,n_pp)), equals(length(params@w_full)))
     expect_that(dim(getFMortGear(params,0)), equals(c(1,1,nw))) # 3D time x species x size
     expect_that(dim(getFMortGear(params,matrix(c(0,0),nrow=2))), equals(c(2,1,1,nw))) # 4D time x gear x species x size
     expect_that(dim(getFMort(params,0)), equals(c(1,nw))) # 2D species x size
     expect_that(dim(getFMort(params,matrix(c(0,0),nrow=2))), equals(c(2,1,nw))) # 3D time x species x size
-    expect_that(dim(getZ(params,n,n_pp,0)), equals(c(1,nw)))
+    expect_that(dim(getMort(params,n,n_pp,0)), equals(c(1,nw)))
     expect_that(dim(getEReproAndGrowth(params,n,n_pp)), equals(c(1,nw)))
-    expect_that(dim(getESpawning(params,n,n_pp)), equals(c(1,nw)))
+    expect_that(dim(getERepro(params,n,n_pp)), equals(c(1,nw)))
     expect_that(dim(getEGrowth(params,n,n_pp)), equals(c(1,nw)))
     expect_that(length(getRDI(params,n,n_pp)), equals(1))
     expect_that(length(getRDD(params,n,n_pp)), equals(1))
 
     # MizerSim methods
     expect_that(dim(getFeedingLevel(sim)), equals(c(t_max+1,1,nw))) # time x species x size
-    expect_that(dim(getM2(sim)), equals(c(t_max+1,nw))) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
-    expect_that(dim(getM2(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
+    expect_that(dim(getPredMort(sim)), equals(c(t_max+1,nw))) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
+    expect_that(dim(getPredMort(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
     expect_that(dim(getFMortGear(sim)), equals(c(t_max+1,1,1,nw))) # time x gear x species x size
     expect_that(dim(getFMort(sim)), equals(c(t_max+1,nw))) # time x species x size - note drop = TRUE
     expect_that(dim(getFMort(sim, drop=FALSE)), equals(c(t_max+1,1,nw))) # time x species x size 
