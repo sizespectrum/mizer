@@ -292,13 +292,7 @@ setMethod("summary", signature(object="MizerSim"),
 #' getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
 #'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
-setGeneric('getProportionOfLargeFish', function(object, ...)
-    standardGeneric('getProportionOfLargeFish'))
-
-#' Calculate the proportion of large fish from a \code{MizerSim} object.
-#' @rdname getProportionOfLargeFish
-setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
+getProportionOfLargeFish <- function(object, species = 1:nrow(object@params@species_params), threshold_w = 100, threshold_l = NULL, biomass_proportion=TRUE, ...){
 	check_species(object,species)
 	# This args stuff is pretty ugly - couldn't work out another way of using ...
 	args <- list(...)
@@ -315,7 +309,7 @@ setMethod('getProportionOfLargeFish', signature(object='MizerSim'),
 	#lfi = data.frame(time = as.numeric(dimnames(object@n)$time), proportion = 1-(upto_threshold_measure / total_measure))
 	#return(lfi)
 	return(1-(upto_threshold_measure / total_measure))
-})
+}
 
 
 #### getMeanWeight ####
