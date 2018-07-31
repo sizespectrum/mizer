@@ -4,9 +4,8 @@
 \alias{plotYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(sim, sim2,
-  species = as.character(sim@params@species_params$species),
-  print_it = TRUE, total = FALSE, log = TRUE, ...)
+plotYield(sim, sim2, species = dimnames(sim@n)$sp, print_it = TRUE,
+  total = FALSE, log = TRUE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -18,15 +17,15 @@ this is provided its yields will be shown on the same plot in bolder lines.}
 default all species contained in \code{sim} are plotted.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to TRUE}
+Defaults to TRUE.}
 
 \item{total}{A boolean value that determines whether the total yield from
-all species in the system is plotted as well. Default is FALSE}
+all species in the system is plotted as well. Default is FALSE.}
 
 \item{log}{Boolean whether yield should be plotted on a logarithmic axis. 
 Defaults to true.}
 
-\item{...}{Other arguments to pass to \code{getYield} method}
+\item{...}{Other arguments to pass to \code{\link{getYield}} method.}
 }
 \value{
 A ggplot2 object

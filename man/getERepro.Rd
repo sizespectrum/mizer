@@ -4,7 +4,8 @@
 \alias{getERepro}
 \title{Get energy rate available for reproduction}
 \usage{
-getERepro(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp = n_pp))
+getERepro(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp =
+  n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

@@ -5,17 +5,16 @@
 \title{Get data frame of spawning stock biomass of species through time, 
 ready for ggplot2}
 \usage{
-getSSBFrame(sim,
-  species = sim@params@species_params$species[!is.na(sim@params@A)],
+getSSBFrame(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), ylim = c(NA,
-  NA), total = FALSE, ...)
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  ylim = c(NA, NA), total = FALSE)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
 
 \item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+default all foreground species are plotted.}
 
 \item{start_time}{The first time to be plotted. Default is the beginning
 of the time series.}

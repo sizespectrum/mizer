@@ -4,8 +4,8 @@
 \alias{plotSpectra}
 \title{Plot the abundance spectra}
 \usage{
-plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA, NA),
-  power = 1, biomass = TRUE, print_it = TRUE, total = FALSE,
+plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA,
+  NA), power = 1, biomass = TRUE, print_it = TRUE, total = FALSE,
   plankton = TRUE, background = TRUE, ...)
 }
 \arguments{
@@ -55,8 +55,8 @@ Default is TRUE.}
 A ggplot2 object
 }
 \description{
-What is plotted is the number density multiplied by a power of
-the weight, with the power specified by the \code{power} argument.
+Plots the number density multiplied by a power of the weight, with the power
+specified by the \code{power} argument.
 }
 \details{
 When called with a \linkS4class{MizerSim} object, the abundance is averaged

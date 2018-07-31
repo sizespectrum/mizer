@@ -4,11 +4,10 @@
 \alias{getBiomassFrame}
 \title{Get data frame of biomass of species through time, ready for ggplot2}
 \usage{
-getBiomassFrame(sim,
-  species = sim@params@species_params$species[!is.na(sim@params@A)],
+getBiomassFrame(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), ylim = c(NA,
-  NA), total = FALSE, ...)
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  ylim = c(NA, NA), total = FALSE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}

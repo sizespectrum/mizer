@@ -4,8 +4,8 @@
 \alias{getEReproAndGrowth}
 \title{Get energy after metabolism and movement}
 \usage{
-getEReproAndGrowth(object, n, n_pp, feeding_level = getFeedingLevel(object, n
-  = n, n_pp = n_pp))
+getEReproAndGrowth(object, n, n_pp,
+  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}

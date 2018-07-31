@@ -4,9 +4,8 @@
 \alias{plotGrowthCurves}
 \title{Plot growth curves giving weight as a function of age}
 \usage{
-plotGrowthCurves(object,
-  species = as.character(sim@params@species_params$species), max_age = 20,
-  percentage = FALSE, print_it = TRUE)
+plotGrowthCurves(object, species, max_age = 20, percentage = FALSE,
+  print_it = TRUE)
 }
 \arguments{
 \item{object}{MizerSim or MizerParams object}

@@ -4,8 +4,9 @@
 \alias{plotM2}
 \title{Plot predation mortality rate of each species against size}
 \usage{
-plotM2(sim, species = as.character(sim@params@species_params$species),
-  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
+plotM2(sim, species = dimnames(sim@n)$sp,
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE,
+  ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}

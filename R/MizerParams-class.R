@@ -837,6 +837,7 @@ multispeciesParams <- function(object, interaction,
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit multispeciesParams
+#' @export
 MizerParams <- multispeciesParams
 
 

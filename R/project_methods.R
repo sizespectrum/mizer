@@ -94,6 +94,7 @@ getAvailEnergy <- function(object, n, n_pp) {
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getAvailEnergy
+#' @export
 getPhiPrey <- getAvailEnergy
 
 
@@ -331,6 +332,7 @@ getPredMort <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getPredMort
+#' @export
 getM2 <- getPredMort
 
 
@@ -383,6 +385,7 @@ getPlanktonPredMort <-
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getPlanktonPredMort
+#' @export
 getM2Background <- getPlanktonPredMort
 
 #' Get the fishing mortality by time, gear, species and size
@@ -614,6 +617,7 @@ getMort <- function(object, n, n_pp, effort,
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getMort
+#' @export
 getZ <- getMort
 
 
@@ -701,6 +705,7 @@ getERepro <- function(object, n, n_pp,
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getERepro
+#' @export
 getESpawning <- getERepro
 
 

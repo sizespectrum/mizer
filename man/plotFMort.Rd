@@ -4,8 +4,9 @@
 \alias{plotFMort}
 \title{Plot total fishing mortality of each species by size}
 \usage{
-plotFMort(sim, species = as.character(sim@params@species_params$species),
-  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
+plotFMort(sim, species = dimnames(sim@n)$sp,
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE,
+  ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}.}

@@ -25,8 +25,6 @@ Calculates the total biomass through time of the species in the
 to use the whole size range. You can specify minimum and maximum weight or
 length range for the species. Lengths take precedence over weights (i.e. if
 both min_l and min_w are supplied, only min_l will be used).
-
-Calculate the total biomass of each species from a \code{MizerSim} object
 }
 \examples{
 \dontrun{

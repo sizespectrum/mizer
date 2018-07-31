@@ -4,9 +4,9 @@
 \alias{plotFeedingLevel}
 \title{Plot the feeding level of species by size}
 \usage{
-plotFeedingLevel(sim,
-  species = as.character(sim@params@species_params$species),
-  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE, ...)
+plotFeedingLevel(sim, species = dimnames(sim@n)$sp,
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE,
+  ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}.}
