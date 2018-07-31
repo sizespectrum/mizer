@@ -336,20 +336,14 @@ getProportionOfLargeFish <- function(object, species = 1:nrow(object@params@spec
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
 #' }
-setGeneric('getMeanWeight', function(object, ...)
-    standardGeneric('getMeanWeight'))
-
-#' Calculate the mean weight of the community from a \code{MizerSim} object.
-#' @rdname getMeanWeight
-setMethod('getMeanWeight', signature(object='MizerSim'),
-    function(object, species = 1:nrow(object@params@species_params),...){
-	check_species(object,species)
+getMeanWeight <- function(object, species = 1:nrow(object@params@species_params),...){
+              check_species(object,species)
 	n_species <- getN(object,...)
 	biomass_species <- getBiomass(object,...)
 	n_total <- apply(n_species[,species,drop=FALSE],1,sum)
 	biomass_total <- apply(biomass_species[,species,drop=FALSE],1,sum)
 	return(biomass_total / n_total)
-})
+}
 
 
 #### getMeanMaxWeight ####
