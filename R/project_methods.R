@@ -12,13 +12,13 @@
 #'   \code{\link{getAvailEnergy}} \tab \eqn{E_{a.i}(w)} \tab Available energy \tab 3.2 \cr
 #'   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
-#'   \code{\link{getM2}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
-#'   \code{\link{getM2Background}} \tab \eqn{\mu_{p}(w)} \tab Predation mortality on background \tab 3.8 \cr
+#'   \code{\link{getPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
+#'   \code{\link{getPlanktonPredMort}} \tab \eqn{\mu_{p}(w)} \tab Predation mortality on background \tab 3.8 \cr
 #'   \code{\link{getFMortGear}} \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
 #'   \code{\link{getFMort}} \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
-#'   \code{\link{getZ}} \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
+#'   \code{\link{getMort}} \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
 #'   \code{\link{getEReproAndGrowth}} \tab \eqn{E_{r.i}(w)} \tab Energy put into growth and reproduction \tab 3.4 \cr
-#'   \code{\link{getESpawning}} \tab \eqn{\psi_i(w)E_{r.i}(w)} \tab Energy put reproduction\tab 3.5 \cr
+#'   \code{\link{getERepro}} \tab \eqn{\psi_i(w)E_{r.i}(w)} \tab Energy put reproduction\tab 3.5 \cr
 #'   \code{\link{getEGrowth}} \tab \eqn{g_i(w)} \tab Energy put growth \tab 3.4 \cr
 #'   \code{\link{getRDI}} \tab \eqn{R_{p.i}} \tab Egg production \tab 3.5 \cr
 #'   \code{\link{getRDD}} \tab \eqn{R_i} \tab Recruitment \tab 3.6 \cr
@@ -89,6 +89,12 @@ getAvailEnergy <- function(object, n, n_pp) {
 
     return(avail_energy[, idx_sp, drop = FALSE])
 }
+
+#' Alias for getAvailEnergy
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit getAvailEnergy
+getPhiPrey <- getAvailEnergy
 
 
 #' Get feeding level
@@ -183,7 +189,7 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 #' This method is used by the \code{\link{project}} method for performing
 #' simulations. In the simulations, it is combined with the interaction matrix
 #' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
-#' (see \code{\link{getM2}}).
+#' (see \code{\link{getPredMort}}).
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the background abundance by size.
@@ -194,7 +200,7 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over community plus background spectrum.
 #' @export
-#' @seealso \code{\link{project}}, \code{\link{getM2}}, 
+#' @seealso \code{\link{project}}, \code{\link{getPredMort}}, 
 #'   \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
 #' @examples
 #' \dontrun{
@@ -288,13 +294,13 @@ getPredRate <- function(object, n,  n_pp,
 #' # Get predation mortality at one time step
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getM2(params,n,n_pp)
+#' getPredMort(params,n,n_pp)
 #' # Get predation mortality at all saved time steps
-#' getM2(sim)
+#' getPredMort(sim)
 #' # Get predation mortality over the time 15 - 20
-#' getM2(sim, time_range = c(15,20))
+#' getPredMort(sim, time_range = c(15,20))
 #' }
-getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
+getPredMort <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
     if (is(object, "MizerParams")) {
         if (missing(pred_rate)) {
             feeding_level <- getFeedingLevel(object, n = n, n_pp = n_pp)
@@ -314,12 +320,18 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
         m2_time <- aaply(which(time_elements), 1, function(x) {
             n <- array(object@n[x, , ], dim = dim(object@n)[2:3])
             dimnames(n) <- dimnames(object@n)[2:3]
-            m2 <- getM2(object@params, n = n, n_pp = object@n_pp[x, ])
+            m2 <- getPredMort(object@params, n = n, n_pp = object@n_pp[x, ])
             return(m2)
         }, .drop = drop)
         return(m2_time)
     }
 }
+
+#' Alias for getPredMort
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit getPredMort
+getM2 <- getPredMort
 
 
 #' Get predation mortality rate for plankton
@@ -336,7 +348,7 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
 #'   it is calculated by the \code{getPredRate()} method.
 #'
 #' @return A vector of predation mortalities by background prey size.
-#' @seealso \code{\link{project}} and \code{\link{getM2}}.
+#' @seealso \code{\link{project}} and \code{\link{getPredMort}}.
 #' @export
 #' @examples
 #' \dontrun{
@@ -348,10 +360,11 @@ getM2 <- function(object, n, n_pp, pred_rate, time_range, drop = TRUE) {
 #' # Get M2 of the background spectrum at one time step
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getM2Background(params,n,n_pp)
+#' getPlanktonPredMort(params,n,n_pp)
 #' }
-getM2Background <- function(object, n, n_pp,
-                            pred_rate = getPredRate(object, n = n, n_pp = n_pp)) {
+getPlanktonPredMort <- 
+    function(object, n, n_pp,
+             pred_rate = getPredRate(object, n = n, n_pp = n_pp)) {
 
     if ( (!all(dim(pred_rate) ==
                c(nrow(object@species_params), length(object@w_full)))) |
@@ -366,6 +379,11 @@ getM2Background <- function(object, n, n_pp,
     return(m2_background)
 }
 
+#' Alias for getPlanktonPredMort
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit getPlanktonPredMort
+getM2Background <- getPlanktonPredMort
 
 #' Get the fishing mortality by time, gear, species and size
 #'
@@ -566,12 +584,12 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #'   effort value which is used for all gears.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
-#'   calculated using the \code{getM2()} method.
+#'   calculated using the \code{getPredMort()} method.
 #'
 #' @return A two dimensional array (prey species x prey size). 
 #'
 #' @export
-#' @seealso \code{\link{getM2}}, \code{\link{getFMort}}
+#' @seealso \code{\link{getPredMort}}, \code{\link{getFMort}}
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -580,10 +598,10 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
-#' getZ(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
+#' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
-getZ <- function(object, n, n_pp, effort,
-                 m2 = getM2(object, n = n, n_pp = n_pp)){
+getMort <- function(object, n, n_pp, effort,
+                 m2 = getPredMort(object, n = n, n_pp = n_pp)){
     if (!all(dim(m2) == c(nrow(object@species_params), length(object@w)))) {
         stop("m2 argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
@@ -591,6 +609,12 @@ getZ <- function(object, n, n_pp, effort,
     }
     return(m2 + object@mu_b + getFMort(object, effort = effort))
 }
+
+#' Alias for getMort
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit getMort
+getZ <- getMort
 
 
 #' Get energy after metabolism and movement
@@ -660,9 +684,9 @@ getEReproAndGrowth <- function(object, n, n_pp,
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
-#' getESpawning(params,sim@@n[21,,],sim@@n_pp[21,])
+#' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getESpawning <- function(object, n, n_pp,
+getERepro <- function(object, n, n_pp,
                          e = getEReproAndGrowth(object, n = n, n_pp = n_pp)) {
     if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
         stop("e argument must have dimensions: no. species (",
@@ -672,6 +696,12 @@ getESpawning <- function(object, n, n_pp,
     e_spawning <- object@psi * e
     return(e_spawning)
 }
+
+#' Alias for getERepro
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit getERepro
+getESpawning <- getERepro
 
 
 #' Get energy rate available for growth
@@ -689,7 +719,7 @@ getESpawning <- function(object, n, n_pp,
 #' @param e_spawning The energy available for spawning (optional, although if
 #'   specified, e must also be specified). A matrix of size no. species x no.
 #'   size bins. If not supplied, is calculated internally using the
-#'   \code{\link{getESpawning}} method.
+#'   \code{\link{getERepro}} method.
 #'   
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
@@ -705,7 +735,7 @@ getESpawning <- function(object, n, n_pp,
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEGrowth <- function(object, n, n_pp,
-                       e_spawning = getESpawning(object, n = n, n_pp = n_pp),
+                       e_spawning = getERepro(object, n = n, n_pp = n_pp),
                        e=getEReproAndGrowth(object, n = n, n_pp = n_pp)) {
     if (!all(dim(e_spawning) == c(nrow(object@species_params), length(object@w)))) {
         stop("e_spawning argument must have dimensions: no. species (",
@@ -734,7 +764,7 @@ getEGrowth <- function(object, n, n_pp,
 #' @param n_pp A vector of the background abundance by size.
 #' @param e_spawning The energy available for spawning (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
-#'   using the \code{\link{getESpawning}} method.
+#'   using the \code{\link{getERepro}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #'   
@@ -752,7 +782,7 @@ getEGrowth <- function(object, n, n_pp,
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDI <- function(object, n, n_pp,
-                   e_spawning = getESpawning(object, n = n, n_pp = n_pp),
+                   e_spawning = getERepro(object, n = n, n_pp = n_pp),
                    sex_ratio = 0.5) {
     if (!all(dim(e_spawning) == c(nrow(object@species_params), length(object@w)))) {
         stop("e_spawning argument must have dimensions: no. species (",

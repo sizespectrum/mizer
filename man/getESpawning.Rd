@@ -2,10 +2,10 @@
 % Please edit documentation in R/project_methods.R
 \name{getESpawning}
 \alias{getESpawning}
-\title{Get energy rate available for reproduction}
+\title{Alias for getERepro}
 \usage{
-getESpawning(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp =
-  n_pp))
+getESpawning(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp
+  = n_pp))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -22,10 +22,7 @@ internally using the \code{getEReproAndGrowth()} method.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy rate available by species and size for reproduction
-after metabolism and movement have been accounted for:
-\eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} method for performing
-simulations.
+An alias provided for backward compatibility with mizer version <= 1.0
 }
 \examples{
 \dontrun{
@@ -35,7 +32,7 @@ params <- MizerParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
-getESpawning(params,sim@n[21,,],sim@n_pp[21,])
+getERepro(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{

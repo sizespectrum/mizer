@@ -490,11 +490,10 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 
 
 
-#' Constructors for objects of \code{MizerParams} class
+#' Construct \code{MizerParams} cobject for multispecies model
 #'
-#' Constructor method for the \linkS4class{MizerParams} class. Provides the
-#' simplest way of making a \code{MizerParams} object to be used in a
-#' simulation.
+#' Provides default functional forms for all slots in the MizerParams object
+#' based on user-provided species parameters.
 #' 
 #' @param object A data frame of species specific parameter values (see notes
 #'   below).
@@ -563,14 +562,13 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' @examples
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-MizerParams <- 
-    function(object, interaction,
-             min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
-             min_w_pp = 1e-10, no_w_pp = NA,
-             n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
-             kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-             f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
+#' params <- multispeciesParams(NS_species_params_gears, inter)
+multispeciesParams <- function(object, interaction,
+                    min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
+                    min_w_pp = 1e-10, no_w_pp = NA,
+                    n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
+                    kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
+                    f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
@@ -833,7 +831,13 @@ MizerParams <-
     res@initial_n <- get_initial_n(res)
     res@A <- rep(1,no_sp)
     return(res)
-    }
+}
+
+#' Alias for multispeciesParams
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit multispeciesParams
+MizerParams <- multispeciesParams
 
 
 # Check that the species_params dataset is OK

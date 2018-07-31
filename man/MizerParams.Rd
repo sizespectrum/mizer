@@ -2,12 +2,13 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{MizerParams}
 \alias{MizerParams}
-\title{Constructors for objects of \code{MizerParams} class}
+\title{Alias for multispeciesParams}
 \usage{
-MizerParams(object, interaction, min_w = 0.001, max_w = max(object$w_inf) *
-  1.1, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA, n = 2/3, p = 0.7,
-  q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
-  w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6, z0exp = n - 1)
+MizerParams(object, interaction, min_w = 0.001,
+  max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
+  no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
+  kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
+  z0pre = 0.6, z0exp = n - 1)
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -66,42 +67,17 @@ z0pre * w_inf ^ z0exp. Default value is 0.6.}
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not
 a column in the species data frame, it is calculated as 
 z0pre * w_inf ^ z0exp. Default value is n-1.}
-
-\item{species_names}{Names of the species. Generally not needed as normally
-taken from the \code{object} data.frame.}
-
-\item{gear_names}{Names of the gears that catch each species. Generally not
-needed as normally taken from the \code{object} data.frame. Default is
-\code{species_names}.}
-
-\item{...}{Additional arguments.}
 }
 \value{
 An object of type \code{MizerParams}
 }
 \description{
-Constructor method for the \linkS4class{MizerParams} class. Provides the
-simplest way of making a \code{MizerParams} object to be used in a
-simulation.
-}
-\note{
-The only essential argument to the \code{MizerParams} constructor is a
-  data frame which contains the species data. The data frame is arranged
-  species by parameter, so each column of the parameter data frame is a
-  parameter and each row has the parameters for one of the species in the
-  model.
-  
-  There are some essential columns that must be included in the parameter
-  data.frame and that do not have default values. Other columns do have
-  default values, so that if they are not included in the species parameter
-  data frame, they will be automatically added when the \code{MizerParams}
-  object is created. See the accompanying vignette for details of these
-  columns.
+An alias provided for backward compatibility with mizer version <= 1.0
 }
 \examples{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- multispeciesParams(NS_species_params_gears, inter)
 }
 \seealso{
 \code{\link{project}} \linkS4class{MizerSim}
