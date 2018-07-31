@@ -4,10 +4,10 @@
 \alias{getYield}
 \title{Calculate the total yield of each species}
 \usage{
-getYield(object)
+getYield(sim)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 }
 \value{
 An array containing the total yield (time x species)

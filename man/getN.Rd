@@ -4,10 +4,10 @@
 \alias{getN}
 \title{Calculate the total abundance in terms of numbers of species within a size range}
 \usage{
-getN(object, ...)
+getN(sim, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{...}{Other arguments to select the size range of the species to be used
 in the calculation (min_w, max_w, min_l, max_l).}

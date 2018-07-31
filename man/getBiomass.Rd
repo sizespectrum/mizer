@@ -2,12 +2,13 @@
 % Please edit documentation in R/summary_methods.R
 \name{getBiomass}
 \alias{getBiomass}
-\title{Calculate the total biomass of each species within a size range at each time step.}
+\title{Calculate the total biomass of each species within a size range at each time 
+step.}
 \usage{
-getBiomass(object, ...)
+getBiomass(sim, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{...}{Other arguments to select the size range of fish to be used
 in the calculation (min_w, max_w, min_l, max_l).}

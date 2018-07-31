@@ -4,12 +4,12 @@
 \alias{getProportionOfLargeFish}
 \title{Calculate the proportion of large fish}
 \usage{
-getProportionOfLargeFish(object,
-  species = 1:nrow(object@params@species_params), threshold_w = 100,
+getProportionOfLargeFish(sim,
+  species = 1:nrow(sim@params@species_params), threshold_w = 100,
   threshold_l = NULL, biomass_proportion = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{species}{numeric or character vector of species to include in the
 calculation.}

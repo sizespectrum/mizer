@@ -33,20 +33,20 @@ test_that("scaling model is set up correctly", {
     names(f) <- NULL
     expect_equal(f, rep(f[1], length(f)), tolerance = 1e-14)
     # Death rate
-    mu <- getZ(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
+    mu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
     mumu <- mu  # To set the right names
-    mumu[] <- mu0 * p@w^(p@n-1)
+    mumu[] <- mu0 * p@w^(p@n - 1)
     expect_equal(mu, mumu, tolerance = 1e-15)
     # Growth rate
     g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
     gg <- g  # To set the right names
-    gg[] <- hbar * p@w^p@n * (1-p@psi[sp, ])
+    gg[] <- hbar * p@w^p@n * (1 - p@psi[sp, ])
     expect_equal(g, gg)
     
     # Check that community is perfect power law
     expect_identical(p@sc, colSums(p@initial_n))
     total <- p@initial_n_pp
-    fish_idx <- (length(p@w_full)-length(p@w)+1):length(p@w_full)
+    fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     total[fish_idx] <- total[fish_idx] + p@sc
     total <- total * p@w_full^p@lambda
     expected <- rep(p@kappa, length(p@w_full))
@@ -57,7 +57,7 @@ test_that("scaling model is set up correctly", {
     
     # Check that total biomass changes little (relatively)
     bm <- getBiomass(sim)
-    expect_lt(max(abs(bm[1, ]-bm[6, ])), 4*10^(-5))
+    expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
 })
 
 test_that("retune_abundance reproduces scaling model", {

@@ -4,11 +4,10 @@
 \alias{getMeanWeight}
 \title{Calculate the mean weight of the community}
 \usage{
-getMeanWeight(object, species = 1:nrow(object@params@species_params),
-  ...)
+getMeanWeight(sim, species = 1:nrow(sim@params@species_params), ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}}
+\item{sim}{An object of class \code{MizerSim}}
 
 \item{species}{numeric or character vector of species to include in the calculation}
 

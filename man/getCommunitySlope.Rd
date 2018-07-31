@@ -4,11 +4,11 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(object, species = 1:nrow(object@params@species_params),
+getCommunitySlope(sim, species = 1:nrow(sim@params@species_params),
   biomass = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{species}{Numeric or character vector of species to include in the calculation.}
 
