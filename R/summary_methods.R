@@ -149,19 +149,11 @@ setMethod('getYieldGear', signature(object='MizerSim'),
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
-setGeneric('getYield', function(object)
-    standardGeneric('getYield'))
-
-#' Calculate the total yield of each species from a \code{MizerSim} object
-#' @rdname getYield
-setMethod('getYield', signature(object='MizerSim'),
-    function(object){
+getYield <- function(object){
     	# biomass less the first time step
     	yield_gear_species <- getYieldGear(object)
     	return(apply(yield_gear_species,c(1,3),sum))
     }
-)
-
 # Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
 # the size limits specified by the arguments
 # If min_l or max_l are supplied they take precendence over the min_w and max_w
