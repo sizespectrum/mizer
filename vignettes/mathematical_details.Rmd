@@ -133,8 +133,8 @@ and
 P_{b}[i,k]=\sum_{k'=1}^{\left|w^{full}\right|}\Phi_{i}\left(\frac{w_{k'}^{full}}{w_{k}}\right)w_{k'}^{full}N_{R}\left(w_{k'}^{full}\right)(\Delta w{}^{full})_{k'}
 \end{equation}
 
-is a left Riemann sum for the available energy from eating background
-resources. These terms are calculated in a way that exploits R's vectorized
+is a left Riemann sum for the available energy from eating on the
+resource spectrum. These terms are calculated in a way that exploits R's vectorized
 arithmetic to determine these values for each $i\in\left\{ 1,..,s\right\}$
 and $k\in\left\{ 1,..,|w|\right\}$ simultaneously.
 

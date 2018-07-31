@@ -111,7 +111,7 @@ The results of the simulations can then be explored using a range of plots and s
 The models created can be quite flexible and there are many options for setting up and running simulations.  For example, different stock-recruitment relationships can be implemented and fishing gears with different selectivity patterns can be set up so that different species are caught by different gears.
 However, \pkg{mizer} aims to make setting up the models relatively simple.  For example, easy to use ``wrapper'' functions are provided so users can set up community and trait-based models with the minimum of \R gymnastics. Additionally, most of the methods and functions in the package have default options and assumptions. These can be changed by the user once they are familiar with the models 
 
-This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Next, there is a detailed example of a multispecies size spectrum model of the North Sea, including running projections using historical fishing patterns. After this, we introduce the scale-invariant trait-based model, which can be thought of as a modified version of the trait-based model that can be organized into a well understood steady state without the need to impose external stock-recruitment relationships. Next we describe how species from the scale-invariant can act as a type of background into which  explicit species of particular interest can be added. Finally we describe improvements that have been made to the previous version of mizer, and discuss some technical details in the appendix.
+This vignette starts by summarising the principles and assumptions of size spectrum models. The \pkg{mizer} package is then introduced by showing how to set up the simplest types of size spectrum models: the community and trait-based model. These sections give a basic overview of the classes and methods used by \pkg{mizer}. Simple examples are given that demonstrate how trophic-cascades can be simulated. There then follows a more detailed description of the \pkg{mizer} classes and methods using a multispecies model of the North Sea as an example. Next, there is a detailed example of a multispecies size spectrum model of the North Sea, including running projections using historical fishing patterns. After this, we introduce the scale-invariant trait-based model, which can be thought of as a modified version of the trait-based model that can be organized into a well understood steady state without the need to impose external stock-recruitment relationships. Next we describe how species from the scale-invariant model can act as a type of background into which  explicit species of particular interest can be added. Finally we describe improvements that have been made to the previous version of mizer, and discuss some technical details in the appendix.
 
 %-------------------------------------------------------------------------------
 \section{Package installation and getting help}
@@ -199,7 +199,7 @@ The first central assumption is that an individual can be characterized by its w
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
 \end{equation}
 
-where individual growth $g_i(w)$ and mortality $\mu_i(w)$ are both determined by the availability of food from the other species plus a background resource, $N_R(w)$, and predation by the other species. The conservation equation is supplemented by a boundary condition at the boundary at weight $w_0$ where the flux of individuals (numbers per time) $g_i(w_0) N_i(w_0)$ is determined by the reproduction of offspring by mature individuals in the population $R_i$:
+where individual growth $g_i(w)$ and mortality $\mu_i(w)$ are both determined by the availability of food from the other species plus a resource, $N_R(w)$, and predation by the other species. The conservation equation is supplemented by a boundary condition at the boundary at weight $w_0$ where the flux of individuals (numbers per time) $g_i(w_0) N_i(w_0)$ is determined by the reproduction of offspring by mature individuals in the population $R_i$:
 
 \begin{equation}
   \label{eq:3}
@@ -221,7 +221,7 @@ The remainder of this section looks in detail at these assumptions.
 \label{sec:encounter}
 The encounter of food is based on the ``Andersen-Ursin'' encounter model which was developed as part of a North-Sea ecosystem model \citep[see also][]{andersen_multispecies_1977, andersen_asymptotic_2006}.  
 
-The available food (mass per volume) for a predator of weight $w$ is determined by integrating over all species and the background resource weighted by the size selection function (Equation~\ref{eq:4}): 
+The available food (mass per volume) for a predator of weight $w$ is determined by integrating over all species and the resource weighted by the size selection function (Equation~\ref{eq:4}): 
 
 \begin{equation}
   \label{eq:1}
@@ -367,7 +367,7 @@ Fishing mortality $\mu_{f.i}(w)$ is discussed further in section \ref{sec:fishin
 
 
 \subsection{Resource dynamics}
-The background resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
+The resource spectrum $N_R(w)$ represents food items for the smallest individuals (smaller than $\beta w_0$). The temporal evolution of each size group in the resource spectrum is described using semi-chemostatic growth:
 \begin{equation}
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} = r_0 w^{p-1} \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t),
@@ -384,7 +384,7 @@ The predation mortality rate is given by a similar expression as in \eqref{eq:mu
 
 The default parameter values for the model have been derived on the basis of meta-analyses of data on marine fish (Table~\ref{tab:parameters}). Two parameters deserving special mention are the initial and critical feeding levels. These are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
 
-The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the background resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$, see \citep[Appendix B]{andersen_asymptotic_2006}:
+The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the  resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma$, see \citep[Appendix B]{andersen_asymptotic_2006}:
 
 \begin{equation}
   \label{eq:gamma}
@@ -512,7 +512,7 @@ As can be seen in the help page, the function can take many arguments. These are
 The arguments that you should pay attention to are: \args{z0} (the level of background mortality), \args{alpha} (the assimilation efficiency of the community), \args{f0} (the average feeding level of the community which is used to calculate $\gamma$ in Equation~\ref{eq:gamma}) and \args{recruitment} (the level of constant recruitment).
 
 Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of \args{z0} is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
-The value of the constant recruitment should be set so that the community spectrum is a continuation of the background spectrum. This can be done with trial and error.  A reasonable value for \args{alpha} is 0.2 \citep{andersen_life-history_2008}. 
+The value of the constant recruitment should be set so that the community spectrum is a continuation of the plankton spectrum. This can be done with trial and error.  A reasonable value for \args{alpha} is 0.2 \citep{andersen_life-history_2008}. 
 
 The \code{set\_community\_model()} function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with \args{z0} = 1, \args{f0} = 0.7, \args{alpha} = 0.2 and \args{recruitment} = 4e7. All other parameters will have their default value:
 
@@ -543,7 +543,7 @@ Rather than picking through the slots to find out what is in a particular \class
 summary(params)
 @
 
-In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the background resource spectrum.
+In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the resource spectrum.
 Additionally, the community is made up of only one species, called ``Community'', which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The \args{w\_mat} parameter has been set to \code{NA} as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function and pass in the the desired argument values. 
 
 \subsection{Running the community model}
@@ -559,7 +559,7 @@ To run a projection for 50 time steps, with no fishing effort (i.e. we want to m
 sim <- project(params, t_max=50, effort = 0)
 @
 
-The resulting object, \code{sim}, is of type \class{MizerSim}. This class holds the results of the simulation, including the community and background resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\ref{sec:projection}.
+The resulting object, \code{sim}, is of type \class{MizerSim}. This class holds the results of the simulation, including the community and resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\ref{sec:projection}.
 
 After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\ref{sec:exploring}. To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\ref{fig:plot_comm_demo}) Each of the plots can be show individually if desired.
 
@@ -579,7 +579,7 @@ In Figure~\ref{fig:plot_comm_demo} there are several things going on that are wo
 Fishing mortality is 0 because we set the \args{effort} argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
 The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the \args{f0} and \args{alpha} arguments passed to the \code{set\_community\_model()} function.
-The background resource and community spectra are shown in the bottom panel of the plot (the plotted background resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
+The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
 You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the \args{recruitment} argument passed to \code{set\_community\_model()}).
 
 Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the \args{z0} argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
@@ -764,7 +764,7 @@ summary(params)
 @
 
 The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from \Sexpr{min(params@species_params$w_inf)}
-to \Sexpr{max(params@species_params$w_inf)}. The size at maturity (\args{w\_{mat}}) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (\args{beta} and \args{sigma}, see Equation \ref{eq:4}). There are \Sexpr{length(params@w)} size bins in the community and \Sexpr{length(params@w_full)} size bins including the background resource spectrum.
+to \Sexpr{max(params@species_params$w_inf)}. The size at maturity (\args{w\_{mat}}) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (\args{beta} and \args{sigma}, see Equation \ref{eq:4}). There are \Sexpr{length(params@w)} size bins in the community and \Sexpr{length(params@w_full)} size bins including the resource spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 \subsection{Running the trait-based model}
@@ -778,7 +778,7 @@ We use the default initial population abundances given by the \code{get\_initial
 sim <- project(params, t_max=75, effort = 0)
 @
 
-This results in a \class{MizerSim} object which contains the abundances of the community and background resource spectra through time, as well as the original \class{MizerParams} object.
+This results in a \class{MizerSim} object which contains the abundances of the community and resource spectra through time, as well as the original \class{MizerParams} object.
 As with the community model, we can get a quick overview of the results of the simulation by calling the generic \code{plot()} method:
 
 <<plot_comm_sim_2, eval=FALSE>>=
@@ -1083,7 +1083,7 @@ The \class{MizerParams} class stores the:
     \item size-based biological parameters for the species, such as the search volume, $V(w)$;
     \item stock-recruitment relationship functions and parameters of each species;
     \item interaction matrix to describe the spatial overlap of pairs of species;
-    \item parameters relating to the growth and dynamics of the background resource spectrum;
+    \item parameters relating to the growth and dynamics of the resource spectrum;
     \item fishing gear parameters: selectivity and catchability.
 \end{itemize}
 
@@ -1125,7 +1125,7 @@ The \args{h} column is calculated as:
     h = \frac{3 k_{vb}}{\alpha f_0} W_\infty^{1/3}
 \end{equation}
 
-where $k_{vb}$ is the von Bertalanffy $K$ parameter and $f_0$ is the feeding level of small individuals feeding mainly on the background resource.
+where $k_{vb}$ is the von Bertalanffy $K$ parameter and $f_0$ is the feeding level of small individuals feeding mainly on the resource.
 This mean that if an \args{h} column is not included in the species parameter data.frame, a column for \args{k\_vb} is necessary. If it is not included then the \code{MizerParams()} method will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, \args{f0}, to the \code{MizerParams()} constructor and it has a default value of 0.6.
 
 The \args{gamma} column is calculated using Equation~\ref{eq:gamma}.
@@ -1316,16 +1316,16 @@ The arguments can be seen in Table~\ref{tab:other_params}.
 	min\_w & The smallest size of the species community size spectrum. Note that this a different w\_min to the one in the species parameter data.frame. & 0.001 \\
 	max\_w & The largest size of the species size spectrum. & The largest w\_inf in the species parameters data.frame * 1.1 \\
 	no\_w & The number of size bins in the species size spectrum. & 100 \\
-	min\_w\_pp & The smallest size of the background size spectrum. & 1e-10 \\
-	no\_w\_pp & The number of size bins in the background size spectrum. & round(no\_w) * 0.3 \\
+	min\_w\_pp & The smallest size of the plankton size spectrum. & 1e-10 \\
+	no\_w\_pp & The number of size bins in the plankton size spectrum. & round(no\_w) * 0.3 \\
 	n & The scaling of intake. & 2/3 \\
 	p & The scaling of standard metabolism. & 0.7 \\
 	q & The search volume exponent. & 0.8 \\
-	r\_pp & The growth rate of the primary productivity (the background spectrum). & 10 \\
-	kappa & The carrying capacity of the background spectrum. & 1e11 \\
-	lambda & The exponent of the background spectrum. & 2+q-n \\
-	w\_pp\_cutoff & The cut off size of the background spectrum. & 10 \\
-    f0 & The feeding level of small individuals feeding mainly on the background resource. Used to calculate \args{h} and \args{gamma} if they are not provided in the species parameter data.frame. & 0.6\\
+	r\_pp & The growth rate of the primary productivity (the plankton spectrum). & 10 \\
+	kappa & The carrying capacity of the plankton spectrum. & 1e11 \\
+	lambda & The exponent of the spectrum. & 2+q-n \\
+	w\_pp\_cutoff & The cut off size of the plankton spectrum. & 10 \\
+    f0 & The feeding level of small individuals feeding mainly on the resource. Used to calculate \args{h} and \args{gamma} if they are not provided in the species parameter data.frame. & 0.6\\
     z0pre & If \args{z0}, the mortality from other sources, is not a column in the species data.frame, it is calculated as $z0pre * w_\infty ^{z0exp}$. & 0.6 \\
     z0exp & See z0pre & n - 1\\
 	\end{tabularx}
@@ -1532,7 +1532,7 @@ Running a projection with \code{project()} requires various arguments:
 	section);
     \item[Fishing effort] The fishing effort of each gear through time;
     \item[Initial population] The initial abundances of the stocks and the
-	background spectrum;
+	plankton spectrum;
     \item[Time arguments] Arguments to control the time of the simulation,
 	including the simulation time step, the length of the simulation
 	and how frequently the output is stored.
@@ -1586,11 +1586,11 @@ It is not necessary to supply a \args{t\_max} argument when the effort is specif
 \subsection{Setting the initial population abundance}
 \label{sec:setting_initial_abundances}
 
-When running a simulation with the \code{project()} method, the initial populations of the species and the background spectrum need to be specified. These are passed to \code{project()} as the arguments \args{initial\_n} and \args{initial\_n\_pp} respectively.
+When running a simulation with the \code{project()} method, the initial populations of the species and the plankton spectrum need to be specified. These are passed to \code{project()} as the arguments \args{initial\_n} and \args{initial\_n\_pp} respectively.
 \args{initial\_n} is a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). \args{initial\_n\_pp} is a vector of the same length as the the length of the full spectrum (which can be seen as slot \args{w\_full} in the \class{MizerParams} object).
 
 By default, the \args{initial\_n} argument has values automatically calculated by the function \code{get\_initial\_n()}.
-The default value for \args{initial\_n\_pp} is the carrying capacity of the background spectrum, stored in the \args{cc\_pp} slot of the
+The default value for \args{initial\_n\_pp} is the carrying capacity of the plankton spectrum, stored in the \args{cc\_pp} slot of the
 \class{MizerParams} parameters object.
 
 \subsection{What do you get from running \code{project()}?}
@@ -1601,7 +1601,7 @@ Like the \class{MizerParams} class this is also made up of various ``slots'', wh
 An object of \class{MizerSim} has four slots, details of which can be seen in the help page (\code{help("MizerSim-class"}).
 The \args{params} slot holds the \class{MizerParams} object that was passed in to \code{project()}.
 The \args{effort} slot holds the fishing effort of each gear through time. Note that the \args{effort} slot may not be exactly the same as the \args{effort} argument that was passed in to \code{project()}. This is because only the saved effort is stored (the frequency of saving is determined by the argument \args{t\_save}).
-The \args{n} and \args{n\_pp} slots hold the saved abundances of the species and the background population at size respectively. 
+The \args{n} and \args{n\_pp} slots hold the saved abundances of the species and the plankton population at size respectively. 
 
 \subsection{Projection examples}
 \label{sec:projection_examples}
@@ -1783,7 +1783,7 @@ sim <- project(params_gears,effort=effort_array, dt=0.1, t_save = 1)
 
 \subsection{Directly accessing the slots of \class{MizerSim} objects}
 
-We have seen in previous sections that a \class{MizerSim} object is made up of various ``slots'' that contain the original parameters (\args{species\_params}), the population abundances (\args{n}), the abundance of the background resource spectrum (\args{n\_pp}) and the fishing effort (\args{effort}).
+We have seen in previous sections that a \class{MizerSim} object is made up of various ``slots'' that contain the original parameters (\args{species\_params}), the population abundances (\args{n}), the abundance of the resource spectrum (\args{n\_pp}) and the fishing effort (\args{effort}).
 
 The projected species abundances at size through time can be seen in the \args{n} slot.  This is a three-dimensional array (time x species x size).
 Consequently, this array can get very big so inspecting it can be difficult.
@@ -1933,7 +1933,7 @@ With these plotting methods, it is also possible to specify a different time ste
 	Plot & Description \\
 	\hline
 	plotBiomass() & Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
-	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \\
+	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the plankton community. It is possible to specify a minimum size which is useful for truncating the plot. \\
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
 	plotM2() & Plots the predation mortality of each species against size.\\
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
@@ -2559,7 +2559,7 @@ idealisation of a size-spectrum model with a finite number of species.
 %These boundaries are dealt with by special assumptions described below, 
 %to retain the property of 'close-to-scale-invariance'.
 
-%We avoid the problem of having to model arbitrarily small species by replacing them with the background resource, so the 
+%We avoid the problem of having to model arbitrarily small species by replacing them with the plankton resource, so the 
 %smallest species we explicitly model still have something to eat. We avoid the 
 %problem of having to model arbitrarily large species by choosing the background 
 %mortality term $\mu_b (w)$ to emulate the effect of predators larger than the 
@@ -2774,12 +2774,12 @@ get assemblages that are close to scale invariance.  The changes are as follows.
 
 \item (Equation~\ref{eq:nb}) The resource spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
-background resource so when our system is at steady state, the 
-combination of the background resource spectrum and the aggregate abundance of 
+resource so when our system is at steady state, the 
+combination of the resource spectrum and the aggregate abundance of 
 the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
 model is given by Equation~\ref{eq:cp}. 
-%This is achieved choosing the carrying capacity of the background resource to be 
+%This is achieved choosing the carrying capacity of the resource to be 
 %\begin{equation} c_{p} (w)=
 %   \begin{cases}
 %      \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}, & \text{if}\ w<\min\{w_{*i}\} \\
@@ -2787,7 +2787,7 @@ model is given by Equation~\ref{eq:cp}.
 %    \end{cases}
 %\end{equation}
 %Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
-%so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the background resource declines to zero.  
+%so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.  
 
 \item By default the scale-invariant trait-based model is initialized at a 
  steady state (Equation~\ref{eq:steady}) (provided no fishing is being 
@@ -3105,18 +3105,18 @@ We arrived at our expression for $\mu_b(w)$ by considering that in the steady st
 ) we ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
 
-\subsection{Background resources in the scale invariant model}
+\subsection{Resources in the scale invariant model}
 
-We define the carrying capacity $c_p(w)$ of the background resource so when our system is at steady state, the 
-combination of the background resource spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
-This is achieved choosing the carrying capacity of the background resource to be 
+We define the carrying capacity $c_p(w)$ of the resource so when our system is at steady state, the 
+combination of the resource spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
+This is achieved choosing the carrying capacity of the resource to be 
 \begin{equation} 
 \label{eq:cp}
 c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}
 \end{equation}
 Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
-%We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the background resource declines to zero.
+%We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.
 
 
 %---------------------------------------------------

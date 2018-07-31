@@ -12,7 +12,7 @@ getEReproAndGrowth(object, n, n_pp,
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally

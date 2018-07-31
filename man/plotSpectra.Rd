@@ -20,7 +20,7 @@ the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
 \item{min_w}{Minimum weight to be plotted (useful for truncating the
-background spectrum). Default value is a hundredth of the minimum size
+plankton spectrum). Default value is a hundredth of the minimum size
 value of the community.}
 
 \item{ylim}{A numeric vector of length two providing limits of for the

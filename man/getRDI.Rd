@@ -12,7 +12,7 @@ getRDI(object, n, n_pp, e_spawning = getERepro(object, n = n, n_pp =
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{e_spawning}{The energy available for spawning (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally

@@ -31,7 +31,7 @@ Default value is the largest w_inf in the community x 1.1.}
 
 \item{no_w}{The number of size bins in the community spectrum.}
 
-\item{min_w_pp}{The smallest size of the background spectrum.}
+\item{min_w_pp}{The smallest size of the plankton spectrum.}
 
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
@@ -51,7 +51,7 @@ value is 1e11.}
 \item{lambda}{Exponent of the resource spectrum. Default value is
 (2+q-n).}
 
-\item{w_pp_cutoff}{The cut off size of the background spectrum.
+\item{w_pp_cutoff}{The cut off size of the plankton spectrum.
 Default value is 10.}
 
 \item{f0}{Average feeding level. Used to calculated \code{h} and

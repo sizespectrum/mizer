@@ -31,11 +31,11 @@ is 10^(-4).}
 \item{no_w}{The number of size bins in the community spectrum. Default value
 is such that there are 100 bins for each factor of 10 in weight.}
 
-\item{min_w_pp}{The smallest size of the background spectrum. Default value
+\item{min_w_pp}{The smallest size of the plankton spectrum. Default value
 is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
 feeding kernel of even the smallest fish larva.}
 
-\item{w_pp_cutoff}{The largest size of the background spectrum. Default
+\item{w_pp_cutoff}{The largest size of the plankton spectrum. Default
 value is max_w_inf unless \code{perfect = TRUE} when it is Inf.}
 
 \item{n}{Scaling of the intake. Default value is 2/3.}

@@ -22,7 +22,7 @@ slot. A vector the same length as the w slot. The final value is the same
 as the second to last value}
 
 \item{\code{w_full}}{A numeric vector of size bins used for the whole model (i.e. the
-community and background spectra) . These are usually spaced on a log10
+community and plankton spectra) . These are usually spaced on a log10
 scale}
 
 \item{\code{dw_full}}{The absolute difference between the size bins specified in the
@@ -59,10 +59,10 @@ the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}
+growth rate of the plankton spectrum, \eqn{r_0 w^{p-1}}}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}}
+carrying capacity of the plankton spectrum, \eqn{\kappa w^{-\lambda}}}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -84,7 +84,7 @@ each species by each gear, \eqn{Q_{g,i}}}
 at each weight at our candidate steady state solution.}
 
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
-the abundance of the background background resource at each weight.}
+the plankton abundance at each weight.}
 
 \item{\code{n}}{Exponent of maximum intake rate.}
 

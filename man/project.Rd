@@ -40,7 +40,7 @@ value is 1. Must be an integer multiple of dt.}
 \code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
 See the notes below.}
 
-\item{initial_n_pp}{The initial population of the background spectrum. It
+\item{initial_n_pp}{The initial population of the plankton spectrum. It
 should be a numeric vector of the same length as the \code{w_full} slot of
 the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 \linkS4class{MizerParams} argument is used.}

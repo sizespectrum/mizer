@@ -107,7 +107,7 @@ valid_MizerSim <- function(object){
 #'   time, species and size
 #' @slot effort Array that stores the fishing effort through time by time and
 #'   gear
-#' @slot n_pp Array that stores the projected background population by time and
+#' @slot n_pp Array that stores the projected plankton abundance by time and
 #'   size
 #'   
 #' @seealso \code{\link{project}} \code{\link{MizerParams}}

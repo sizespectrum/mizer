@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getM2Background}
 \alias{getM2Background}
-\title{Alias for getPlanktonPredMort}
+\title{Alias for getPlanktonMort}
 \usage{
 getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n,
   n_pp = n_pp))
@@ -12,15 +12,15 @@ getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n,
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
-background, the w_full slot). The array is optional. If it is not provided
+plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{getPredRate()} method.}
 }
 \value{
-A vector of predation mortalities by background prey size.
+A vector of mortality rate by plankton size.
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
@@ -32,10 +32,10 @@ data(inter)
 params <- MizerParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-# Get M2 of the background spectrum at one time step
+# Get plankton mortality at one time step
 n <- sim@n[21,,]
 n_pp <- sim@n_pp[21,]
-getPlanktonPredMort(params,n,n_pp)
+getPlanktonMort(params,n,n_pp)
 }
 }
 \seealso{

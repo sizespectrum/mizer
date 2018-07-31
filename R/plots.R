@@ -481,7 +481,7 @@ plotYieldGear <- function(sim,
 #'   the final time step. Ignored when called with a \linkS4class{MizerParams}
 #'   object.
 #' @param min_w Minimum weight to be plotted (useful for truncating the
-#'   background spectrum). Default value is a hundredth of the minimum size
+#'   plankton spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
 #' @param ylim A numeric vector of length two providing limits of for the
 #'   y axis. Use NA to refer to the existing minimum or maximum. Any values

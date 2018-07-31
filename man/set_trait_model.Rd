@@ -29,13 +29,13 @@ community.}
 \item{max_w}{The largest size of the community spectrum. Default value is the
 largest w_inf in the community x 1.1.}
 
-\item{min_w_pp}{The smallest size of the background spectrum.}
+\item{min_w_pp}{The smallest size of the plankton spectrum.}
 
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
 
-\item{w_pp_cutoff}{The cut off size of the background spectrum. Default value
+\item{w_pp_cutoff}{The cut off size of the plankton spectrum. Default value
 is 1.}
 
 \item{k0}{Multiplier for the maximum recruitment. Default value is 50.}

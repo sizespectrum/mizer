@@ -12,7 +12,7 @@ getPredRate(object, n, n_pp, feeding_level = getFeedingLevel(object, n =
 
 \item{n}{A matrix of species abundance (species x size).}
 
-\item{n_pp}{A vector of the background abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size.}
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
@@ -20,7 +20,7 @@ using the \code{getFeedingLevel()} method.}
 }
 \value{
 A two dimensional array (predator species x prey size), 
-  where the prey size runs over community plus background spectrum.
+  where the prey size runs over fish community plus plankton spectrum.
 }
 \description{
 Calculates the predation rate of each predator species at size on prey size. 
