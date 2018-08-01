@@ -367,7 +367,7 @@ setClass(
 #' 
 #' @return An empty but valid MizerParams object
 #' 
-mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
+emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
                         min_w_pp = 1e-10, no_w_pp = NA, 
                         species_names=1:object, gear_names=species_names) {
     if (!is.na(no_w_pp))
@@ -640,7 +640,7 @@ multispeciesParams <- function(object, interaction,
     check_species_params_dataframe(object)
     
     ## Make an empty object of the right dimensions -----------------------------
-    res <- mizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
+    res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
                        min_w_pp = 1e-10, no_w_pp = NA, 
                        species_names = object$species, 
                        gear_names = unique(object$gear))
