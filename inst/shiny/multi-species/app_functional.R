@@ -79,7 +79,17 @@ server <- function(input, output, session) {
                           value = sp$b,
                           min = sp$b/10,
                           max = sp$b*100, 
-                          step = 10^(-2))
+                          step = 10^(-2)),
+             numericInput("l50", "L50",
+                          value = sp$l50,
+                          min = 0,
+                          max = 100, 
+                          step = 1),
+             numericInput("l25", "L25",
+                          value = sp$l25,
+                          min = 0,
+                          max = 100, 
+                          step = 1)
              )
     })
     ## When a species parameter input is changed, only change that
@@ -104,6 +114,8 @@ server <- function(input, output, session) {
         species_params[input$sp_sel, "k_vb"]  <- input$k_vb
         species_params[input$sp_sel, "a"]     <- input$a
         species_params[input$sp_sel, "b"]     <- input$b
+        species_params[input$sp_sel, "l50"]   <- input$l50
+        species_params[input$sp_sel, "l25"]   <- input$l25
         # Create new params object identical to old one except for changed
         # species params 
         pc <- MizerParams(
