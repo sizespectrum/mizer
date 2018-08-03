@@ -175,7 +175,7 @@ p <- setBackground(
                     no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
                     min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
                     lambda = 2.12,
-                    knife_edge_size = Inf)
+                    knife_edge_size = Inf, perfect = TRUE)
 )
 
 m2_background <- getM2Background(p, p@initial_n, p@initial_n_pp)
