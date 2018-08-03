@@ -42,14 +42,13 @@ validMizerParams <- function(object) {
     if (!all(c(length(dim(object@psi)),
         length(dim(object@intake_max)),
         length(dim(object@search_vol)),
-        length(dim(object@activity)),
-        length(dim(object@std_metab)),
+        length(dim(object@metab)),
         length(dim(object@mu_b)),
         length(dim(object@ft_pred_kernel_e)),
         length(dim(object@ft_pred_kernel_p)),
         length(dim(object@interaction)),
         length(dim(object@catchability))) == 2)) {
-        msg <- "psi, intake_max, search_vol, activity, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
+        msg <- "psi, intake_max, search_vol, metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
     # 3D arrays
@@ -62,17 +61,16 @@ validMizerParams <- function(object) {
         dim(object@psi)[1],
         dim(object@intake_max)[1],
         dim(object@search_vol)[1],
-        dim(object@std_metab)[1],
+        dim(object@metab)[1],
         dim(object@ft_pred_kernel_e)[1],
         dim(object@ft_pred_kernel_p)[1],
-        dim(object@activity)[1],
         dim(object@mu_b)[1],
         dim(object@selectivity)[2],
         dim(object@catchability)[2],
         dim(object@interaction)[1],
         dim(object@interaction)[2]) == 
         dim(object@species_params)[1])) {
-        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, activity, mu_b, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
+        msg <- "The number of species in the model must be consistent across the species_params, psi, intake_max, search_vol, mu_b, interaction (dim 1), selectivity, ft_pred_kernel_e, ft_pred_kernel_p, catchability and interaction (dim 2) slots"
         errors <- c(errors, msg)
     }
     # Check number of size groups
@@ -80,11 +78,10 @@ validMizerParams <- function(object) {
         dim(object@psi)[2],
         dim(object@intake_max)[2],
         dim(object@search_vol)[2],
-        dim(object@activity)[2],
-        dim(object@std_metab)[2],
+        dim(object@metab)[2],
         dim(object@selectivity)[3]) ==
         length_w)) {
-        msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, activity, and selectivity (dim 3) slots"
+        msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
     # Check numbe of gears
@@ -98,14 +95,13 @@ validMizerParams <- function(object) {
         names(dimnames(object@psi))[1],
         names(dimnames(object@intake_max))[1],
         names(dimnames(object@search_vol))[1],
-        names(dimnames(object@activity))[1],
-        names(dimnames(object@std_metab))[1],
+        names(dimnames(object@metab))[1],
         names(dimnames(object@mu_b))[1],
         names(dimnames(object@ft_pred_kernel_e))[1],
         names(dimnames(object@ft_pred_kernel_p))[1],
         names(dimnames(object@selectivity))[2],
         names(dimnames(object@catchability))[2]) == "sp")) {
-        msg <- "Name of first dimension of psi, intake_max, search_vol, std_metab, activity, mu_b, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
+        msg <- "Name of first dimension of psi, intake_max, search_vol, metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p and the second dimension of selectivity and catchability must be 'sp'"
         errors <- c(errors, msg)
     }
     #interaction dimension names
@@ -122,10 +118,9 @@ validMizerParams <- function(object) {
         names(dimnames(object@psi))[2],
         names(dimnames(object@intake_max))[2],
         names(dimnames(object@search_vol))[2],
-        names(dimnames(object@std_metab))[2],
-        names(dimnames(object@activity))[2],
+        names(dimnames(object@metab))[2],
         names(dimnames(object@selectivity))[3]) == "w")) {
-        msg <- "Name of second dimension of psi, intake_max, search_vol, std_metab, activity and third dimension of selectivity must be 'w'"
+        msg <- "Name of second dimension of psi, intake_max, search_vol, metab and third dimension of selectivity must be 'w'"
         errors <- c(errors, msg)
     }
     if (!all(c(
@@ -142,17 +137,16 @@ validMizerParams <- function(object) {
         dimnames(object@psi)[[1]],
         dimnames(object@intake_max)[[1]],
         dimnames(object@search_vol)[[1]],
-        dimnames(object@std_metab)[[1]],
+        dimnames(object@metab)[[1]],
         dimnames(object@ft_pred_kernel_e)[[1]],
         dimnames(object@ft_pred_kernel_p)[[1]],
-        dimnames(object@activity)[[1]],
         dimnames(object@mu_b)[[1]],
         dimnames(object@selectivity)[[2]],
         dimnames(object@catchability)[[2]],
         dimnames(object@interaction)[[1]],
         dimnames(object@interaction)[[2]]) ==
         object@species_params$species)) {
-        msg <- "The species names of species_params, psi, intake_max, search_vol, std_metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, activity, selectivity, catchability and interaction must all be the same"
+        msg <- "The species names of species_params, psi, intake_max, search_vol, metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, selectivity, catchability and interaction must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of w
@@ -160,10 +154,9 @@ validMizerParams <- function(object) {
         dimnames(object@psi)[[2]],
         dimnames(object@intake_max)[[2]],
         dimnames(object@search_vol)[[2]],
-        dimnames(object@std_metab)[[2]],
-        dimnames(object@activity)[[2]]) == 
+        dimnames(object@metab)[[2]]) == 
         dimnames(object@selectivity)[[3]])) {
-        msg <- "The size names of psi, intake_max, search_vol, std_metab, activityand selectivity must all be the same"
+        msg <- "The size names of psi, intake_max, search_vol, metab and selectivity must all be the same"
         errors <- c(errors, msg)
     }
     # Check dimnames of gear
@@ -229,13 +222,11 @@ validMizerParams <- function(object) {
 #' @slot psi An array (species x size) that holds the allocation to reproduction
 #'   for each species at size, \eqn{\psi_i(w)}
 #' @slot intake_max An array (species x size) that holds the maximum intake for
-#'   each species at size, \eqn{h_i w^n}
+#'   each species at size. Default \eqn{h_i w^n}
 #' @slot search_vol An array (species x size) that holds the search volume for
-#'   each species at size, \eqn{\gamma_i w^q}
-#' @slot activity An array (species x size) that holds the activity for each
-#'   species at size, \eqn{k_i w}
-#' @slot std_metab An array (species x size) that holds the standard metabolism
-#'   for each species at size, \eqn{k_{s.i} w^p}
+#'   each species at size. Default \eqn{\gamma_i w^q}
+#' @slot metab An array (species x size) that holds the metabolism
+#'   for each species at size. Default \eqn{k_{s.i} w^p + k_i w}
 #' @slot mu_b An array (species x size) that holds the background death 
 #'   \eqn{\mu_{b.i}(w)}
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
@@ -245,9 +236,9 @@ validMizerParams <- function(object) {
 #'   the Fourier transform of the feeding kernel in a form appropriate for
 #'   evaluating the predation mortality integral
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum, \eqn{r_0 w^{p-1}}
+#'   growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum, \eqn{\kappa w^{-\lambda}}
+#'   carrying capacity of the plankton spectrum. Default \eqn{\kappa w^{-\lambda}}
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -299,8 +290,7 @@ setClass(
         initial_n = "array",
         intake_max = "array",
         search_vol = "array",
-        activity = "array",
-        std_metab = "array",
+        metab = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
         mu_b = "array",
@@ -339,8 +329,7 @@ setClass(
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        activity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        std_metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -378,7 +367,7 @@ setClass(
 #' 
 #' @return An empty but valid MizerParams object
 #' 
-mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
+emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
                         min_w_pp = 1e-10, no_w_pp = NA, 
                         species_names=1:object, gear_names=species_names) {
     if (!is.na(no_w_pp))
@@ -475,9 +464,8 @@ mizerParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     # Should Z0, rrPP and ccPP have names (species names etc)?
     res <- new("MizerParams",
                w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
-               psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1, 
-               activity = mat1, 
-               std_metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
+               psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1,
+               metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
                ft_pred_kernel_p = ft_pred_kernel_p,
                selectivity = selectivity, catchability = catchability,
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
@@ -652,7 +640,7 @@ multispeciesParams <- function(object, interaction,
     check_species_params_dataframe(object)
     
     ## Make an empty object of the right dimensions -----------------------------
-    res <- mizerParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
+    res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
                        min_w_pp = 1e-10, no_w_pp = NA, 
                        species_names = object$species, 
                        gear_names = unique(object$gear))
@@ -716,8 +704,7 @@ multispeciesParams <- function(object, interaction,
     
     res@intake_max[] <- unlist(tapply(res@w,1:length(res@w),function(wx,h,n)h * wx^n,h=object$h,n=n))
     res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
-    res@activity[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,k)k * wx,k=object$k))
-    res@std_metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,p)ks * wx^p, ks=object$ks,p=p))
+    res@metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,k,p)ks * wx^p + k * wx, ks=object$ks,k=object$k,p=p))
     res@mu_b[] <- res@species_params$z0
     
     # Set up predation kernels ------------------------------------------------
@@ -763,7 +750,7 @@ multispeciesParams <- function(object, interaction,
     # The dimension of ft_pred_kernel_p was not know at the time the res object
     # was initialised. Hence we need to create it with the right dimension here.
     res@ft_pred_kernel_p <- matrix(0, nrow = no_sp, ncol = no_P)
-    dimnames(res@ft_pred_kernel_p) <- list(sp = rownames(res@std_metab),
+    dimnames(res@ft_pred_kernel_p) <- list(sp = rownames(res@metab),
                                            k = (1:no_P))
     
     for (j in 1:no_sp) {

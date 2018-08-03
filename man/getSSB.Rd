@@ -4,10 +4,10 @@
 \alias{getSSB}
 \title{Calculate the SSB of species}
 \usage{
-getSSB(object)
+getSSB(sim)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 }
 \value{
 An array containing the SSB (time x species)

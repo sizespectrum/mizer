@@ -655,8 +655,8 @@ getEReproAndGrowth <- function(object, n, n_pp,
     # assimilated intake
     e <- sweep(feeding_level * object@intake_max, 1,
                object@species_params$alpha, "*", check.margin = FALSE)
-    # Subtract basal metabolism and activity
-    e <- e - object@std_metab - object@activity
+    # Subtract metabolism
+    e <- e - object@metab
     e[e < 0] <- 0 # Do not allow negative growth
     return(e)
 }
@@ -695,8 +695,8 @@ getERepro <- function(object, n, n_pp,
              nrow(object@species_params), ") x no. size bins (",
              length(object@w), ")")
     }
-    e_spawning <- object@psi * e
-    return(e_spawning)
+    e_repro <- object@psi * e
+    return(e_repro)
 }
 
 #' Alias for getERepro
@@ -716,10 +716,10 @@ getESpawning <- getERepro
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the plankton abundance by size.
 #' @param e The energy available for reproduction and growth (optional, although
-#'   if specified, e_spawning must also be specified). A matrix of size no.
+#'   if specified, e_repro must also be specified). A matrix of size no.
 #'   species x no. size bins. If not supplied, is calculated internally using
 #'   the \code{\link{getEReproAndGrowth}} method.
-#' @param e_spawning The energy available for spawning (optional, although if
+#' @param e_repro The energy available for reproduction (optional, although if
 #'   specified, e must also be specified). A matrix of size no. species x no.
 #'   size bins. If not supplied, is calculated internally using the
 #'   \code{\link{getERepro}} method.
@@ -738,10 +738,10 @@ getESpawning <- getERepro
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEGrowth <- function(object, n, n_pp,
-                       e_spawning = getERepro(object, n = n, n_pp = n_pp),
+                       e_repro = getERepro(object, n = n, n_pp = n_pp),
                        e=getEReproAndGrowth(object, n = n, n_pp = n_pp)) {
-    if (!all(dim(e_spawning) == c(nrow(object@species_params), length(object@w)))) {
-        stop("e_spawning argument must have dimensions: no. species (",
+    if (!all(dim(e_repro) == c(nrow(object@species_params), length(object@w)))) {
+        stop("e_repro argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
              length(object@w), ")")
     }
@@ -751,8 +751,8 @@ getEGrowth <- function(object, n, n_pp,
              length(object@w), ")")
     }
     # Assimilated intake less activity and metabolism
-    # energy for growth is intake - energy for growth
-    e_growth <- e - e_spawning
+    # energy for growth is intake - energy for reproduction
+    e_growth <- e - e_repro
     return(e_growth)
 }
 
@@ -765,7 +765,7 @@ getEGrowth <- function(object, n, n_pp,
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the plankton abundance by size.
-#' @param e_spawning The energy available for spawning (optional). A matrix of
+#' @param e_repro The energy available for reproduction (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{\link{getERepro}} method.
 #' @param sex_ratio Proportion of the population that is female. Default value
@@ -785,15 +785,15 @@ getEGrowth <- function(object, n, n_pp,
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDI <- function(object, n, n_pp,
-                   e_spawning = getERepro(object, n = n, n_pp = n_pp),
+                   e_repro = getERepro(object, n = n, n_pp = n_pp),
                    sex_ratio = 0.5) {
-    if (!all(dim(e_spawning) == c(nrow(object@species_params), length(object@w)))) {
-        stop("e_spawning argument must have dimensions: no. species (",
+    if (!all(dim(e_repro) == c(nrow(object@species_params), length(object@w)))) {
+        stop("e_repro argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
              length(object@w), ")")
     }
-    e_spawning_pop <- drop( (e_spawning * n) %*% object@dw)
-    rdi <- sex_ratio * (e_spawning_pop * object@species_params$erepro) /
+    e_repro_pop <- drop( (e_repro * n) %*% object@dw)
+    rdi <- sex_ratio * (e_repro_pop * object@species_params$erepro) /
         object@w[object@w_min_idx]
     return(rdi)
 }

@@ -4,11 +4,11 @@
 \alias{getMeanMaxWeight}
 \title{Calculate the mean maximum weight of the community}
 \usage{
-getMeanMaxWeight(object, species = 1:nrow(object@params@species_params),
+getMeanMaxWeight(sim, species = 1:nrow(sim@params@species_params),
   measure = "both", ...)
 }
 \arguments{
-\item{object}{An object of class \code{MizerSim}.}
+\item{sim}{An object of class \code{MizerSim}.}
 
 \item{species}{numeric or character vector of species to include in the calculation.}
 

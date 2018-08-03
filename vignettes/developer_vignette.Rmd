@@ -190,12 +190,11 @@ consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) \text{intake_max}_i(w)$.
 ## Growth
 
 The consumed food is assimilated with an efficiency $\alpha$ and 
-used to fuel the needs for standard metabolism `std_metab` and 
-activity and movement `activity`. The remaining rate, if any,
+used to fuel the needs for metabolism and 
+activity and movement. The remaining rate, if any,
 \begin{equation}
   \label{eq:Er}
-  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - \text{std_metab_i(w)} 
-  - \text{activity_i(w)})
+  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - \text{metab_i(w)})
 \end{equation}
 is used for growth and reproduction. This is calculated with the 
 `getEReproAndGrowth()` method.

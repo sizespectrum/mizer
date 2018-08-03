@@ -36,16 +36,13 @@ of each species}
 for each species at size, \eqn{\psi_i(w)}}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size, \eqn{h_i w^n}}
+each species at size. Default \eqn{h_i w^n}}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
-each species at size, \eqn{\gamma_i w^q}}
+each species at size. Default \eqn{\gamma_i w^q}}
 
-\item{\code{activity}}{An array (species x size) that holds the activity for each
-species at size, \eqn{k_i w}}
-
-\item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
-for each species at size, \eqn{k_{s.i} w^p}}
+\item{\code{metab}}{An array (species x size) that holds the metabolism
+for each species at size. Default \eqn{k_{s.i} w^p + k_i w}}
 
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
 \eqn{\mu_{b.i}(w)}}
@@ -59,10 +56,10 @@ the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum, \eqn{r_0 w^{p-1}}}
+growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum, \eqn{\kappa w^{-\lambda}}}
+carrying capacity of the plankton spectrum. Default \eqn{\kappa w^{-\lambda}}}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
