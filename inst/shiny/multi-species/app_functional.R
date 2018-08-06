@@ -116,7 +116,7 @@ server <- function(input, output, session) {
         species_params[input$sp_sel, "b"]     <- input$b
         species_params[input$sp_sel, "l50"]   <- input$l50
         species_params[input$sp_sel, "l25"]   <- input$l25
-        # Create new params object identical to old one except for changed
+        # Create new params object identical to old one except for changed #
         # species params 
         pc <- MizerParams(
             species_params,
