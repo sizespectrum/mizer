@@ -3,8 +3,8 @@ effort <- 1.4
 
 no_sp <- dim(params_data)[1]
 
-l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
-l50 <-  c(1.1e+29,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
+l25 <- c(1.0e+3,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
+l50 <-  c(1.1e+3,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
 names(l25) <- as.character(params_data$species)
 names(l50) <- as.character(params_data$species)
 
@@ -58,6 +58,9 @@ for (i in (1:no_sp)) {
 
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 100,  tol = 1e-3)
+
+#####
+devtools::use_data(humboldt_params)
 
 ############### investigate how close to a power law the steady state is
 

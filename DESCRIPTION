@@ -18,6 +18,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
 Version: 1.0
 License: GPL-3
 Imports:
+    assertthat,
     deSolve,
     ggplot2,
     grid,
@@ -50,3 +51,4 @@ Collate:
 VignetteBuilder: knitr
 RoxygenNote: 6.1.0
 Encoding: UTF-8
+LazyData: true

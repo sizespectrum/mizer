@@ -905,6 +905,7 @@ removeSpecies <- function(params, species) {
     p@interaction <- p@interaction[keep, keep, drop = FALSE]
     p@selectivity <- p@selectivity[, keep, , drop = FALSE]
     p@catchability <- p@catchability[, keep, drop = FALSE]
+    p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
     
     return(p)

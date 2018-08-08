@@ -21,7 +21,7 @@
 #' See the accompanying vignette for full details of the principles behind mizer
 #' and how the package can be used to perform size-based modelling.
 #'
-#' @import plyr ggplot2 methods
+#' @import plyr ggplot2 methods assertthat
 #' @importFrom reshape2 melt
 #' @importFrom stats fft mvfft lm
 #' @importFrom deSolve ode

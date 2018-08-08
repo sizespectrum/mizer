@@ -565,25 +565,39 @@ multispeciesParams <- function(object, interaction,
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
     
-    ## Set default values for column values if missing ------------------------
+    ## Set default values for missing values in species params  --------------
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object))) {
         object$gear <- object$species
     }
-    no_gear <- length(unique(object$gear))
-    # If no k column (activity coefficient) in object, then set to 0
+    
+    # If no k (activity coefficient), then set to 0
     if (!("k" %in% colnames(object))) {
-        object$k <- 0
+        object$k <- rep(NA, no_sp)
     }
-    # If no alpha column in object, then set to 0.6
-    # Should this be a column? Or just an argument?
+    missing <- is.na(object$k)
+    if (any(missing)) {
+        object$k[missing] <- 0
+    }
+    
+    # If no alpha (conversion efficiency), then set to 0.6
     if (!("alpha" %in% colnames(object))) {
-        object$alpha <- 0.6
+        object$alpha <- rep(NA, no_sp)
     }
-    # If no erepro column in object, then set to 1
+    missing <- is.na(object$alpha)
+    if (any(missing)) {
+        object$alpha[missing] <- 0.6
+    }
+    
+    # If no erepro (reproductive efficiency), then set to 1
     if (!("erepro" %in% colnames(object))) {
-        object$erepro <- 1
+        object$erepro <- rep(NA, no_sp)
     }
+    missing <- is.na(object$erepro)
+    if (any(missing)) {
+        object$erepro[missing] <- 1
+    }
+    
     # If no sel_func column in species_params, set to 'knife_edge'
     if (!("sel_func" %in% colnames(object))) {
         message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
@@ -594,10 +608,16 @@ multispeciesParams <- function(object, interaction,
             object$knife_edge_size <- object$w_mat
         }
     }
+    
     # If no catchability column in species_params, set to 1
     if (!("catchability" %in% colnames(object))) {
-        object$catchability <- 1
+        object$catchability <- rep(NA, no_sp)
     }
+    missing <- is.na(object$catchability)
+    if (any(missing)) {
+        object$catchability[missing] <- 1
+    }
+    
     # Sort out h column If not passed in directly, is calculated from f0 and
     # k_vb if they are also passed in
     if (!("h" %in% colnames(object))) {
@@ -616,6 +636,7 @@ multispeciesParams <- function(object, interaction,
         }
         object$h[missing] <- h[missing]
     }
+    
     # Sorting out gamma column
     if (!("gamma" %in% colnames(object))) {
         object$gamma <- rep(NA, no_sp)
@@ -637,15 +658,25 @@ multispeciesParams <- function(object, interaction,
         }
         object$gamma[missing] <- gamma[missing]
     }
-    # Sort out z0 column
+    
+    # Sort out z0 (background mortality)
     if (!("z0" %in% colnames(object))) {
-        message("Note: \tNo z0 column in species data frame so using z0 = z0pre * w_inf ^ z0exp.")
-        object$z0 = z0pre*object$w_inf^z0exp    # background natural mortality
+        object$z0 <- rep(NA, no_sp)
     }
+    missing <- is.na(object$z0)
+    if (any(missing)) {
+        message("Note: \tUsing z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+        object$z0[missing] <- z0pre * object$w_inf[missing]^z0exp
+    }
+    
     # Sort out ks column
     if (!("ks" %in% colnames(object))) {
         message("Note: \tNo ks column in species data frame so using ks = h * 0.2.")
         object$ks <- object$h * 0.2
+    }
+    missing <- is.na(object$ks)
+    if (any(missing)) {
+        object$ks[missing] <- object$h[missing] * 0.2
     }
     
     # Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
@@ -653,7 +684,7 @@ multispeciesParams <- function(object, interaction,
     
     ## Make an empty object of the right dimensions -----------------------------
     res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
-                       min_w_pp = 1e-10, no_w_pp = NA, 
+                       min_w_pp = min_w_pp, no_w_pp = NA, 
                        species_names = object$species, 
                        gear_names = unique(object$gear))
     res@n <- n
@@ -828,7 +859,7 @@ multispeciesParams <- function(object, interaction,
     res@species_params <- res@species_params[, -which(names(res@species_params) == "catchability")]
     res@initial_n <- res@psi
     res@initial_n <- get_initial_n(res)
-    res@A <- rep(1,no_sp)
+    res@A <- rep(1, no_sp)
     return(res)
 }
 

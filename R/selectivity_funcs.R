@@ -20,12 +20,9 @@
 #' @param b the exponent of the length-weight function.
 #' @export
 sigmoid_length <- function(w, l25, l50, a, b) {
-    if (a <= 0 || b <= 0) {
-        stop("a and b must be positive")
-    }
-    if (l25 >= l50) {
-        stop("l25 must be smaller than l50.")
-    }
+    assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50) && 
+        is.numeric(a) && is.numeric(b))
+    assert_that(l25 > 0 && l25 < l50 && a > 0 && b > 0)
     l <- (w / a)^(1 / b)
     sr <- l50 - l25
     s1 <- l50 * log(3) / sr
