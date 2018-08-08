@@ -26,7 +26,7 @@ time, species and size}
 \item{\code{effort}}{Array that stores the fishing effort through time by time and
 gear}
 
-\item{\code{n_pp}}{Array that stores the projected background population by time and
+\item{\code{n_pp}}{Array that stores the projected plankton abundance by time and
 size}
 }}
 

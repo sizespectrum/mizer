@@ -5,13 +5,9 @@
 \alias{MizerParams-class}
 \title{A class to hold the parameters for a size based model.}
 \description{
-These parameters include the model species, their life history parameters and
-the size ranges of the model.
+MizerParams objects can be created using a range of constructor functions.
 }
 \details{
-\linkS4class{MizerParams} objects can be created using a range of
-\code{MizerParams} constructor methods.
-
 Dynamic simulations are performed using the \code{\link{project}} method on
 objects of this class.
 }
@@ -26,27 +22,27 @@ slot. A vector the same length as the w slot. The final value is the same
 as the second to last value}
 
 \item{\code{w_full}}{A numeric vector of size bins used for the whole model (i.e. the
-community and background spectra) . These are usually spaced on a log10
+community and plankton spectra) . These are usually spaced on a log10
 scale}
 
 \item{\code{dw_full}}{The absolute difference between the size bins specified in the
 w_full slot. A vector the same length as the w_full slot. The final value
 is the same as the second to last value}
 
+\item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
+of each species}
+
 \item{\code{psi}}{An array (species x size) that holds the allocation to reproduction
 for each species at size, \eqn{\psi_i(w)}}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size, \eqn{h_i w^n}}
+each species at size. Default \eqn{h_i w^n}}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
-each species at size, \eqn{\gamma_i w^q}}
+each species at size. Default \eqn{\gamma_i w^q}}
 
-\item{\code{activity}}{An array (species x size) that holds the activity for each
-species at size, \eqn{k_i w}}
-
-\item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
-for each species at size, \eqn{k_{s.i} w^p}}
+\item{\code{metab}}{An array (species x size) that holds the metabolism
+for each species at size. Default \eqn{k_{s.i} w^p + k_i w}}
 
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
 \eqn{\mu_{b.i}(w)}}
@@ -60,10 +56,10 @@ the Fourier transform of the feeding kernel in a form appropriate for
 evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}
+growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}}
+carrying capacity of the plankton spectrum. Default \eqn{\kappa w^{-\lambda}}}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -85,7 +81,7 @@ each species by each gear, \eqn{Q_{g,i}}}
 at each weight at our candidate steady state solution.}
 
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
-the abundance of the background background resource at each weight.}
+the plankton abundance at each weight.}
 
 \item{\code{n}}{Exponent of maximum intake rate.}
 
