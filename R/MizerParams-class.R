@@ -601,15 +601,24 @@ multispeciesParams <- function(object, interaction,
     # Sort out h column If not passed in directly, is calculated from f0 and
     # k_vb if they are also passed in
     if (!("h" %in% colnames(object))) {
-        message("Note: \tNo h column in species data frame so using f0 and k_vb to calculate it.")
+        object$h <- rep(NA, no_sp)
+    }
+    if (any(is.na(object$h))) {
+        message("Note: \tNo h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(object))) {
             stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
         }
-        object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
+        h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
+        # Only overwrite missing h with calculated values
+        missing <- is.na(object$h)
+        if (any(is.na(h[missing]))) {
+            stop("Could not calculate h, perhaps k_vb is missing?")
+        }
+        object$h[missing] <- h[missing]
     }
     # Sorting out gamma column
     if (!("gamma" %in% colnames(object))) {
-        object$gamma <- NA
+        object$gamma <- rep(NA, no_sp)
     }
     if (any(is.na(object$gamma))) {
         message("Note: \tNo gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
@@ -623,6 +632,9 @@ multispeciesParams <- function(object, interaction,
         gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
         # Only overwrite missing gammas with calculated values
         missing <- is.na(object$gamma)
+        if (any(is.na(gamma[missing]))) {
+            stop("Could not calculate gamma.")
+        }
         object$gamma[missing] <- gamma[missing]
     }
     # Sort out z0 column
