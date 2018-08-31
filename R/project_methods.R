@@ -601,14 +601,14 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' # Get the total mortality at a particular time step
 #' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
-getMort <- function(object, n, n_pp, effort,
+getMort <- function(object, n, n_pp, effort, e,
                  m2 = getPredMort(object, n = n, n_pp = n_pp)){
     if (!all(dim(m2) == c(nrow(object@species_params), length(object@w)))) {
         stop("m2 argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
              length(object@w), ")")
     }
-    return(m2 + object@mu_b + getFMort(object, effort = effort))
+    return(m2 + object@mu_b + getFMort(object, effort = effort) + getSMort(object, n=n, n_pp=n_pp, e = e)) 
 }
 
 #' Alias for getMort
@@ -617,7 +617,6 @@ getMort <- function(object, n, n_pp, effort,
 #' @inherit getMort
 #' @export
 getZ <- getMort
-
 
 #' Get energy after metabolism and movement
 #'
@@ -657,8 +656,39 @@ getEReproAndGrowth <- function(object, n, n_pp,
                object@species_params$alpha, "*", check.margin = FALSE)
     # Subtract metabolism
     e <- e - object@metab
-    e[e < 0] <- 0 # Do not allow negative growth
+    # in order to apply starvation mortality we need to return the actual positive or negative e here
+    #e[e < 0] <- 0 # Do not allow negative growth
     return(e)
+}
+
+#' Get starvation mortality 
+#' 
+#' Calculates starvation mortality based on the equation in the old mizer vingette. Starvation mortality#' is assumed proportional to the energy defficiency and is inversely proportional to body weight (and
+#' therefore also lipid reserves). \eqn{\mu_S(w)} The weight proportionality constant is currently set
+#' to 0.1, but could be a separate parameter. The 0.1 constant means that the instantaneous starvation
+#' mortality is 1 when energy deficit is equal individual's body mass. 
+#' 
+#' @param object A \code{MizerParams} object.
+#' @param n A matrix of species abundance (species x size).
+#' @param n_pp A vector of the plankton abundance by size.
+#' @param e The energy available for reproduction and growth (optional). A
+#'   matrix of size no. species x no. size bins. If not supplied, is calculated
+#'   internally using the \code{getEReproAndGrowth()} method. 
+#'
+#' @return A two dimensional array of instantaneous starvation mortality (species x size). 
+getSMort <- function(object, n, n_pp, 
+                     e = getEReproAndGrowth(object, n = n, n_pp = n_pp)){
+            if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
+              stop("e argument must have dimensions: no. species (",
+                   nrow(object@species_params), ") x no. size bins (",
+                   length(object@w), ")")
+        }
+        mu_S <- e 
+        mu_S[mu_S<0]<- t(apply(mu_S,1,function(x,y = 0.1*object@w){x[which(x<0)]/y[which(x<0)]}))
+        mu_S[mu_S>0] <- 0
+        mu_S = - mu_S # this returns negative mortality values, because negative e divided by weight  
+        # gives negative value, so we turn it into positive mortality
+    return(mu_S)
 }
 
 
@@ -695,6 +725,8 @@ getERepro <- function(object, n, n_pp,
              nrow(object@species_params), ") x no. size bins (",
              length(object@w), ")")
     }
+    #Because getEReproAndGrowth now can return negative values, we add an extra line here 
+    e[e < 0] <- 0 # Do not allow negative growth
     e_repro <- object@psi * e
     return(e_repro)
 }
@@ -752,6 +784,9 @@ getEGrowth <- function(object, n, n_pp,
     }
     # Assimilated intake less activity and metabolism
     # energy for growth is intake - energy for reproduction
+    
+    #Because getEReproAndGrowth now can return negative values, we add an extra line here 
+    e[e < 0] <- 0 # Do not allow negative growth
     e_growth <- e - e_repro
     return(e_growth)
 }
