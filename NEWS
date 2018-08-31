@@ -1,3 +1,37 @@
+mizer 1.1
+-----------
+
+* Correctly deal with NAs in species parameters
+* Consistently cutting off predation kernel at 0 and beta + 3 sigma
+* Changed the predation integrals so that they agree better with the analytic
+  results rather than the old mizer results
+* Changed way cc_pp is calculated to reduce rounding errors
+* Allowing set_scaling_model() to produce perfectly scale-invariant model when
+  perfect = TRUE
+* Using Singular Value Decomposition to retune background species to keep
+  community close to power law
+* Background species with very low abundances are automatically removed
+* Converted all S4 methods to functions to decrease the learning curve for
+  new developers.
+* Changed naming convention: function names are now in camelCase
+* Renamed some functions for consistency and to make them easier to understand,
+  but kept old names as aliases for backwards compatibility:
+-- getPhiPrey -> getAvailEnergy
+-- getmM2 -> getPredMort
+-- getM2background -> getPlanktonMort
+-- getZ -> getMort
+-- getESpawning -> getERepro
+-- MizerParams -> emptyParams or multispeciesParams
+* Improvement to MizerParams class:
+-- Merged std_metab and activity slots into a single metab slot
+-- Moved w_min_idx out of species_params into its own slot
+* Started work on two new vignettes:
+-- developer_vignette.Rmd
+-- mathematical_details.Rmd
+* Code improvements:
+-- Starting to use assert_that to check arguments to functions
+-- Added more unit tests
+
 
 mizer 1.0
 -----------

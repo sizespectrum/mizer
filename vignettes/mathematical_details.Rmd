@@ -1,0 +1,695 @@
+---
+title: "Mathematical Details behind Mizer"
+author: "Gustav Delius and Richard Southwell"
+date: "26/07/2018"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: yes
+---
+
+# Spectral Integration To Speed Up Mizer
+
+Mizer uses a numeric partial
+differential equation solver to evolve ecosystem models forwards in
+time. 
+
+The partial differential equations include convolution integrals to
+determine growth and death rates. In the original version of mizer
+these integrals were performed using Riemann sums, which made the
+simulations slow. We have substantially increased the speed of mizer by
+using spectral methods (exploiting the speed of the Fast Fourier Transform)
+to perform such integrals.
+
+## Discrete Approximations of Integrals
+
+### Grid Points
+
+
+In size spectrum models we wish to keep track of the abundance of
+fish for a continuum of different weights, however in computer simulations
+we only keep track of the abundance for weights belonging to a finite
+set of discrete grid points. The fish grid points $w_{k}$ give the
+weights at which we track the abundance of fish. In mizer the fish
+grid points are specified by the following three numbers:
+
+1. The number of fish grid points $|w|.$ 
+2. The fish egg size $W_{e}.$ 
+3. The maximum fish size $W_{+}.$ 
+
+The vector $w$ has length $|w|,$ and is such that $w_{1}=W_{e}$
+and $w_{|w|}=W_{+}.$ Also the log of $w$ is a vector with a constant
+difference between successive entries. In other words, $\forall k\in\left\{ 1,..,|w|\right\}$
+we have $w_{k}=10^{y_{k}}$ where
+
+\begin{equation}
+y_{k}=\log_{10}(W_{e})+(k-1)\left(\frac{\log_{10}(W_{+})-\log_{10}(W_{e})}{|w|-1}\right).
+\end{equation}
+
+A vector $\Delta w$ of differences is useful for Riemann sums and
+PDE schemes. For each $k\in\left\{ 1,..,|w|-1\right\}$ this is defined
+as $\left(\Delta w\right)_{k}=w_{k+1}-w_{k}.$ It is most natural
+to continue the pattern (that there is a constant ratio between successive
+entries of $\Delta w$) to specify $\left(\Delta w\right)_{|w|},$
+however, unfortunately the original version of mizer instead defined
+$\left(\Delta w\right)_{|w|}=\left(\Delta w\right)_{|w|-1}.$ 
+
+The plankton grid points $w_{k}^{full}$ consist of the fish grid
+points together with extra points that refer to smaller weights of
+plankton, below the fish egg size. In mizer the plankton grid points
+are specified by two numbers:
+\begin{itemize}
+\item The number of plankton grid points $|w^{full}|$. . 
+\item The smallest considered plankton size $W_{-}.$ .
+\end{itemize}
+The vector $w^{full}$ is defined such that $\forall k\in\left\{ 1,\dots,|w^{full}|-|w|\right\}$
+we have $w_{k}=10^{z_{k}}$ where
+
+\begin{equation}
+z_{k}=\log_{10}(W_{-})+(k-1)\left(\frac{\log_{10}(W_{e}-\left(\Delta w\right)_{1})-\log_{10}(W_{-})}{|w^{full}|-|w|-1}\right),
+\end{equation}
+
+and the remaining $|w|$ terms are given by
+
+\begin{equation}
+\left(w_{|w^{full}|-|w|+1}^{full},w_{|w^{full}|-|w|+2}^{full},\dots,w_{|w^{full}|}^{full}\right)
+=\left(w_{1},w_{2},\dots,w_{|w|}\right).
+\end{equation}
+
+This means, if we take the log of $w^{full}$ we get a vector within
+which there is a constant spacing between points referring to the
+size range of fish, while there is a larger spacing between successive
+terms of the vector that refer to weights below that of a fish egg. 
+
+For each $k\in\left\{ 1,\dots,|w^{full}|-1\right\}$ this is defined
+as $\left(\Delta w^{full}\right)_{k}=w_{k+1}^{full}-w_{k}^{full}.$
+Unfortunately, again, the original version of mizer defined $\left(\Delta w^{full}\right)_{|w^{full}|}$
+as being equal to $\left(\Delta w^{full}\right)_{|w^{full}|-1}.$
+
+### Available Energy Integral
+
+The available energy to a predator of species $i\in\left\{ 1,..,s\right\}$
+and mass $w\in\left[W_{e},W_{+}\right]$ is given by the equation:
+
+\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}\left(N_{R}(w')+\sum_{j=1}^{s}\theta_{ij}N_{j}(w')\right)\Phi_{i}(w'/w)w'dw'
+\end{equation}
+
+Here 
+
+\begin{equation}
+\Phi_{i}(w'/w)=\exp\left[\frac{-\left(\ln(w/(w'\bar{\beta}_{i}))\right)^{2}}{2\sigma_{i}^{2}}\right]
+\end{equation}
+
+describes how much preference a predator of species $i$ and mass
+$w$ has for a prey with mass $w'.$ We use $w'$ to denote the prey
+mass.Note we use slightly different notation for $w',$ $\Phi_{i}$
+and $\bar{\beta}_{i}$ than the vignette. The $E_{a.i}(w)$ term has
+to be calculated each time step in order to determine the feeding
+level:
+
+\begin{equation}
+f_{i}(w)=\frac{\gamma_{i}w^{q}E_{a.i}(w)}{\gamma_{i}w^{q}E_{a.i}(w)+h_{i}w^{n}}
+\end{equation}
+
+which influences the growth and mortality terms in the McKendrik-von
+Foerster equation, and must be re-calculated at each time point.
+
+In the original version of mizer, the available energy is calculated
+as $E_{a.i}(w_{k})=P_{s}[i,k]+P_{b}[i,k]$ where:
+
+\begin{equation}
+P_{s}[i,k]=\sum_{k'=1}^{\left|w\right|}\Phi_{i}\left(\frac{w_{k'}}{w_{k}}\right)\sum_{j=1}^{s}\theta_{ij}N_{j}(w_{k'})w_{k'}(\Delta w)_{k'}
+\end{equation}
+
+is a left Riemann sum for the available energy from eating other fish
+and
+
+\begin{equation}
+P_{b}[i,k]=\sum_{k'=1}^{\left|w^{full}\right|}\Phi_{i}\left(\frac{w_{k'}^{full}}{w_{k}}\right)w_{k'}^{full}N_{R}\left(w_{k'}^{full}\right)(\Delta w{}^{full})_{k'}
+\end{equation}
+
+is a left Riemann sum for the available energy from eating on the
+resource spectrum. These terms are calculated in a way that exploits R's vectorized
+arithmetic to determine these values for each $i\in\left\{ 1,..,s\right\}$
+and $k\in\left\{ 1,..,|w|\right\}$ simultaneously.
+
+We say they are `left' Riemann sums because the value of the integrand
+on the left side of each interval is multiplied by the length of that
+interval, to give the rectangular area contribution for a given interval/size-bin.
+However, for $P_{s}[i,k],$ in order to have the true form of a left
+Riemann sum approximation of an integration from $W_{e}=w_{1}$ to
+$W_{+}=w_{|w|}$ we should sum over indexes $k'$ from $1$ to $\left|w\right|-1,$
+and omit the final term in the expression for $P_{s}[i,k]$ above.
+However, in practice each $N_{j}(w_{\left|w\right|})=0,$ and so the
+above expression works fine.
+
+Similarly, for $P_{b}[i,k],$ in order to have the true form of a
+left Riemann sum approximation of an integration from $W_{-}=w_{1}^{full}$
+to $W_{+}=w_{|w^{full}|}^{full}$ we should sum over indexes $k'$
+from $1$ to $\left|w^{full}\right|-1,$ and omit the final term in
+the expression for $P_{s}[i,k]$ above. However, in practice $N_{R}(w_{\left|w^{full}\right|})=0,$
+and so the above expression works fine.
+
+### Mortality Integral
+
+The predation mortality rate for a prey of species $i$ and weight
+$w'\in[W_{e},W_{+}]$ equals
+
+\begin{equation}
+\mu_{p.i}(w')=\sum_{j=1}^{s}\int_{0}^{\infty}\Phi_{j}(w'/w)(1-f_{j}(w))\gamma_{j}w^{q}\theta_{j,i}N_{j}(w)dw.
+\end{equation}
+
+In the original version of mizer, $\forall i\in\left\{ 1,..,s\right\} ,$
+$\forall k'\in\left\{ 1,..,|w|\right\} ,$ this quantity is approximated
+by the Riemann sum
+
+\begin{equation}
+\mu_{p.i}(w_{k'})=\sum_{j=1}^{s}\theta_{j,i}\sum_{k=1}^{|w|}\Phi_{j}(w_{k'}/w_{k})(1-f_{j}(w_{k}))\gamma_{j}w_{k}^{q}N_{j}(w_{k})(\Delta w)_{k}
+\end{equation}
+
+As in the available energy integral, this is a left Riemann sum, although
+we should really just sum with the index $k$ going up to $|w|-1.$
+However in practice each $N_{j}(w_{|w|})=0,$ so it does not matter
+if the final term is included in the sum or not.
+
+## Spectral Integration
+
+### Spectral Integration For available energy
+
+Now we shall discuss how we use spectral methods to evaluate the available
+energy integral:
+
+\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}H_{i}^{*}(w')\Phi_{i}(w'/w)dw',
+\end{equation}
+
+for $i\in\left\{ 1,..,s\right\}$ and $w\in[W_{e},W_{+}],$ where 
+
+\begin{equation}
+H_{i}^{*}(w')=\left(N_{R}(w')+\sum_{j=1}^{s}\theta_{ij}N_{j}(w')\right)w'
+\end{equation}
+
+To begin with let us transform to the log space by defining $x=\ln\left(w/W_{-}\right)$
+and $y^{*}=\ln\left(w'/W_{-}\right).$ Our problem hence becomes to
+evaluate 
+
+\begin{equation}
+E_{a.i}'(x):=E_{a.i}(W_{-}e^{x})=E_{a.i}(w)=\int_{-\infty}^{\infty}H_{i}^{*}(W_{-}e^{y^{*}})W_{-}e^{y^{*}}\Phi_{i}(e^{y^{*}-x}).dy^{*}
+\end{equation}
+
+We need to evaluate $E_{a.i}'(x)$ for each $x\in[X_{e},X_{+}],$
+where $X_{e}=\ln\left(W_{e}/W_{-}\right)$ is the egg size in log
+space, and $X_{+}=\ln\left(W_{+}/W_{-}\right)$ is the maximum fish
+size in log space. Also note $X_{-}=\ln\left(W_{-}/W_{-}\right)=0$
+is the minimum considered plankton size, in the log space. Let $\beta_{i}=\ln(\bar{\beta}_{i}$),
+and $\forall v\in\mathbb{R}$ let $H_{i}(v)=H_{i}^{*}(W_{-}e^{v})W_{-}e^{v},$
+and let
+
+\begin{equation}
+\phi_{i}(v):=\Phi_{i}(e^{v})=\exp\left(\frac{-\left(v+\beta_{i}\right)^{2}}{2\sigma_{i}}\right),
+\end{equation}
+
+now we can rewrite our integral as
+
+\begin{equation}
+E_{a.i}'(x)=\int_{-\infty}^{\infty}H_{i}(y^{*})\phi_{i}(y^{*}-x)dy^{*}.
+\end{equation}
+
+Now we make the substitution $y=x-y^{*}$ and rewrite the integral
+as 
+
+\begin{equation}
+E_{a.i}'(x)=\int_{-\infty}^{\infty}H_{i}(x-y)\phi_{i}(-y)dy=\int_{-\infty}^{\infty}H_{i}(x-y)\psi_{i}(y)dy,
+\end{equation}
+
+where $\psi_{i}(v):=\phi_{i}(-v),$ $\forall v\in\mathbb{R}.$ The
+support of a function is the set of its inputs that yield a non-zero
+output. It is approximately true that $\phi_{i}$ has a support contained
+in the interval $[-\beta_{i}-3\sigma_{i},0],$ and we shall assume
+that this approximation holds true, so we can rewrite our integral
+as 
+
+\begin{equation}
+E_{a.i}'(x)=\int_{0}^{\beta_{i}+3\sigma_{i}}H_{i}(x-y)\psi_{i}(y)dy,
+\end{equation}
+
+When we evaluate this integral for $x\in[X_{e},X_{+}],$ we sample
+$H_{i}(v),$ for each $v=x-y$ in the interval 
+
+\begin{equation}
+[X_{e}-\beta_{i}-3\sigma_{i},X_{+}]\subseteq[X_{-},X_{+}]=[0,X_{+}].
+\end{equation}
+
+Note, we are assuming $X_{-}\leq X_{e}-\beta_{i}-3\sigma_{i}$ holds
+$\forall i.$ 
+
+Let us define the period $X_{+}$ functions $\bar{H_{i}}(v)$ and
+$\bar{\psi_{i}}(v)$ such that when $v\in[0,X_{+}]$ we have $\bar{H_{i}}(v)=H_{i}(v)$
+and $\bar{\psi_{i}}(v)$=$\psi_{i}(v).$ 
+
+When we are evaluating $E_{a.i}'(x)$ for each $x\in[X_{e},X_{+}],$
+we only sample the functions $H_{i}$ and $\psi_{i}$ at points contained
+in the interval $[0,X_{+}],$ and hence we can rewrite our integral
+as
+
+\begin{equation}
+E_{a.i}'(x)=\int_{0}^{\beta_{i}+3\sigma_{i}}\bar{H_{i}}(x-y)\bar{\psi_{i}}(y)dy.
+\end{equation}
+
+Now since $\forall y\in[0,X_{+}]$ we have $\bar{\psi_{i}}(y)\neq0\Rightarrow y\in[0,\beta_{i}+3\sigma_{i}],$
+we can extend the upper limit of this integral and write 
+
+\begin{equation}
+E_{a.i}'(x)=\int_{0}^{X_{+}}\bar{H_{i}}(x-y)\bar{\psi_{i}}(y)dy.
+\end{equation}
+
+We can approximate this by the Riemann sum
+
+\begin{equation}
+E_{a.i}'(x_{l})\thickapprox\sum_{k=1}^{^{|w^{full}|}}\bar{H_{i}}(x_{l}-x_{k})\bar{\psi_{i}}(x_{k})\Delta x.
+\end{equation}
+
+Here$\forall k\in\left\{ 1,..,|w^{full}|\right\}$ we let $x_{k}^{full}=\ln(w_{k}^{full}/W_{-}),$
+and suppose $\Delta x=x_{2}^{full}-x_{1}^{full}.$ We can evaluate
+this Riemann sum using spectral integration. We let $\mathbb{F}[u]$
+denote that fast Fourier transform of a vector $u$. We can use fast
+Fourier transforms to evaluate this integral for all appropriate grid
+points simultaneously. Let us define 
+
+\begin{equation}
+\left(M_{i}(k)\right)_{k=1}^{|w^{full}|}=\left(\Delta x\right)\mathbb{F}^{-1}\left[\mathbb{F}\left[\left(\bar{H}_{i}(x_{k}^{full}\right)_{k=1}^{|w^{full}|}\right]\times\mathbb{F}\left[\left(\bar{\psi}_{i}(x_{k}^{full}\right)_{k=1}^{|w^{full}|}\right]\right]
+\end{equation}
+
+For $k\in{1,..,|w|}$ this expression gives the same outputs as our
+Riemann sum. Hence we can extract the appropriate values from $\left(M_{i}(k)\right)_{k=1}^{|w^{full}|}$
+by noting that 
+
+\begin{equation}
+\left(E_{a.i}(w_{k})\right)_{k=1}^{|w|}\thickapprox\left(M_{i}(k)\right)_{k=K_{e}}^{|w^{full}|},
+\end{equation}
+
+where $K_{e}=|w^{full}|-|w|+1.$
+
+### Spectral integration for predation mortality
+
+The predation mortality is given by the integral 
+
+\begin{equation}
+\mu_{p.i}(w)=\sum_{j=1}^{s}\theta_{ji}\zeta_{j}^{*}(w),
+\end{equation}
+
+where 
+
+\begin{equation}
+\zeta_{j}^{*}(w)=\int_{0}^{\infty}\Phi_{j}(w/w')Q_{j}(w')dw'
+\end{equation}
+
+is the mortality rate of a size $w$ prey from predators of species
+$j,$ disregarding the interaction matrix. The function $\zeta_{j}^{*}(w)$
+is called pred\_rate in the code. Since it is also used to compute
+the predation mortality rate of the plankton, we wish to evaluate
+$\zeta_{j}^{*}(w),$ for each $w\in[W_{-},W_{+}].$
+
+Making the substitutions $x=\ln(w/W_{-})$ and $y'=\ln(w'/W_{-}),$
+we can rewrite this integral as 
+
+\begin{equation}
+\zeta_{j}(x):=\zeta_{j}^{*}(w)=\int_{-\infty}^{\infty}\Phi_{j}(e^{x-y'})Q_{j}(W_{-}e^{y'})W_{-}e^{y'}dy'
+\end{equation}
+
+we wish to evaluate $\zeta_{j}(x),$ for each $x\in[X_{-},X_{+}]=[0,X_{+}].$
+Here $X_{+}=\ln(W_{+}/W_{-})$ and $X_{-}=\ln(W_{-}/W_{-})=0.$ 
+
+Letting $\phi_{j}(x-y')=\Phi_{j}(e^{x-y'})$ and $q_{j}(y')=Q_{j}(W_{-}e^{y'})W_{-}e^{y'},$
+we can rewrite this integral as 
+
+\begin{equation}
+\zeta_{j}(x)=\int_{-\infty}^{\infty}\phi_{j}(x-y')q_{j}(y')dy'
+\end{equation}
+
+Letting $y=x-y'$ we can rewrite this integral as 
+
+\begin{equation}
+\zeta_{j}(x)=\int_{-\infty}^{\infty}\phi_{j}(y)q_{j}(x-y)dy,
+\end{equation}
+
+It is approximately true that $\phi_{j}$ has a support contained
+in the interval $[-r_{j},0],$ where $r_{j}:=\beta_{j}+3\sigma_{j}$.
+We shall assume that this approximation holds true, so we can rewrite
+our integral as 
+
+\begin{equation}
+\zeta_{j}(x)=\int_{-r_{i}}^{0}\phi_{j}(y)q_{j}(x-y)dy,
+\end{equation}
+
+The period $P$ we shall use for spectral integration is 
+
+\begin{equation}
+P=X_{+}+\max_{j\in\left\{ 1,..,s\right\} }\left(r_{j}\right).
+\end{equation}
+
+Let us define the period $P$ function $\bar{q_{j}}(v)$ such that
+when $v\in[0,P]$ we have $\bar{q_{j}}(v)=q_{j}(v).$
+
+Let us define the period $P$ function $\bar{\phi_{j}}(v)$ such that
+when $v\in[-r_{j},P-r_{j}]$ we have $\bar{\phi_{j}}(v)=\phi_{j}(v).$
+
+Now when we evaluate $\zeta_{j}(x)$ for each $x\in[0,X_{+}],$ we
+only sample the value of $\phi_{j}$ at points contained in the interval
+$[-r_{j},P-r_{j}]$ and we only sample $q_{j}$ at points contained
+in the interval $[0,P].$ At such points our periodic extensions agree
+with the original functions, and so we can rewrite our integral as
+
+\begin{equation}
+\zeta_{j}(x)=\int_{-r_{i}}^{0}\bar{\phi_{j}}(y)\bar{q_{j}}(x-y)dy,
+\end{equation}
+
+moreover, since $\forall y\in[-r_{j},P-r_{j}]$ we have $\bar{\phi_{j}}(y)\neq0\Rightarrow y\in[-r_{j},0]$
+we may extend the upper limit of our integral, and write
+
+\begin{equation}
+\zeta_{j}(x)=\int_{-r_{j}}^{P-r_{j}}\bar{\phi_{j}}(y)\bar{q_{j}}(x-y)dy.
+\end{equation}
+
+Now since $\bar{\phi_{j}}(y)\bar{q_{j}}(x-y)$ is a period $P$ function
+in $y,$ we can rewrite it as
+
+\begin{equation}
+\zeta_{j}(x)=\int_{0}^{P}\bar{\phi_{j}}(y)\bar{q_{j}}(x-y)dy.
+\end{equation}
+
+$\forall k\in\left\{ 1,..,|w^{full}|\right\}$ let $x_{k}^{full}=\ln(w_{k}^{full}/W_{-}),$
+and suppose $\Delta x=x_{2}^{full}-x_{1}^{full}.$ Note that $x_{k}^{full}=(k-1)\Delta x.$
+Let us define a longer vector $x^{P}$ of length $|x^{P}|=1+(P/\Delta x$)
+such that $\forall k\in\left\{ 1,..,|x^{P}|\right\}$ we have $x_{k}^{P}=(k-1)\Delta x$.
+Now we can approximate this integral by a Riemann sum, for $l\in{1,..,|w^{^{full}}|},$
+by writing
+
+\begin{equation}
+\zeta_{j}(x_{l})\thickapprox\sum_{k=1}^{^{|x^{P}|}}\bar{\phi_{j}}(x_{k})\bar{q_{j}}(x_{l}-x_{k})\Delta x.
+\end{equation}
+
+We let $\mathbb{F}[u]$ denote that fast Fourier transform of a vector
+$u$. We can use fast Fourier transforms to evaluate this Riemann
+sum for all appropriate grid points simultaneously. Now let us define 
+
+\begin{equation}
+\left(L_{j}(k)\right)_{k=1}^{|x^{P}|}=\left(\Delta x\right)\mathbb{F}^{-1}\left[\mathbb{F}\left[\left(\bar{q}_{j}(x_{k}^{P}\right)_{k=1}^{|w^{P}|}\right]\times\mathbb{F}\left[\left(\bar{\phi}_{i}(x_{k}^{P}\right)_{k=1}^{|w^{P}|}\right]\right].
+\end{equation}
+
+Now we have 
+
+\begin{equation}
+\left(\zeta_{j}^{*}(w_{k}^{full})\right)_{k=1}^{|w^{full}|}=\left(\zeta_{j}(x_{k}^{full})\right)_{k=1}^{|w^{full}|}\thickapprox\left(L_{j}(k)\right)_{k=1}^{|w^{full}|},
+\end{equation}
+
+as required.
+
+### Riemann sum comparison for available energy
+
+The available energy to a predator of species $i\in\left\{ 1,..,s\right\}$
+and mass $w\in[W_{e},W_{+}]$ is 
+
+\begin{equation}
+E_{a.i}(w)=\int_{0}^{\infty}H_{i}^{*}(w')\Phi_{i}(w'/w)dw',
+\end{equation}
+
+for $i\in\left\{ 1,..,s\right\}$ and $w\in[W_{e},W_{+}],$ where 
+
+\begin{equation}
+H_{i}^{*}(w')=\left(N_{R}(w')+\sum_{j=1}^{s}\theta_{ij}N_{j}(w')\right)w'
+\end{equation}
+
+is the available biomass of food of mass $w'$ for species $i,$ and 
+
+\begin{equation}
+\Phi_{i}(w'/w)=\exp\left(\frac{-\ln\left(\frac{w}{w'\bar{\beta_{i}}}\right)^{2}}{2\sigma_{i}}\right),
+\end{equation}
+
+measures how much preference predators of weight $w$ and species
+$i$ have for prey of weight $w'.$ Here $\beta_{i}:=\ln\left(\bar{\beta_{i}}\right).$ 
+
+In the original version of mizer, if we discount the differences in
+how the grid points $w^{full},$ $\Delta w$ and $\Delta w^{full}$
+are defined then we can write the approximation (i.e., the Riemann
+sum) that the original version of mizer uses for $E_{a.i}(w_{l})$
+as 
+
+\begin{equation}
+E_{i,l}^{^{M}}=\sum_{k=1}^{|w^{full}|}H_{i}^{*}(w_{k})\Phi_{i}(w_{k}/w_{l})\times(\Delta w)_{k},
+\end{equation}
+
+where $\left(\Delta w\right)_{k}=w_{k+1}-w_{k}.$
+
+In our new code we use spectral integration to approximate the available
+energy, and
+this corresponds to approximating $E_{a.i}(w_{l})$ by the Riemann
+sum
+
+\begin{equation}
+E_{i,l}^{F}=\sum_{k=1}^{|w^{full}|}\bar{H_{i}}(x_{l}-x_{k})\bar{\psi_{i}}(x_{k})\Delta x.
+\end{equation}
+
+Here $\forall k\in\mathbb{Z}$ we have $w_{k}=W_{-}e^{x_{k}}.$ Here
+$W_{-}$ denotes the minimum considered plankton size, $W_{e}$ denotes
+the egg size, and $W_{+}$ denotes the maximum possible fish size.
+Also, note $w_{1}=W_{-},$ and $w_{K_{e}}=W_{e}$ and $w_{|w^{full}|}=W_{+}.$
+In the log space we have that $X_{-}=\ln(W_{-}/W_{-})=0$ corresponds
+to the minimum considered plankton size, $X_{e}=\ln(W_{e}/W_{-})$
+corresponds to the fish egg size, and $X_{+}=\ln(W_{+}/W_{-})$ corresponds
+to the maximum possible fish size.
+
+We shall now use substitutions to transform this sum into a form which
+we can more easily compare with $E_{i,l}^{^{M}}.$ 
+
+Suppose $q$ is such that $x_{q}=x_{l}-x_{k},$ now
+
+\begin{equation}
+x_{l}-x_{k}=(l-1)\Delta x-(k-1)\Delta x=(l-k)\Delta x=(q-1)\Delta x
+\end{equation}
+
+so $q=1+l-k.$ Changing $E_{i,l}^{F}$ into a sum over $q$ instead
+of $k$ gives us
+
+\begin{equation}
+E_{i,l}^{F}=\sum_{q=1+l-|w^{full}|}^{^{l}}\bar{H_{i}}(x_{q})\bar{\psi_{i}}(x_{l}-x_{q})\Delta x.
+\end{equation}
+
+In terms of the discrete grid points we are using, the functions $\bar{H_{i}}$
+and $\bar{\psi_{i}}$ both have a period of $|w^{full}|.$ It follows
+that $\bar{H_{i}}(x_{q})\bar{\psi_{i}}(x_{l}-x_{q})$ has a period
+of $N$ with respect to $q,$ and since our sum is over $N$ successive
+terms, it follows that if we sum over $N$ other successive terms
+we will get the same result, and so we can write
+
+\begin{equation}
+E_{i,l}^{F}=\sum_{q=l}^{|w^{full}|}\bar{H_{i}}(x_{q})\bar{\psi_{i}}(x_{l}-x_{q})\Delta x,
+\end{equation}
+
+here $\forall q\in\left\{ 1,..,|w^{full}|\right\} ,$ we have $\bar{H_{i}}(x_{q})=H_{i}^{*}(w_{q})w_{q}$
+so we can write
+
+\begin{equation}
+E_{i,l}^{F}=\sum_{q=l}^{|w^{full}|}\bar{\psi_{i}}(x_{l}-x_{q})H_{i}^{^{*}}(w_{q})w_{q}\Delta x.
+\end{equation}
+
+Now since $x_{l}\in[X_{e},X_{+}]$ and $x_{q}\in[0,X_{+}]$ we have
+$x_{l}-x_{q}\in[X_{e}-X_{+},X_{+}].$ There are two possibilities
+for the type of form $\bar{\psi_{i}}(x_{l}-x_{q})$ takes. 
+
+One possibility is that $x_{l}-x_{q}\in[0,X_{+}].$ In this case we
+have 
+
+\begin{equation}
+\bar{\psi_{i}}(x_{l}-x_{q})=\psi_{i}(x_{l}-x_{q})=\phi_{i}(x_{q}-x_{l})=\Phi_{i}(w_{q}/w_{l}).
+\end{equation}
+
+The other possibility is that $x_{l}-x_{q}\in[X_{e}-X_{+},0).$ In
+this case we have 
+
+\begin{equation}
+\bar{\psi_{i}}(x_{l}-x_{q})=\psi_{i}(x_{l}-x_{q}+X_{+})
+\end{equation}
+
+where $x_{l}-x_{q}+X_{+}\in[X_{e},X_{+}).$ However, since the support
+of $\psi_{i}$ is contained in the interval $[0,\beta_{i}+3\sigma_{i}],$
+where (by assumption) $X_{e}<\beta_{i}+3\sigma_{i},$ we must also
+have that 
+
+\begin{equation}
+\bar{\psi_{i}}(x_{l}-x_{q})=\psi_{i}(x_{l}-x_{q}+X_{+})=0=\psi_{i}(x_{l}-x_{q})
+\end{equation}
+
+holds in this case.
+
+Hence we have shown that 
+
+\begin{equation}
+\bar{\psi_{i}}(x_{l}-x_{q})=\psi_{i}(x_{l}-x_{q})=\Phi_{i}(w_{q}/w_{l}),\forall x_{l}\in[X_{e},X_{+}],\forall x_{q}\in[0,X_{+}],
+\end{equation}
+
+hence we can write
+
+\begin{equation}
+E_{i,l}^{F}=\sum_{q=l}^{^{|w^{full}|}}\Phi_{i}(w_{q}/w_{l})H_{i}^{^{*}}(w_{q})w_{q}\Delta x,
+\end{equation}
+
+we can see that this has just the same form as the the original version
+of mizer Riemann sum $E_{i,l}^{M}$, except that our rectangles here
+have width $w_{q}\Delta x,$ unlike in $E_{i,l}^{M}$ where they have
+width $(\Delta w)_{q}.$
+
+### Riemann sum comparison for predation mortality
+
+The predation mortality rate of a prey of species $i$ and mass $w$
+can be written as 
+
+\begin{equation}
+\mu_{p.i}(w)=\sum_{j=1}^{s}\theta_{j,i}\zeta_{j}^{*}(w)
+\end{equation}
+
+where $\forall i\in\left\{ 1,..,s\right\} ,$ $\forall w\in[0,W_{+}],$
+we have that
+
+\begin{equation}
+\zeta_{j}^{*}(w)=\int_{0}^{\infty}\Phi_{j}(w/w')Q_{j}(w')dw'
+\end{equation}
+
+is the predation rate on prey with mass $w$ from predators of species
+$j$ when the interaction matrix is discounted (i.e., when we assume
+the interaction matrix is full of ones). Here $\zeta_{j}^{*}(w)$
+is known as pred\_rate in the new fft mizer code. Here
+
+\begin{equation}
+Q_{j}(w')=(1-f_{j}(w'))\gamma_{j}\left(w'\right){}^{^{q^{*}}}N_{j}(w').
+\end{equation}
+
+In the original version of mizer , $\zeta_{j}^{*}(w_{l})$ is essentially
+approximated by the Riemann sum
+
+\begin{equation}
+\zeta_{j,l}^{M}=\sum_{k=1}^{^{|w^{full}}|}\Phi_{j}(w_{l}/w_{k})Q_{j}(w_{k})(\Delta w)_{k}.
+\end{equation}
+
+In our new code we use spectral integration to approximate the predation
+mortality rate, and this corresponds to approximating $\zeta_{j}^{*}(w_{l})$ by
+the Riemann sum
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{k=1}^{|x^{P}|}\bar{\phi_{j}}(x_{k})\bar{q_{j}}(x_{l}-x_{k})\Delta x
+\end{equation}
+
+where 
+
+\begin{equation}
+P=x_{|x^{P}|}=(|x^{P}|-1)\Delta x=X_{+}+r
+\end{equation}
+
+where 
+
+\begin{equation}
+r=\max_{i\in\left\{ 1,..,s\right\} }(\beta_{i}+3\sigma_{i}).
+\end{equation}
+
+We shall now use substitutions to transform this sum into a form which
+we can more easily compare with $\zeta_{j,l}^{M}.$ 
+
+Suppose $v$ is such that $x_{v}=x_{l}-x_{k},$ now
+
+\begin{equation}
+x_{l}-x_{k}=(l-1)\Delta x-(k-1)\Delta x=(l-k)\Delta x=(q-1)\Delta x
+\end{equation}
+
+so $v=1+l-k.$ Changing $E_{i,l}^{F}$ into a sum over $v$ instead
+of $k$ gives us
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1+l-|x^{P}|}^{l}\bar{\phi_{j}}(x_{l}-x_{v})\bar{q_{j}}(x_{v})\Delta x
+\end{equation}
+
+Now since $\bar{\phi_{j}}(x_{l}-x_{v})\bar{q_{j}}(x_{v})$ is a period
+$|x^{P}|$ function with respect to $v,$ and $\zeta_{i,l}^{F}$ is
+a summation involving $|x^{P}|$ successive values of this function,
+we can rewrite this sum as
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1}^{|x^{P}|}\bar{\phi_{j}}(x_{l}-x_{v})\bar{q_{j}}(x_{v})\Delta x.
+\end{equation}
+
+For such $v\in\left\{ 1,..,|x^{P}|\right\}$ we have $\bar{q_{j}}(x_{v})=q_{j}(x_{v})=Q_{j}(w_{v})w_{v},$
+so we can write 
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1}^{|x^{P}|}\bar{\phi_{j}}(x_{l}-x_{v})q_{j}(w_{v})\Delta x,
+\end{equation}
+
+now since $q_{j}(x_{v})=Q_{j}(w_{v})w_{v}$ and the support of $Q_{j}(w_{v})$
+is contained in $[W_{-},W_{+}],$ it must be that the support of $q_{j}(x_{v})$
+is contained in $[0,X_{+}],$ and so we have 
+
+where $v\in\left\{ |x^{full}|+1,..,|x^{P}|\right\} \Rightarrow q_{j}(x_{v})=0,$
+hence we can rewrite our summation as 
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1}^{|x^{full}|}\bar{\phi_{j}}(x_{l}-x_{v})q_{j}(x_{v})\Delta x.
+\end{equation}
+
+Now since $q_{j}(x_{v})=Q_{j}(w_{v})w_{v}$ in this range, we have
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1}^{|x^{full}|}\bar{\phi_{j}}(x_{l}-x_{v})Q_{j}(w_{v})w_{v}\Delta x.
+\end{equation}
+
+Now since $x_{l},x_{v}\in[0,X_{+}]$ we must have $x_{l}-x_{v}\in[-X_{+},X_{+}],$
+and so we have two possibilities to consider, to understand the form
+of $\bar{\phi_{j}}(x_{l}-x_{v}).$ 
+
+The first possibility is that $x_{l}-x_{v}\in[-X_{+},0].$ In this
+case 
+
+\begin{equation}
+\bar{\phi_{j}}(x_{l}-x_{v})=\phi_{j}(x_{l}-x_{v})=\Phi_{j}(w_{l}/w_{v}).
+\end{equation}
+
+The other possibility is that $x_{l}-x_{v}\in(0,X_{+}].$ In this
+case 
+
+\begin{equation}
+\bar{\phi_{j}}(x_{l}-x_{v})=\phi_{j}(x_{l}-x_{v}-P),
+\end{equation}
+
+where $x_{l}-x_{v}-P\in(-P,-r]$ since $P=X_{+}+r.$ Now since the
+support of $\phi_{j}$ is contained in $[-r,0],$ with $\phi_{j}(-r)\rightarrow0,$
+we have
+
+\begin{equation}
+\bar{\phi_{j}}(x_{l}-x_{v})=\phi_{j}(x_{l}-x_{v}-P)=0=\phi_{j}(x_{l}-x_{v}),
+\end{equation}
+
+and so we have shown that
+
+\begin{equation}
+\bar{\phi_{j}}(x_{l}-x_{v})=\phi_{j}(x_{l}-x_{v})=\Phi_{j}(w_{l}/w_{v}),\forall x_{l},x_{v}\in[0,X_{+}].
+\end{equation}
+
+It follows that we can rewrite our summation as 
+
+\begin{equation}
+\zeta_{i,l}^{F}=\sum_{v=1}^{|x^{full}|}\Phi_{j}(w_{l}/w_{v})Q_{j}(w_{v})w_{v}\Delta x.
+\end{equation}
+
+we can see that this has just the same form as the the original version
+of mizer Riemann sum $\zeta_{i,l}^{M}$, except that our rectangles
+here have width $w_{q}\Delta x,$ unlike in $\zeta_{i,l}^{M}$ where
+they have width $(\Delta w)_{q}.$
+
+# Acknowledgments {-}
+
+Work funded by the European Commission\textquoteright s Horizon 2020
+Research and Innovation Programme under Grant Agreement No. 634495
+for the project MINOUW (http://minouw-project.eu/).
