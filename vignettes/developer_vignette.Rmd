@@ -52,6 +52,8 @@ version
 
 ## Forking mizer from github
 
+Go to https://github.com/sizespectrum/mizer and fork it into your own repository. Then create a version control new project in Rstudio, and indicate your depository url. 
+
 ### Installing git
 
 ### Using git inside RStudio
