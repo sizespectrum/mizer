@@ -5,7 +5,6 @@
 \alias{mizer}
 \alias{mizer,}
 \alias{mizer-package}
-\alias{mizer-package}
 \title{mizer: Multi-species size-based modelling in R}
 \description{
 The mizer package implements multi-species size-based modelling in R. It has 

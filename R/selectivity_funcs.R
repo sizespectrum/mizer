@@ -19,12 +19,15 @@
 #' @param a the multiplier of the length-weight function.
 #' @param b the exponent of the length-weight function.
 #' @export
-sigmoid_length <- function(w,l25,l50,a,b) {
-    l <- (w/a)^(1/b)
+sigmoid_length <- function(w, l25, l50, a, b) {
+    assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50) && 
+        is.numeric(a) && is.numeric(b))
+    assert_that(l25 > 0 && l25 < l50 && a > 0 && b > 0)
+    l <- (w / a)^(1 / b)
     sr <- l50 - l25
-    s1 <- l50*log(3)/sr
+    s1 <- l50 * log(3) / sr
     s2 <- s1 / l50
-    return(1 / (1 + exp(s1 - s2*l)))
+    return(1 / (1 + exp(s1 - s2 * l)))
 }
 
 #' Size based knife-edge selectivity function

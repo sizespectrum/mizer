@@ -1,0 +1,255 @@
+---
+title: "Mizer Developer Vignette"
+author: "Gustav Delius and Richard Southwell"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+This vignette is for you if you need to extend mizer 
+to meet the needs of your research project.
+You will already have read the [main mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) and thus be
+familiar with what mizer can do out of the box.
+You now want to implement the extension or modification of the
+model required for your research, and for that you need to dive into 
+the internal workings of mizer. This vignette is meant to make
+that as easy as possible.
+
+The first thing you should do, even before reading this vignette, is to
+go to https://github.com/sizespectrum/mizer/issues and create a new "issue""
+to share your ideas and plans with the mizer community. You may get back 
+valuable feedback and advice.
+
+# Preparation
+In this section we describe how to set up your working environment
+to allow you to easily work with the mizer code. Much of it you
+may already have in place, so feel free to skip ahead.
+
+## Installing R, RStudio
+
+Mizer is compatible with R versions 3.1 and later.
+If you still need to [install R](https://www.r-project.org/), simply install 
+the latest version. 
+
+This guide assumes that you will be using RStudio to work with R. There is
+really no reason not to use RStudio and it makes a lot of things much easier.
+RStudio develops rapidly and adds useful features all the time and so it pays 
+to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
+frequently. This guide was written with version 1.2.830.
+version 
+
+## Forking mizer from github
+
+Go to https://github.com/sizespectrum/mizer and fork it into your own repository. Then create a version control new project in Rstudio, and indicate your depository url. 
+
+### Installing git
+
+### Using git inside RStudio
+
+## Working with an R package
+
+# Implementation of the model
+
+In this section we will revisit the presentation of the mizer model given
+in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
+but with more detail of how this model is implemented in code. We will still
+stay a bit at the surface, delaying a detailed look at how the code is
+organised until the section [Finding your way around the mizer code].
+
+## The size spectrum
+The model framework builds on two central assumption and a number of lesser 
+standard assumption.  
+
+The first central assumption is that an individual can be characterized by its 
+weight $w$ and its species number $i$ only. The aim of the model is to calculate 
+the size spectrum ${\cal N}_i(w)$, which is the *density* of individuals of
+species $i$ such that ${\cal N}_i(w)dw$ is the *number* of individuals of
+species $i$ in the size interval $[w:w+dw]$. 
+
+To represent this continuous size spectrum in the computer, the size
+variable $w$ is discretized into a vector of weights `w` of
+length `no_w`. These weights are logarithmically spaced, so that
+`w[j]=w[1]*exp(j*dx)` for some `dx`.
+
+In the code the size spectrum is stored as an array such that `n[i, j]`
+holds the density ${\cal N}_i(w_j,t_k)$ at weights $w_j=$`w[j]`. 
+Note that contrary to what one might have expected,
+`n[i, j]` is not the *number* of individuals but the *density*.
+The number of individuals in size bin $j$ is given by  `n[i, j]*dw[j]`.
+
+The time evolution of the size spectrum is described by the 
+McKendrik-von Foerster equation, which is simply a conservation equation:
+
+\begin{equation}
+  \label{eq:MvF}
+  \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
+  = -\mu_i(w) N_i(w)
+\end{equation}
+
+where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
+below. 
+
+This differential equation is approximated in mizer by a
+finite-difference approximation (to be described in section ...). This
+allows the `project()` method in mizer to project the size spectrum 
+forwards in time: Given the spectrum at one time the `project()` method
+calculates it at a set of later times.
+
+Besides the fish spectrum there is also a resource spectrum
+${\cal N}_R(w_j)=$`n_pp[j]` representing for example the phytoplankton.
+
+## Predator-prey preference
+The second central assumption is that the preference of a predator for
+prey depends on the size of the prey **only** through the predator/prey
+size ratio. Thus the preference of
+an individual of species $i$ and weight $w$ for prey of species $j$ and
+weight $w_p$ is assumed to factorize as $\theta_{ij}\phi(w_p/w)$ into
+a species preference matrix $\theta_{ij}$ and a weight selection function
+$\phi(w_p/w)$. 
+
+The species preference matrix $\theta_{ij}$, also referred to as the
+apecies interaction matrix, is stored in `interaction[i,j]`. It is currently
+assumed to be weight independent.
+
+The choice of the function $\phi_i(w_p/w)$ is not central. It is currently
+hard-coded to the truncated log-normal function
+
+\begin{equation}
+  \label{eq:4}
+  \phi_i(w_p/w) = \begin{cases}
+  \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right]
+  &\text{ if }w/w_p\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
+  0&\text{ otherwise,}
+  \end{cases}
+\end{equation}
+where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
+width of the weight selection function.
+
+
+## Available energy
+
+The available food (mass per volume) for a predator of weight $w$ is determined 
+by integrating over all species and the resource spectrum weighted by the 
+size selection function: 
+
+\begin{equation}
+  \label{eq:1}
+  E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+  \phi_i(w_p/w) w_p \, dw_p.
+\end{equation}
+
+This available energy is calculated by the `getAvailEnergy()` method.
+The integral is approximated by a Riemann sum over all weight brackets.
+\[
+\text{avail_energy}[i,j] = \sum_{k=1}^{\text{no_w}}
+\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[i,k] \right) 
+  \phi_i\left(w[k]/w[j]\right) w[k] dw[k].
+\]
+The convolution theorem together with the Fast Fourier Transform is then used 
+to efficiently evaluate this for all $w_j$.
+
+## Consumption
+
+The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
+volume rate (volume per time):
+
+\begin{equation}
+  \label{eq:Ee}
+  E_{e.i}(w) = \text{search_vol}_i(w) E_{a.i}(w).
+\end{equation}
+
+The encountered food is consumed subjected to a standard Holling functional 
+response type II to represent satiation. This determines the 
+*feeding level* $f_i(w)$, which is a dimensionless number between 0 
+(no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the
+encountered food that is consumed. It is given by
+
+\begin{equation}
+  \label{eq:f}
+  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + \text{intake_max}_i(w)},
+\end{equation}
+
+where `intake_max` is the maximum consumption rate.
+
+The feeding level is calculated with the method `getFeedingLevel()`.
+
+The rate at which food is
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) \text{intake_max}_i(w)$.
+
+
+## Growth
+
+The consumed food is assimilated with an efficiency $\alpha$ and 
+used to fuel the needs for metabolism and 
+activity and movement. The remaining rate, if any,
+\begin{equation}
+  \label{eq:Er}
+  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - \text{metab_i(w)})
+\end{equation}
+is used for growth and reproduction. This is calculated with the 
+`getEReproAndGrowth()` method.
+
+When food supply does not cover the requirements of metabolism and activity, 
+growth and reproduction stops, i.e. there is no negative growth.
+The individual should then be subjected to a starvation mortality, but starvation
+mortality is not implemented in mizer at the moment.
+
+The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
+a function $\psi_i(w)$ that changes between 
+zero around the weight of maturation $w_{m.i}$ to one at the asymptotic weight 
+$W_i$ where all available energy is used for reproduction. This function
+$\psi$ is stored in an array `psi[i,j]`$=\psi(w_j)$.
+
+Thus the somatic growth function is given by
+\begin{equation}
+  \label{eq:growth}
+  g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
+\end{equation}
+It is calculated by the `getEGrowth()` method.
+
+
+# Finding your way around the mizer code
+
+## The MizerParams object
+An object of class 'MizerParams' holds all the information needed for the
+'project()' method to simulate a model. 
+
+## The project methods
+
+## The MizerSim object
+
+## Plotting methods
+
+## Shiny apps
+
+# Developer guidelines
+
+## Collaborating on Github
+
+## Coding style
+[Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
+[The tidyverse style guide](http://style.tidyverse.org/)
+
+## Always write tests for your code
+We use [testthat](http://testthat.r-lib.org/) and
+[shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+
+# Technical details
+
+## The numerical scheme
+
+## Fast Fourier Transform
+
+## Tuning to Steady State
