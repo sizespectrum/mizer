@@ -221,15 +221,16 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                                  feeding_level = feeding_level)
         # Calculate predation mortality on fish \mu_{p,i}(w)
         m2 <- getPredMort(sim@params, pred_rate = pred_rate)
-        # Calculate total mortality \mu_i(w)
-        z <- getMort(sim@params, n = n, n_pp = n_pp, 
-                     effort = effort_dt[i_time,], m2 = m2)
         # Calculate mortality on the plankton spectrum
         m2_background <- getPlanktonMort(sim@params, n = n, n_pp = n_pp,
                                          pred_rate = pred_rate)
         # Calculate the resources available for reproduction and growth
         e <- getEReproAndGrowth(sim@params, n = n, n_pp = n_pp, 
                                 feeding_level = feeding_level)
+        #Moved total mortality calculation after the e calculation betcause we need e for stravation
+        # Calculate total mortality \mu_i(w)
+        z <- getMort(sim@params, n = n, n_pp = n_pp, 
+                     effort = effort_dt[i_time,], e = e, m2 = m2)
         # Calculate the resources for reproduction
         e_repro <- getERepro(sim@params, n = n, n_pp = n_pp, e = e)
         # Calculate the growth rate g_i(w)
