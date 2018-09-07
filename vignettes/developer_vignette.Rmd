@@ -2,7 +2,9 @@
 title: "Mizer Developer Vignette"
 author: "Gustav Delius and Richard Southwell"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Mizer Developer Vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -37,22 +39,42 @@ In this section we describe how to set up your working environment
 to allow you to easily work with the mizer code. Much of it you
 may already have in place, so feel free to skip ahead.
 
-## Installing R, RStudio
+## Installing R, RStudio, devtools
 
 Mizer is compatible with R versions 3.1 and later.
-If you still need to [install R](https://www.r-project.org/), simply install 
-the latest version. 
+If you still need to [install R](https://cran.r-project.org/), simply install 
+the latest version. This vignette was prepared with
+`r R.version.string`.
+
 
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
 to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
 frequently. This guide was written with version 1.2.830.
-version 
+
+To work with R packages as a developer, you will need to
+[install additional tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites). Once you have these in place, you should install the devtools package with
+```{r eval=FALSE}
+install.packages("devtools")
+```
+You are now all set to develop R packages, and 
+[RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet for package development accessible from the Help menu in RStudio.
+
+
 
 ## Forking mizer from github
 
+Mizer is developed using the version control system _git_ and the code is hosted on github.
+To work with the code you will create your own git repository with a copy of the mizer code.
+Here we will describe briefly how to do this and how to then collaborate on the code with
+other mizer developers.
+
 ### Installing git
+In case git is not already installed on your system, you need to 
+[install it](http://happygitwithr.com/install-git.html). You do not need to install
+any GUI for git because RStudio has 
+[built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN).
 
 ### Using git inside RStudio
 
