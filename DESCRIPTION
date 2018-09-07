@@ -4,6 +4,7 @@ Type: Package
 Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine
     environment.
+    Finlay Scott, Julia L. Blanchard, Ken H. Andersen (2014) <doi: 10.1111/2041-210X.12256>
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
 Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
