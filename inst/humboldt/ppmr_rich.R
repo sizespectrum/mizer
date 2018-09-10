@@ -19,7 +19,7 @@ add_up <- function(data,low,high){
     return(sum(data[(low<=log(data[,2]))&(log(data[,2])<high),4]))
 }
 
-no_bins <- 20
+no_bins <- 50
 LEAST <- min(log(data$wprey))
 MOST  <- max(log(data$wprey))
 
@@ -29,9 +29,12 @@ long_bins <- c(bins,bins[length(bins)]+(bins[length(bins)]-bins[length(bins)-1])
 for (t in (1:length(bins))){
     low <- long_bins[t]
     high <- long_bins[t+1]
-    bin_count[t] <- sum(data[(low<=log(data[,2]))&(log(data[,2])<high),4])
+    bin_count[t] <- sum(data$Nprey[(low<=log(data$wprey))&(log(data$wprey)<high)])
 }
 
 barplot(bin_count, width=bins)
 bin_count
 barplot(bin_count)
+low
+high
+sum(data$Nprey[(low<=log(data$wprey))&(log(data$wprey)<high)])
