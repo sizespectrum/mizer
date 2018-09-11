@@ -1,0 +1,165 @@
+---
+title: "Estimating feeding kernel parameters from stomach data"
+output: html_notebook
+---
+
+We want to use stomach data to estimate the feeding preference
+function for a size-spectrum model. To make a connection we 
+assume that the abundance of a prey size in a predator's stomach
+is proportional to the rate at which the predator feeds on prey of 
+that size. This is a dubious assumption because it neglects that
+prey of different sizes might stay identifiable in the stomach for
+different lengths of time.
+
+For a predator of size $w'$ the rate at which it predates on
+prey of size $w$ is proportional to the product of the abundance
+$N(w)$ of prey of size $w$ and the preference function $\phi(w/w')$.
+The proportionality constant (the so-called search volume) depends 
+only on the known predator weight and is independent the prey weight
+and therefore does not concern us here.
+
+We assume that the prey abundance is given by a power law 
+$$N(w)\propto w^{-\lambda}.$$
+For the preference function we use the Gaussian
+$$\phi(w/w') = \exp\left(-\frac{(\log(w'/w)-\log(\beta))^2}
+  {2\sigma^2}\right).$$
+We are following the notation used by mizer here. Note the natural log
+around $\beta$ but the lack of a log around $\sigma$.
+
+The probability density for the weight of a random prey individual
+in the stomach of a predator of weight $w'$ is therefore
+$$ f_w(w|w') \propto w^{-\lambda}
+\exp\left(-\frac{(\log(w'/w)-\log(\beta))^2}
+  {2\sigma^2}\right).$$
+Mariella likes to work in terms of the predator/prey mass ratio $r=w'/w$.
+The probability density for this ration can be obtained by observing that
+$$ f_r(r|w') = f_w(w|w')\left|\frac{dw}{dr}\right|=\frac{w'}{r^2} f_r(r|w')$$
+and thus
+$$ f(r|w') \propto r^{\lambda-2}
+\exp\left(-\frac{(\log(r)-\log(\beta))^2}
+  {2\sigma^2}\right).$$
+The probability density function
+for the log of the predator/prey mass ratio $l = \log(r)$ is then obtained by observing that
+$$ f_l(l|w') = f_r(r|w')\frac{dr}{dl}=r f_r(r|w').$$
+This gives
+$$ f_{l}(l|w') \propto e^{l(\lambda-1)}
+\exp\left(-\frac{(l-\log(\beta))^2}
+  {2\sigma^2}\right).$$
+
+By combining the exponentials and completing squares and then 
+normalising, the density becomes
+$$ f_{l}(l) = 
+\frac{1}{\sqrt{2\pi}\sigma}
+\exp\left(-\frac{(l-(\log(\beta)+\sigma^2(\lambda-1))^2}
+  {2\sigma^2}\right),$$
+
+Thus the logarithm of the predator/prey mass ratio is normally distributed with
+mean $\log(\beta)+\sigma^2(\lambda-1)$ and variance $\sigma^2$.
+
+
+By estimating the mean $\mu$ and standard deviation $s$ of the observed
+logarithms of predator/prey mass ratios we
+obtain estimates for $\beta$ and $\sigma$ by the method of moments as
+$$\beta = \exp(\mu-s^2(\lambda - 1)),~~~~ \sigma^2 = s^2.$$
+
+We load Mariella's data and choose $\lambda$.
+```{r message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+params_data <- read_csv("speciesNCME_Mariella.csv")
+lambda <- 2
+```
+Mariella told me that what she calls sigma in this file is $e^s$,
+the exponential of the standard deviation in the log of the observed 
+predator/prey ratios. So we obtain mizer's sigma as
+```{r}
+params_data$sigma_mizer <- log(params_data$sigma)
+```
+Mariella also told me that what she calls beta in this file is $e^\mu$,
+the exponential of the mean of the log of the observed predator/prey ratios.
+We convert that to mizer's beta as
+```{r}
+params_data$beta_mizer <- params_data$beta * 
+    exp(-params_data$sigma_mizer^2 * (lambda - 1))
+```
+This gives
+```{r}
+select(params_data, c("species", "beta_mizer", "sigma_mizer", "beta", "sigma"))
+```
+We notice that for species that have a very large standard deviation in the log 
+of the predator/prey mass ratio, namely jack mackerel, mackerel, sardine and 
+anchovy, the values for $\beta$ are ridiculously small and even less than 1. 
+Clearly that makes no sense. We have to give up either the assumption of
+a Gaussian feeding kernel or the assumption that feeding rate is proportional
+to stomach content.
+
+One proposal would be to assume that the time for which a prey item stays
+identifiable in the stomach scales allometrically with prey size. One could
+for example argue that the rate at which digestion takes place on an
+individual scales as its surface area, i.e., as $w^{2/3}$. Then the time
+until a certain percentage of the individual has been digested scales as
+$w/w^{2/3} = w^{1/3}$. Thus the abundance in the stomach of identifiable
+individuals of size $w$ would be proportional to $w^{1/3}$ times the
+rate at which the predator feeds on these prey items. This would modify
+the probability density for the size of identifiable prey items to
+$$ f_w(w|w') \propto w^{-\lambda+1/3}
+\exp\left(-\frac{(\log(w'/w)-\log(\beta))^2}
+  {2\sigma^2}\right).$$
+The log of the preadator/prey mass ratios for identifiable prey items would 
+then be normally distributed with mean $\log(\beta)+\sigma^2(\lambda-4/3)$
+and the parameter $\beta$ would be estimated as
+$$\beta = \exp(\mu-s^2(\lambda - 4/3)).$$
+```{r}
+params_data$beta_mizer <- params_data$beta * 
+    exp(-params_data$sigma_mizer^2 * (lambda - 4/3))
+```
+This gives
+```{r}
+select(params_data, c("species", "beta_mizer", "sigma_mizer", "beta", "sigma"))
+```
+This improves things a bit but not enough. If we are willing to increase the exponent for the time till
+digestion to $2/3$ we get:
+```{r}
+params_data$beta_mizer <- params_data$beta * 
+    exp(-params_data$sigma_mizer^2 * (lambda - 5/3))
+select(params_data, c("species", "beta_mizer", "sigma_mizer", "beta", "sigma"))
+```
+
+Next we analyse the stomach data for swordfish.
+```{r}
+ppmr <- read.csv("Swordfish_dataPPMR.csv")
+```
+
+
+```{r}
+mu <- mean(log(ppmr$Predator.mass / ppmr$Prey.mass))
+s <- sd(log(ppmr$Predator.mass / ppmr$Prey.mass))
+library(ggplot2)
+```
+```{r}
+ggplot(ppmr) +
+    geom_density(aes(log(Predator.mass / Prey.mass))) +
+    stat_function(fun = dnorm, args = list(mean = mu, sd = s), color = "blue")
+```
+```{r}
+ggplot(ppmr) +
+    geom_density(aes(log(Predator.mass / Prey.mass))) +
+    stat_function(fun = dnorm, args = list(mean = mu, sd = s), color = "blue")
+```
+
+
+Next we analyse the stomach data for anchovy and sardine directly.
+```{r message=FALSE}
+ppmr <- read_csv("Data_PPMR.csv") %>%
+    group_by(Species)
+est <- ppmr %>%
+    summarise(totalNprey = sum(Nprey),
+              mean = sum(log(wpredator/wprey) * Nprey) / sum(Nprey), 
+              var = sum((log(wpredator/wprey) - mean)^2 * Nprey) / (sum(Nprey) - 1),
+              sigma = sqrt(var),
+              log_beta = mean - var * (lambda - 1),
+              beta = exp(log_beta),
+              log10_beta = log10(beta)
+    )
+est
+```
