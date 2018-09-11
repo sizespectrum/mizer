@@ -1,0 +1,198 @@
+# Load Mariella's species parameters
+params_data <- read.csv("speciesNCME_Mariella.csv")
+
+# Set some general parameters
+effort <- 1.4
+lambda <- 2.12  # Exponent of community power law
+
+# What Mariella calls sigma in this file is the exponential
+# of the standard deviation in the log of the observed predator/prey ratio
+# observed in stomach data. We convert that to mizer's sigma:
+params_data$sigma_mizer <- log(params_data$sigma)
+
+# What Mariella calls beta in this file is the exponential
+# of the mean of the log of the observed predator/prey ratio 
+# observed in stomach data. We convert that to mizer's beta:
+params_data$beta_mizer <- params_data$beta * 
+    exp(-params_data$sigma_mizer^2 * (lambda - 1))
+
+
+# Fishing selectivity parameters are missing from data frame
+params_data$l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
+params_data$l50 <-  c(1.1e+29,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
+
+min_egg <- min(params_data$Wegg)
+
+# Use the mesopelagic as a template for the background species
+mesopelagic <- which(params_data$species == "Mesopelagic")
+beta <- params_data$beta[mesopelagic]
+sigma <- log(params_data$sigma[mesopelagic])
+# the smallest background species must have egg size min_egg
+# so to get the maturity and maximum size of this smallest background
+# species we need to rescale those of the mesopelagics by a factor
+back_scale <- min_egg / params_data$Wegg[mesopelagic]
+min_w_inf <- params_data$w_inf[mesopelagic] * back_scale
+min_w_mat <- params_data$w_mat[mesopelagic] * back_scale
+# Can now remove the mesopelagics from the dataframe
+params_data <- subset(params_data, params_data$species != "Mesopelagic")
+
+# Spread the background species over the entire range up to the largest fish
+max_w_inf <- max(params_data$w_inf)
+
+# We need to give even the smallest individuals a full range of planktonic prey
+min_w_pp = min(params_data$Wegg /
+                   (params_data$beta_mizer * 3 * exp(params_data$sigma_mizer)))
+
+p <- setBackground(
+    set_scaling_model(min_w_pp = 1e-12,
+        no_sp = 10, no_w = 400, min_w_inf = min_w_inf, max_w_inf = max_w_inf,
+        min_egg = min_egg, min_w_mat = min_w_mat, 
+        lambda = lambda, beta = beta, sigma = sigma,
+        knife_edge_size = Inf)
+)
+
+
+all_efforts <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, 
+                    sigmoid_gear_Anchovy = 1.1)
+gears <- "knife_edge"
+no_sp <- dim(params_data)[1]
+for (i in (1:no_sp)) {
+    if (params_data$species[i] == "Anchovy") {
+        gear <- "sigmoid_gear_Anchovy"
+    } else {
+        gear <- "sigmoid_gear"
+    }
+    gears <- union(gears, gear)
+    species_params <- data.frame(
+        species = as.character(params_data$species[i]),
+        w_min = params_data$Wegg[i],
+        w_inf = params_data$w_inf[i],
+        w_mat = params_data$w_mat[i],
+        beta = params_data$beta_mizer[i],
+        sigma = params_data$sigma_mizer[i],
+        z0 = 0,
+        alpha = 0.6,
+        erepro = 0.1, # unknown, determined later
+        sel_func = "sigmoid_length",
+        gear = gear,
+        l25 = params_data$l25[i],
+        l50 = params_data$l50[i],
+        k = 0,
+        k_vb = params_data$k_vb[i],
+        a = params_data$a2[i],
+        b = params_data$b2[i]
+    )
+
+    p <- addSpecies(p, species_params, effort = effort, rfac = Inf)
+}
+
+# Run to steady state
+p <- steady(p, effort = effort, t_max = 500,  tol = 1e-3)
+# Check that this worked
+sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
+plotBiomass(sim)
+plotSpectra(p)
+# investigate how close to a power law the steady state is
+plot(p@w,colSums(p@initial_n)+p@initial_n_pp[p@w_full>=min(p@w)],log="xy",type="l")
+lines(p@w,p@kappa*p@w^(-p@lambda),col="red")
+
+# Save params object
+humboldt_params <- p
+save(humboldt_params, file = "humboldt_params.rda")
+
+###############
+
+load("humboldt_params.rda")
+p <- humboldt_params
+
+effort <- 1.4
+sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
+plot(sim)
+
+p@species_params$erepro
+plotGrowthCurves(p, species = "Sardine")
+
+# Now change one of the parameters
+
+species_params <- p@species_params
+
+species_params["Sardine", "gamma"] <- 
+    species_params["Sardine", "gamma"] * 1.1
+species_params["JMackerel", "w_mat"] <-
+    species_params["JMackerel", "w_mat"] * 0.9
+species_params["JMackerel", "w_min"] <-
+    species_params["JMackerel", "w_min"] * 10
+
+effort <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, sigmoid_gear_Anchovy = 1.1)
+
+pc <- MizerParams(
+    species_params,
+    p = p@p,
+    n = p@n,
+    q = p@q,
+    lambda = p@lambda,
+    f0 = p@f0,
+    kappa = p@kappa,
+    min_w = min(p@w),
+    max_w = max(p@w),
+    no_w = length(p@w),
+    min_w_pp = min(p@w_full),
+    w_pp_cutoff = max(p@w_full),
+    r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
+)
+pc@linetype <- p@linetype
+pc@linecolour <- p@linecolour
+pc@A <- p@A
+pc@sc <- p@sc
+pc@cc_pp <- p@cc_pp
+pc@mu_b <- p@mu_b
+
+pc@initial_n <- p@initial_n
+pc@initial_n_pp <- p@initial_n_pp
+# Run to steady state
+p <- steady(pc, effort = effort, t_max = 20, tol = 1e-2)
+
+p@species_params$erepro
+plotSpectra(p)
+
+
+# Testing changing a general parameter
+
+p_old <- p
+
+p <- setBackground(
+    set_scaling_model(
+        #min_w_pp = input$min_w_pp, no_sp = input$no_bg_sp, no_w = 400,
+        # min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = 400,
+        # min_w_inf = 2, max_w_inf = 6e5,
+        # min_egg = 1e-4, min_w_mat = 2 / 10^0.6,
+        # lambda = input$lambda, knife_edge_size = Inf,
+        # f0 = input$f0, h = input$h_bkgd, r_pp = 10^input$log_r_pp
+        min_w_pp = 1e-12,
+        no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = 6e5,
+        min_egg = 1e-4, min_w_mat = 2 / 10^0.6, 
+        lambda = 2.12,
+        knife_edge_size = Inf,
+        
+    )
+)
+# Loop over all foreground species and add them one-by-one to the new
+# background
+effort <- 0
+names(effort) <- "knife_edge_gear"
+all_efforts <- c(0, 1.4, 1.1)
+names(all_efforts) <- c("knife_edge_gear", "sigmoid_gear", "sigmoid_gear_Anchovy")
+no_sp <- length(p_old@A)
+for (sp in (1:no_sp)[!is.na(p_old@A)]) {
+    if (!(p_old@species_params[sp, "gear"] %in% names(effort))) {
+        effort <- c(effort, all_efforts[p_old@species_params[sp, "gear"]])
+    }
+    p <- addSpecies(p, p_old@species_params[sp, ],
+                    effort = effort,
+                    rfac = Inf)
+}
+
+# Run to steady state
+p <- steady(p, effort = effort, 
+            t_max = 100, tol = 1e-2)
+
