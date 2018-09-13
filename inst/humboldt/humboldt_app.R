@@ -9,25 +9,27 @@ library(progress)
 server <- function(input, output, session) {
   
   ## Load params object and store it as a reactive value
-  load(system.file("humboldt", "humboldt_params.rda", 
-                   package = "mizer", mustWork = TRUE))
-  
-  params <- reactiveVal()
-  params(humboldt_params)
+  params <- reactiveVal(readRDS("humboldt_params.rds"))
   
   ## Handle params object uploaded by user
   observeEvent(input$upload, {
     inFile <- input$upload
-    load(inFile$datapath)
-    params(humboldt_params)
+    tryCatch(
+      p <- readRDS(inFile$datapath),
+      error = function(e) {stop(safeError(e))}
+    )
+    validate(
+      need(is(p, "MixerParams"),
+           "The file does not contain a mizer parameter object.")
+    )
+    params(p)
   })
   
   ## Prepare for download of params object
   output$params <- downloadHandler(
-    filename = "humboldt.RData", 
+    filename = "params.rds", 
     content = function(file) {
-      humboldt_params <- params()
-      save(humboldt_params, file = file)
+      saveRDS(params(), file = file)
     })
   
   ## Create dynamic ui for species parameters
@@ -100,7 +102,7 @@ server <- function(input, output, session) {
                    step = 1)
     )
   })
-
+  
   # When a species parameter input is changed, only change that
   # parameter value in the params object and run to steady state
   # starting at previous steady state
@@ -154,9 +156,9 @@ server <- function(input, output, session) {
     pc@initial_n_pp <- p@initial_n_pp
     
     # Run to steady state
-    pc <- steady(pc, effort = input$effort, t_max = 100, tol = 1e-2,
-                shiny_progress = progress)
-
+    pc <- steady(pc, effort = 1.4, t_max = 100, tol = 1e-2,
+                 shiny_progress = progress)
+    
     # Update the reactive params object
     params(pc)
   })
@@ -192,49 +194,24 @@ server <- function(input, output, session) {
       if (!(p_old@species_params[sp, "gear"] %in% names(effort))) {
         effort <- c(effort, all_efforts[p_old@species_params[sp, "gear"]])
       }
-      if (input$use_SSB){
+      if (input$use_SSB) {
         p <- addSpecies(p, p_old@species_params[sp, ],
                         effort = effort,
-                        rfac=Inf, SSB=input$SSB)
+                        rfac = Inf, SSB = input$SSB)
       } else {
         p <- addSpecies(p, p_old@species_params[sp, ],
                         effort = effort,
-                        rfac=Inf)    
+                        rfac = Inf)    
       }
     }
     
     # Run to steady state
-    p <- steady(p, effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, sigmoid_gear_Anchovy = input$Anchovy_effort), 
+    p <- steady(p, effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
+                              sigmoid_gear_Anchovy = input$Anchovy_effort), 
                 t_max = 100, tol = 1e-2,
                 shiny_progress = progress)
     # Update the reactive params object
     params(p)
-  })
-  
-  # Run a simulation
-  sim <- reactive({
-    
-    # Create a Progress object
-    progress <- shiny::Progress$new(session)
-    on.exit(progress$close())
-    
-    project(params(), t_max = 15, t_save = 0.1, 
-            effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
-                       sigmoid_gear_Anchovy = input$Anchovy_effort), 
-            shiny_progress = progress)
-  })
-  
-  # Run a simulation with homogenous fishing efforts
-  sim_new <- reactive({
-    
-    # Create a Progress object
-    progress <- shiny::Progress$new(session)
-    on.exit(progress$close())
-    
-    project(params(), t_max = 15, t_save = 0.1, 
-            effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
-                       sigmoid_gear_Anchovy = input$new_Anchovy_effort), 
-            shiny_progress = progress)
   })
   
   output$plotGrowthCurve <- renderPlot({
@@ -242,98 +219,7 @@ server <- function(input, output, session) {
   })
   
   output$plotSpectra <- renderPlot({
-    plotSpectra(params(), total=TRUE)
-  })
-  
-  output$plotBiomass <- renderPlot({
-    plotBiomass(sim())
-  })
-  
-  SSB_table <- function(sim){
-    no_sp <- dim(sim@params@psi)[1]
-    trueres <- matrix(0,nrow = no_sp,ncol=3)
-    for (i in (1:no_sp)){
-      trueres[i,3] <- sum(sim@n[dim(sim@n)[1],i,] *sim@params@w * sim@params@dw * sim@params@psi[i, ])
-    }
-    trueres[,1] <- names(sim@params@psi[,1])
-    trueres[,2] <- sim@params@species_params$SSB
-    colnames(trueres) <- c("Species","Target SSB","Final SSB")
-    rownames(trueres) <- names(sim@params@psi[,1])
-    return(trueres)
-  }
-  output$printSSB <-  renderTable({SSB_table(sim())})
-  output$plotSSB <- renderPlot({
-    #b_new <- getSSB(sim_new())[, "Anchovy"]
-    #b <- getSSB(sim())[, "Anchovy"]
-    #plot((1:length(b_new))/10, b_new, sub="solid => Anchovy under old effort, dashed => Anchovy under new effort",xlab ="Time",
-    #      ylab="SSB",type="l",lty=2)
-    #lines((1:length(b))/10, b)
-    
-    # manual construction of SSB dataframe for ggplot (obselete, but I leave it i to remind)
-    #b <- getSSB(sim())[, "Anchovy"]
-    #b_new <- getSSB(sim_new())[, "Anchovy"]
-    #b_df <- data.frame(
-    #  #"Year" = rep((1:length(b))/10,2),
-    #  "Year" = rep(as.numeric(names(b)),2),
-    #  "Species" = rep(rep("Anchovy",length(b)),2),
-    #  "SSB" = c(b,b_new),
-    #  "Effort" = c(rep("Default",length(b)),rep("New",length(b)))
-    #)
-    
-    b <- getSSBFrame(sim(), species="Anchovy")
-    b_new <- getSSBFrame(sim_new(), species="Anchovy")
-    b$Effort <- "Default"
-    b_new$Effort <- "New"
-    b_df <- rbind(b, b_new)
-    
-    
-    ggplot(b_df) + 
-      geom_line(aes(x = Year, y = SSB, colour = Species, linetype = Effort)) +
-      scale_y_continuous(name="SSB [tonnes]", limits = c(0, NA)) +
-      #  scale_colour_manual(values = params()@linecolour) +
-      scale_linetype_manual(values = c("New" = "solid", "Default" = "dotted")) +
-      theme(text = element_text(size = 18))
-  })
-  
-  output$plotBiomasscomp <- renderPlot({
-    ss <- sim()
-    b <- getBiomassFrame(ss, species=ss@params@species_params$species[!is.na(ss@params@A)])
-    b_new <- getBiomassFrame(sim_new(), species=ss@params@species_params$species[!is.na(ss@params@A)])
-    b$Effort <- "Default"
-    b_new$Effort <- "New"
-    b_df <- rbind(b, b_new)
-    ggplot(b_df) + 
-      geom_line(aes(x = Year, y = Biomass, colour = Species, linetype = Effort)) +
-      scale_y_continuous(name="Biomass [tonnes]", limits = c(0, NA)) +
-      scale_colour_manual(values = params()@linecolour) +
-      scale_linetype_manual(values = c("New" = "solid", "Default" = "dotted")) +
-      theme(text = element_text(size = 18))
-  })
-  
-  #ggplot(data.frame(x=1:3,y=c(2,3,9),z=6:8), aes(x=x,y=y))+geom_col(aes(x=x,y=y),color="RED")+geom_col(aes(x=x,y=z,width=0.5))
-  #ggplot(data.frame(x=1:3,y=c(2,3,9),z=6:8), aes(x=x,y=y))+geom_col(aes(x=x-0.25,y=y),color="RED",width = 0.25)+geom_col(aes(x=x+0.25,y=z,width=0.25),color="BLUE")
-  
-  
-  SSB_frame <- function(sim){
-    no_sp <- dim(sim@params@psi)[1]
-    trueres <- matrix(0,nrow = no_sp,ncol=3)
-    for (i in (1:no_sp)){
-      trueres[i,3] <- sum(sim@n[dim(sim@n)[1],i,] *sim@params@w * sim@params@dw * sim@params@psi[i, ])
-    }
-    trueres[,1] <- names(sim@params@psi[,1])
-    trueres[,2] <- sim@params@species_params$SSB
-    colnames(trueres) <- c("Species","Target SSB","Final SSB")
-    rownames(trueres) <- names(sim@params@psi[,1])
-    X <- data.frame(species = sim@params@species_params$species, observed_SSB = trueres[,2], model_SSB = trueres[,3])
-    return(X)
-  }
-  
-  
-  output$plot_SSB_ob <- renderPlot({
-    ggplot(SSB_frame(sim()))+geom_col(aes(x=species,y=observed_SSB),color="RED")+geom_col(aes(x=species,y=model_SSB,width=0.5),color="BLUE")
-    #ggplot(data.frame(x=1:3,y=c(2,3,9),z=6:8), aes(x=x,y=y))+geom_col(aes(x=x,y=y),color="RED")+geom_col(aes(x=x,y=z,width=0.5))
-    #ggplot(data.frame(x=1:3,y=c(2,3,9),z=6:8), aes(x=x,y=y))+geom_col(aes(x=x-0.25,y=y),color="RED",width = 0.25)+geom_col(aes(x=x+0.25,y=z,width=0.25),color="BLUE")
-    
+    plotSpectra(params(), total = TRUE)
   })
   
   output$plot_erepro <- renderPlot({
@@ -373,31 +259,18 @@ ui <- fluidPage(
                               value=1e-12,  step=1e-13),
                  checkboxInput("use_SSB", "Use target SSB", value = FALSE)
         ),
-        tabPanel("Fishing",
-                 sliderInput("effort", "General Effort",
-                             value=1.4, min=0.3, max=2),
-                 sliderInput("Anchovy_effort", "Anchovy Effort",
-                             value=1.1, min=0.3, max=2),
-                 sliderInput("new_Anchovy_effort", "New Anchovy Effort",
-                             value=1.1, min=0.3, max=2)
-        ),
         tabPanel("File",
                  downloadButton("params", "Download current params object"),
-                 fileInput("upload", "Upload new params object")
+                 fileInput("upload", "Upload new params object", accept = ".rds")
         )
       )
     ),  # endsidebarpanel
     
     mainPanel(
       plotOutput("plot_erepro", height = "150px"),
-      plotOutput("plot_SSB_ob", height = "150px"),
       tabsetPanel(type = "tabs",
                   tabPanel("Spectra", plotOutput("plotSpectra")),
-                  tabPanel("Growth", plotOutput("plotGrowthCurve")),
-                  tabPanel("Biomass", plotOutput("plotBiomass")),
-                  tabPanel("Biomass (perturbed)", plotOutput("plotBiomasscomp")),
-                  tabPanel("SSB Anchovy", plotOutput("plotSSB")),
-                  tabPanel("SSB targets", tableOutput("printSSB"))
+                  tabPanel("Growth", plotOutput("plotGrowthCurve"))
       )
     )  # end mainpanel
   )  # end sidebarlayout

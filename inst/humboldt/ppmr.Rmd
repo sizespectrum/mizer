@@ -6,7 +6,7 @@ output: html_notebook
 Mariella has data of stomach content for anchovy and sardine.
 Let's load it
 
-```{r message=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -80,7 +80,6 @@ of $\beta$.
 ```{r}
 lambda <- 2
 
-library(dplyr)
 moments <- ppmr %>%
     summarise(totalNprey = sum(Nprey),
               mean = sum(log(wprey) * Nprey) / sum(Nprey), 

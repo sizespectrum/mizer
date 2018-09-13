@@ -2,54 +2,45 @@
 params_data <- read.csv("speciesNCME_Mariella.csv")
 
 # Set some general parameters
-effort <- 1.4
 lambda <- 2.12  # Exponent of community power law
+effort <- 1.4
 
 # What Mariella calls sigma in this file is the exponential
 # of the standard deviation in the log of the observed predator/prey ratio
 # observed in stomach data. We convert that to mizer's sigma:
-params_data$sigma_mizer <- log(params_data$sigma)
+params_data$sigma <- log(params_data$sigma)
 
 # What Mariella calls beta in this file is the exponential
 # of the mean of the log of the observed predator/prey ratio 
 # observed in stomach data. We convert that to mizer's beta:
-params_data$beta_mizer <- params_data$beta * 
-    exp(-params_data$sigma_mizer^2 * (lambda - 1))
+# params_data$beta <- params_data$beta * 
+#     exp(-params_data$sigma_mizer^2 * (lambda - 4/3))
 
 
 # Fishing selectivity parameters are missing from data frame
 params_data$l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
 params_data$l50 <-  c(1.1e+29,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
 
-min_egg <- min(params_data$Wegg)
-
-# Use the mesopelagic as a template for the background species
-mesopelagic <- which(params_data$species == "Mesopelagic")
-beta <- params_data$beta[mesopelagic]
-sigma <- log(params_data$sigma[mesopelagic])
-# the smallest background species must have egg size min_egg
-# so to get the maturity and maximum size of this smallest background
-# species we need to rescale those of the mesopelagics by a factor
-back_scale <- min_egg / params_data$Wegg[mesopelagic]
-min_w_inf <- params_data$w_inf[mesopelagic] * back_scale
-min_w_mat <- params_data$w_mat[mesopelagic] * back_scale
-# Can now remove the mesopelagics from the dataframe
+# Remove the mesopelagics from the dataframe because we model them via the
+# background species
 params_data <- subset(params_data, params_data$species != "Mesopelagic")
 
 # Spread the background species over the entire range up to the largest fish
+min_egg <- min(params_data$Wegg)
 max_w_inf <- max(params_data$w_inf)
 
 # We need to give even the smallest individuals a full range of planktonic prey
 min_w_pp = min(params_data$Wegg /
-                   (params_data$beta_mizer * 3 * exp(params_data$sigma_mizer)))
+                   (params_data$beta * exp(3 * params_data$sigma)))
 
 p <- setBackground(
     set_scaling_model(min_w_pp = 1e-12,
-        no_sp = 10, no_w = 400, min_w_inf = min_w_inf, max_w_inf = max_w_inf,
-        min_egg = min_egg, min_w_mat = min_w_mat, 
-        lambda = lambda, beta = beta, sigma = sigma,
+        no_sp = 10, no_w = 400, min_w_inf = 2, max_w_inf = max_w_inf,
+        min_egg = min_egg, min_w_mat = 2 / 10^0.8, 
+        lambda = lambda, beta = 500, sigma = 2,
         knife_edge_size = Inf)
 )
+plotSpectra(p)
 
 
 all_efforts <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, 
@@ -68,8 +59,8 @@ for (i in (1:no_sp)) {
         w_min = params_data$Wegg[i],
         w_inf = params_data$w_inf[i],
         w_mat = params_data$w_mat[i],
-        beta = params_data$beta_mizer[i],
-        sigma = params_data$sigma_mizer[i],
+        beta = params_data$beta[i],
+        sigma = params_data$sigma[i],
         z0 = 0,
         alpha = 0.6,
         erepro = 0.1, # unknown, determined later
@@ -85,25 +76,24 @@ for (i in (1:no_sp)) {
 
     p <- addSpecies(p, species_params, effort = effort, rfac = Inf)
 }
+plotSpectra(p)
 
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 500,  tol = 1e-3)
+plotSpectra(p)
 # Check that this worked
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plotBiomass(sim)
-plotSpectra(p)
-# investigate how close to a power law the steady state is
-plot(p@w,colSums(p@initial_n)+p@initial_n_pp[p@w_full>=min(p@w)],log="xy",type="l")
-lines(p@w,p@kappa*p@w^(-p@lambda),col="red")
 
 # Save params object
 humboldt_params <- p
-save(humboldt_params, file = "humboldt_params.rda")
+save(humboldt_params, file = "data/humboldt_params.rda")
+saveRDS(humboldt_params, file = "humboldt_params.rds")
 
 ###############
 
-load("humboldt_params.rda")
-p <- humboldt_params
+p <- readRDS("humboldt_params.rds")
+class(p)
 
 effort <- 1.4
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
