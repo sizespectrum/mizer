@@ -704,7 +704,7 @@ multispeciesParams <- function(object, interaction,
     
     ## Start filling the slots ---------------------------------------------
     res@species_params <- object
-    res@w_min_idx <- as.vector(
+    res@w_min_idx[] <- as.vector(
         tapply(object$w_min, 1:length(object$w_min),
                function(w_min, wx) max(which(wx <= w_min)), wx = res@w))
     # Check dims of interaction argument - make sure it's right

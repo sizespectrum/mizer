@@ -86,6 +86,7 @@ test_that("w_min_idx is being set correctly",{
     NS_species_params_gears$w_min[7] <- 10
     params <- MizerParams(NS_species_params_gears, inter)
     expect_that(all(params@w_min_idx[c(1:6,8:12)] == 1), is_true())
-    expect_that(params@w_min_idx[7], equals(max(which(params@w <= 10))))
+    expect_equal(params@w_min_idx[7], max(which(params@w <= 10)), 
+                 check.names = FALSE)
     expect_error(MizerParams(NS_species_params_gears,inter, min_w = 1))
 })
