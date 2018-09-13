@@ -7,11 +7,12 @@ library(ggplot2)
 library(progress)
 
 server <- function(input, output, session) {
+  effort <- 1.4
   
-  ## Load params object and store it as a reactive value
+  ## Load params object and store it as a reactive value ####
   params <- reactiveVal(readRDS("humboldt_params.rds"))
   
-  ## Handle params object uploaded by user
+  ## Handle params object uploaded by user ####
   observeEvent(input$upload, {
     inFile <- input$upload
     tryCatch(
@@ -25,14 +26,14 @@ server <- function(input, output, session) {
     params(p)
   })
   
-  ## Prepare for download of params object
+  ## Prepare for download of params object ####
   output$params <- downloadHandler(
     filename = "params.rds", 
     content = function(file) {
       saveRDS(params(), file = file)
     })
   
-  ## Create dynamic ui for species parameters
+  ## Create dynamic ui for species parameters ####
   output$sp_sel <- renderUI({
     p <- isolate(params())
     species <- as.character(p@species_params$species[!is.na(p@A)])
@@ -103,33 +104,28 @@ server <- function(input, output, session) {
     )
   })
   
-  # When a species parameter input is changed, only change that
-  # parameter value in the params object and run to steady state
-  # starting at previous steady state
-  observeEvent(input$sp_go, {
+  ## Handle species parameter change ####
+  observe({
     req(input$gamma, input$h)
-    
-    # Create a Progress object
-    progress <- shiny::Progress$new(session)
-    on.exit(progress$close())
+    p <- params()
+    sp <- isolate(input$sp_sel)
     
     # Create updated species params data frame
     species_params <- p@species_params
-    species_params[input$sp_sel, "gamma"] <- input$gamma
-    species_params[input$sp_sel, "h"]     <- input$h
-    species_params[input$sp_sel, "alpha"] <- input$alpha
-    species_params[input$sp_sel, "ks"]    <- input$ks
-    species_params[input$sp_sel, "beta"]  <- input$beta
-    species_params[input$sp_sel, "sigma"] <- input$sigma
-    species_params[input$sp_sel, "k_vb"]  <- input$k_vb
-    species_params[input$sp_sel, "a"]     <- input$a
-    species_params[input$sp_sel, "b"]     <- input$b
-    species_params[input$sp_sel, "l50"]   <- input$l50
-    species_params[input$sp_sel, "l25"]   <- input$l25
+    species_params[sp, "gamma"] <- input$gamma
+    species_params[sp, "h"]     <- input$h
+    species_params[sp, "alpha"] <- input$alpha
+    species_params[sp, "ks"]    <- input$ks
+    species_params[sp, "beta"]  <- input$beta
+    species_params[sp, "sigma"] <- input$sigma
+    species_params[sp, "k_vb"]  <- input$k_vb
+    species_params[sp, "a"]     <- input$a
+    species_params[sp, "b"]     <- input$b
+    species_params[sp, "l50"]   <- input$l50
+    species_params[sp, "l25"]   <- input$l25
     
     # Create new params object identical to old one except for changed 
-    # species params 
-    p <- params()
+    # species params
     pc <- MizerParams(
       species_params,
       p = p@p,
@@ -151,20 +147,55 @@ server <- function(input, output, session) {
     pc@sc <- p@sc
     pc@cc_pp <- p@cc_pp
     pc@mu_b <- p@mu_b
-    
     pc@initial_n <- p@initial_n
     pc@initial_n_pp <- p@initial_n_pp
     
+    # The spectrum for the changed species is calculated with new
+    # parameters but in the context of the original community
+    # Compute death rate for changed species
+    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)[sp, ]
+    # compute growth rate for changed species
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
+    # Compute solution for changed species
+    w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
+    names(p@w_min_idx) <- p@species_params$species  #TODO: remove this once naming issue is fixed centrally
+    idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
+    if (any(gg[idx] == 0)) {
+      stop("Can not compute steady state due to zero growth rates")
+    }
+    p@initial_n[sp, ] <- 0
+    p@initial_n[sp, p@w_min_idx[sp]:w_inf_idx] <- 
+      c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx + 1])))
+    if (any(is.infinite(p@initial_n))) {
+      stop("Candidate steady state holds infinities")
+    }
+    if (any(is.na(p@initial_n) || is.nan(p@initial_n))) {
+      stop("Candidate steady state holds none numeric values")
+    }
+    
+    # Update the reactive params object
+    params(pc)
+  })
+  
+  ## Find new steady state ####
+  # only when user presses "Go" button on "species" tab
+  observeEvent(input$sp_go, {
+    req(input$gamma, input$h)
+    
+    # Create a Progress object
+    progress <- shiny::Progress$new(session)
+    on.exit(progress$close())
+    
     # Run to steady state
-    pc <- steady(pc, effort = 1.4, t_max = 100, tol = 1e-2,
+    pc <- steady(p, effort = 1.4, t_max = 100, tol = 1e-2,
                  shiny_progress = progress)
     
     # Update the reactive params object
     params(pc)
   })
   
-  # If a general parameter changes the entire params object is recalculated
-  # from scratch
+  ## Reconstruct params object ####
+  # This is triggered by the "Go" button on the "General" tab
   observeEvent(input$bg_go, {
     
     # Create a Progress object
@@ -176,7 +207,7 @@ server <- function(input, output, session) {
     p <- setBackground(
       set_scaling_model(
         #min_w_pp = input$min_w_pp, no_sp = input$no_bg_sp, no_w = 400,
-        min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = 400,
+        min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = input$no_w,
         min_w_inf = 2, max_w_inf = 6e5,
         min_egg = 1e-4, min_w_mat = 2 / 10^0.6,
         lambda = input$lambda, knife_edge_size = Inf,
@@ -214,6 +245,7 @@ server <- function(input, output, session) {
     params(p)
   })
   
+  ## Create plots ####
   output$plotGrowthCurve <- renderPlot({
     plotGrowthCurves(params(), species = input$sp_sel)
   })
@@ -229,13 +261,14 @@ server <- function(input, output, session) {
   
 } #the server
 
-#### user interface
+#### User interface ####
 ui <- fluidPage(
   
   titlePanel("Humboldt current ecosystem"),
   
   sidebarLayout(
     
+    ## Sidebar ####
     sidebarPanel(
       tabsetPanel(
         tabPanel("Species",
@@ -255,6 +288,8 @@ ui <- fluidPage(
                              value=-1, min=-4, max=0),
                  sliderInput("no_bg_sp", "Number of background species",
                              value=10, min=4, max=20, step=1, round = TRUE),
+                 sliderInput("no_w", "Number of weight brackets",
+                             value=400, min=200, max=1200, step=50, round = TRUE),
                  numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
                               value=1e-12,  step=1e-13),
                  checkboxInput("use_SSB", "Use target SSB", value = FALSE)
@@ -266,6 +301,7 @@ ui <- fluidPage(
       )
     ),  # endsidebarpanel
     
+    ## Main panel ####
     mainPanel(
       plotOutput("plot_erepro", height = "150px"),
       tabsetPanel(type = "tabs",
