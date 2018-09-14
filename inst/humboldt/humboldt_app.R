@@ -123,13 +123,27 @@ server <- function(input, output, session) {
     )
   })
   
+  ## Adjust kappa ####
   observe({
     req(input$kappa)
     p <- params()
+    # We want a change in kappa to rescale all abundances by the same factor
     p@initial_n <- p@initial_n * input$kappa / p@kappa
     p@initial_n_pp <- p@initial_n_pp * input$kappa / p@kappa
     p@cc_pp <- p@cc_pp * input$kappa / p@kappa
+    # To keep the same per-capity behaviour, we have to scale down the
+    # search volume
+    p@species_params$gamma <- p@species_params$gamma / (input$kappa / p@kappa)
+    p@search_vol <- p@search_vol / (input$kappa / p@kappa)
     p@kappa <- input$kappa
+    params(p)
+  })
+  
+  ## Adjust k_vb ####
+  observe({
+    req(input$k_vb, input$sp_sel)
+    p <- params()
+    p@species_params[input$sp_sel, "k_vb"] <- input$k_vb
     params(p)
   })
   
@@ -341,6 +355,11 @@ server <- function(input, output, session) {
   })
   
   ## Growth curves ####
+  output$k_vb_sel <- renderUI({
+    req(input$sp_sel)
+    k_vb <- params()@species_params[input$sp_sel, "k_vb"]
+    numericInput("k_vb", "Von Bertalanffy k", value = k_vb)
+  })
   output$plotGrowthCurve <- renderPlot({
     plotGrowthCurves(params(), species = input$sp_sel)
   })
@@ -354,7 +373,8 @@ server <- function(input, output, session) {
   output$plot_erepro <- renderPlot({
     p <- params()
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
-      geom_col() + geom_hline(yintercept = 1, color = "red")
+      geom_col() + geom_hline(yintercept = 1, color = "red") +
+      scale_y_log10()
   })
   
   ## Biomass plot ####
@@ -362,18 +382,21 @@ server <- function(input, output, session) {
     kappa <- params()@kappa
     sliderInput("kappa", "kappa", value = kappa,
                 min = kappa / 10,
-                max = kappa * 10)
+                max = kappa * 10,
+                width = "80%")
   })
   output$biomass_sel <- renderUI({
     list(
-      numericInput("biomass_cutoff", "Minimum size",
-                  value = 1,
-                  min = 0.1,
-                  max = 100),
-      numericInput("biomass_observed", "Observed biomass",
-                  value = 0,
-                  min = 0,
-                  max = 100)
+      div(style = "display:inline-block",
+          numericInput("biomass_observed", "Observed biomass",
+                       value = 0,
+                       min = 0,
+                       max = 100)),
+      div(style = "display:inline-block",
+          numericInput("biomass_cutoff", "Lower cutoff",
+                       value = 1,
+                       min = 0.1,
+                       max = 100))
     )
   })
   output$plotBiomass <- renderPlot({
@@ -427,7 +450,8 @@ ui <- fluidPage(
                  tags$br(),
                  fileInput("upload", "Upload new params object", accept = ".rds")
         )
-      )
+      ),
+      width = 3
     ),  # endsidebarpanel
     
     ## Main panel ####
@@ -440,7 +464,8 @@ ui <- fluidPage(
                  plotOutput("plotBiomass"),
                  uiOutput("biomass_sel")),
         tabPanel("Growth",
-                 plotOutput("plotGrowthCurve")),
+                 plotOutput("plotGrowthCurve"),
+                 uiOutput("k_vb_sel")),
         tabPanel("Repro",
                  plotOutput("plot_erepro"))
       )
