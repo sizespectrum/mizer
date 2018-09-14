@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(plotly)
 # # Uncomment the following 3 lines before publishing the app
 # library(devtools)
 # install_github("gustavdelius/mizer", ref="humboldt")
@@ -13,17 +14,14 @@ server <- function(input, output, session) {
   params <- reactiveVal()
   params(readRDS("humboldt_params.rds"))
   
-  ## Handle params object uploaded by user ####
+  ## Handle upload of params object ####
   observeEvent(input$upload, {
     inFile <- input$upload
     tryCatch(
       p <- readRDS(inFile$datapath),
       error = function(e) {stop(safeError(e))}
     )
-    validate(
-      need(is(p, "MixerParams"),
-           "The file does not contain a mizer parameter object.")
-    )
+    # Update the reactive params object
     params(p)
   })
   
@@ -34,7 +32,7 @@ server <- function(input, output, session) {
       saveRDS(params(), file = file)
     })
   
-  ## Create dynamic ui for species parameters ####
+  ## UI for species parameters ####
   output$sp_sel <- renderUI({
     p <- isolate(params())
     species <- as.character(p@species_params$species[!is.na(p@A)])
@@ -42,46 +40,46 @@ server <- function(input, output, session) {
   })
   output$params_sliders <- renderUI({
     req(input$sp_sel)
-    sp <- params()@species_params[input$sp_sel, ]
+    p <- params()
+    sp <- p@species_params[input$sp_sel, ]
+    n0 <- p@initial_n[input$sp_sel, p@w_min_idx[input$sp_sel]]
     list(
-      # numericInput("rdd", "Reproductive rate",
-      #              value = sp$SSB,
-      #              min = 10^(-20),
-      #              max = 10^4, 
-      #              step = 10^(-5)),
-      numericInput("gamma", "Predation rate coefficient gamma",
-                   value = sp$gamma,
-                   min = sp$gamma/10,
-                   max = sp$gamma*2,
-                   step = 1),
-      numericInput("h", "max feeding rate h",
-                   value = sp$h,
-                   min = sp$h/10,
-                   max = sp$h*2),
-      numericInput("alpha", "Assimilation efficiency alpha",
-                   value = sp$alpha,
-                   min = 0,
-                   max = 1, step = 10^(-2)),
-      numericInput("ks", "Coefficient of standard metabolism ks",
-                   value = sp$ks,
-                   min = sp$ks/10,
-                   max = sp$ks*2, 
-                   step = 10^(-2)),
-      numericInput("beta", "Preferred predator-prey mass ratio beta",
-                   value = sp$beta,
-                   min = 1.01,
-                   max = sp$beta*100, 
-                   step = 10^(-2)),
-      numericInput("sigma", "Width of size selection function sigma",
-                   value = sp$sigma,
-                   min = sp$sigma/10,
-                   max = sp$sigma*100, 
-                   step = 10^(-2)),
-      numericInput("k_vb", "von Bertalanffy parameter k_vb",
-                   value = sp$k_vb,
-                   min = sp$k_vb/10,
-                   max = sp$k_vb*100, 
-                   step = 10^(-2)),
+      sliderInput("n0", "Egg density",
+                  value = n0,
+                  min = round(n0/10),
+                  max = round(n0*10)),
+      sliderInput("gamma", "Predation rate coefficient gamma",
+                  value = sp$gamma,
+                  min = round(sp$gamma/2),
+                  max = round(sp$gamma*2)),
+      sliderInput("h", "max feeding rate h",
+                  value = sp$h,
+                  min = round(sp$h/2),
+                  max = round(sp$h*2)),
+      sliderInput("alpha", "Assimilation efficiency alpha",
+                  value = sp$alpha,
+                  min = 0,
+                  max = 1),
+      sliderInput("ks", "Coefficient of standard metabolism ks",
+                  value = sp$ks,
+                  min = signif(sp$ks/2, 2),
+                  max = signif(sp$ks*2, 2),
+                  step = 0.05),
+      sliderInput("beta", "Preferred predator-prey mass ratio beta",
+                  value = round(sp$beta),
+                  min = round(sp$beta/10),
+                  max = round(sp$beta*10),
+                  step = 1),
+      sliderInput("sigma", "Width of size selection function sigma",
+                  value = sp$sigma,
+                  min = round(sp$sigma/2),
+                  max = round(sp$sigma*2),
+                  step = 0.05),
+      sliderInput("k_vb", "von Bertalanffy parameter k_vb",
+                  value = sp$k_vb,
+                  min = round(sp$k_vb/2),
+                  max = sp$k_vb*100, 
+                  step = 0.05),
       numericInput("a", "Coefficient for length to weight conversion a",
                    value = sp$a,
                    min = sp$a/10,
@@ -105,6 +103,31 @@ server <- function(input, output, session) {
     )
   })
   
+  ## UI for general parameters ####
+
+  output$general_params <- renderUI({
+    p <- params()
+    i_bkgd <- which.max(is.na(p@A))
+    bkgd_params <- p@species_params[i_bkgd, ]
+    
+    list(
+      numericInput("lambda", "Sheldon exponent",
+                   value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
+      sliderInput("f0", "Feeding level",
+                  value = p@f0, min = 0, max = 1),
+      sliderInput("h_bkgd", "max feeding rate",
+                  value = bkgd_params$h, min = 10, max = 100, step = 2),
+      sliderInput("log_r_pp", "log10 Plankton replenishment rate",
+                  value = -1, min = -4, max = 0),
+      sliderInput("no_bg_sp", "Number of background species",
+                  value = 10, min = 4, max = 20, step = 1, round = TRUE),
+      sliderInput("no_w", "Number of weight brackets",
+                  value = 400, min = 200, max = 1200, step = 50, round = TRUE),
+      numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
+                   value = 1e-12,  step = 1e-13)
+    )
+  })
+  
   ## Handle species parameter change ####
   # observe({
   #   req(input$gamma, input$h)
@@ -114,9 +137,13 @@ server <- function(input, output, session) {
   # observer does not work yet because it gets triggered also by the
   # rewriting of the input controls upon change of target species.
   # So for now require "Go" button.
-  observeEvent(input$sp_go, {
+  observeEvent(input$sp_set, {
     p <- params()
     sp <- input$sp_sel
+    
+    # rescale abundance to new egg density
+    p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
+      p@initial_n[sp, p@w_min_idx[sp]]
 
     # Create updated species params data frame
     species_params <- p@species_params
@@ -182,6 +209,17 @@ server <- function(input, output, session) {
     if (any(is.na(pc@initial_n) || is.nan(pc@initial_n))) {
       stop("Candidate steady state holds none numeric values")
     }
+    
+    
+    # Retune the value of erepro so that we get the correct level of
+    # recruitment
+    i <- which(pc@species_params$species == sp)
+    rdd <- getRDD(pc, pc@initial_n, pc@initial_n_pp)[i]
+    gg0 <- gg[pc@w_min_idx[i]]
+    mumu0 <- mumu[pc@w_min_idx[i]]
+    DW <- pc@dw[pc@w_min_idx[i]]
+    pc@species_params$erepro[i] <- pc@species_params$erepro[i] *
+      n0 * (gg0 + DW * mumu0) / rdd
 
     # Update the reactive params object
     params(pc)
@@ -189,8 +227,8 @@ server <- function(input, output, session) {
 
   
   ## Recompute all species ####
-  # triggered by "Multi" button on "Species" tab
-  observeEvent(input$sp_multi, {
+  # triggered by "Interact" button on "Species" tab
+  observeEvent(input$sp_interact, {
     p <- params()
     
     # Recompute plankton
@@ -211,7 +249,23 @@ server <- function(input, output, session) {
       p@initial_n[sp, p@w_min_idx[sp]:w_inf_idx] <- 
         c(1, cumprod(gg[sp, idx] / ((gg[sp, ] + mumu[sp, ] * p@dw)[idx + 1]))) *
         n0
-    }    
+    }
+    
+    # Retune the values of erepro so that we get the correct level of
+    # recruitment
+    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+    # TODO: vectorise this
+    for (i in (1:length(p@species_params$species))) {
+      gg0 <- gg[i, p@w_min_idx[i]]
+      mumu0 <- mumu[i, p@w_min_idx[i]]
+      DW <- p@dw[p@w_min_idx[i]]
+      p@species_params$erepro[i] <- p@species_params$erepro[i] *
+        p@initial_n[i, p@w_min_idx[i]] *
+           (gg0 + DW * mumu0) / rdd[i]
+    }
+    
     # Update the reactive params object
     params(p)
   })
@@ -246,41 +300,37 @@ server <- function(input, output, session) {
     
     p <- setBackground(
       set_scaling_model(
-        #min_w_pp = input$min_w_pp, no_sp = input$no_bg_sp, no_w = 400,
-        min_w_pp = 1e-12, no_sp = input$no_bg_sp, no_w = input$no_w,
-        min_w_inf = 2, max_w_inf = 6e5,
-        min_egg = 1e-4, min_w_mat = 2 / 10^0.6,
+        min_w_pp = input$min_w_pp, 
+        no_sp = input$no_bg_sp, no_w = input$no_w,
+        min_w_inf = 2, max_w_inf = 6e6,
+        min_egg = 1e-4, min_w_mat = 2 / 10^0.8,
         lambda = input$lambda, knife_edge_size = Inf,
+        beta = 500, sigma = 2,
         f0 = input$f0, h = input$h_bkgd, r_pp = 10^input$log_r_pp
       )
     )
+    
     # Loop over all foreground species and add them one-by-one to the new
     # background
-    effort <- 0
-    names(effort) <- "knife_edge_gear"
-    all_efforts <- c(0, input$effort, input$Anchovy_effort)
-    names(all_efforts) <- c("knife_edge_gear", "sigmoid_gear", "sigmoid_gear_Anchovy")
+    gears <- "knife_edge"
     no_sp <- length(p_old@A)
     for (sp in (1:no_sp)[!is.na(p_old@A)]) {
-      if (!(p_old@species_params[sp, "gear"] %in% names(effort))) {
-        effort <- c(effort, all_efforts[p_old@species_params[sp, "gear"]])
-      }
-      if (input$use_SSB) {
-        p <- addSpecies(p, p_old@species_params[sp, ],
-                        effort = effort,
-                        rfac = Inf, SSB = input$SSB)
+      if (p_old@species_params$species[sp] == "Anchovy") {
+        gear <- "sigmoid_gear_Anchovy"
       } else {
-        p <- addSpecies(p, p_old@species_params[sp, ],
+        gear <- "sigmoid_gear"
+      }
+      gears <- union(gears, gear)
+      p <- addSpecies(p, p_old@species_params[sp, ],
                         effort = effort,
                         rfac = Inf)    
-      }
     }
     
     # Run to steady state
-    p <- steady(p, effort = c(knife_edge_gear = 0, sigmoid_gear = input$effort, 
-                              sigmoid_gear_Anchovy = input$Anchovy_effort), 
+    p <- steady(p, effort = effort, 
                 t_max = 100, tol = 1e-2,
                 shiny_progress = progress)
+    
     # Update the reactive params object
     params(p)
   })
@@ -294,22 +344,8 @@ server <- function(input, output, session) {
     plotSpectra(params())
   })
   
-  output$plot_erepro <- renderPlot({
+  output$plot_erepro <- renderPlotly({
     p <- params()
-    # Retune the values of erepro so that we get the correct level of
-    # recruitment
-    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
-    # TODO: vectorise this
-    for (i in (1:length(p@species_params$species))) {
-      gg0 <- gg[i, p@w_min_idx[i]]
-      mumu0 <- mumu[i, p@w_min_idx[i]]
-      DW <- p@dw[p@w_min_idx[i]]
-      p@species_params$erepro[i] <- p@species_params$erepro[i] *
-        (p@initial_n[i, p@w_min_idx[i]] *
-           (gg0 + DW * mumu0)) / rdd[i]
-    }
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red")
   })
@@ -327,32 +363,22 @@ ui <- fluidPage(
     sidebarPanel(
       tabsetPanel(
         tabPanel("Species",
-                 uiOutput("sp_sel"),
-                 actionButton("sp_go", "Go"),
-                 actionButton("sp_multi", "Multi"),
+                 tags$br(),
+                 actionButton("sp_set", "Set"),
+                 actionButton("sp_interact", "Interact"),
                  actionButton("sp_steady", "Steady"),
+                 uiOutput("sp_sel"),
                  uiOutput("params_sliders")
         ),
         tabPanel("General",
+                 tags$br(),
                  actionButton("bg_go", "Go"),
-                 numericInput("lambda", "Sheldon exponent",
-                              value=2.12, min=1.9, max=2.2, step=0.005),
-                 sliderInput("f0", "Feeding level",
-                             value=0.6, min=0, max=1),
-                 sliderInput("h_bkgd", "max feeding rate",
-                             value=30, min=10, max=100, step=2),
-                 sliderInput("log_r_pp", "log10 Plankton replenishment rate",
-                             value=-1, min=-4, max=0),
-                 sliderInput("no_bg_sp", "Number of background species",
-                             value=10, min=4, max=20, step=1, round = TRUE),
-                 sliderInput("no_w", "Number of weight brackets",
-                             value=400, min=200, max=1200, step=50, round = TRUE),
-                 numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
-                              value=1e-12,  step=1e-13),
-                 checkboxInput("use_SSB", "Use target SSB", value = FALSE)
+                 uiOutput("general_params")
         ),
         tabPanel("File",
+                 tags$br(),
                  downloadButton("params", "Download current params object"),
+                 tags$br(),
                  fileInput("upload", "Upload new params object", accept = ".rds")
         )
       )
