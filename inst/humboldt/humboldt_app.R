@@ -46,16 +46,16 @@ server <- function(input, output, session) {
     list(
       sliderInput("n0", "Egg density",
                   value = n0,
-                  min = round(n0/10),
-                  max = round(n0*10)),
+                  min = signif(n0/10, 3),
+                  max = signif(n0*10, 3)),
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
-                  min = round(sp$gamma/2),
-                  max = round(sp$gamma*2)),
+                  min = signif(sp$gamma/2, 3),
+                  max = signif(sp$gamma*2, 3)),
       sliderInput("h", "max feeding rate h",
                   value = sp$h,
-                  min = round(sp$h/2),
-                  max = round(sp$h*2)),
+                  min = signif(sp$h/2, 2),
+                  max = signif(sp$h*2, 2)),
       sliderInput("alpha", "Assimilation efficiency alpha",
                   value = sp$alpha,
                   min = 0,
@@ -172,7 +172,6 @@ server <- function(input, output, session) {
     species_params[sp, "ks"]    <- input$ks
     species_params[sp, "beta"]  <- input$beta
     species_params[sp, "sigma"] <- input$sigma
-    species_params[sp, "k_vb"]  <- input$k_vb
     species_params[sp, "a"]     <- input$a
     species_params[sp, "b"]     <- input$b
     species_params[sp, "l50"]   <- input$l50
@@ -386,17 +385,15 @@ server <- function(input, output, session) {
                 width = "80%")
   })
   output$biomass_sel <- renderUI({
+    sp <- input$sp_sel
+    species_params <- params()@species_params[sp, ]
     list(
       div(style = "display:inline-block",
           numericInput("biomass_observed", "Observed biomass",
-                       value = 0,
-                       min = 0,
-                       max = 100)),
+                       value = species_params$biomass_observed)),
       div(style = "display:inline-block",
           numericInput("biomass_cutoff", "Lower cutoff",
-                       value = 1,
-                       min = 0.1,
-                       max = 100))
+                       value = species_params$biomass_cutoff))
     )
   })
   output$plotBiomass <- renderPlot({

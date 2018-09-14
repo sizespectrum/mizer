@@ -1,5 +1,41 @@
 # Load Mariella's species parameters
-params_data <- read.csv("speciesNCME_Mariella.csv")
+library(readr)
+params_data <- read_csv("speciesNCME_Mariella.csv",
+                        col_types = cols(
+                            X1 = col_integer(),
+                            species = col_character(),
+                            Linf = col_double(),
+                            Lmat = col_double(),
+                            a2 = col_double(),
+                            b2 = col_double(),
+                            w_inf = col_double(),
+                            w_mat = col_double(),
+                            Wegg = col_double(),
+                            k_vb = col_double(),
+                            log10_beta = col_double(),
+                            log10_sigma = col_double(),
+                            beta = col_double(),
+                            sigma = col_double(),
+                            a1_maturity = col_double(),
+                            b1_maturity = col_double(),
+                            `Ni0 (egg/m3)` = col_double(),
+                            `Fishery Gear` = col_character(),
+                            `w_start_Fishery (cm)` = col_double(),
+                            `w_L50%` = col_double(),
+                            Fmort = col_double(),
+                            obsCatch_tonnes = col_double(),
+                            TotBiom_tonnes = col_double(),
+                            w_TB_start = col_double(),
+                            SSB_tonnes = col_double(),
+                            w_SSB_start_g = col_double(),
+                            eRepro = col_double(),
+                            N0 = col_double(),
+                            to = col_double(),
+                            us_prey = col_double(),
+                            ls_prey = col_double(),
+                            to_corr = col_double(),
+                            r_max_guess = col_double()
+                        ))
 
 # Set some general parameters
 lambda <- 2.12  # Exponent of community power law
@@ -43,8 +79,6 @@ p <- setBackground(
 plotSpectra(p)
 
 
-all_efforts <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, 
-                    sigmoid_gear_Anchovy = 1.1)
 gears <- "knife_edge"
 no_sp <- dim(params_data)[1]
 for (i in (1:no_sp)) {
@@ -71,7 +105,9 @@ for (i in (1:no_sp)) {
         k = 0,
         k_vb = params_data$k_vb[i],
         a = params_data$a2[i],
-        b = params_data$b2[i]
+        b = params_data$b2[i],
+        biomass_observed = params_data$TotBiom_tonnes[i] * 1e-6,
+        biomass_cutoff = params_data$w_TB_start[i]
     )
 
     p <- addSpecies(p, species_params, effort = effort, rfac = Inf)
@@ -81,6 +117,22 @@ plotSpectra(p)
 # Run to steady state
 p <- steady(p, effort = effort, t_max = 500,  tol = 1e-3)
 plotSpectra(p)
+
+# rescale kappa so that first species has desired abundance
+sp <- which.max(!is.na(p@A))
+biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
+cutoff_idx <- which.min(p@w <= p@species_params$biomass_cutoff[sp])
+scale <- p@species_params$biomass_observed[sp] / 
+    (max(biomass) - biomass[cutoff_idx])
+p@initial_n <- p@initial_n * scale
+p@initial_n_pp <- p@initial_n_pp * scale
+p@cc_pp <- p@cc_pp * scale
+# To keep the same per-capity behaviour, we have to scale down the
+# search volume
+p@species_params$gamma <- p@species_params$gamma / scale
+p@search_vol <- p@search_vol / scale
+p@kappa <- p@kappa * scale
+
 # Check that this worked
 sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plotBiomass(sim)
