@@ -10,7 +10,8 @@ server <- function(input, output, session) {
   effort <- 1.4
   
   ## Load params object and store it as a reactive value ####
-  params <- reactiveVal(readRDS("humboldt_params.rds"))
+  params <- reactiveVal()
+  params(readRDS("humboldt_params.rds"))
   
   ## Handle params object uploaded by user ####
   observeEvent(input$upload, {
@@ -105,11 +106,18 @@ server <- function(input, output, session) {
   })
   
   ## Handle species parameter change ####
-  observe({
-    req(input$gamma, input$h)
+  # observe({
+  #   req(input$gamma, input$h)
+  #   p <- isolate(params())
+  #   sp <- isolate(input$sp_sel)
+  # The version where a change in parameter automatically triggers this
+  # observer does not work yet because it gets triggered also by the
+  # rewriting of the input controls upon change of target species.
+  # So for now require "Go" button.
+  observeEvent(input$sp_go, {
     p <- params()
-    sp <- isolate(input$sp_sel)
-    
+    sp <- input$sp_sel
+
     # Create updated species params data frame
     species_params <- p@species_params
     species_params[sp, "gamma"] <- input$gamma
@@ -123,8 +131,8 @@ server <- function(input, output, session) {
     species_params[sp, "b"]     <- input$b
     species_params[sp, "l50"]   <- input$l50
     species_params[sp, "l25"]   <- input$l25
-    
-    # Create new params object identical to old one except for changed 
+
+    # Create new params object identical to old one except for changed
     # species params
     pc <- MizerParams(
       species_params,
@@ -149,49 +157,81 @@ server <- function(input, output, session) {
     pc@mu_b <- p@mu_b
     pc@initial_n <- p@initial_n
     pc@initial_n_pp <- p@initial_n_pp
-    
+
     # The spectrum for the changed species is calculated with new
     # parameters but in the context of the original community
     # Compute death rate for changed species
-    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)[sp, ]
+    mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = effort)[sp, ]
     # compute growth rate for changed species
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
+    gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
     # Compute solution for changed species
-    w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
-    names(p@w_min_idx) <- p@species_params$species  #TODO: remove this once naming issue is fixed centrally
+    w_inf_idx <- sum(pc@w < pc@species_params[sp, "w_inf"])
     idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
-    if (any(gg[idx] == 0)) {
-      stop("Can not compute steady state due to zero growth rates")
-    }
-    p@initial_n[sp, ] <- 0
-    p@initial_n[sp, p@w_min_idx[sp]:w_inf_idx] <- 
-      c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx + 1])))
-    if (any(is.infinite(p@initial_n))) {
+    validate(
+      need(!any(gg[idx] == 0),
+           "Can not compute steady state due to zero growth rates")
+    )
+    n0 <- p@initial_n[sp, p@w_min_idx[sp]]
+    pc@initial_n[sp, ] <- 0
+    pc@initial_n[sp, pc@w_min_idx[sp]:w_inf_idx] <-
+      c(1, cumprod(gg[idx] / ((gg + mumu * pc@dw)[idx + 1]))) *
+      n0
+    if (any(is.infinite(pc@initial_n))) {
       stop("Candidate steady state holds infinities")
     }
-    if (any(is.na(p@initial_n) || is.nan(p@initial_n))) {
+    if (any(is.na(pc@initial_n) || is.nan(pc@initial_n))) {
       stop("Candidate steady state holds none numeric values")
     }
-    
+
     # Update the reactive params object
     params(pc)
   })
+
   
+  ## Recompute all species ####
+  # triggered by "Multi" button on "Species" tab
+  observeEvent(input$sp_multi, {
+    p <- params()
+    
+    # Recompute plankton
+    plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
+    p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
+    # Recompute all species
+    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+    for (sp in 1:length(p@species_params$species)) {
+      w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
+      idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
+      validate(
+        need(!any(gg[sp, idx] == 0),
+             "Can not compute steady state due to zero growth rates")
+      )
+      n0 <- p@initial_n[sp, p@w_min_idx[sp]]
+      p@initial_n[sp, ] <- 0
+      p@initial_n[sp, p@w_min_idx[sp]:w_inf_idx] <- 
+        c(1, cumprod(gg[sp, idx] / ((gg[sp, ] + mumu[sp, ] * p@dw)[idx + 1]))) *
+        n0
+    }    
+    # Update the reactive params object
+    params(p)
+  })
+    
+    
   ## Find new steady state ####
-  # only when user presses "Go" button on "species" tab
-  observeEvent(input$sp_go, {
-    req(input$gamma, input$h)
+  # triggered by "Steady" button on "species" tab
+  observeEvent(input$sp_steady, {
+    p <- params()
     
     # Create a Progress object
     progress <- shiny::Progress$new(session)
     on.exit(progress$close())
     
     # Run to steady state
-    pc <- steady(p, effort = 1.4, t_max = 100, tol = 1e-2,
+    p <- steady(p, effort = 1.4, t_max = 100, tol = 1e-2,
                  shiny_progress = progress)
     
     # Update the reactive params object
-    params(pc)
+    params(p)
   })
   
   ## Reconstruct params object ####
@@ -251,12 +291,27 @@ server <- function(input, output, session) {
   })
   
   output$plotSpectra <- renderPlot({
-    plotSpectra(params(), total = TRUE)
+    plotSpectra(params())
   })
   
   output$plot_erepro <- renderPlot({
-    ggplot(params()@species_params, aes(x = species, y = erepro)) + 
-      geom_col() + geom_hline(yintercept = 1, color="red")
+    p <- params()
+    # Retune the values of erepro so that we get the correct level of
+    # recruitment
+    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
+    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+    # TODO: vectorise this
+    for (i in (1:length(p@species_params$species))) {
+      gg0 <- gg[i, p@w_min_idx[i]]
+      mumu0 <- mumu[i, p@w_min_idx[i]]
+      DW <- p@dw[p@w_min_idx[i]]
+      p@species_params$erepro[i] <- p@species_params$erepro[i] *
+        (p@initial_n[i, p@w_min_idx[i]] *
+           (gg0 + DW * mumu0)) / rdd[i]
+    }
+    ggplot(p@species_params, aes(x = species, y = erepro)) + 
+      geom_col() + geom_hline(yintercept = 1, color = "red")
   })
   
 } #the server
@@ -274,6 +329,8 @@ ui <- fluidPage(
         tabPanel("Species",
                  uiOutput("sp_sel"),
                  actionButton("sp_go", "Go"),
+                 actionButton("sp_multi", "Multi"),
+                 actionButton("sp_steady", "Steady"),
                  uiOutput("params_sliders")
         ),
         tabPanel("General",

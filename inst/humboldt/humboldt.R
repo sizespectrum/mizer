@@ -86,9 +86,7 @@ sim <- project(p, t_max = 15, t_save = 0.1, effort = effort)
 plotBiomass(sim)
 
 # Save params object
-humboldt_params <- p
-save(humboldt_params, file = "data/humboldt_params.rda")
-saveRDS(humboldt_params, file = "humboldt_params.rds")
+saveRDS(p, file = "humboldt_params.rds")
 
 ###############
 
@@ -103,17 +101,18 @@ p@species_params$erepro
 plotGrowthCurves(p, species = "Sardine")
 
 # Now change one of the parameters
+sp <- "Sardine"
 
 species_params <- p@species_params
 
-species_params["Sardine", "gamma"] <- 
-    species_params["Sardine", "gamma"] * 1.1
-species_params["JMackerel", "w_mat"] <-
-    species_params["JMackerel", "w_mat"] * 0.9
-species_params["JMackerel", "w_min"] <-
-    species_params["JMackerel", "w_min"] * 10
+species_params[sp, "gamma"] <- 
+    species_params[sp, "gamma"] * 2
+# species_params["JMackerel", "w_mat"] <-
+#     species_params["JMackerel", "w_mat"] * 0.9
+# species_params["JMackerel", "w_min"] <-
+#     species_params["JMackerel", "w_min"] * 10
 
-effort <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, sigmoid_gear_Anchovy = 1.1)
+# effort <- c(knife_edge_gear = 0, sigmoid_gear = 1.4, sigmoid_gear_Anchovy = 1.1)
 
 pc <- MizerParams(
     species_params,
@@ -139,11 +138,35 @@ pc@mu_b <- p@mu_b
 
 pc@initial_n <- p@initial_n
 pc@initial_n_pp <- p@initial_n_pp
-# Run to steady state
-p <- steady(pc, effort = effort, t_max = 20, tol = 1e-2)
 
-p@species_params$erepro
-plotSpectra(p)
+# The spectrum for the changed species is calculated with new
+# parameters but in the context of the original community
+# Compute death rate for changed species
+mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = effort)[sp, ]
+# compute growth rate for changed species
+gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
+# Compute solution for changed species
+w_inf_idx <- sum(pc@w < pc@species_params[sp, "w_inf"])
+idx <- pc@w_min_idx[sp]:(w_inf_idx - 1)
+if (any(gg[idx] == 0)) {
+    stop("Can not compute steady state due to zero growth rates")
+}
+pc@initial_n[sp, ] <- 0
+pc@initial_n[sp, pc@w_min_idx[sp]:w_inf_idx] <- 
+    c(1, cumprod(gg[idx] / ((gg + mumu * pc@dw)[idx + 1])))
+if (any(is.infinite(pc@initial_n))) {
+    stop("Candidate steady state holds infinities")
+}
+if (any(is.na(pc@initial_n) || is.nan(pc@initial_n))) {
+    stop("Candidate steady state holds none numeric values")
+}
+plotSpectra(pc)
+
+# Run to steady state
+pcs <- steady(pc, effort = effort, t_max = 20, tol = 1e-2)
+
+pcs@species_params$erepro
+plotSpectra(pcs)
 
 
 # Testing changing a general parameter
