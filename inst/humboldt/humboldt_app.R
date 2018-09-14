@@ -75,11 +75,6 @@ server <- function(input, output, session) {
                   min = round(sp$sigma/2),
                   max = round(sp$sigma*2),
                   step = 0.05),
-      sliderInput("k_vb", "von Bertalanffy parameter k_vb",
-                  value = sp$k_vb,
-                  min = round(sp$k_vb/2),
-                  max = sp$k_vb*100, 
-                  step = 0.05),
       numericInput("a", "Coefficient for length to weight conversion a",
                    value = sp$a,
                    min = sp$a/10,
@@ -126,6 +121,16 @@ server <- function(input, output, session) {
       numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
                    value = 1e-12,  step = 1e-13)
     )
+  })
+  
+  observe({
+    req(input$kappa)
+    p <- params()
+    p@initial_n <- p@initial_n * input$kappa / p@kappa
+    p@initial_n_pp <- p@initial_n_pp * input$kappa / p@kappa
+    p@cc_pp <- p@cc_pp * input$kappa / p@kappa
+    p@kappa <- input$kappa
+    params(p)
   })
   
   ## Handle species parameter change ####
@@ -335,19 +340,60 @@ server <- function(input, output, session) {
     params(p)
   })
   
-  ## Create plots ####
+  ## Growth curves ####
   output$plotGrowthCurve <- renderPlot({
     plotGrowthCurves(params(), species = input$sp_sel)
   })
   
+  ## Spectra ####
   output$plotSpectra <- renderPlot({
     plotSpectra(params())
   })
   
-  output$plot_erepro <- renderPlotly({
+  ## erepro plot ####
+  output$plot_erepro <- renderPlot({
     p <- params()
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red")
+  })
+  
+  ## Biomass plot ####
+  output$kappa_sel <- renderUI({
+    kappa <- params()@kappa
+    sliderInput("kappa", "kappa", value = kappa,
+                min = kappa / 10,
+                max = kappa * 10)
+  })
+  output$biomass_sel <- renderUI({
+    list(
+      numericInput("biomass_cutoff", "Minimum size",
+                  value = 1,
+                  min = 0.1,
+                  max = 100),
+      numericInput("biomass_observed", "Observed biomass",
+                  value = 0,
+                  min = 0,
+                  max = 100)
+    )
+  })
+  output$plotBiomass <- renderPlot({
+    req(input$sp_sel, input$biomass_cutoff, input$biomass_observed)
+    sp <- input$sp_sel
+    p <- params()
+    biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
+    
+    cutoff_idx <- which.max(p@w >= input$biomass_cutoff)
+    target <- input$biomass_observed + biomass[cutoff_idx]
+    
+    max_w <- p@species_params[sp, "w_inf"]
+    min_w <- p@species_params[sp, "w_min"]
+    sel <- p@w >= min_w & p@w <= max_w
+    df <- data.frame(Size = p@w[sel], Biomass = biomass[sel])
+    ggplot(df, aes(x = Size, y = Biomass)) + 
+      geom_line(color = "blue") + scale_x_log10() +
+      geom_hline(yintercept = biomass[cutoff_idx]) +
+      geom_vline(xintercept = input$biomass_cutoff) +
+      geom_hline(yintercept = target, color = "green")
   })
   
 } #the server
@@ -386,10 +432,17 @@ ui <- fluidPage(
     
     ## Main panel ####
     mainPanel(
-      plotOutput("plot_erepro", height = "150px"),
-      tabsetPanel(type = "tabs",
-                  tabPanel("Spectra", plotOutput("plotSpectra")),
-                  tabPanel("Growth", plotOutput("plotGrowthCurve"))
+      tabsetPanel(
+        type = "tabs",
+        tabPanel("Spectra", plotOutput("plotSpectra")),
+        tabPanel("Biomass",
+                 uiOutput("kappa_sel"),
+                 plotOutput("plotBiomass"),
+                 uiOutput("biomass_sel")),
+        tabPanel("Growth",
+                 plotOutput("plotGrowthCurve")),
+        tabPanel("Repro",
+                 plotOutput("plot_erepro"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
