@@ -377,6 +377,11 @@ server <- function(input, output, session) {
   })
   
   ## Biomass plot ####
+  # observe({
+  #   req(input$sp_sel)
+  #   b <- biomass_observed()
+  #   b 
+  # })
   output$kappa_sel <- renderUI({
     kappa <- params()@kappa
     sliderInput("kappa", "kappa", value = kappa,
@@ -414,6 +419,32 @@ server <- function(input, output, session) {
       geom_hline(yintercept = biomass[cutoff_idx]) +
       geom_vline(xintercept = input$biomass_cutoff) +
       geom_hline(yintercept = target, color = "green")
+  })
+  output$plotObservedBiomass <- renderPlot({
+    p <- params()
+    no_sp <- length(p@species_params$species)
+    cutoff <- p@species_params$biomass_cutoff
+    observed <- p@species_params$biomass_observed
+    # When no cutoff known, set it to maturity weight / 20
+    cutoff[is.na(cutoff)] <- p@species_params$w_mat[is.na(cutoff)] / 20
+    
+    biomass_model <- 1:no_sp  # create vector of right length
+    for (sp in 1:no_sp) {
+      cum_biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
+      cutoff_idx <- which.max(p@w >= cutoff[sp])
+      biomass_model[sp] <- max(cum_biomass) - cum_biomass[cutoff_idx]
+    }
+    df <- rbind(
+      data.frame(Species = p@species_params$species,
+                 Type = "Observed",
+                 Biomass = observed),
+      data.frame(Species = p@species_params$species,
+                 Type = "Model",
+                 Biomass = biomass_model)
+    )
+    ggplot(df) +
+      geom_col(aes(x = Species, y = Biomass, fill = Type),
+               position = "dodge")
   })
   
 } #the server
@@ -457,6 +488,7 @@ ui <- fluidPage(
         type = "tabs",
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
+                 plotOutput("plotObservedBiomass"),
                  uiOutput("kappa_sel"),
                  plotOutput("plotBiomass"),
                  uiOutput("biomass_sel")),
