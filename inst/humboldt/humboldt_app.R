@@ -12,11 +12,15 @@ server <- function(input, output, session) {
   
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
-  params(readRDS("humboldt_params.rds"))
+  filename <- "humboldt_params.rds"
+  params(readRDS(filename))
+  output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
   ## Handle upload of params object ####
   observeEvent(input$upload, {
     inFile <- input$upload
+    output$filename <- renderText(paste0("Previously uploaded file: ", 
+                                         inFile$name))
     tryCatch(
       p <- readRDS(inFile$datapath),
       error = function(e) {stop(safeError(e))}
@@ -475,7 +479,8 @@ ui <- fluidPage(
         tabPanel("File",
                  tags$br(),
                  downloadButton("params", "Download current params object"),
-                 tags$br(),
+                 tags$br(), tags$hr(),
+                 textOutput("filename"),
                  fileInput("upload", "Upload new params object", accept = ".rds")
         )
       ),
