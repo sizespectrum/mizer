@@ -451,6 +451,23 @@ server <- function(input, output, session) {
                position = "dodge")
   })
   
+  ## Plot catch by size ####
+  output$plotCatch <- renderPlotly({
+    req(input$sp_sel)
+    sp <- which.max(p@species_params$species == input$sp_sel)
+    p <- params()
+    w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
+    w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
+    w_sel <- seq(w_min_idx, w_max_idx, by = 1)
+    catch <- getFMort(p, effort = effort)[sp, w_sel] *
+      p@w[w_sel] * p@dw[w_sel] * p@initial_n[sp, w_sel]
+    df <- data.frame(Size = p@w[w_sel], Catch = catch)
+    ggplot(df) +
+      geom_line(aes(x = Size, y = Catch)) +
+      scale_x_log10() +
+      geom_vline(xintercept = p@species_params$w_mat[sp])
+  })
+  
 } #the server
 
 #### User interface ####
@@ -501,7 +518,9 @@ ui <- fluidPage(
                  plotOutput("plotGrowthCurve"),
                  uiOutput("k_vb_sel")),
         tabPanel("Repro",
-                 plotOutput("plot_erepro"))
+                 plotOutput("plot_erepro")),
+        tabPanel("Catch",
+                 plotlyOutput("plotCatch"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
