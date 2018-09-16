@@ -106,6 +106,7 @@ for (i in (1:no_sp)) {
         k_vb = params_data$k_vb[i],
         a = params_data$a2[i],
         b = params_data$b2[i],
+        catch_observed = params_data$obsCatch_tonnes[i] * 1e-6,
         biomass_observed = params_data$TotBiom_tonnes[i] * 1e-6,
         biomass_cutoff = params_data$w_TB_start[i]
     )

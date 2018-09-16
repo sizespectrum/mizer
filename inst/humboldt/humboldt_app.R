@@ -478,10 +478,12 @@ server <- function(input, output, session) {
     species_params <- params()@species_params[sp, ]
     list(
       div(style = "display:inline-block",
-          numericInput("biomass_observed", "Observed biomass",
+          numericInput("biomass_observed", 
+                       paste0("Observed biomass for ", sp, 
+                              "(megatonnes)"),
                        value = species_params$biomass_observed)),
       div(style = "display:inline-block",
-          numericInput("biomass_cutoff", "Lower cutoff",
+          numericInput("biomass_cutoff", "Lower cutoff (grams)",
                        value = species_params$biomass_cutoff))
     )
   })
@@ -531,7 +533,9 @@ server <- function(input, output, session) {
                position = "dodge")
   })
   
-  ## Plot catch by size ####
+  ## Plot catch ####
+  
+  # Catch by size for selected species
   output$plotCatch <- renderPlotly({
     req(input$sp_sel)
     p <- params()
@@ -546,6 +550,32 @@ server <- function(input, output, session) {
       geom_line(aes(x = Size, y = Catch)) +
       scale_x_log10() +
       geom_vline(xintercept = p@species_params$w_mat[sp])
+  })
+  
+  # Total catch by species
+  output$plotObservedCatch <- renderPlot({
+    p <- params()
+    biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
+    catch <- rowSums(biomass * getFMort(p, effort = effort))
+    df <- rbind(
+      data.frame(Species = p@species_params$species,
+                 Type = "Observed",
+                 Catch = p@species_params$catch_observed),
+      data.frame(Species = p@species_params$species,
+                 Type = "Model",
+                 Catch = catch)
+    )
+    ggplot(df) +
+      geom_col(aes(x = Species, y = Catch, fill = Type),
+               position = "dodge")
+  })
+  
+  # Input field for observed catch
+  output$catch_sel <- renderUI({
+    sp <- input$sp_sel
+    numericInput("catch_observed", 
+                 paste0("Observed total catch for ", sp, "(megatonnes)"),
+                 value = params()@species_params[sp, "catch_observed"])
   })
   
 } #the server
@@ -603,6 +633,8 @@ ui <- fluidPage(
         tabPanel("Repro",
                  plotOutput("plot_erepro")),
         tabPanel("Catch",
+                 plotOutput("plotObservedCatch"),
+                 uiOutput("catch_sel"),
                  plotlyOutput("plotCatch"))
       )
     )  # end mainpanel
