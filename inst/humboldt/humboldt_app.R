@@ -15,6 +15,11 @@ server <- function(input, output, session) {
   params(readRDS(filename))
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
+  # Define some globals to skip certain observers
+  skipPred <- TRUE
+  skipFishing <- TRUE
+  skipOther <- TRUE
+  
   ## Handle upload of params object ####
   observeEvent(input$upload, {
     inFile <- input$upload
@@ -44,13 +49,13 @@ server <- function(input, output, session) {
   output$pred_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
     req(input$sp_sel)
-    # We do not want the updating of the slider triger any of the other
-    # actions that trigger when a parameter value is changed, so we freeze
-    # one of those inputs
-    freezeReactiveValue(input, "h")
-    
     p <- isolate(params())
     sp <- p@species_params[input$sp_sel, ]
+    
+    # We do not want the updating of the slider to triger an update of the
+    # params object
+    skipPred <<- TRUE
+    
     list(
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
@@ -75,43 +80,33 @@ server <- function(input, output, session) {
   output$fishing_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
     req(input$sp_sel)
-    # We do not want the updating of the slider triger any of the other
-    # actions that trigger when a parameter value is changed, so we freeze
-    # one of those inputs
-    freezeReactiveValue(input, "l25")
+    
+    # We do not want the updating of the slider to triger an update of the
+    # params object
+    skipFishing <<- TRUE
     
     p <- isolate(params())
     sp <- p@species_params[input$sp_sel, ]
     list(
+      numericInput("catchability", "Catchability",
+                   value = sp$catchability),
       numericInput("l50", "L50",
-                   value = sp$l50,
-                   min = 0,
-                   max = 100, 
-                   step = 1),
+                   value = sp$l50),
       numericInput("l25", "L25",
-                   value = sp$l25,
-                   min = 0,
-                   max = 100, 
-                   step = 1),
+                   value = sp$l25),
       numericInput("a", "Coefficient for length to weight conversion a",
-                   value = sp$a,
-                   min = sp$a/10,
-                   max = sp$a*10, 
-                   step = 10^(-4)),
+                   value = sp$a),
       numericInput("b", "Exponent for length to weight conversion b",
-                   value = sp$b,
-                   min = sp$b/10,
-                   max = sp$b*100, 
-                   step = 10^(-2))
+                   value = sp$b)
     )
   })
   output$other_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
     req(input$sp_sel)
-    # We do not want the updating of the slider triger any of the other
-    # actions that trigger when a parameter value is changed, so we freeze
-    # one of those inputs
-    freezeReactiveValue(input, "ks")
+    
+    # We do not want the updating of the slider to triger an update of the
+    # params object
+    skipOther <<- TRUE
     
     p <- isolate(params())
     sp <- p@species_params[input$sp_sel, ]
@@ -189,36 +184,118 @@ server <- function(input, output, session) {
     params(p)
   })
   
-  ## Handle species parameter change ####
-  # This is triggered when any of the species inputs changes
+  ## Adjust biomass observed ####
+  observe({
+    p <- isolate(params())
+    p@species_params[isolate(input$sp_sel), "biomass_observed"] <- 
+      req(input$biomass_observed)
+    p@species_params[isolate(input$sp_sel), "biomass_cutoff"] <- 
+      req(input$biomass_cutoff)
+    params(p)
+  })  
+  
+  ## Adjust catch observed ####
+  observe({
+    p <- isolate(params())
+    p@species_params[isolate(input$sp_sel), "catch_observed"] <- 
+      req(input$catch_observed)
+    params(p)
+  })
+  
+  # Adjust egg density ####
+  observe({
+    req(input$n0)
+    p <- isolate(params())
+    sp <- isolate(input$sp_sel)
+    
+    # rescale abundance to new egg density
+    p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
+      p@initial_n[sp, p@w_min_idx[sp]]
+    
+    updateSliderInput(session, "n0",
+                      min = signif(input$n0 / 10, 3),
+                      max = signif(input$n0 * 10, 3))
+    
+    # Update the reactive params object
+    params(p)
+  })
+  
+  ## Adjust species parameters ####
+  # predation
   observe({
     # I do not want this to run at the start of the app, but don't know how
     # to avoid that. But at least I can make sure it does not run before
     # the last input value has been given its initial value.
-    req(input$l25, input$n0)
+    req(input$sigma)
     
     p <- isolate(params())
     sp <- isolate(input$sp_sel)
+    species_params <- p@species_params
+    species_params[sp, "gamma"] <- input$gamma
+    species_params[sp, "h"]     <- input$h
+    species_params[sp, "beta"]  <- input$beta
+    species_params[sp, "sigma"] <- input$sigma
+    
+    if (skipPred) {
+      skipPred <<- FALSE
+    } else {
+      update_species(sp, p, species_params)
+    }
+  })
+  
+  # fishing
+  observe({
+    # I do not want this to run at the start of the app, but don't know how
+    # to avoid that. But at least I can make sure it does not run before
+    # the last input value has been given its initial value.
+    req(input$l25)
+    
+    p <- isolate(params())
+    sp <- isolate(input$sp_sel)
+    species_params <- p@species_params
+    species_params[sp, "catchability"]   <- input$catchability
+    species_params[sp, "a"]     <- input$a
+    species_params[sp, "b"]     <- input$b
+    species_params[sp, "l50"]   <- input$l50
+    species_params[sp, "l25"]   <- input$l25
+    
+    
+    if (skipFishing) {
+      skipFishing <<- FALSE
+    } else {
+      update_species(sp, p, species_params)
+    }
+  })
+  
+  # other
+  observe({
+    # I do not want this to run at the start of the app, but don't know how
+    # to avoid that. But at least I can make sure it does not run before
+    # the last input value has been given its initial value.
+    req(input$ks)
+    
+    p <- isolate(params())
+    sp <- isolate(input$sp_sel)
+    species_params <- p@species_params
+    species_params[sp, "alpha"] <- input$alpha
+    species_params[sp, "ks"]    <- input$ks
+    
+    
+    if (skipOther) {
+      skipOther <<- FALSE
+    } else {
+      update_species(sp, p, species_params)
+    }
+  })
+
+  update_species <- function(sp, p, species_params) {
     
     # wrap the code in trycatch so that when there is a problem we can
     # simply stay with the old parameters
     tryCatch({
-      # rescale abundance to new egg density
-      p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
-        p@initial_n[sp, p@w_min_idx[sp]]
       
       # Create updated species params data frame
-      species_params <- p@species_params
-      species_params[sp, "gamma"] <- input$gamma
-      species_params[sp, "h"]     <- input$h
-      species_params[sp, "alpha"] <- input$alpha
-      species_params[sp, "ks"]    <- input$ks
-      species_params[sp, "beta"]  <- input$beta
-      species_params[sp, "sigma"] <- input$sigma
-      species_params[sp, "a"]     <- input$a
-      species_params[sp, "b"]     <- input$b
-      species_params[sp, "l50"]   <- input$l50
-      species_params[sp, "l25"]   <- input$l25
+
       
       # Create new params object identical to old one except for changed
       # species params
@@ -283,9 +360,6 @@ server <- function(input, output, session) {
       
       # Update slider min/max so that they are a fixed proportion of the 
       # parameter value
-      updateSliderInput(session, "n0",
-                        min = signif(input$n0 / 10, 3),
-                        max = signif(input$n0 * 10, 3))
       updateSliderInput(session, "gamma",
                         min = signif(input$gamma/2, 3),
                         max = signif(input$gamma*2, 3))
@@ -322,7 +396,7 @@ server <- function(input, output, session) {
       ))
       params(p)}
     )
-  })
+  }
 
   
   ## Recompute all species ####
@@ -483,7 +557,7 @@ server <- function(input, output, session) {
       div(style = "display:inline-block",
           numericInput("k_vb", "Von Bertalanffy k", value = k_vb)),
       div(style = "display:inline-block",
-          numericInput("t0", "t0", value = t0))
+          numericInput("t0", "t_0", value = t0))
     )
   })
   output$plotGrowthCurve <- renderPlot({
@@ -509,7 +583,8 @@ server <- function(input, output, session) {
   ## Biomass plot ####
   output$biomass_sel <- renderUI({
     sp <- input$sp_sel
-    species_params <- params()@species_params[sp, ]
+    p <- isolate(params())
+    species_params <- p@species_params[sp, ]
     list(
       div(style = "display:inline-block",
           numericInput("biomass_observed", 
@@ -613,10 +688,11 @@ server <- function(input, output, session) {
   
   # Input field for observed catch
   output$catch_sel <- renderUI({
+    p <- isolate(params())
     sp <- input$sp_sel
     numericInput("catch_observed", 
                  paste0("Observed total catch for ", sp, " (megatonnes)"),
-                 value = params()@species_params[sp, "catch_observed"])
+                 value = p@species_params[sp, "catch_observed"])
   })
   
 } #the server
