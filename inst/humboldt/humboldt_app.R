@@ -8,7 +8,6 @@ library(plotly)
 library(progress)
 
 server <- function(input, output, session) {
-  effort <- 1.4
   
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
@@ -42,7 +41,7 @@ server <- function(input, output, session) {
     species <- as.character(p@species_params$species[!is.na(p@A)])
     selectInput("sp_sel", "Species:", species) 
   })
-  output$params_sliders <- renderUI({
+  output$pred_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
     req(input$sp_sel)
     # We do not want the updating of the slider triger any of the other
@@ -52,12 +51,7 @@ server <- function(input, output, session) {
     
     p <- isolate(params())
     sp <- p@species_params[input$sp_sel, ]
-    n0 <- p@initial_n[input$sp_sel, p@w_min_idx[input$sp_sel]]
     list(
-      sliderInput("n0", "Egg density",
-                  value = n0,
-                  min = signif(n0/10, 3),
-                  max = signif(n0*10, 3)),
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
                   min = signif(sp$gamma/2, 3),
@@ -66,15 +60,6 @@ server <- function(input, output, session) {
                   value = sp$h,
                   min = signif(sp$h/2, 2),
                   max = signif(sp$h*2, 2)),
-      sliderInput("alpha", "Assimilation efficiency alpha",
-                  value = sp$alpha,
-                  min = 0,
-                  max = 1),
-      sliderInput("ks", "Coefficient of standard metabolism ks",
-                  value = sp$ks,
-                  min = signif(sp$ks/2, 2),
-                  max = signif(sp$ks*2, 2),
-                  step = 0.05),
       sliderInput("beta", "Preferred predator-prey mass ratio beta",
                   value = round(sp$beta),
                   min = round(sp$beta/10),
@@ -84,17 +69,20 @@ server <- function(input, output, session) {
                   value = sp$sigma,
                   min = round(sp$sigma/2),
                   max = round(sp$sigma*2),
-                  step = 0.05),
-      numericInput("a", "Coefficient for length to weight conversion a",
-                   value = sp$a,
-                   min = sp$a/10,
-                   max = sp$a*10, 
-                   step = 10^(-4)),
-      numericInput("b", "Exponent for length to weight conversion b",
-                   value = sp$b,
-                   min = sp$b/10,
-                   max = sp$b*100, 
-                   step = 10^(-2)),
+                  step = 0.05)
+    )
+  })
+  output$fishing_sliders <- renderUI({
+    # The parameter sliders get updated whenever the species selector changes
+    req(input$sp_sel)
+    # We do not want the updating of the slider triger any of the other
+    # actions that trigger when a parameter value is changed, so we freeze
+    # one of those inputs
+    freezeReactiveValue(input, "l25")
+    
+    p <- isolate(params())
+    sp <- p@species_params[input$sp_sel, ]
+    list(
       numericInput("l50", "L50",
                    value = sp$l50,
                    min = 0,
@@ -104,7 +92,44 @@ server <- function(input, output, session) {
                    value = sp$l25,
                    min = 0,
                    max = 100, 
-                   step = 1)
+                   step = 1),
+      numericInput("a", "Coefficient for length to weight conversion a",
+                   value = sp$a,
+                   min = sp$a/10,
+                   max = sp$a*10, 
+                   step = 10^(-4)),
+      numericInput("b", "Exponent for length to weight conversion b",
+                   value = sp$b,
+                   min = sp$b/10,
+                   max = sp$b*100, 
+                   step = 10^(-2))
+    )
+  })
+  output$other_sliders <- renderUI({
+    # The parameter sliders get updated whenever the species selector changes
+    req(input$sp_sel)
+    # We do not want the updating of the slider triger any of the other
+    # actions that trigger when a parameter value is changed, so we freeze
+    # one of those inputs
+    freezeReactiveValue(input, "ks")
+    
+    p <- isolate(params())
+    sp <- p@species_params[input$sp_sel, ]
+    n0 <- p@initial_n[input$sp_sel, p@w_min_idx[input$sp_sel]]
+    list(
+      sliderInput("n0", "Egg density",
+                  value = n0,
+                  min = signif(n0/10, 3),
+                  max = signif(n0*10, 3)),
+      sliderInput("alpha", "Assimilation efficiency alpha",
+                  value = sp$alpha,
+                  min = 0,
+                  max = 1),
+      sliderInput("ks", "Coefficient of standard metabolism ks",
+                  value = sp$ks,
+                  min = signif(sp$ks/2, 2),
+                  max = signif(sp$ks*2, 2),
+                  step = 0.05)
     )
   })
   
@@ -170,7 +195,7 @@ server <- function(input, output, session) {
     # I do not want this to run at the start of the app, but don't know how
     # to avoid that. But at least I can make sure it does not run before
     # the last input value has been given its initial value.
-    req(input$l25)
+    req(input$l25, input$n0)
     
     p <- isolate(params())
     sp <- isolate(input$sp_sel)
@@ -224,7 +249,7 @@ server <- function(input, output, session) {
       # The spectrum for the changed species is calculated with new
       # parameters but in the context of the original community
       # Compute death rate for changed species
-      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = effort)[sp, ]
+      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = input$effort)[sp, ]
       # compute growth rate for changed species
       gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
       # Compute solution for changed species
@@ -310,7 +335,7 @@ server <- function(input, output, session) {
       plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
       p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
       # Recompute all species
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
+      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = input$effort)
       gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
       for (sp in 1:length(p@species_params$species)) {
         w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
@@ -328,7 +353,7 @@ server <- function(input, output, session) {
       
       # Retune the values of erepro so that we get the correct level of
       # recruitment
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
+      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = input$effort)
       gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
       rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
       # TODO: vectorise this
@@ -367,7 +392,7 @@ server <- function(input, output, session) {
       on.exit(progress$close())
       
       # Run to steady state
-      p <- steady(p, effort = 1.4, t_max = 100, tol = 1e-2,
+      p <- steady(p, effort = input$effort, t_max = 100, tol = 1e-2,
                   shiny_progress = progress)
       
       if (input$log_steady) {
@@ -426,12 +451,12 @@ server <- function(input, output, session) {
         }
         gears <- union(gears, gear)
         p <- addSpecies(p, p_old@species_params[sp, ],
-                        effort = effort,
+                        effort = input$effort,
                         rfac = Inf)    
       }
       
       # Run to steady state
-      p <- steady(p, effort = effort, 
+      p <- steady(p, effort = input$effort, 
                   t_max = 100, tol = 1e-2,
                   shiny_progress = progress)
       
@@ -479,8 +504,7 @@ server <- function(input, output, session) {
     list(
       div(style = "display:inline-block",
           numericInput("biomass_observed", 
-                       paste0("Observed biomass for ", sp, 
-                              "(megatonnes)"),
+                       paste0("Observed biomass for ", sp, " (megatonnes)"),
                        value = species_params$biomass_observed)),
       div(style = "display:inline-block",
           numericInput("biomass_cutoff", "Lower cutoff (grams)",
@@ -543,7 +567,7 @@ server <- function(input, output, session) {
     w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
     w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
     w_sel <- seq(w_min_idx, w_max_idx, by = 1)
-    catch <- getFMort(p, effort = effort)[sp, w_sel] *
+    catch <- getFMort(p, effort = input$effort)[sp, w_sel] *
       p@w[w_sel] * p@dw[w_sel] * p@initial_n[sp, w_sel]
     df <- data.frame(Size = p@w[w_sel], Catch = catch)
     ggplot(df) +
@@ -556,7 +580,7 @@ server <- function(input, output, session) {
   output$plotObservedCatch <- renderPlot({
     p <- params()
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
-    catch <- rowSums(biomass * getFMort(p, effort = effort))
+    catch <- rowSums(biomass * getFMort(p, effort = input$effort))
     df <- rbind(
       data.frame(Species = p@species_params$species,
                  Type = "Observed",
@@ -574,7 +598,7 @@ server <- function(input, output, session) {
   output$catch_sel <- renderUI({
     sp <- input$sp_sel
     numericInput("catch_observed", 
-                 paste0("Observed total catch for ", sp, "(megatonnes)"),
+                 paste0("Observed total catch for ", sp, " (megatonnes)"),
                  value = params()@species_params[sp, "catch_observed"])
   })
   
@@ -595,11 +619,23 @@ ui <- fluidPage(
                  actionButton("sp_interact", "Interact"),
                  actionButton("sp_steady", "Steady"),
                  uiOutput("sp_sel"),
-                 uiOutput("params_sliders")
+                 tabsetPanel(
+                   tabPanel("Predation",
+                            uiOutput("pred_sliders")
+                   ),
+                   tabPanel("Fishing",
+                            uiOutput("fishing_sliders")
+                   ),
+                   tabPanel("Other",
+                            uiOutput("other_sliders")
+                   )
+                 )
         ),
         tabPanel("General",
                  tags$br(),
                  actionButton("bg_go", "Go"),
+                 sliderInput("effort", "Effort",
+                             value = 1, min = 0, max = 2, step = 0.05),
                  uiOutput("general_params")
         ),
         tabPanel("File",
