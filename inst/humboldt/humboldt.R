@@ -104,6 +104,7 @@ for (i in (1:no_sp)) {
         l50 = params_data$l50[i],
         k = 0,
         k_vb = params_data$k_vb[i],
+        t0 = params_data$to[i],
         a = params_data$a2[i],
         b = params_data$b2[i],
         catch_observed = params_data$obsCatch_tonnes[i] * 1e-6,

@@ -183,9 +183,9 @@ server <- function(input, output, session) {
   
   ## Adjust k_vb ####
   observe({
-    req(input$k_vb)
     p <- isolate(params())
-    p@species_params[isolate(input$sp_sel), "k_vb"] <- input$k_vb
+    p@species_params[isolate(input$sp_sel), "k_vb"] <- req(input$k_vb)
+    p@species_params[isolate(input$sp_sel), "t0"] <- req(input$t0)
     params(p)
   })
   
@@ -478,7 +478,13 @@ server <- function(input, output, session) {
   output$k_vb_sel <- renderUI({
     req(input$sp_sel)
     k_vb <- params()@species_params[input$sp_sel, "k_vb"]
-    numericInput("k_vb", "Von Bertalanffy k", value = k_vb)
+    t0 <- params()@species_params[input$sp_sel, "t0"]
+    list(
+      div(style = "display:inline-block",
+          numericInput("k_vb", "Von Bertalanffy k", value = k_vb)),
+      div(style = "display:inline-block",
+          numericInput("t0", "t0", value = t0))
+    )
   })
   output$plotGrowthCurve <- renderPlot({
     plotGrowthCurves(params(), species = input$sp_sel) +
