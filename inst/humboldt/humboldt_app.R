@@ -481,12 +481,13 @@ server <- function(input, output, session) {
     numericInput("k_vb", "Von Bertalanffy k", value = k_vb)
   })
   output$plotGrowthCurve <- renderPlot({
-    plotGrowthCurves(params(), species = input$sp_sel)
+    plotGrowthCurves(params(), species = input$sp_sel) +
+      theme_grey(base_size = 18)
   })
   
   ## Spectra ####
   output$plotSpectra <- renderPlot({
-    plotSpectra(params())
+    plotSpectra(params()) + theme_grey(base_size = 18)
   })
   
   ## erepro plot ####
@@ -494,7 +495,9 @@ server <- function(input, output, session) {
     p <- params()
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red") +
-      scale_y_log10()
+      scale_y_log10() +
+      theme_grey(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
   })
   
   ## Biomass plot ####
@@ -528,7 +531,9 @@ server <- function(input, output, session) {
       geom_line(color = "blue") + scale_x_log10() +
       geom_hline(yintercept = biomass[cutoff_idx]) +
       geom_vline(xintercept = input$biomass_cutoff) +
-      geom_hline(yintercept = target, color = "green")
+      geom_hline(yintercept = target, color = "green") +
+      theme_grey(base_size = 18) +
+      labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")
   })
   output$plotObservedBiomass <- renderPlot({
     p <- params()
@@ -554,7 +559,10 @@ server <- function(input, output, session) {
     )
     ggplot(df) +
       geom_col(aes(x = Species, y = Biomass, fill = Type),
-               position = "dodge")
+               position = "dodge") +
+      theme_grey(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+      labs(x = "", y = "Biomass [megatonnes]")
   })
   
   ## Plot catch ####
@@ -591,7 +599,10 @@ server <- function(input, output, session) {
     )
     ggplot(df) +
       geom_col(aes(x = Species, y = Catch, fill = Type),
-               position = "dodge")
+               position = "dodge") +
+      theme_grey(base_size = 18) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+      labs(x = "", y = "Catch [megatonnes]")
   })
   
   # Input field for observed catch
@@ -661,8 +672,8 @@ ui <- fluidPage(
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
                  plotOutput("plotObservedBiomass"),
-                 plotOutput("plotBiomass"),
-                 uiOutput("biomass_sel")),
+                 uiOutput("biomass_sel"),
+                 plotOutput("plotBiomass")),
         tabPanel("Growth",
                  plotOutput("plotGrowthCurve"),
                  uiOutput("k_vb_sel")),
