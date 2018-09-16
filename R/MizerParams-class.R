@@ -854,9 +854,6 @@ multispeciesParams <- function(object, interaction,
         res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
     }
     
-    # Remove catchabiliy from species data.frame, now stored in slot
-    #params@species_params[,names(params@species_params) != "catchability"]
-    res@species_params <- res@species_params[, -which(names(res@species_params) == "catchability")]
     res@initial_n <- res@psi
     res@initial_n <- get_initial_n(res)
     res@A <- rep(1, no_sp)
