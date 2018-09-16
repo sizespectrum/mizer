@@ -277,6 +277,13 @@ server <- function(input, output, session) {
                         min = round(input$sigma/2),
                         max = round(input$sigma*2))
       
+      if (input$log_sp) {
+        # Save new species params to disk
+        time = format(Sys.time(), "_%Y_%m_%d_at_%H_%M_%S")
+        file = paste0("species_params", time, ".rds")
+        saveRDS(pc@species_params, file = file)
+      }
+      
       # Update the reactive params object
       params(pc)
     }, 
@@ -362,6 +369,13 @@ server <- function(input, output, session) {
       # Run to steady state
       p <- steady(p, effort = 1.4, t_max = 100, tol = 1e-2,
                   shiny_progress = progress)
+      
+      if (input$log_steady) {
+        # Save new params object to disk
+        time = format(Sys.time(), "_%Y_%m_%d_at_%H_%M_%S")
+        file = paste0("mizer_params", time, ".rds")
+        saveRDS(p, file = file)
+      }
       
       # Update the reactive params object
       params(p)
@@ -561,9 +575,14 @@ ui <- fluidPage(
         tabPanel("File",
                  tags$br(),
                  downloadButton("params", "Download current params object"),
-                 tags$br(), tags$hr(),
+                 checkboxInput("log_steady", "Log steady states",
+                               value = FALSE),
+                 checkboxInput("log_sp", "Log species parameters",
+                               value = FALSE),
+                 tags$hr(),
                  textOutput("filename"),
-                 fileInput("upload", "Upload new params object", accept = ".rds")
+                 fileInput("upload", "Upload new params object", 
+                           accept = ".rds")
         )
       ),
       width = 3
