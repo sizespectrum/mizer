@@ -43,8 +43,14 @@ server <- function(input, output, session) {
     selectInput("sp_sel", "Species:", species) 
   })
   output$params_sliders <- renderUI({
+    # The parameter sliders get updated whenever the species selector changes
     req(input$sp_sel)
-    p <- params()
+    # We do not want the updating of the slider triger any of the other
+    # actions that trigger when a parameter value is changed, so we freeze
+    # one of those inputs
+    freezeReactiveValue(input, "h")
+    
+    p <- isolate(params())
     sp <- p@species_params[input$sp_sel, ]
     n0 <- p@initial_n[input$sp_sel, p@w_min_idx[input$sp_sel]]
     list(
@@ -105,11 +111,15 @@ server <- function(input, output, session) {
   ## UI for general parameters ####
 
   output$general_params <- renderUI({
-    p <- params()
+    p <- isolate(params())
     i_bkgd <- which.max(is.na(p@A))
     bkgd_params <- p@species_params[i_bkgd, ]
     
     list(
+      sliderInput("kappa", "kappa", value = p@kappa,
+                  min = p@kappa / 2,
+                  max = p@kappa * 1.5,
+                  width = "80%"),
       numericInput("lambda", "Sheldon exponent",
                    value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
       sliderInput("f0", "Feeding level",
@@ -130,7 +140,7 @@ server <- function(input, output, session) {
   ## Adjust kappa ####
   observe({
     req(input$kappa)
-    p <- params()
+    p <- isolate(params())
     # We want a change in kappa to rescale all abundances by the same factor
     p@initial_n <- p@initial_n * input$kappa / p@kappa
     p@initial_n_pp <- p@initial_n_pp * input$kappa / p@kappa
@@ -140,29 +150,30 @@ server <- function(input, output, session) {
     p@species_params$gamma <- p@species_params$gamma / (input$kappa / p@kappa)
     p@search_vol <- p@search_vol / (input$kappa / p@kappa)
     p@kappa <- input$kappa
+    updateSliderInput(session, "kappa",
+                      min = input$kappa / 2, 
+                      max = input$kappa * 1.5)
     params(p)
   })
   
   ## Adjust k_vb ####
   observe({
-    req(input$k_vb, input$sp_sel)
-    p <- params()
-    p@species_params[input$sp_sel, "k_vb"] <- input$k_vb
+    req(input$k_vb)
+    p <- isolate(params())
+    p@species_params[isolate(input$sp_sel), "k_vb"] <- input$k_vb
     params(p)
   })
   
   ## Handle species parameter change ####
-  # observe({
-  #   req(input$gamma, input$h)
-  #   p <- isolate(params())
-  #   sp <- isolate(input$sp_sel)
-  # The version where a change in parameter automatically triggers this
-  # observer does not work yet because it gets triggered also by the
-  # rewriting of the input controls upon change of target species.
-  # So for now require "Go" button.
-  observeEvent(input$sp_set, {
-    p <- params()
-    sp <- input$sp_sel
+  # This is triggered when any of the species inputs changes
+  observe({
+    # I do not want this to run at the start of the app, but don't know how
+    # to avoid that. But at least I can make sure it does not run before
+    # the last input value has been given its initial value.
+    req(input$l25)
+    
+    p <- isolate(params())
+    sp <- isolate(input$sp_sel)
     
     # wrap the code in trycatch so that when there is a problem we can
     # simply stay with the old parameters
@@ -244,6 +255,27 @@ server <- function(input, output, session) {
       DW <- pc@dw[pc@w_min_idx[i]]
       pc@species_params$erepro[i] <- pc@species_params$erepro[i] *
         n0 * (gg0 + DW * mumu0) / rdd
+      
+      # Update slider min/max so that they are a fixed proportion of the 
+      # parameter value
+      updateSliderInput(session, "n0",
+                        min = signif(input$n0 / 10, 3),
+                        max = signif(input$n0 * 10, 3))
+      updateSliderInput(session, "gamma",
+                        min = signif(input$gamma/2, 3),
+                        max = signif(input$gamma*2, 3))
+      updateSliderInput(session, "h",
+                        min = signif(input$h/2, 2),
+                        max = signif(input$h*2, 2))
+      updateSliderInput(session, "ks",
+                        min = signif(input$ks/2, 2),
+                        max = signif(input$ks*2, 2))
+      updateSliderInput(session, "beta",
+                        min = round(input$beta/10),
+                        max = round(input$beta*10))
+      updateSliderInput(session, "sigma",
+                        min = round(input$sigma/2),
+                        max = round(input$sigma*2))
       
       # Update the reactive params object
       params(pc)
@@ -427,18 +459,6 @@ server <- function(input, output, session) {
   })
   
   ## Biomass plot ####
-  # observe({
-  #   req(input$sp_sel)
-  #   b <- biomass_observed()
-  #   b 
-  # })
-  output$kappa_sel <- renderUI({
-    kappa <- params()@kappa
-    sliderInput("kappa", "kappa", value = kappa,
-                min = kappa / 10,
-                max = kappa * 10,
-                width = "80%")
-  })
   output$biomass_sel <- renderUI({
     sp <- input$sp_sel
     species_params <- params()@species_params[sp, ]
@@ -500,8 +520,8 @@ server <- function(input, output, session) {
   ## Plot catch by size ####
   output$plotCatch <- renderPlotly({
     req(input$sp_sel)
-    sp <- which.max(p@species_params$species == input$sp_sel)
     p <- params()
+    sp <- which.max(p@species_params$species == input$sp_sel)
     w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
     w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
     w_sel <- seq(w_min_idx, w_max_idx, by = 1)
@@ -528,7 +548,6 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel("Species",
                  tags$br(),
-                 actionButton("sp_set", "Set"),
                  actionButton("sp_interact", "Interact"),
                  actionButton("sp_steady", "Steady"),
                  uiOutput("sp_sel"),
@@ -557,7 +576,6 @@ ui <- fluidPage(
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
                  plotOutput("plotObservedBiomass"),
-                 uiOutput("kappa_sel"),
                  plotOutput("plotBiomass"),
                  uiOutput("biomass_sel")),
         tabPanel("Growth",
