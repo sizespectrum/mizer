@@ -1,10 +1,10 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
-# # Uncomment the following 3 lines before publishing the app
+# # Uncomment the following 2 lines before publishing the app
 # library(devtools)
 # install_github("gustavdelius/mizer", ref="humboldt")
-# library(mizer)
+library(mizer)
 library(progress)
 
 server <- function(input, output, session) {
@@ -44,13 +44,13 @@ server <- function(input, output, session) {
   output$sp_sel <- renderUI({
     p <- isolate(params())
     species <- as.character(p@species_params$species[!is.na(p@A)])
-    selectInput("sp_sel", "Species:", species) 
+    selectInput("sp", "Species:", species) 
   })
   output$pred_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
-    req(input$sp_sel)
+    req(input$sp)
     p <- isolate(params())
-    sp <- p@species_params[input$sp_sel, ]
+    sp <- p@species_params[input$sp, ]
     
     # We do not want the updating of the slider to triger an update of the
     # params object
@@ -79,14 +79,14 @@ server <- function(input, output, session) {
   })
   output$fishing_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
-    req(input$sp_sel)
+    req(input$sp)
     
     # We do not want the updating of the slider to triger an update of the
     # params object
     skipFishing <<- TRUE
     
     p <- isolate(params())
-    sp <- p@species_params[input$sp_sel, ]
+    sp <- p@species_params[input$sp, ]
     list(
       numericInput("catchability", "Catchability",
                    value = sp$catchability),
@@ -102,15 +102,15 @@ server <- function(input, output, session) {
   })
   output$other_sliders <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
-    req(input$sp_sel)
+    req(input$sp)
     
     # We do not want the updating of the slider to triger an update of the
     # params object
     skipOther <<- TRUE
     
     p <- isolate(params())
-    sp <- p@species_params[input$sp_sel, ]
-    n0 <- p@initial_n[input$sp_sel, p@w_min_idx[input$sp_sel]]
+    sp <- p@species_params[input$sp, ]
+    n0 <- p@initial_n[input$sp, p@w_min_idx[input$sp]]
     list(
       sliderInput("n0", "Egg density",
                   value = n0,
@@ -179,17 +179,17 @@ server <- function(input, output, session) {
   ## Adjust k_vb ####
   observe({
     p <- isolate(params())
-    p@species_params[isolate(input$sp_sel), "k_vb"] <- req(input$k_vb)
-    p@species_params[isolate(input$sp_sel), "t0"] <- req(input$t0)
+    p@species_params[isolate(input$sp), "k_vb"] <- req(input$k_vb)
+    p@species_params[isolate(input$sp), "t0"] <- req(input$t0)
     params(p)
   })
   
   ## Adjust biomass observed ####
   observe({
     p <- isolate(params())
-    p@species_params[isolate(input$sp_sel), "biomass_observed"] <- 
+    p@species_params[isolate(input$sp), "biomass_observed"] <- 
       req(input$biomass_observed)
-    p@species_params[isolate(input$sp_sel), "biomass_cutoff"] <- 
+    p@species_params[isolate(input$sp), "biomass_cutoff"] <- 
       req(input$biomass_cutoff)
     params(p)
   })  
@@ -197,7 +197,7 @@ server <- function(input, output, session) {
   ## Adjust catch observed ####
   observe({
     p <- isolate(params())
-    p@species_params[isolate(input$sp_sel), "catch_observed"] <- 
+    p@species_params[isolate(input$sp), "catch_observed"] <- 
       req(input$catch_observed)
     params(p)
   })
@@ -206,7 +206,7 @@ server <- function(input, output, session) {
   observe({
     req(input$n0)
     p <- isolate(params())
-    sp <- isolate(input$sp_sel)
+    sp <- isolate(input$sp)
     
     # rescale abundance to new egg density
     p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
@@ -229,7 +229,7 @@ server <- function(input, output, session) {
     req(input$sigma)
     
     p <- isolate(params())
-    sp <- isolate(input$sp_sel)
+    sp <- isolate(input$sp)
     species_params <- p@species_params
     species_params[sp, "gamma"] <- input$gamma
     species_params[sp, "h"]     <- input$h
@@ -251,7 +251,7 @@ server <- function(input, output, session) {
     req(input$l25)
     
     p <- isolate(params())
-    sp <- isolate(input$sp_sel)
+    sp <- isolate(input$sp)
     species_params <- p@species_params
     species_params[sp, "catchability"]   <- input$catchability
     species_params[sp, "a"]     <- input$a
@@ -275,7 +275,7 @@ server <- function(input, output, session) {
     req(input$ks)
     
     p <- isolate(params())
-    sp <- isolate(input$sp_sel)
+    sp <- isolate(input$sp)
     species_params <- p@species_params
     species_params[sp, "alpha"] <- input$alpha
     species_params[sp, "ks"]    <- input$ks
@@ -550,9 +550,9 @@ server <- function(input, output, session) {
   
   ## Growth curves ####
   output$k_vb_sel <- renderUI({
-    req(input$sp_sel)
-    k_vb <- params()@species_params[input$sp_sel, "k_vb"]
-    t0 <- params()@species_params[input$sp_sel, "t0"]
+    req(input$sp)
+    k_vb <- params()@species_params[input$sp, "k_vb"]
+    t0 <- params()@species_params[input$sp, "t0"]
     list(
       div(style = "display:inline-block",
           numericInput("k_vb", "Von Bertalanffy k", value = k_vb)),
@@ -561,7 +561,7 @@ server <- function(input, output, session) {
     )
   })
   output$plotGrowthCurve <- renderPlot({
-    plotGrowthCurves(params(), species = input$sp_sel) +
+    plotGrowthCurves(params(), species = input$sp) +
       theme_grey(base_size = 18)
   })
   
@@ -582,7 +582,7 @@ server <- function(input, output, session) {
   
   ## Biomass plot ####
   output$biomass_sel <- renderUI({
-    sp <- input$sp_sel
+    sp <- input$sp
     p <- isolate(params())
     species_params <- p@species_params[sp, ]
     list(
@@ -596,8 +596,8 @@ server <- function(input, output, session) {
     )
   })
   output$plotBiomass <- renderPlot({
-    req(input$sp_sel, input$biomass_cutoff, input$biomass_observed)
-    sp <- input$sp_sel
+    req(input$sp, input$biomass_cutoff, input$biomass_observed)
+    sp <- input$sp
     p <- params()
     biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
     
@@ -650,9 +650,9 @@ server <- function(input, output, session) {
   
   # Catch by size for selected species
   output$plotCatch <- renderPlotly({
-    req(input$sp_sel)
+    req(input$sp)
     p <- params()
-    sp <- which.max(p@species_params$species == input$sp_sel)
+    sp <- which.max(p@species_params$species == input$sp)
     w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
     w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
     w_sel <- seq(w_min_idx, w_max_idx, by = 1)
@@ -689,7 +689,7 @@ server <- function(input, output, session) {
   # Input field for observed catch
   output$catch_sel <- renderUI({
     p <- isolate(params())
-    sp <- input$sp_sel
+    sp <- input$sp
     numericInput("catch_observed", 
                  paste0("Observed total catch for ", sp, " (megatonnes)"),
                  value = p@species_params[sp, "catch_observed"])
@@ -706,13 +706,13 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
-      tabsetPanel(
+      tabsetPanel(id ="sidebarTabs",
         tabPanel("Species",
                  tags$br(),
                  actionButton("sp_interact", "Interact"),
                  actionButton("sp_steady", "Steady"),
                  uiOutput("sp_sel"),
-                 tabsetPanel(
+                 tabsetPanel(id ="speciesParamsTabs",
                    tabPanel("Predation",
                             uiOutput("pred_sliders")
                    ),
@@ -749,7 +749,7 @@ ui <- fluidPage(
     
     ## Main panel ####
     mainPanel(
-      tabsetPanel(
+      tabsetPanel(id ="mainTabs",
         type = "tabs",
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
