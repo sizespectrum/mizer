@@ -208,26 +208,27 @@ server <- function(input, output, session) {
     p <- isolate(params())
     sp <- isolate(input$sp)
     
-    # rescale abundance to new egg density
-    p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
-      p@initial_n[sp, p@w_min_idx[sp]]
-    
-    updateSliderInput(session, "n0",
-                      min = signif(input$n0 / 10, 3),
-                      max = signif(input$n0 * 10, 3))
-    
-    # Update the reactive params object
-    params(p)
+    if (skipOther) {
+      skipOther <<- FALSE
+    } else {
+      
+      # rescale abundance to new egg density
+      p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
+        p@initial_n[sp, p@w_min_idx[sp]]
+      
+      updateSliderInput(session, "n0",
+                        min = signif(input$n0 / 10, 3),
+                        max = signif(input$n0 * 10, 3))
+      
+      # Update the reactive params object
+      params(p)
+    }
   })
   
   ## Adjust species parameters ####
   # predation
   observe({
-    # I do not want this to run at the start of the app, but don't know how
-    # to avoid that. But at least I can make sure it does not run before
-    # the last input value has been given its initial value.
     req(input$sigma)
-    
     p <- isolate(params())
     sp <- isolate(input$sp)
     species_params <- p@species_params
@@ -245,11 +246,7 @@ server <- function(input, output, session) {
   
   # fishing
   observe({
-    # I do not want this to run at the start of the app, but don't know how
-    # to avoid that. But at least I can make sure it does not run before
-    # the last input value has been given its initial value.
     req(input$l25)
-    
     p <- isolate(params())
     sp <- isolate(input$sp)
     species_params <- p@species_params
@@ -269,11 +266,7 @@ server <- function(input, output, session) {
   
   # other
   observe({
-    # I do not want this to run at the start of the app, but don't know how
-    # to avoid that. But at least I can make sure it does not run before
-    # the last input value has been given its initial value.
     req(input$ks)
-    
     p <- isolate(params())
     sp <- isolate(input$sp)
     species_params <- p@species_params
@@ -585,6 +578,12 @@ server <- function(input, output, session) {
     sp <- input$sp
     p <- isolate(params())
     species_params <- p@species_params[sp, ]
+    if (is.na(species_params$biomass_observed)) {
+      species_params$biomass_observed <- 0
+    }
+    if (is.na(species_params$biomass_cutoff)) {
+      species_params$biomass_cutoff <- 0
+    }
     list(
       div(style = "display:inline-block",
           numericInput("biomass_observed", 
@@ -601,20 +600,25 @@ server <- function(input, output, session) {
     p <- params()
     biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
     
-    cutoff_idx <- which.max(p@w >= input$biomass_cutoff)
-    target <- input$biomass_observed + biomass[cutoff_idx]
-    
     max_w <- p@species_params[sp, "w_inf"]
     min_w <- p@species_params[sp, "w_min"]
     sel <- p@w >= min_w & p@w <= max_w
     df <- data.frame(Size = p@w[sel], Biomass = biomass[sel])
-    ggplot(df, aes(x = Size, y = Biomass)) + 
+    pl <- ggplot(df, aes(x = Size, y = Biomass)) + 
       geom_line(color = "blue") + scale_x_log10() +
-      geom_hline(yintercept = biomass[cutoff_idx]) +
-      geom_vline(xintercept = input$biomass_cutoff) +
-      geom_hline(yintercept = target, color = "green") +
+      geom_vline(xintercept = p@species_params[sp, "w_mat"], 
+                 linetype = "dotted") +
       theme_grey(base_size = 18) +
       labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")
+    if (input$biomass_observed) {
+      cutoff_idx <- which.max(p@w >= input$biomass_cutoff)
+      target <- input$biomass_observed + biomass[cutoff_idx]
+      pl <- pl +
+        geom_hline(yintercept = biomass[cutoff_idx]) +
+        geom_vline(xintercept = input$biomass_cutoff) +
+        geom_hline(yintercept = target, color = "green")
+    }
+    pl
   })
   output$plotObservedBiomass <- renderPlot({
     p <- params()
