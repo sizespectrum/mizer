@@ -37,6 +37,38 @@ params_data <- read_csv("speciesNCME_Mariella.csv",
                             r_max_guess = col_double()
                         ))
 
+library(readxl)
+SizedistributionAnchovy <- read_excel("Sizedistribucion_CatchNCME.xlsx",
+                                      sheet = "anchovy")
+SizedistributionSardine <- read_excel("Sizedistribucion_CatchNCME.xlsx",
+                                      sheet = "sardine")
+SizedistributionMackerel <- read_excel("Sizedistribucion_CatchNCME.xlsx",
+                                      sheet = "mackerel")
+SizedistributionJMackerel <- read_excel("Sizedistribucion_CatchNCME.xlsx",
+                                      sheet = "jackmackerel")
+sda <- melt(SizedistributionAnchovy, id.vars = 1)
+sda$Species <- "Anchovy"
+sds <- melt(SizedistributionSardine, id.vars = 1)
+sds$Species <- "Sardine"
+sdm <- melt(SizedistributionMackerel, id.vars = 1)
+sdm$Species <- "Mackerel"
+sdj <- melt(SizedistributionJMackerel, id.vars = 1)
+sdj$Species <- "JMackerel"
+catchdistribution <- rbind(sda, sds, sdm, sdj)
+names(catchdistribution) <- c("Length", "Year", "value", "Species")
+
+library(tidyr)
+catchdist <- catchdistribution %>%
+    group_by(Length, Species) %>%
+    summarise(avg = mean(value, na.rm = TRUE))
+
+ggplot(sizedist) +
+    geom_line(aes(x = Length, y = avg, color = Species))
+
+saveRDS(catchdist, "catchdistribution.rds")
+
+catchdist <- readRDS("catchdistribution.rds")
+
 # Set some general parameters
 lambda <- 2.12  # Exponent of community power law
 effort <- 1.4
