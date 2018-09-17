@@ -1,0 +1,129 @@
+{
+  "input": {
+    "beta": 11614,
+    "bg_go": 0,
+    "effort": 1,
+    "gamma": 0.2,
+    "h": 17.2,
+    "log_sp": false,
+    "log_steady": false,
+    "mainTabs": "Spectra",
+    "sidebarTabs": "Species",
+    "sigma": 3.07,
+    "sp": "Mackerel",
+    "sp_interact": 0,
+    "sp_steady": 0,
+    "speciesParamsTabs": "Predation",
+    "upload": {
+      "name": [
+        "humboldt_params.rds"
+      ],
+      "size": [
+        969852
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.rds"
+      ]
+    }
+  },
+  "output": {
+    "filename": "Previously uploaded file: humboldt_params.rds",
+    "plotSpectra": {
+      "src": "[image data sha1: cdf68de831c878affd4042ccfc89302734c15407]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": 10,
+            "y": 10
+          },
+          "domain": {
+            "left": -6.56811254565086,
+            "right": 6.34582482676491,
+            "bottom": -12.1604973639238,
+            "top": 8.3160340082968
+          },
+          "mapping": {
+            "group": "Species",
+            "x": "w",
+            "y": "value"
+          },
+          "range": {
+            "left": 78.519302615193,
+            "right": 490.921743462017,
+            "bottom": 347.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "pred_sliders": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"gamma\">Predation rate coefficient gamma<\/label>\n  <input class=\"js-range-slider\" id=\"gamma\" data-min=\"0.1\" data-max=\"0.4\" data-from=\"0.199969675323013\" data-step=\"0.005\" data-grid=\"true\" data-grid-num=\"8.57142857142857\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"h\">max feeding rate h<\/label>\n  <input class=\"js-range-slider\" id=\"h\" data-min=\"8.6\" data-max=\"34\" data-from=\"17.242707648075\" data-step=\"0.2\" data-grid=\"true\" data-grid-num=\"9.76923076923077\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"beta\">Preferred predator-prey mass ratio beta<\/label>\n  <input class=\"js-range-slider\" id=\"beta\" data-min=\"1161\" data-max=\"116145\" data-from=\"11614\" data-step=\"1\" data-grid=\"true\" data-grid-num=\"9.999478215497\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"sigma\">Width of size selection function sigma<\/label>\n  <input class=\"js-range-slider\" id=\"sigma\" data-min=\"2\" data-max=\"6\" data-from=\"3.06702915543602\" data-step=\"0.05\" data-grid=\"true\" data-grid-num=\"10\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>",
+      "deps": [
+        {
+          "name": "ionrangeslider",
+          "version": "2.1.6",
+          "src": {
+            "href": "shared/ionrangeslider"
+          },
+          "meta": null,
+          "script": "js/ion.rangeSlider.min.js",
+          "stylesheet": [
+            "css/ion.rangeSlider.css",
+            "css/ion.rangeSlider.skinShiny.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "strftime",
+          "version": "0.9.2",
+          "src": {
+            "href": "shared/strftime"
+          },
+          "meta": null,
+          "script": "strftime-min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "sp_sel": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"sp\">Species:<\/label>\n  <div>\n    <select id=\"sp\"><option value=\"Anchovy\" selected>Anchovy<\/option>\n<option value=\"Sardine\">Sardine<\/option>\n<option value=\"Mackerel\">Mackerel<\/option>\n<option value=\"JMackerel\">JMackerel<\/option>\n<option value=\"Palm_Ruff\">Palm_Ruff<\/option>\n<option value=\"EP_Bonito\">EP_Bonito<\/option>\n<option value=\"Swordfish\">Swordfish<\/option><\/select>\n    <script type=\"application/json\" data-for=\"sp\" data-nonempty=\"\">{}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.11.2",
+          "src": {
+            "href": "shared/selectize"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "css/selectize.bootstrap3.css",
+          "head": "<!--[if lt IE 9]>\n<script src=\"shared/selectize/js/es5-shim.min.js\"><\/script>\n<![endif]-->\n<script src=\"shared/selectize/js/selectize.min.js\"><\/script>",
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    }
+  },
+  "export": {
+
+  }
+}

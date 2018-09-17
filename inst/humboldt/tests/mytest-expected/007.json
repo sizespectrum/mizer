@@ -1,0 +1,1089 @@
+{
+  "input": {
+    ".clientValue-default-plotlyCrosstalkOpts": {
+      "on": "plotly_click",
+      "persistent": false,
+      "dynamic": false,
+      "selectize": false,
+      "opacityDim": 0.2,
+      "selected": {
+        "opacity": 1
+      },
+      "debounce": 0,
+      "color": [
+
+      ]
+    },
+    "a": 0.009,
+    "alpha": 0.47,
+    "b": 3.246,
+    "beta": 11614,
+    "bg_go": 0,
+    "biomass_cutoff": 15.86,
+    "biomass_observed": 1.870521,
+    "catch_observed": 0.11539,
+    "catchability": 0.1,
+    "effort": 1,
+    "gamma": 0.2,
+    "h": 17.2,
+    "k_vb": 2,
+    "ks": 2.5,
+    "l25": 5,
+    "l50": 9,
+    "log_sp": false,
+    "log_steady": false,
+    "mainTabs": "Catch",
+    "n0": 78,
+    "sidebarTabs": "Species",
+    "sigma": 3.07,
+    "sp": "Mackerel",
+    "sp_interact": 2,
+    "sp_steady": 0,
+    "speciesParamsTabs": "Fishing",
+    "t0": 2,
+    "upload": {
+      "name": [
+        "humboldt_params.rds"
+      ],
+      "size": [
+        969852
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.rds"
+      ]
+    }
+  },
+  "output": {
+    "biomass_sel": {
+      "html": "<div style=\"display:inline-block\">\n  <div class=\"form-group shiny-input-container\">\n    <label for=\"biomass_observed\">Observed biomass for Mackerel (megatonnes)<\/label>\n    <input id=\"biomass_observed\" type=\"number\" class=\"form-control\" value=\"1.870521\"/>\n  <\/div>\n<\/div>\n<div style=\"display:inline-block\">\n  <div class=\"form-group shiny-input-container\">\n    <label for=\"biomass_cutoff\">Lower cutoff (grams)<\/label>\n    <input id=\"biomass_cutoff\" type=\"number\" class=\"form-control\" value=\"15.86\"/>\n  <\/div>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "catch_sel": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label for=\"catch_observed\">Observed total catch for Mackerel (megatonnes)<\/label>\n  <input id=\"catch_observed\" type=\"number\" class=\"form-control\" value=\"0.11539\"/>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "filename": "Previously uploaded file: humboldt_params.rds",
+    "fishing_sliders": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label for=\"catchability\">Catchability<\/label>\n  <input id=\"catchability\" type=\"number\" class=\"form-control\" value=\"0.23\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label for=\"l50\">L50<\/label>\n  <input id=\"l50\" type=\"number\" class=\"form-control\" value=\"6\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label for=\"l25\">L25<\/label>\n  <input id=\"l25\" type=\"number\" class=\"form-control\" value=\"5\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label for=\"a\">Coefficient for length to weight conversion a<\/label>\n  <input id=\"a\" type=\"number\" class=\"form-control\" value=\"0.009\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label for=\"b\">Exponent for length to weight conversion b<\/label>\n  <input id=\"b\" type=\"number\" class=\"form-control\" value=\"3.246\"/>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "k_vb_sel": {
+      "html": "<div style=\"display:inline-block\">\n  <div class=\"form-group shiny-input-container\">\n    <label for=\"k_vb\">Von Bertalanffy k<\/label>\n    <input id=\"k_vb\" type=\"number\" class=\"form-control\" value=\"2\"/>\n  <\/div>\n<\/div>\n<div style=\"display:inline-block\">\n  <div class=\"form-group shiny-input-container\">\n    <label for=\"t0\">t_0<\/label>\n    <input id=\"t0\" type=\"number\" class=\"form-control\" value=\"2\"/>\n  <\/div>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "other_sliders": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"n0\">Egg density<\/label>\n  <input class=\"js-range-slider\" id=\"n0\" data-min=\"78.3\" data-max=\"7830\" data-from=\"783.361592031507\" data-step=\"100\" data-grid=\"true\" data-grid-num=\"9.689625\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"alpha\">Assimilation efficiency alpha<\/label>\n  <input class=\"js-range-slider\" id=\"alpha\" data-min=\"0\" data-max=\"1\" data-from=\"0.6\" data-step=\"0.01\" data-grid=\"true\" data-grid-num=\"10\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"ks\">Coefficient of standard metabolism ks<\/label>\n  <input class=\"js-range-slider\" id=\"ks\" data-min=\"1.7\" data-max=\"6.9\" data-from=\"3.448541529615\" data-step=\"0.05\" data-grid=\"true\" data-grid-num=\"9.45454545454546\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>",
+      "deps": [
+        {
+          "name": "ionrangeslider",
+          "version": "2.1.6",
+          "src": {
+            "href": "shared/ionrangeslider"
+          },
+          "meta": null,
+          "script": "js/ion.rangeSlider.min.js",
+          "stylesheet": [
+            "css/ion.rangeSlider.css",
+            "css/ion.rangeSlider.skinShiny.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "strftime",
+          "version": "0.9.2",
+          "src": {
+            "href": "shared/strftime"
+          },
+          "meta": null,
+          "script": "strftime-min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "plot_erepro": {
+      "src": "[image data sha1: e512041d17558435fe308d750e7558bebdae5a98]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": null,
+            "y": 10
+          },
+          "domain": {
+            "left": 0.4,
+            "right": 12.6,
+            "bottom": -6.40439266329907,
+            "top": 1.1012146948923
+          },
+          "mapping": {
+            "x": "species",
+            "y": "erepro"
+          },
+          "range": {
+            "left": 78.519302615193,
+            "right": 622.033623910336,
+            "bottom": 292.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "plotBiomass": {
+      "src": "[image data sha1: 5de677a88b81bd62b6b8b38c209453b1b69fb2d7]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": 10,
+            "y": null
+          },
+          "domain": {
+            "left": -3.46558800835742,
+            "right": 3.61017351027873,
+            "bottom": -0.110164507549,
+            "top": 2.31354864262254
+          },
+          "mapping": {
+            "x": "Size",
+            "y": "Biomass"
+          },
+          "range": {
+            "left": 58.519302615193,
+            "right": 622.033623910336,
+            "bottom": 347.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "plotCatch": {
+      "x": {
+        "data": [
+          {
+            "x": [
+              0.524769723289619,
+              0.549227938010104,
+              0.573686152730588,
+              0.598144367451073,
+              0.622602582171557,
+              0.647060796892041,
+              0.671519011612526,
+              0.69597722633301,
+              0.720435441053494,
+              0.744893655773979,
+              0.769351870494464,
+              0.793810085214948,
+              0.818268299935433,
+              0.842726514655917,
+              0.867184729376401,
+              0.891642944096885,
+              0.91610115881737,
+              0.940559373537854,
+              0.965017588258338,
+              0.989475802978824,
+              1.01393401769931,
+              1.03839223241979,
+              1.06285044714028,
+              1.08730866186076,
+              1.11176687658125,
+              1.13622509130173,
+              1.16068330602221,
+              1.1851415207427,
+              1.20959973546318,
+              1.23405795018367,
+              1.25851616490415,
+              1.28297437962464,
+              1.30743259434512,
+              1.33189080906561,
+              1.35634902378609,
+              1.38080723850657,
+              1.40526545322706,
+              1.42972366794754,
+              1.45418188266803,
+              1.47864009738851,
+              1.503098312109,
+              1.52755652682948,
+              1.55201474154997,
+              1.57647295627045,
+              1.60093117099093,
+              1.62538938571142,
+              1.6498476004319,
+              1.67430581515239,
+              1.69876402987287,
+              1.72322224459336,
+              1.74768045931384,
+              1.77213867403433,
+              1.79659688875481,
+              1.82105510347529,
+              1.84551331819578,
+              1.86997153291626,
+              1.89442974763675,
+              1.91888796235723,
+              1.94334617707772,
+              1.9678043917982,
+              1.99226260651869,
+              2.01672082123917,
+              2.04117903595965,
+              2.06563725068014,
+              2.09009546540062,
+              2.11455368012111,
+              2.13901189484159,
+              2.16347010956208,
+              2.18792832428256,
+              2.21238653900304,
+              2.23684475372353,
+              2.26130296844401,
+              2.2857611831645,
+              2.31021939788498,
+              2.33467761260547,
+              2.35913582732595,
+              2.38359404204644,
+              2.40805225676692,
+              2.4325104714874,
+              2.45696868620789,
+              2.48142690092837,
+              2.50588511564886,
+              2.53034333036934,
+              2.55480154508983,
+              2.57925975981031,
+              2.6037179745308,
+              2.62817618925128,
+              2.65263440397176,
+              2.67709261869225,
+              2.70155083341273,
+              2.72600904813322,
+              2.7504672628537,
+              2.77492547757419,
+              2.79938369229467,
+              2.82384190701516,
+              2.84830012173564,
+              2.87275833645612,
+              2.89721655117661,
+              2.92167476589709,
+              2.94613298061758,
+              2.97059119533806,
+              2.99504941005855,
+              3.01950762477903,
+              3.04396583949952,
+              3.06842405422,
+              3.09288226894048,
+              3.11734048366097,
+              3.14179869838145,
+              3.16625691310194,
+              3.19071512782242,
+              3.21517334254291,
+              3.23963155726339,
+              3.26408977198388,
+              3.28854798670436
+            ],
+            "y": [
+              0.000112429414001604,
+              0.000117739778950819,
+              0.000123275725785202,
+              0.000129045034026547,
+              0.000135055589843069,
+              0.000141315376046728,
+              0.000147832461803042,
+              0.0001546149921043,
+              0.000161671177511761,
+              0.000169009285988023,
+              0.000176637640861007,
+              0.000184564630759998,
+              0.000192798738044075,
+              0.000201348599138877,
+              0.000210223169125557,
+              0.000219433462861552,
+              0.000228988337751941,
+              0.000238896753398904,
+              0.000249167795665843,
+              0.000259810713323032,
+              0.000270834974253726,
+              0.000282250352951283,
+              0.000294067068454144,
+              0.000306296000440289,
+              0.000318949013221574,
+              0.000332039392425173,
+              0.000345582318614088,
+              0.000359595177282162,
+              0.00037409746321131,
+              0.000389110237697048,
+              0.000404655418671691,
+              0.000420755267403813,
+              0.000437432220421562,
+              0.000454708989587459,
+              0.000472608791998544,
+              0.000491155616997637,
+              0.000510374492048518,
+              0.000530291743255331,
+              0.000550935285988902,
+              0.000572335139652934,
+              0.000594527860210952,
+              0.000617545989245788,
+              0.000641423816322137,
+              0.000666197444762088,
+              0.000691904847504448,
+              0.000718585912655506,
+              0.00074628247871956,
+              0.000775038359961554,
+              0.00080489936398554,
+              0.000835913306599645,
+              0.000868130034788249,
+              0.000901601480396486,
+              0.000936381794461173,
+              0.000972527690814803,
+              0.0010100986890467,
+              0.00104917054397485,
+              0.00108982586177096,
+              0.0011321523717735,
+              0.00117624309132042,
+              0.00122219650094814,
+              0.00127011676197313,
+              0.0013201140321476,
+              0.00137230498822402,
+              0.00142681397000357,
+              0.00148378262064201,
+              0.00154334801189953,
+              0.00160565577422254,
+              0.00167086208149628,
+              0.00173913729108701,
+              0.00181067268918375,
+              0.00188569304150371,
+              0.00196447996801463,
+              0.00204741542226954,
+              0.00213506230256891,
+              0.00222831307387082,
+              0.0023286612558776,
+              0.00243868933092073,
+              0.00256292005645932,
+              0.00270922306001794,
+              0.00289090505946426,
+              0.00312915412277446,
+              0.00345411291268706,
+              0.0039002939193446,
+              0.00449086384993437,
+              0.00521311282645436,
+              0.00600580349255835,
+              0.00678128637789669,
+              0.00746882350482172,
+              0.00803934078129054,
+              0.00849873225893316,
+              0.00886882463645179,
+              0.00917257804759755,
+              0.00942805715412058,
+              0.00964735401688845,
+              0.00983750674588904,
+              0.0100017902477377,
+              0.0101407994294138,
+              0.0102532147184447,
+              0.0103362951689303,
+              0.010386173076157,
+              0.0103980129709159,
+              0.0103660796731019,
+              0.010283744446476,
+              0.0101434467771062,
+              0.00993662133481576,
+              0.0096535932196306,
+              0.00928343985597703,
+              0.00881381189258074,
+              0.00823069703918833,
+              0.00751809485750534,
+              0.00665753527048803,
+              0.00562728597648178,
+              0.00440084227456451,
+              0.00294336808057594
+            ],
+            "text": [
+              "Size:    3.347879<br />Catch: 0.0001124294",
+              "Size:    3.541832<br />Catch: 0.0001177398",
+              "Size:    3.747021<br />Catch: 0.0001232757",
+              "Size:    3.964098<br />Catch: 0.0001290450",
+              "Size:    4.193750<br />Catch: 0.0001350556",
+              "Size:    4.436707<br />Catch: 0.0001413154",
+              "Size:    4.693740<br />Catch: 0.0001478325",
+              "Size:    4.965663<br />Catch: 0.0001546150",
+              "Size:    5.253339<br />Catch: 0.0001616712",
+              "Size:    5.557682<br />Catch: 0.0001690093",
+              "Size:    5.879655<br />Catch: 0.0001766376",
+              "Size:    6.220282<br />Catch: 0.0001845646",
+              "Size:    6.580643<br />Catch: 0.0001927987",
+              "Size:    6.961880<br />Catch: 0.0002013486",
+              "Size:    7.365203<br />Catch: 0.0002102232",
+              "Size:    7.791892<br />Catch: 0.0002194335",
+              "Size:    8.243301<br />Catch: 0.0002289883",
+              "Size:    8.720861<br />Catch: 0.0002388968",
+              "Size:    9.226088<br />Catch: 0.0002491678",
+              "Size:    9.760584<br />Catch: 0.0002598107",
+              "Size:   10.326045<br />Catch: 0.0002708350",
+              "Size:   10.924265<br />Catch: 0.0002822504",
+              "Size:   11.557142<br />Catch: 0.0002940671",
+              "Size:   12.226683<br />Catch: 0.0003062960",
+              "Size:   12.935013<br />Catch: 0.0003189490",
+              "Size:   13.684379<br />Catch: 0.0003320394",
+              "Size:   14.477158<br />Catch: 0.0003455823",
+              "Size:   15.315865<br />Catch: 0.0003595952",
+              "Size:   16.203161<br />Catch: 0.0003740975",
+              "Size:   17.141860<br />Catch: 0.0003891102",
+              "Size:   18.134942<br />Catch: 0.0004046554",
+              "Size:   19.185556<br />Catch: 0.0004207553",
+              "Size:   20.297035<br />Catch: 0.0004374322",
+              "Size:   21.472905<br />Catch: 0.0004547090",
+              "Size:   22.716898<br />Catch: 0.0004726088",
+              "Size:   24.032959<br />Catch: 0.0004911556",
+              "Size:   25.425263<br />Catch: 0.0005103745",
+              "Size:   26.898228<br />Catch: 0.0005302917",
+              "Size:   28.456526<br />Catch: 0.0005509353",
+              "Size:   30.105102<br />Catch: 0.0005723351",
+              "Size:   31.849184<br />Catch: 0.0005945279",
+              "Size:   33.694307<br />Catch: 0.0006175460",
+              "Size:   35.646323<br />Catch: 0.0006414238",
+              "Size:   37.711426<br />Catch: 0.0006661974",
+              "Size:   39.896167<br />Catch: 0.0006919048",
+              "Size:   42.207476<br />Catch: 0.0007185859",
+              "Size:   44.652687<br />Catch: 0.0007462825",
+              "Size:   47.239557<br />Catch: 0.0007750384",
+              "Size:   49.976292<br />Catch: 0.0008048994",
+              "Size:   52.871575<br />Catch: 0.0008359133",
+              "Size:   55.934590<br />Catch: 0.0008681300",
+              "Size:   59.175056<br />Catch: 0.0009016015",
+              "Size:   62.603251<br />Catch: 0.0009363818",
+              "Size:   66.230053<br />Catch: 0.0009725277",
+              "Size:   70.066967<br />Catch: 0.0010100987",
+              "Size:   74.126165<br />Catch: 0.0010491705",
+              "Size:   78.420525<br />Catch: 0.0010898259",
+              "Size:   82.963671<br />Catch: 0.0011321524",
+              "Size:   87.770016<br />Catch: 0.0011762431",
+              "Size:   92.854807<br />Catch: 0.0012221965",
+              "Size:   98.234176<br />Catch: 0.0012701168",
+              "Size:  103.925189<br />Catch: 0.0013201140",
+              "Size:  109.945899<br />Catch: 0.0013723050",
+              "Size:  116.315409<br />Catch: 0.0014268140",
+              "Size:  123.053923<br />Catch: 0.0014837826",
+              "Size:  130.182822<br />Catch: 0.0015433480",
+              "Size:  137.724719<br />Catch: 0.0016056558",
+              "Size:  145.703542<br />Catch: 0.0016708621",
+              "Size:  154.144603<br />Catch: 0.0017391373",
+              "Size:  163.074682<br />Catch: 0.0018106727",
+              "Size:  172.522107<br />Catch: 0.0018856930",
+              "Size:  182.516852<br />Catch: 0.0019644800",
+              "Size:  193.090623<br />Catch: 0.0020474154",
+              "Size:  204.276966<br />Catch: 0.0021350623",
+              "Size:  216.111368<br />Catch: 0.0022283131",
+              "Size:  228.631375<br />Catch: 0.0023286613",
+              "Size:  241.876704<br />Catch: 0.0024386893",
+              "Size:  255.889377<br />Catch: 0.0025629201",
+              "Size:  270.713848<br />Catch: 0.0027092231",
+              "Size:  286.397146<br />Catch: 0.0028909051",
+              "Size:  302.989027<br />Catch: 0.0031291541",
+              "Size:  320.542128<br />Catch: 0.0034541129",
+              "Size:  339.112134<br />Catch: 0.0039002939",
+              "Size:  358.757959<br />Catch: 0.0044908638",
+              "Size:  379.541928<br />Catch: 0.0052131128",
+              "Size:  401.529978<br />Catch: 0.0060058035",
+              "Size:  424.791863<br />Catch: 0.0067812864",
+              "Size:  449.401382<br />Catch: 0.0074688235",
+              "Size:  475.436608<br />Catch: 0.0080393408",
+              "Size:  502.980135<br />Catch: 0.0084987323",
+              "Size:  532.119345<br />Catch: 0.0088688246",
+              "Size:  562.946681<br />Catch: 0.0091725780",
+              "Size:  595.559940<br />Catch: 0.0094280572",
+              "Size:  630.062587<br />Catch: 0.0096473540",
+              "Size:  666.564081<br />Catch: 0.0098375067",
+              "Size:  705.180220<br />Catch: 0.0100017902",
+              "Size:  746.033512<br />Catch: 0.0101407994",
+              "Size:  789.253563<br />Catch: 0.0102532147",
+              "Size:  834.977487<br />Catch: 0.0103362952",
+              "Size:  883.350340<br />Catch: 0.0103861731",
+              "Size:  934.525584<br />Catch: 0.0103980130",
+              "Size:  988.665570<br />Catch: 0.0103660797",
+              "Size: 1045.942054<br />Catch: 0.0102837444",
+              "Size: 1106.536743<br />Catch: 0.0101434468",
+              "Size: 1170.641872<br />Catch: 0.0099366213",
+              "Size: 1238.460812<br />Catch: 0.0096535932",
+              "Size: 1310.208714<br />Catch: 0.0092834399",
+              "Size: 1386.113197<br />Catch: 0.0088138119",
+              "Size: 1466.415063<br />Catch: 0.0082306970",
+              "Size: 1551.369067<br />Catch: 0.0075180949",
+              "Size: 1641.244722<br />Catch: 0.0066575353",
+              "Size: 1736.327155<br />Catch: 0.0056272860",
+              "Size: 1836.918009<br />Catch: 0.0044008423",
+              "Size: 1943.336406<br />Catch: 0.0029433681"
+            ],
+            "type": "scatter",
+            "mode": "lines",
+            "line": {
+              "width": 1.88976377952756,
+              "color": "rgba(0,0,0,1)",
+              "dash": "solid"
+            },
+            "hoveron": "points",
+            "showlegend": false,
+            "xaxis": "x",
+            "yaxis": "y",
+            "hoverinfo": "text",
+            "frame": null
+          },
+          {
+            "x": [
+              2.54843855758555,
+              2.54843855758555
+            ],
+            "y": [
+              -0.000401849763844111,
+              0.0109122921487616
+            ],
+            "text": "xintercept: 2.548439",
+            "type": "scatter",
+            "mode": "lines",
+            "line": {
+              "width": 1.88976377952756,
+              "color": "rgba(0,0,0,1)",
+              "dash": "solid"
+            },
+            "hoveron": "points",
+            "showlegend": false,
+            "xaxis": "x",
+            "yaxis": "y",
+            "hoverinfo": "text",
+            "frame": null
+          }
+        ],
+        "layout": {
+          "margin": {
+            "t": 25.7412480974125,
+            "r": 7.30593607305936,
+            "b": 39.6955859969559,
+            "l": 60.6392694063927
+          },
+          "plot_bgcolor": "rgba(235,235,235,1)",
+          "paper_bgcolor": "rgba(255,255,255,1)",
+          "font": {
+            "color": "rgba(0,0,0,1)",
+            "family": "",
+            "size": 14.6118721461187
+          },
+          "xaxis": {
+            "domain": [
+              0,
+              1
+            ],
+            "automargin": true,
+            "type": "linear",
+            "autorange": false,
+            "range": [
+              0.386580810118882,
+              3.4267368998751
+            ],
+            "tickmode": "array",
+            "ticktext": [
+              "10",
+              "100",
+              "1000"
+            ],
+            "tickvals": [
+              1,
+              2,
+              3
+            ],
+            "categoryorder": "array",
+            "categoryarray": [
+              "10",
+              "100",
+              "1000"
+            ],
+            "nticks": null,
+            "ticks": "outside",
+            "tickcolor": "rgba(51,51,51,1)",
+            "ticklen": 3.65296803652968,
+            "tickwidth": 0.66417600664176,
+            "showticklabels": true,
+            "tickfont": {
+              "color": "rgba(77,77,77,1)",
+              "family": "",
+              "size": 11.689497716895
+            },
+            "tickangle": -0,
+            "showline": false,
+            "linecolor": null,
+            "linewidth": 0,
+            "showgrid": true,
+            "gridcolor": "rgba(255,255,255,1)",
+            "gridwidth": 0.66417600664176,
+            "zeroline": false,
+            "anchor": "y",
+            "title": "Size",
+            "titlefont": {
+              "color": "rgba(0,0,0,1)",
+              "family": "",
+              "size": 14.6118721461187
+            },
+            "hoverformat": ".2f"
+          },
+          "yaxis": {
+            "domain": [
+              0,
+              1
+            ],
+            "automargin": true,
+            "type": "linear",
+            "autorange": false,
+            "range": [
+              -0.000401849763844111,
+              0.0109122921487616
+            ],
+            "tickmode": "array",
+            "ticktext": [
+              "0.0000",
+              "0.0025",
+              "0.0050",
+              "0.0075",
+              "0.0100"
+            ],
+            "tickvals": [
+              0,
+              0.0025,
+              0.005,
+              0.0075,
+              0.01
+            ],
+            "categoryorder": "array",
+            "categoryarray": [
+              "0.0000",
+              "0.0025",
+              "0.0050",
+              "0.0075",
+              "0.0100"
+            ],
+            "nticks": null,
+            "ticks": "outside",
+            "tickcolor": "rgba(51,51,51,1)",
+            "ticklen": 3.65296803652968,
+            "tickwidth": 0.66417600664176,
+            "showticklabels": true,
+            "tickfont": {
+              "color": "rgba(77,77,77,1)",
+              "family": "",
+              "size": 11.689497716895
+            },
+            "tickangle": -0,
+            "showline": false,
+            "linecolor": null,
+            "linewidth": 0,
+            "showgrid": true,
+            "gridcolor": "rgba(255,255,255,1)",
+            "gridwidth": 0.66417600664176,
+            "zeroline": false,
+            "anchor": "x",
+            "title": "Catch",
+            "titlefont": {
+              "color": "rgba(0,0,0,1)",
+              "family": "",
+              "size": 14.6118721461187
+            },
+            "hoverformat": ".2f"
+          },
+          "shapes": [
+            {
+              "type": "rect",
+              "fillcolor": null,
+              "line": {
+                "color": null,
+                "width": 0,
+                "linetype": [
+
+                ]
+              },
+              "yref": "paper",
+              "xref": "paper",
+              "x0": 0,
+              "x1": 1,
+              "y0": 0,
+              "y1": 1
+            }
+          ],
+          "showlegend": false,
+          "legend": {
+            "bgcolor": "rgba(255,255,255,1)",
+            "bordercolor": "transparent",
+            "borderwidth": 1.88976377952756,
+            "font": {
+              "color": "rgba(0,0,0,1)",
+              "family": "",
+              "size": 11.689497716895
+            }
+          },
+          "hovermode": "closest",
+          "barmode": "relative"
+        },
+        "config": {
+          "doubleClick": "reset",
+          "modeBarButtonsToAdd": [
+            {
+              "name": "Collaborate",
+              "icon": {
+                "width": 1000,
+                "ascent": 500,
+                "descent": -50,
+                "path": "M487 375c7-10 9-23 5-36l-79-259c-3-12-11-23-22-31-11-8-22-12-35-12l-263 0c-15 0-29 5-43 15-13 10-23 23-28 37-5 13-5 25-1 37 0 0 0 3 1 7 1 5 1 8 1 11 0 2 0 4-1 6 0 3-1 5-1 6 1 2 2 4 3 6 1 2 2 4 4 6 2 3 4 5 5 7 5 7 9 16 13 26 4 10 7 19 9 26 0 2 0 5 0 9-1 4-1 6 0 8 0 2 2 5 4 8 3 3 5 5 5 7 4 6 8 15 12 26 4 11 7 19 7 26 1 1 0 4 0 9-1 4-1 7 0 8 1 2 3 5 6 8 4 4 6 6 6 7 4 5 8 13 13 24 4 11 7 20 7 28 1 1 0 4 0 7-1 3-1 6-1 7 0 2 1 4 3 6 1 1 3 4 5 6 2 3 3 5 5 6 1 2 3 5 4 9 2 3 3 7 5 10 1 3 2 6 4 10 2 4 4 7 6 9 2 3 4 5 7 7 3 2 7 3 11 3 3 0 8 0 13-1l0-1c7 2 12 2 14 2l218 0c14 0 25-5 32-16 8-10 10-23 6-37l-79-259c-7-22-13-37-20-43-7-7-19-10-37-10l-248 0c-5 0-9-2-11-5-2-3-2-7 0-12 4-13 18-20 41-20l264 0c5 0 10 2 16 5 5 3 8 6 10 11l85 282c2 5 2 10 2 17 7-3 13-7 17-13z m-304 0c-1-3-1-5 0-7 1-1 3-2 6-2l174 0c2 0 4 1 7 2 2 2 4 4 5 7l6 18c0 3 0 5-1 7-1 1-3 2-6 2l-173 0c-3 0-5-1-8-2-2-2-4-4-4-7z m-24-73c-1-3-1-5 0-7 2-2 3-2 6-2l174 0c2 0 5 0 7 2 3 2 4 4 5 7l6 18c1 2 0 5-1 6-1 2-3 3-5 3l-174 0c-3 0-5-1-7-3-3-1-4-4-5-6z"
+              },
+              "click": "function(gd) { \n        // is this being viewed in RStudio?\n        if (location.search == '?viewer_pane=1') {\n          alert('To learn about plotly for collaboration, visit:\\n https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html');\n        } else {\n          window.open('https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html', '_blank');\n        }\n      }"
+            }
+          ],
+          "cloud": false
+        },
+        "source": "A",
+        "attrs": {
+          "ad050745a43": {
+            "x": {
+
+            },
+            "y": {
+
+            },
+            "type": "scatter"
+          },
+          "ad0aba89b9": {
+            "xintercept": {
+
+            }
+          }
+        },
+        "cur_data": "ad050745a43",
+        "visdat": {
+          "ad050745a43": [
+            "function (y) ",
+            "x"
+          ],
+          "ad0aba89b9": [
+            "function (y) ",
+            "x"
+          ]
+        },
+        "highlight": {
+          "on": "plotly_click",
+          "persistent": false,
+          "dynamic": false,
+          "selectize": false,
+          "opacityDim": 0.2,
+          "selected": {
+            "opacity": 1
+          },
+          "debounce": 0
+        },
+        "base_url": "https://plot.ly"
+      },
+      "evals": [
+        "config.modeBarButtonsToAdd.0.click"
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "typedarray",
+          "version": "0.1",
+          "src": {
+            "href": "typedarray-0.1"
+          },
+          "meta": null,
+          "script": "typedarray.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "jquery",
+          "version": "1.11.3",
+          "src": {
+            "href": "jquery-1.11.3"
+          },
+          "meta": null,
+          "script": "jquery.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.0.0",
+          "src": {
+            "href": "crosstalk-1.0.0"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "plotly-htmlwidgets-css",
+          "version": "1.39.2",
+          "src": {
+            "href": "plotly-htmlwidgets-css-1.39.2"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "plotly-htmlwidgets.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "plotly-main",
+          "version": "1.39.2",
+          "src": {
+            "href": "plotly-main-1.39.2"
+          },
+          "meta": null,
+          "script": "plotly-latest.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        }
+      ]
+    },
+    "plotGrowthCurve": {
+      "src": "[image data sha1: d69aa94a98244137891d2dd9432ba21721468a87]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": null,
+            "y": null
+          },
+          "domain": {
+            "left": -1,
+            "right": 21,
+            "bottom": -100.414265,
+            "top": 2108.714965
+          },
+          "mapping": {
+            "x": "Age",
+            "y": "value",
+            "colour": "Species",
+            "linetype": "Species"
+          },
+          "range": {
+            "left": 70.519302615193,
+            "right": 501.921743462017,
+            "bottom": 347.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "plotObservedBiomass": {
+      "src": "[image data sha1: e71cf580410b6d54948b94f88735a9916dc049ed]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": null,
+            "y": null
+          },
+          "domain": {
+            "left": 0.4,
+            "right": 12.6,
+            "bottom": -1.46954209395093,
+            "top": 30.8603839729695
+          },
+          "mapping": {
+            "x": "Species",
+            "y": "Biomass",
+            "fill": "Type"
+          },
+          "range": {
+            "left": 54.519302615193,
+            "right": 497.921743462018,
+            "bottom": 292.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "plotObservedCatch": {
+      "src": "[image data sha1: 43eca9924e3895a7d8e9bfa8f55c49b7a8472c4e]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": null,
+            "y": null
+          },
+          "domain": {
+            "left": 0.4,
+            "right": 12.6,
+            "bottom": -1.26665187120034,
+            "top": 26.5996892952071
+          },
+          "mapping": {
+            "x": "Species",
+            "y": "Catch",
+            "fill": "Type"
+          },
+          "range": {
+            "left": 54.519302615193,
+            "right": 497.921743462018,
+            "bottom": 292.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "plotSpectra": {
+      "src": "[image data sha1: cdf68de831c878affd4042ccfc89302734c15407]",
+      "width": 631,
+      "height": 400,
+      "coordmap": [
+        {
+          "panel": 1,
+          "row": 1,
+          "col": 1,
+          "panel_vars": {
+
+          },
+          "log": {
+            "x": 10,
+            "y": 10
+          },
+          "domain": {
+            "left": -6.56811254565086,
+            "right": 6.34582482676491,
+            "bottom": -12.1604973639238,
+            "top": 8.3160340082968
+          },
+          "mapping": {
+            "group": "Species",
+            "x": "w",
+            "y": "value"
+          },
+          "range": {
+            "left": 78.519302615193,
+            "right": 490.921743462017,
+            "bottom": 347.480697384807,
+            "top": 8.96637608966376
+          }
+        }
+      ]
+    },
+    "pred_sliders": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"gamma\">Predation rate coefficient gamma<\/label>\n  <input class=\"js-range-slider\" id=\"gamma\" data-min=\"0.1\" data-max=\"0.4\" data-from=\"0.199969675323013\" data-step=\"0.005\" data-grid=\"true\" data-grid-num=\"8.57142857142857\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"h\">max feeding rate h<\/label>\n  <input class=\"js-range-slider\" id=\"h\" data-min=\"8.6\" data-max=\"34\" data-from=\"17.242707648075\" data-step=\"0.2\" data-grid=\"true\" data-grid-num=\"9.76923076923077\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"beta\">Preferred predator-prey mass ratio beta<\/label>\n  <input class=\"js-range-slider\" id=\"beta\" data-min=\"1161\" data-max=\"116145\" data-from=\"11614\" data-step=\"1\" data-grid=\"true\" data-grid-num=\"9.999478215497\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>\n<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"sigma\">Width of size selection function sigma<\/label>\n  <input class=\"js-range-slider\" id=\"sigma\" data-min=\"2\" data-max=\"6\" data-from=\"3.06702915543602\" data-step=\"0.05\" data-grid=\"true\" data-grid-num=\"10\" data-grid-snap=\"false\" data-prettify-separator=\",\" data-prettify-enabled=\"true\" data-keyboard=\"true\" data-data-type=\"number\"/>\n<\/div>",
+      "deps": [
+        {
+          "name": "ionrangeslider",
+          "version": "2.1.6",
+          "src": {
+            "href": "shared/ionrangeslider"
+          },
+          "meta": null,
+          "script": "js/ion.rangeSlider.min.js",
+          "stylesheet": [
+            "css/ion.rangeSlider.css",
+            "css/ion.rangeSlider.skinShiny.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        },
+        {
+          "name": "strftime",
+          "version": "0.9.2",
+          "src": {
+            "href": "shared/strftime"
+          },
+          "meta": null,
+          "script": "strftime-min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    },
+    "sp_sel": {
+      "html": "<div class=\"form-group shiny-input-container\">\n  <label class=\"control-label\" for=\"sp\">Species:<\/label>\n  <div>\n    <select id=\"sp\"><option value=\"Anchovy\" selected>Anchovy<\/option>\n<option value=\"Sardine\">Sardine<\/option>\n<option value=\"Mackerel\">Mackerel<\/option>\n<option value=\"JMackerel\">JMackerel<\/option>\n<option value=\"Palm_Ruff\">Palm_Ruff<\/option>\n<option value=\"EP_Bonito\">EP_Bonito<\/option>\n<option value=\"Swordfish\">Swordfish<\/option><\/select>\n    <script type=\"application/json\" data-for=\"sp\" data-nonempty=\"\">{}<\/script>\n  <\/div>\n<\/div>",
+      "deps": [
+        {
+          "name": "selectize",
+          "version": "0.11.2",
+          "src": {
+            "href": "shared/selectize"
+          },
+          "meta": null,
+          "script": null,
+          "stylesheet": "css/selectize.bootstrap3.css",
+          "head": "<!--[if lt IE 9]>\n<script src=\"shared/selectize/js/es5-shim.min.js\"><\/script>\n<![endif]-->\n<script src=\"shared/selectize/js/selectize.min.js\"><\/script>",
+          "attachment": null,
+          "package": null,
+          "all_files": true
+        }
+      ]
+    }
+  },
+  "export": {
+
+  }
+}

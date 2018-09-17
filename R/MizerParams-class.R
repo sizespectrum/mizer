@@ -704,7 +704,7 @@ multispeciesParams <- function(object, interaction,
     
     ## Start filling the slots ---------------------------------------------
     res@species_params <- object
-    res@w_min_idx <- as.vector(
+    res@w_min_idx[] <- as.vector(
         tapply(object$w_min, 1:length(object$w_min),
                function(w_min, wx) max(which(wx <= w_min)), wx = res@w))
     # Check dims of interaction argument - make sure it's right
@@ -854,9 +854,6 @@ multispeciesParams <- function(object, interaction,
         res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
     }
     
-    # Remove catchabiliy from species data.frame, now stored in slot
-    #params@species_params[,names(params@species_params) != "catchability"]
-    res@species_params <- res@species_params[, -which(names(res@species_params) == "catchability")]
     res@initial_n <- res@psi
     res@initial_n <- get_initial_n(res)
     res@A <- rep(1, no_sp)

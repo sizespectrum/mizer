@@ -1,0 +1,201 @@
+---
+title: "Feeding preference of Anchovy and Sardine"
+output: html_notebook
+---
+
+Mariella has data of stomach content for anchovy and sardine.
+Let's load it
+
+```{r message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+ppmr <- read_csv("Data_PPMR.csv") %>%
+    group_by(Species)
+ppmr
+```
+
+The table reports the same predator size for all anchovy and 
+the same predator size for all sardine because all predators of 
+each species had very similar sizes.
+
+The `wprey` variable is the typical weight of an individual of
+a particular prey species and `Nprey` is the average number of individuals
+of that species in a stomach.
+
+We want to use this stomach data to estimate the feeding preference
+function for a size-spectrum model. To make a connection we 
+assume that the abundance of a prey size in a predator's stomach
+is proportional to the rate at which the predator feeds on prey of 
+that size. This is a dubious assumption because it neglects that
+prey of different sizes might stay identifiable in the stomach for
+different lengths of time.
+
+For a predator of size $w'$ the rate at which it predates on
+prey of size $w$ is proportional to
+$$N(w)\phi(w', w)$$
+where $N(w)$ is the abundance of prey of size $w$ and 
+$\phi(w',w)$ is the preference function. 
+
+We now assume that the
+prey abundance is given by a power law 
+$$N(w)\propto w^{-\lambda}.$$
+For the preference function we use the Gaussian
+$$\phi(w) = \exp\left(-\frac{(\log(w)-\log(w')+\log(\beta))^2}
+  {2\sigma^2}\right).$$
+
+Thus the probability density for the weight of a random prey individual
+in the stomach is
+$$ f_W(w) \propto w^{-\lambda}
+\exp\left(-\frac{(\log(w)-\mu)^2}
+  {2\sigma^2}\right),$$
+where $\mu = \log(w')-\log(\beta)$. The probability density function
+for the log of the prey mass is then obtained by observing that
+$$ f_W(w) = f_{\log(W)}(\log w)\frac{d(\log w)}{dw}$$
+and thus 
+$$f_{\log(W)}(\log w) = w f_W(w).$$
+This gives
+$$ f_{\log(W)}(x) \propto e^{x(1-\lambda)}
+\exp\left(-\frac{(x-\mu)^2}
+  {2\sigma^2}\right),$$
+
+By combining the exponentials and completing squares and then 
+normalising, the density becomes
+$$ f_{\log(W)}(x) = 
+\frac{1}{\sqrt{2\pi}\sigma}
+\exp\left(-\frac{(x-(\mu-\sigma^2(\lambda-1))^2}
+  {2\sigma^2}\right),$$
+
+Thus the logarithm of the prey weight is normally distributed with
+mean $\mu-\sigma^2(\lambda-1)$ and variance $\sigma^2$.
+
+
+By estimating the mean and variance from Mariella's data we can thus
+obtain estimates for $\beta$ and $\sigma$ by the method of moments.
+The following code creates a tibble with the mean and variance of the
+logarithm of the observed prey sizes and the corresponding estimates 
+for $\sigma$ and $\beta$. It also lists the $\mu$ and the logarithms 
+of $\beta$.
+
+```{r}
+lambda <- 2
+
+moments <- ppmr %>%
+    summarise(totalNprey = sum(Nprey),
+              mean = sum(log(wprey) * Nprey) / sum(Nprey), 
+              var = sum((log(wprey) - mean)^2 * Nprey) / (sum(Nprey) - 1),
+              sigma = sqrt(var),
+              mu = mean + var * (lambda - 1),
+              log_beta = log(first(wpredator)) - mu,
+              beta = exp(log_beta),
+              log10_beta = log10(beta)
+    )
+moments
+```
+
+Now we want to see how well this fits the data. So we make a histogram of
+the data and overlay the density function. For this we need to bin the data.
+We have to do that by hand because we need to take into account the numbers
+of individuals of the different species occuring in each bin. We do not know
+of a nice way to do this in R, so we use some ugly looping code.
+```{r}
+no_bins <- 30
+bins <- seq(from = min(log(ppmr$wprey)) - 2, to = max(log(ppmr$wprey)) + 2,
+            length.out = no_bins)
+bin_width <- bins[2] - bins[1]
+long_bins <- c(bins, bins[length(bins)] + bin_width)
+
+count_anchovy <- bins
+biomass_anchovy <- bins
+count_sardine <- bins
+biomass_sardine <- bins
+for (t in (1:length(bins))) {
+    in_bin <- long_bins[t] <= log(ppmr$wprey) & 
+              log(ppmr$wprey) < long_bins[t + 1]
+    count_anchovy[t] <- sum(ppmr$Nprey[in_bin & ppmr$Species == "anchovy"])
+    biomass_anchovy[t] <- sum(ppmr$Nprey[in_bin & ppmr$Species == "anchovy"] *
+                                  exp(bins[t]))
+    count_sardine[t] <- sum(ppmr$Nprey[in_bin & ppmr$Species == "sardine"])
+    biomass_sardine[t] <- sum(ppmr$Nprey[in_bin & ppmr$Species == "sardine"] *
+                                  exp(bins[t]))
+}
+
+binned_anchovy <- 
+    tibble(Species = "anchovy",
+           Weight = log10(exp(bins)),
+           Abundance = count_anchovy / sum(count_anchovy),
+           f_logw = dnorm(bins, 
+                          mean = moments$mean[moments$Species == "anchovy"],
+                          sd = moments$sigma[moments$Species == "anchovy"]),
+           Biomass = biomass_anchovy / sum(biomass_anchovy)) %>%
+    mutate(b_logw = f_logw * exp(bins) / sum(f_logw * exp(bins)))
+
+binned_sardine <- 
+    tibble(Species = "sardine",
+           Weight = log10(exp(bins)),
+           Abundance = count_sardine / sum(count_sardine),
+           f_logw = dnorm(bins, 
+                          mean = moments$mean[moments$Species == "sardine"],
+                          sd = moments$sigma[moments$Species == "sardine"]),
+           Biomass = biomass_sardine / sum(biomass_sardine)) %>%
+    mutate(b_logw = f_logw * exp(bins) / sum(f_logw * exp(bins)))
+
+binned <- rbind(binned_anchovy, binned_sardine) %>%
+    group_by(Species)
+                
+```
+
+We can now plot the histogram for the observed abundances in the stomach 
+together with the fitted model distribution.
+```{r}
+
+ggplot(binned) +
+    geom_col(aes(Weight, Abundance)) +
+    geom_line(aes(Weight, f_logw), color = "blue") +
+    facet_grid(Species ~ .)
+```
+The fit looks reasonably good for the anchovy and not so good for the sardine
+due to the long tail in the sardine observations.
+
+However the picture changes very much when we plot the distribution of the
+biomass in the stomach. Because the larger individuals contribute so much
+more to the biomass, even low abundances at large size produce dominant
+contributions to the biomass. This is a big problem for the anchovy
+distribution with its narrower model distribution that fails to account 
+for the possibility of small numbers of very large prey individuals.
+```{r}
+ggplot(binned) +
+    geom_col(aes(Weight, Biomass)) +
+    geom_line(aes(Weight, b_logw), color = "blue") +
+    facet_grid(Species ~ .)
+```
+The broader sardine distribution has less of a problem with accounting for 
+biomass at larger size but clearly gives a much broader distribution than
+observed.
+
+It is therefore tempting to try other preference functions than the Gaussian.
+Let us try a truncated power law
+$$\phi(w) = \begin{cases}
+w^\alpha & w_{min} \leq w \leq w_{max}\\
+0&\text{otherwise}
+\end{cases}$$
+where $w_{min}$ is the smallest observed prey size and
+$w_{max}$ is the largest observed prey size and $\alpha$ is chosen either so
+that the mean of the data agrees with the mean of the theoretical distribution
+or by using maximum likelihood.
+
+The probability density function for the prey size is now
+$$f_W(w)\propto N(w)\phi(w)= 
+\begin{cases}
+\cal{N}w^{\alpha-\lambda} & w_{min} \leq w \leq w_{max}\\
+0&\text{otherwise}
+\end{cases}$$
+The normalisation factor $\cal{N}$ is easy to calculate:
+$$\cal{N}=\frac{w_{max}^{1+\alpha-\lambda}-w_{min}^{1+\alpha-\lambda}}
+{1+\alpha-\lambda}.$$
+The density function for the log of the prey size is therefore
+$$f_{\log(W)}(x)=
+\begin{cases}
+\cal{N}\exp\left((1+\alpha-\lambda)x\right) & \log(w_{min}) \leq x \leq \log(w_{max})\\
+0&\text{otherwise}
+\end{cases}$$
