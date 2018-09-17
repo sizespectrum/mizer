@@ -737,42 +737,47 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
-      tabsetPanel(id = "sidebarTabs",
-        tabPanel("Species",
-                 tags$br(),
-                 actionButton("sp_interact", "Interact"),
-                 actionButton("sp_steady", "Steady"),
-                 uiOutput("sp_sel"),
-                 tabsetPanel(id = "speciesParamsTabs",
-                   tabPanel("Predation",
-                            uiOutput("pred_sliders")
-                   ),
-                   tabPanel("Fishing",
-                            uiOutput("fishing_sliders")
-                   ),
-                   tabPanel("Other",
-                            uiOutput("other_sliders")
-                   )
-                 )
+      tabsetPanel(
+        id = "sidebarTabs",
+        tabPanel(
+          "File",
+          tags$br(),
+          downloadButton("params", "Download current params object"),
+          checkboxInput("log_steady", "Log steady states",
+                        value = FALSE),
+          checkboxInput("log_sp", "Log species parameters",
+                        value = FALSE),
+          tags$hr(),
+          textOutput("filename"),
+          fileInput("upload", "Upload new params object", 
+                    accept = ".rds")
         ),
-        tabPanel("General",
-                 tags$br(),
-                 actionButton("bg_go", "Go"),
-                 sliderInput("effort", "Effort",
-                             value = 1, min = 0, max = 2, step = 0.05),
-                 uiOutput("general_params")
+        tabPanel(
+          "Species",
+          tags$br(),
+          actionButton("sp_interact", "Interact"),
+          actionButton("sp_steady", "Steady"),
+          uiOutput("sp_sel"),
+          tabsetPanel(
+            id = "speciesParamsTabs",
+            tabPanel("Predation",
+                     uiOutput("pred_sliders")
+            ),
+            tabPanel("Fishing",
+                     uiOutput("fishing_sliders")
+            ),
+            tabPanel("Other",
+                     uiOutput("other_sliders")
+            )
+          )
         ),
-        tabPanel("File",
-                 tags$br(),
-                 downloadButton("params", "Download current params object"),
-                 checkboxInput("log_steady", "Log steady states",
-                               value = FALSE),
-                 checkboxInput("log_sp", "Log species parameters",
-                               value = FALSE),
-                 tags$hr(),
-                 textOutput("filename"),
-                 fileInput("upload", "Upload new params object", 
-                           accept = ".rds")
+        tabPanel(
+          "General",
+          tags$br(),
+          actionButton("bg_go", "Go"),
+          sliderInput("effort", "Effort",
+                      value = 1, min = 0, max = 2, step = 0.05),
+          uiOutput("general_params")
         )
       ),
       width = 3
