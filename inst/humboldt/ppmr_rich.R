@@ -38,3 +38,6 @@ barplot(bin_count)
 low
 high
 sum(data$Nprey[(low<=log(data$wprey))&(log(data$wprey)<high)])
+
+barplot(bin_count *exp(bins))
+
