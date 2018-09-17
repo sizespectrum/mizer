@@ -138,8 +138,7 @@ server <- function(input, output, session) {
     list(
       sliderInput("kappa", "kappa", value = p@kappa,
                   min = p@kappa / 2,
-                  max = p@kappa * 1.5,
-                  width = "80%"),
+                  max = p@kappa * 1.5),
       numericInput("lambda", "Sheldon exponent",
                    value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
       sliderInput("f0", "Feeding level",
@@ -609,7 +608,11 @@ server <- function(input, output, session) {
       geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                  linetype = "dotted") +
       theme_grey(base_size = 18) +
-      labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")
+      labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")  +
+      geom_text(aes(x = p@species_params[sp, "w_mat"], 
+                    y = max(Biomass * 0.2),
+                    label = "\nMaturity"), 
+                angle = 90)
     if (input$biomass_observed) {
       cutoff_idx <- which.max(p@w >= input$biomass_cutoff)
       target <- input$biomass_observed + biomass[cutoff_idx]
@@ -653,7 +656,7 @@ server <- function(input, output, session) {
   ## Plot catch ####
   
   # Catch by size for selected species
-  output$plotCatch <- renderPlotly({
+  output$plotCatch <- renderPlot({
     req(input$sp)
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
@@ -662,15 +665,41 @@ server <- function(input, output, session) {
     w_sel <- seq(w_min_idx, w_max_idx, by = 1)
     catch <- getFMort(p, effort = input$effort)[sp, w_sel] *
       p@w[w_sel] * p@dw[w_sel] * p@initial_n[sp, w_sel]
-    df <- data.frame(Size = p@w[w_sel], Catch = catch)
-    ggplot(df) +
-      geom_line(aes(x = Size, y = Catch)) +
-      scale_x_log10() +
-      geom_vline(xintercept = p@species_params$w_mat[sp])
+    df <- data.frame(w = p@w[w_sel], Catch = catch)
+    
+    if (input$catch_x == "Weight") {
+      pl <- ggplot(df) +
+        geom_line(aes(x = w, y = Catch), colour = "blue") +
+        scale_x_log10() +
+        geom_vline(xintercept = p@species_params$w_mat[sp],
+                   linetype = "dotted")  +
+        labs(x = "Size [g]", y = "Catch density") +
+        geom_text(aes(x = p@species_params$w_mat[sp], 
+                      y = max(Catch * 0.9),
+                      label = "\nMaturity"), 
+                  angle = 90)
+    } else {
+      lmat <- (p@species_params$w_mat[sp] / p@species_params$a[sp]) ^
+        (1 / p@species_params$b[sp])
+      pl <- ggplot(df) +
+        geom_line(aes(x = (w / p@species_params$a[sp]) ^
+                        (1 / p@species_params$b[sp]), 
+                      y = Catch), colour = "blue") +
+        scale_x_log10() +
+        geom_vline(xintercept = lmat,
+                   linetype = "dotted") +
+        labs(x = "Size [cm]", y = "Catch density") +
+        geom_text(aes(x = lmat, 
+                      y = max(Catch * 0.9),
+                      label = "\nMaturity"), 
+                  angle = 90)
+    }
+    pl + 
+      theme_grey(base_size = 18)
   })
   
   # Total catch by species
-  output$plotObservedCatch <- renderPlot({
+  output$plotObservedCatch <- renderPlotly({
     p <- params()
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
     catch <- rowSums(biomass * getFMort(p, effort = input$effort))
@@ -710,13 +739,13 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
-      tabsetPanel(id ="sidebarTabs",
+      tabsetPanel(id = "sidebarTabs",
         tabPanel("Species",
                  tags$br(),
                  actionButton("sp_interact", "Interact"),
                  actionButton("sp_steady", "Steady"),
                  uiOutput("sp_sel"),
-                 tabsetPanel(id ="speciesParamsTabs",
+                 tabsetPanel(id = "speciesParamsTabs",
                    tabPanel("Predation",
                             uiOutput("pred_sliders")
                    ),
@@ -753,7 +782,7 @@ ui <- fluidPage(
     
     ## Main panel ####
     mainPanel(
-      tabsetPanel(id ="mainTabs",
+      tabsetPanel(id = "mainTabs",
         type = "tabs",
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
@@ -766,9 +795,12 @@ ui <- fluidPage(
         tabPanel("Repro",
                  plotOutput("plot_erepro")),
         tabPanel("Catch",
-                 plotOutput("plotObservedCatch"),
+                 plotlyOutput("plotObservedCatch"),
                  uiOutput("catch_sel"),
-                 plotlyOutput("plotCatch"))
+                 plotOutput("plotCatch"),
+                 radioButtons("catch_x", "Show size in:",
+                              choices = c("Weight", "Length"), 
+                              selected = "Length", inline = TRUE))
       )
     )  # end mainpanel
   )  # end sidebarlayout
