@@ -223,6 +223,102 @@ server <- function(input, output, session) {
   })
   
   ## Adjust species parameters ####
+  update_species <- function(sp, p, species_params) {
+    
+    # wrap the code in trycatch so that when there is a problem we can
+    # simply stay with the old parameters
+    tryCatch({
+      
+      # Create updated species params data frame
+      
+      
+      # Create new params object identical to old one except for changed
+      # species params
+      pc <- MizerParams(
+        species_params,
+        p = p@p,
+        n = p@n,
+        q = p@q,
+        lambda = p@lambda,
+        f0 = p@f0,
+        kappa = p@kappa,
+        min_w = min(p@w),
+        max_w = max(p@w),
+        no_w = length(p@w),
+        min_w_pp = min(p@w_full),
+        w_pp_cutoff = max(p@w_full),
+        r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
+      )
+      pc@linetype <- p@linetype
+      pc@linecolour <- p@linecolour
+      pc@A <- p@A
+      pc@sc <- p@sc
+      pc@cc_pp <- p@cc_pp
+      pc@mu_b <- p@mu_b
+      pc@initial_n <- p@initial_n
+      pc@initial_n_pp <- p@initial_n_pp
+      
+      # The spectrum for the changed species is calculated with new
+      # parameters but in the context of the original community
+      # Compute death rate for changed species
+      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = input$effort)[sp, ]
+      # compute growth rate for changed species
+      gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
+      # Compute solution for changed species
+      w_inf_idx <- sum(pc@w < pc@species_params[sp, "w_inf"])
+      idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
+      if (any(gg[idx] == 0)) {
+        weight <- p@w[which.max(gg[idx] == 0)]
+        showModal(modalDialog(
+          title = "Zero growth rate",
+          paste0("With these parameter values the ", sp,
+                 " does not have enough food to cover its metabolic cost"),
+          easyClose = TRUE
+        ))
+      }
+      n0 <- p@initial_n[sp, p@w_min_idx[sp]]
+      pc@initial_n[sp, ] <- 0
+      pc@initial_n[sp, pc@w_min_idx[sp]:w_inf_idx] <-
+        c(1, cumprod(gg[idx] / ((gg + mumu * pc@dw)[idx + 1]))) *
+        n0
+      if (any(is.infinite(pc@initial_n))) {
+        stop("Candidate steady state holds infinities")
+      }
+      if (any(is.na(pc@initial_n) || is.nan(pc@initial_n))) {
+        stop("Candidate steady state holds none numeric values")
+      }
+      
+      # Retune the value of erepro so that we get the correct level of
+      # recruitment
+      i <- which(pc@species_params$species == sp)
+      rdd <- getRDD(pc, pc@initial_n, pc@initial_n_pp)[i]
+      gg0 <- gg[pc@w_min_idx[i]]
+      mumu0 <- mumu[pc@w_min_idx[i]]
+      DW <- pc@dw[pc@w_min_idx[i]]
+      pc@species_params$erepro[i] <- pc@species_params$erepro[i] *
+        n0 * (gg0 + DW * mumu0) / rdd
+      
+      if (input$log_sp) {
+        # Save new species params to disk
+        time = format(Sys.time(), "_%Y_%m_%d_at_%H_%M_%S")
+        file = paste0("species_params", time, ".rds")
+        saveRDS(pc@species_params, file = file)
+      }
+      
+      # Update the reactive params object
+      params(pc)
+    }, 
+    error = function(e) {
+      showModal(modalDialog(
+        title = "Invalid parameters",
+        HTML(paste0("These parameter values lead to an error.<br>",
+                    "The error message was:<br>", e)),
+        easyClose = TRUE
+      ))
+      params(p)}
+    )
+  }
+  
   # predation
   observe({
     req(input$sigma)
@@ -237,6 +333,21 @@ server <- function(input, output, session) {
     if (skipPred) {
       skipPred <<- FALSE
     } else {
+      # Update slider min/max so that they are a fixed proportion of the 
+      # parameter value
+      updateSliderInput(session, "gamma",
+                        min = signif(input$gamma/2, 3),
+                        max = signif(input$gamma*2, 3))
+      updateSliderInput(session, "h",
+                        min = signif(input$h/2, 2),
+                        max = signif(input$h*2, 2))
+      updateSliderInput(session, "beta",
+                        min = round(input$beta/10),
+                        max = round(input$beta*10))
+      updateSliderInput(session, "sigma",
+                        min = round(input$sigma/2),
+                        max = round(input$sigma*2))
+      
       update_species(sp, p, species_params)
     }
   })
@@ -274,120 +385,12 @@ server <- function(input, output, session) {
     if (skipOther) {
       skipOther <<- FALSE
     } else {
-      update_species(sp, p, species_params)
-    }
-  })
-
-  update_species <- function(sp, p, species_params) {
-    
-    # wrap the code in trycatch so that when there is a problem we can
-    # simply stay with the old parameters
-    tryCatch({
-      
-      # Create updated species params data frame
-
-      
-      # Create new params object identical to old one except for changed
-      # species params
-      pc <- MizerParams(
-        species_params,
-        p = p@p,
-        n = p@n,
-        q = p@q,
-        lambda = p@lambda,
-        f0 = p@f0,
-        kappa = p@kappa,
-        min_w = min(p@w),
-        max_w = max(p@w),
-        no_w = length(p@w),
-        min_w_pp = min(p@w_full),
-        w_pp_cutoff = max(p@w_full),
-        r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
-      )
-      pc@linetype <- p@linetype
-      pc@linecolour <- p@linecolour
-      pc@A <- p@A
-      pc@sc <- p@sc
-      pc@cc_pp <- p@cc_pp
-      pc@mu_b <- p@mu_b
-      pc@initial_n <- p@initial_n
-      pc@initial_n_pp <- p@initial_n_pp
-      
-      # The spectrum for the changed species is calculated with new
-      # parameters but in the context of the original community
-      # Compute death rate for changed species
-      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = input$effort)[sp, ]
-      # compute growth rate for changed species
-      gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
-      # Compute solution for changed species
-      w_inf_idx <- sum(pc@w < pc@species_params[sp, "w_inf"])
-      idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
-      validate(
-        need(!any(gg[idx] == 0),
-             "Can not compute steady state due to zero growth rates")
-      )
-      n0 <- p@initial_n[sp, p@w_min_idx[sp]]
-      pc@initial_n[sp, ] <- 0
-      pc@initial_n[sp, pc@w_min_idx[sp]:w_inf_idx] <-
-        c(1, cumprod(gg[idx] / ((gg + mumu * pc@dw)[idx + 1]))) *
-        n0
-      if (any(is.infinite(pc@initial_n))) {
-        stop("Candidate steady state holds infinities")
-      }
-      if (any(is.na(pc@initial_n) || is.nan(pc@initial_n))) {
-        stop("Candidate steady state holds none numeric values")
-      }
-      
-      # Retune the value of erepro so that we get the correct level of
-      # recruitment
-      i <- which(pc@species_params$species == sp)
-      rdd <- getRDD(pc, pc@initial_n, pc@initial_n_pp)[i]
-      gg0 <- gg[pc@w_min_idx[i]]
-      mumu0 <- mumu[pc@w_min_idx[i]]
-      DW <- pc@dw[pc@w_min_idx[i]]
-      pc@species_params$erepro[i] <- pc@species_params$erepro[i] *
-        n0 * (gg0 + DW * mumu0) / rdd
-      
-      # Update slider min/max so that they are a fixed proportion of the 
-      # parameter value
-      updateSliderInput(session, "gamma",
-                        min = signif(input$gamma/2, 3),
-                        max = signif(input$gamma*2, 3))
-      updateSliderInput(session, "h",
-                        min = signif(input$h/2, 2),
-                        max = signif(input$h*2, 2))
       updateSliderInput(session, "ks",
                         min = signif(input$ks/2, 2),
                         max = signif(input$ks*2, 2))
-      updateSliderInput(session, "beta",
-                        min = round(input$beta/10),
-                        max = round(input$beta*10))
-      updateSliderInput(session, "sigma",
-                        min = round(input$sigma/2),
-                        max = round(input$sigma*2))
-      
-      if (input$log_sp) {
-        # Save new species params to disk
-        time = format(Sys.time(), "_%Y_%m_%d_at_%H_%M_%S")
-        file = paste0("species_params", time, ".rds")
-        saveRDS(pc@species_params, file = file)
-      }
-      
-      # Update the reactive params object
-      params(pc)
-    }, 
-    error = function(e) {
-      showModal(modalDialog(
-        title = "Invalid parameters",
-        HTML(paste0("These parameter values do not lead to an acceptable steady state. ",
-                    "I will keep the previous values.<br>",
-                    "The error message was:<br>", e)),
-        easyClose = TRUE
-      ))
-      params(p)}
-    )
-  }
-
+      update_species(sp, p, species_params)
+    }
+  })
   
   ## Recompute all species ####
   # triggered by "Interact" button on "Species" tab
@@ -726,6 +729,88 @@ server <- function(input, output, session) {
                  value = p@species_params[sp, "catch_observed"])
   })
   
+  ## Plot rates ####  
+  output$plotGrowth <- renderPlot({
+  req(input$sp)
+  sp <- input$sp
+  p <- params()
+  
+  max_w <- p@species_params[sp, "w_inf"]
+  min_w <- p@species_params[sp, "w_min"]
+  sel <- p@w >= min_w & p@w <= max_w
+  len <- sum(sel)
+  growth <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp,sel]
+  growth_and_repro <- getEReproAndGrowth(p, p@initial_n, p@initial_n_pp)[sp,sel]
+  metab <- p@metab[sp,sel]
+  income <- growth_and_repro + metab
+  repro <- growth_and_repro - growth
+  df <- data.frame(
+    w = rep(p@w[sel], 4),
+    Type = c(rep("Growth", len),
+             rep("Income", len),
+             rep("Metabolic loss", len),
+             rep("Reproduction", len)),
+    value = c(growth, income, metab, repro)
+  )
+  ggplot(df, aes(x = w, y = value, color = Type)) + 
+    geom_line() + scale_x_log10() +
+    geom_vline(xintercept = p@species_params[sp, "w_mat"], 
+               linetype = "dotted") +
+    geom_vline(xintercept = p@species_params[sp, "w_inf"], 
+               linetype = "dotted") +
+    theme_grey(base_size = 18) +
+    labs(x = "Size [g]", y = "Rate")  +
+    geom_text(aes(x = p@species_params[sp, "w_mat"], 
+                  y = max(value * 0.2),
+                  label = "\nMaturity"), 
+              angle = 90)  +
+    geom_text(aes(x = p@species_params[sp, "w_inf"], 
+                  y = max(value * 0.2),
+                  label = "\nMaximum"), 
+              angle = 90)
+  
+})
+  output$plotDeath <- renderPlot({
+    req(input$sp)
+    sp <- input$sp
+    p <- params()
+    
+    max_w <- p@species_params[sp, "w_inf"]
+    min_w <- p@species_params[sp, "w_min"]
+    sel <- p@w >= min_w & p@w <= max_w
+    len <- sum(sel)
+    df <- data.frame(
+      w = rep(p@w[sel], 4),
+      Type = c(rep("Total", len),
+               rep("Predation", len),
+               rep("Fishing", len),
+               rep("Background", len)),
+      value = c(getMort(p, p@initial_n, p@initial_n_pp,
+                        effort = input$effort)[sp,sel],
+                getPredMort(p, p@initial_n, p@initial_n_pp)[sp,sel],
+                getFMort(p, effort = input$effort)[sp,sel],
+                p@mu_b[sp,sel])
+    )
+    ggplot(df, aes(x = w, y = value, color = Type)) + 
+      geom_line() + scale_x_log10() +
+      geom_vline(xintercept = p@species_params[sp, "w_mat"], 
+                 linetype = "dotted") +
+      geom_vline(xintercept = p@species_params[sp, "w_inf"], 
+                 linetype = "dotted") +
+      theme_grey(base_size = 18) +
+      labs(x = "Size [g]", y = "Rate")  +
+      geom_text(aes(x = p@species_params[sp, "w_mat"], 
+                    y = max(value * 0.2),
+                    label = "\nMaturity"), 
+                angle = 90)  +
+      geom_text(aes(x = p@species_params[sp, "w_inf"], 
+                    y = max(value * 0.2),
+                    label = "\nMaximum"), 
+                angle = 90)
+    
+  })
+  
+  
 } #the server
 
 #### User interface ####
@@ -737,21 +822,6 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
-      tabsetPanel(
-        id = "sidebarTabs",
-        tabPanel(
-          "File",
-          tags$br(),
-          downloadButton("params", "Download current params object"),
-          checkboxInput("log_steady", "Log steady states",
-                        value = FALSE),
-          checkboxInput("log_sp", "Log species parameters",
-                        value = FALSE),
-          tags$hr(),
-          textOutput("filename"),
-          fileInput("upload", "Upload new params object", 
-                    accept = ".rds")
-        ),
         tabPanel(
           "Species",
           tags$br(),
@@ -778,7 +848,22 @@ ui <- fluidPage(
           sliderInput("effort", "Effort",
                       value = 1, min = 0, max = 2, step = 0.05),
           uiOutput("general_params")
-        )
+        ),
+        tabsetPanel(
+          id = "sidebarTabs",
+          tabPanel(
+            "File",
+            tags$br(),
+            downloadButton("params", "Download current params object"),
+            checkboxInput("log_steady", "Log steady states",
+                          value = FALSE),
+            checkboxInput("log_sp", "Log species parameters",
+                          value = FALSE),
+            tags$hr(),
+            textOutput("filename"),
+            fileInput("upload", "Upload new params object", 
+                      accept = ".rds")
+          )
       ),
       width = 3
     ),  # endsidebarpanel
@@ -803,7 +888,11 @@ ui <- fluidPage(
                  plotOutput("plotCatch"),
                  radioButtons("catch_x", "Show size in:",
                               choices = c("Weight", "Length"), 
-                              selected = "Length", inline = TRUE))
+                              selected = "Length", inline = TRUE)),
+        tabPanel("Growth",
+                 plotOutput("plotGrowth")),
+        tabPanel("Death",
+                 plotOutput("plotDeath"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
