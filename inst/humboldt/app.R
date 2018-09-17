@@ -203,21 +203,19 @@ server <- function(input, output, session) {
   
   # Adjust egg density ####
   observe({
-    req(input$n0)
+    n0 <- req(input$n0)
     p <- isolate(params())
     sp <- isolate(input$sp)
     
     if (skipOther) {
       skipOther <<- FALSE
     } else {
-      
-      # rescale abundance to new egg density
-      p@initial_n[sp, ] <- p@initial_n[sp, ] * input$n0 / 
-        p@initial_n[sp, p@w_min_idx[sp]]
-      
       updateSliderInput(session, "n0",
-                        min = signif(input$n0 / 10, 3),
-                        max = signif(input$n0 * 10, 3))
+                        min = signif(n0 / 10, 3),
+                        max = signif(n0 * 10, 3))
+      # rescale abundance to new egg density
+      p@initial_n[sp, ] <- p@initial_n[sp, ] * n0 / 
+        p@initial_n[sp, p@w_min_idx[sp]]
       
       # Update the reactive params object
       params(p)
