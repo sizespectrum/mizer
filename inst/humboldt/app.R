@@ -16,9 +16,10 @@ server <- function(input, output, session) {
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
   # Define some globals to skip certain observers
-  skipPred <- TRUE
-  skipFishing <- TRUE
-  skipOther <- TRUE
+  skip_update <- TRUE
+  skip_update_n0 <- TRUE
+  # Define a reactive value for triggering an update of species sliders
+  trigger_update <- reactiveVal(0)
   
   # Load catch distribution
   catchdist <- readRDS("catchdistribution.rds")
@@ -49,17 +50,23 @@ server <- function(input, output, session) {
     species <- as.character(p@species_params$species[!is.na(p@A)])
     selectInput("sp", "Species:", species) 
   })
-  output$pred_sliders <- renderUI({
+  output$sp_params <- renderUI({
     # The parameter sliders get updated whenever the species selector changes
     req(input$sp)
+    # or when the trigger is set somewhere
+    trigger_update()
+    
     p <- isolate(params())
     sp <- p@species_params[input$sp, ]
+    n0 <- p@initial_n[input$sp, p@w_min_idx[input$sp]]
     
     # We do not want the updating of the slider to triger an update of the
     # params object
-    skipPred <<- TRUE
+    skip_update <<- TRUE
+    skip_update_n0 <<- TRUE
     
     list(
+      tags$h3("Predation"),
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
                   min = signif(sp$gamma/2, 3),
@@ -69,58 +76,36 @@ server <- function(input, output, session) {
                   min = signif(sp$h/2, 2),
                   max = signif(sp$h*2, 2)),
       sliderInput("beta", "Preferred predator-prey mass ratio beta",
-                  value = round(sp$beta),
-                  min = round(sp$beta/10),
-                  max = round(sp$beta*10),
-                  step = 1),
+                  value = sp$beta,
+                  min = signif(sp$beta / 10, 2),
+                  max = signif(sp$beta * 10, 2)),
       sliderInput("sigma", "Width of size selection function sigma",
                   value = sp$sigma,
-                  min = round(sp$sigma/2),
-                  max = round(sp$sigma*2),
-                  step = 0.05)
-    )
-  })
-  output$fishing_sliders <- renderUI({
-    # The parameter sliders get updated whenever the species selector changes
-    req(input$sp)
-    
-    # We do not want the updating of the slider to triger an update of the
-    # params object
-    skipFishing <<- TRUE
-    
-    p <- isolate(params())
-    sp <- p@species_params[input$sp, ]
-    list(
+                  min = signif(sp$sigma/2, 2),
+                  max = signif(sp$sigma*2, 2),
+                  step = 0.05),
+      tags$h3("Fishing"),
       sliderInput("catchability", "Catchability",
                    value = sp$catchability, min = 0, max = 1),
       sliderInput("l50", "L50",
                    value = sp$l50, 
                    min = 1, 
-                   max = round(sp$l50 * 2),
+                   max = signif(sp$l50 * 2, 2),
                   step = 0.1),
       sliderInput("ldiff", "L50-L25",
                    value = sp$l50 - sp$l25, 
                    min = 0.1, 
-                   max = round(sp$l50/3),
+                   max = signif(sp$l50 / 10, 2),
                   step = 0.1),
       numericInput("a", "Coefficient for length to weight conversion a",
                    value = sp$a),
       numericInput("b", "Exponent for length to weight conversion b",
-                   value = sp$b)
-    )
-  })
-  output$other_sliders <- renderUI({
-    # The parameter sliders get updated whenever the species selector changes
-    req(input$sp)
-    
-    # We do not want the updating of the slider to triger an update of the
-    # params object
-    skipOther <<- TRUE
-    
-    p <- isolate(params())
-    sp <- p@species_params[input$sp, ]
-    n0 <- p@initial_n[input$sp, p@w_min_idx[input$sp]]
-    list(
+                   value = sp$b),
+      
+      tags$h3("Others"),
+      sliderInput("kappa", "kappa", value = p@kappa,
+                  min = p@kappa / 2,
+                  max = p@kappa * 1.5),
       sliderInput("n0", "Egg density",
                   value = n0,
                   min = signif(n0/10, 3),
@@ -145,9 +130,6 @@ server <- function(input, output, session) {
     bkgd_params <- p@species_params[i_bkgd, ]
     
     list(
-      sliderInput("kappa", "kappa", value = p@kappa,
-                  min = p@kappa / 2,
-                  max = p@kappa * 1.5),
       numericInput("lambda", "Sheldon exponent",
                    value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
       sliderInput("f0", "Feeding level",
@@ -182,6 +164,7 @@ server <- function(input, output, session) {
                       min = input$kappa / 2, 
                       max = input$kappa * 1.5)
     params(p)
+    trigger_update(runif(1))
   })
   
   ## Adjust k_vb ####
@@ -216,8 +199,8 @@ server <- function(input, output, session) {
     p <- isolate(params())
     sp <- isolate(input$sp)
     
-    if (skipOther) {
-      skipOther <<- FALSE
+    if (skip_update_n0) {
+      skip_update_n0 <<- FALSE
     } else {
       updateSliderInput(session, "n0",
                         min = signif(n0 / 10, 3),
@@ -270,7 +253,8 @@ server <- function(input, output, session) {
       # The spectrum for the changed species is calculated with new
       # parameters but in the context of the original community
       # Compute death rate for changed species
-      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, effort = input$effort)[sp, ]
+      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, 
+                      effort = input$effort)[sp, ]
       # compute growth rate for changed species
       gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
       # Compute solution for changed species
@@ -338,69 +322,39 @@ server <- function(input, output, session) {
     species_params[sp, "h"]     <- input$h
     species_params[sp, "beta"]  <- input$beta
     species_params[sp, "sigma"] <- input$sigma
-    
-    if (skipPred) {
-      skipPred <<- FALSE
-    } else {
-      # Update slider min/max so that they are a fixed proportion of the 
-      # parameter value
-      updateSliderInput(session, "gamma",
-                        min = signif(input$gamma/2, 3),
-                        max = signif(input$gamma*2, 3))
-      updateSliderInput(session, "h",
-                        min = signif(input$h/2, 2),
-                        max = signif(input$h*2, 2))
-      updateSliderInput(session, "beta",
-                        min = round(input$beta/10),
-                        max = round(input$beta*10))
-      updateSliderInput(session, "sigma",
-                        min = round(input$sigma/2),
-                        max = round(input$sigma*2))
-      
-      update_species(sp, p, species_params)
-    }
-  })
-  
-  # fishing changes ####
-  observe({
-    req(input$ldiff)
-    p <- isolate(params())
-    sp <- isolate(input$sp)
-    species_params <- p@species_params
     species_params[sp, "catchability"]   <- input$catchability
     species_params[sp, "a"]     <- input$a
     species_params[sp, "b"]     <- input$b
     species_params[sp, "l50"]   <- input$l50
     species_params[sp, "l25"]   <- input$l50 - input$ldiff
-    
-    
-    if (skipFishing) {
-      skipFishing <<- FALSE
-    } else {
-      updateSliderInput(session, "l50",
-                        max = round(input$l50 * 2))
-      updateSliderInput(session, "ldiff",  
-                        max = round(input$l50 / 3))
-      update_species(sp, p, species_params)
-    }
-  })
-  
-  # other changing ####
-  observe({
-    req(input$ks)
-    p <- isolate(params())
-    sp <- isolate(input$sp)
-    species_params <- p@species_params
     species_params[sp, "alpha"] <- input$alpha
     species_params[sp, "ks"]    <- input$ks
     
-    
-    if (skipOther) {
-      skipOther <<- FALSE
+    if (skip_update) {
+      skip_update <<- FALSE
     } else {
+      # Update slider min/max so that they are a fixed proportion of the 
+      # parameter value
+      updateSliderInput(session, "gamma",
+                        min = signif(input$gamma / 2, 3),
+                        max = signif(input$gamma * 2, 3))
+      updateSliderInput(session, "h",
+                        min = signif(input$h / 2, 2),
+                        max = signif(input$h * 2, 2))
+      updateSliderInput(session, "beta",
+                        min = signif(input$beta / 10, 2),
+                        max = signif(input$beta * 10, 2))
+      updateSliderInput(session, "sigma",
+                        min = signif(input$sigma / 2, 2),
+                        max = signif(input$sigma * 2, 2))
+      updateSliderInput(session, "l50",
+                        max = signif(input$l50 * 2, 2))
+      updateSliderInput(session, "ldiff",  
+                        max = signif(input$l50 / 10, 2))
       updateSliderInput(session, "ks",
-                        min = signif(input$ks/2, 2),
-                        max = signif(input$ks*2, 2))
+                        min = signif(input$ks / 2, 2),
+                        max = signif(input$ks * 2, 2))
+      
       update_species(sp, p, species_params)
     }
   })
@@ -873,10 +827,6 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
-      tags$head(tags$style(
-        type = 'text/css',
-        'form.well { max-height: 90vh; overflow-y: auto; }'
-      )),
       tabsetPanel(
         id = "sidebarTabs",
         tabPanel(
@@ -884,19 +834,13 @@ ui <- fluidPage(
           tags$br(),
           actionButton("sp_interact", "Interact"),
           actionButton("sp_steady", "Steady"),
+          tags$br(),
           uiOutput("sp_sel"),
-          tabsetPanel(
-            id = "speciesParamsTabs",
-            tabPanel("Predation",
-                     uiOutput("pred_sliders")
-            ),
-            tabPanel("Fishing",
-                     uiOutput("fishing_sliders")
-            ),
-            tabPanel("Other",
-                     uiOutput("other_sliders")
-            )
-          )
+          uiOutput("sp_params"),
+          tags$head(tags$style(
+            type = 'text/css',
+            '#sp_params { max-height: 75vh; overflow-y: auto; }'
+          ))
         ),
         tabPanel(
           "General",
