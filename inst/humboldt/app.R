@@ -20,6 +20,9 @@ server <- function(input, output, session) {
   skipFishing <- TRUE
   skipOther <- TRUE
   
+  # Load catch distribution
+  catchdist <- readRDS("catchdistribution.rds")
+  
   ## Handle upload of params object ####
   observeEvent(input$upload, {
     inFile <- input$upload
@@ -88,12 +91,18 @@ server <- function(input, output, session) {
     p <- isolate(params())
     sp <- p@species_params[input$sp, ]
     list(
-      numericInput("catchability", "Catchability",
-                   value = sp$catchability),
-      numericInput("l50", "L50",
-                   value = sp$l50),
-      numericInput("l25", "L25",
-                   value = sp$l25),
+      sliderInput("catchability", "Catchability",
+                   value = sp$catchability, min = 0, max = 1),
+      sliderInput("l50", "L50",
+                   value = sp$l50, 
+                   min = 1, 
+                   max = round(sp$l50 * 2),
+                  step = 0.1),
+      sliderInput("ldiff", "L50-L25",
+                   value = sp$l50 - sp$l25, 
+                   min = 0.1, 
+                   max = round(sp$l50/3),
+                  step = 0.1),
       numericInput("a", "Coefficient for length to weight conversion a",
                    value = sp$a),
       numericInput("b", "Exponent for length to weight conversion b",
@@ -319,7 +328,7 @@ server <- function(input, output, session) {
     )
   }
   
-  # predation
+  ## predation changes ####
   observe({
     req(input$sigma)
     p <- isolate(params())
@@ -352,9 +361,9 @@ server <- function(input, output, session) {
     }
   })
   
-  # fishing
+  # fishing changes ####
   observe({
-    req(input$l25)
+    req(input$ldiff)
     p <- isolate(params())
     sp <- isolate(input$sp)
     species_params <- p@species_params
@@ -362,17 +371,21 @@ server <- function(input, output, session) {
     species_params[sp, "a"]     <- input$a
     species_params[sp, "b"]     <- input$b
     species_params[sp, "l50"]   <- input$l50
-    species_params[sp, "l25"]   <- input$l25
+    species_params[sp, "l25"]   <- input$l50 - input$ldiff
     
     
     if (skipFishing) {
       skipFishing <<- FALSE
     } else {
+      updateSliderInput(session, "l50",
+                        max = round(input$l50 * 2))
+      updateSliderInput(session, "ldiff",  
+                        max = round(input$l50 / 3))
       update_species(sp, p, species_params)
     }
   })
   
-  # other
+  # other changing ####
   observe({
     req(input$ks)
     p <- isolate(params())
@@ -594,7 +607,7 @@ server <- function(input, output, session) {
                        value = species_params$biomass_cutoff))
     )
   })
-  output$plotBiomass <- renderPlot({
+  output$plotBiomassDist <- renderPlot({
     req(input$sp, input$biomass_cutoff, input$biomass_observed)
     sp <- input$sp
     p <- params()
@@ -624,7 +637,7 @@ server <- function(input, output, session) {
     }
     pl
   })
-  output$plotObservedBiomass <- renderPlot({
+  output$plotTotalBiomass <- renderPlot({
     p <- params()
     no_sp <- length(p@species_params$species)
     cutoff <- p@species_params$biomass_cutoff
@@ -656,51 +669,89 @@ server <- function(input, output, session) {
   
   ## Plot catch ####
   
-  # Catch by size for selected species
-  output$plotCatch <- renderPlot({
+  # Catch density for selected species
+  output$plotCatchDist <- renderPlot({
     req(input$sp)
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
-    w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
-    w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
+    a <- p@species_params$a[sp]
+    b <- p@species_params$b[sp]
+    
+    # Check whether we have enough catch data for this species to plot it
+    is_observed <- sum(catchdist$species == input$sp) > 3
+    
+    # To choose the range of sizes over which to plot we look at the range
+    # of sizes for which a non-zero catch was observed. If no catch was
+    # observed for the species, we use the range from w_mat/100 to w_inf.
+    if (is_observed) {
+      l_min = min(catchdist$length[catchdist$species == input$sp])
+      w_min = a * l_min ^ b
+      w_min_idx <- sum(p@w < w_min)
+      l_max = max(catchdist$length[catchdist$species == input$sp])
+      w_max = a * l_max ^ b
+      w_max_idx <- sum(p@w <= w_max)
+    } else {
+      w_min_idx <- sum(p@w < (p@species_params$w_mat[sp] / 100))
+      w_max_idx <- sum(p@w <= p@species_params$w_inf[sp])
+    }
     w_sel <- seq(w_min_idx, w_max_idx, by = 1)
-    catch <- getFMort(p, effort = input$effort)[sp, w_sel] *
-      p@w[w_sel] * p@dw[w_sel] * p@initial_n[sp, w_sel]
-    df <- data.frame(w = p@w[w_sel], Catch = catch)
+    w <- p@w[w_sel]
+    l = (p@w[w_sel] / a) ^ (1 / b)
+    
+    catch_w <- getFMort(p, effort = input$effort)[sp, w_sel] * 
+      p@initial_n[sp, w_sel]
+    # We just want the distribution, so we rescale the density so its area is 1
+    catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
+    # The catch density in l gets an extra factor of dw/dl
+    catch_l <- catch_w * b * w / l
+    df <- data.frame(w, l, catch_w, catch_l, type = "Model catch")
+    
+    # We also include the abundance density because that helps to understand
+    # the catch density    
+    catch_w <- p@initial_n[sp, w_sel]
+    # We just want the distribution, so we rescale the density so its area is 1
+    catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
+    # The catch density in l gets an extra factor of dw/dl
+    catch_l <- catch_w * b * w / l
+    df <- rbind(df, data.frame(w, l, catch_w, catch_l, type = "Abundance"))
+    
+    if (is_observed) {
+      # The observed catch is binned in bins equally spaced in length.
+      # We need that binsize to normalise the density
+      l <- catchdist$length[catchdist$species == input$sp]
+      binsize <- min(diff(l))
+      catch_l <- catchdist$catch[catchdist$species == input$sp]
+      catch_l <- catch_l / sum(catch_l * binsize)
+      # To get the density in w we need to divide by dw/dl
+      w <- a * l ^ b
+      catch_w <- catch_l / b * l / w
+      df <- rbind(df, data.frame(w, l, catch_w, catch_l, 
+                                 type = "Observed catch"))
+    }
     
     if (input$catch_x == "Weight") {
+      mat  <- p@species_params$w_mat[sp]
       pl <- ggplot(df) +
-        geom_line(aes(x = w, y = Catch), colour = "blue") +
-        scale_x_log10() +
-        geom_vline(xintercept = p@species_params$w_mat[sp],
-                   linetype = "dotted")  +
-        labs(x = "Size [g]", y = "Catch density") +
-        geom_text(aes(x = p@species_params$w_mat[sp], 
-                      y = max(Catch * 0.9),
-                      label = "\nMaturity"), 
-                  angle = 90)
+        geom_line(aes(x = w, y = catch_w, color = type)) +
+        geom_text(aes(x = mat, y = max(catch_w * 0.9), label = "\nMaturity"), 
+                  angle = 90) +
+        labs(x = "Size [g]", y = "Density")
     } else {
-      lmat <- (p@species_params$w_mat[sp] / p@species_params$a[sp]) ^
-        (1 / p@species_params$b[sp])
+      mat <- (p@species_params$w_mat[sp] / a) ^ (1 / b)
       pl <- ggplot(df) +
-        geom_line(aes(x = (w / p@species_params$a[sp]) ^
-                        (1 / p@species_params$b[sp]), 
-                      y = Catch), colour = "blue") +
-        scale_x_log10() +
-        geom_vline(xintercept = lmat,
-                   linetype = "dotted") +
-        labs(x = "Size [cm]", y = "Catch density") +
-        geom_text(aes(x = lmat, 
-                      y = max(Catch * 0.9),
-                      label = "\nMaturity"), 
-                  angle = 90)
+        geom_line(aes(x = l, y = catch_l, color = type)) +
+        geom_text(aes(x = mat, y = max(catch_l * 0.9), label = "\nMaturity"), 
+                  angle = 90) +
+        labs(x = "Size [cm]", y = "Density")
     }
-    pl + 
+    pl +
+      scale_x_log10() +
+      geom_vline(xintercept = mat, linetype = "dotted")  +
       theme_grey(base_size = 18)
   })
   
   # Total catch by species
-  output$plotObservedCatch <- renderPlotly({
+  output$plotTotalCatch <- renderPlotly({
     p <- params()
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
     catch <- rowSums(biomass * getFMort(p, effort = input$effort))
@@ -822,6 +873,12 @@ ui <- fluidPage(
     
     ## Sidebar ####
     sidebarPanel(
+      tags$head(tags$style(
+        type = 'text/css',
+        'form.well { max-height: 90vh; overflow-y: auto; }'
+      )),
+      tabsetPanel(
+        id = "sidebarTabs",
         tabPanel(
           "Species",
           tags$br(),
@@ -849,21 +906,19 @@ ui <- fluidPage(
                       value = 1, min = 0, max = 2, step = 0.05),
           uiOutput("general_params")
         ),
-        tabsetPanel(
-          id = "sidebarTabs",
-          tabPanel(
-            "File",
-            tags$br(),
-            downloadButton("params", "Download current params object"),
-            checkboxInput("log_steady", "Log steady states",
-                          value = FALSE),
-            checkboxInput("log_sp", "Log species parameters",
-                          value = FALSE),
-            tags$hr(),
-            textOutput("filename"),
-            fileInput("upload", "Upload new params object", 
-                      accept = ".rds")
-          )
+        tabPanel(
+          "File",
+          tags$br(),
+          downloadButton("params", "Download current params object"),
+          checkboxInput("log_steady", "Log steady states",
+                        value = FALSE),
+          checkboxInput("log_sp", "Log species parameters",
+                        value = FALSE),
+          tags$hr(),
+          textOutput("filename"),
+          fileInput("upload", "Upload new params object", 
+                    accept = ".rds")
+        )
       ),
       width = 3
     ),  # endsidebarpanel
@@ -874,18 +929,18 @@ ui <- fluidPage(
         type = "tabs",
         tabPanel("Spectra", plotOutput("plotSpectra")),
         tabPanel("Biomass",
-                 plotOutput("plotObservedBiomass"),
+                 plotOutput("plotTotalBiomass"),
                  uiOutput("biomass_sel"),
-                 plotOutput("plotBiomass")),
+                 plotOutput("plotBiomassDist")),
         tabPanel("Growth",
                  plotOutput("plotGrowthCurve"),
                  uiOutput("k_vb_sel")),
         tabPanel("Repro",
                  plotOutput("plot_erepro")),
         tabPanel("Catch",
-                 plotlyOutput("plotObservedCatch"),
+                 plotlyOutput("plotTotalCatch"),
                  uiOutput("catch_sel"),
-                 plotOutput("plotCatch"),
+                 plotOutput("plotCatchDist"),
                  radioButtons("catch_x", "Show size in:",
                               choices = c("Weight", "Length"), 
                               selected = "Length", inline = TRUE)),

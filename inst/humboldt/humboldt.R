@@ -38,32 +38,39 @@ params_data <- read_csv("speciesNCME_Mariella.csv",
                         ))
 
 library(readxl)
-SizedistributionAnchovy <- read_excel("Sizedistribucion_CatchNCME.xlsx",
-                                      sheet = "anchovy")
-SizedistributionSardine <- read_excel("Sizedistribucion_CatchNCME.xlsx",
-                                      sheet = "sardine")
-SizedistributionMackerel <- read_excel("Sizedistribucion_CatchNCME.xlsx",
-                                      sheet = "mackerel")
-SizedistributionJMackerel <- read_excel("Sizedistribucion_CatchNCME.xlsx",
-                                      sheet = "jackmackerel")
-sda <- melt(SizedistributionAnchovy, id.vars = 1)
-sda$Species <- "Anchovy"
-sds <- melt(SizedistributionSardine, id.vars = 1)
-sds$Species <- "Sardine"
-sdm <- melt(SizedistributionMackerel, id.vars = 1)
-sdm$Species <- "Mackerel"
-sdj <- melt(SizedistributionJMackerel, id.vars = 1)
-sdj$Species <- "JMackerel"
-catchdistribution <- rbind(sda, sds, sdm, sdj)
-names(catchdistribution) <- c("Length", "Year", "value", "Species")
-
+library(tibble)
 library(tidyr)
-catchdist <- catchdistribution %>%
-    group_by(Length, Species) %>%
-    summarise(avg = mean(value, na.rm = TRUE))
+library(dplyr)
+(sheets <- excel_sheets("Sizedistribucion_CatchNCME.xlsx"))
+# Usually Mariella uses the following names instead:
+species <- c("Anchovy", "Sardine", "Mackerel", "JMackerel")
+names(species) <- sheets
+# Start with empty tibble and then add each sheet in turn
+catchdist <- tibble(length = numeric(),
+                    catch = numeric(),
+                    species = character())
+for (sheet in sheets) {
+    cd <- read_excel("Sizedistribucion_CatchNCME.xlsx", sheet = sheet) %>%
+        rename(length = `Length (cm)`) %>%
+        gather(year, numbers, -length, na.rm = TRUE) %>%
+        group_by(length) %>%
+        summarise(catch = mean(numbers)) 
+    # Add fake year with zero observations for all size classes to 
+    # ensure that size classes without data are given zero total catch
+    by <- min(diff(cd$length))
+    zeros <- 
+        tibble(length = setdiff(seq(min(cd$length), max(cd$length), by = by),
+                                cd$length),
+               catch = 0)
+    catchdist <- cd %>%
+        bind_rows(zeros) %>%
+        arrange(length) %>%
+        mutate(species = species[[sheet]]) %>%
+        bind_rows(catchdist)
+}
 
-ggplot(sizedist) +
-    geom_line(aes(x = Length, y = avg, color = Species))
+ggplot(catchdist) +
+    geom_line(aes(x = length, y = catch, color = species))
 
 saveRDS(catchdist, "catchdistribution.rds")
 
