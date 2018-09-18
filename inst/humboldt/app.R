@@ -254,7 +254,7 @@ server <- function(input, output, session) {
       # parameters but in the context of the original community
       # Compute death rate for changed species
       mumu <- getMort(pc, p@initial_n, p@initial_n_pp, 
-                      effort = input$effort)[sp, ]
+                      effort = 1)[sp, ]
       # compute growth rate for changed species
       gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
       # Compute solution for changed species
@@ -369,7 +369,7 @@ server <- function(input, output, session) {
       plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
       p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
       # Recompute all species
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = input$effort)
+      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 1)
       gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
       for (sp in 1:length(p@species_params$species)) {
         w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
@@ -387,7 +387,7 @@ server <- function(input, output, session) {
       
       # Retune the values of erepro so that we get the correct level of
       # recruitment
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = input$effort)
+      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 1)
       gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
       rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
       # TODO: vectorise this
@@ -426,7 +426,7 @@ server <- function(input, output, session) {
       on.exit(progress$close())
       
       # Run to steady state
-      p <- steady(p, effort = input$effort, t_max = 100, tol = 1e-2,
+      p <- steady(p, effort = 1, t_max = 100, tol = 1e-2,
                   shiny_progress = progress)
       
       if (input$log_steady) {
@@ -485,12 +485,11 @@ server <- function(input, output, session) {
         }
         gears <- union(gears, gear)
         p <- addSpecies(p, p_old@species_params[sp, ],
-                        effort = input$effort,
-                        rfac = Inf)    
+                        effort = 1, rfac = Inf)    
       }
       
       # Run to steady state
-      p <- steady(p, effort = input$effort, 
+      p <- steady(p, effort = 1, 
                   t_max = 100, tol = 1e-2,
                   shiny_progress = progress)
       
@@ -652,7 +651,7 @@ server <- function(input, output, session) {
     w <- p@w[w_sel]
     l = (p@w[w_sel] / a) ^ (1 / b)
     
-    catch_w <- getFMort(p, effort = input$effort)[sp, w_sel] * 
+    catch_w <- getFMort(p, effort = 1)[sp, w_sel] * 
       p@initial_n[sp, w_sel]
     # We just want the distribution, so we rescale the density so its area is 1
     catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
@@ -708,7 +707,7 @@ server <- function(input, output, session) {
   output$plotTotalCatch <- renderPlotly({
     p <- params()
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
-    catch <- rowSums(biomass * getFMort(p, effort = input$effort))
+    catch <- rowSums(biomass * getFMort(p, effort = 1))
     df <- rbind(
       data.frame(Species = p@species_params$species,
                  Type = "Observed",
@@ -791,7 +790,7 @@ server <- function(input, output, session) {
                rep("Fishing", len),
                rep("Background", len)),
       value = c(getMort(p, p@initial_n, p@initial_n_pp,
-                        effort = input$effort)[sp,sel],
+                        effort = 1)[sp,sel],
                 getPredMort(p, p@initial_n, p@initial_n_pp)[sp,sel],
                 getFMort(p, effort = input$effort)[sp,sel],
                 p@mu_b[sp,sel])
@@ -888,9 +887,8 @@ ui <- fluidPage(
                  radioButtons("catch_x", "Show size in:",
                               choices = c("Weight", "Length"), 
                               selected = "Length", inline = TRUE)),
-        tabPanel("Growth",
-                 plotOutput("plotGrowth")),
-        tabPanel("Death",
+        tabPanel("Rates",
+                 plotOutput("plotGrowth"),
                  plotOutput("plotDeath"))
       )
     )  # end mainpanel
