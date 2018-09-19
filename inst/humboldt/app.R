@@ -36,6 +36,9 @@ server <- function(input, output, session) {
     )
     # Update the reactive params object
     params(p)
+    
+    # Trigger an update of sliders
+    trigger_update(runif(1))
   })
   
   ## Prepare for download of params object ####
@@ -158,6 +161,8 @@ server <- function(input, output, session) {
                       min = signif(input$kappa / 2, 2),
                       max = signif(input$kappa * 1.5, 2))
     params(p)
+    
+    # Trigger an update of sliders
     trigger_update(runif(1))
   })
   
@@ -825,20 +830,20 @@ server <- function(input, output, session) {
     
   })
   
-  # ## Plot prey ####
-  # output$plot_prey <- renderPlotly({
-  #   p <- params()
-  #   sp <- which.max(p@species_params$species == input$sp)
-  #   logbeta <- log(p@species_params$beta[sp])
-  #   sigma <- p@species_params$sigma[sp]
-  #   wp <- p@species_params$w_mat[sp]
-  #   xp <- log(wp)
-  #   pr <- p@initial_n * exp(-(log(p@w) - xp + logbeta) / (2 * sigma^2))
-  #   df <- melt(fl)
-  #   ggplot(df) +
-  #     geom_line(aes(x = w, y = value, color = sp, linetype = sp)) +
-  #     scale_x_log10()
-  # })
+  ## Plot prey ####
+  output$plot_prey <- renderPlotly({
+    p <- params()
+    sp <- which.max(p@species_params$species == input$sp)
+    logbeta <- log(p@species_params$beta[sp])
+    sigma <- p@species_params$sigma[sp]
+    wp <- p@species_params$w_mat[sp]
+    xp <- log(wp)
+    pr <- p@initial_n * exp(-(log(p@w) - xp + logbeta) / (2 * sigma^2))
+    df <- melt(fl)
+    ggplot(df) +
+      geom_line(aes(x = w, y = value, color = sp, linetype = sp)) +
+      scale_x_log10()
+  })
   
 } #the server
 
