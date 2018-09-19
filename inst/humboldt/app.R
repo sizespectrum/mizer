@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
+library(reshape2)
 # # Uncomment the following 2 lines before publishing the app
 # library(devtools)
 # install_github("gustavdelius/mizer", ref="humboldt")
@@ -126,24 +127,12 @@ server <- function(input, output, session) {
 
   output$general_params <- renderUI({
     p <- isolate(params())
-    i_bkgd <- which.max(is.na(p@A))
-    bkgd_params <- p@species_params[i_bkgd, ]
     
     list(
       numericInput("lambda", "Sheldon exponent",
                    value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
-      sliderInput("f0", "Feeding level",
-                  value = p@f0, min = 0, max = 1),
-      sliderInput("h_bkgd", "max feeding rate",
-                  value = bkgd_params$h, min = 10, max = 100, step = 2),
       sliderInput("log_r_pp", "log10 Plankton replenishment rate",
                   value = -1, min = -4, max = 0),
-      sliderInput("no_bg_sp", "Number of background species",
-                  value = 10, min = 4, max = 20, step = 1, round = TRUE),
-      sliderInput("no_w", "Number of weight brackets",
-                  value = 400, min = 200, max = 1200, step = 50, round = TRUE),
-      numericInput("min_w_pp", "Minimum plankton weight min_w_pp",
-                   value = 1e-12,  step = 1e-13)
     )
   })
   
@@ -312,7 +301,6 @@ server <- function(input, output, session) {
     )
   }
   
-  ## predation changes ####
   observe({
     req(input$sigma)
     p <- isolate(params())
@@ -537,6 +525,13 @@ server <- function(input, output, session) {
       scale_y_log10() +
       theme_grey(base_size = 18) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+  })
+  
+  ## Plot feeding level ####
+  output$plot_feeding_level <- renderPlot({
+    p <- params()
+    fl <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)
+    df <- melt(fl)
   })
   
   ## Biomass plot ####
@@ -841,14 +836,14 @@ ui <- fluidPage(
             '#sp_params { max-height: 75vh; overflow-y: auto; }'
           ))
         ),
-        tabPanel(
-          "General",
-          tags$br(),
-          actionButton("bg_go", "Go"),
-          sliderInput("effort", "Effort",
-                      value = 1, min = 0, max = 2, step = 0.05),
-          uiOutput("general_params")
-        ),
+        # tabPanel(
+        #   "General",
+        #   tags$br(),
+        #   actionButton("bg_go", "Go"),
+        #   sliderInput("effort", "Effort",
+        #               value = 1, min = 0, max = 2, step = 0.05),
+        #   uiOutput("general_params")
+        # ),
         tabPanel(
           "File",
           tags$br(),
