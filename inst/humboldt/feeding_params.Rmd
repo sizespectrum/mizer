@@ -33,7 +33,7 @@ $$ f_w(w|w') \propto w^{-\lambda}
   {2\sigma^2}\right).$$
 Mariella likes to work in terms of the predator/prey mass ratio $r=w'/w$.
 The probability density for this ration can be obtained by observing that
-$$ f_r(r|w') = f_w(w|w')\left|\frac{dw}{dr}\right|=\frac{w'}{r^2} f_r(r|w')$$
+$$ f_r(r|w') = f_w(w|w')\left|\frac{dw}{dr}\right|=\frac{w'}{r^2} f_w(w|w')$$
 and thus
 $$ f(r|w') \propto r^{\lambda-2}
 \exp\left(-\frac{(\log(r)-\log(\beta))^2}
@@ -48,7 +48,7 @@ $$ f_{l}(l|w') \propto e^{l(\lambda-1)}
 
 By combining the exponentials and completing squares and then 
 normalising, the density becomes
-$$ f_{l}(l) = 
+$$ f_{l}(l|w') = 
 \frac{1}{\sqrt{2\pi}\sigma}
 \exp\left(-\frac{(l-(\log(\beta)+\sigma^2(\lambda-1))^2}
   {2\sigma^2}\right),$$
