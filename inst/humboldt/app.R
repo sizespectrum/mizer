@@ -70,20 +70,20 @@ server <- function(input, output, session) {
       tags$h3("Predation"),
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
-                  min = signif(sp$gamma/2, 3),
-                  max = signif(sp$gamma*2, 3)),
+                  min = signif(sp$gamma / 2, 3),
+                  max = signif(sp$gamma * 1.5, 3)),
       sliderInput("h", "max feeding rate h",
                   value = sp$h,
-                  min = signif(sp$h/2, 2),
-                  max = signif(sp$h*2, 2)),
+                  min = signif(sp$h / 2, 2),
+                  max = signif(sp$h * 1.5, 2)),
       sliderInput("beta", "Preferred predator-prey mass ratio beta",
                   value = sp$beta,
-                  min = signif(sp$beta / 10, 2),
-                  max = signif(sp$beta * 10, 2)),
+                  min = signif(sp$beta / 2, 2),
+                  max = signif(sp$beta * 1.5, 2)),
       sliderInput("sigma", "Width of size selection function sigma",
                   value = sp$sigma,
-                  min = signif(sp$sigma/2, 2),
-                  max = signif(sp$sigma*2, 2),
+                  min = signif(sp$sigma / 2, 2),
+                  max = signif(sp$sigma * 1.5, 2),
                   step = 0.05),
       tags$h3("Fishing"),
       sliderInput("catchability", "Catchability",
@@ -105,20 +105,25 @@ server <- function(input, output, session) {
       
       tags$h3("Others"),
       sliderInput("kappa", "kappa", value = p@kappa,
-                  min = p@kappa / 2,
-                  max = p@kappa * 1.5),
+                  min = signif(p@kappa / 2, 2),
+                  max = signif(p@kappa * 1.5, 2)),
       sliderInput("n0", "Egg density",
                   value = n0,
-                  min = signif(n0/10, 3),
-                  max = signif(n0*10, 3)),
+                  min = signif(n0 / 2, 3),
+                  max = signif(n0 * 1.5, 3)),
       sliderInput("alpha", "Assimilation efficiency alpha",
                   value = sp$alpha,
                   min = 0,
                   max = 1),
       sliderInput("ks", "Coefficient of standard metabolism ks",
                   value = sp$ks,
-                  min = signif(sp$ks/2, 2),
-                  max = signif(sp$ks*2, 2),
+                  min = signif(sp$ks / 2, 2),
+                  max = signif(sp$ks * 1.5, 2),
+                  step = 0.05),
+      sliderInput("k", "Coefficient of activity k",
+                  value = sp$k,
+                  min = 0,
+                  max = signif(sp$ks * 1.5, 2),
                   step = 0.05)
     )
   })
@@ -150,8 +155,8 @@ server <- function(input, output, session) {
     p@search_vol <- p@search_vol / (input$kappa / p@kappa)
     p@kappa <- input$kappa
     updateSliderInput(session, "kappa",
-                      min = input$kappa / 2, 
-                      max = input$kappa * 1.5)
+                      min = signif(input$kappa / 2, 2),
+                      max = signif(input$kappa * 1.5, 2))
     params(p)
     trigger_update(runif(1))
   })
@@ -192,8 +197,8 @@ server <- function(input, output, session) {
       skip_update_n0 <<- FALSE
     } else {
       updateSliderInput(session, "n0",
-                        min = signif(n0 / 10, 3),
-                        max = signif(n0 * 10, 3))
+                        min = signif(n0 / 2, 3),
+                        max = signif(n0 * 1.5, 3))
       # rescale abundance to new egg density
       p@initial_n[sp, ] <- p@initial_n[sp, ] * n0 / 
         p@initial_n[sp, p@w_min_idx[sp]]
@@ -317,6 +322,7 @@ server <- function(input, output, session) {
     species_params[sp, "l25"]   <- input$l50 - input$ldiff
     species_params[sp, "alpha"] <- input$alpha
     species_params[sp, "ks"]    <- input$ks
+    species_params[sp, "k"]    <- input$k
     
     if (skip_update) {
       skip_update <<- FALSE
@@ -325,23 +331,25 @@ server <- function(input, output, session) {
       # parameter value
       updateSliderInput(session, "gamma",
                         min = signif(input$gamma / 2, 3),
-                        max = signif(input$gamma * 2, 3))
+                        max = signif(input$gamma * 1.5, 3))
       updateSliderInput(session, "h",
                         min = signif(input$h / 2, 2),
-                        max = signif(input$h * 2, 2))
+                        max = signif(input$h * 1.5, 2))
       updateSliderInput(session, "beta",
-                        min = signif(input$beta / 10, 2),
-                        max = signif(input$beta * 10, 2))
+                        min = signif(input$beta / 2, 2),
+                        max = signif(input$beta * 1.5, 2))
       updateSliderInput(session, "sigma",
                         min = signif(input$sigma / 2, 2),
-                        max = signif(input$sigma * 2, 2))
+                        max = signif(input$sigma * 1.5, 2))
       updateSliderInput(session, "l50",
                         max = signif(input$l50 * 2, 2))
       updateSliderInput(session, "ldiff",  
                         max = signif(input$l50 / 10, 2))
       updateSliderInput(session, "ks",
                         min = signif(input$ks / 2, 2),
-                        max = signif(input$ks * 2, 2))
+                        max = signif(input$ks * 1.5, 2))
+      updateSliderInput(session, "k",
+                        max = signif(input$ks * 1.5, 2))
       
       update_species(sp, p, species_params)
     }
@@ -514,7 +522,12 @@ server <- function(input, output, session) {
   
   ## Spectra ####
   output$plotSpectra <- renderPlot({
-    plotSpectra(params()) + theme_grey(base_size = 18)
+    if (input$binning == "Logarithmic") {
+      power <- 2
+    } else {
+      power <- 1
+    }
+    plotSpectra(params(), power = power) + theme_grey(base_size = 18)
   })
   
   ## erepro plot ####
@@ -528,10 +541,13 @@ server <- function(input, output, session) {
   })
   
   ## Plot feeding level ####
-  output$plot_feeding_level <- renderPlot({
+  output$plot_feeding_level <- renderPlotly({
     p <- params()
     fl <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)
     df <- melt(fl)
+    ggplot(df) +
+      geom_line(aes(x = w, y = value, color = sp, linetype = sp)) +
+      scale_x_log10()
   })
   
   ## Biomass plot ####
@@ -786,8 +802,8 @@ server <- function(input, output, session) {
                rep("Background", len)),
       value = c(getMort(p, p@initial_n, p@initial_n_pp,
                         effort = 1)[sp,sel],
-                getPredMort(p, p@initial_n, p@initial_n_pp)[sp,sel],
-                getFMort(p, effort = input$effort)[sp,sel],
+                getPredMort(p, p@initial_n, p@initial_n_pp)[sp, sel],
+                getFMort(p, effort = 1)[sp, sel],
                 p@mu_b[sp,sel])
     )
     ggplot(df, aes(x = w, y = value, color = Type)) + 
@@ -809,13 +825,27 @@ server <- function(input, output, session) {
     
   })
   
+  # ## Plot prey ####
+  # output$plot_prey <- renderPlotly({
+  #   p <- params()
+  #   sp <- which.max(p@species_params$species == input$sp)
+  #   logbeta <- log(p@species_params$beta[sp])
+  #   sigma <- p@species_params$sigma[sp]
+  #   wp <- p@species_params$w_mat[sp]
+  #   xp <- log(wp)
+  #   pr <- p@initial_n * exp(-(log(p@w) - xp + logbeta) / (2 * sigma^2))
+  #   df <- melt(fl)
+  #   ggplot(df) +
+  #     geom_line(aes(x = w, y = value, color = sp, linetype = sp)) +
+  #     scale_x_log10()
+  # })
   
 } #the server
 
 #### User interface ####
 ui <- fluidPage(
   
-  titlePanel("Humboldt current ecosystem"),
+  # titlePanel("Humboldt current ecosystem"),
   
   sidebarLayout(
     
@@ -833,7 +863,7 @@ ui <- fluidPage(
           uiOutput("sp_params"),
           tags$head(tags$style(
             type = 'text/css',
-            '#sp_params { max-height: 75vh; overflow-y: auto; }'
+            '#sp_params { max-height: 70vh; overflow-y: auto; }'
           ))
         ),
         # tabPanel(
@@ -865,7 +895,11 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(id = "mainTabs",
         type = "tabs",
-        tabPanel("Spectra", plotOutput("plotSpectra")),
+        tabPanel("Spectra", plotOutput("plotSpectra"),
+                 radioButtons("binning", "Binning:",
+                              choices = c("Logarithmic", "Constant"), 
+                              selected = "Logarithmic", inline = TRUE)
+        ),
         tabPanel("Biomass",
                  plotOutput("plotTotalBiomass"),
                  uiOutput("biomass_sel"),
@@ -884,7 +918,9 @@ ui <- fluidPage(
                               selected = "Length", inline = TRUE)),
         tabPanel("Rates",
                  plotOutput("plotGrowth"),
-                 plotOutput("plotDeath"))
+                 plotOutput("plotDeath")),
+        tabPanel("f",
+                 plotlyOutput("plot_feeding_level"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
