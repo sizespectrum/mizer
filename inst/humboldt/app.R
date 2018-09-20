@@ -341,7 +341,7 @@ server <- function(input, output, session) {
     species_params[sp, "ks"]    <- input$ks
     species_params[sp, "k"]     <- input$k
     species_params[sp, "w25"]   <- input$w_mat * input$wfrac
-    species_params[sp, "w50"]   <- input$w_mat
+    species_params[sp, "w_mat"]   <- input$w_mat
     species_params[sp, "m"]     <- input$m
     
     if (skip_update) {
@@ -872,16 +872,16 @@ server <- function(input, output, session) {
                 width = "80%",
                 animate = animationOptions(loop = TRUE))
   })
-  phi <- function(x, xp) {
-    phi <- exp(-(x - xp + log(p@species_params$beta[sp])) ^ 2 /
-                 (2 * p@species_params$sigma[sp] ^ 2))
-    phi[x >= xp | x < (xp - log(p@species_params$beta[sp]) -
-                         3 * p@species_params$sigma[sp])] <- 0
-    return(phi)
-  }
   output$plot_prey <- renderPlot({
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
+    phi <- function(x, xp) {
+      phi <- exp(-(x - xp + log(p@species_params$beta[sp])) ^ 2 /
+                   (2 * p@species_params$sigma[sp] ^ 2))
+      phi[x >= xp | x < (xp - log(p@species_params$beta[sp]) -
+                           3 * p@species_params$sigma[sp])] <- 0
+      return(phi)
+    }
     x <- log(p@w_full)
     dx <- x[2] - x[1]
     xp <- req(input$pred_size)
