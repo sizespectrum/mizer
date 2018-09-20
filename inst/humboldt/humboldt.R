@@ -96,6 +96,14 @@ params_data$sigma <- log(params_data$sigma)
 params_data$l25 <- c(1.0e+29,     1.9e+00,     4.0e+00,     5.0e+00,     2.9e+00,     3.2e+01,     4.9e+00,     4.9e+01 )
 params_data$l50 <-  c(1.1e+29,     2.0e+00,     5.0e+00,     6.0e+00,     3.0e+00,     3.6e+01,     8.0e+00,     5.1e+01) 
 
+# Add maturity ogive parameter
+l25 <- (params_data$a1_maturity - log(3)) / params_data$b1_maturity
+w25 <- params_data$a2 * l25 ^ params_data$b2
+l50 <- params_data$a1_maturity / params_data$b1_maturity
+w50 <- params_data$a2 * l50 ^ params_data$b2
+data.frame(l50, l50_m = params_data$Lmat, w50, w_mat = params_data$w_mat)
+# note that the w_mat differs quite a lot from w50
+
 # Remove the mesopelagics from the dataframe because we model them via the
 # background species
 params_data <- subset(params_data, params_data$species != "Mesopelagic")
@@ -146,7 +154,9 @@ for (i in (1:no_sp)) {
         t0 = params_data$to[i],
         a = params_data$a2[i],
         b = params_data$b2[i],
-        catchability = params_data$Fmort[i]
+        w25 = w25,
+        w_mat = w50,
+        catchability = params_data$Fmort[i],
         catch_observed = params_data$obsCatch_tonnes[i] * 1e-6,
         biomass_observed = params_data$TotBiom_tonnes[i] * 1e-6,
         biomass_cutoff = params_data$w_TB_start[i]

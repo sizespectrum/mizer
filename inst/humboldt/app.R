@@ -106,7 +106,17 @@ server <- function(input, output, session) {
                    value = sp$a),
       numericInput("b", "Exponent for length to weight conversion b",
                    value = sp$b),
-      
+      tags$h3("Maturity"),
+      sliderInput("w_mat", "w_mat", value = sp$w_mat,
+                  min = signif(sp$w_mat / 2, 2),
+                  max = signif(sp$w_mat * 1.5, 2)),
+      sliderInput("wfrac", "w25/w_mat", value = sp$w25/sp$w_mat,
+                  min = 0.5,
+                  max = 1,
+                  step = 0.01),
+      sliderInput("m", "m", value = sp$m,
+                  min = 0,
+                  max = 1),
       tags$h3("Others"),
       sliderInput("kappa", "kappa", value = p@kappa,
                   min = signif(p@kappa / 2, 2),
@@ -127,8 +137,8 @@ server <- function(input, output, session) {
       sliderInput("k", "Coefficient of activity k",
                   value = sp$k,
                   min = 0,
-                  max = signif(sp$ks * 1.5, 2),
-                  step = 0.05)
+                  max = 1,
+                  step = 0.01)
     )
   })
   
@@ -316,6 +326,7 @@ server <- function(input, output, session) {
     req(input$sigma)
     p <- isolate(params())
     sp <- isolate(input$sp)
+    
     species_params <- p@species_params
     species_params[sp, "gamma"] <- input$gamma
     species_params[sp, "h"]     <- input$h
@@ -328,7 +339,10 @@ server <- function(input, output, session) {
     species_params[sp, "l25"]   <- input$l50 - input$ldiff
     species_params[sp, "alpha"] <- input$alpha
     species_params[sp, "ks"]    <- input$ks
-    species_params[sp, "k"]    <- input$k
+    species_params[sp, "k"]     <- input$k
+    species_params[sp, "w25"]   <- input$w_mat * input$wfrac
+    species_params[sp, "w50"]   <- input$w_mat
+    species_params[sp, "m"]     <- input$m
     
     if (skip_update) {
       skip_update <<- FALSE
@@ -354,8 +368,9 @@ server <- function(input, output, session) {
       updateSliderInput(session, "ks",
                         min = signif(input$ks / 2, 2),
                         max = signif(input$ks * 1.5, 2))
-      updateSliderInput(session, "k",
-                        max = signif(input$ks * 1.5, 2))
+      updateSliderInput(session, "w_mat",
+                        min = signif(input$w_mat / 2, 2),
+                        max = signif(input$w_mat * 1.5, 2))
       
       update_species(sp, p, species_params)
     }
@@ -757,7 +772,11 @@ server <- function(input, output, session) {
   p <- params()
   
   max_w <- p@species_params[sp, "w_inf"]
-  min_w <- p@species_params[sp, "w_min"]
+  if (input$axis == "Logarithmic") {
+    min_w <- p@species_params[sp, "w_min"]
+  } else {
+    min_w = p@species_params[sp, "w_mat"] / 10 # min(1, p@species_params[sp, "w_min"])
+  }
   sel <- p@w >= min_w & p@w <= max_w
   len <- sum(sel)
   growth <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp,sel]
@@ -773,8 +792,8 @@ server <- function(input, output, session) {
              rep("Reproduction", len)),
     value = c(growth, income, metab, repro)
   )
-  ggplot(df, aes(x = w, y = value, color = Type)) + 
-    geom_line() + scale_x_log10() +
+  pl <- ggplot(df, aes(x = w, y = value, color = Type)) + 
+    geom_line() + 
     geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                linetype = "dotted") +
     geom_vline(xintercept = p@species_params[sp, "w_inf"], 
@@ -789,7 +808,10 @@ server <- function(input, output, session) {
                   y = max(value * 0.2),
                   label = "\nMaximum"), 
               angle = 90)
-  
+  if (input$axis == "Logarithmic") {
+    pl <- pl + scale_x_log10()
+  }
+  pl
 })
   output$plotDeath <- renderPlot({
     req(input$sp)
@@ -797,7 +819,11 @@ server <- function(input, output, session) {
     p <- params()
     
     max_w <- p@species_params[sp, "w_inf"]
-    min_w <- p@species_params[sp, "w_min"]
+    if (input$axis == "Logarithmic") {
+      min_w <- p@species_params[sp, "w_min"]
+    } else {
+      min_w = p@species_params[sp, "w_mat"] / 10# min(1, p@species_params[sp, "w_min"])
+    }
     sel <- p@w >= min_w & p@w <= max_w
     len <- sum(sel)
     df <- data.frame(
@@ -812,8 +838,8 @@ server <- function(input, output, session) {
                 getFMort(p, effort = 1)[sp, sel],
                 p@mu_b[sp,sel])
     )
-    ggplot(df, aes(x = w, y = value, color = Type)) + 
-      geom_line() + scale_x_log10() +
+    pl <- ggplot(df, aes(x = w, y = value, color = Type)) + 
+      geom_line() + 
       geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                  linetype = "dotted") +
       geom_vline(xintercept = p@species_params[sp, "w_inf"], 
@@ -828,7 +854,10 @@ server <- function(input, output, session) {
                     y = max(value * 0.2),
                     label = "\nMaximum"), 
                 angle = 90)
-    
+    if (input$axis == "Logarithmic") {
+      pl <- pl + scale_x_log10()
+    }
+    pl
   })
   
   ## Plot prey ####
@@ -876,6 +905,25 @@ server <- function(input, output, session) {
       geom_line(aes(x, y, color = type)) +
       labs(x = "log(w)", y = "Density") +
       geom_point(aes(x = xp, y = 0), size = 4, colour = "blue")
+  })
+  
+  ## Plot psi ####
+  output$plot_psi <- renderPlot({
+    p <- params()
+    sp <- which.max(p@species_params$species == input$sp)
+    w_min <- p@species_params$w_inf[sp] / 50
+    sel <- p@w >= w_min & p@w <= p@species_params$w_inf[sp]
+    df <- data.frame(Size = p@w[sel], psi = p@psi[sp, sel])
+    ggplot(df, aes(x = Size, y = psi)) + 
+      geom_line(color = "blue") +
+      geom_vline(xintercept = p@species_params[sp, "w_mat"], 
+                 linetype = "dotted") +
+      theme_grey(base_size = 18) +
+      labs(x = "Size [g]", y = "Proportion of energy for reproduction")  +
+      geom_text(aes(x = p@species_params[sp, "w_mat"], 
+                    y = max(psi * 0.8),
+                    label = "\nMaturity"), 
+                angle = 90)
   })
   
 } #the server
@@ -955,13 +1003,18 @@ ui <- fluidPage(
                               choices = c("Weight", "Length"), 
                               selected = "Length", inline = TRUE)),
         tabPanel("Rates",
+                 radioButtons("axis", "x-axis scale:",
+                              choices = c("Logarithmic", "Normal"), 
+                              selected = "Logarithmic", inline = TRUE),
                  plotOutput("plotGrowth"),
                  plotOutput("plotDeath")),
         tabPanel("f",
                  plotlyOutput("plot_feeding_level")),
         tabPanel("Prey",
                  uiOutput("pred_size_slider"),
-                 plotOutput("plot_prey"))
+                 plotOutput("plot_prey")),
+        tabPanel("psi",
+                 plotOutput("plot_psi"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
