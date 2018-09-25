@@ -907,6 +907,27 @@ server <- function(input, output, session) {
       geom_point(aes(x = xp, y = 0), size = 4, colour = "blue")
   })
   
+  ## Plot predators ####
+  output$plot_pred <- renderPlotly({
+    p <- params()
+    pred_rate <- getPredRate(p, p@initial_n, p@initial_n_pp)
+    # Make data.frame for plot
+    plot_dat <- 
+      rbind(
+        data.frame(value = c(pred_rate),
+                           Species = as.factor(dimnames(pred_rate)[[1]]),
+                           w = rep(p@w_full,
+                                   each = dim(pred_rate)[[1]])),
+        data.frame(value = colSums(pred_rate),
+                   Species = "Total",
+                   w = p@w_full)
+      )
+    ggplot(plot_dat) +
+      geom_line(aes(x = w, y = value, color = Species)) +
+      scale_x_log10() +
+      labs(x = "Size [g]", y = "Predation rate")
+  })
+  
   ## Plot psi ####
   output$plot_psi <- renderPlot({
     p <- params()
@@ -1013,6 +1034,8 @@ ui <- fluidPage(
         tabPanel("Prey",
                  uiOutput("pred_size_slider"),
                  plotOutput("plot_prey")),
+        tabPanel("Predators",
+                 plotlyOutput("plot_pred")),
         tabPanel("psi",
                  plotOutput("plot_psi"))
       )
