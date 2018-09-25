@@ -834,6 +834,53 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 }
 
 
+#' Get growth curves giving weight as a function of age
+#' 
+#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+#' time of a simulation to calculate the size at age. If given a
+#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
+#' 
+#' @param object MizerSim or MizerParams object
+#' @param max_age The age up to which the weight is to be plotted. Default is 20
+#'
+#' @return A ggplot2 object
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' getGrowthCurves(params)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' getGrowthCurves(sim, max_age = 24)
+#' }
+getGrowthCurves <- function(object, max_age = 24) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+        t <- dim(object@n)[1]
+        n <- object@n[t, , ]
+        n_pp <- object@n_pp[t, ]
+    } else if (is(object, "MizerParams")) {
+        params <- object
+        n <- object@initial_n
+        n_pp <- object@initial_n_pp
+    }
+    species <- dimnames(n)$sp
+    age <- seq(0, max_age, length.out = 50)
+    ws <- array(dim = c(length(species), length(age)),
+                dimnames = list(Species = species, Age = age))
+    g <- getEGrowth(params, n, n_pp)
+    for (i in 1:length(species)) {
+        g_fn <- stats::approxfun(params@w, g[i, ])
+        myodefun <- function(t, state, parameters){
+            return(list(g_fn(state)))
+        }
+        ws[i, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                times = age, func = myodefun)[, 2]
+    }
+    return(ws)
+}
+
 #' Plot growth curves giving weight as a function of age
 #' 
 #' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
