@@ -909,23 +909,34 @@ server <- function(input, output, session) {
   
   ## Plot predators ####
   output$plot_pred <- renderPlotly({
+    req(input$sp)
+    sp <- input$sp
     p <- params()
-    pred_rate <- getPredRate(p, p@initial_n, p@initial_n_pp)
+    fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
+    pred_rate <- p@interaction[, sp] * 
+      getPredRate(p, p@initial_n, p@initial_n_pp)[, fish_idx]
+    fishing <- getFMort(p, 1)[sp, ]
+    total <- colSums(pred_rate) + p@mu_b[sp, ] + fishing
+    pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
+    background <- p@mu_b[sp, ] / total
+    fishing <- fishing / total
     # Make data.frame for plot
     plot_dat <- 
       rbind(
         data.frame(value = c(pred_rate),
-                           Species = as.factor(dimnames(pred_rate)[[1]]),
-                           w = rep(p@w_full,
-                                   each = dim(pred_rate)[[1]])),
-        data.frame(value = colSums(pred_rate),
-                   Species = "Total",
-                   w = p@w_full)
+                           Cause = as.factor(dimnames(pred_rate)[[1]]),
+                           w = rep(p@w, each = dim(pred_rate)[[1]])),
+        data.frame(value = background,
+                   Cause = "Background",
+                   w = p@w),
+        data.frame(value = fishing,
+                   Cause = "Fishing",
+                   w = p@w)
       )
     ggplot(plot_dat) +
-      geom_line(aes(x = w, y = value, color = Species)) +
+      geom_line(aes(x = w, y = value, color = Cause)) +
       scale_x_log10() +
-      labs(x = "Size [g]", y = "Predation rate")
+      labs(x = "Size [g]", y = "Proportion of all death")
   })
   
   ## Plot psi ####
