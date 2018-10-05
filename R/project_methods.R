@@ -682,12 +682,17 @@ getSMort <- function(object, n, n_pp,
               stop("e argument must have dimensions: no. species (",
                    nrow(object@species_params), ") x no. size bins (",
                    length(object@w), ")")
-        }
-        mu_S <- e 
-        mu_S[mu_S<0]<- t(apply(mu_S,1,function(x,y = 0.1*object@w){x[which(x<0)]/y[which(x<0)]}))
-        mu_S[mu_S>0] <- 0
-        mu_S = - mu_S # this returns negative mortality values, because negative e divided by weight  
-        # gives negative value, so we turn it into positive mortality
+            }
+
+        mu_S <- e # assign net energy to the initial starvation mortality matrix
+
+        x <- t(t(mu_S)/(0.1*object@w)) # apply the mortality formula to the whole matrix
+        #remember, 0.1 is a parameter here, which is a scaling constant on how negative e translates to starvation mortality. For a 100g fish with a negative e of -1, it will give starvation value of 0.1. For a 10 g fish with e of -1, it will give mortality of 1. This seems reasonable for a start, but a more conmplex relationship could be explored in the future 
+        mu_S[mu_S<0] <- x[x<0] # replace the negative values of e by the starvation mortality
+        mu_S[mu_S>0] <- 0 # replace the positive values of e by 0
+
+        mu_S = - mu_S # this returns negative mortality values, because negative e is divided by weight. So to get the actual mortality we turn them into positive values 
+        
     return(mu_S)
 }
 
