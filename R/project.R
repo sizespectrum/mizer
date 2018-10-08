@@ -272,7 +272,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
             # Advance progress bar
-          #  pb$tick() #Asta
+          #  pb$tick() #Asta commented this out, because this produces huge amount of bars at every time step
             if (hasArg(shiny_progress)) {
                 shiny_progress$inc(amount = proginc)
             }

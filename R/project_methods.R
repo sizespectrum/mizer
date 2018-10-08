@@ -696,6 +696,53 @@ getSMort <- function(object, n, n_pp,
     return(mu_S)
 }
 
+#' Get senescence mortality 
+#' 
+#' Calculates senescence mortality SenMort according to Law et al. 2009 and applied in coupled community
+#' model in Blanchard et al. 2009 (JAE). 
+#' In models without fishing senescence mortality is needed to prevent the build up of large fish, 
+#' which contribute huge amount of spawn. 
+#' Senescence mortality is implemented as an exponential increase in mortality for the last size groups
+#' and has three parameters, currently set as constants. 
+#' 
+#' xsw= 0.9 defining the proportion of Wmax at which senescence starts is at the value defined in k.sm
+#' sen.e = 3 which is exponent of the senescence mortality function (larger values will give
+#' steeper function and mortality will apply only in the last few size groups) here set at 3, but also
+#' values of 0.5 were explored in Law et al. 2009,
+#' k.sm = 0.5 defining instantaneous rate of senescence mortality per year for the size group xsw*Wmax
+#' mu_Sen = k.sm * 10^(sen.e*(w-xsw*Wmax))
+#' 
+#' @param object A \code{MizerParams} object.
+#' @param n A matrix of species abundance (species x size).
+#'
+#' @return A two dimensional array of instantaneous senescence mortality (species x size). 
+
+getSenMort <- function(object, n){
+  if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
+    stop("e argument must have dimensions: no. species (",
+         nrow(object@species_params), ") x no. size bins (",
+         length(object@w), ")")
+  }
+  
+  k.sm <- 0.5
+  xsw <- 0.9
+  sen.e <- 3
+  print(1)
+  temp1 <- xsw*object@species_params$w_inf
+  print(temp1)
+  print(object@w)
+  temp <- object@w-xsw*object@species_params$w_inf
+  print(temp)
+  print(2)
+  
+  mu_Sen = k.sm * 10^(sen.e*(object@w-xsw*object@species_params$w_inf))
+  print(dim(mu_Sen))
+
+  return(mu_Sen)
+}
+
+
+
 
 #' Get energy rate available for reproduction
 #'
