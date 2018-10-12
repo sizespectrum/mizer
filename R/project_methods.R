@@ -60,6 +60,8 @@ NULL
 #' n_pp <- sim@@n_pp[21,]
 #' getAvailEnergy(params,n,n_pp)
 #' }
+
+# TEST message
 getAvailEnergy <- function(object, n, n_pp) {
 
     # idx_sp are the index values of object@w_full such that
