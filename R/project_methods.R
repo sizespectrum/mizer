@@ -692,7 +692,7 @@ getSMort <- function(object, n, n_pp,
         mu_S[mu_S>0] <- 0 # replace the positive values of e by 0
 
         mu_S = - mu_S # this returns negative mortality values, because negative e is divided by weight. So to get the actual mortality we turn them into positive values 
-        
+        #comment to test
     return(mu_S)
 }
 
