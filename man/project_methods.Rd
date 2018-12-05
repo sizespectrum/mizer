@@ -4,13 +4,13 @@
 \alias{project_methods}
 \title{Methods used for projecting}
 \description{
-The methods defined in the file project_methods calculate the various
+The functions defined in the file project_methods calculate the various
 quantities needed to project the size-spectra forward in time, using the
 model described in section 3 of the mizer vignette.
 }
-\section{List of Methods}{
+\section{List of functions}{
 
-In this list we relate the methods in this file to the quantities named in
+In this list we relate the functions in this file to the quantities named in
 the mizer vignette.
 \tabular{llll}{
   Method name \tab Expression \tab Description \tab Section in vignette\cr

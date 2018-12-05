@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{multispeciesParams}
 \alias{multispeciesParams}
-\title{Construct \code{MizerParams} cobject for multispecies model}
+\title{Construct \code{MizerParams} object for multispecies model}
 \usage{
 multispeciesParams(object, interaction, min_w = 0.001,
   max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,

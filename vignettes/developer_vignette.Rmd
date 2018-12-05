@@ -68,7 +68,35 @@ but with more detail of how this model is implemented in code. We will still
 stay a bit at the surface, delaying a detailed look at how the code is
 organised until the section [Finding your way around the mizer code].
 
-## The size spectrum
+Mizer is organised in a modular fashion. It is separated into setup functions,
+simulation functions, and analysis and plotting functions.
+
+The core is the `project()` function
+that runs a simulation of the size-spectrum model. It takes a specification
+of the model contained in an object of type `MizerParams` and returns the
+results of the simulation in an object of type `MizerSim`.
+
+There are several different methods for setting up a `MizerParams` object for
+specifying various concrete models. These setup functions make various 
+simplifying assumptions about the model parameters to reduce the amount of
+information that needs to be specified. This usually takes the form of
+assuming allometric scaling laws. Below we will first describe the most
+general size spectrum model handled by mizer before describing the
+specialisations for which mizer has special setup functions.
+
+There are many functions for analysing and plotting the results of a mizer
+simulation contained in a `MizerSim` object.
+
+The `MizerParams` and `MizerSim` objects are S4 objects,
+meaning that their slots are rigorously defined and are accessed with the '@'
+notation. You do not need to learn about S4 classes in order to understand the
+mizer code, because the code avoids using S4 methods. In the presentation
+below we assume that the `MizerParams` object is called `params` and the
+`MixerSim` object is called `sim`.
+
+## The general mizer model
+
+### Fish size spectrum
 The model framework builds on two central assumption and a number of lesser 
 standard assumption.  
 
@@ -80,14 +108,17 @@ species $i$ in the size interval $[w:w+dw]$.
 
 To represent this continuous size spectrum in the computer, the size
 variable $w$ is discretized into a vector of weights `w` of
-length `no_w`. These weights are logarithmically spaced, so that
-`w[j]=w[1]*exp(j*dx)` for some `dx`.
+length `no_w`. 
 
-In the code the size spectrum is stored as an array such that `n[i, j]`
-holds the density ${\cal N}_i(w_j,t_k)$ at weights $w_j=$`w[j]`. 
+In the code the size spectrum is stored as an array such that `n[i, a]`
+holds the density ${\cal N}_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
+dependence is included, an array such that `n[i, a, u]`
+holds ${\cal N}_i(w_a,t_u)$.
 Note that contrary to what one might have expected,
-`n[i, j]` is not the *number* of individuals but the *density*.
-The number of individuals in size bin $j$ is given by  `n[i, j]*dw[j]`.
+`n[i, a]` is not the *number* of individuals but the *density*.
+The number of individuals with size between `w[a]` and
+`w[a+1]=w[a]+dw[a]` is approximately given as `n[i, a]*dw[a]`,
+where `dw[a]= w[a+1]-w[a]`.
 
 The time evolution of the size spectrum is described by the 
 McKendrik-von Foerster equation, which is simply a conservation equation:
@@ -107,41 +138,51 @@ allows the `project()` method in mizer to project the size spectrum
 forwards in time: Given the spectrum at one time the `project()` method
 calculates it at a set of later times.
 
-Besides the fish spectrum there is also a resource spectrum
-${\cal N}_R(w_j)=$`n_pp[j]` representing for example the phytoplankton.
+### Resource size spectrum
 
-## Predator-prey preference
-The second central assumption is that the preference of a predator for
-prey depends on the size of the prey **only** through the predator/prey
-size ratio. Thus the preference of
+Besides the fish spectrum there is also a resource spectrum,
+representing for example the phytoplankton. This extends over a wider
+size range which is discretized into a vector of weights `params@w_full` of
+length `no_w_full`. The last `no_w` entries of `w_full` have to 
+coincide with the entries of `w`. The resource spectrum is then stored
+in a vector `n_pp` such that `n_pp[c]` =${\cal N}_R($w_`full[c]`$)$.
+
+The time evolution of the resource spectrum is described by a 
+semi-chemostat equation:
+\begin{equation}
+  \label{eq:nb}
+  \frac{\partial N_R(w,t)}{\partial t} 
+  = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
+\end{equation}
+Here $r_p(w)$ is the population regeneration rate, stored as a vector
+`params@rr_pp[c]`$=r_p($`w_full[c]`$)$, and $c_p(w)$ is the carrying capacity
+in the absence of predation, stored as a vector
+`params@cc_pp[c]`$=c_p($`w_full[c]`$)$. The death $\mu_p(w)$ is described later.
+
+
+### Predator-prey preference
+The preference $\phi_{ij}(w, w_p)$ of
 an individual of species $i$ and weight $w$ for prey of species $j$ and
-weight $w_p$ is assumed to factorize as $\theta_{ij}\phi(w_p/w)$ into
-a species preference matrix $\theta_{ij}$ and a weight selection function
-$\phi(w_p/w)$. 
+weight $w_p$ is assumed to factorize as 
+\[\phi_{ij}(w, w_p)=\theta_{ij}\,\phi_i(w,w_p)\] 
+into a species preference matrix $\theta_{ij}$ and a weight selection function
+$\phi_i(w, w_p)$. 
 
 The species preference matrix $\theta_{ij}$, also referred to as the
-apecies interaction matrix, is stored in `interaction[i,j]`. It is currently
-assumed to be weight independent.
+species interaction matrix, is stored in `params@interaction[i,j]`.
 
-The choice of the function $\phi_i(w_p/w)$ is not central. It is currently
-hard-coded to the truncated log-normal function
-
-\begin{equation}
-  \label{eq:4}
-  \phi_i(w_p/w) = \begin{cases}
-  \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right]
-  &\text{ if }w/w_p\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
-  0&\text{ otherwise,}
-  \end{cases}
-\end{equation}
-where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
-width of the weight selection function.
+The weight selection function is stored in an array
+`params@pred_kernel[a,c]`$=\phi($`w[a]`,`w_full[c]`$)$, 
+i.e., the first index specifies the
+predator size class (and ranges only over fish spectrum) and the second index
+speifies the prey size class and ranges over the entire spectrum.
 
 
-## Available energy
 
-The available food (mass per volume) for a predator of weight $w$ is determined 
-by integrating over all species and the resource spectrum weighted by the 
+### Available energy
+
+The available food for a predator of species $i$ and weight $w$ is determined 
+by summing over all prey species and the resource spectrum weighted by the 
 size selection function: 
 
 \begin{equation}
@@ -150,15 +191,14 @@ size selection function:
   \phi_i(w_p/w) w_p \, dw_p.
 \end{equation}
 
-This available energy is calculated by the `getAvailEnergy()` method.
+This available energy is calculated by the `getAvailEnergy()` function.
 The integral is approximated by a Riemann sum over all weight brackets.
 \[
-\text{avail_energy}[i,j] = \sum_{k=1}^{\text{no_w}}
-\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[i,k] \right) 
-  \phi_i\left(w[k]/w[j]\right) w[k] dw[k].
+\text{avail_energy}[i,a] = \sum_{k}
+\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
+  \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 \]
-The convolution theorem together with the Fast Fourier Transform is then used 
-to efficiently evaluate this for all $w_j$.
+
 
 ## Consumption
 
@@ -181,15 +221,16 @@ encountered food that is consumed. It is given by
   f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + \text{intake_max}_i(w)},
 \end{equation}
 
-where `intake_max` is the maximum consumption rate.
+where $\text{intake_max}_i(w)$ is the maximum consumption rate stored in
+`params@intake_max[i,a]`.
 
-The feeding level is calculated with the method `getFeedingLevel()`.
+The feeding level is calculated with the function `getFeedingLevel()`.
 
 The rate at which food is
 consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) \text{intake_max}_i(w)$.
 
 
-## Growth
+### Growth
 
 The consumed food is assimilated with an efficiency $\alpha$ and 
 used to fuel the needs for metabolism and 
@@ -210,7 +251,7 @@ The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
 a function $\psi_i(w)$ that changes between 
 zero around the weight of maturation $w_{m.i}$ to one at the asymptotic weight 
 $W_i$ where all available energy is used for reproduction. This function
-$\psi$ is stored in an array `psi[i,j]`$=\psi(w_j)$.
+$\psi$ is stored in an array `params@psi[i,a]`$=\psi_i(w_a)$.
 
 Thus the somatic growth function is given by
 \begin{equation}
@@ -218,6 +259,47 @@ Thus the somatic growth function is given by
   g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
 \end{equation}
 It is calculated by the `getEGrowth()` method.
+
+
+## Specialised models and setup functions
+
+### Logarithmically spaced weight classes
+In general the weight classes used by mizer are arbitrary and are
+stored in the vector `params@w` for the fish part of the spectrum and in
+`params@w_full` for the entire spectrum. The only restriction is that the
+weights in these vectors are strictly increasing and that the last
+entries of `params@w_full` coincide with the entries of `params@w`.
+
+All currently implemented setup functions use logarithmically spaced
+size classes, so that
+`w[j]=w[1]*exp(j*dx)` for some `dx`.
+
+### Fixed predator/prey mass ratio
+An important simplification occurs when the preference of a predator for
+prey depends on the size of the prey **only** through the predator/prey
+size ratio. 
+
+The choice of the function $\phi_i(w_p/w)$ is not central. It is currently
+hard-coded to the truncated log-normal function
+
+\begin{equation}
+  \label{eq:4}
+  \phi_i(w_p/w) = \begin{cases}
+  \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right]
+  &\text{ if }w/w_p\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
+  0&\text{ otherwise,}
+  \end{cases}
+\end{equation}
+where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
+width of the weight selection function.
+
+### Allometric scaling
+$c_p(w)$ is the carrying
+capacity, which takes the value $\kappa w^{-\lambda} = \kappa w^{-2-q+n}$ by default.
+
+## Analysis functions
+
+## Plotting functions
 
 
 # Finding your way around the mizer code
@@ -230,7 +312,7 @@ An object of class 'MizerParams' holds all the information needed for the
 
 ## The MizerSim object
 
-## Plotting methods
+
 
 ## Shiny apps
 

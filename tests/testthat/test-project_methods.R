@@ -63,16 +63,7 @@ test_that("getAvailEnergy approximates analytic result", {
 # test_that("Test that fft based integrator gives similar result as old code",{
 #     # Agreement will not be very good because we now prefer the new code to be
 #     # close to analytic results rather than close to old mizer code.
-#     
-#     old_getAvailEnergy <- function(params, n, n_pp, pk) {
-#         # Calculate phi with old code
-#         n_eff_prey <- sweep(params@interaction %*% n, 2, w * params@dw, "*", check.margin=FALSE)
-#         idx_sp <- (length(w_full) - length(w) + 1):length(w_full)
-#         phi_prey_species <- rowSums(sweep(pk[,,idx_sp,drop=FALSE],c(1,3),n_eff_prey,"*", check.margin=FALSE),dims=2)
-#         phi_prey_background <- rowSums(sweep(pk,3,params@dw_full*w_full*n_pp,"*", check.margin=FALSE),dims=2)
-#         return(phi_prey_background + phi_prey_species)
-#     }
-#     
+# 
 #     # Calculate predation kernel using old code
 #     beta <- params@species_params$beta
 #     sigma <- params@species_params$sigma
@@ -81,23 +72,26 @@ test_that("getAvailEnergy approximates analytic result", {
 #     pk = array(beta, dim = c(no_sp, no_w, no_w_full))
 #     pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
 #     pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
-#     
+# 
 #     # Initial n and n_pp
 #     n <- get_initial_n(params)
 #     n_pp <- params@cc_pp
-#     old <- old_getAvailEnergy(params, n, n_pp, pk)
+# 
+#     params_old <- change_pred_kernel(params, pred_kernel = pk)
+#     old <- getAvailEnergy(params_old, n, n_pp)
 #     new <- getAvailEnergy(params, n, n_pp)
 #     expect_lt(max(abs(log(old/new))), 0.1)
-#     
+# 
 #     # Different egg sizes
 #     NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
 #     params <- MizerParams(NS_species_params_gears, inter)
+#     params_old <- change_pred_kernel(params, pred_kernel = pk)
 #     n <- get_initial_n(params)
 #     n_pp <- params@cc_pp
-#     old <- old_getAvailEnergy(params, n, n_pp, pk)
+#     old <- getAvailEnergy(params_old, n, n_pp)
 #     new <- getAvailEnergy(params, n, n_pp)
 #     expect_lt(max(abs(log(old/new))), 0.1)
-#     
+# 
 # })
 
 

@@ -21,7 +21,7 @@ A matrix (species x size) of population abundances.
 This function uses the model parameters and other parameters to calculate 
 initial population abundances for the community populations. These initial 
 abundances should be reasonable guesses at the equilibrium values. The 
-returned population can be passed to the \code{project} method.
+returned population can be passed to the \code{project} function.
 }
 \examples{
 \dontrun{
