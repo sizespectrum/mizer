@@ -392,6 +392,25 @@ set_trait_model <- function(no_sp = 10,
 #'   
 #' @return A \linkS4class{MizerParamsVariablePPMR} object
 #' @export
+#' @examples
+#' \dontrun{
+#' ## Set up a MizerParams object
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' 
+#' ## Create a predation kernel
+#' beta <- params@species_params$beta
+#' sigma <- params@species_params$sigma
+#' w <- params@w
+#' w_full <- params@w_full
+#' pk = array(beta, dim = c(no_sp, no_w, no_w_full))
+#' pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
+#' pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*")
+#' 
+#' ## Create a new MizerParamsVariablePPMR object to use the new predation kernel
+#' params_old <- change_pred_kernel(params, pred_kernel = pk)
+#' }
 change_pred_kernel <- function(params, pred_kernel) {
     if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
         stop("The pred_kerel has the wrong dimensions")

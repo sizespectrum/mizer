@@ -32,7 +32,8 @@ that as easy as possible.
 The first thing you should do, even before reading this vignette, is to
 go to https://github.com/sizespectrum/mizer/issues and create a new "issue""
 to share your ideas and plans with the mizer community. You may get back 
-valuable feedback and advice.
+valuable feedback and advice. Another way to get in touch with the
+mizer community is via the [size-spectrum modelling Google group](https://groups.google.com/forum/#!forum/size-spectrum-models).
 
 # Preparation
 In this section we describe how to set up your working environment
@@ -46,12 +47,11 @@ If you still need to [install R](https://cran.r-project.org/), simply install
 the latest version. This vignette was prepared with
 `r R.version.string`.
 
-
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
 to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
-frequently. This guide was written with version 1.2.830.
+frequently. This guide was written with version 1.2.1114.
 
 To work with R packages as a developer, you will need to
 [install additional tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites). Once you have these in place, you should install the devtools package with
@@ -61,28 +61,25 @@ install.packages("devtools")
 You are now all set to develop R packages, and 
 [RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet for package development accessible from the Help menu in RStudio.
 
-
-
-## Forking mizer from github
-
-Mizer is developed using the version control system _git_ and the code is hosted on github.
-To work with the code you will create your own git repository with a copy of the mizer code.
-Here we will describe briefly how to do this and how to then collaborate on the code with
-other mizer developers.
-
-Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
-Then create a version control new project in Rstudio, and indicate your depository url. 
-
-
 ### Installing git
 In case git is not already installed on your system, you need to 
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
 [built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN).
 
-### Using git inside RStudio
+## Forking mizer from github
 
-## Working with an R package
+Mizer is developed using the version control system _git_ and the code is hosted on github.
+To work with the code you will create your own git repository with a copy of the mizer code.
+
+Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
+Then create a version control new project in Rstudio, and indicate your depository url.
+On the "Git" tab select the "dev" branch. This contains the latest development
+code for mizer. 
+
+To run this code go to the "Build" tab in RStudio and click on "Install and Restart". 
+This builds and loads the mizer package based on this development code.
+
 
 # Implementation of the model
 
@@ -126,8 +123,8 @@ standard assumption.
 
 The first central assumption is that an individual can be characterized by its 
 weight $w$ and its species number $i$ only. The aim of the model is to calculate 
-the size spectrum ${\cal N}_i(w)$, which is the *density* of individuals of
-species $i$ such that ${\cal N}_i(w)dw$ is the *number* of individuals of
+the size spectrum $N_i(w)$, which is the *density* of individuals of
+species $i$ such that $N_i(w)dw$ is the *number* of individuals of
 species $i$ in the size interval $[w:w+dw]$. 
 
 To represent this continuous size spectrum in the computer, the size
@@ -135,9 +132,9 @@ variable $w$ is discretized into a vector of weights `w` of
 length `no_w`. 
 
 In the code the size spectrum is stored as an array such that `n[i, a]`
-holds the density ${\cal N}_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
+holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
 dependence is included, an array such that `n[i, a, u]`
-holds ${\cal N}_i(w_a,t_u)$.
+holds $N_i(w_a,t_u)$.
 Note that contrary to what one might have expected,
 `n[i, a]` is not the *number* of individuals but the *density*.
 The number of individuals with size between `w[a]` and
@@ -145,31 +142,32 @@ The number of individuals with size between `w[a]` and
 where `dw[a]= w[a+1]-w[a]`.
 
 The time evolution of the size spectrum is described by the 
-McKendrik-von Foerster equation, which is simply a conservation equation:
+McKendrik-von Foerster equation, which is simply a transport equation:
 
 \begin{equation}
   \label{eq:MvF}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
-  = -\mu_i(w) N_i(w)
+  = -\mu_i(w) N_i(w),
 \end{equation}
 
 where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
-below. 
+below. This is supplemented by a reproduction equation that describes the
+production of eggs, to be described below.
 
-This differential equation is approximated in mizer by a
-finite-difference approximation (to be described in section ...). This
+This McKendrik-von Foerster equation is approximated in mizer by a
+finite-difference method (to be described in section ...). This
 allows the `project()` method in mizer to project the size spectrum 
 forwards in time: Given the spectrum at one time the `project()` method
 calculates it at a set of later times.
 
 ### Resource size spectrum
 
-Besides the fish spectrum there is also a resource spectrum,
+Besides the fish spectrum there is also a resource spectrum $N_R(w)$,
 representing for example the phytoplankton. This extends over a wider
 size range which is discretized into a vector of weights `params@w_full` of
 length `no_w_full`. The last `no_w` entries of `w_full` have to 
 coincide with the entries of `w`. The resource spectrum is then stored
-in a vector `n_pp` such that `n_pp[c]` =${\cal N}_R($w_`full[c]`$)$.
+in a vector `n_pp` such that `n_pp[c]` =$N_R($`w_full[c]`$)$.
 
 The time evolution of the resource spectrum is described by a 
 semi-chemostat equation:
@@ -196,23 +194,23 @@ The species preference matrix $\theta_{ij}$, also referred to as the
 species interaction matrix, is stored in `params@interaction[i,j]`.
 
 The weight selection function is stored in an array
-`params@pred_kernel[a,c]`$=\phi($`w[a]`,`w_full[c]`$)$, 
-i.e., the first index specifies the
-predator size class (and ranges only over fish spectrum) and the second index
-speifies the prey size class and ranges over the entire spectrum.
+`params@pred_kernel[i,a,c]`$=\phi_i($`w[a]`,`w_full[c]`$)$, 
+i.e., the first index specifies the predator species, the second the
+predator size class (and ranges only over fish spectrum) and the third index
+specifies the prey size class and ranges over the entire spectrum.
 
 
 
 ### Available energy
 
 The available food for a predator of species $i$ and weight $w$ is determined 
-by summing over all prey species and the resource spectrum weighted by the 
-size selection function: 
+by summing over all prey species and the resource spectrum and integrating
+over all prey sizes $w_p$, weighted by the size selection function: 
 
 \begin{equation}
   \label{eq:1}
   E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
-  \phi_i(w_p/w) w_p \, dw_p.
+  \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}
 
 This available energy is calculated by the `getAvailEnergy()` function.
@@ -224,7 +222,7 @@ The integral is approximated by a Riemann sum over all weight brackets.
 \]
 
 
-## Consumption
+### Consumption
 
 The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
 volume rate (volume per time):
@@ -233,12 +231,15 @@ volume rate (volume per time):
   \label{eq:Ee}
   E_{e.i}(w) = \text{search_vol}_i(w) E_{a.i}(w).
 \end{equation}
+The search volume is stored in an array `params@search_vol[i,a]` where
+the first index specifies the species and the second the weight of the
+predator.
 
 The encountered food is consumed subjected to a standard Holling functional 
 response type II to represent satiation. This determines the 
 *feeding level* $f_i(w)$, which is a dimensionless number between 0 
 (no food) and 1 (fully satiated) so that $1-f_i(w)$ is the proportion of the
-encountered food that is consumed. It is given by
+encountered food that is consumed. The feeding level is given by
 
 \begin{equation}
   \label{eq:f}
@@ -246,44 +247,97 @@ encountered food that is consumed. It is given by
 \end{equation}
 
 where $\text{intake_max}_i(w)$ is the maximum consumption rate stored in
-`params@intake_max[i,a]`.
+`params@intake_max[i,a]`. The rate at which food is
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w)\cdot \text{intake_max}_i(w)$.
 
 The feeding level is calculated with the function `getFeedingLevel()`.
-
-The rate at which food is
-consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w) \text{intake_max}_i(w)$.
 
 
 ### Growth
 
-The consumed food is assimilated with an efficiency $\alpha$ and 
-used to fuel the needs for metabolism and 
-activity and movement. The remaining rate, if any,
+Some of the consumed food is used to fuel the needs for metabolism and 
+activity and movement, at a rate $\text{metab}_i(w)$, stored in the
+array `params@metab[i,a]`.
+The remaining rate, if any, is assimilated with an efficiency $\alpha$ and 
+is then available for growth and reproduction. So the rate at which energy
+becomes available for growth and reproduction is
 \begin{equation}
   \label{eq:Er}
-  E_{r.i}(w) = \max(0, \alpha f_i(w) h_i w^n - \text{metab_i(w)})
+  E_{r.i}(w) = \max(0, \alpha f_i(w) \text{intake_max}_i(w) - \text{metab}_i(w))
 \end{equation}
-is used for growth and reproduction. This is calculated with the 
-`getEReproAndGrowth()` method.
+ This is calculated with the `getEReproAndGrowth()` function.
 
 When food supply does not cover the requirements of metabolism and activity, 
 growth and reproduction stops, i.e. there is no negative growth.
 The individual should then be subjected to a starvation mortality, but starvation
 mortality is not implemented in mizer at the moment.
 
-The proportion of $E_{r.i}(w)$ that is used for reproduction is given by
-a function $\psi_i(w)$ that changes between 
-zero around the weight of maturation $w_{m.i}$ to one at the asymptotic weight 
-$W_i$ where all available energy is used for reproduction. This function
-$\psi$ is stored in an array `params@psi[i,a]`$=\psi_i(w_a)$.
+A proportion $\psi_i(w)$ of the energy available for growth and reproduction
+is used for reproduction. This proportion should change from zero below the  
+weight $w_{m.i}$ of maturationto one at the asymptotic weight 
+$W_i$, where all available energy is used for reproduction. This proportion
+is stored in an array `params@psi[i,a]`$=\psi_i(w_a)$.
 
-Thus the somatic growth function is given by
+Thus the somatic growth rate is then given by
 \begin{equation}
   \label{eq:growth}
   g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
 \end{equation}
-It is calculated by the `getEGrowth()` method.
+It is calculated by the `getEGrowth()` function.
 
+
+### Reproduction
+The total production rate of egg production $R_{p.i}$ (numbers per time) is found by 
+integrating the contribution from all individuals of species $i$:
+\begin{equation}
+  \label{eq:Rp}
+  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
+\end{equation}
+where the individual contribution is obtained by multiplying the rate at which the
+individual allocates energy to reproduction by an efficiency factor $\epsilon$ 
+and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
+The result is multiplied by a factor $1/2$ to take into account that only 
+females reproduce.
+
+
+### Recruitment
+
+### Fish Mortality
+The mortality rate of an individual $\mu_i(w)$ has three sources: 
+predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and 
+fishing mortality $\mu_{f.i}(w)$. 
+
+Predation mortality is calculated such that all that is eaten translates into 
+corresponding predation mortalities on the ingested prey individuals. 
+Recalling that $1-f_j(w)$ is the proportion of the food encountered by a 
+predator of species $j$ and weight $w$ that is actually consumed, this gives:
+
+\begin{equation}
+  \label{eq:mup}
+  \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w,w_p) (1-f_j(w))
+  \text{search_vol}_j(w) N_j(w) \, dw
+\end{equation}
+This predation mortality rate is calculated by the function `getPredMort()`
+
+Background mortality $\mu_{b .i}(w)$ is stored in the array `params@mu_b[i,a]`.
+
+Fishing mortality $\mu_{f.i}(w)$ will be discussed later.
+
+The total mortality rate
+\[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{p.i}(w)\]
+is calculated with the function `getMort()`.
+
+### Plankton Mortality
+
+The predation mortality rate on plankton is given by a similar expression
+as the predation mortality on fish:
+\begin{equation}
+  \label{eq:mupp}
+  \mu_{p}(w_p) = \sum_j \int \phi_j(w,w_p) (1-f_j(w)) 
+  \text{search_vol}_j(w) N_j(w) \, dw.
+\end{equation}
+This is the only mortality on plankton currently implemented in mizer.
+It is calculated with the function `getPlanktonMort()`.
 
 ## Specialised models and setup functions
 
