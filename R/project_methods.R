@@ -263,6 +263,8 @@ getPredRate <- function(object, n,  n_pp,
                            (1-feeding_level) * object@search_vol * 
                                n_total_in_size_bins,
                            "*", check.margin = FALSE)
+        # integrate over all predator sizes
+        pred_rate <- colSums(aperm(pred_rate, c(2, 1, 3)), dims = 1)
         return(pred_rate)
     }
 
