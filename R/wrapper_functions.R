@@ -378,6 +378,28 @@ set_trait_model <- function(no_sp = 10,
 }
 
 
+#' Changes the predation kernel to allow size-dependent PPMR
+#' 
+#' One way to set up a model with size-dependent predator/prey mass ratio
+#' (PPMR) is to first use one of the standard set up functions to create
+#' a MizerParams object and then to call this function with that object 
+#' and an array holding the predation kernel.
+#' 
+#' @param params A \linkS4class{MizerParams} object
+#' @param pred_kernel An array (species x predator size x prey size) 
+#'   that holds the predation coefficient of each predator at size on 
+#'   each prey size. The dimensions are thus no_sp, no_w, no_w_full.
+#'   
+#' @return A \linkS4class{MizerParamsVariablePPMR} object
+#' @export
+change_pred_kernel <- function(params, pred_kernel) {
+    if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
+        stop("The pred_kerel has the wrong dimensions")
+    }
+    return(new("MizerParamsVariablePPMR", params, pred_kernel = pred_kernel))
+}
+
+
 #' Sets up parameters for a scale free trait-based model
 #'
 #' This functions creates a \code{MizerParams} object so that scale free

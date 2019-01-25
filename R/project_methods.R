@@ -1,11 +1,11 @@
 #' Methods used for projecting
 #'
-#' The methods defined in the file project_methods calculate the various
+#' The functions defined in the file project_methods calculate the various
 #' quantities needed to project the size-spectra forward in time, using the
 #' model described in section 3 of the mizer vignette.
 #'
-#' @section List of Methods:
-#' In this list we relate the methods in this file to the quantities named in
+#' @section List of functions:
+#' In this list we relate the functions in this file to the quantities named in
 #' the mizer vignette.
 #' \tabular{llll}{
 #'   Method name \tab Expression \tab Description \tab Section in vignette\cr
@@ -40,7 +40,7 @@ NULL
 #' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
 #' a function of predator size. 
 #' 
-#' This method is used by the \code{\link{project}} method for
+#' This function is used by the \code{\link{project}} method for
 #' performing simulations.
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -65,6 +65,32 @@ getAvailEnergy <- function(object, n, n_pp) {
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
+    
+    # If the feeding kernel does not have a fixed predator/prey mass ratio
+    # then the integral is not a convolution integral and we can not use fft.
+    # In this case we use the code from mizer version 0.3
+    if (is(object, "MizerParamsVariablePPMR")) {
+        # n_eff_prey is the total prey abundance by size exposed to each
+        # predator (prey not broken into species - here we are just working out
+        # how much a predator eats - not which species are being eaten - that is
+        # in the mortality calculation
+        n_eff_prey <- sweep(object@interaction %*% n, 2, 
+                            object@w * object@dw, "*", check.margin = FALSE) 
+        # pred_kernel is predator species x predator size x prey size
+        # So multiply 3rd dimension of pred_kernel by the prey abundance
+        # Then sum over 3rd dimension to get total eaten by each predator by 
+        # predator size
+        # This line is a bottle neck
+        phi_prey_species <- rowSums(sweep(
+            object@pred_kernel[, , idx_sp, drop = FALSE],
+            c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
+        # Eating the background
+        # This line is a bottle neck
+        phi_prey_background <- rowSums(sweep(
+            object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
+            "*", check.margin = FALSE), dims = 2)
+        return(phi_prey_species + phi_prey_background)
+    }
 
     prey <- matrix(0, nrow = dim(n)[1], ncol = length(object@w_full))
     # Looking at Equation (3.4), for available energy in the mizer vignette,
@@ -219,13 +245,27 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 getPredRate <- function(object, n,  n_pp,
                         feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp)
                         ) {
-
     no_sp <- dim(object@interaction)[1]
     no_w <- length(object@w)
     no_w_full <- length(object@w_full)
     if (!all(dim(feeding_level) == c(no_sp, no_w))) {
         stop("feeding_level argument must have dimensions: no. species (",
              no_sp, ") x no. size bins (", no_w, ")")
+    }
+    
+    # If the feeding kernel does not have a fixed predator/prey mass ratio
+    # then the integral is not a convolution integral and we can not use fft.
+    # In this case we use the code from mizer version 0.3
+    if (is(object, "MizerParamsVariablePPMR")) {
+        n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin = FALSE)
+        # The next line is a bottle neck
+        pred_rate <- sweep(object@pred_kernel, c(1,2),
+                           (1-feeding_level) * object@search_vol * 
+                               n_total_in_size_bins,
+                           "*", check.margin = FALSE)
+        # integrate over all predator sizes
+        pred_rate <- colSums(aperm(pred_rate, c(2, 1, 3)), dims = 1)
+        return(pred_rate)
     }
 
     # Get indices of w_full that give w

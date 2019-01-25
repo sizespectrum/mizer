@@ -354,6 +354,28 @@ setClass(
     validity = validMizerParams
 )
 
+#' A class to hold the parameters for a size based model with variable PPMR
+#' 
+#' A subclass of the \linkS4class{MizerParams} class with an additional slot for
+#' a predation kernel that depends on both the predator size and the prey
+#' size.
+#' 
+#' When the predator/prey mass ratio is size dependent, then the integrals
+#' for calculating available energy and predation death are not convolution
+#' integrals and hence can not be calculated with fast Fourier transforms.
+#' Instead they are calculated by sweeps over a 3-dimensional array holding
+#' the preference function.
+#' 
+#' The class inherits all slots from the \linkS4class{MizerParams}
+#' class and has one additional slot:
+#' 
+#' @slot pred_kernel An array (species x predator size x prey size) that holds
+#'   the predation coefficient of each predator at size on each prey size
+#' @export
+setClass("MizerParamsVariablePPMR",
+         representation(pred_kernel = "array"),
+         contains = "MizerParams")
+
 #' Basic constructor that creates empty MizerParams object of the right size
 #' 
 #' @param object Number of species
@@ -478,7 +500,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 
 
 
-#' Construct \code{MizerParams} cobject for multispecies model
+#' Construct \code{MizerParams} object for multispecies model
 #'
 #' Provides default functional forms for all slots in the MizerParams object
 #' based on user-provided species parameters.

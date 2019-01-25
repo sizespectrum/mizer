@@ -2,7 +2,7 @@
 % Please edit documentation in R/project.R
 \name{project}
 \alias{project}
-\title{project method for the size based modelling}
+\title{Project size spectrum forward in time}
 \usage{
 project(params, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
   initial_n = params@initial_n, initial_n_pp = params@initial_n_pp,
@@ -38,14 +38,12 @@ Default NULL.}
 \item{...}{Currently unused.}
 }
 \value{
-An object of type \code{MizerSim}.
+An object of type \linkS4class{MizerSim}.
 }
 \description{
-Runs the size-based model simulation and projects the size based model
-through time. \code{project} is called using an object of type
-\linkS4class{MizerParams} and an object that contains the effort of the
-fishing gears through time. The method returns an object of type
-\linkS4class{MizerSim} which can then be explored with a range of summary and
+Runs the size spectrum model simulation.
+The function returns an object of type
+\linkS4class{MizerSim} that can then be explored with a range of summary and
 plotting methods.
 }
 \note{

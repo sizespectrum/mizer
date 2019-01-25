@@ -1,4 +1,4 @@
-# Project method for the size based modelling package mizer
+# Project function for the size based modelling package mizer
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
@@ -8,21 +8,16 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-# project can dispatch with effort being different classes (missing, numeric,
-# array).
-
 #' @useDynLib mizer
 #' @importFrom Rcpp sourceCpp
 NULL
 
 
-#' project method for the size based modelling
+#' Project size spectrum forward in time
 #' 
-#' Runs the size-based model simulation and projects the size based model
-#' through time. \code{project} is called using an object of type
-#' \linkS4class{MizerParams} and an object that contains the effort of the
-#' fishing gears through time. The method returns an object of type
-#' \linkS4class{MizerSim} which can then be explored with a range of summary and
+#' Runs the size spectrum model simulation.
+#' The function returns an object of type
+#' \linkS4class{MizerSim} that can then be explored with a range of summary and
 #' plotting methods.
 #' 
 #' @param params A \linkS4class{MizerParams} object
@@ -72,7 +67,9 @@ NULL
 #' order of species must be the same as in the \code{MizerParams} argument. If
 #' the initial population is not specified, the argument is set by default by
 #' the \code{get_initial_n} function which is set up for a North Sea model.
-#' @return An object of type \code{MizerSim}.
+#' 
+#' @return An object of type \linkS4class{MizerSim}.
+#' 
 #' @export
 #' @seealso \code{\link{MizerParams}}
 #' @examples
@@ -210,7 +207,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         proginc <- 1/length(t_dimnames_index)
     }
     for (i_time in 1:t_steps) {
-        # Do it piece by piece to save repeatedly calling methods
+        # Do it piece by piece to save repeatedly calling functions
         # Calculate amount E_{a,i}(w) of available food
         avail_energy <- getAvailEnergy(sim@params, n = n, n_pp = n_pp)
         # Calculate amount f_i(w) of food consumed
@@ -264,7 +261,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         
         # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
         # We use the exact solution under the assumption of constant mortality during timestep
-        tmp <- (sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background))
+        tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background)
         n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + m2_background) * dt)
         
         # Store results only every t_step steps.
@@ -289,7 +286,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
 #' This function uses the model parameters and other parameters to calculate 
 #' initial population abundances for the community populations. These initial 
 #' abundances should be reasonable guesses at the equilibrium values. The 
-#' returned population can be passed to the \code{project} method.
+#' returned population can be passed to the \code{project} function.
 #' 
 #' @param params The model parameters. An object of type \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.
@@ -311,7 +308,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     initial_n <- array(NA, dim = c(no_sp, no_w))
     dimnames(initial_n) <- dimnames(params@intake_max)
     # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
-    # Reverse calc n and q from intake_max and search_vol slots (could add get_n as method)
+    # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
     n <- (log(params@intake_max[,1] / params@species_params$h) / log(params@w[1]))[1]
     q <- (log(params@search_vol[,1] / params@species_params$gamma) / log(params@w[1]))[1]
     # Guessing at a suitable n0 value based on kappa - this was figured out using trial and error and should be updated
