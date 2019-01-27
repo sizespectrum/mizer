@@ -10,8 +10,8 @@
 plotGrowthCurves(object, ...)
 
 \S4method{plotGrowthCurves}{MizerSim}(object,
-  species = as.character(sim@params@species_params$species), max_age = 20,
-  percentage = FALSE, print_it = TRUE)
+  species = as.character(sim@params@species_params$species),
+  max_age = 20, percentage = FALSE, print_it = TRUE)
 
 \S4method{plotGrowthCurves}{MizerParams}(object,
   species = as.character(params@species_params$species), max_age = 20,
@@ -40,10 +40,6 @@ A ggplot2 object
 If given a \linkS4class{MizerSim} object, uses the growth rates at the final
 time of a simulation to calculate the size at age. If given a
 \linkS4class{MizerParams} object, uses the initial growth rates instead.
-
-Plot growth curves using a \code{MizerSim} object.
-
-Plot growth curves using a \code{MizerSim} object.
 }
 \details{
 When the growth curve for only a single species is plotted, horizontal

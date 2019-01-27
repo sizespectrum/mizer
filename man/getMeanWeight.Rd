@@ -26,8 +26,6 @@ Calculates the mean weight of the community through time.
 This is simply the total biomass of the community divided by the abundance in numbers.
 You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 You can also specify the species to be used in the calculation.
-
-Calculate the mean weight of the community from a \code{MizerSim} object.
 }
 \examples{
 \dontrun{

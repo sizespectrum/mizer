@@ -31,10 +31,6 @@ An object of the same class as the \code{object} argument
 Background species are handled differently in some plots and their
 abundance is automatically adjusted in addSpecies() to keep the community
 close to the Sheldon spectrum.
-
-Set species to background species in MizerParams object
-
-Set species to background species in MizerSim object
 }
 \examples{
 \dontrun{

@@ -421,7 +421,7 @@ set_trait_model <- function(no_sp = 10,
 #' min_egg, min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense that the egg
 #' weights of the no_sp species are logarithmically evenly spaced, ranging from
 #' min_w=min_egg to max_w=max_w_inf. The maturity weights of the species can be
-#' obtained by muliplying the egg_weights by min_w_mat/min_egg. The asymptotic
+#' obtained by multiplying the egg_weights by min_w_mat/min_egg. The asymptotic
 #' weights of the species can be obtained by multiplying the egg weights by
 #' min_w_inf/min_egg.
 #'
@@ -440,7 +440,7 @@ set_trait_model <- function(no_sp = 10,
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may wish to include stablizing effects (like Rmax and chi) to ensure the
+#' may wish to include stabilizing effects (like Rmax and chi) to ensure the
 #' steady state is stable. Fishing selectivity is modelled as a knife-edge
 #' function with one parameter, \code{knife_edge_size}, which is the size at
 #' which species are selected. Each species can either be fished by the same
@@ -473,7 +473,7 @@ set_trait_model <- function(no_sp = 10,
 #'   \code{lambda} is provided, in which case this argument is ignored and
 #'   q = lambda - 2 + n.
 #' @param lambda Exponent of the abundance power law. If supplied, this 
-#'   overrrules the \code{q} argument. Otherwise the default value is 2+q-n.
+#'   overrules the \code{q} argument. Otherwise the default value is 2+q-n.
 #' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.

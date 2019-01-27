@@ -44,10 +44,6 @@ A ggplot2 object
 After running a projection, the total yield of each species across all 
 fishing gears can be plotted against time. The yield is obtained with
 \code{\link{getYield}}.
-
-Plot the yield using a \code{MizerSim} object.
-
-Plot the yield using two \code{MizerSim} objects.
 }
 \examples{
 \dontrun{

@@ -11,9 +11,9 @@ plotBiomass(sim, ...)
 \S4method{plotBiomass}{MizerSim}(sim,
   species = sim@params@species_params$species[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), y_ticks = 6,
-  print_it = TRUE, ylim = c(NA, NA), total = FALSE, background = TRUE,
-  ...)
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  y_ticks = 6, print_it = TRUE, ylim = c(NA, NA), total = FALSE,
+  background = TRUE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -53,8 +53,6 @@ A ggplot2 object
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits 
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
-
-Plot the biomass using a \code{MizerSim} object.
 }
 \examples{
 \dontrun{

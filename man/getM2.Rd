@@ -53,12 +53,6 @@ If a \code{MizerParams} object is passed in, the method returns a two
 Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
 prey species by prey size. This method is used by the \code{\link{project}}
 method for performing simulations.
-
-\code{getM2} method for \code{MizerParams} object with \code{pred_rate} argument.
-
-\code{getM2} method for \code{MizerParams} object without \code{pred_rate} argument.
-
-\code{getM2} method for \code{MizerSim} object.
 }
 \examples{
 \dontrun{

@@ -25,8 +25,6 @@ Calculates the total numbers through time of the species in the
 to use the whole size range You can specify minimum and maximum weight or
 lengths for the species. Lengths take precedence over weights (i.e. if both
 min_l and min_w are supplied, only min_l will be used)
-
-Calculate the total abundance from a \code{MizerSim} object
 }
 \examples{
 \dontrun{

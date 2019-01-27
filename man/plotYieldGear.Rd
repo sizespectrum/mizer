@@ -32,8 +32,6 @@ A ggplot2 object
 \description{
 After running a projection, the total yield of each species by fishing gear
 can be plotted against time.
-
-Plot the yield of each gear using a \code{MizerSim} object.
 }
 \details{
 This plot is pretty easy to do by hand. It just

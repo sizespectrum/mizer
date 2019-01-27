@@ -12,8 +12,8 @@ getSSBFrame(sim, ...)
 \S4method{getSSBFrame}{MizerSim}(sim,
   species = sim@params@species_params$species[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), ylim = c(NA,
-  NA), total = FALSE, ...)
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  ylim = c(NA, NA), total = FALSE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -43,8 +43,6 @@ A data frame that can be used in \code{\link{display_frames}}
 \description{
 After running a projection, the spawning stock biomass of each species can be
 plotted against time.
-
-Get the biomass frame from a \code{MizerSim} object.
 }
 \seealso{
 \code{\link{getSSB}}

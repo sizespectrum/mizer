@@ -69,10 +69,6 @@ A ggplot2 object
 \description{
 What is plotted is the number density multiplied by a power of
 the weight, with the power specified by the \code{power} argument.
-
-Plot the abundance spectra using a \code{MizerSim} object.
-
-Plot the abundance spectra using a \code{MizerParams} object.
 }
 \details{
 When called with a \linkS4class{MizerSim} object, the abundance is averaged
