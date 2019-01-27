@@ -61,7 +61,7 @@ install.packages("devtools")
 You are now all set to develop R packages, and 
 [RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet for package development accessible from the Help menu in RStudio.
 
-### Installing git
+## Installing git
 In case git is not already installed on your system, you need to 
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
@@ -85,14 +85,18 @@ This builds and loads the mizer package based on this development code.
 
 In this section we will revisit the presentation of the mizer model given
 in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
-but with more detail of how this model is implemented in code. We will still
+but taking care to separate the essential features of the model that are
+hard-coded and the various possible specialisations for which mizer 
+provides setup functions. We will also give some detail of how this model is 
+implemented in code. We will still
 stay a bit at the surface, delaying a detailed look at how the code is
 organised until the section [Finding your way around the mizer code].
 
 Mizer is organised in a modular fashion. It is separated into setup functions,
-simulation functions, and analysis and plotting functions.
+simulation functions, and analysis and plotting functions. These will
+be described below after we have introduced the mizer model.
 
-The core is the `project()` function
+The core of mizer is the `project()` function
 that runs a simulation of the size-spectrum model. It takes a specification
 of the model contained in an object of type `MizerParams` and returns the
 results of the simulation in an object of type `MizerSim`.
@@ -124,8 +128,8 @@ standard assumption.
 The first central assumption is that an individual can be characterized by its 
 weight $w$ and its species number $i$ only. The aim of the model is to calculate 
 the size spectrum $N_i(w)$, which is the *density* of individuals of
-species $i$ such that $N_i(w)dw$ is the *number* of individuals of
-species $i$ in the size interval $[w:w+dw]$. 
+species $i$ such that $\int_w^{w+dw}N_i(w)dw$ is the *number* of individuals of
+species $i$ in the size interval $[w,w+dw]$. 
 
 To represent this continuous size spectrum in the computer, the size
 variable $w$ is discretized into a vector of weights `w` of
@@ -135,11 +139,11 @@ In the code the size spectrum is stored as an array such that `n[i, a]`
 holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
 dependence is included, an array such that `n[i, a, u]`
 holds $N_i(w_a,t_u)$.
-Note that contrary to what one might have expected,
-`n[i, a]` is not the *number* of individuals but the *density*.
-The number of individuals with size between `w[a]` and
-`w[a+1]=w[a]+dw[a]` is approximately given as `n[i, a]*dw[a]`,
-where `dw[a]= w[a+1]-w[a]`.
+<!-- Note that contrary to what one might have expected, -->
+<!-- `n[i, a]` is not the *number* of individuals but the *density*. -->
+<!-- The number of individuals with size between `w[a]` and -->
+<!-- `w[a+1]=w[a]+dw[a]` is approximately given as `n[i, a]*dw[a]`, -->
+<!-- where `dw[a]= w[a+1]-w[a]`. -->
 
 The time evolution of the size spectrum is described by the 
 McKendrik-von Foerster equation, which is simply a transport equation:
@@ -179,7 +183,8 @@ semi-chemostat equation:
 Here $r_p(w)$ is the population regeneration rate, stored as a vector
 `params@rr_pp[c]`$=r_p($`w_full[c]`$)$, and $c_p(w)$ is the carrying capacity
 in the absence of predation, stored as a vector
-`params@cc_pp[c]`$=c_p($`w_full[c]`$)$. The death $\mu_p(w)$ is described later.
+`params@cc_pp[c]`$=c_p($`w_full[c]`$)$. The death $\mu_p(w)$ is described 
+in the subsection [Plankton mortality].
 
 
 ### Predator-prey preference
@@ -302,6 +307,7 @@ females reproduce.
 
 ### Recruitment
 
+
 ### Fish Mortality
 The mortality rate of an individual $\mu_i(w)$ has three sources: 
 predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and 
@@ -310,12 +316,25 @@ fishing mortality $\mu_{f.i}(w)$.
 Predation mortality is calculated such that all that is eaten translates into 
 corresponding predation mortalities on the ingested prey individuals. 
 Recalling that $1-f_j(w)$ is the proportion of the food encountered by a 
-predator of species $j$ and weight $w$ that is actually consumed, this gives:
+predator of species $j$ and weight $w$ that is actually consumed, the
+rate at which all predators of species $j$ consume prey of size $w_p$ is
+\begin{equation}
+  \label{eq:pred_rated}
+  \text{pred_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
+  \text{search_vol}_j(w) N_j(w) \, dw.
+\end{equation}
+This predation rate is calculated by the function `getPredRate()`.
+The integral is approximated by a Riemann sum over all fish weight brackets.
+\[
+\text{pred_rate}[j,c] = \sum_{a}
+  \text{pred_kernel}[j,a,c]\,(1-\text{feeding_level}[j,a])\,
+  \text{search_vol}[j,a]\,n[j,a]\,dw[a].
+\]
 
+The mortality rate due to predation is then obtained as
 \begin{equation}
   \label{eq:mup}
-  \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w,w_p) (1-f_j(w))
-  \text{search_vol}_j(w) N_j(w) \, dw
+  \mu_{p.i}(w_p) = \sum_j \text{pred_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`
 
@@ -333,13 +352,21 @@ The predation mortality rate on plankton is given by a similar expression
 as the predation mortality on fish:
 \begin{equation}
   \label{eq:mupp}
-  \mu_{p}(w_p) = \sum_j \int \phi_j(w,w_p) (1-f_j(w)) 
-  \text{search_vol}_j(w) N_j(w) \, dw.
+  \mu_{p}(w_p) = \sum_j \text{pred_rate}_j(w_p).
 \end{equation}
 This is the only mortality on plankton currently implemented in mizer.
 It is calculated with the function `getPlanktonMort()`.
 
-## Specialised models and setup functions
+
+## The MizerParams object and setup functions
+
+The parameters specifying a mizer size-spectrum model are stored in the slots
+of an object of class MizerParams. The following table lists the names of the
+slots, where they are described in the previous section, and the setup
+functions for them.
+
+In this section again we are assuming that the MizerParams object holding
+the model parameters is called `params`.
 
 ### Logarithmically spaced weight classes
 In general the weight classes used by mizer are arbitrary and are
@@ -354,15 +381,15 @@ size classes, so that
 
 ### Fixed predator/prey mass ratio
 An important simplification occurs when the preference of a predator for
-prey depends on the size of the prey **only** through the predator/prey
-size ratio. 
+prey $\phi_i(w,w_p) depends on the size of the prey **only** through the 
+predator/prey size ratio $w_p/w$. 
 
-The choice of the function $\phi_i(w_p/w)$ is not central. It is currently
+The choice of the function is not central. It is currently
 hard-coded to the truncated log-normal function
 
 \begin{equation}
   \label{eq:4}
-  \phi_i(w_p/w) = \begin{cases}
+  \phi_i(w,w_p) = \begin{cases}
   \exp \left[ \frac{-(\ln(w/(w_p \beta_i)))^2}{2\sigma_i^2} \right]
   &\text{ if }w/w_p\in\left[0,\beta_i\exp(3\sigma_i)\right]\\
   0&\text{ otherwise,}

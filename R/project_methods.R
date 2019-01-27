@@ -70,15 +70,16 @@ getAvailEnergy <- function(object, n, n_pp) {
     # then the integral is not a convolution integral and we can not use fft.
     # In this case we use the code from mizer version 0.3
     if (is(object, "MizerParamsVariablePPMR")) {
-        # n_eff_prey is the total prey abundance by size exposed to each
+        # n_eff_prey is the total prey biomass density by size exposed to each
         # predator (prey not broken into species - here we are just working out
         # how much a predator eats - not which species are being eaten - that is
         # in the mortality calculation
+        # \sum_j \theta_{ij} N_j(w_p) w_p dw_p
         n_eff_prey <- sweep(object@interaction %*% n, 2, 
                             object@w * object@dw, "*", check.margin = FALSE) 
         # pred_kernel is predator species x predator size x prey size
-        # So multiply 3rd dimension of pred_kernel by the prey abundance
-        # Then sum over 3rd dimension to get total eaten by each predator by 
+        # So multiply 3rd dimension of pred_kernel by the prey biomass density
+        # Then sum over 3rd dimension to get consumption rate of each predator by 
         # predator size
         # This line is a bottle neck
         phi_prey_species <- rowSums(sweep(
@@ -211,7 +212,7 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 
 #' Get predation rate
 #' 
-#' Calculates the predation rate of each predator species at size on prey size. 
+#' Calculates the predation rate of each predator species on prey size. 
 #' In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 #' This method is used by the \code{\link{project}} method for performing
 #' simulations. In the simulations, it is combined with the interaction matrix

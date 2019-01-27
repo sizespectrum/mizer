@@ -20,23 +20,35 @@ validMizerParams <- function(object) {
     
     errors <- character()
     # grab some dims
-    length_w <- length(object@w)
-    length_w_full <- length(object@w_full)
+    no_w <- length(object@w)
+    no_w_full <- length(object@w_full)
+    w_idx <- (no_w_full - no_w + 1):no_w_full
     
     # Check dw and dw_full are correct length
-    if (length(object@dw) != length_w) {
+    if (length(object@dw) != no_w) {
         msg <- paste("dw is length ", length(object@dw),
-                     " and w is length ", length_w,
+                     " and w is length ", no_w,
                      ". These should be the same length", sep = "")
         errors <- c(errors, msg)
     }
     
-    if (length(object@dw_full) != length_w_full) {
+    if (length(object@dw_full) != no_w_full) {
         msg <- paste("dw_full is length ", length(object@dw_full),
-                     " and w_full is length ", length_w_full,
+                     " and w_full is length ", no_w_full,
                      ". These should be the same length", sep = "")
         errors <- c(errors, msg)
     }
+    
+    # Check that the last entries of w_full and dw_full agree with w and dw
+    if (!identical(object@w, object@w_full[w_idx])) {
+        msg <- "The later entries of w_full should be equal to those of w."
+        errors <- c(errors, msg)
+    }
+    if (!identical(object@dw, object@dw_full[w_idx])) {
+        msg <- "The later entries of dw_full should be equal to those of dw."
+        errors <- c(errors, msg)
+    }
+
     # Check the array dimensions are good
     # 2D arrays
     if (!all(c(length(dim(object@psi)),
@@ -80,7 +92,7 @@ validMizerParams <- function(object) {
         dim(object@search_vol)[2],
         dim(object@metab)[2],
         dim(object@selectivity)[3]) ==
-        length_w)) {
+        no_w)) {
         msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
