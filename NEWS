@@ -1,3 +1,8 @@
+mizer 1.0.1
+-----------
+
+* Made compatible with older versions of R > 3.1.0
+* Skipping a test on CRAN that fails on some machines with different precision
 
 mizer 1.0
 -----------

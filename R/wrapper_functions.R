@@ -1030,7 +1030,7 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
         }
-        if (any(is.na(p@initial_n) || is.nan(p@initial_n))) {
+        if (is.na(p@initial_n) || is.nan(p@initial_n)) {
             stop("Candidate steady state holds none numeric values")
         }
         

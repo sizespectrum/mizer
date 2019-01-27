@@ -1,5 +1,5 @@
 ## Test environments
-* ubuntu 16.04 xenial, R 3.4.4
+* ubuntu 18.04 bionic, R 3.5.2
 * win-builder (devel and release)
 
 ## R CMD check results

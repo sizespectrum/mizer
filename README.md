@@ -16,7 +16,7 @@ options that can be easily changed by the user.
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and 
 therefore available from R's build-it package manager.
 
-See the accompanying [vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) 
+See the accompanying [vignette](https://CRAN.R-project.org/package=mizer/vignettes/mizer_vignette.pdf) 
 for more details on how the package works, including detailed examples.
 
 [![Rdoc](http://www.rdocumentation.org/badges/version/mizer)](http://www.rdocumentation.org/packages/mizer)
