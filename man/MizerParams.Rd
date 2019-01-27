@@ -10,13 +10,13 @@
 \usage{
 MizerParams(object, interaction, ...)
 
-\S4method{MizerParams}{numeric,missing}(object, min_w = 0.001, max_w = 1000,
-  no_w = 100, min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:object,
-  gear_names = species_names)
+\S4method{MizerParams}{numeric,missing}(object, min_w = 0.001,
+  max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
+  species_names = 1:object, gear_names = species_names)
 
 \S4method{MizerParams}{data.frame,matrix}(object, interaction, n = 2/3,
-  p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
-  w_pp_cutoff = 10, max_w = max(object$w_inf) * 1.1, f0 = 0.6,
+  p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q -
+  n), w_pp_cutoff = 10, max_w = max(object$w_inf) * 1.1, f0 = 0.6,
   z0pre = 0.6, z0exp = n - 1, ...)
 
 \S4method{MizerParams}{data.frame,missing}(object, interaction, ...)
@@ -98,10 +98,6 @@ simulation.
 
 Only really used to make MizerParams of the right size and shouldn't be used
 by user
-
-Constructor that takes the species_params data.frame and the interaction matrix
-
-Constructor based on the species_params data.frame only with no interaction
 }
 \note{
 The only essential argument to the \code{MizerParams} constructor is a

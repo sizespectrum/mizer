@@ -46,12 +46,6 @@ Calculates the total fishing mortality from all gears by species and size at
 each time step in the \code{effort} argument.
 The total fishing mortality is just the sum of the fishing mortalities
 imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
-
-\code{getFMort} method for \code{MizerParams} object with constant effort.
-
-\code{getFMort} method for \code{MizerParams} object with time changing effort.
-
-\code{getFMort} method for \code{MizerSim} object.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.

@@ -11,8 +11,8 @@ getBiomassFrame(sim, ...)
 \S4method{getBiomassFrame}{MizerSim}(sim,
   species = sim@params@species_params$species[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]), ylim = c(NA,
-  NA), total = FALSE, ...)
+  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  ylim = c(NA, NA), total = FALSE, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -43,8 +43,6 @@ A data frame that can be used in \code{\link{display_frames}}
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits 
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
-
-Get the biomass frame from a \code{MizerSim} object.
 }
 \seealso{
 \code{\link{getBiomass}}

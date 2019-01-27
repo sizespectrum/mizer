@@ -12,8 +12,8 @@ getZ(object, n, n_pp, effort, m2)
 \S4method{getZ}{MizerParams,matrix,numeric,numeric,matrix}(object, n, n_pp,
   effort, m2)
 
-\S4method{getZ}{MizerParams,matrix,numeric,numeric,missing}(object, n, n_pp,
-  effort)
+\S4method{getZ}{MizerParams,matrix,numeric,numeric,missing}(object, n,
+  n_pp, effort)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -36,10 +36,6 @@ A two dimensional array (prey species x prey size).
 Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
 from predation mortality, background mortality and fishing mortality
 for a single time step.
-
-\code{getZ} method with \code{m2} argument.
-
-\code{getZ} method without \code{m2} argument.
 }
 \examples{
 \dontrun{

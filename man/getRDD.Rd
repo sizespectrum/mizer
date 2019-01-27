@@ -41,10 +41,6 @@ species. The density dependent recruitment is the density independent
 recruitment after it has been put through the density dependent
 stock-recruitment relationship function. This method is used by the
 \code{project} method for performing simulations.
-
-\code{getRDD} method with \code{rdi} argument.
-
-\code{getRDD} method without \code{rdi} argument.
 }
 \examples{
 \dontrun{

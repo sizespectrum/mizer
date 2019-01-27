@@ -20,8 +20,6 @@ An array containing the SSB (time x species)
 Calculates the spawning stock biomass (SSB) through time of the species in
 the \code{MizerSim} class. SSB is calculated as the total mass of all mature
 individuals.
-
-Calculate the SSB from a \code{MizerSim} object
 }
 \examples{
 \dontrun{

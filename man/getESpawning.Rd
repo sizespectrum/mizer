@@ -9,9 +9,11 @@
 \usage{
 getESpawning(object, n, n_pp, e)
 
-\S4method{getESpawning}{MizerParams,matrix,numeric,matrix}(object, n, n_pp, e)
+\S4method{getESpawning}{MizerParams,matrix,numeric,matrix}(object, n, n_pp,
+  e)
 
-\S4method{getESpawning}{MizerParams,matrix,numeric,missing}(object, n, n_pp)
+\S4method{getESpawning}{MizerParams,matrix,numeric,missing}(object, n,
+  n_pp)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -32,10 +34,6 @@ Calculates the energy rate available by species and size for reproduction
 after metabolism and movement have been accounted for:
 \eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} method for performing
 simulations.
-
-\code{getESpawning} method with \code{e} argument.
-
-\code{getESpawning} method without \code{e} argument.
 }
 \examples{
 \dontrun{

@@ -9,11 +9,11 @@
 \usage{
 getM2Background(object, n, n_pp, pred_rate)
 
-\S4method{getM2Background}{MizerParams,matrix,numeric,array}(object, n, n_pp,
-  pred_rate)
+\S4method{getM2Background}{MizerParams,matrix,numeric,array}(object, n,
+  n_pp, pred_rate)
 
-\S4method{getM2Background}{MizerParams,matrix,numeric,missing}(object, n, n_pp,
-  pred_rate)
+\S4method{getM2Background}{MizerParams,matrix,numeric,missing}(object, n,
+  n_pp, pred_rate)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -34,10 +34,6 @@ A vector of predation mortalities by background prey size.
 Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
 spectrum by plankton size. Used by the \code{project} method for running size
 based simulations.
-
-\code{getM2Background} method with \code{pred_array} argument.
-
-\code{getM2Background} method without \code{pred_array} argument.
 }
 \examples{
 \dontrun{

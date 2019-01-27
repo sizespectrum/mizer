@@ -12,8 +12,8 @@ getEReproAndGrowth(object, n, n_pp, feeding_level)
 \S4method{getEReproAndGrowth}{MizerParams,matrix,numeric,matrix}(object, n,
   n_pp, feeding_level)
 
-\S4method{getEReproAndGrowth}{MizerParams,matrix,numeric,missing}(object, n,
-  n_pp)
+\S4method{getEReproAndGrowth}{MizerParams,matrix,numeric,missing}(object,
+  n, n_pp)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -33,10 +33,6 @@ A two dimensional array (species x size)
 Calculates the energy rate available by species and size for reproduction and
 growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
 Used by the \code{project} method for performing simulations.
-
-\code{getEReproAndGrowth} method with \code{feeding_level} argument.
-
-\code{getEReproAndGrowth} method without \code{feeding_level} argument.
 }
 \examples{
 \dontrun{

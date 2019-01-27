@@ -42,8 +42,6 @@ or size. Lengths take precedence over weights (i.e. if both min_l and min_w
 are supplied, only min_l will be used). You can also specify the species to
 be used in the calculation. This method can be used to calculate the Large
 Fish Index. The proportion is based on either abundance or biomass.
-
-Calculate the proportion of large fish from a \code{MizerSim} object.
 }
 \examples{
 \dontrun{

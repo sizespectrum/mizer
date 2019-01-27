@@ -41,12 +41,6 @@ An array. If the effort argument has a time dimension, or a
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 size at each time step in the \code{effort} argument. 
 Used by the \code{project} method to perform simulations.
-
-\code{getFMortGear} method for \code{MizerParams} object with constant effort.
-
-\code{getFMortGear} method for \code{MizerParams} object with time changing effort.
-
-\code{getFMortGear} method for \code{MizerSim} object.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.

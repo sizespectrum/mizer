@@ -36,10 +36,6 @@ This method is used by the \code{\link{project}} method for performing
 simulations. In the simulations, it is combined with the interaction matrix
 (see \code{\link{MizerParams}}) to calculate the realised predation mortality
 (see \code{\link{getM2}}).
-
-\code{getPredRate} method with \code{feeding_level} argument.
-
-\code{getPredRate} method without \code{feeding_level} argument.
 }
 \examples{
 \dontrun{

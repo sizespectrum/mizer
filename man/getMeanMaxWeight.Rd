@@ -9,7 +9,8 @@
 getMeanMaxWeight(object, ...)
 
 \S4method{getMeanMaxWeight}{MizerSim}(object,
-  species = 1:nrow(object@params@species_params), measure = "both", ...)
+  species = 1:nrow(object@params@species_params), measure = "both",
+  ...)
 }
 \arguments{
 \item{object}{An object of class \code{MizerSim}.}
@@ -31,8 +32,6 @@ abundance is either in biomass or numbers. You can specify minimum and
 maximum weight or length range for the species. Lengths take precedence over
 weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 You can also specify the species to be used in the calculation.
-
-Calculate the mean maximum weight of the community from a \code{MizerSim} object.
 }
 \examples{
 \dontrun{
