@@ -1030,7 +1030,16 @@ setMethod('addSpecies', signature(params = 'MizerParams'),
         if (any(is.infinite(p@initial_n))) {
             stop("Candidate steady state holds infinities")
         }
-        if (is.na(p@initial_n) || is.nan(p@initial_n)) {
+        # Due to an apparent bug in R-devel (R 3.6) the following gives an
+        # error and therefore I temporarily replace it by the two if statements.
+        #
+        # if (is.na(p@initial_n) || is.nan(p@initial_n)) {
+        #     stop("Candidate steady state holds none numeric values")
+        # }
+        if (any(is.na(p@initial_n))) {
+            stop("Candidate steady state holds none numeric values")
+        }
+        if (any(is.nan(p@initial_n))) {
             stop("Candidate steady state holds none numeric values")
         }
         
