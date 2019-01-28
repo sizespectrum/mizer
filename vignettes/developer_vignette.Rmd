@@ -65,7 +65,10 @@ You are now all set to develop R packages, and
 In case git is not already installed on your system, you need to 
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
-[built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN).
+[built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN). 
+A good place to learn about using git and github is 
+[this chapter](http://r-pkgs.had.co.nz/git.html) 
+in the guide by Hadley on R package development.
 
 ## Forking mizer from github
 
@@ -139,11 +142,13 @@ In the code the size spectrum is stored as an array such that `n[i, a]`
 holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
 dependence is included, an array such that `n[i, a, u]`
 holds $N_i(w_a,t_u)$.
-<!-- Note that contrary to what one might have expected, -->
-<!-- `n[i, a]` is not the *number* of individuals but the *density*. -->
-<!-- The number of individuals with size between `w[a]` and -->
-<!-- `w[a+1]=w[a]+dw[a]` is approximately given as `n[i, a]*dw[a]`, -->
-<!-- where `dw[a]= w[a+1]-w[a]`. -->
+
+Note that contrary to what one might have expected,
+`n[i, a]` is not the *number* of individuals in a size bi
+but the *density* at a gid point.
+The number of individuals in the size bin between `w[a]` and
+`w[a+1]=w[a]+dw[a]` is only approximately given as `n[i, a]*dw[a]`,
+where `dw[a]= w[a+1]-w[a]`.
 
 The time evolution of the size spectrum is described by the 
 McKendrik-von Foerster equation, which is simply a transport equation:
@@ -374,6 +379,8 @@ stored in the vector `params@w` for the fish part of the spectrum and in
 `params@w_full` for the entire spectrum. The only restriction is that the
 weights in these vectors are strictly increasing and that the last
 entries of `params@w_full` coincide with the entries of `params@w`.
+
+
 
 All currently implemented setup functions use logarithmically spaced
 size classes, so that
