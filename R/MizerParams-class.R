@@ -378,7 +378,7 @@ setClass("MizerParamsVariablePPMR",
 
 #' Basic constructor that creates empty MizerParams object of the right size
 #' 
-#' @param object Number of species
+#' @param no_sp Number of species
 #' @param min_w  Smallest weight
 #' @param max_w  Largest weight
 #' @param no_w   Number of weight brackets
@@ -389,14 +389,14 @@ setClass("MizerParamsVariablePPMR",
 #' 
 #' @return An empty but valid MizerParams object
 #' 
-emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
+emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,  
                         min_w_pp = 1e-10, no_w_pp = NA, 
-                        species_names=1:object, gear_names=species_names) {
+                        species_names=1:no_sp, gear_names=species_names) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
-    if (length(species_names) != object)
-        stop("species_names must be the same length as the value of object argument")
+    if (length(species_names) != no_sp)
+        stop("species_names must be the same length as the value of no_sp argument")
     no_sp <- length(species_names)
     
     # Set up grids:
@@ -415,7 +415,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     
     # For fft methods we need a constant log step size throughout. 
     # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
-    x_pp <- rev(seq(from = log10(min_w), log10(min_w_pp), 
+    x_pp <- rev(seq(from = log10(min_w), to = log10(min_w_pp), 
                     by = log10(min_w / max_w) / (no_w - 1))[-1])
     w_full <- c(10^x_pp, w)
     no_w_full <- length(w_full)
@@ -441,7 +441,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
-                                       w = signif(w, 3)))
+                                         w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
     interaction <- array(1, dim = c(no_sp, no_sp), 
@@ -477,7 +477,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
                     "Background" = "grey")
     linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
-                     "twodash"), length.out = no_sp)
+                      "twodash"), length.out = no_sp)
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
