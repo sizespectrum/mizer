@@ -390,38 +390,47 @@ setClass("MizerParamsVariablePPMR",
 #' @return An empty but valid MizerParams object
 #' 
 emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,  
-                        min_w_pp = 1e-10, no_w_pp = NA, 
-                        species_names=1:no_sp, gear_names=species_names) {
+                        min_w_pp = 1e-10, no_w_pp = NA, w_full = NA
+                        species_names = 1:no_sp, gear_names = species_names) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
     if (length(species_names) != no_sp)
         stop("species_names must be the same length as the value of no_sp argument")
-    no_sp <- length(species_names)
+    
     
     # Set up grids:
-    # Community grid
-    w <- 10^(seq(from = log10(min_w),to = log10(max_w), length.out = no_w))
-    dw <- diff(w)
-    # Correctly defined dw by using the proper ratio 
-    # (successive dw's have a fixed ratio). 
-    dw[no_w] <- dw[no_w - 1] * (dw[no_w - 1] / dw[no_w - 2])	
-    
-    # Set up full grid - plankton + community
-    # ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
-    if (w[1] <= dw[1]) {
-        stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
+    if (is.na(w_full)) {
+        # set up logarithmic grids
+        dx <- log10(max_w / min_w) / no_w
+        # Community grid
+        w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
+        # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
+        dw <- (10^dx - 1) * w
+        
+        # For fft methods we need a constant log step size throughout. 
+        # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
+        x_pp <- rev(seq(from = log10(min_w) - dx, to = log10(min_w_pp), by = dx))
+        w_full <- c(10^x_pp, w)
+        no_w_full <- length(w_full)
+        dw_full <- (10^dx - 1) * w_full	
+    } else {
+        # use supplied w_full
+        no_w_full <- length(w_full)
+        # Make last bin as big as the previous one
+        dw_full <- c(diff(w_full), w_full[no_w_full] - w_full[no_w_full - 1])
+        # Check that sizes are increasing
+        if (any(dw_full <= 0)) {
+            stop("w_full must be increasing.")
+        }
+        w_min_idx <- match(min_w, w_full)
+        if (is.na(w_min_idx)) {
+            stop("w_min must be contained in w_full.")
+        }
+        w <- w_full[w_min_idx:no_w_full]
+        dw <- dw_full[w_min_idx:no_w_full]
+        no_w <- length(w)
     }
-    
-    # For fft methods we need a constant log step size throughout. 
-    # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
-    x_pp <- rev(seq(from = log10(min_w), to = log10(min_w_pp), 
-                    by = log10(min_w / max_w) / (no_w - 1))[-1])
-    w_full <- c(10^x_pp, w)
-    no_w_full <- length(w_full)
-    dw_full <- diff(w_full)
-    dw_full[no_w_full] <- dw_full[no_w_full - 1] *
-        (dw_full[no_w_full - 1] / dw_full[no_w_full - 2])	
     
     # Basic arrays for templates
     mat1 <- array(NA, dim = c(no_sp, no_w), 
