@@ -218,39 +218,41 @@ validMizerParams <- function(object) {
 #' Dynamic simulations are performed using the \code{\link{project}} method on
 #' objects of this class.
 #' 
-#' @slot w A numeric vector of size bins used for the community (i.e. fish) part
-#'   of the model. These are usually spaced on a log10 scale
-#' @slot dw The absolute difference between the size bins specified in the w
-#'   slot. A vector the same length as the w slot. The final value is the same
-#'   as the second to last value
-#' @slot w_full A numeric vector of size bins used for the whole model (i.e. the
-#'   community and plankton spectra) . These are usually spaced on a log10
-#'   scale
-#' @slot dw_full The absolute difference between the size bins specified in the
-#'   w_full slot. A vector the same length as the w_full slot. The final value
-#'   is the same as the second to last value
+#' @slot w The size grid for the fish part of the spectrum. An increasing
+#'   vector of weights (in grams) running from the smallest egg size to the
+#'   largest asymptotic size.
+#' @slot dw The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
+#'   the same length as the w_full slot. The last entry is not determined by
+#'   the w slot but represents the size of the last size bin.
+#' @slot w_full The size grid for the full size range including the resource
+#'   spectrum. An increasing vector of weights (in grams) running from the
+#'   smallest resource size to the largest asymptotic size of fish. The
+#'   last entries of the vector have to be equal to the content of the w slot.
+#' @slot dw_full The spacing in the full size grid. 
+#'   So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
+#'   equal to the content of the dw slot.
 #' @slot w_min_idx A vector holding the index of the weight of the egg size
 #'   of each species
 #' @slot psi An array (species x size) that holds the allocation to reproduction
 #'   for each species at size, \eqn{\psi_i(w)}
 #' @slot intake_max An array (species x size) that holds the maximum intake for
-#'   each species at size. Default \eqn{h_i w^n}
+#'   each species at size.
 #' @slot search_vol An array (species x size) that holds the search volume for
-#'   each species at size. Default \eqn{\gamma_i w^q}
+#'   each species at size.
 #' @slot metab An array (species x size) that holds the metabolism
-#'   for each species at size. Default \eqn{k_{s.i} w^p + k_i w}
+#'   for each species at size.
 #' @slot mu_b An array (species x size) that holds the background death 
 #'   \eqn{\mu_{b.i}(w)}
-#' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
-#'   the Fourier transform of the feeding kernel in a form appropriate for
-#'   evaluating the available energy integral
-#' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio) that holds 
-#'   the Fourier transform of the feeding kernel in a form appropriate for
-#'   evaluating the predation mortality integral
+#' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the available energy integral
+#' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the predation mortality integral
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}
+#'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum. Default \eqn{\kappa w^{-\lambda}}
+#'   carrying capacity of the plankton spectrum.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -388,7 +390,10 @@ setClass("MizerParamsVariablePPMR",
          representation(pred_kernel = "array"),
          contains = "MizerParams")
 
-#' Basic constructor that creates empty MizerParams object of the right size
+#' Create empty MizerParams object of the right size
+#' 
+#' Sets up a MizerParams object in which most slots are left empty. 
+#' Only the size grids as well as the species names and gear names are set up.
 #' 
 #' @param object Number of species
 #' @param min_w  Smallest weight
@@ -400,7 +405,7 @@ setClass("MizerParamsVariablePPMR",
 #' @param gear_names Names of gears
 #' 
 #' @return An empty but valid MizerParams object
-#' 
+#' @export
 emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
                         min_w_pp = 1e-10, no_w_pp = NA, 
                         species_names=1:object, gear_names=species_names) {
@@ -540,23 +545,22 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
 #' @param r_pp Growth rate of the primary productivity. Default value is 10. 
-#' @param kappa Carrying capacity of the resource spectrum. Default
-#'       value is 1e11.
-#' @param lambda Exponent of the resource spectrum. Default value is
-#'       (2+q-n).
-#' @param w_pp_cutoff The cut off size of the plankton spectrum.
-#'       Default value is 10.
-#' @param f0 Average feeding level. Used to calculated \code{h} and
-#'       \code{gamma} if those are not columns in the species data frame. Also
-#'       requires \code{k_vb} (the von Bertalanffy K parameter) to be a column
-#'       in the species data frame. If \code{h} and \code{gamma} are supplied
-#'       then this argument is ignored. Default is 0.6..
-#' @param z0pre If \code{z0}, the mortality from other sources, is not
-#'       a column in the species data frame, it is calculated as 
-#'       z0pre * w_inf ^ z0exp. Default value is 0.6.
-#' @param z0exp If \code{z0}, the mortality from other sources, is not
-#'       a column in the species data frame, it is calculated as 
-#'       z0pre * w_inf ^ z0exp. Default value is n-1.
+#' @param kappa Carrying capacity of the resource spectrum. Default value is
+#'   1e11.
+#' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
+#' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
+#'   is 10.
+#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
+#'   if those are not columns in the species data frame. Also requires
+#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
+#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
+#'   ignored. Default is 0.6..
+#' @param z0pre If \code{z0}, the mortality from other sources, is not a column
+#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+#'   Default value is 0.6.
+#' @param z0exp If \code{z0}, the mortality from other sources, is not a column
+#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+#'   Default value is n-1.
 #' @param species_names Names of the species. Generally not needed as normally
 #'   taken from the \code{object} data.frame.
 #' @param gear_names Names of the gears that catch each species. Generally not
