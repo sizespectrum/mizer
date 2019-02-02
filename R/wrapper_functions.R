@@ -548,7 +548,8 @@ set_scaling_model <- function(no_sp = 11,
         # The lambda argument overrules any q argument
         q <- lambda - 2 + n
     }
-    # check validity of parameters
+    
+    ## Check validity of parameters ----
     if (rfac <= 1) {
         message("rfac needs to be larger than 1. Setting rfac=1.01")
         rfac <- 1.01
@@ -563,6 +564,9 @@ set_scaling_model <- function(no_sp = 11,
     }
     if (no_w > 10000) {
         message("Running a simulation with", no_w, "size bins is going to be very slow.")
+    }
+    if (min_egg <= 0) {
+        stop("The smallest egg size min_egg must be greater than zero.")
     }
     if (min_w_inf >= max_w_inf) {
         stop("The asymptotic size of the smallest species min_w_inf must be smaller than the asymptotic size of the largest species max_w_inf")
@@ -588,14 +592,16 @@ set_scaling_model <- function(no_sp = 11,
     p <- n
     lambda <- 2 + q - n
     
-    # Set grid points and characteristic sizes
+    ## Set grid points and characteristic sizes ----
+    # in such a way that the sizes all line up with the grid and the species are
+    # all equally spaced.
     min_w <- min_egg
     max_w <- max_w_inf
-    # Divide the range from min_w to max_w into no_w logarithmic bins of
-    # log size dx
+    # Divide the range from min_w to max_w into (no_w - 1) logarithmic bins of
+    # log size dx so that the last bin starts at max_w
     min_x <- log10(min_w)
     max_x <- log10(max_w)
-    dx <- (max_x - min_x) / no_w
+    dx <- (max_x - min_x) / (no_w - 1) 
     x <- seq(min_x, by = dx, length.out = no_w)
     w <- 10 ^ x
     
@@ -604,7 +610,7 @@ set_scaling_model <- function(no_sp = 11,
     min_x_inf <- log10(min_w_inf)
     # bins_per_sp is the number of bins separating species
     bins_per_sp <- round((max_x - min_x_inf) / (dx * (no_sp - 1)))
-    min_i_inf <- no_w + 1 - (no_sp - 1) * bins_per_sp
+    min_i_inf <- no_w - (no_sp - 1) * bins_per_sp
     # Maximum sizes for all species
     w_inf <- w[seq(min_i_inf, by = bins_per_sp, length.out = no_sp)]
     
@@ -618,7 +624,7 @@ set_scaling_model <- function(no_sp = 11,
     w_min_idx <- seq(1, by = bins_per_sp, length.out = no_sp)
     w_min <- w[w_min_idx]
 
-    # Build Params Object
+    ## Build Params Object ----
     erepro <- 0.1  # Will be changed later to achieve coexistence
     species_params <- data.frame(
         species = as.factor(1:no_sp),
@@ -659,6 +665,8 @@ set_scaling_model <- function(no_sp = 11,
     w <- params@w
     dw <- params@dw
     
+    ## Construct steady state solution ----
+    
     # Get constants for steady-state solution
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
@@ -684,13 +692,9 @@ set_scaling_model <- function(no_sp = 11,
     # We instead evaluate the integral in the analytic solution numerically
     mumu <- mu0 * w^(n - 1)  # Death rate
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
-    
-    w_inf_idx <- sum(w < w_inf[1])
-    idx <- 1:(w_inf_idx - 1)
+    idx <- 1:(min_i_inf - 2)
     # Compute integral in analytic solution to McKvF
     # We do not use this because it is not in agreement with scheme in project
-    # w_inf_idx <- sum(w < w_inf[1])
-    # idx <- 1:(w_inf_idx-1)
     # integrand <- dw[idx] * mumu[idx] / gg[idx]
     # n_exact <- exp(-cumsum(integrand)) / gg[idx]
     
@@ -699,7 +703,7 @@ set_scaling_model <- function(no_sp = 11,
     
     # rescale fish abundance to line up with plankton spectrum
     mult <- kappa / 
-        sum(n_exact * (w^(lambda - 1) * dw)[1:w_inf_idx])
+        sum(n_exact * (w^(lambda - 1) * dw)[1:(min_i_inf - 1)])
     dist_sp <- bins_per_sp * dx
     n_exact <- n_exact * mult * 
         (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
@@ -734,7 +738,7 @@ set_scaling_model <- function(no_sp = 11,
     #     (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2))
     params@sc <- sc
     
-    # Setup plankton
+    ##  Setup plankton ----
     plankton_vec <- (kappa * w ^ (-lambda)) - sc
     # Cut off plankton at w_pp_cutoff
     plankton_vec[w >= w_pp_cutoff] <- 0
@@ -751,7 +755,7 @@ set_scaling_model <- function(no_sp = 11,
     m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
     params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
     
-    # Setup background death
+    ## Setup background death ----
     m2 <- getPredMort(params, initial_n, initial_n_pp)
     for (i in 1:no_sp) {
         # The steplike psi was only needed when we wanted to use the analytic
@@ -765,7 +769,8 @@ set_scaling_model <- function(no_sp = 11,
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
     }
-    # Set erepro to meet boundary condition
+    
+    ## Set erepro to meet boundary condition ----
     rdi <- getRDI(params, initial_n, initial_n_pp)
     gg <- getEGrowth(params, initial_n, initial_n_pp)
     mumu <- getMort(params, initial_n, initial_n_pp, effort = 0)
@@ -792,6 +797,7 @@ set_scaling_model <- function(no_sp = 11,
     # compensate for using a stock recruitment relationship.
     params@species_params$r_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
+
     return(params)
 }
 

@@ -391,11 +391,12 @@ setClass("MizerParamsVariablePPMR",
 #' Basic constructor that creates empty MizerParams object of the right size
 #' 
 #' @param no_sp Number of species
-#' @param min_w  Smallest weight
+#' @param min_w  Smallest weight. Default 0.001
 #' @param w_full Increasing vector of weights giving the boundaries of size
 #'   classes. Must include the value min_w. If this argument is not provided
 #'   then size classes are set by following arguments.
-#' @param max_w  Largest weight. Default 1000. Ignored if w_full is specified.
+#' @param max_w  Start of largest weight brackt. Default 1000. Ignored if 
+#'   w_full is specified.
 #' @param no_w   Number of weight brackets. Default 100. Ignored if w_full is 
 #'   specified.
 #' @param min_w_pp Smallest plankton weight. Default 1e-10. Ignored if w_full 
@@ -420,7 +421,7 @@ emptyParams <-
     # Set up grids:
     if (missing(w_full)) {
         # set up logarithmic grids
-        dx <- log10(max_w / min_w) / no_w
+        dx <- log10(max_w / min_w) / (no_w - 1)
         # Community grid
         w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]

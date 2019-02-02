@@ -21,8 +21,7 @@ test_that("basic constructor sets dimensions properly", {
                  min(diff(log(test_params@w_full))))
     # values of sizes OK?
     expect_equal(test_params@w[1], min_w)
-    expect_equal(test_params@w[length(test_params@w)] + 
-                     test_params@dw[length(test_params@w)], max_w)
+    expect_equal(test_params@w[no_w], max_w)
     expect_equal(test_params@dw[1], test_params@w[2] - test_params@w[1])
     expect_equal(test_params@w_full[1], min_w_pp)
     # Test that first weight entry after plankton spectrum equals smallest 
