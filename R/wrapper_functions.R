@@ -544,7 +544,7 @@ set_scaling_model <- function(no_sp = 11,
                               rfac = Inf,
                               perfect = FALSE,
                               ...) {
-    if (hasArg(lambda)) {
+    if (!missing(lambda)) {
         # The lambda argument overrules any q argument
         q <- lambda - 2 + n
     }
@@ -587,33 +587,37 @@ set_scaling_model <- function(no_sp = 11,
     # Set exponents
     p <- n
     lambda <- 2 + q - n
+    
     # Set grid points and characteristic sizes
     min_w <- min_egg
     max_w <- max_w_inf
-    # min_egg and max_w already lie on grid points in w. 
-    # Round min_w_mat up to the nearest grid point.
-    delt <- (log10(max_w) - log10(min_w)) / (no_w - 1)
-    v <- min_w_mat
-    j <- 1 + ceiling((log10(v) - log10(min_w)) / delt)
-    v <- 10 ^ (log10(min_w) + (j - 1) * delt)
-    min_w_mat <- v
-    # Round min_w_inf so that it is an integer multiple of the
-    # species spacing away from max_w_inf
-    j <- round((log10(max_w) - log10(min_w_inf)) / (delt * (no_sp - 1)))
-    min_w_inf <- 10 ^ (log10(max_w) - j * (no_sp - 1) * delt)
-    w_min_idx <- seq(1, by = j, length.out = no_sp)
-    # Determine maximum egg size
-    max_egg <- max_w * min_egg / min_w_inf
-    log10_minimum_egg <- log10(min_egg)
-    log10_maximum_egg <- log10(max_egg)
-    # Determine logarithmic spacing of egg weights
-    dist_sp <- (log10_maximum_egg - log10_minimum_egg) / (no_sp - 1)
+    # Divide the range from min_w to max_w into no_w logarithmic bins of
+    # log size dx
+    min_x <- log10(min_w)
+    max_x <- log10(max_w)
+    dx <- (max_x - min_x) / no_w
+    x <- seq(min_x, by = dx, length.out = no_w)
+    w <- 10 ^ x
+    
+    # Find index of nearest grid point to min_w_inf that is an integer multiple
+    # of the species spacing away from max_w
+    min_x_inf <- log10(min_w_inf)
+    # bins_per_sp is the number of bins separating species
+    bins_per_sp <- round((max_x - min_x_inf) / (dx * (no_sp - 1)))
+    min_i_inf <- no_w + 1 - (no_sp - 1) * bins_per_sp
+    # Maximum sizes for all species
+    w_inf <- w[seq(min_i_inf, by = bins_per_sp, length.out = no_sp)]
+    
+    # Find index of nearest grid point to min_w_mat
+    min_x_mat <- log10(min_w_mat)
+    min_i_mat <- round((min_x_mat - min_x) / dx) + 1
+    # Maturity sizes for all species
+    w_mat <- w[seq(min_i_mat, by = bins_per_sp, length.out = no_sp)]
+    
     # Determine egg weights w_min for all species
-    x_min <- seq(log10_minimum_egg, by = dist_sp, length.out = no_sp)
-    w_min <- 10 ^ x_min
-    # Use ratios to determine w_inf and w_mat from w_min
-    w_inf <- w_min * min_w_inf / min_egg
-    w_mat <- w_min * min_w_mat / min_egg
+    w_min_idx <- seq(1, by = bins_per_sp, length.out = no_sp)
+    w_min <- w[w_min_idx]
+
     # Build Params Object
     erepro <- 0.1  # Will be changed later to achieve coexistence
     species_params <- data.frame(
@@ -679,7 +683,7 @@ set_scaling_model <- function(no_sp = 11,
     # n_exact <- n_exact[w >= w_min[1] & w < w_inf[1]]
     # We instead evaluate the integral in the analytic solution numerically
     mumu <- mu0 * w^(n - 1)  # Death rate
-    gg <- hbar * w^n * (1-params@psi[1, ])  # Growth rate
+    gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
     
     w_inf_idx <- sum(w < w_inf[1])
     idx <- 1:(w_inf_idx - 1)
@@ -696,6 +700,7 @@ set_scaling_model <- function(no_sp = 11,
     # rescale fish abundance to line up with plankton spectrum
     mult <- kappa / 
         sum(n_exact * (w^(lambda - 1) * dw)[1:w_inf_idx])
+    dist_sp <- bins_per_sp * dx
     n_exact <- n_exact * mult * 
         (10^(dist_sp*(1-lambda)/2) - 10^(-dist_sp*(1-lambda)/2)) / (1-lambda)
     
