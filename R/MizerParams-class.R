@@ -390,7 +390,7 @@ setClass("MizerParamsVariablePPMR",
 #' @return An empty but valid MizerParams object
 #' 
 emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,  
-                        min_w_pp = 1e-10, no_w_pp = NA, w_full = NA
+                        min_w_pp = 1e-10, no_w_pp = NA, w_full = NA,
                         species_names = 1:no_sp, gear_names = species_names) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
@@ -410,15 +410,15 @@ emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
         
         # For fft methods we need a constant log step size throughout. 
         # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
-        x_pp <- rev(seq(from = log10(min_w) - dx, to = log10(min_w_pp), by = dx))
+        x_pp <- rev(seq(from = log10(min_w) - dx, to = log10(min_w_pp), by = -dx))
         w_full <- c(10^x_pp, w)
         no_w_full <- length(w_full)
         dw_full <- (10^dx - 1) * w_full	
     } else {
         # use supplied w_full
-        no_w_full <- length(w_full)
-        # Make last bin as big as the previous one
-        dw_full <- c(diff(w_full), w_full[no_w_full] - w_full[no_w_full - 1])
+        no_w_full <- length(w_full) - 1
+        dw_full <- diff(w_full)
+        w_full <- w_full[1:dw_full]
         # Check that sizes are increasing
         if (any(dw_full <= 0)) {
             stop("w_full must be increasing.")
@@ -430,6 +430,7 @@ emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
         w <- w_full[w_min_idx:no_w_full]
         dw <- dw_full[w_min_idx:no_w_full]
         no_w <- length(w)
+        min_w_pp <- w_full[1]
     }
     
     # Basic arrays for templates
