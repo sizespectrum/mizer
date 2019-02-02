@@ -1,0 +1,85 @@
+template:
+  params:
+    bootswatch: cerulean
+
+navbar:
+  title: "mizer"
+  structure:
+    left:
+    - home
+    - intro
+    - articles
+    - reference
+    - publications
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    articles:
+      text: Documentation
+      menu:
+      - text: Mizer Developer Vignette
+        href: articles/developer_vignette.html
+      - text: Mathematical Details behind Mizer
+        href: articles/mathematical_details.html
+    reference:
+      text: Functions
+      href: reference/index.html
+    publications:
+      text: Publications
+      href: articles/publications.html
+    github:
+      icon: fa-github fa-lg
+      href: https://github.com/gustavdelius/mizer
+
+
+reference:
+- title: Setting model parameters
+  desc:  Functions to create MizerParams parameter object describing your model
+  contents:
+  - set_community_model
+  - set_scaling_model
+  - set_trait_model
+  - multispeciesParams
+  - steady
+  - change_pred_kernel
+  - emptyParams
+  - addSpecies
+  - removeSpecies
+  - retune_abundance
+  - setBackground
+- title: Running simulation
+  contents:
+  - project
+- title: Calculating ecological quantities
+  contents:
+  - starts_with("get")
+- title: Plotting results
+  contents:
+  - starts_with("plot")
+  - display_frames
+  - log_breaks
+- title: Functions used in model
+  contents:
+  - knife_edge
+  - sigmoid_length
+- title: Classes
+  contents:
+  - MizerParams-class
+  - MizerParamsVariablePPMR-class
+  - MizerSim-class
+  - MizerSim
+  - summary,MizerParams-method
+  - summary,MizerSim-method
+- title: Data sets
+  contents:
+  - NS_species_params
+  - NS_species_params_gears
+  - inter
+- title: Others
+  contents:
+- title: Aliases
+  contents:
+  - MizerParams
