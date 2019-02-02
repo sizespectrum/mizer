@@ -4,20 +4,26 @@
 \alias{emptyParams}
 \title{Basic constructor that creates empty MizerParams object of the right size}
 \usage{
-emptyParams(object, min_w = 0.001, max_w = 1000, no_w = 100,
-  min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:object,
-  gear_names = species_names)
+emptyParams(no_sp, min_w = 0.001, w_full = NA, max_w = 1000,
+  no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
+  species_names = 1:no_sp, gear_names = species_names)
 }
 \arguments{
-\item{object}{Number of species}
+\item{no_sp}{Number of species}
 
 \item{min_w}{Smallest weight}
 
-\item{max_w}{Largest weight}
+\item{w_full}{Increasing vector of weights giving the boundaries of size
+classes. Must include the value min_w. If this argument is not provided
+then size classes are set by following arguments.}
 
-\item{no_w}{Number of weight brackets}
+\item{max_w}{Largest weight. Default 1000. Ignored if w_full is specified.}
 
-\item{min_w_pp}{Smallest plankton weight}
+\item{no_w}{Number of weight brackets. Default 100. Ignored if w_full is 
+specified.}
+
+\item{min_w_pp}{Smallest plankton weight. Default 1e-10. Ignored if w_full 
+is specified.}
 
 \item{no_w_pp}{No longer used}
 

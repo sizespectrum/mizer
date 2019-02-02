@@ -20,34 +20,46 @@ validMizerParams <- function(object) {
     
     errors <- character()
     # grab some dims
-    length_w <- length(object@w)
-    length_w_full <- length(object@w_full)
+    no_w <- length(object@w)
+    no_w_full <- length(object@w_full)
+    w_idx <- (no_w_full - no_w + 1):no_w_full
     
     # Check dw and dw_full are correct length
-    if (length(object@dw) != length_w) {
+    if (length(object@dw) != no_w) {
         msg <- paste("dw is length ", length(object@dw),
-                     " and w is length ", length_w,
+                     " and w is length ", no_w,
                      ". These should be the same length", sep = "")
         errors <- c(errors, msg)
     }
     
-    if (length(object@dw_full) != length_w_full) {
+    if (length(object@dw_full) != no_w_full) {
         msg <- paste("dw_full is length ", length(object@dw_full),
-                     " and w_full is length ", length_w_full,
+                     " and w_full is length ", no_w_full,
                      ". These should be the same length", sep = "")
         errors <- c(errors, msg)
     }
+    
+    # Check that the last entries of w_full and dw_full agree with w and dw
+    if (!identical(object@w, object@w_full[w_idx])) {
+        msg <- "The later entries of w_full should be equal to those of w."
+        errors <- c(errors, msg)
+    }
+    if (!identical(object@dw, object@dw_full[w_idx])) {
+        msg <- "The later entries of dw_full should be equal to those of dw."
+        errors <- c(errors, msg)
+    }
+    
     # Check the array dimensions are good
     # 2D arrays
     if (!all(c(length(dim(object@psi)),
-        length(dim(object@intake_max)),
-        length(dim(object@search_vol)),
-        length(dim(object@metab)),
-        length(dim(object@mu_b)),
-        length(dim(object@ft_pred_kernel_e)),
-        length(dim(object@ft_pred_kernel_p)),
-        length(dim(object@interaction)),
-        length(dim(object@catchability))) == 2)) {
+               length(dim(object@intake_max)),
+               length(dim(object@search_vol)),
+               length(dim(object@metab)),
+               length(dim(object@mu_b)),
+               length(dim(object@ft_pred_kernel_e)),
+               length(dim(object@ft_pred_kernel_p)),
+               length(dim(object@interaction)),
+               length(dim(object@catchability))) == 2)) {
         msg <- "psi, intake_max, search_vol, metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
@@ -80,7 +92,7 @@ validMizerParams <- function(object) {
         dim(object@search_vol)[2],
         dim(object@metab)[2],
         dim(object@selectivity)[3]) ==
-        length_w)) {
+        no_w)) {
         msg <- "The number of size bins in the model must be consistent across the w, psi, intake_max, search_vol, and selectivity (dim 3) slots"
         errors <- c(errors, msg)
     }
@@ -380,27 +392,33 @@ setClass("MizerParamsVariablePPMR",
 #' 
 #' @param no_sp Number of species
 #' @param min_w  Smallest weight
-#' @param max_w  Largest weight
-#' @param no_w   Number of weight brackets
-#' @param min_w_pp Smallest plankton weight
+#' @param w_full Increasing vector of weights giving the boundaries of size
+#'   classes. Must include the value min_w. If this argument is not provided
+#'   then size classes are set by following arguments.
+#' @param max_w  Largest weight. Default 1000. Ignored if w_full is specified.
+#' @param no_w   Number of weight brackets. Default 100. Ignored if w_full is 
+#'   specified.
+#' @param min_w_pp Smallest plankton weight. Default 1e-10. Ignored if w_full 
+#'   is specified.
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
 #' 
 #' @return An empty but valid MizerParams object
 #' 
-emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,  
-                        min_w_pp = 1e-10, no_w_pp = NA, w_full = NA,
-                        species_names = 1:no_sp, gear_names = species_names) {
+#' @export
+emptyParams <- 
+    function(no_sp, min_w = 0.001,  w_full = NA,
+             max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
+             species_names = 1:no_sp, gear_names = species_names) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
     if (length(species_names) != no_sp)
         stop("species_names must be the same length as the value of no_sp argument")
-    
-    
+
     # Set up grids:
-    if (is.na(w_full)) {
+    if (missing(w_full)) {
         # set up logarithmic grids
         dx <- log10(max_w / min_w) / no_w
         # Community grid
@@ -418,7 +436,7 @@ emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
         # use supplied w_full
         no_w_full <- length(w_full) - 1
         dw_full <- diff(w_full)
-        w_full <- w_full[1:dw_full]
+        w_full <- w_full[seq_along(dw_full)]
         # Check that sizes are increasing
         if (any(dw_full <= 0)) {
             stop("w_full must be increasing.")
@@ -583,12 +601,13 @@ emptyParams <- function(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- multispeciesParams(NS_species_params_gears, inter)
-multispeciesParams <- function(object, interaction,
-                    min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
-                    min_w_pp = 1e-10, no_w_pp = NA,
-                    n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
-                    kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-                    f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
+multispeciesParams <- 
+    function(object, interaction,
+             min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
+             min_w_pp = 1e-10, no_w_pp = NA,
+             n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
+             kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
+             f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
