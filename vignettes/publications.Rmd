@@ -1,6 +1,10 @@
 ---
 title: "Publications"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Publications}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

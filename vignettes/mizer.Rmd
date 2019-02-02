@@ -1,6 +1,10 @@
 ---
 title: "Get started"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 The mizer package implements multi-species size-based modelling in R. It has 

@@ -10,6 +10,10 @@ output:
     toc: yes
     toc_depth: 3
     number_sections: yes
+vignette: >
+  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 # Spectral Integration To Speed Up Mizer

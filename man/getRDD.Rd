@@ -14,6 +14,9 @@ getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n,
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
+\item{sex_ratio}{Proportion of the population that is female. Default value
+is 0.5.}
+
 \item{rdi}{A vector of density independent recruitment for each species. 
 If not specified rdi is calculated internally using
 the \code{\link{getRDI}} method.}

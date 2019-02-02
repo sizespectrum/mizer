@@ -23,7 +23,7 @@
 #'
 #' @import plyr ggplot2 methods assertthat
 #' @importFrom reshape2 melt
-#' @importFrom stats fft mvfft lm
+#' @importFrom stats fft mvfft lm pnorm
 #' @importFrom deSolve ode
 #' @importFrom progress progress_bar
 #'
