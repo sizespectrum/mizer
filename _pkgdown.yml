@@ -1,6 +1,11 @@
+url: https://gustavdelius.github.io/mizer/
+
 template:
   params:
     bootswatch: cerulean
+    docsearch:
+      api_key: de91577b2f58755afaa137388a513a88
+      index_name: mizer
 
 toc: 
   depth: 3
@@ -18,9 +23,9 @@ navbar:
       href: reference/index.html
     - text: "Publications"
       href: articles/publications.html
-  right:
     - text: "Changelog"
       href: news/index.html
+  right:
     - icon: fa-github fa-lg
       href: https://github.com/gustavdelius/mizer
 
