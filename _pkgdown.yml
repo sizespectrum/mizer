@@ -2,37 +2,37 @@ template:
   params:
     bootswatch: cerulean
 
+toc: 
+  depth: 3
+
 navbar:
   title: "mizer"
-  structure:
-    left:
-    - home
-    - intro
-    - articles
-    - reference
-    - publications
-    - news
-    right: github
-  components:
-    home:
-      icon: fa-home fa-lg
+  left:
+    - icon: fa-home fa-lg
       href: index.html
-    articles:
-      text: Documentation
-      menu:
-      - text: Mizer Developer Vignette
-        href: articles/developer_vignette.html
-      - text: Mathematical Details behind Mizer
-        href: articles/mathematical_details.html
-    reference:
-      text: Functions
+    - text: "Get Started"
+      href: articles/mizer.html
+    - text: "Articles"
+      href: articles/index.html
+    - text: "Reference"
       href: reference/index.html
-    publications:
-      text: Publications
+    - text: "Publications"
       href: articles/publications.html
-    github:
-      icon: fa-github fa-lg
+  right:
+    - text: "Changelog"
+      href: news/index.html
+    - icon: fa-github fa-lg
       href: https://github.com/gustavdelius/mizer
+
+
+articles:
+- title: User Guides
+  contents:
+  - model_description
+- title: Developer Guides
+  contents:
+  - developer_vignette
+  - mathematical_details
 
 
 reference:
@@ -53,14 +53,39 @@ reference:
 - title: Running simulation
   contents:
   - project
-- title: Calculating ecological quantities
+- title: Analysing results
   contents:
-  - starts_with("get")
+  - getBiomass
+  - getCommunitySlope
+  - getMeanMaxWeight
+  - getMeanWeight
+  - getN
+  - getProportionOfLargeFish
+  - getSSB
+  - getYield
+  - getYieldGear
 - title: Plotting results
   contents:
   - starts_with("plot")
+  - getBiomassFrame
+  - getSSBFrame
   - display_frames
   - log_breaks
+- title: Calculating rates used in model
+  contents:
+  - getAvailEnergy
+  - getEGrowth
+  - getERepro
+  - getEReproAndGrowth
+  - getFMort
+  - getFMortGear
+  - getFeedingLevel
+  - getMort
+  - getPlanktonMort
+  - getPredMort
+  - getPredRate
+  - getRDD
+  - getRDI
 - title: Functions used in model
   contents:
   - knife_edge
@@ -80,6 +105,14 @@ reference:
   - inter
 - title: Others
   contents:
+  - get_initial_n
 - title: Aliases
+  desc: These aliases are available for backwards compatibility with earlier
+        versions of mizer
   contents:
   - MizerParams
+  - getESpawning
+  - getM2
+  - getM2Background
+  - getPhiPrey
+  - getZ
