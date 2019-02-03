@@ -395,7 +395,11 @@ setClass("MizerParamsVariablePPMR",
 #' slots. The dimension names of the array slots are correctly set using the
 #' weight grid and species and gear names.
 #' 
-#' When the `w_full` argument is not given, then a size grid is created so that
+# Some code is commented out that would allow the user to 
+# specify a grid with a non-constant log spacing. But we comment this out
+# for now because of the fft.
+# #' When the `w_full` argument is not given, then 
+#' A size grid is created so that
 #' the log-sizes are equally spaced. The spacing is chosen so that there will be
 #' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
 #' starting at `max_w`. For `w_full` additional size bins are added between
@@ -405,20 +409,20 @@ setClass("MizerParamsVariablePPMR",
 #' 
 #' @param no_sp Number of species
 #' @param min_w  Smallest weight. Default 0.001
-#' @param w_full Increasing vector of weights giving the boundaries of size
-#'   classes. Must include the value min_w. Has one more entry than the number
-#'   of size bins. The last entry is the upper end of the largest size class. It
-#'   be used to calculate the sizes of the size bins but will not be stored in
-#'   the w_full slot of the returned MizerParams object. If this argument is not
-#'   provided then size classes are set by the other arguments as described in
-#'   the Details.
-#' @param max_w  Start of largest weight brackt. Default 1000. Ignored if 
-#'   w_full is specified.
-#' @param no_w   Number of fish weight brackets. Default 100. Ignored if w_full is 
-#'   specified.
+# #' @param w_full Increasing vector of weights giving the boundaries of size
+# #'   classes. Must include the value min_w. Has one more entry than the number
+# #'   of size bins. The last entry is the upper end of the largest size class. It
+# #'   be used to calculate the sizes of the size bins but will not be stored in
+# #'   the w_full slot of the returned MizerParams object. If this argument is not
+# #'   provided then size classes are set by the other arguments as described in
+# #'   the Details.
+#' @param max_w  Start of largest weight brackt. Default 1000. 
+# #'   Ignored if w_full is specified.
+#' @param no_w   Number of fish weight brackets. Default 100. 
+# #' Ignored if w_full is specified.
 #' @param min_w_pp Smallest plankton weight. Default 1e-10. This determines how
-#'   many size bins are created for the plankton spectrum. Ignored if w_full 
-#'   is specified.
+#'   many size bins are created for the plankton spectrum. 
+# #'   Ignored if w_full is specified.
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
@@ -436,8 +440,11 @@ emptyParams <-
     if (length(species_names) != no_sp)
         stop("species_names must be the same length as the value of no_sp argument")
 
-    # Set up grids:
-    if (missing(w_full)) {
+    # Set up grids
+    # The following code anticipates that in future we might allow the user to 
+    # specify a grid with a non-constant log spacing. But we comment this out
+    # for now because of the fft.
+    # if (missing(w_full)) {
         # set up logarithmic grids
         dx <- log10(max_w / min_w) / (no_w - 1)
         # Community grid
@@ -451,24 +458,24 @@ emptyParams <-
         w_full <- c(10^x_pp, w)
         no_w_full <- length(w_full)
         dw_full <- (10^dx - 1) * w_full	
-    } else {
-        # use supplied w_full
-        no_w_full <- length(w_full) - 1
-        dw_full <- diff(w_full)
-        w_full <- w_full[seq_along(dw_full)]
-        # Check that sizes are increasing
-        if (any(dw_full <= 0)) {
-            stop("w_full must be increasing.")
-        }
-        w_min_idx <- match(min_w, w_full)
-        if (is.na(w_min_idx)) {
-            stop("w_min must be contained in w_full.")
-        }
-        w <- w_full[w_min_idx:no_w_full]
-        dw <- dw_full[w_min_idx:no_w_full]
-        no_w <- length(w)
-        min_w_pp <- w_full[1]
-    }
+    # } else {
+    #     # use supplied w_full
+    #     no_w_full <- length(w_full) - 1
+    #     dw_full <- diff(w_full)
+    #     w_full <- w_full[seq_along(dw_full)]
+    #     # Check that sizes are increasing
+    #     if (any(dw_full <= 0)) {
+    #         stop("w_full must be increasing.")
+    #     }
+    #     w_min_idx <- match(min_w, w_full)
+    #     if (is.na(w_min_idx)) {
+    #         stop("w_min must be contained in w_full.")
+    #     }
+    #     w <- w_full[w_min_idx:no_w_full]
+    #     dw <- dw_full[w_min_idx:no_w_full]
+    #     no_w <- length(w)
+    #     min_w_pp <- w_full[1]
+    # }
     
     # Basic arrays for templates
     mat1 <- array(NA, dim = c(no_sp, no_w), 
