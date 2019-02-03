@@ -4,20 +4,21 @@
 \alias{emptyParams}
 \title{Create empty MizerParams object of the right size}
 \usage{
-emptyParams(object, min_w = 0.001, max_w = 1000, no_w = 100,
-  min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:object,
+emptyParams(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
+  min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:no_sp,
   gear_names = species_names)
 }
 \arguments{
-\item{object}{Number of species}
+\item{no_sp}{Number of species}
 
-\item{min_w}{Smallest weight}
+\item{min_w}{Smallest weight. Default 0.001}
 
-\item{max_w}{Largest weight}
+\item{max_w}{Start of largest weight brackt. Default 1000.}
 
-\item{no_w}{Number of weight brackets}
+\item{no_w}{Number of fish weight brackets. Default 100.}
 
-\item{min_w_pp}{Smallest plankton weight}
+\item{min_w_pp}{Smallest plankton weight. Default 1e-10. This determines how
+many size bins are created for the plankton spectrum.}
 
 \item{no_w_pp}{No longer used}
 
@@ -31,4 +32,18 @@ An empty but valid MizerParams object
 \description{
 Sets up a MizerParams object in which most slots are left empty. 
 Only the size grids as well as the species names and gear names are set up.
+}
+\details{
+This will produce a valid MizerParams object with all the slots initialised
+but filled with meaningless placeholders values, except for the size grid
+slots. The dimension names of the array slots are correctly set using the
+weight grid and species and gear names.
+
+A size grid is created so that
+the log-sizes are equally spaced. The spacing is chosen so that there will be
+`no_w` fish size bins, with the smallest starting at `min_w` and the largest
+starting at `max_w`. For `w_full` additional size bins are added between
+`min_w_pp` and `min_w`, with the same log size. Because `min_w` is always
+a size-bin boundary, in general due to the fixed bin size the smallest
+size bin may start a bit above `min_w_pp`.
 }

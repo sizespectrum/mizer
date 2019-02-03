@@ -52,14 +52,14 @@ validMizerParams <- function(object) {
     # Check the array dimensions are good
     # 2D arrays
     if (!all(c(length(dim(object@psi)),
-        length(dim(object@intake_max)),
-        length(dim(object@search_vol)),
-        length(dim(object@metab)),
-        length(dim(object@mu_b)),
-        length(dim(object@ft_pred_kernel_e)),
-        length(dim(object@ft_pred_kernel_p)),
-        length(dim(object@interaction)),
-        length(dim(object@catchability))) == 2)) {
+               length(dim(object@intake_max)),
+               length(dim(object@search_vol)),
+               length(dim(object@metab)),
+               length(dim(object@mu_b)),
+               length(dim(object@ft_pred_kernel_e)),
+               length(dim(object@ft_pred_kernel_p)),
+               length(dim(object@interaction)),
+               length(dim(object@catchability))) == 2)) {
         msg <- "psi, intake_max, search_vol, metab, mu_b, ft_pred_kernel_e, ft_pred_kernel_p, interaction and catchability must all be two dimensions"
         errors <- c(errors, msg)
     }
@@ -395,50 +395,92 @@ setClass("MizerParamsVariablePPMR",
 #' Sets up a MizerParams object in which most slots are left empty. 
 #' Only the size grids as well as the species names and gear names are set up.
 #' 
-#' @param object Number of species
-#' @param min_w  Smallest weight
-#' @param max_w  Largest weight
-#' @param no_w   Number of weight brackets
-#' @param min_w_pp Smallest plankton weight
+#' This will produce a valid MizerParams object with all the slots initialised
+#' but filled with meaningless placeholders values, except for the size grid
+#' slots. The dimension names of the array slots are correctly set using the
+#' weight grid and species and gear names.
+#' 
+# Some code is commented out that would allow the user to 
+# specify a grid with a non-constant log spacing. But we comment this out
+# for now because of the fft.
+# #' When the `w_full` argument is not given, then 
+#' A size grid is created so that
+#' the log-sizes are equally spaced. The spacing is chosen so that there will be
+#' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
+#' starting at `max_w`. For `w_full` additional size bins are added between
+#' `min_w_pp` and `min_w`, with the same log size. Because `min_w` is always
+#' a size-bin boundary, in general due to the fixed bin size the smallest
+#' size bin may start a bit above `min_w_pp`. 
+#' 
+#' @param no_sp Number of species
+#' @param min_w  Smallest weight. Default 0.001
+# #' @param w_full Increasing vector of weights giving the boundaries of size
+# #'   classes. Must include the value min_w. Has one more entry than the number
+# #'   of size bins. The last entry is the upper end of the largest size class. It
+# #'   be used to calculate the sizes of the size bins but will not be stored in
+# #'   the w_full slot of the returned MizerParams object. If this argument is not
+# #'   provided then size classes are set by the other arguments as described in
+# #'   the Details.
+#' @param max_w  Start of largest weight brackt. Default 1000. 
+# #'   Ignored if w_full is specified.
+#' @param no_w   Number of fish weight brackets. Default 100. 
+# #' Ignored if w_full is specified.
+#' @param min_w_pp Smallest plankton weight. Default 1e-10. This determines how
+#'   many size bins are created for the plankton spectrum. 
+# #'   Ignored if w_full is specified.
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
 #' 
 #' @return An empty but valid MizerParams object
+#' 
 #' @export
-emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,  
-                        min_w_pp = 1e-10, no_w_pp = NA, 
-                        species_names=1:object, gear_names=species_names) {
+emptyParams <- 
+    function(no_sp, min_w = 0.001, # w_full = NA,
+             max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
+             species_names = 1:no_sp, gear_names = species_names) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
-    if (length(species_names) != object)
-        stop("species_names must be the same length as the value of object argument")
-    no_sp <- length(species_names)
-    
-    # Set up grids:
-    # Community grid
-    w <- 10^(seq(from = log10(min_w),to = log10(max_w), length.out = no_w))
-    dw <- diff(w)
-    # Correctly defined dw by using the proper ratio 
-    # (successive dw's have a fixed ratio). 
-    dw[no_w] <- dw[no_w - 1] * (dw[no_w - 1] / dw[no_w - 2])	
-    
-    # Set up full grid - plankton + community
-    # ERROR if dw > w, nw must be at least... depends on minw, maxw and nw
-    if (w[1] <= dw[1]) {
-        stop("Your size bins are too close together. You should consider increasing the number of bins, or changing the size range")
-    }
-    
-    # For fft methods we need a constant log step size throughout. 
-    # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
-    x_pp <- rev(seq(from = log10(min_w), log10(min_w_pp), 
-                    by = log10(min_w / max_w) / (no_w - 1))[-1])
-    w_full <- c(10^x_pp, w)
-    no_w_full <- length(w_full)
-    dw_full <- diff(w_full)
-    dw_full[no_w_full] <- dw_full[no_w_full - 1] *
-        (dw_full[no_w_full - 1] / dw_full[no_w_full - 2])	
+    if (length(species_names) != no_sp)
+        stop("species_names must be the same length as the value of no_sp argument")
+
+    # Set up grids
+    # The following code anticipates that in future we might allow the user to 
+    # specify a grid with a non-constant log spacing. But we comment this out
+    # for now because of the fft.
+    # if (missing(w_full)) {
+        # set up logarithmic grids
+        dx <- log10(max_w / min_w) / (no_w - 1)
+        # Community grid
+        w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
+        # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
+        dw <- (10^dx - 1) * w
+        
+        # For fft methods we need a constant log bin size throughout. 
+        # Therefore we use as many bins as are necessary to almost reach min_w_pp. 
+        x_pp <- rev(seq(from = log10(min_w) - dx, to = log10(min_w_pp), by = -dx))
+        w_full <- c(10^x_pp, w)
+        no_w_full <- length(w_full)
+        dw_full <- (10^dx - 1) * w_full	
+    # } else {
+    #     # use supplied w_full
+    #     no_w_full <- length(w_full) - 1
+    #     dw_full <- diff(w_full)
+    #     w_full <- w_full[seq_along(dw_full)]
+    #     # Check that sizes are increasing
+    #     if (any(dw_full <= 0)) {
+    #         stop("w_full must be increasing.")
+    #     }
+    #     w_min_idx <- match(min_w, w_full)
+    #     if (is.na(w_min_idx)) {
+    #         stop("w_min must be contained in w_full.")
+    #     }
+    #     w <- w_full[w_min_idx:no_w_full]
+    #     dw <- dw_full[w_min_idx:no_w_full]
+    #     no_w <- length(w)
+    #     min_w_pp <- w_full[1]
+    # }
     
     # Basic arrays for templates
     mat1 <- array(NA, dim = c(no_sp, no_w), 
@@ -458,7 +500,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
-                                       w = signif(w, 3)))
+                                         w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
     interaction <- array(1, dim = c(no_sp, no_sp), 
@@ -494,7 +536,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
                     "Background" = "grey")
     linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
-                     "twodash"), length.out = no_sp)
+                      "twodash"), length.out = no_sp)
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
@@ -584,12 +626,13 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- multispeciesParams(NS_species_params_gears, inter)
-multispeciesParams <- function(object, interaction,
-                    min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
-                    min_w_pp = 1e-10, no_w_pp = NA,
-                    n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
-                    kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-                    f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
+multispeciesParams <- 
+    function(object, interaction,
+             min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
+             min_w_pp = 1e-10, no_w_pp = NA,
+             n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
+             kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
+             f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
