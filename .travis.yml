@@ -12,6 +12,7 @@ branches:
 # see https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/
 
 after_success:
+  - Rscript -e 'covr::codecov(type = "all")'
   - Rscript -e 'pkgdown::build_site()'
 
 deploy:

@@ -1,3 +1,9 @@
+[![CRAN Status](https://www.r-pkg.org/badges/version/mizer)](https://cran.r-project.org/package=mizer)
+[![Travis-CI Build Status](https://travis-ci.org/sizespectrum/mizer.svg?branch=master)](https://travis-ci.org/sizespectrum/mizer)
+[![Coverage status](https://codecov.io/gh/gustavdelius/mizer/branch/master/graph/badge.svg)](https://codecov.io/github/gustavdelius/mizer?branch=master)
+[![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
+[![Rdoc](http://www.rdocumentation.org/badges/version/mizer)](http://www.rdocumentation.org/packages/mizer)
+
 # mizer
 Mizer is an R package to run multi-species size-spectrum models of fish
 communities. The package has been developed to model marine ecosystems that are
@@ -30,7 +36,3 @@ available from R's build-it package manager.
 See the accompanying
 [vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
 for more details on how the package works, including detailed examples.
-
-[![Rdoc](http://www.rdocumentation.org/badges/version/mizer)](http://www.rdocumentation.org/packages/mizer)
-[![Travis-CI Build
-Status](https://travis-ci.org/sizespectrum/mizer.svg?branch=master)](https://travis-ci.org/sizespectrum/mizer)
