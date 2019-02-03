@@ -561,11 +561,6 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' @param z0exp If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
-#' @param species_names Names of the species. Generally not needed as normally
-#'   taken from the \code{object} data.frame.
-#' @param gear_names Names of the gears that catch each species. Generally not
-#'   needed as normally taken from the \code{object} data.frame. Default is
-#'   \code{species_names}.
 #' @param ... Additional arguments.
 #'
 #' @return An object of type \code{MizerParams}

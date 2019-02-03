@@ -67,13 +67,6 @@ Default value is 0.6.}
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is n-1.}
 
-\item{species_names}{Names of the species. Generally not needed as normally
-taken from the \code{object} data.frame.}
-
-\item{gear_names}{Names of the gears that catch each species. Generally not
-needed as normally taken from the \code{object} data.frame. Default is
-\code{species_names}.}
-
 \item{...}{Additional arguments.}
 }
 \value{
