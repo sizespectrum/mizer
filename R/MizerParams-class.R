@@ -390,16 +390,34 @@ setClass("MizerParamsVariablePPMR",
 
 #' Basic constructor that creates empty MizerParams object of the right size
 #' 
+#' This will produce a valid MizerParams object with all the slots initialised
+#' but filled with meaningless placeholders values, except for the size grid
+#' slots. The dimension names of the array slots are correctly set using the
+#' weight grid and species and gear names.
+#' 
+#' When the `w_full` argument is not given, then a size grid is created so that
+#' the log-sizes are equally spaced. The spacing is chosen so that there will be
+#' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
+#' starting at `max_w`. For `w_full` additional size bins are added between
+#' `min_w_pp` and `min_w`, with the same log size. Because `min_w` is always
+#' a size-bin boundary, in general due to the fixed bin size the smallest
+#' size bin may start a bit above `min_w_pp`. 
+#' 
 #' @param no_sp Number of species
 #' @param min_w  Smallest weight. Default 0.001
 #' @param w_full Increasing vector of weights giving the boundaries of size
-#'   classes. Must include the value min_w. If this argument is not provided
-#'   then size classes are set by following arguments.
+#'   classes. Must include the value min_w. Has one more entry than the number
+#'   of size bins. The last entry is the upper end of the largest size class. It
+#'   be used to calculate the sizes of the size bins but will not be stored in
+#'   the w_full slot of the returned MizerParams object. If this argument is not
+#'   provided then size classes are set by the other arguments as described in
+#'   the Details.
 #' @param max_w  Start of largest weight brackt. Default 1000. Ignored if 
 #'   w_full is specified.
-#' @param no_w   Number of weight brackets. Default 100. Ignored if w_full is 
+#' @param no_w   Number of fish weight brackets. Default 100. Ignored if w_full is 
 #'   specified.
-#' @param min_w_pp Smallest plankton weight. Default 1e-10. Ignored if w_full 
+#' @param min_w_pp Smallest plankton weight. Default 1e-10. This determines how
+#'   many size bins are created for the plankton spectrum. Ignored if w_full 
 #'   is specified.
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
@@ -427,8 +445,8 @@ emptyParams <-
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
         dw <- (10^dx - 1) * w
         
-        # For fft methods we need a constant log step size throughout. 
-        # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
+        # For fft methods we need a constant log bin size throughout. 
+        # Therefore we use as many bins as are necessary to almost reach min_w_pp. 
         x_pp <- rev(seq(from = log10(min_w) - dx, to = log10(min_w_pp), by = -dx))
         w_full <- c(10^x_pp, w)
         no_w_full <- length(w_full)
