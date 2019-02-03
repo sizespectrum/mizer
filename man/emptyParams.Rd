@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{emptyParams}
 \alias{emptyParams}
-\title{Basic constructor that creates empty MizerParams object of the right size}
+\title{Create empty MizerParams object of the right size}
 \usage{
 emptyParams(object, min_w = 0.001, max_w = 1000, no_w = 100,
   min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:object,
@@ -29,5 +29,6 @@ emptyParams(object, min_w = 0.001, max_w = 1000, no_w = 100,
 An empty but valid MizerParams object
 }
 \description{
-Basic constructor that creates empty MizerParams object of the right size
+Sets up a MizerParams object in which most slots are left empty. 
+Only the size grids as well as the species names and gear names are set up.
 }

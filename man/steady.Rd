@@ -20,6 +20,8 @@ after each of which we check for convergence. Default value is 2.}
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over a t_per is less than rel_tol for every background
 species. Default value is 1/100.}
+
+\item{shiny_progress}{A shiny progress object to implement progress bar}
 }
 \description{
 This is done by running the dynamics for a specified number of years

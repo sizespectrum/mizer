@@ -1,0 +1,25 @@
+---
+title: "Get started"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The mizer package implements multi-species size-based modelling in R. It has 
+been designed for modelling marine ecosystems.
+
+Using mizer is relatively simple.  There are three main stages: 
+
+1. Setting the model parameters. This is done by creating an object of 
+class \code{MizerParams}. This includes model parameters such as the life 
+history parameters of each species, and the range of the size spectrum.
+
+2. Running a simulation. This is done by calling the \code{project()} 
+method on the model parameters. This produces an object of \code{MizerSim} 
+which contains the results of the simulation.
+
+3. Exploring results. After a simulation has been run, the results can be 
+explored using a range of plots and summaries. 
+

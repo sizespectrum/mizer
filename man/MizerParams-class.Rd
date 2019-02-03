@@ -14,20 +14,22 @@ objects of this class.
 \section{Slots}{
 
 \describe{
-\item{\code{w}}{A numeric vector of size bins used for the community (i.e. fish) part
-of the model. These are usually spaced on a log10 scale}
+\item{\code{w}}{The size grid for the fish part of the spectrum. An increasing
+vector of weights (in grams) running from the smallest egg size to the
+largest asymptotic size.}
 
-\item{\code{dw}}{The absolute difference between the size bins specified in the w
-slot. A vector the same length as the w slot. The final value is the same
-as the second to last value}
+\item{\code{dw}}{The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
+the same length as the w_full slot. The last entry is not determined by
+the w slot but represents the size of the last size bin.}
 
-\item{\code{w_full}}{A numeric vector of size bins used for the whole model (i.e. the
-community and plankton spectra) . These are usually spaced on a log10
-scale}
+\item{\code{w_full}}{The size grid for the full size range including the resource
+spectrum. An increasing vector of weights (in grams) running from the
+smallest resource size to the largest asymptotic size of fish. The
+last entries of the vector have to be equal to the content of the w slot.}
 
-\item{\code{dw_full}}{The absolute difference between the size bins specified in the
-w_full slot. A vector the same length as the w_full slot. The final value
-is the same as the second to last value}
+\item{\code{dw_full}}{The spacing in the full size grid. 
+So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
+equal to the content of the dw slot.}
 
 \item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
 of each species}
@@ -36,30 +38,30 @@ of each species}
 for each species at size, \eqn{\psi_i(w)}}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size. Default \eqn{h_i w^n}}
+each species at size.}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
-each species at size. Default \eqn{\gamma_i w^q}}
+each species at size.}
 
 \item{\code{metab}}{An array (species x size) that holds the metabolism
-for each species at size. Default \eqn{k_{s.i} w^p + k_i w}}
+for each species at size.}
 
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
 \eqn{\mu_{b.i}(w)}}
 
-\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
-the Fourier transform of the feeding kernel in a form appropriate for
-evaluating the available energy integral}
+\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the available energy integral}
 
-\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio) that holds 
-the Fourier transform of the feeding kernel in a form appropriate for
-evaluating the predation mortality integral}
+\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the predation mortality integral}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}}
+growth rate of the plankton spectrum.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum. Default \eqn{\kappa w^{-\lambda}}}
+carrying capacity of the plankton spectrum.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 

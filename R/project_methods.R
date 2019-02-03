@@ -851,6 +851,8 @@ getRDI <- function(object, n, n_pp,
 #' @param object An \code{MizerParams} object
 #' @param n A matrix of species abundance (species x size)
 #' @param n_pp A vector of the plankton abundance by size
+#' @param sex_ratio Proportion of the population that is female. Default value
+#'   is 0.5.
 #' @param rdi A vector of density independent recruitment for each species. 
 #'   If not specified rdi is calculated internally using
 #'   the \code{\link{getRDI}} method.

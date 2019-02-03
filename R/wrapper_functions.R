@@ -1217,6 +1217,7 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over a t_per is less than rel_tol for every background
 #'   species. Default value is 1/100.
+#' @param shiny_progress A shiny progress object to implement progress bar
 #' @export
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
                    shiny_progress = NULL) {

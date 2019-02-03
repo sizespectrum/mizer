@@ -3,3 +3,22 @@
 language: R
 sudo: false
 cache: packages
+
+branches:
+  only:
+  - master
+
+# Use travis to build mizer website 
+# see https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/
+
+after_success:
+  - Rscript -e 'pkgdown::build_site()'
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_PAT
+  keep-history: true
+  local-dir: docs
+  on:
+    branch: master

@@ -23,7 +23,7 @@ A two dimensional array (predator species x prey size),
   where the prey size runs over fish community plus plankton spectrum.
 }
 \description{
-Calculates the predation rate of each predator species at size on prey size. 
+Calculates the predation rate of each predator species on prey size. 
 In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
 This method is used by the \code{\link{project}} method for performing
 simulations. In the simulations, it is combined with the interaction matrix
