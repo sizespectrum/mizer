@@ -1,0 +1,138 @@
+---
+title: "Editing the mizer website"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Editing the mizer website}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Website built from package documentation
+The mizer website at [http://gustavdelius.github.io/mizer/] is created
+programmatically from the documentation included in the mizer github
+repository. Thus to edit the website just means editing this documentation.
+The website creation is performed by the 
+[`pkgdown`](https://pkgdown.r-lib.org/index.html) package. You can trigger
+a build in your local repository by issuing the command
+```{r eval=FALSE}
+pkgdown::build_site()
+```
+This will convert all existing documentation into html files and put these
+into the `docs` subdirectory of your mizer directory. In detail:
+
+1. All .Rmd files in the `vignettes` subdirectory (and its subdirectories, if
+   any) will produce html files of the same name in `docs/articles`.
+
+2. All .Rd documentation files in `man` will produce html files of the same
+   name in `docs/reference`.
+   
+4. The `NEWS` file will be converted to `docs/news/index.html`
+
+5. The README.md file will be converted to `docs/index.html`.
+
+Then the package will use the information in the `_pkgdown.yml` file to
+create a navbar and index pages. The navbar is configured with
+```
+navbar:
+  title: "mizer"
+  left:
+    - icon: fa-home fa-lg
+      href: index.html
+    - text: "Get Started"
+      href: articles/mizer.html
+    - text: "Articles"
+      href: articles/index.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Publications"
+      href: articles/publications.html
+    - text: "Changelog"
+      href: news/index.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/gustavdelius/mizer
+```
+This is quite self-explanatory, specifying the order of the navbar entries,
+their text and link destination, and whether they are on the left or right side.
+It is clearly easy to add additional navbar entires.
+It would be possible to also include drop-down items in navbar. See the
+[pkgdown documentation](https://pkgdown.r-lib.org/articles/pkgdown.html#navigation-bar)
+for more details.
+
+The file `docs/articles/index.html` is created according to the article: 
+section in the `_pkgdown_yml` file. At an early stage it looked as follows:
+```
+articles:
+- title: User Guides
+  contents:
+  - model_description
+- title: Developer Guides
+  contents:
+  - developer_vignette
+  - mathematical_details
+```
+By now it will have more entries to link to more vignettes. But of course it
+is not necessary to use this index file. The menu entry could just as well
+point to a more elaborate file created from an .Rmd file in the vignette
+subdirecty.
+
+The file `docs/reference/index.html` is created according to the reference:
+section in the `_pkgdown_yml` file, with a similar syntax as the article:
+section.
+
+## Changing page content
+At the top of every page on the website, except the homepage, there is
+a link to the page source. So it is easy to know which file to edit to
+make changes to a page. If you want to rebuild the website after making
+a change to a single page you may not want to re-build everything. You can
+rebuild just a single vignette. For example to rebuild this page after 
+editing the vignette `vignette/editing_website.Rmd` you can call
+```{r eval=FALSE}
+pkgdown::build_article("editing_website")
+```
+To rebuild the reference pages after changing the roxygen code doc you can
+run
+```{r eval=FALSE}
+pkgdown::build_reference()
+```
+To change the homepage you edit README.md and then run
+```{r eval=FALSE}
+pkgdown::build_home()
+```
+
+Of course these changes will affect only your local copy of the website.
+To get those changes reflected on the online site you will need to make
+a pull request for your changed files against the master branch of the upstream 
+repository. Note that you should NOT commit the files from the `docs`
+directory. You should only commit the changes to the source files. Once
+your pull request is accepted, the html files in the `docs` directory are
+automatically recreated, as we will now explain.
+
+## Github pages
+The website is hosted with [GitHubPages](https://pages.github.com/). In the
+settings pages of the mizer repository on github the source is set to
+"gh-pages branch". This branch contains all the website pages, as you can
+see at [https://github.com/gustavdelius/mizer/tree/gh-pages], and nothing 
+else. 
+
+You should never push anything to this gh-pages branch directly. Instead
+these files are created automatically by Travis-CI each time it has
+completed a successful test-build of the package. Such a test build is
+automatically created whenever something is pushed to the master branch
+or a github pull request is merged into the master branch. This is set
+up in the `.travis.yml` configuration file. This is described on this
+[r-bloggers page]https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/).
+
+## Search bar
+The search bar on the website is powered by Docsearch from Algolia.
+This is a free service for open-source projects. The set-up is
+explained in the 
+[pkgdown documentation](https://pkgdown.r-lib.org/articles/pkgdown.html#search).
