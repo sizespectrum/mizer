@@ -116,7 +116,7 @@ repository.
 Note that you should **not** commit the files from the `docs`
 directory. You should only commit the changes to the source files. Once
 your pull request is accepted, the html files in the `docs` directory are
-automatically recreated, as we will now explain. You may therefore want
+automatically recreated, as we will explain next. You may therefore want
 to add the `docs` directory to your `.gitignore` file.
 
 ## Github pages
