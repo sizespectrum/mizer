@@ -1,3 +1,5 @@
+# This is the configuration for the mizer website using the pkgdown package.
+
 url: https://gustavdelius.github.io/mizer/
 
 template:
@@ -38,6 +40,7 @@ articles:
   contents:
   - developer_vignette
   - mathematical_details
+  - editing_website
 
 
 reference:
