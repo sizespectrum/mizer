@@ -23,3 +23,89 @@ which contains the results of the simulation.
 3. Exploring results. After a simulation has been run, the results can be 
 explored using a range of plots and summaries. 
 
+There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) explaining how to use and install mizer.
+Perhaps the easiest way for newcomers to get into using mizer is to access 
+[the online app](https://mizer.shinyapps.io/selectivity/). However, to enjoy the 
+full functionality of mizer we recommend the user installs it with R, as 
+described below: 
+
+## Installing mizer
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GsdE14HMQGE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+mizer is a package for the R open-source statistical programming language. R is 
+available from the CRAN website, which is also an excellent source of
+documentation and tutorials.
+
+The easiest way to install mizer (assuming you have an active internet
+connection) is to start an session and then type:
+
+```
+install.packages("mizer")
+```
+
+After installing mizer, to actually use it you need to load the package using
+the \code{library()} function. Note that whilst you only need to install the
+package once, it will need to be loaded every time you start a new R session.
+
+```
+library(mizer)
+```
+
+The source code for mizer is hosted on
+[Github.](https://github.com/sizespectrum/mizer) If you are feeling brave and
+wish to try out a development version of mizer you can install the package from
+here using the R package devtools (which was used extensively in putting
+together mizer).
+
+## Getting help in R
+
+As you probably know, to access documentation in R you can use the \code{help()}
+function. This can be used to access package documentation in a range of ways.
+For example:
+
+```
+help(package="mizer")
+help(mizer)
+help(project)
+```
+
+The first command gives a technical summary of the package, including the
+available functions.
+The second command gives a brief introduction to mizer.
+The third gives the documentation page for the method \code{project()}.
+
+Some methods are associated with several R classes. For example, the
+\code{plot()} method is generic and can be used on a wide range of R objects.
+The \code{plot()} method has been overloaded in mizer to plot MizerSim objects. 
+To select the help page for the appropriate plotting method you can either just
+use \code{help(plot)} and then select from a menu of packages or you can supply
+the package name in the \code{help()} command:
+
+```
+help(plot, package="mizer")
+```
+
+
+There are other ways of accessing package documentation that you may not be
+familiar with. To access the the help page of a particular method you can use:
+\code{method ? method-name}. For example, to access the help page of the
+\code{getFeedingLevel()} method you can use:
+
+```
+method ? getFeedingLevel
+```
+
+This also works for getting information on a class. For example, to get the help
+page on the MizerParams class you can use:
+
+```
+class ? MizerParams
+```
+
+
+These two ways of getting help can be useful when a class and a method have the
+same name. For example, MizerParams is a class and also the name of the method
+for creating MizerParams objects.
+
+
