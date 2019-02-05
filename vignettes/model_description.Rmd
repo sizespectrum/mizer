@@ -17,6 +17,12 @@ knitr::opts_chunk$set(
 )
 ```
 
+In this document we will revisit the presentation of the mizer model given
+in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
+but taking care to separate the essential features of the model that are
+hard-coded and the various possible specialisations for which mizer 
+provides setup functions. We will not go into detail of how this model is 
+realised in code. Such detail will be provided in the [developer_vignette].
 
 # The mizer size-spectrum model
 

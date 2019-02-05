@@ -35,47 +35,6 @@ valuable feedback and advice. Another way to get in touch with the
 mizer community is via the [size-spectrum modelling Google group](https://groups.google.com/forum/#!forum/size-spectrum-models).
 
 
-
-# Implementation of the model
-
-In this section we will revisit the presentation of the mizer model given
-in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
-but taking care to separate the essential features of the model that are
-hard-coded and the various possible specialisations for which mizer 
-provides setup functions. We will also give some detail of how this model is 
-implemented in code. We will still
-stay a bit at the surface, delaying a detailed look at how the code is
-organised until the section [Finding your way around the mizer code].
-
-Mizer is organised in a modular fashion. It is separated into setup functions,
-simulation functions, and analysis and plotting functions. These will
-be described below after we have introduced the mizer model.
-
-The core of mizer is the `project()` function
-that runs a simulation of the size-spectrum model. It takes a specification
-of the model contained in an object of type `MizerParams` and returns the
-results of the simulation in an object of type `MizerSim`.
-
-There are several different methods for setting up a `MizerParams` object for
-specifying various concrete models. These setup functions make various 
-simplifying assumptions about the model parameters to reduce the amount of
-information that needs to be specified. This usually takes the form of
-assuming allometric scaling laws. Below we will first describe the most
-general size spectrum model handled by mizer before describing the
-specialisations for which mizer has special setup functions.
-
-There are many functions for analysing and plotting the results of a mizer
-simulation contained in a `MizerSim` object.
-
-The `MizerParams` and `MizerSim` objects are S4 objects,
-meaning that their slots are rigorously defined and are accessed with the '@'
-notation. You do not need to learn about S4 classes in order to understand the
-mizer code, because the code avoids using S4 methods. In the presentation
-below we assume that the `MizerParams` object is called `params` and the
-`MixerSim` object is called `sim`.
-
-
-
 # Setting up working environment
 In this section we describe how to set up your working environment
 to allow you to easily work with the mizer code. Much of it you
@@ -126,6 +85,34 @@ This builds and loads the mizer package based on this development code.
 
 # Finding your way around the mizer code
 
+Mizer is organised in a modular fashion. It is separated into setup functions,
+simulation functions, and analysis and plotting functions. These will
+be described below after we have introduced the mizer model.
+
+The core of mizer is the `project()` function
+that runs a simulation of the size-spectrum model. It takes a specification
+of the model contained in an object of type `MizerParams` and returns the
+results of the simulation in an object of type `MizerSim`.
+
+There are several different methods for setting up a `MizerParams` object for
+specifying various concrete models. These setup functions make various 
+simplifying assumptions about the model parameters to reduce the amount of
+information that needs to be specified. This usually takes the form of
+assuming allometric scaling laws. Below we will first describe the most
+general size spectrum model handled by mizer before describing the
+specialisations for which mizer has special setup functions.
+
+There are many functions for analysing and plotting the results of a mizer
+simulation contained in a `MizerSim` object.
+
+The `MizerParams` and `MizerSim` objects are S4 objects,
+meaning that their slots are rigorously defined and are accessed with the '@'
+notation. You do not need to learn about S4 classes in order to understand the
+mizer code, because the code avoids using S4 methods. In the presentation
+below we assume that the `MizerParams` object is called `params` and the
+`MixerSim` object is called `sim`.
+
+
 ## The MizerParams object
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
@@ -133,8 +120,6 @@ An object of class 'MizerParams' holds all the information needed for the
 ## The project methods
 
 ## The MizerSim object
-
-
 
 ## Shiny apps
 
@@ -150,12 +135,6 @@ An object of class 'MizerParams' holds all the information needed for the
 We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
 
-# Technical details
 
-## The numerical scheme
-
-## Fast Fourier Transform
-
-## Tuning to Steady State
 
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd)
