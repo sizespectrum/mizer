@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ## Website built from package documentation
 The mizer website at [http://gustavdelius.github.io/mizer/] is created
 programmatically from the documentation included in the mizer github
@@ -139,3 +140,12 @@ The search bar on the website is powered by Docsearch from Algolia.
 This is a free service for open-source projects. The set-up is
 explained in the 
 [pkgdown documentation](https://pkgdown.r-lib.org/articles/pkgdown.html#search).
+
+## Embedding videos
+It is easy to embed videos into a webpage by putting an iframe into the
+Rmarkdown source file. For example putting the line
+```
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+```
+into the source of this page produced the following embedded video:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
