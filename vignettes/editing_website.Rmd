@@ -37,7 +37,7 @@ into the `docs` subdirectory of your mizer directory. In detail:
    
 4. The `NEWS` file will be converted to `docs/news/index.html`
 
-5. The README.md file will be converted to `docs/index.html`.
+5. The index.md file will be converted to `docs/index.html`.
 
 Then the package will use the information in the `_pkgdown.yml` file to
 create a navbar and index pages. The navbar is configured with
@@ -104,7 +104,12 @@ run
 ```{r eval=FALSE}
 pkgdown::build_reference()
 ```
-To change the homepage you edit README.md and then run
+
+To change the homepage you edit index.md. This file is very similar to 
+README.md that is used on the mizer homepage on github, but can contain
+extra content like embedded videos that the github homepage does not
+support. After changes to index.md you can update your local copy of
+the website with
 ```{r eval=FALSE}
 pkgdown::build_home()
 ```
@@ -148,4 +153,9 @@ Rmarkdown source file. For example putting the line
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 ```
 into the source of this page produced the following embedded video:
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+Note that the github site itself (as opposed to GitHub Pages) does not support
+embedded videos. That is why we have the website homepage in index.md and
+the github homepage in README.md.

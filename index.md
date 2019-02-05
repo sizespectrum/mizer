@@ -16,6 +16,10 @@ community indicators such as the slope of the size spectrum. Size-based models
 can be complicated so mizer contains many default options that can be easily
 changed by the user.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc"
+frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; 
+picture-in-picture" allowfullscreen></iframe>
+
 Mizer can also be used to create web apps that allow users to explore models
 without the need to install R. An [example of such an
 app](https://mizer.shinyapps.io/selectivity/) investigates the effect of
