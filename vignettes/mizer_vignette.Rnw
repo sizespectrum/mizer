@@ -155,19 +155,23 @@ To select the help page for the appropriate plotting method you can either just 
 help(plot, package="mizer")
 @
 
-There are other ways of accessing package documentation that you may not be familiar with. To access the the help page of a particular method you can use: \code{method ? method-name}. For example, to access the help page of the \code{getFeedingLevel()} method you can use:
+
+To access the the help page of a particular function you can use:
+\code{? function-name}. For example, to access the help page of the
+\code{getFeedingLevel()} function you can use:
 
 <<label=help_FL, eval=FALSE>>=
 method ? getFeedingLevel
 @
 
-This also works for getting information on a class. For example, to get the help page on the \class{MizerParams} class you can use:
+Slightly different syntax is used to get information on a class. For example, to get the help
+page on the MizerParams class you can use:
 
 <<label=help_MP_class, eval=FALSE>>=
 class ? MizerParams
 @
 
-These two ways of getting help can be useful when a class and a method have the same name. For example, \class{MizerParams} is a class and also the name of the method for creating \class{MizerParams} objects.
+
 
 %----------------------------------------------------------------------------------
 \section{Size spectrum modelling - concepts, processes and assumptions}
