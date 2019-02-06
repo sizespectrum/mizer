@@ -30,7 +30,7 @@ while (<RNW>) {
     s|\\emph\{(.+?)}|*$1*|g;
     s|<<|```\{r |g;
     s|>>=|}|g;
-    s|@|```|g;
+    s|@\s|```\n|g;
     s|\\section\{(.+?)}|# $1|g;
     s|\\section<presentation>\*\{\}||g;
     s|\\frametitle\{(.+?)}|# $1|g;

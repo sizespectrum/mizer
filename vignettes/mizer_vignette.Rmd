@@ -90,7 +90,8 @@ opts_chunk$set(width = 7)
 
 ```{r echo=FALSE}
 rm(list=ls())
-``` 
+```
+
 %-----------------------------------------------------------------------------------
 # Summary
 Size spectrum ecological models have emerged as a conceptually simple way to model a large community of individuals that grow and change trophic level during their lives. They are a subset of physiologically structured models where growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes.
@@ -155,19 +156,23 @@ To select the help page for the appropriate plotting method you can either just 
 help(plot, package="mizer")
 ```
 
-There are other ways of accessing package documentation that you may not be familiar with. To access the the help page of a particular method you can use: \code{method ? method-name}. For example, to access the help page of the \code{getFeedingLevel()} method you can use:
+
+To access the the help page of a particular function you can use:
+\code{? function-name}. For example, to access the help page of the
+\code{getFeedingLevel()} function you can use:
 
 ```{r label=help_FL, eval=FALSE}
 method ? getFeedingLevel
 ```
 
-This also works for getting information on a class. For example, to get the help page on the \class{MizerParams} class you can use:
+Slightly different syntax is used to get information on a class. For example, to get the help
+page on the MizerParams class you can use:
 
 ```{r label=help_MP_class, eval=FALSE}
 class ? MizerParams
 ```
 
-These two ways of getting help can be useful when a class and a method have the same name. For example, \class{MizerParams} is a class and also the name of the method for creating \class{MizerParams} objects.
+
 
 %----------------------------------------------------------------------------------
 # Size spectrum modelling - concepts, processes and assumptions
@@ -531,10 +536,10 @@ If you are going through this vignette for the first time, it is likely that you
 slotNames(params)
 ```
 
-As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\@ref(sec:MizerParams). A quick description can be found in the \class{MizerParams} help page (run \code{class ? MizerParams}. The slots of an object are accessed by using the \code{```} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the \code{params} object is made up of lots of slots. They are discussed in detail in Section~\@ref(sec:MizerParams). A quick description can be found in the \class{MizerParams} help page (run \code{class ? MizerParams}. The slots of an object are accessed by using the \code{@} operator. For example, to access the \code{w} slot (which contains a vector of the size bins in the model) you would use:
 
 ```{r label=demo_slot_accessor, results='hide'}
-params```w
+params@w
 ```
 
 Rather than picking through the slots to find out what is in a particular \class{MizerParams} object, a summary of the object can be seen by calling the \code{summary()} method on it:
@@ -543,8 +548,8 @@ Rather than picking through the slots to find out what is in a particular \class
 summary(params)
 ```
 
-In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params```w)} to \Sexpr{max(params```w)} and these are spread over \Sexpr{length(params```w)} size bins. Similar information is available for the resource spectrum.
-Additionally, the community is made up of only one species, called ``Community'', which has an asymptotic size of \Sexpr{params```species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params```species_params$beta[1]}. The \args{w\_mat} parameter has been set to \code{NA} as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function and pass in the the desired argument values. 
+In the summary you can see that the size range of the community spectrum has been set from \Sexpr{min(params@w)} to \Sexpr{max(params@w)} and these are spread over \Sexpr{length(params@w)} size bins. Similar information is available for the resource spectrum.
+Additionally, the community is made up of only one species, called ``Community'', which has an asymptotic size of \Sexpr{params@species_params$w_inf[1]} and a preferred predator prey mass ratio of \Sexpr{params@species_params$beta[1]}. The \args{w\_mat} parameter has been set to \code{NA} as it is not used when running a community model. These values have all been set by default using the \code{set\_community\_model()} function. If you want to set different values for these, you will need to call the \code{set\_community\_model()} function and pass in the the desired argument values. 
 
 ## Running the community model
  {#sec:running_comm_model}
@@ -579,7 +584,7 @@ In Figure~\@ref(fig:plot_comm_demo) there are several things going on that are w
 Fishing mortality is 0 because we set the \args{effort} argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
 The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the \args{f0} and \args{alpha} arguments passed to the \code{set\_community\_model()} function.
-The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params```w_full[1],3)} g).
+The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to \Sexpr{signif(params@w_full[1],3)} g).
 You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the \args{recruitment} argument passed to \code{set\_community\_model()}).
 
 Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the \args{z0} argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
@@ -602,7 +607,7 @@ If you plot this predation mortality on a log-log scale you can see how the pred
 
 \begin{figure}
 ```{r label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4}
-plot(x = sim```params```w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
+plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 ```
 \caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
  {#fig:plot_comm_m2}
@@ -650,23 +655,23 @@ plot(sim1)
 To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are store in the \code{n} slot of the \class{MizerSim} objects. The \code{n} slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
 
 ```{r label='dim_n'}
-dim(sim0```n)
+dim(sim0@n)
 ```
 
 We want the abundances in the final time step, and we can use these to calculate the relative abundances:
 
 ```{r label='relative_comm_abundance'}
-relative_abundance <- sim1```n[51,,] / sim0```n[51,,]
+relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 ```
 
 This can then be plotted (Figure~\@ref(fig:plot_relative_comm_abund)) using basic \R plotting commands.
-The sizes are stored in the \code{params```w} slot (a slot of a slot!).
+The sizes are stored in the \code{params@w} slot (a slot of a slot!).
 
 ```{r label=plot_relative_comm_abund, eval=FALSE}
-plot(x=sim0```params```w, y=relative_abundance, log="x", type="n",
+plot(x=sim0@params@w, y=relative_abundance, log="x", type="n",
     xlab = "Size (g)", ylab="Relative abundance")
-lines(x=sim0```params```w, y=relative_abundance)
-lines(x=c(min(sim0```params```w),max(sim0```params```w)), y=c(1,1),lty=2)
+lines(x=sim0@params@w, y=relative_abundance)
+lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 ```
 
 \begin{figure}
@@ -684,7 +689,7 @@ As described in \citep{andersen_damped_2010}, the fishing pressure lowers the ab
  {#sec:comm_model_change_sigma}
 
 As described above, the $\sigma$ parameter determines the width of the predator prey size preference. Here we take a look at how changing the value of $\sigma$ can affect the dynamics of the community.
-In the examples above, $\sigma$ is set in the \code{set\_community\_model()} function by default to a value of \Sexpr{params_knife```species_params$sigma[1]}.
+In the examples above, $\sigma$ is set in the \code{set\_community\_model()} function by default to a value of \Sexpr{params_knife@species_params$sigma[1]}.
 When projected through time, the community abundances converge to a stable equilibrium.
 What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into \code{set\_community\_model()}.
 
@@ -763,8 +768,8 @@ This object can therefore be interrogated in the same way as described in Sectio
 summary(params)
 ```
 
-The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from \Sexpr{min(params```species_params$w_inf)}
-to \Sexpr{max(params```species_params$w_inf)}. The size at maturity (\args{w\_{mat}}) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (\args{beta} and \args{sigma}, see Equation \@ref(eq:4)). There are \Sexpr{length(params```w)} size bins in the community and \Sexpr{length(params```w_full)} size bins including the resource spectrum.
+The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from \Sexpr{min(params@species_params$w_inf)}
+to \Sexpr{max(params@species_params$w_inf)}. The size at maturity (\args{w\_{mat}}) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (\args{beta} and \args{sigma}, see Equation \@ref(eq:4)). There are \Sexpr{length(params@w)} size bins in the community and \Sexpr{length(params@w_full)} size bins including the resource spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 ## Running the trait-based model
@@ -846,15 +851,15 @@ The trophic cascade can be explored by comparing the total abundances of all spe
 As mentioned above, the abundances are stored in the \code{n} slot of the \class{MizerSim} object. The \code{n} slot returns a three dimensional array with dimensions time x species x size. Here we have 76 time steps (75 from the simulation plus one which stores the initial population), 10 species and 100 sizes:
 
 ```{r label=trait_dim_n}
-dim(sim0```n)
+dim(sim0@n)
 ```
 
 As with the community model, we are interested in the relative total abundances by size in the final time step  so we want to pull out the 76th time step from the abundances and sum over the species.
 We can use the \code{apply()} function to help us:
 
 ```{r label = total_abund_trait}
-total_abund0 <- apply(sim0```n[76,,],2,sum)
-total_abund1 <- apply(sim1```n[76,,],2,sum)
+total_abund0 <- apply(sim0@n[76,,],2,sum)
+total_abund1 <- apply(sim1@n[76,,],2,sum)
 ```
 
 We can then use these vectors to calculate the relative abundances:
@@ -866,10 +871,10 @@ relative_abundance <- total_abund1 / total_abund0
 Which can be plotted using (Figure~\@ref(fig:plot_relative_comm_abund2)):
 
 ```{r label=plot_relative_comm_abund2, eval=FALSE}
-plot(x=sim0```params```w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
+plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
-lines(x=sim0```params```w, y=relative_abundance)
-lines(x=c(min(sim0```params```w),max(sim0```params```w)), y=c(1,1),lty=2)
+lines(x=sim0@params@w, y=relative_abundance)
+lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 ```
 
 \begin{figure}
@@ -894,10 +899,10 @@ m2_with_fishing <- getM2(sim1)[76,1,]
 The predation mortalities can then be plotted (see Figure \@ref(fig:plot_m2_comm)).
 
 ```{r label=plot_relative_trait_m2, eval=FALSE}
-plot(x = sim0```params```w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)",
+plot(x = sim0@params@w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)",
     ylab = "M2")
-lines(x = sim0```params```w, y = m2_no_fishing, lty=2)
-lines(x = sim0```params```w, y = m2_with_fishing)
+lines(x = sim0@params@w, y = m2_no_fishing, lty=2)
+lines(x = sim0@params@w, y = m2_with_fishing)
 ```
 
 \begin{figure}
@@ -961,7 +966,7 @@ params_multi_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
 To check what has just happened we can take a look inside the \class{MizerParams} object. There is a slot in the object called \code{species\_params}. This is a \class{data.frame} that contains the life-history parameters of the species in the model (the results of running this command are not shown):
 
 ```{r label=looking_at_trait_species_params, results='hide'}
-params_multi_gear```species_params
+params_multi_gear@species_params
 ```
 
 This \class{data.frame} is pretty interesting as it allows you to investigate the parameters for each species. For example, you can see that the predator-prey mass ratio parameters, \args{beta} and \args{sigma}, are indeed the same for each species.
@@ -1022,18 +1027,18 @@ We can again compare abundances of the fished ($sim\_industrial1$) and unfished 
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
 sim_industrial1 <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
-total_abund0 <- apply(sim_industrial0```n[76,,],2,sum)
-total_abund1 <- apply(sim_industrial1```n[76,,],2,sum)
+total_abund0 <- apply(sim_industrial0@n[76,,],2,sum)
+total_abund1 <- apply(sim_industrial1@n[76,,],2,sum)
 relative_abundance <- total_abund1 / total_abund0
 ```
 
 And plot the relative abundances:
 
 ```{r label=plot_relative_comm_abund_industrial, eval=FALSE}
-plot(x=sim0```params```w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
+plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
-lines(x=sim0```params```w, y=relative_abundance)
-lines(x=c(min(sim0```params```w),max(sim0```params```w)), y=c(1,1),lty=2)
+lines(x=sim0@params@w, y=relative_abundance)
+lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 ```
 
 \begin{figure}
@@ -1375,7 +1380,8 @@ have told \R to look in the right directory):
 
 ```{r }
 params_data <- read.csv("NS_species_params.csv")
-``` 
+```
+
 
 This reads the .csv file into \R in the form of a data.frame.
 You can check this with the \code{class}:
@@ -1415,12 +1421,12 @@ class(params)
 ```
 
 As has been mentioned in Sections~\@ref(sec:comm_model) and~\@ref(sec:trait_based_model), a \class{MizerParams} object is made up of ``slots'' that store a wide range of model parameters. Each of these slots contains information on the parameters in the model. A description of these slots can be found by calling \code{help()} on the class: \code{help("MizerParams-class")}.
-The different slots can be accessed using the \code{```} operator.
+The different slots can be accessed using the \code{@} operator.
 
 The slot \args{species\_params} contains the species parameters data.frame that was passed in to the constructor. We can inspect this slot with:
 
 ```{r label=looking_at_params_slot}
-params```species_params
+params@species_params
 ```
 
 We can see that this contains the original species data.frame (with \args{w\_inf} and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are no columns for \args{alpha} and \args{h} and \args{gamma} etc.
@@ -1436,7 +1442,7 @@ As has been shown in Sections~\@ref(sec:comm_model) and~\@ref(sec:trait_based_mo
 summary(params)
 ```
 
-As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are \Sexpr{length(params```w)} size classes in the community, ranging from \Sexpr{signif(min(params```w),3)} to \Sexpr{signif(max(params```w),3)}. These values are controlled by the arguments \args{no\_w}, \args{min\_w} and \args{max\_w} respectively. For example, if we wanted 200 size classes in the model we would use:
+As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are \Sexpr{length(params@w)} size classes in the community, ranging from \Sexpr{signif(min(params@w),3)} to \Sexpr{signif(max(params@w),3)}. These values are controlled by the arguments \args{no\_w}, \args{min\_w} and \args{max\_w} respectively. For example, if we wanted 200 size classes in the model we would use:
 
 ```{r label=MP_200, eval=FALSE}
 params200 <- MizerParams(params_data, no_w=200)
@@ -1597,7 +1603,7 @@ The default value for \args{initial\_n\_pp} is the carrying capacity of the plan
  {#sec:mizersim}
 
 Running \code{project()} returns an object of type \class{MizerSim} that stores the results of the projection.
-Like the \class{MizerParams} class this is also made up of various ``slots'', which can be accessed using the \code{```} operator.
+Like the \class{MizerParams} class this is also made up of various ``slots'', which can be accessed using the \code{@} operator.
 An object of \class{MizerSim} has four slots, details of which can be seen in the help page (\code{help("MizerSim-class"}).
 The \args{params} slot holds the \class{MizerParams} object that was passed in to \code{project()}.
 The \args{effort} slot holds the fishing effort of each gear through time. Note that the \args{effort} slot may not be exactly the same as the \args{effort} argument that was passed in to \code{project()}. This is because only the saved effort is stored (the frequency of saving is determined by the argument \args{t\_save}).
@@ -1662,7 +1668,7 @@ You can see here that each species is caught by a separate gear, and the gear is
 In this example, we specified the \args{effort} argument as a single numeric of value 1. As you can see this results in the same effort being used for all gears for all time steps:
 
 ```{r label=show_effort}
-head(sim```effort)
+head(sim@effort)
 ```
 
 A \code{summary()} method is also available for objects of type \class{MizerSim}. This is essentially the same as the summary for \class{MizerParams} objects, but includes information on the simulation time parameters.
@@ -1677,7 +1683,7 @@ Here we reduce \args{t\_save} to 0.5, meaning that the effort and abundance info
 
 ```{r label=simple_proj_tsave05}
 sim <- project(params_gears, effort = 1, t_max = 10, dt = 0.1, t_save = 0.5)
-head(sim```effort)
+head(sim@effort)
 ```
 
 ### Setting constant effort for different gears
@@ -1686,7 +1692,7 @@ head(sim```effort)
 As mentioned above, we can also set the effort values for each gear separately using a vector of effort values. This still keeps the efforts constant through time but it means that each gear can have a different constant effort.
 
 Here we will use the \class{MizerParams} object with four gears, \args{params\_gears}, that we created in Section~\@ref(sec:setting_different_gears).
-The names of the gears are \Sexpr{paste(unique(params_gears```species_params$gear), collapse = ", ")}.
+The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 We need to create a named vector of effort, where the names match the gears.
 For example, here we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, set the effort of the beam trawl gears to 0.3 and the effort of the otter trawl gear to 0.7.
 We set the \args{effort} like this: 
@@ -1699,7 +1705,7 @@ We then call \code{project()} with this effort and inspect the resulting \args{e
 
 ```{r label=project_effort_vector}
 sim <- project(params_gears, effort = effort, t_max = 10, dt = 1, t_save = 1)
-head(sim```effort)
+head(sim@effort)
 ```
 
 You can see that the effort for each gear is constant but each gear has the effort that was specified in the \args{effort} argument.
@@ -1729,7 +1735,7 @@ the earliest time in the effort array to the latest.
 
 Here, we will use the \args{params\_gears} object we created in 
 Section~\@ref(sec:setting_different_gears) which has four gears.
-The names of the gears are \Sexpr{paste(unique(params_gears```species_params$gear), collapse = ", ")}.
+The names of the gears are \Sexpr{paste(unique(params_gears@species_params$gear), collapse = ", ")}.
 
 In this example, we will project forward from time $t=1$ to time $t=10$. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
 
@@ -1761,7 +1767,7 @@ Now we can use this effort array in the projection:
 
 ```{r label=project_effort_array}
 sim <- project(params_gears,effort=effort_array, dt=0.1, t_save = 1)
-head(sim```effort)
+head(sim@effort)
 ```
 
 As you can see, it can be quite fiddly to set up a complicated effort array so it may be easier to prepare it in advance as a .csv file and read it in, similar to how we read in the interaction matrix in Section~\@ref(sec:params_example).
@@ -1787,16 +1793,16 @@ We have seen in previous sections that a \class{MizerSim} object is made up of v
 
 The projected species abundances at size through time can be seen in the \args{n} slot.  This is a three-dimensional array (time x species x size).
 Consequently, this array can get very big so inspecting it can be difficult.
-In the example we have just run the time dimension of the \args{n} slot has \Sexpr{dim(sim```n)[1]} rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the \code{dim()} function and looking at the dimensions of the \args{n} array:
+In the example we have just run the time dimension of the \args{n} slot has \Sexpr{dim(sim@n)[1]} rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the \code{dim()} function and looking at the dimensions of the \args{n} array:
 
 ```{r label=show_dim_n}
-dim(sim```n)
+dim(sim@n)
 ```
 
 To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:
 
 ```{r results='hide'}
-sim```n[,"Cod",]
+sim@n[,"Cod",]
 ```
 
 This returns a two-dimensional array: time x size, containing the cod abundances. The time dimension depends on the value of the argument \args{t\_save} when \code{project()} was run. You can see that even though we specified \args{dt} to be 0.1 when we called \code{project()}, the \args{t\_save} argument had means that the output is only saved every time step.
@@ -2409,10 +2415,10 @@ params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
 sim_trait <- project(params_trait,
-                     initial_n = sim_trait_initial```n[dim(
-                         sim_trait_initial```n)[1],,],
+                     initial_n = sim_trait_initial@n[dim(
+                         sim_trait_initial@n)[1],,],
                      initial_n_pp = sim_trait_initial```
-                         n_pp[dim(sim_trait_initial```n_pp)[1],], t_max=15,
+                         n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
                      effort = 1)
 params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                             min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
@@ -2471,10 +2477,10 @@ params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
 sim_trait <- project(params_trait,
-                     initial_n = sim_trait_initial```n[dim(
-                         sim_trait_initial```n)[1],,],
+                     initial_n = sim_trait_initial@n[dim(
+                         sim_trait_initial@n)[1],,],
                      initial_n_pp = sim_trait_initial```
-                         n_pp[dim(sim_trait_initial```n_pp)[1],], t_max=15,
+                         n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
                      effort = 1)
 plotBiomass(sim_trait)
 ```
@@ -2868,12 +2874,12 @@ params_bg_m <- addSpecies(params_bg, species_params, SSB = 2800, effort=0.4,
                 rfac = 1.01)
 ```
 
-This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{addSpecies()} command attempts to construct a new approximate steady state (\args{params\_out```initial\_n})
+This code creates a new \class{MizerParams} object containing the original background species and the new foreground species, mullet. The \code{addSpecies()} command attempts to construct a new approximate steady state (\args{params\_out@initial\_n})
 including the new species. 
 
 %This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight \args{min\_w\_observed} is \args{biomass}), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
 
-%The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is negligible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out```initial\_n}
+%The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of \args{biomass}) is negligible compared to the abundance of the background species. As one increases the value of \args{biomass} this approximation becomes less acceptable, and the initial condition given by \args{params\_out@initial\_n}
 %will be further from a steady state. Another problem with setting the value of \args{biomass} too high is that if the abundance of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of \args{biomass} of the species one wishes to add) is to increase the value of \args{kappa} in the \code{set\_scaling\_model()} command. 
 
 The stock recruitment relationship can be controlled by setting the value of \args{r\_fac}, as described in Subsection \@ref(subsec:bullets).
