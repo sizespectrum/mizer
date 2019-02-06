@@ -10,14 +10,18 @@ getMeanMaxWeight(sim, species = 1:nrow(sim@params@species_params),
 \arguments{
 \item{sim}{An object of class \code{MizerSim}.}
 
-\item{species}{numeric or character vector of species to include in the calculation.}
+\item{species}{numeric or character vector of species to include in the
+calculation.}
 
 \item{measure}{The measure to return. Can be 'numbers', 'biomass' or 'both'}
 
-\item{...}{Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.}
+\item{...}{Other arguments for the \code{\link{getN}} and
+\code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
+\code{min_l} and \code{max_l}.}
 }
 \value{
-A matrix or vector containing the mean maximum weight of the community through time
+A matrix or vector containing the mean maximum weight of the
+  community through time
 }
 \description{
 Calculates the mean maximum weight of the community through time. This can be
