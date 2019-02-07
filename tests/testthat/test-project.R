@@ -1,36 +1,45 @@
 context("project method")
 
+data(NS_species_params_gears)
+data(inter)
+params <- MizerParams(NS_species_params_gears, inter)
+
 test_that("time dimension is dealt with properly",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
 
     # Effort is a single numeric
     # If dt and t_save don't match
-    expect_error(project(params,effort=1,t_save=3,dt=2, t_max = 10))
+    expect_error(project(params, effort = 1, t_save = 3, dt = 2, t_max = 10))
 
     t_max <- 5
     t_save <- 1
     dt <- 0.1
     sim <- project(params,t_max=t_max,t_save=t_save, dt = dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
+    expect_equal(dim(sim@effort)[1], length(seq(from = 0, to = t_max, by = t_save)))
+    expect_equal(dim(sim@n)[1], length(seq(from = 0, to = t_max, by = t_save)))
+    expect_identical(dimnames(sim@effort)[[1]], 
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
+    expect_identical(dimnames(sim@n)[[1]], 
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
     dt <- 0.5
     t_save <- 2
     sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dim(sim@n)[1], equals(length(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
+    expect_equal(dim(sim@effort)[1],
+                 length(seq(from = 0, to = t_max, by = t_save)))
+    expect_equal(dim(sim@n)[1],
+                 length(seq(from = 0, to = t_max, by = t_save)))
+    expect_identical(dimnames(sim@effort)[[1]],
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
+    expect_identical(dimnames(sim@n)[[1]],
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
     t_save <- 0.5
     dt <- 0.5
-    sim <- project(params,t_max=t_max,t_save=t_save, dt=dt, effort = 1)
-    expect_that(dim(sim@effort)[1], equals(t_max/t_save + 1))
-    expect_that(dim(sim@n)[1], equals(t_max/t_save + 1))
-    expect_that(dimnames(sim@effort)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
-    expect_that(dimnames(sim@n)[[1]], is_identical_to(as.character(seq(from = 0, to = t_max, by = t_save))))
+    sim <- project(params, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
+    expect_equal(dim(sim@effort)[1], t_max/t_save + 1)
+    expect_equal(dim(sim@n)[1], t_max/t_save + 1)
+    expect_identical(dimnames(sim@effort)[[1]],
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
+    expect_identical(dimnames(sim@n)[[1]],
+                     as.character(seq(from = 0, to = t_max, by = t_save)))
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
@@ -147,9 +156,6 @@ test_that("time dimension is dealt with properly",{
 })
 
 test_that("Can pass in initial species",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
     max_t_effort <- 10
@@ -170,9 +176,6 @@ test_that("Can pass in initial species",{
 })
 
 test_that("get_initial_n is working properly",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
     for(i in 1:no_sp){
@@ -190,13 +193,11 @@ test_that("get_initial_n is working properly",{
 })
 
 test_that("w_min array reference is working OK",{
-    data(NS_species_params_gears)
-    data(inter)
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
-    params <- MizerParams(NS_species_params_gears, inter)
-    sim <- project(params, effort=1, t_max=5)
-    expect_that(all(sim@n[6,1,1:(sim@params@w_min_idx[1]-1)]==0),is_true())
+    params2 <- MizerParams(NS_species_params_gears, inter)
+    sim <- project(params2, effort=1, t_max=5)
+    expect_that(all(sim@n[6,1,1:(sim@params2@w_min_idx[1]-1)]==0),is_true())
 })
 
 test_that("Gear checking and sorting is OK",{
@@ -337,4 +338,9 @@ test_that("Analytic steady-state solution is well approximated",{
   # so we only test the others
   skip("Does not work yet")
   expect_lt(max(relative_error[1:(no_w-1)]), 0.02)
+})
+
+test_that("Simulation gives same numerical results as previously",{
+  params <- MizerParams(NS_species_params_gears, inter)
+  sim <- project
 })
