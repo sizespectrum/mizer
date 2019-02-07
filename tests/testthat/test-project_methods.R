@@ -102,22 +102,22 @@ test_that("getFeedingLevel for MizerParams", {
     fl <- getFeedingLevel(params, n, n_full)
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
-    # test value
-    expect_known_value(fl, "values/getFeedingLevel")
     # A crap test - just returns what's already in the method
     avail_energy <- getAvailEnergy(params, n = n, n_pp = n_full)
     encount <- params@search_vol * avail_energy
     f <- encount / (encount + params@intake_max)
     expect_identical(fl, f)
     # passing in avail_energy gives the same as not
-    fl1 <- getFeedingLevel(params, n, n_full)
     avail_energy <- getAvailEnergy(params, n, n_full)
     fl2 <- getFeedingLevel(params, n, n_full, avail_energy = avail_energy)
-    expect_identical(fl1, fl2)
+    expect_identical(fl, fl2)
+    # test value
+    expect_known_value(fl, "values/getFeedingLevel")
     # calling with avail_energy of wrong dimension gives error
     avail_energy = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
     expect_error(getFeedingLevel(params, n, n_full, avail_energy = avail_energy),
-                 'avail_energy argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)')
+                 'avail_energy argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
+    )
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -143,6 +143,18 @@ test_that("getFeedingLevel approximates analytic result", {
 
 
 # getPredRate -------------------------------------------------------------
+
+test_that("getPredRate for MizerParams", {
+    pr <- getPredRate(params, n, n_full)
+    # test dim
+    expect_identical(dim(pr), c(no_sp, no_w_full))
+    # passing in feeding level gives the same as not
+    fl <- getFeedingLevel(params, n, n_full)
+    pr2 <- getPredRate(params, n, n_full, feeding_level = fl)
+    expect_identical(pr, pr2)
+    # test value
+    expect_known_value(pr, "values/getPredRate")
+})
 
 test_that("getPredRate approximates analytic result", {
     skip("Still need to understand this.")
@@ -205,7 +217,8 @@ test_that("getPredRate gives similar result as old code", {
     w <- params@w
     w_full <- params@w_full
     pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-    pk <- exp(-0.5 * sweep(log(sweep(sweep(pk, 3, w_full, "*") ^ -1, 2, w, "*")), 1, sigma, "/") ^ 2)
+    pk <- exp(-0.5 * sweep(log(sweep(sweep(pk, 3, w_full, "*") ^ -1, 2, w, "*")), 
+                           1, sigma, "/") ^ 2)
     # find out the untrues and then multiply
     pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
     
@@ -355,6 +368,7 @@ test_that("getFmortGear", {
     expect_identical(f3[, gear, sp, widx],
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
+    expect_known_value(f3, "values/getFMortGear")
 })
 
 
@@ -390,6 +404,7 @@ test_that("getFMort", {
     expect_equal(f1, fmg11)
     expect_equal(f2, fmg22)
     expect_equal(f3, fmg33)
+    expect_known_value(f1, "values/getFMort")
 })
 
 
@@ -409,9 +424,9 @@ test_that("getMort", {
     expect_equal(z1, z[1, ], check.names = FALSE)
     # Passing in M2 gives the same
     m2 <- getPredMort(params, n, n_full)
-    z1 <- getMort(params, n, n_full, effort = effort2)
     z2 <- getMort(params, n, n_full, effort = effort2, m2 = m2)
-    expect_identical(z1, z2)
+    expect_identical(z, z2)
+    expect_known_value(z, "values/getMort")
 })
 
 
@@ -430,16 +445,15 @@ test_that("getEReproAndGrowth", {
     expect_identical(e, erg[1, ])
     # Adding feeding level gives the same result
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
-    erg1 <- getEReproAndGrowth(params, n, n_full)
     erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
-    expect_identical(erg1, erg2)
+    expect_identical(erg, erg2)
+    expect_known_value(erg, "values/getEReproAndGrowth")
 })
 
 
 # getERepro ------------------------------------------------------------
 
 test_that("getERepro", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     es <- getERepro(params, n, n_full)
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
@@ -450,17 +464,16 @@ test_that("getERepro", {
     expect_identical(e_growth, e - es)
     # Including ESpawningAndGrowth gives the same
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    es1 <- getERepro(params, n, n_full)
     es2 <- getERepro(params, n, n_full, e = e)
-    expect_identical(es1, es2)
+    expect_identical(es, es2)
+    expect_known_value(es, "values/getERepro")
 })
 
 
 # getRDI ------------------------------------------------------------------
 
 test_that("getRDI", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    sex_ratio <- 0.5
+    sex_ratio <- 0.4
     rdi <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     # test dim
     expect_length(rdi, no_sp)
@@ -472,10 +485,10 @@ test_that("getRDI", {
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
     e_repro <- getERepro(params, n = n, n_pp = n_full)
-    rdi1 <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
                    e_repro = e_repro)
-    expect_identical(rdi1, rdi2)
+    expect_identical(rdi, rdi2)
+    expect_known_value(rdi, "values/getRDI")
 })
 
 
@@ -489,13 +502,13 @@ test_that("getRDD", {
     expect_identical(rdd, rdd2)
     rdd2 <- params@srr(rdi = rdi, species_params = params@species_params)
     expect_identical(rdd, rdd2)
+    expect_known_value(rdd, "values/getRDD")
 })
 
 
 # getEGrowth --------------------------------------------------------------
 
 test_that("getEGrowth is working", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     e_repro <- getERepro(params, n = n, n_pp = n_full)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
@@ -503,6 +516,7 @@ test_that("getEGrowth is working", {
                       e_repro = e_repro)
     expect_identical(eg1, eg2)
     expect_identical(e - e_repro, eg1)
+    expect_known_value(eg1, "values/getEGrowth")
 })
 
 
