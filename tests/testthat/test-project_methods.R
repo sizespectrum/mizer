@@ -14,6 +14,7 @@ no_w_full <- length(params@w_full)
 sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
 
 # Random abundances
+set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_full <- abs(rnorm(no_w_full))
 
@@ -101,6 +102,8 @@ test_that("getFeedingLevel for MizerParams", {
     fl <- getFeedingLevel(params, n, n_full)
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
+    # test value
+    expect_known_value(fl, "values/getFeedingLevel")
     # A crap test - just returns what's already in the method
     avail_energy <- getAvailEnergy(params, n = n, n_pp = n_full)
     encount <- params@search_vol * avail_energy
@@ -229,6 +232,7 @@ test_that("getPredRate gives similar result as old code", {
 
 test_that("getPredMort for MizerParams", {
     # Randomize selectivity and catchability for proper test
+    set.seed(0)
     params@catchability[] <-
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-
@@ -244,6 +248,8 @@ test_that("getPredMort for MizerParams", {
     expect_identical(dim(m21), c(no_sp, no_w))
     expect_identical(dim(m21), c(no_sp, no_w))
     expect_equal(m22[1, ], m21[1, ])
+    # test value
+    expect_known_value(m21, "values/getPredMort")
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
@@ -297,6 +303,8 @@ test_that("getPlanktonMort", {
     m2b1 <- getPlanktonMort(params, n, n_full)
     m2b2 <- getPlanktonMort(params, n, n_full, pred_rate = pr)
     expect_identical(m2b1, m2b2)
+    # test value
+    expect_known_value(m2b1, "values/getPlanktonMort")
 })
 
 
@@ -307,6 +315,7 @@ test_that("getFmortGear", {
     # MizerParams + numeric
     # MizerParams + matrix
     # Randomize selectivity and catchability for proper test
+    set.seed(0)
     params@catchability[] <-
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-

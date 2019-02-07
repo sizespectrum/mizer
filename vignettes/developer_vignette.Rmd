@@ -134,7 +134,11 @@ An object of class 'MizerParams' holds all the information needed for the
 ## Always write tests for your code
 We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+The test are in the directory `tests/testthat`. 
 
+Some tests check that code produces the same numerical values as in the
+past with the `expect_known_value()` function. This is set up to store
+the correct values in files in `tests/testthat/values`.
 
 
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd)
