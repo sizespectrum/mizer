@@ -88,6 +88,7 @@ getEnergy <- function(object, n, n_pp, B = 0) {
             c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
         # Eating the background
         # This line is a bottle neck
+        # TODO: extend this to use interaction_p
         phi_prey_background <- rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
@@ -95,15 +96,15 @@ getEnergy <- function(object, n, n_pp, B = 0) {
                    B * object@rho)
     }
 
-    prey <- matrix(0, nrow = dim(n)[1], ncol = length(object@w_full))
+    prey <- outer(object@interaction_p, n_pp)
     # Looking at Equation (3.4), for available energy in the mizer vignette,
     # we have, for our predator species i, that prey[k] equals
     # the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])
-    prey[, idx_sp] <- object@interaction %*% n
+    prey[, idx_sp] <- prey[, idx_sp] + object@interaction %*% n
     # The vector f2 equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
     # We work in log-space so an extra multiplier w_p is introduced.
-    f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
+    f2 <- sweep(prey, 2, object@w_full^2, "*")
     # Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
     # We approximate the integral by the trapezoidal method. Using the
     # convolution theorem we can evaluate the resulting sum via fast fourier

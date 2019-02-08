@@ -259,6 +259,8 @@ validMizerParams <- function(object) {
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
+#' @slot interaction_p The species specific interaction with plankton,
+#'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot resource_eqn Function to calculate the biomasses of the unstructured
@@ -319,6 +321,7 @@ setClass(
         initial_n_pp = "numeric",
         species_params = "data.frame",
         interaction = "array",
+        interaction_p = "numeric",
         srr  = "function",
         resource_eqn = "function",
         selectivity = "array",
@@ -364,7 +367,8 @@ setClass(
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
-        ), # which dimension is prey and which is prey?
+        ),
+        interaction_p = NA_real_,
         selectivity = array(
             NA, dim = c(1,1,1), dimnames = list(gear = NULL, sp = NULL, w = NULL)
         ),
@@ -515,6 +519,9 @@ emptyParams <-
     interaction <- array(1, dim = c(no_sp, no_sp), 
                          dimnames = list(predator = species_names, 
                                          prey = species_names))
+    interaction_p <- rep(1, no_sp)
+    names(interaction_p) <- species_names
+    
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
     w_min_idx <- rep(1, no_sp)
@@ -575,8 +582,8 @@ emptyParams <-
                selectivity = selectivity, catchability = catchability,
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
                species_params = species_params,
-               interaction = interaction, srr = srr,
-               resource_eqn = resource_eqn,
+               interaction = interaction, interaction_p = interaction_p,
+               srr = srr, resource_eqn = resource_eqn,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
     return(res)
