@@ -4,7 +4,7 @@
 \alias{getEnergy}
 \title{Get energy}
 \usage{
-getEnergy(object, n, n_pp)
+getEnergy(object, n, n_pp, B = 0)
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}
@@ -12,6 +12,8 @@ getEnergy(object, n, n_pp)
 \item{n}{A matrix of species abundances (species x size)}
 
 \item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 }
 \value{
 A two dimensional array (predator species x predator size)

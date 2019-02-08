@@ -43,6 +43,9 @@ each species at size.}
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
 each species at size.}
 
+\item{\code{rho}}{An array (species x unstructured resources) of the encounter
+rates for unstructured resources}
+
 \item{\code{metab}}{An array (species x size) that holds the metabolism
 for each species at size.}
 
@@ -70,8 +73,14 @@ carrying capacity of the plankton spectrum.}
 
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}}
 
+\item{\code{interaction_p}}{The species specific interaction with plankton,
+\eqn{\theta_{ip}}}
+
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
+
+\item{\code{resource_eqn}}{Function to calculate the biomasses of the unstructured
+resources at the next time step}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \eqn{S_{g,i,w}}}

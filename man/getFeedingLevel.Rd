@@ -4,7 +4,8 @@
 \alias{getFeedingLevel}
 \title{Get feeding level}
 \usage{
-getFeedingLevel(object, n, n_pp, energy, time_range, drop = FALSE)
+getFeedingLevel(object, n, n_pp, B = 0, energy, time_range,
+  drop = FALSE)
 }
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object}
@@ -14,6 +15,8 @@ getFeedingLevel(object, n, n_pp, energy, time_range, drop = FALSE)
 
 \item{n_pp}{A vector of the plankton abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{energy}{The energy matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally

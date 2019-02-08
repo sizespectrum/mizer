@@ -4,8 +4,9 @@
 \alias{getEGrowth}
 \title{Get energy rate available for growth}
 \usage{
-getEGrowth(object, n, n_pp, e_repro = getERepro(object, n = n, n_pp =
-  n_pp), e = getEReproAndGrowth(object, n = n, n_pp = n_pp))
+getEGrowth(object, n, n_pp, B = 0, e_repro = getERepro(object, n = n,
+  n_pp = n_pp, B = B), e = getEReproAndGrowth(object, n = n, n_pp = n_pp,
+  B = B))
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object.}
@@ -13,6 +14,8 @@ getEGrowth(object, n, n_pp, e_repro = getERepro(object, n = n, n_pp =
 \item{n}{A matrix of species abundance (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
@@ -23,6 +26,8 @@ size bins. If not supplied, is calculated internally using the
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
 the \code{\link{getEReproAndGrowth}} method.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 }
 \value{
 A two dimensional array (prey species x prey size)

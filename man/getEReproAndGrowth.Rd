@@ -4,8 +4,8 @@
 \alias{getEReproAndGrowth}
 \title{Get energy after metabolism and movement}
 \usage{
-getEReproAndGrowth(object, n, n_pp,
-  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp))
+getEReproAndGrowth(object, n, n_pp, B = 0,
+  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -13,6 +13,8 @@ getEReproAndGrowth(object, n, n_pp,
 \item{n}{A matrix of species abundance (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally

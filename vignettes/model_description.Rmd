@@ -97,6 +97,19 @@ in the absence of predation, stored as a vector
 in the subsection [Plankton mortality].
 
 
+## Unstructured components
+Besides the size spectra of fish and plankton, mizer can also model 
+unstructured components of the ecosystem.
+Such unstructured components are appropriate whenever the
+predation on this component is not size based. Examples include a detritus 
+pool, biomass of dead animals, or biomass of plants on which fish can graze.
+Mizer allows an arbitrary number of unstructured components. We will use
+an index $d$ for these components. The biomass of the $d$th component is
+denoted by $B_d$. 
+The rate of change in biomasses is described by ODEs
+\[\frac{d}{dt}B_d = \]
+
+
 ## Encounter rates
 We first discuss the rates at which fish could predate if they were not
 subject to satiation. We refer to these as encounter rates. We will 
@@ -113,8 +126,12 @@ is encountered by a predator of species $i$ and weight $w$  is obtained by
 integrating and summing over all possible prey, weighted by their biomass:
 \[\begin{split}
 E_{e.i}(w) = &\sum_j\int \gamma_{ij}(w,w_p)\, N_j(w_p)\,w_p\,dw_p\\
-&+\int \gamma_{iR}(w,w_p)\, N_R(w_p)\,w_p\,dw_p.
+&+\int \gamma_{iR}(w,w_p)\, N_R(w_p)\,w_p\,dw_p\\
+&+\sum_d\rho_{id}(w)\,B_d,
 \end{split}\]
+where we also included a term describing the feeding on the unstructured
+resource components depending linearly on their biomasses $B_d$ with
+rate coefficients $\rho_{id}(w)$.
 
 The per capita encounter rate $\phi_{ij}(w, w_p)$ is assumed to factorize as 
 \[\gamma_{ij}(w, w_p)=\theta_{ij}\,\gamma_i(w,w_p)\] 

@@ -239,6 +239,8 @@ validMizerParams <- function(object) {
 #'   each species at size.
 #' @slot search_vol An array (species x size) that holds the search volume for
 #'   each species at size.
+#' @slot rho An array (species x unstructured resources) of the encounter
+#'   rates for unstructured resources
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -259,6 +261,8 @@ validMizerParams <- function(object) {
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
+#' @slot resource_eqn Function to calculate the biomasses of the unstructured
+#'   resources at the next time step
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}
 #' @slot catchability An array (gear x species) that holds the catchability of
@@ -304,6 +308,7 @@ setClass(
         initial_n = "array",
         intake_max = "array",
         search_vol = "array",
+        rho = "array",
         metab = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
@@ -315,6 +320,7 @@ setClass(
         species_params = "data.frame",
         interaction = "array",
         srr  = "function",
+        resource_eqn = "function",
         selectivity = "array",
         catchability = "array",
         n = "numeric",
@@ -343,6 +349,7 @@ setClass(
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        rho = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
@@ -431,6 +438,7 @@ setClass("MizerParamsVariablePPMR",
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
+#' @param resource_names Names of unstructured resources
 #' 
 #' @return An empty but valid MizerParams object
 #' 
@@ -438,7 +446,8 @@ setClass("MizerParamsVariablePPMR",
 emptyParams <- 
     function(no_sp, min_w = 0.001, # w_full = NA,
              max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
-             species_names = 1:no_sp, gear_names = species_names) {
+             species_names = 1:no_sp, gear_names = species_names,
+             resource_names = NULL) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
@@ -523,6 +532,20 @@ emptyParams <-
     # Make an empty srr function, just to pass validity check
     srr <- function(rdi, species_params) return(0)
     
+    ## Unstructured resources
+    if (is.null(resource_names)) {
+        rho <- array(0, dim = 0)
+        resource_eqn <- function()0
+    } else {
+        no_res <- length(resource_names)
+        rho <- array(NA, dim = c(no_sp, no_res, no_w), 
+                          dimnames = list(sp = species_names, 
+                                          res = resource_names,
+                                          w = signif(w,3)))
+        resource_eqn <- rep(function(params, n, n_pp, B, rates) return(B),
+                            no_res)
+    }
+    
     # Make colour and linetype scales for use in plots
     # Colour-blind-friendly palettes
     # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
@@ -546,12 +569,14 @@ emptyParams <-
     res <- new("MizerParams",
                w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
                psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1,
+               rho = rho,
                metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
                ft_pred_kernel_p = ft_pred_kernel_p,
                selectivity = selectivity, catchability = catchability,
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
                species_params = species_params,
-               interaction = interaction, srr = srr, 
+               interaction = interaction, srr = srr,
+               resource_eqn = resource_eqn,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
     return(res)

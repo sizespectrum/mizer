@@ -4,8 +4,8 @@
 \alias{getRDD}
 \title{Get density dependent recruitment}
 \usage{
-getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n,
-  n_pp = n_pp, sex_ratio = sex_ratio))
+getRDD(object, n, n_pp, B = 0, sex_ratio = 0.5, rdi = getRDI(object,
+  n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio))
 }
 \arguments{
 \item{object}{An \code{MizerParams} object}
@@ -13,6 +13,8 @@ getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n,
 \item{n}{A matrix of species abundance (species x size)}
 
 \item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}

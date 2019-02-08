@@ -413,7 +413,7 @@ test_that("getMort", {
     no_gear <- dim(params@catchability)[1]
     effort1 <- 0.5
     effort2 <- rep(effort1, no_gear)
-    z <- getMort(params, n, n_full, effort2)
+    z <- getMort(params, n, n_full, effort = effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
     # Look at numbers in species 1
@@ -543,7 +543,7 @@ test_that("project methods return objects of correct dimension when community on
     expect_equal(dim(getFMort(params, 0)), c(1, no_w)) # 2D species x size
     expect_equal(dim(getFMort(params, matrix(c(0, 0), nrow = 2))), 
                      c(2, 1, no_w)) # 3D time x species x size
-    expect_equal(dim(getMort(params, n, n_pp, 0)), c(1, no_w))
+    expect_equal(dim(getMort(params, n, n_pp, effort = 0)), c(1, no_w))
     expect_equal(dim(getEReproAndGrowth(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getERepro(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getEGrowth(params, n, n_pp)), c(1, no_w))

@@ -4,8 +4,8 @@
 \alias{getPlanktonMort}
 \title{Get predation mortality rate for plankton}
 \usage{
-getPlanktonMort(object, n, n_pp, pred_rate = getPredRate(object, n = n,
-  n_pp = n_pp))
+getPlanktonMort(object, n, n_pp, B = 0, pred_rate = getPredRate(object,
+  n = n, n_pp = n_pp, B = B))
 }
 \arguments{
 \item{object}{A \code{MizerParams} object.}
@@ -13,6 +13,8 @@ getPlanktonMort(object, n, n_pp, pred_rate = getPredRate(object, n = n,
 \item{n}{A matrix of species abundance (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
