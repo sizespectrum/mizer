@@ -305,6 +305,7 @@ In the multispecies model individual species are resolved in detail and each has
 All three models predict abundance, biomass and yield as well as predation and mortality rates at size. They are useful for establishing baselines of abundance of unexploited communities, for understanding how fishing impacts aquatic communities and for testing indicators that are being developed to support an ecosystem approach to fisheries management.  Which model to use in a specific case depends on needs and on the amount of information available to calibrate the model.  The multi-species model could be set up for most systems where calibration parameters can be estimated.  This requires a lot of insight and data.  If the parameters are just guesstimates the results of the multi-species model will be no more accurate than the results from the trait-based model.  In such situations we therefore recommend the use of the trait-based model, even though it only provides general information about the asymptotic size distribution and not about specific species.  The community model is useful for large-scale community-level questions where only the average spectrum is needed. Care should be taken when the community model is used to infer the dynamical properties of marine ecosystems, since it is prone to unrealistically strong oscillations due to the lack of dampening effects provided by the life-history diversity in the trait-based and multi-species models \citep{zhang_trait_2013}. 
 
 %------------------------------------------------------
+
 # Implementing a community-type model {#sec:comm_model}
 
 ## Introduction {#sec:community_model_intro}
@@ -395,7 +396,7 @@ The resulting object, \code{sim}, is of type \class{MizerSim}. This class holds 
 
 After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic \code{plot()} method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\@ref(fig:plot_comm_demo)) Each of the plots can be show individually if desired.
 
-```{r plot_comm_sim, eval=FALSE}
+```{r plot_comm_sim}
 plot(sim)
 ```
 
@@ -466,7 +467,7 @@ sim1 <- project(params_knife, effort = 1, t_max = 50)
 
 You can compare the difference between these scenarios by using the \code{plot()} method as before (Figure~\@ref(fig:plot_comm_fmort)). Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
-```{r label=plot_comm_fmort, eval=FALSE}
+```{r label=plot_comm_fmort}
 plot(sim1)
 ```
 
@@ -493,7 +494,7 @@ relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 This can then be plotted (Figure~\@ref(fig:plot_relative_comm_abund)) using basic \R plotting commands.
 The sizes are stored in the \code{params@w} slot (a slot of a slot!).
 
-```{r label=plot_relative_comm_abund, eval=FALSE}
+```{r label=plot_relative_comm_abund}
 plot(x=sim0@params@w, y=relative_abundance, log="x", type="n",
     xlab = "Size (g)", ylab="Relative abundance")
 lines(x=sim0@params@w, y=relative_abundance)
@@ -534,7 +535,7 @@ sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
 
 Let's take a look at how the abundances change through time. We can do this with the \code{plotBiomass()} method:
 
-```{r label=plot_comm_biomass_sigma1, eval=FALSE}
+```{r label=plot_comm_biomass_sigma1}
 plotBiomass(sim_sigma1)
 ```
 
@@ -549,6 +550,7 @@ plotBiomass(sim_sigma1)
 Figure~\@ref(fig:plot_comm_biomass_sigma1) shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see Section~\@ref(sec:trait_based_model)) is implemented, the magnitude of the oscillations are much smaller.
 
 %-----------------------------------------------------------------------
+
 # Implementing a trait-based model {#sec:trait_based_model}
 
 ## Introduction
@@ -608,7 +610,7 @@ sim <- project(params, t_max=75, effort = 0)
 This results in a \class{MizerSim} object which contains the abundances of the community and resource spectra through time, as well as the original \class{MizerParams} object.
 As with the community model, we can get a quick overview of the results of the simulation by calling the generic \code{plot()} method:
 
-```{r plot_comm_sim_2, eval=FALSE}
+```{r plot_comm_sim_2}
 plot(sim)
 ```
 
@@ -656,7 +658,7 @@ sim1 <- project(params_knife, effort = 0.75, t_max = 75)
 
 Again, we can plot the summary of the fished community using the default \code{plot()} function (Figure \@ref(fig:plot_trait_fmort)). The knife-edge selectivity at 1000 g can be clearly seen in the fishing mortality panel:
 
-```{r label=plot_trait_fmort, eval=FALSE}
+```{r label=plot_trait_fmort}
 plot(sim1)
 ```
 
@@ -691,7 +693,7 @@ relative_abundance <- total_abund1 / total_abund0
 
 Which can be plotted using (Figure~\@ref(fig:plot_relative_comm_abund2)):
 
-```{r label=plot_relative_comm_abund2, eval=FALSE}
+```{r label=plot_relative_comm_abund2}
 plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
@@ -719,7 +721,7 @@ m2_with_fishing <- getM2(sim1)[76,1,]
 
 The predation mortalities can then be plotted (see Figure \@ref(fig:plot_m2_comm)).
 
-```{r label=plot_relative_trait_m2, eval=FALSE}
+```{r label=plot_relative_trait_m2}
 plot(x = sim0@params@w, y = m2_no_fishing, log="x", type="n", xlab = "Size (g)",
     ylab = "M2")
 lines(x = sim0@params@w, y = m2_no_fishing, lty=2)
@@ -801,7 +803,7 @@ sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = 0.5)
 
 By plotting this you can see that the fishing mortality for each species now has a different selectivity pattern (Figure~\@ref(fig_trait_multi_gear_single_effort)), and that the position of the selectivity knife-edge is given by the asymptotic size of the species.
 
-```{r label=plot_multi_gear_trait_single_effort, eval=FALSE}
+```{r label=plot_multi_gear_trait_single_effort}
 plot(sim_multi_gear)
 ```
 
@@ -825,7 +827,7 @@ sim_multi_gear <- project(params_multi_gear, t_max = 75,
 
 Now you can see that the ``Industrial'' gear has been operating and that fishing mortality for species larger than 500 g is 0 (Figure~\@ref(fig_trait_multi_gear)).
 
-```{r label=plot_multi_gear_trait, eval=FALSE}
+```{r label=plot_multi_gear_trait}
 plot(sim_multi_gear)
 ```
 
@@ -854,7 +856,7 @@ relative_abundance <- total_abund1 / total_abund0
 
 And plot the relative abundances:
 
-```{r label=plot_relative_comm_abund_industrial, eval=FALSE}
+```{r label=plot_relative_comm_abund_industrial}
 plot(x=sim0@params@w, y=relative_abundance, log="xy", type="n", xlab = "Size (g)",
     ylab="Relative abundance", ylim = c(0.1,10))
 lines(x=sim0@params@w, y=relative_abundance)
@@ -1302,6 +1304,7 @@ We now have all we need to start running projections. Before we get to that thou
 
 
 %-------------------------------------------------------------------------------------
+
 ## Setting different gears {#sec:setting_different_gears}
 
 In the above example, each species is caught by a different gear (named after the species it catches). This is the default when there is no \args{gear} column in the species parameter data.frame.
@@ -1334,6 +1337,7 @@ individual species.
 It also means that after a simulation has been run you can examine the catches by gear.
 
 %-------------------------------------------------------------------------------------
+
 # Running a simulation {#sec:projection}
 
 In the preceding section and in the sections on the community and trait-based models above, we used the \code{project()} method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
@@ -1453,7 +1457,7 @@ sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
 The resulting \args{sim} object is of class \class{MizerSim}.
 At this point we won't explore how the results can be investigated in detail. However, we will use the basic summary plot that you have seen before:
 
-```{r label=plot_basic_ms_sim, eval=FALSE}
+```{r label=plot_basic_ms_sim}
 plot(sim)
 ```
 
@@ -1519,7 +1523,7 @@ You can see that the effort for each gear is constant but each gear has the effo
 This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, \code{plotFMort()}, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step).
 The fishing mortality on each of the species is determined by the effort of the gear that caught it (Figure~\@ref(fig:plotFmort_example)).
 
-```{r label=plotFMort, eval=FALSE}
+```{r label=plotFMort}
 plotFMort(sim)
 ```
 
@@ -1582,6 +1586,7 @@ We give an example of this in Section~\@ref(sec:north_sea_example).
 Note that in this example we set up the effort array so that the effort was set every whole time step (e.g. time = 1, 2, etc). This does not have to be the case and it is possible to set the effort more frequently than that, e.g. at time = 1.0, 1.5, 2.0, 2.5 etc. The only restriction is that the difference between time dimension names must be at least as big as the \args{dt} argument.
 
 %-------------------------------------------------------------
+
 # Exploring the simulation results {#sec:exploring}
 
 In the previous sections we saw how to set up a model and project it forward through time under our desired fishing scenario. The result of running a projection is an object of class \class{MizerSim}. What do we then do?  How can we explore the results of the simulation? In this section we introduce a range of summaries, plots and indicators that can be easily produced using methods included in \pkg{mizer}.
@@ -1759,12 +1764,12 @@ With these plotting methods, it is also possible to specify a different time ste
 
 Using the plotting methods is straightforward. For example, to plot the total biomass of each species against time you use the \code{plotBiomass()} method:
 
-```{r label=plotBiomass, eval=FALSE}
+```{r label=plotBiomass}
 plotBiomass(sim)
 ```
 
 \begin{figure}
-```{r label=print_plotBiomass, echo=FALSE, fig.height=4, fig.keep='last'}
+```{r label=print_plotBiomass, fig.height=4, fig.keep='last'}
 ```{r plotBiomass}
 ```
 \caption{An example of using the \code{plotBiomass()} method.}
@@ -1775,7 +1780,7 @@ As mentioned above, some of the plot methods plot values against size at a point
 For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step.
 Here we plot the abundance spectra (biomass), averaged over time = 5 to 10 (see Figure~\@ref(fig:plotSpectra_example)):
 
-```{r label=plotSpectra_example,eval=FALSE}
+```{r label=plotSpectra_example}
 plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 ```
 
@@ -1789,7 +1794,7 @@ plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 
 As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\@ref(fig:plot_example)). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
 
-```{r label=demo_summary_plot,eval=FALSE}
+```{r label=demo_summary_plot}
 plot(sim)
 ```
 
@@ -1802,6 +1807,7 @@ plot(sim)
 \end{figure}
 
 %------------------------------------------------------------------------------------
+
 # A multispecies model of the North Sea {#sec:north_sea_example}
 
 In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
@@ -1847,7 +1853,7 @@ In this model we want the selectivity pattern to be a sigmoid shape which more a
 The sigmoid selectivity function is expressed in terms of length rather than weight and uses the parameters \args{l25} and \args{l50}, which are the lengths at which 25\% and 50\% of the stock is selected. The length based sigmoid selectivity looks like:
 
 \begin{equation}
-     {#eq:trawl_sel}
+%     {#eq:trawl_sel}
     S_l = \frac{1}{1 + \exp(S1 - S2\ l)}
 \end{equation}
 
@@ -1964,7 +1970,7 @@ sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 Plotting the results, we can see how the biomasses of the stocks change over time (Figure~\@ref(fig:plot_ns_biomass)).
 You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
-```{r label = plot_ns_biomass, eval=FALSE}
+```{r label = plot_ns_biomass}
 plotBiomass(sim)
 ```
 
@@ -2046,7 +2052,7 @@ We can plot the exploited and unexploited indicators, along LFI reference level.
 Here we do it using \pkg{ggplot2} which uses data.frames
 We make three data.frames (one for the time series, one for the unexploited levels and one for the reference level):
 Each data.frame is a data.frame of each of the measures, stacked on top of each other.
-```{r label=plot_ns_indicators, eval = FALSE}
+```{r label=plot_ns_indicators}
 library(ggplot2)
 # Simulated data
 community_plot_data <- rbind(
@@ -2140,7 +2146,7 @@ ssb0 <- getSSB(sim0)["100",]
 
 Now we build a data.frame of the projected SSB for each species, ignoring the transients.
 We make use of the \code{melt()} function in the very useful \pkg{reshape2} package (REF).
-```{r label=projected_ssb_ns, eval=FALSE}
+```{r label=projected_ssb_ns}
 library(reshape2)
 years <- 1967:2050
 ssb1 <- getSSB(sim1)[as.character(years),]
@@ -2209,14 +2215,14 @@ small. Although coexistence can be achieved in this way, it can necessitate
 rather small values of $R_{max.i}$, with major effects on persistence and 
 stability of species.
 
-```{r plot_scale_sense2, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+```{r plot_scale_sense2, echo=FALSE, warning=FALSE, message=FALSE}
 params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
 sim_trait <- project(params_trait,
                      initial_n = sim_trait_initial@n[dim(
                          sim_trait_initial@n)[1],,],
-                     initial_n_pp = sim_trait_initial```
+                     initial_n_pp = sim_trait_initial@
                          n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
                      effort = 1)
 params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
@@ -2271,14 +2277,14 @@ its stock-recruitment relationship is sufficiently strong to boost its
 rate of increase when rare. You can construct 
 Figure~\@ref(fig:plot_biomass_tb_vs_si).1, using the following code:
 
-```{r label=demo_trait_model_insensitive, eval=FALSE, warning=FALSE, message=FALSE}
+```{r label=demo_trait_model_insensitive, warning=FALSE, message=FALSE}
 params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
 sim_trait <- project(params_trait,
                      initial_n = sim_trait_initial@n[dim(
                          sim_trait_initial@n)[1],,],
-                     initial_n_pp = sim_trait_initial```
+                     initial_n_pp = sim_trait_initial@
                          n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
                      effort = 1)
 plotBiomass(sim_trait)
@@ -2295,7 +2301,7 @@ internal dynamics [@rossberg_2013].
 You can construct Figure~\@ref(fig:plot_biomass_tb_vs_si).2, using the 
 following code:
 
-```{r label=demo_scale_model_sensitive, eval=FALSE, warning=FALSE, message=FALSE}
+```{r label=demo_scale_model_sensitive, warning=FALSE, message=FALSE}
 params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                             min_egg = 1e-4, min_w_mat = 10^(0.4), rfac = Inf,
                             knife_edge_size = 100,kappa = 0.005)
@@ -2434,7 +2440,7 @@ sim <- project(params, t_max=5, effort = 0)
 
 We make a plot of the biomass over time (Figure~\@ref(fig:plot_scale_demo)) as follows:
 
-```{r plot_scale_sim, eval=FALSE}
+```{r plot_scale_sim}
 plotBiomass(sim)
 ```
 
@@ -2455,7 +2461,7 @@ We can check that the steady state lies close to a power law by plotting the bio
 densities of the different species, as well as their total, which evidently is close 
 to the power law (Figure~\@ref(fig:plot_scale_demoBS)).
 
-```{r plot_scale_simBS, eval=FALSE}
+```{r plot_scale_simBS}
 plotSpectra(sim, total = TRUE)
 ```
 
@@ -2689,7 +2695,7 @@ sim <- project(params_bg_m, t_max = 25, effort = 0.4)
 
 We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state (Figure~\@ref(fig:plot_mullet_demo)):
 
-```{r plot_mullet_sim, eval=FALSE}
+```{r plot_mullet_sim}
 plotBiomass(sim)
 ```
 
@@ -2703,7 +2709,7 @@ plotBiomass(sim)
 
 We can also visualize the relative abundances of the different species (Figure~\@ref(fig:plot_mullet_demo2)) with the following command:
 
-```{r plot_mullet_sim2, eval=FALSE}
+```{r plot_mullet_sim2}
 plotSpectra(sim)
 ```
 
@@ -2777,7 +2783,7 @@ params_bg_m_h <- addSpecies(params_bg_m, species_params, SSB = 1200,
 We visualize the initial condition, close to steady state (Figure~\@ref(fig:plot_mullet_hake_spectra)) using the following command:
 
 
-```{r plot_mullet_hake_spectra, eval=FALSE}
+```{r plot_mullet_hake_spectra}
 plotSpectra(params_bg_m_h)
 ```
 
@@ -2791,7 +2797,7 @@ plotSpectra(params_bg_m_h)
 
 To see that this is close to a steady state we shall evolve the system and show how biomass changes over time (Figure~\@ref(fig:plot_mullet_hake_biomass)):
 
-```{r plot_mullet_hake_biomass, eval=FALSE}
+```{r plot_mullet_hake_biomass}
 sim <- project(params_bg_m_h, t_max = 50, t_save = 5, effort = 0.4)
 plotBiomass(sim)
 ```
@@ -2813,7 +2819,7 @@ params_bg_m_h2 <- steady(params_bg_m_h, effort = 0.4)
 
 This results in a a configuration very close to a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\@ref(fig:plot_mullet_hake_biomass_steady)):
 
-```{r plot_mullet_hake_biomass_steady, eval=FALSE}
+```{r plot_mullet_hake_biomass_steady}
 sim2 <- project(params_bg_m_h2, t_max = 50, t_save = 5, effort = 0.4)
 plotBiomass(sim2)
 ```
@@ -2874,7 +2880,7 @@ In this section we give some of the more technical details behind the scale-inva
 ## A steady state solution
 Assuming scale invariance allows us to find the following exact analytic expression for a steady state. This corresponds to the following form for the abundance within the discrete approximation to the scale-invariant system implemented by mizer:
 \begin{equation}
- {#eq:steady}
+% {#eq:steady}
 N_i (w,t) = H \left(\frac{w_{0,1}}{w_{0,i}}\right)^{\lambda} \left(\frac{w_{0,i}}{w}\right)^{\mu _0/\hbar} \hbar^{-1} w^{-n} M_i (w)
 \end{equation}
 where 
@@ -2886,7 +2892,7 @@ where
 \end{equation}
 and 
 \begin{equation}
- {#eq:mu0}
+% {#eq:mu0}
  \mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right). 
  \end{equation}
 As the number of species becomes large we have that $\sum_i N_i (w)$ is approximately proportional to $\kappa w^{-\lambda},$  $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$ The constant $H$ is chosen so that $\sum_i N_i (w)$ is approximately equal to $\kappa w^{-\lambda}$ $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$
@@ -2900,7 +2906,7 @@ Although the original trait based model had a similar level of simplicity, and a
 We arrived at our expression for $\mu_b(w)$ by considering that in the steady state of continuous scale-invariant trait based model, the total mortality rate of of individuals is given by the power-law $\mu_0 w^{n-1}$. In the finite system in mizer, individuals are only modelled up to a given size, and so we define $\mu_b(w)$ as the difference between the desired power-law mortality rate, and the predation rate exhibited by explicitly modeled species at our steady state:  
 
 \begin{equation}
-  {#eq:newmub}
+%  {#eq:newmub}
   \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{p.i}(w),0 \}
   \end{equation}
   where $\mu_0$ is given by Equation~\@ref(eq:mu0), and $\mu_{p.i} (w)$ is the predation mortality, given by Equation~\@ref(eq:mup), where the abundance $N$ is the abundance at our steady state, given by Equation~\@ref(eq:steady).  This is done so that (provided we choose parameters so $ \mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0. $) 
@@ -2913,7 +2919,7 @@ We define the carrying capacity $c_p(w)$ of the resource so when our system is a
 combination of the resource spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 This is achieved choosing the carrying capacity of the resource to be 
 \begin{equation} 
- {#eq:cp}
+% {#eq:cp}
 c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}
 \end{equation}
 Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
