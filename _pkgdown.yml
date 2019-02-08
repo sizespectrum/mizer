@@ -36,7 +36,7 @@ articles:
 - title: User Guides
   contents:
   - model_description
-  - Community_model
+  - community_model
 - title: Developer Guides
   contents:
   - developer_vignette
