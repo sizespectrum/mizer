@@ -77,7 +77,7 @@ sim <- project(params, t_max=50, effort = 0)
 
 The resulting object, `sim`, is of type `MizerSim`. This class holds the results of the simulation, including the community and resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\@ref(sec:projection).
 
-After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic `plot()` method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\@ref(fig:plot_comm_demo)) Each of the plots can be show individually if desired.
+After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic `plot()` method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time Each of the plots can be show individually if desired.
 
 
 ```{r label=print_plot_comm_sim, echo=FALSE, fig.height=9, fig.cap="Example plot of the community model."}
@@ -86,7 +86,7 @@ plot(sim)
  {#fig:plot_comm_demo}
 
 
-In Figure~\@ref(fig:plot_comm_demo) there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
+In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
 Fishing mortality is 0 because we set the `effort` argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
 The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the `f0` and `alpha` arguments passed to the `set_community_model()` function.
@@ -109,15 +109,12 @@ To pull out the predation mortality at size in the final time step we use:
 m2[51,]
 ```
 
-If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes (Figure~\@ref(fig:plot_comm_m2)).
+If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes.
 
-\begin{figure}
-```{r label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4}
+```{r label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4,fig.cap="Predation mortality without fishing in the community model (note the log scales for both axes)."}
 plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 ```
-\caption{Predation mortality without fishing in the community model (note the log scales for both axes).}
  {#fig:plot_comm_m2}
-\end{figure}
 
 ## Example of a trophic cascade with the community model {#sec:trophic_cascade_comm_model}
 It is possible to use the community model to simulate a trophic cascade.
@@ -143,19 +140,13 @@ Now we want to simulate again, this time with fishing. In the simulations, fishi
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 ```
 
-You can compare the difference between these scenarios by using the `plot()` method as before (Figure~\@ref(fig:plot_comm_fmort)). Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
+You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
-```{r label=plot_comm_fmort}
+
+```{r label=print_plot_comm_fmort, echo=FALSE, fig.height=9,fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
 plot(sim1)
 ```
-
-\begin{figure}
-```{r label=print_plot_comm_fmort, echo=FALSE, fig.height=9}
-```{r plot_comm_fmort}
-```
-\caption{Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.}
  {#fig:plot_comm_fmort}
-\end{figure}
 
 To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are store in the `n` slot of the `MizerSim` objects. The `n` slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
 
