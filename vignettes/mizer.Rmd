@@ -392,17 +392,12 @@ The resulting object, `sim`, is of type `MizerSim`. This class holds the results
 
 After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic `plot()` method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time (Figure~\@ref(fig:plot_comm_demo)) Each of the plots can be show individually if desired.
 
-```{r plot_comm_sim}
+
+```{r label=print_plot_comm_sim, echo=FALSE, fig.height=9, fig.cap="Example plot of the community model."}
 plot(sim)
 ```
-
-\begin{figure}
-```{r label=print_plot_comm_sim, echo=FALSE, fig.height=9}
-```{r plot_comm_sim}
-```
-\caption{Example plot of the community model.}
  {#fig:plot_comm_demo}
-\end{figure}
+
 
 In Figure~\@ref(fig:plot_comm_demo) there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
 Fishing mortality is 0 because we set the `effort` argument to 0 when running the simulation.
