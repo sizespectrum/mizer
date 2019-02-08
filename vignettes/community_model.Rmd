@@ -26,7 +26,7 @@ To avoid having to make a `MizerParams` object directly, a wrapper function, `se
 
 As can be seen in the help page, the function can take many arguments. These are passed on to the `MizerParams` constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen [here.](multispecies_model.html)
 
-The arguments that you should pay attention to are: `z0` (the level of background mortality), `alpha` (the assimilation efficiency of the community), `f0` (the average feeding level of the community which is used to calculate $\gamma$ in Equation~\@ref(eq:gamma)) and `recruitment` (the level of constant recruitment).
+The arguments that you should pay attention to are: `z0` (the level of background mortality), `alpha` (the assimilation efficiency of the community), `f0` (the average feeding level of the community which is used to calculate $\gamma,$ as described in Equation~\@ref(eq:gamma)) and `recruitment` (the level of constant recruitment).
 
 Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of `z0` is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
 The value of the constant recruitment should be set so that the community spectrum is a continuation of the plankton spectrum. This can be done with trial and error.  A reasonable value for `alpha` is 0.2. 
@@ -42,13 +42,13 @@ Calling the function creates and returns an object of type `MizerParams`. We can
 class(params)
 ```
 
-If you are going through this vignette for the first time, it is likely that you have no idea what a `MizerParams` object actually is. In ``R-speak'' it is an `S4` object, which means it is an object made up of ``slots''. Slots are essentially containers that store the object data. The names of these slots can be seen by calling the `slotNames()` method on the object:
+If you are going through this vignette for the first time, it is likely that you have no idea what a `MizerParams` object actually is. In R-speak it is an *S4* object, which means it is an object made up of *slots*. Slots are essentially containers that store the object data. The names of these slots can be seen by calling the `slotNames()` method on the object:
 
 ```{r label=slots_MP}
 slotNames(params)
 ```
 
-As you can see, the `params` object is made up of lots of slots. They are discussed in detail in Section~\@ref(sec:MizerParams). A quick description can be found in the `MizerParams` help page (run `class ? MizerParams`. The slots of an object are accessed by using the `@` operator. For example, to access the `w` slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the `params` object is made up of lots of slots. They are discussed in detail [here.](multispecies_model.html). A quick description can be found in the `MizerParams` help page (run `class ? MizerParams`. The slots of an object are accessed by using the `@` operator. For example, to access the `w` slot (which contains a vector of the size bins in the model) you would use:
 
 ```{r label=demo_slot_accessor, results='hide'}
 params@w
