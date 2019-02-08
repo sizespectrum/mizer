@@ -2238,7 +2238,7 @@ display_frames(b_trait, b, params)
 
 \begin{figure}
 ```{r label=print_plot_scale_sense, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.keep='last'}
-#```{r plot_scale_sense2}
+```{r plot_scale_sense2}
 ```
 \caption{Biomass plots following introduction of fishing (1) in the trait-based 
 model from Section~\@ref(sec:trait_based_model), and (2) in the scale-invariant 
