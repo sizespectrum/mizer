@@ -9,7 +9,7 @@
 #' the mizer vignette.
 #' \tabular{llll}{
 #'   Method name \tab Expression \tab Description \tab Section in vignette\cr
-#'   \code{\link{getAvailEnergy}} \tab \eqn{E_{a.i}(w)} \tab Available energy \tab 3.2 \cr
+#'   \code{\link{getEnergy}} \tab \eqn{E_{a.i}(w)} \tab Encountered energy \tab 3.2 \cr
 #'   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
 #'   \code{\link{getPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
@@ -35,10 +35,10 @@ NULL
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-#' Get available energy
+#' Get energy
 #' 
-#' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
-#' a function of predator size. 
+#' Calculates the amount \eqn{E_{e,i}(w)} of food encountered by each predator
+#' as a function of predator size.
 #' 
 #' This function is used by the \code{\link{project}} method for
 #' performing simulations.
@@ -58,9 +58,9 @@ NULL
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getAvailEnergy(params,n,n_pp)
+#' getEnergy(params,n,n_pp)
 #' }
-getAvailEnergy <- function(object, n, n_pp) {
+getEnergy <- function(object, n, n_pp) {
 
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
@@ -90,7 +90,7 @@ getAvailEnergy <- function(object, n, n_pp) {
         phi_prey_background <- rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
-        return(phi_prey_species + phi_prey_background)
+        return(object@search_vol * (phi_prey_species + phi_prey_background))
     }
 
     prey <- matrix(0, nrow = dim(n)[1], ncol = length(object@w_full))
@@ -114,15 +114,8 @@ getAvailEnergy <- function(object, n, n_pp) {
     # Due to numerical errors we might get negative entries. They should be 0
     avail_energy[avail_energy < 0] <- 0
 
-    return(avail_energy[, idx_sp, drop = FALSE])
+    return(object@search_vol * avail_energy[, idx_sp, drop = FALSE])
 }
-
-#' Alias for getAvailEnergy
-#' 
-#' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit getAvailEnergy
-#' @export
-getPhiPrey <- getAvailEnergy
 
 
 #' Get feeding level
@@ -136,9 +129,9 @@ getPhiPrey <- getAvailEnergy
 #'   \code{object} argument is of type \code{MizerParams}.
 #' @param n_pp A vector of the plankton abundance by size. Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
-#' @param avail_energy The available energy matrix (optional) of dimension no.
+#' @param energy The energy matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
-#'   using the \code{\link{getAvailEnergy}} method. Only used if \code{object}
+#'   using the \code{\link{getEnergy}} method. Only used if \code{object}
 #'   argument is of type \code{MizerParams}.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
@@ -154,7 +147,7 @@ getPhiPrey <- getAvailEnergy
 #'   If a \code{MizerSim} object is passed in, the method returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
-#' @seealso \code{\link{getAvailEnergy}}
+#' @seealso \code{\link{getEnergy}}
 #' @export
 #' @examples
 #' \dontrun{
@@ -172,24 +165,22 @@ getPhiPrey <- getAvailEnergy
 #' # Get the feeding level for time 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
-getFeedingLevel <- function(object, n, n_pp, avail_energy,
+getFeedingLevel <- function(object, n, n_pp, energy,
                             time_range, drop=FALSE){
     if (is(object, "MizerParams")) {
-        if (missing(avail_energy)) {
-            avail_energy <- getAvailEnergy(object, n, n_pp)
+        if (missing(energy)) {
+            energy <- getEnergy(object, n, n_pp)
         }
-        # Check dims of avail_energy
+        # Check dims of energy
 
-        if (!all(dim(avail_energy) == c(nrow(object@species_params),
-                                        length(object@w)))) {
-            stop("avail_energy argument must have dimensions: no. species (",
+        if (!all(dim(energy) == c(nrow(object@species_params),
+                                  length(object@w)))) {
+            stop("energy argument must have dimensions: no. species (",
                  nrow(object@species_params), ") x no. size bins (",
                  length(object@w), ")")
         }
-        # encountered food = available food * search volume
-        encount <- object@search_vol * avail_energy
         # calculate feeding level
-        f <- encount / (encount + object@intake_max)
+        f <- energy / (energy + object@intake_max)
         return(f)
     } else {
         if (missing(time_range)) {

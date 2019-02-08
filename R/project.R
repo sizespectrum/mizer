@@ -209,10 +209,10 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     for (i_time in 1:t_steps) {
         # Do it piece by piece to save repeatedly calling functions
         # Calculate amount E_{a,i}(w) of available food
-        avail_energy <- getAvailEnergy(sim@params, n = n, n_pp = n_pp)
+        energy <- getEnergy(sim@params, n = n, n_pp = n_pp)
         # Calculate amount f_i(w) of food consumed
         feeding_level <- getFeedingLevel(sim@params, n = n, n_pp = n_pp,
-                                         avail_energy = avail_energy)
+                                         energy = energy)
         # Calculate the predation rate
         pred_rate <- getPredRate(sim@params, n = n, n_pp = n_pp,
                                  feeding_level = feeding_level)

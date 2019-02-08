@@ -81,7 +81,7 @@ reference:
   - log_breaks
 - title: Calculating rates used in model
   contents:
-  - getAvailEnergy
+  - getEnergy
   - getEGrowth
   - getERepro
   - getEReproAndGrowth
@@ -122,5 +122,4 @@ reference:
   - getESpawning
   - getM2
   - getM2Background
-  - getPhiPrey
   - getZ

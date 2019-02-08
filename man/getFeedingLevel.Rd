@@ -4,7 +4,7 @@
 \alias{getFeedingLevel}
 \title{Get feeding level}
 \usage{
-getFeedingLevel(object, n, n_pp, avail_energy, time_range, drop = FALSE)
+getFeedingLevel(object, n, n_pp, energy, time_range, drop = FALSE)
 }
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object}
@@ -15,9 +15,9 @@ getFeedingLevel(object, n, n_pp, avail_energy, time_range, drop = FALSE)
 \item{n_pp}{A vector of the plankton abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
 
-\item{avail_energy}{The available energy matrix (optional) of dimension no.
+\item{energy}{The energy matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
-using the \code{\link{getAvailEnergy}} method. Only used if \code{object}
+using the \code{\link{getEnergy}} method. Only used if \code{object}
 argument is of type \code{MizerParams}.}
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time
@@ -61,5 +61,5 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 }
 \seealso{
-\code{\link{getAvailEnergy}}
+\code{\link{getEnergy}}
 }
