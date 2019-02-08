@@ -37,6 +37,7 @@ articles:
   contents:
   - model_description
   - community_model
+  - test
 - title: Developer Guides
   contents:
   - developer_vignette
