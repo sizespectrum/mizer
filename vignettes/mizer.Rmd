@@ -2184,8 +2184,6 @@ uniformly spaced on the log-scaled mass axis. The
 initial state is close to the steady state in the absence of fishing.  
 Recruitment to the multispecies fishery is knife-edge at
 100 g
-%for all 
-%fish with $W > 1$ kg,
 and fishing mortality rate is set 
 at 
 $F = 1$ yr$^{-1}$.}
@@ -2395,21 +2393,6 @@ plotSpectra(sim, total = TRUE)
 
 
 
-%By comparing Figure~\@ref(fig:plot_scale_demo) with 
-%Figure~\@ref(fig:plot_trait_demo), one can see that the output of the 
-%scale-invariant, trait-based model is somewhat similar to that of the 
-%previous trait-based model. The key difference
-%is that a strong stock-recruitment relationship is present in the original 
-%trait-based model. This allows the number of fish to increase rapidly, 
-%initially, until the population growth is eventually halted 
-%by the stock-recruitment relationship. If one removed the stock recruitment 
-%relationship, the populations in the original trait based model would 
-%continue to grow rapidly, but they are being *held back* by the stock 
-%recruitment relationship. The result is that the stock in the original 
-%trait based model is somewhat insensitive to changes in the environment, 
-%because its steady state is the result of a strong force for population 
-%growth being halted by a strong breaking force (the stock-recruitment 
-%relationship) . 
 
 
 
@@ -2421,11 +2404,7 @@ scale invariance.  The new model is similar to the original trait-based model of
 Section~\@ref(sec:trait_based_model), but includes some modifications and restrictions to 
 get assemblages that are close to scale invariance.  The changes are as follows.
 
-%The scale invariant trait-based model corresponds to a special case 
-%of the general size spectrum model described in Section~\@ref(sec:principles). 
-%Essentially the scale invariant trait-based model is very similar to the 
-%original trait-based model of Section~\@ref(sec:explicit), however there are 
-%the following differences:
+
 
 \begin{itemize}
 
@@ -2494,12 +2473,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  induced by predators beyond the upper limit of body sizes explicitly modelled, 
  under the assumption that the abundance of such predators continue the scale 
  invariant pattern. 
- %We arrived at our expression for $\mu_b(w)$ by considering that in the inf use the expression $ \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w),0 \}$ where 
- %\begin{equation}
- %\mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right),
- %\end{equation}
- %and $\mu_{f.i}(w)$ is the fishing mortality (as determined by the fishing gears), and %$\mu_{p.i} (w)$ is the predation mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
-%We have to choose parameters so that $\mu _0$ is sufficiently large that $ \mu_{b.i}(w) = \mu_0 w^{n-1} - \mu_{f.i}(w) - \mu_{p.i}(w)\geq 0. $ 
+mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
 \item (Equation~\@ref(eq:nb)) The resource spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
@@ -2508,15 +2482,8 @@ combination of the resource spectrum and the aggregate abundance of
 the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
 model is given by Equation~\@ref(eq:cp). 
-%This is achieved choosing the carrying capacity of the resource to be 
-%\begin{equation} c_{p} (w)=
-%   \begin{cases}
-%      \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}, & \text{if}\ w<\min\{w_{*i}\} \\
-%     0, & \text{otherwise}
-%    \end{cases}
-%\end{equation}
-%Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
-%so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.  
+or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
+$w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.  
 
 \item By default the scale-invariant trait-based model is initialized at a 
  steady state (Equation~\@ref(eq:steady)) (provided no fishing is being 
@@ -2539,7 +2506,6 @@ In Section~\@ref(sec:scale_invariant_trait_based_model) we saw that using strong
 
 We begin with only the scale-invariant background, which is setup close to a steady state by the `set_scaling_model()` command. We add new species using the `addSpecies()` command, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under Equation~\@ref(eq:MvF). Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under Equation~\@ref(eq:MvF), and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
 
-%We get relatively close to a steady state by altering the abundance of the background species when a foreground species This is basically achieved by ensure that the background species experience the same growth rates and death rates as they did in the previous scale-invariant system. One can make an analogy here with other transplants of biological organs/organisms, where post transplant survival is based on the transplanted entity and its surrounds receiving similar stimuli before and after the transplant. We ensure that the background species encounter the same growth rates after the transplant as they did before by depressing the abundance of the background species to *make room* for the newly added species, so that the aggregate abundance of all the species remains at the power law. We do not however ensure that the death rates of background individuals will be the same as those in the original system. However, if the newly added species is put in at low abundance, it will cause little change to the death rates of the pre-existing background species, and hence the abundances of the background species will remain stationary as they were before. The abundance curves of the newly added species are calculated under the assumption that their growth and death rates are the ones they would experience in the scale invariant system (as if they were at such a low abundance that self-interaction can be neglected). The more abundant the foreground species is, relative to the background, the worse our approximation to a steady state will be. However in practice, our initial condition often tends to be close enough to a true steady state that it will be attracted to it under the system dynamics.
 
 ## Adding a foreground species to a scale-invariant background
 
@@ -2595,10 +2561,7 @@ params_bg_m <- addSpecies(params_bg, species_params, SSB = 2800, effort=0.4,
 This code creates a new `MizerParams` object containing the original background species and the new foreground species, mullet. The `addSpecies()` command attempts to construct a new approximate steady state (`params_out@initial_n`)
 including the new species. 
 
-%This is done by decreasing the abundance of the pre-existing background species, so that when the new foreground species is added (at an abundance such that the total biomass of individuals above weight `min_w_observed` is `biomass`), the aggregate abundance of all species in the system will still given by the power-law $\kappa w^{-\lambda}.$ 
 
-%The abundance curve of the newly added species would correspond to a steady state in the case where its abundance (as controlled by the value of `biomass`) is negligible compared to the abundance of the background species. As one increases the value of `biomass` this approximation becomes less acceptable, and the initial condition given by `params_out@initial_n`
-%will be further from a steady state. Another problem with setting the value of `biomass` too high is that if the abundance of the newly added species exceeds that of the target power-law, it will obviously be impossible that including background species as well will yield the power-law. The code will return an error message about negative abundance multipliers in this case. One way to fix such problems (about the background community being insufficiently abundant to support the value of `biomass` of the species one wishes to add) is to increase the value of `kappa` in the `set_scaling_model()` command. 
 
 The stock recruitment relationship can be controlled by setting the value of `r_fac`, as described in Subsection \@ref(subsec:bullets).
 
@@ -2639,28 +2602,12 @@ plotSpectra(sim)
 
 
 
-%We can compare the growth curves of the mullet with the predictions from the von Bertalanffy model (Figure~\@ref(fig:plot_mullet_growth)) using the following command:
 
-%
-%```{r plot_mullet_growth, eval=FALSE}
-%plotGrowthCurves(sim, species = "mullet", max_age = 15)
-%```
-
-
-%\begin{figure}
-%```{r label=print_plot_mullet_growth, echo=FALSE, fig.height=4, fig.keep='last'%}
-%```{r plot_mullet_growth}
-%```
-%\caption{A plot showing the growth (time vs weight) of the mullet. The black curve shows the von Bertalanffy growth curve and the red curve shows the prediction of our model with mullet in a scale-invariant background}
-% {#fig:plot_mullet_growth}
-%\end{figure}
- 
 
 ## Adding another species
 
 In practical fisheries science one will have several species that one wishes to model explicitly. Further foreground species can be added into our system by repeated use of the `addSpecies()` command. Let us demonstrate this by adding hake into our system with background and mullet. We start by specifying the data for the hake:
 
-%Again we see that the system is at a stable steady state without the need to impose stock recruitment relationships.
 
 ```{r label=hake_data}
 species_params <- data.frame(
@@ -2748,42 +2695,6 @@ plotBiomass(sim2)
 \end{figure}
 
 
-%## Adding fishing
-
-%In order to model the effect of fishing one could simply take the previous setup, and turn on fishing effort, but that would likely lead to the extinction of some species. The reason is that the system was setup to be at steady state for a system without any fishing, and without a strong stock recruitment relationship imposed the system reacts more sensitively to dramatic changes in the environment than the models in sections \@ref(sec:trait_based_model) and \@ref(sec:north_sea_example). 
-
-%In order to model the effects of fishing in our systems we organize include fishing effort within the `addSpecies()` command. This means that the fishing mortality is accounted for when the abundance curves of the newly added species are computed for the approximate steady state in the resulting `MizerParams` object. Including the effort during the system setup in this way emulates the way real marine systems reorganize themselves in such a way that they can sustain themselves under a moderate degree of fishing.
-
-%## Comparing fishing gears
-
-%The scenario discussed just previously corresponds to a system in the Mediterranean sea where * fishing gear is used to catch mullet and hake. One focus of {\bf Assessment of the relative catch performance of hake, red mullet and striped
-%red mullet in a modified trawl extension with T90 netting} was to determine the effect using a T90 extension to the fishing gear to alter its selectivity curve. We can see the effects of such a change as follows.  
-
-% 
-% # Improvements to the previous version 
-%  {#sec:news}
-% 
-% Version 0.2 of mizer was authored by Finlay Scott, Julia Blanchard and Ken Andersen. In January 2017 Gustav Delius and Richard Southwell took over the job of improving mizer and made the following additions:
-% 
-% \begin{itemize}
-% 
-% \item {\bf Applied spectral methods to speed up integration:} Each time step mizer has to compute integrals to determine the growth rates and death rates. These integrals are convolution integrals. The mizer code was modified so these integrals are performed using spectral methods (using the fast Fourier transform). This led to a dramatic speedup of mizer.
-% 
-% \item {\bf Used C++ code for faster numerical solving of the PDE:} Used C++ for the inner loop in the project method for extra speed.
-% 
-% \item {\bf Improved plotting:} Added new plotting methods, fixed bugs, and added a progress bar while the simulation is running.
-% 
-% \item {\bf Added the scale-invariant model:} Added a function that computes parameters and a steady state for scale free trait-based models.
-% 
-% \item {\bf Allowed explicit species to be added to the a scale-invariant background:} Added a function that adds news species to a scale-invariant background, and computes an approximately steady state close to the power law.
-% 
-% \item {\bf Created web interface:} Made an example shiny app that allow people to use mizer through a web browser to explore the effect of more selective fishing gear without having to install the software.
-% 
-% \item {\bf Created tutorial videos:} Made videos explaining how to install and use mizer.
-% 
-% 
-% \end{itemize}
-% 
 
 
 # Appendix {#sec:appendix}
