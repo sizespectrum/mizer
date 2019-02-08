@@ -111,6 +111,7 @@ valid_MizerSim <- function(object){
 #'   gear
 #' @slot n_pp Array that stores the projected plankton abundance by time and
 #'   size
+#' @slot B Array that stores biomasses of unstructured resources by time
 #'   
 #' @seealso \code{\link{project}} \code{\link{MizerParams}}
 #' @export
@@ -120,7 +121,8 @@ setClass(
         params = "MizerParams",
         n = "array",
         effort = "array",
-        n_pp = "array"
+        n_pp = "array",
+        B = "array"
     ),
     prototype = prototype(
         params = new("MizerParams"),
@@ -132,6 +134,9 @@ setClass(
         ),
         n_pp = array(
             NA,dim = c(1,1), dimnames = list(time = NULL, w = NULL)
+        ),
+        B = array(
+            NA, dim = c(1,1), dimnames = list(time = NULL, res = NULL)
         )
     ),
     validity = valid_MizerSim
@@ -172,6 +177,8 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     species_names <- dimnames(params@psi)$sp
     no_w <- length(params@w)
     w_names <- dimnames(params@psi)$w
+    resource_names <- dimnames(params@rho)$res
+    no_res <- length(resource_names)
     t_dim <- length(t_dimnames)
     array_n <- array(NA, dim = c(t_dim, no_sp, no_w), 
                      dimnames = list(time = t_dimnames, 
@@ -186,13 +193,17 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     no_w_full <- length(params@w_full)
     w_full_names <- names(params@rr_pp)
     array_n_pp <- array(NA, dim = c(t_dim, no_w_full), 
-                        dimnames = list(time=t_dimnames, 
+                        dimnames = list(time = t_dimnames, 
                                         w = w_full_names))
+    array_B <- array(NA, dim = c(t_dim, no_res), 
+                        dimnames = list(time = t_dimnames, 
+                                        res = resource_names))
     
     sim <- new('MizerSim',
                n = array_n, 
                effort = array_effort,
                n_pp = array_n_pp,
+               B = array_B,
                params = params)
     return(sim)
 }
