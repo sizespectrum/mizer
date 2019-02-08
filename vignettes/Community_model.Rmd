@@ -1,6 +1,12 @@
 ---
 title: "Community Model"
-output: html_document
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Community Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r label=lib, include=FALSE}
