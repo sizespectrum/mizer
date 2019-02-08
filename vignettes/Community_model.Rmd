@@ -1,7 +1,5 @@
 ---
 title: "Community Model"
-author: "Richard Southwell"
-date: "8 February, 2019"
 output: html_document
 ---
 
@@ -12,7 +10,7 @@ library(mizer)
 
 ## Setting up a community model {#sec:set_up_comm_model}
 
-As mentioned above, the first stage in implementing a model using `mizer` is to create an object of class `MizerParams`. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the fishing selectivity functions and the parameters of the resource spectrum. The class is fully described in Section~\@ref(sec:MizerParams).
+As mentioned above, the first stage in implementing a model using `mizer` is to create an object of class `MizerParams`. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the fishing selectivity functions and the parameters of the resource spectrum. The class is fully described [here.](articles/model_description.html) or maybe here [model_description]
 
 To avoid having to make a `MizerParams` object directly, a wrapper function, `set_community_model()`, has been provided that conveniently creates a `MizerParams` object specifically for a community model. The documentation for the function can be seen by entering:
 
@@ -57,7 +55,7 @@ summary(params)
 ```
 
 In the summary you can see that the size range of the community spectrum has been set from `r min(params@w)` to `r max(params@w)` and these are spread over `r length(params@w)` size bins. Similar information is available for the resource spectrum.
-Additionally, the community is made up of only one species, called ``Community'', which has an asymptotic size of `r params@species_params$w_inf[1]` and a preferred predator prey mass ratio of `r params@species_params$beta[1]`. The `w_mat` parameter has been set to `NA` as it is not used when running a community model. These values have all been set by default using the `set_community_model()` function. If you want to set different values for these, you will need to call the `set_community_model()` function and pass in the the desired argument values. 
+Additionally, the community is made up of only one species, called *Community*, which has an asymptotic size of `r params@species_params$w_inf[1]` and a preferred predator prey mass ratio of `r params@species_params$beta[1]`. The `w_mat` parameter has been set to `NA` as it is not used when running a community model. These values have all been set by default using the `set_community_model()` function. If you want to set different values for these, you will need to call the `set_community_model()` function and pass in the the desired argument values. 
 
 ## Running the community model {#sec:running_comm_model}
 By using the `set_community_model()` method we now have a `MizerParams` object that contains all the information we need about the model community. We can use this to perform a simulation and project the community through time.
@@ -89,7 +87,7 @@ The feeding level describes how satiated an individual is, with 0 being unfed, a
 The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to `r signif(params@w_full[1],3)` g).
 You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the `recruitment` argument passed to `set_community_model()`).
 
-Note the ``hump'' in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the `z0` argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
+Note the *hump* in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the `z0` argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
 
 We can see this more clearly by extracting the predation mortality information from the `MizerSim` object, `sim`, that we created above.
 This is easily done by using the `getM2()` method (see the help page for more details). There are several methods that can be used for extracting information from a `MizerSim` object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see Section~\@ref(sec:exploring). Here we just call `getM2()` using the `sim` object:
