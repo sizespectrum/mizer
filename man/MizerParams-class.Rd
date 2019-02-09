@@ -70,6 +70,10 @@ carrying capacity of the plankton spectrum.}
 unstructured resource components by one timestep. See
 \code{\link{project_detritus}} for an example.}
 
+\item{\code{project_plankton}}{A function for projecting the plankton abundance
+density by one timestep. See \code{\link{plankton_semichemostat}} for 
+an example.}
+
 \item{\code{resource_params}}{A list containing the parameters needed by the
 `project_resources` function.}
 

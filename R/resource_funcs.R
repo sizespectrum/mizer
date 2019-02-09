@@ -25,12 +25,12 @@
 #' @param B The biomass of detritus
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
-#' @param t Current time
+#' @param ... Unused
 #'   
 #' @return Biomass of detritus at next time step
 #' @export
 #' @md
-project_detritus <- function(params, n, n_pp, B, rates, dt, t = NA) {
+project_detritus <- function(params, n, n_pp, B, rates, dt) {
     consumption <- 
         B * params@rho[, "detritus"] %*%
         (n * (1 - rates$feeding_level)) %*%
@@ -70,12 +70,12 @@ project_detritus <- function(params, n, n_pp, B, rates, dt, t = NA) {
 #' @param B The biomass of detritus
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
-#' @param t Current time
+#' @param ... Unused
 #'   
 #' @return Biomass of dead animals at next time step
 #' @export
 #' @md
-project_dead_animals <- function(params, n, n_pp, B, rates, dt, t = NA) {
+project_dead_animals <- function(params, n, n_pp, B, rates, dt) {
     consumption <- 
         B * params@rho[, "dead_animals"] %*%
         (n * (1 - rates$feeding_level)) %*%
@@ -103,16 +103,16 @@ project_dead_animals <- function(params, n, n_pp, B, rates, dt, t = NA) {
 #'   "dead_animals".
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
-#' @param t Current time
+#' @param ... Unused
 #'   
 #' @return Named vector of biomasses at next time step
 #' @export
 #' @md
-project_dead_matter <- function(params, n, n_pp, B, rates, dt, t = NA) {
+project_dead_matter <- function(params, n, n_pp, B, rates, dt) {
     Bn <- B
     Bn["detritus"] <- project_detritus(params, n, n_pp, B["detritus"], 
-                                       rates, dt, t = NA)
+                                       rates, dt)
     Bn["dead_animals"] <- project_detritus(params, n, n_pp, B["dead_animals"], 
-                                           rates, dt, t = NA)
+                                           rates, dt)
     return(Bn)
 }

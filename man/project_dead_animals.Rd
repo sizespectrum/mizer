@@ -4,7 +4,7 @@
 \alias{project_dead_animals}
 \title{Project dead animal biomass}
 \usage{
-project_dead_animals(params, n, n_pp, B, rates, dt, t = NA)
+project_dead_animals(params, n, n_pp, B, rates, dt)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -19,7 +19,7 @@ project_dead_animals(params, n, n_pp, B, rates, dt, t = NA)
 
 \item{dt}{Time step}
 
-\item{t}{Current time}
+\item{...}{Unused}
 }
 \value{
 Biomass of dead animals at next time step

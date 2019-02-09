@@ -4,7 +4,7 @@
 \alias{project_detritus}
 \title{Project detritus biomass}
 \usage{
-project_detritus(params, n, n_pp, B, rates, dt, t = NA)
+project_detritus(params, n, n_pp, B, rates, dt)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -19,7 +19,7 @@ project_detritus(params, n, n_pp, B, rates, dt, t = NA)
 
 \item{dt}{Time step}
 
-\item{t}{Current time}
+\item{...}{Unused}
 }
 \value{
 Biomass of detritus at next time step

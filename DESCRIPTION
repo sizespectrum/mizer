@@ -48,6 +48,7 @@ Collate:
     'MizerSim-class.R'
     'selectivity_funcs.R'
     'resource_funcs.R'
+    'plankton_funcs.R'
     'project.R'
     'help.R'
     'project_methods.R'

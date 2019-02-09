@@ -258,6 +258,9 @@ validMizerParams <- function(object) {
 #' @slot project_resources A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
 #'   \code{\link{project_detritus}} for an example.
+#' @slot project_plankton A function for projecting the plankton abundance
+#'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
+#'   an example.
 #' @slot resource_params A list containing the parameters needed by the
 #'   `project_resources` function.
 #' @slot sc The community abundance of the scaling community
@@ -325,6 +328,7 @@ setClass(
         rr_pp = "numeric",
         cc_pp = "numeric",
         project_resources = "function",
+        project_plankton = "function",
         resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -596,6 +600,7 @@ emptyParams <-
                species_params = species_params,
                interaction = interaction, interaction_p = interaction_p,
                srr = srr, project_resources = project_resources,
+               project_plankton = plankton_semichemostat,
                resource_params = resource_params,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 

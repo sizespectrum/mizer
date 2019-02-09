@@ -254,10 +254,9 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         B <- params@project_resources(params, n = n, n_pp = n_pp, B = B,
                                       rates = r, dt = dt, t = t)
         
-        # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
-        # We use the exact solution under the assumption of constant mortality during timestep
-        tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + r$plankton_mort)
-        n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + r$plankton_mort) * dt)
+        # Update plankton
+        n_pp <- params@project_plankton(params, n = n, n_pp = n_pp, B = B,
+                                        rates = r, dt = dt, t = t)
         
         # Update time
         t <- t + dt

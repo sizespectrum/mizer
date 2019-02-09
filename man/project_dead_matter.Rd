@@ -4,7 +4,7 @@
 \alias{project_dead_matter}
 \title{Project two-component dead-matter biomass}
 \usage{
-project_dead_matter(params, n, n_pp, B, rates, dt, t = NA)
+project_dead_matter(params, n, n_pp, B, rates, dt)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -20,7 +20,7 @@ project_dead_matter(params, n, n_pp, B, rates, dt, t = NA)
 
 \item{dt}{Time step}
 
-\item{t}{Current time}
+\item{...}{Unused}
 }
 \value{
 Named vector of biomasses at next time step
