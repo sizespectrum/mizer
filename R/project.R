@@ -208,61 +208,70 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     }
     for (i_time in 1:t_steps) {
         # Do it piece by piece to save repeatedly calling functions
-        # Calculate amount E_{a,i}(w) of available food
-        encounter <- getEncounter(sim@params, n = n, n_pp = n_pp)
-        # Calculate amount f_i(w) of food consumed
-        feeding_level <- getFeedingLevel(sim@params, n = n, n_pp = n_pp,
-                                         encounter = encounter)
+        # Assemble results in a list
+        r <- list()
+        # Calculate rate E_{e,i}(w) of encountered food
+        r$encounter <- getEncounter(sim@params, n = n, n_pp = n_pp)
+        # Calculate feeding level f_i(w)
+        r$feeding_level <- getFeedingLevel(sim@params, n = n, n_pp = n_pp,
+                                           encounter = r$encounter)
         # Calculate the predation rate
-        pred_rate <- getPredRate(sim@params, n = n, n_pp = n_pp,
-                                 feeding_level = feeding_level)
+        r$pred_rate <- getPredRate(sim@params, n = n, n_pp = n_pp,
+                                   feeding_level = r$feeding_level)
         # Calculate predation mortality on fish \mu_{p,i}(w)
-        m2 <- getPredMort(sim@params, pred_rate = pred_rate)
+        r$pred_mort <- getPredMort(sim@params, pred_rate = r$pred_rate)
         # Calculate total mortality \mu_i(w)
-        z <- getMort(sim@params, n = n, n_pp = n_pp, 
-                     effort = effort_dt[i_time,], m2 = m2)
+        r$mort <- getMort(sim@params, n = n, n_pp = n_pp, 
+                     effort = effort_dt[i_time,], m2 = r$pred_mort)
         # Calculate mortality on the plankton spectrum
-        m2_background <- getPlanktonMort(sim@params, n = n, n_pp = n_pp,
-                                         pred_rate = pred_rate)
+        r$plankton_mort <- getPlanktonMort(sim@params, n = n, n_pp = n_pp,
+                                           pred_rate = r$pred_rate)
         # Calculate the resources available for reproduction and growth
-        e <- getEReproAndGrowth(sim@params, n = n, n_pp = n_pp, 
-                                feeding_level = feeding_level)
+        r$e <- getEReproAndGrowth(sim@params, n = n, n_pp = n_pp, 
+                                  feeding_level = r$feeding_level)
         # Calculate the resources for reproduction
-        e_repro <- getERepro(sim@params, n = n, n_pp = n_pp, e = e)
+        r$e_repro <- getERepro(sim@params, n = n, n_pp = n_pp, e = r$e)
         # Calculate the growth rate g_i(w)
-        e_growth <- getEGrowth(sim@params, n = n, n_pp = n_pp, 
-                               e_repro = e_repro, e = e)
+        r$e_growth <- getEGrowth(sim@params, n = n, n_pp = n_pp, 
+                                 e_repro = r$e_repro, e = r$e)
         # R_{p,i}
-        rdi <- getRDI(sim@params, n = n, n_pp = n_pp, 
-                      e_repro = e_repro, sex_ratio = sex_ratio)
+        r$rdi <- getRDI(sim@params, n = n, n_pp = n_pp, 
+                        e_repro = r$e_repro, sex_ratio = sex_ratio)
         # R_i
-        rdd <- getRDD(sim@params, n = n, n_pp = n_pp, rdi = rdi)
+        r$rdd <- getRDD(sim@params, n = n, n_pp = n_pp, rdi = r$rdi)
         
         # Iterate species one time step forward:
         # See Ken's PDF
         # A_{ij} = - g_i(w_{j-1}) / dw_j dt
-        A[,idx] <- sweep(-e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
+        A[,idx] <- sweep(-r$e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
         # B_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
-        B[,idx] <- 1 + sweep(e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + z[,idx,drop=FALSE]*dt
+        B[,idx] <- 1 + sweep(r$e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + 
+            r$mort[,idx,drop=FALSE]*dt
         # S_{ij} <- N_i(w_j)
         S[,idx] <- n[,idx,drop=FALSE]
         # Boundary condition upstream end (recruitment)
-        B[w_min_idx_array_ref] <- 1+e_growth[w_min_idx_array_ref]*dt/sim@params@dw[sim@params@w_min_idx]+z[w_min_idx_array_ref]*dt
+        B[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref]*dt/
+                                        sim@params@dw[sim@params@w_min_idx] +
+                                    r$mort[w_min_idx_array_ref]*dt
         # Update first size group of n
-        n[w_min_idx_array_ref] <- (n[w_min_idx_array_ref] + rdd*dt/sim@params@dw[sim@params@w_min_idx]) / B[w_min_idx_array_ref]
+        n[w_min_idx_array_ref] <-
+            (n[w_min_idx_array_ref] + r$rdd * dt / 
+                 sim@params@dw[sim@params@w_min_idx]) /
+            B[w_min_idx_array_ref]
         # Update n
-        # for (i in 1:no_sp) # number of species assumed small, so no need to vectorize this loop over species
+        # for (i in 1:no_sp) # number of species assumed small, so no need to 
+        #                      vectorize this loop over species
         #     for (j in (sim@params@w_min_idx[i]+1):no_w)
         #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
-        
+        # This is implemented via Rcpp
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
                                 A = A, B = B, S = S,
                                 w_min_idx = sim@params@w_min_idx)
         
         # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
         # We use the exact solution under the assumption of constant mortality during timestep
-        tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background)
-        n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + m2_background) * dt)
+        tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + r$plankton_mort)
+        n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + r$plankton_mort) * dt)
         
         # Store results only every t_step steps.
         store <- t_dimnames_index %in% (i_time + 1)
