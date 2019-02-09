@@ -923,27 +923,6 @@ getRDD <- function(object, n, n_pp, B = 0, sex_ratio = 0.5,
     return(rdd)
 }
 
-
-#' Project detritus biomass by one timestep
-#' 
-#' This function can be used as the project_resources function in the case
-#' where there is only a single unstructured resource that represents 
-#' detritus.
-#' 
-#' @param params An \linkS4class{MizerParams} object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the plankton abundance by size
-#' @param B A vector of biomasses of unstructured resource components
-#' @param rates A list of rates as returned by \code{\link{getRates}}
-#' @param dt Time step
-#' @param t Current time
-#'   
-#' @return Biomass of detritus at next time step
-#' @export
-project_detritus <- function(params, n, n_pp, B, rates, dt, t = NA) {
-    return(B)
-}
-
 # get_time_elements
 # internal function to get the array element references of the time dimension
 # for the time based slots of a MizerSim object

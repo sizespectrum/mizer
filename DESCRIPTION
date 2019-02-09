@@ -47,6 +47,7 @@ Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'
     'selectivity_funcs.R'
+    'resource_funcs.R'
     'project.R'
     'help.R'
     'project_methods.R'

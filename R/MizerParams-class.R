@@ -258,6 +258,8 @@ validMizerParams <- function(object) {
 #' @slot project_resources A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
 #'   \code{\link{project_detritus}} for an example.
+#' @slot resource_params A list containing the parameters needed by the
+#'   `project_resources` function.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -323,6 +325,7 @@ setClass(
         rr_pp = "numeric",
         cc_pp = "numeric",
         project_resources = "function",
+        resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
         initial_B = "numeric",
@@ -560,6 +563,7 @@ emptyParams <-
         names(initial_B) <- resource_names
     }
     project_resources <- function(params, n, n_pp, B, rates, dt, t) return(B)
+    resource_params <- list()
     
     # Make colour and linetype scales for use in plots
     # Colour-blind-friendly palettes
@@ -592,6 +596,7 @@ emptyParams <-
                species_params = species_params,
                interaction = interaction, interaction_p = interaction_p,
                srr = srr, project_resources = project_resources,
+               resource_params = resource_params,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
     return(res)

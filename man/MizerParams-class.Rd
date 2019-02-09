@@ -70,6 +70,9 @@ carrying capacity of the plankton spectrum.}
 unstructured resource components by one timestep. See
 \code{\link{project_detritus}} for an example.}
 
+\item{\code{resource_params}}{A list containing the parameters needed by the
+`project_resources` function.}
+
 \item{\code{sc}}{The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters
