@@ -8,7 +8,9 @@ multispeciesParams(object, interaction, min_w = 0.001,
   max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
   no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
   kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
-  z0pre = 0.6, z0exp = n - 1)
+  z0pre = 0.6, z0exp = n - 1, plankton_dyn = plankton_semichemostat,
+  interaction_p = rep(1, nrow(object)), resource_names = NULL,
+  resource_dyn = NULL, resource_params = NULL)
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -67,6 +69,18 @@ Default value is 0.6.}
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is n-1.}
 
+\item{plankton_dyn}{x}
+
+\item{interaction_p}{x}
+
+\item{resource_names}{x}
+
+\item{resource_dyn}{x}
+
+\item{resource_params}{x}
+
+\item{rho}{x}
+
 \item{...}{Additional arguments.}
 }
 \value{
@@ -83,7 +97,7 @@ The only essential argument to the \code{MizerParams} constructor is a
   parameter and each row has the parameters for one of the species in the
   model.
   
-  There are some essential columns that must be included in the parameter
+  There are some essential columns that must be included in the species parameter
   data.frame and that do not have default values. Other columns do have
   default values, so that if they are not included in the species parameter
   data frame, they will be automatically added when the \code{MizerParams}

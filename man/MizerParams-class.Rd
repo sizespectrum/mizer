@@ -66,11 +66,11 @@ growth rate of the plankton spectrum.}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the plankton spectrum.}
 
-\item{\code{project_resources}}{A function for projecting the biomasses in the
+\item{\code{resource_dyn}}{A function for projecting the biomasses in the
 unstructured resource components by one timestep. See
 \code{\link{project_detritus}} for an example.}
 
-\item{\code{project_plankton}}{A function for projecting the plankton abundance
+\item{\code{plankton_dyn}}{A function for projecting the plankton abundance
 density by one timestep. See \code{\link{plankton_semichemostat}} for 
 an example.}
 

@@ -255,10 +255,10 @@ validMizerParams <- function(object) {
 #'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum.
-#' @slot project_resources A function for projecting the biomasses in the
+#' @slot resource_dyn A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
 #'   \code{\link{project_detritus}} for an example.
-#' @slot project_plankton A function for projecting the plankton abundance
+#' @slot plankton_dyn A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
 #'   an example.
 #' @slot resource_params A list containing the parameters needed by the
@@ -327,8 +327,8 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
-        project_resources = "function",
-        project_plankton = "function",
+        resource_dyn = "function",
+        plankton_dyn = "function",
         resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -566,7 +566,7 @@ emptyParams <-
         initial_B <- rep(0, no_res)
         names(initial_B) <- resource_names
     }
-    project_resources <- function(params, n, n_pp, B, rates, dt, t) return(B)
+    resource_dyn <- function(params, n, n_pp, B, rates, dt, t) return(B)
     resource_params <- list()
     
     # Make colour and linetype scales for use in plots
@@ -599,8 +599,8 @@ emptyParams <-
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
                species_params = species_params,
                interaction = interaction, interaction_p = interaction_p,
-               srr = srr, project_resources = project_resources,
-               project_plankton = plankton_semichemostat,
+               srr = srr, resource_dyn = resource_dyn,
+               plankton_dyn = plankton_semichemostat,
                resource_params = resource_params,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
@@ -653,6 +653,12 @@ emptyParams <-
 #' @param z0exp If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
+#' @param plankton_dyn x
+#' @param interaction_p x
+#' @param resource_names x
+#' @param resource_dyn x
+#' @param resource_params x
+#' @param rho x
 #' @param ... Additional arguments.
 #'
 #' @return An object of type \code{MizerParams}
@@ -663,7 +669,7 @@ emptyParams <-
 #'   parameter and each row has the parameters for one of the species in the
 #'   model.
 #'   
-#'   There are some essential columns that must be included in the parameter
+#'   There are some essential columns that must be included in the species parameter
 #'   data.frame and that do not have default values. Other columns do have
 #'   default values, so that if they are not included in the species parameter
 #'   data frame, they will be automatically added when the \code{MizerParams}
@@ -682,7 +688,12 @@ multispeciesParams <-
              min_w_pp = 1e-10, no_w_pp = NA,
              n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
              kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-             f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
+             f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
+             plankton_dyn = plankton_semichemostat,
+             interaction_p = rep(1, nrow(object)),
+             resource_names = NULL,
+             resource_dyn = NULL,
+             resource_params = NULL) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)

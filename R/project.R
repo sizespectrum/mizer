@@ -251,11 +251,11 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                                 w_min_idx = sim@params@w_min_idx)
         
         # Update unstructured resource biomasses
-        B <- params@project_resources(params, n = n, n_pp = n_pp, B = B,
+        B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
                                       rates = r, dt = dt, t = t)
         
         # Update plankton
-        n_pp <- params@project_plankton(params, n = n, n_pp = n_pp, B = B,
+        n_pp <- params@plankton_dyn(params, n = n, n_pp = n_pp, B = B,
                                         rates = r, dt = dt, t = t)
         
         # Update time

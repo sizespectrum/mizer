@@ -1,4 +1,4 @@
-#' Project detritus biomass
+#' Detritus dynamics
 #' 
 #' Calculates the detritus biomass at the next timestep from the current
 #' detritus biomass.
@@ -17,7 +17,7 @@
 #' where there is only a single unstructured resource that represents 
 #' detritus, or as part of a more comprehensive function when there are also
 #' other unstructured resource components. It is used for example in the
-#' [project_dead_matter()] function.
+#' [dead_matter_dyn()] function.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -30,7 +30,7 @@
 #' @return Biomass of detritus at next time step
 #' @export
 #' @md
-project_detritus <- function(params, n, n_pp, B, rates, dt) {
+detritus_dyn <- function(params, n, n_pp, B, rates, dt) {
     consumption <- 
         B * params@rho[, "detritus"] %*%
         (n * (1 - rates$feeding_level)) %*%
@@ -42,7 +42,7 @@ project_detritus <- function(params, n, n_pp, B, rates, dt) {
 }
 
 
-#' Project dead animal biomass
+#' Dead animal dynamics
 #' 
 #' Calculates the biomass of dead animals at the next timestep from the current
 #' biomass.
@@ -62,7 +62,7 @@ project_detritus <- function(params, n, n_pp, B, rates, dt) {
 #' where there is only a single unstructured resource that represents 
 #' dead animals, or as part of a more comprehensive function when there are also
 #' other unstructured resource components. It is used for example in the
-#' [project_dead_matter()] function.
+#' [dead_matter_dyn()] function.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
@@ -75,7 +75,7 @@ project_detritus <- function(params, n, n_pp, B, rates, dt) {
 #' @return Biomass of dead animals at next time step
 #' @export
 #' @md
-project_dead_animals <- function(params, n, n_pp, B, rates, dt) {
+dead_animals_dyn <- function(params, n, n_pp, B, rates, dt) {
     consumption <- 
         B * params@rho[, "dead_animals"] %*%
         (n * (1 - rates$feeding_level)) %*%
@@ -108,7 +108,7 @@ project_dead_animals <- function(params, n, n_pp, B, rates, dt) {
 #' @return Named vector of biomasses at next time step
 #' @export
 #' @md
-project_dead_matter <- function(params, n, n_pp, B, rates, dt) {
+dead_matter_dyn <- function(params, n, n_pp, B, rates, dt) {
     Bn <- B
     Bn["detritus"] <- project_detritus(params, n, n_pp, B["detritus"], 
                                        rates, dt)
