@@ -224,9 +224,9 @@ validMizerParams <- function(object) {
 #' @slot dw The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
 #'   the same length as the w_full slot. The last entry is not determined by
 #'   the w slot but represents the size of the last size bin.
-#' @slot w_full The size grid for the full size range including the resource
+#' @slot w_full The size grid for the full size range including the plankton
 #'   spectrum. An increasing vector of weights (in grams) running from the
-#'   smallest resource size to the largest asymptotic size of fish. The
+#'   smallest plankton size to the largest asymptotic size of fish. The
 #'   last entries of the vector have to be equal to the content of the w slot.
 #' @slot dw_full The spacing in the full size grid. 
 #'   So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
@@ -255,6 +255,9 @@ validMizerParams <- function(object) {
 #'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum.
+#' @slot project_resources A function for projecting the biomasses in the
+#'   unstructured resource components by one timestep. See
+#'   \code{\link{update_detritus}} for an example.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -263,22 +266,24 @@ validMizerParams <- function(object) {
 #'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
-#' @slot resource_eqn Function to calculate the biomasses of the unstructured
-#'   resources at the next time step
+#' @slot project_resources Function to calculate the biomasses of the
+#'   unstructured resources at the next time step
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}
 #' @slot catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}
 #' @slot initial_n An array (species x size) that holds abundance of each species
-#'  at each weight at our candidate steady state solution.
+#'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
-#'  the plankton abundance at each weight.
+#'   the plankton abundance at each weight.
+#' @slot initial_B A vector containing the biomasses of the unstructured
+#'   resource components.
 #' @slot n Exponent of maximum intake rate.
 #' @slot p Exponent of metabolic cost.
-#' @slot lambda Exponent of resource spectrum.
+#' @slot lambda Exponent of plankton spectrum.
 #' @slot q Exponent for volumetric search rate.
 #' @slot f0 Initial feeding level.
-#' @slot kappa Magnitude of resource spectrum.
+#' @slot kappa Magnitude of plankton spectrum.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species. Used 
 #'   to give consistent colours to species in plots.
@@ -316,14 +321,15 @@ setClass(
         ft_pred_kernel_p = "array",
         mu_b = "array",
         rr_pp = "numeric",
-        cc_pp = "numeric", # was NinPP, carrying capacity of plankton
+        cc_pp = "numeric",
+        project_resources = "function",
         sc = "numeric",
         initial_n_pp = "numeric",
+        initial_B = "numeric",
         species_params = "data.frame",
         interaction = "array",
         interaction_p = "numeric",
         srr  = "function",
-        resource_eqn = "function",
         selectivity = "array",
         catchability = "array",
         n = "numeric",
@@ -361,6 +367,7 @@ setClass(
         cc_pp = NA_real_,
         sc = NA_real_,
         initial_n_pp = NA_real_,
+        initial_B = NA_real_,
         A = NA_real_,
         linecolour = NA_character_,
         linetype = NA_character_,
@@ -542,16 +549,17 @@ emptyParams <-
     ## Unstructured resources
     if (is.null(resource_names)) {
         rho <- array(0, dim = 0)
-        resource_eqn <- function()0
+        initial_B <- 0
     } else {
         no_res <- length(resource_names)
         rho <- array(NA, dim = c(no_sp, no_res, no_w), 
                           dimnames = list(sp = species_names, 
                                           res = resource_names,
                                           w = signif(w,3)))
-        resource_eqn <- rep(function(params, n, n_pp, B, rates) return(B),
-                            no_res)
+        initial_B <- rep(0, no_res)
+        names(initial_B) <- resource_names
     }
+    project_resources <- function(params, n, n_pp, B, rates, dt, t) return(B)
     
     # Make colour and linetype scales for use in plots
     # Colour-blind-friendly palettes
@@ -583,7 +591,7 @@ emptyParams <-
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
                species_params = species_params,
                interaction = interaction, interaction_p = interaction_p,
-               srr = srr, resource_eqn = resource_eqn,
+               srr = srr, project_resources = project_resources,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
     return(res)

@@ -96,7 +96,8 @@ NULL
 #' }
 project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                     initial_n = params@initial_n,
-                    initial_n_pp = params@initial_n_pp, 
+                    initial_n_pp = params@initial_n_pp,
+                    initial_B = params@initial_B,
                     shiny_progress = NULL, ...) {
     validObject(params)
     
@@ -173,6 +174,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     # Set initial population
     sim@n[1,,] <- initial_n 
     sim@n_pp[1,] <- initial_n_pp
+    sim@B[1,] <- initial_B
     
     # Handy things
     no_sp <- nrow(sim@params@species_params) # number of species
@@ -187,16 +189,18 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     sex_ratio <- 0.5
     
     # Matrices for solver
-    A <- matrix(0, nrow = no_sp, ncol = no_w)
-    B <- matrix(0, nrow = no_sp, ncol = no_w)
+    a <- matrix(0, nrow = no_sp, ncol = no_w)
+    b <- matrix(0, nrow = no_sp, ncol = no_w)
     S <- matrix(0, nrow = no_sp, ncol = no_w)
     
-    # initialise n and nPP
-    # We want the first time step only but cannot use drop as there may only be a single species
+    # initialise n n_pp and B
+    # We want the first time step only but cannot use drop as there may only 
+    # be a single species
     n <- array(sim@n[1, , ], dim = dim(sim@n)[2:3])
     dimnames(n) <- dimnames(sim@n)[2:3]
     n_pp <- sim@n_pp[1, ]
-    t_steps <- dim(effort_dt)[1] - 1
+    B <- sim@B[1, ]
+    
     # Set up progress bar
     pb <- progress::progress_bar$new(
         format = "[:bar] :percent ETA: :eta",
@@ -206,8 +210,11 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         shiny_progress$set(message = "Running simulation", value = 0)
         proginc <- 1/length(t_dimnames_index)
     }
+    
+    t <- 0  # keep track of time
+    t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        # Do it piece by piece to save repeatedly calling functions
+        # Do calculation piece by piece to save repeatedly calling functions
         # Assemble results in a list
         r <- list()
         # Calculate rate E_{e,i}(w) of encountered food
@@ -242,22 +249,24 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         
         # Iterate species one time step forward:
         # See Ken's PDF
-        # A_{ij} = - g_i(w_{j-1}) / dw_j dt
-        A[,idx] <- sweep(-r$e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
-        # B_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
-        B[,idx] <- 1 + sweep(r$e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + 
-            r$mort[,idx,drop=FALSE]*dt
+        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
+        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
+                          sim@params@dw[idx], "/")
+        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
+        b[, idx] <- 1 + sweep(r$e_growth[, idx, drop = FALSE] * dt, 2, 
+                              sim@params@dw[idx], "/") +
+                        r$mort[, idx, drop = FALSE] * dt
         # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[,idx,drop=FALSE]
+        S[,idx] <- n[,idx,drop = FALSE]
         # Boundary condition upstream end (recruitment)
-        B[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref]*dt/
+        b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
                                         sim@params@dw[sim@params@w_min_idx] +
-                                    r$mort[w_min_idx_array_ref]*dt
+                                    r$mort[w_min_idx_array_ref] * dt
         # Update first size group of n
         n[w_min_idx_array_ref] <-
             (n[w_min_idx_array_ref] + r$rdd * dt / 
                  sim@params@dw[sim@params@w_min_idx]) /
-            B[w_min_idx_array_ref]
+            b[w_min_idx_array_ref]
         # Update n
         # for (i in 1:no_sp) # number of species assumed small, so no need to 
         #                      vectorize this loop over species
@@ -265,14 +274,20 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
         # This is implemented via Rcpp
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
-                                A = A, B = B, S = S,
+                                A = a, B = b, S = S,
                                 w_min_idx = sim@params@w_min_idx)
+        
+        # Update unstructured resource biomasses
+        B <- params@project_resources(params, n = n, n_pp = n_pp, B = B,
+                                      rates = r, dt = dt, t = t)
         
         # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
         # We use the exact solution under the assumption of constant mortality during timestep
         tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + r$plankton_mort)
         n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + r$plankton_mort) * dt)
         
+        # Update time
+        t <- t + dt
         # Store results only every t_step steps.
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
@@ -282,8 +297,9 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                 shiny_progress$inc(amount = proginc)
             }
             # Store result
-            sim@n[which(store), , ] <- n 
+            sim@n[which(store), , ] <- n
             sim@n_pp[which(store), ] <- n_pp
+            sim@B[which(store), ] <- B
         }
     }
     return(sim)
