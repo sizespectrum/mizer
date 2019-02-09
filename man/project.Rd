@@ -6,7 +6,7 @@
 \usage{
 project(params, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
   initial_n = params@initial_n, initial_n_pp = params@initial_n_pp,
-  shiny_progress = NULL, ...)
+  initial_B = params@initial_B, shiny_progress = NULL, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -31,6 +31,10 @@ See the notes below.}
 should be a numeric vector of the same length as the \code{w_full} slot of
 the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 \linkS4class{MizerParams} argument is used.}
+
+\item{initial_B}{The initial biomasses of the unstructured resources. By
+default the \code{initial_n_pp} slot of the \linkS4class{MizerParams}
+argument is used.}
 
 \item{shiny_progress}{A shiny progress object used to update shiny progress bar.
 Default NULL.}

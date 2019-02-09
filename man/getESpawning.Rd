@@ -8,11 +8,11 @@ getESpawning(object, n, n_pp, B = 0, e = getEReproAndGrowth(object, n =
   n, n_pp = n_pp, B = B))
 }
 \arguments{
-\item{object}{A \code{MizerParams} object.}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size).}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size}
 
 \item{B}{A vector of biomasses of unstructured resource components}
 

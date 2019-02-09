@@ -36,6 +36,9 @@ NULL
 #'   should be a numeric vector of the same length as the \code{w_full} slot of
 #'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \linkS4class{MizerParams} argument is used.
+#' @param initial_B The initial biomasses of the unstructured resources. By
+#'   default the \code{initial_n_pp} slot of the \linkS4class{MizerParams}
+#'   argument is used.
 #' @param shiny_progress A shiny progress object used to update shiny progress bar.
 #'   Default NULL.
 #' @param ... Currently unused.
@@ -214,38 +217,8 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        # Do calculation piece by piece to save repeatedly calling functions
-        # Assemble results in a list
-        r <- list()
-        # Calculate rate E_{e,i}(w) of encountered food
-        r$encounter <- getEncounter(sim@params, n = n, n_pp = n_pp)
-        # Calculate feeding level f_i(w)
-        r$feeding_level <- getFeedingLevel(sim@params, n = n, n_pp = n_pp,
-                                           encounter = r$encounter)
-        # Calculate the predation rate
-        r$pred_rate <- getPredRate(sim@params, n = n, n_pp = n_pp,
-                                   feeding_level = r$feeding_level)
-        # Calculate predation mortality on fish \mu_{p,i}(w)
-        r$pred_mort <- getPredMort(sim@params, pred_rate = r$pred_rate)
-        # Calculate total mortality \mu_i(w)
-        r$mort <- getMort(sim@params, n = n, n_pp = n_pp, 
-                     effort = effort_dt[i_time,], m2 = r$pred_mort)
-        # Calculate mortality on the plankton spectrum
-        r$plankton_mort <- getPlanktonMort(sim@params, n = n, n_pp = n_pp,
-                                           pred_rate = r$pred_rate)
-        # Calculate the resources available for reproduction and growth
-        r$e <- getEReproAndGrowth(sim@params, n = n, n_pp = n_pp, 
-                                  feeding_level = r$feeding_level)
-        # Calculate the resources for reproduction
-        r$e_repro <- getERepro(sim@params, n = n, n_pp = n_pp, e = r$e)
-        # Calculate the growth rate g_i(w)
-        r$e_growth <- getEGrowth(sim@params, n = n, n_pp = n_pp, 
-                                 e_repro = r$e_repro, e = r$e)
-        # R_{p,i}
-        r$rdi <- getRDI(sim@params, n = n, n_pp = n_pp, 
-                        e_repro = r$e_repro, sex_ratio = sex_ratio)
-        # R_i
-        r$rdd <- getRDD(sim@params, n = n, n_pp = n_pp, rdi = r$rdi)
+        r <- getRates(sim@params, n = n, n_pp = n_pp, B = B,
+                      effort = effort_dt[i_time,])
         
         # Iterate species one time step forward:
         # See Ken's PDF

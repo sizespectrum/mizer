@@ -11,9 +11,9 @@ getEGrowth(object, n, n_pp, B = 0, e_repro = getERepro(object, n = n,
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object.}
 
-\item{n}{A matrix of species abundance (species x size).}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size}
 
 \item{B}{A vector of biomasses of unstructured resource components}
 
@@ -26,8 +26,6 @@ size bins. If not supplied, is calculated internally using the
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
 the \code{\link{getEReproAndGrowth}} method.}
-
-\item{B}{A vector of biomasses of unstructured resource components}
 }
 \value{
 A two dimensional array (prey species x prey size)

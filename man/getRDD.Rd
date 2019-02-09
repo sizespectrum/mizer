@@ -8,9 +8,9 @@ getRDD(object, n, n_pp, B = 0, sex_ratio = 0.5, rdi = getRDI(object,
   n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio))
 }
 \arguments{
-\item{object}{An \code{MizerParams} object}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size)}
+\item{n}{A matrix of species abundances (species x size)}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 

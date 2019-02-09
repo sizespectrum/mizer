@@ -22,9 +22,9 @@ largest asymptotic size.}
 the same length as the w_full slot. The last entry is not determined by
 the w slot but represents the size of the last size bin.}
 
-\item{\code{w_full}}{The size grid for the full size range including the resource
+\item{\code{w_full}}{The size grid for the full size range including the plankton
 spectrum. An increasing vector of weights (in grams) running from the
-smallest resource size to the largest asymptotic size of fish. The
+smallest plankton size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
 \item{\code{dw_full}}{The spacing in the full size grid. 
@@ -66,6 +66,10 @@ growth rate of the plankton spectrum.}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the plankton spectrum.}
 
+\item{\code{project_resources}}{A function for projecting the biomasses in the
+unstructured resource components by one timestep. See
+\code{\link{project_detritus}} for an example.}
+
 \item{\code{sc}}{The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters
@@ -79,8 +83,8 @@ carrying capacity of the plankton spectrum.}
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
 
-\item{\code{resource_eqn}}{Function to calculate the biomasses of the unstructured
-resources at the next time step}
+\item{\code{project_resources}}{Function to calculate the biomasses of the
+unstructured resources at the next time step}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \eqn{S_{g,i,w}}}
@@ -94,17 +98,20 @@ at each weight at our candidate steady state solution.}
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
 the plankton abundance at each weight.}
 
+\item{\code{initial_B}}{A vector containing the biomasses of the unstructured
+resource components.}
+
 \item{\code{n}}{Exponent of maximum intake rate.}
 
 \item{\code{p}}{Exponent of metabolic cost.}
 
-\item{\code{lambda}}{Exponent of resource spectrum.}
+\item{\code{lambda}}{Exponent of plankton spectrum.}
 
 \item{\code{q}}{Exponent for volumetric search rate.}
 
 \item{\code{f0}}{Initial feeding level.}
 
-\item{\code{kappa}}{Magnitude of resource spectrum.}
+\item{\code{kappa}}{Magnitude of plankton spectrum.}
 
 \item{\code{A}}{Abundance multipliers.}
 

@@ -257,7 +257,7 @@ validMizerParams <- function(object) {
 #'   carrying capacity of the plankton spectrum.
 #' @slot project_resources A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
-#'   \code{\link{update_detritus}} for an example.
+#'   \code{\link{project_detritus}} for an example.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
