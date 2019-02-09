@@ -247,7 +247,7 @@ validMizerParams <- function(object) {
 #'   \eqn{\mu_{b.i}(w)}
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the available energy integral
+#'   appropriate for evaluating the encounter rate integral
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the predation mortality integral
@@ -386,7 +386,7 @@ setClass(
 #' size.
 #' 
 #' When the predator/prey mass ratio is size dependent, then the integrals
-#' for calculating available energy and predation death are not convolution
+#' for calculating encounter rate and predation death are not convolution
 #' integrals and hence can not be calculated with fast Fourier transforms.
 #' Instead they are calculated by sweeps over a 3-dimensional array holding
 #' the preference function.
@@ -879,7 +879,7 @@ multispeciesParams <-
     
     # ft_pred_kernel_e is an array (no_sp x no_w_full) 
     # that holds the Fourier transform of the feeding kernel in a form 
-    # appropriate for evaluating the available energy integral
+    # appropriate for evaluating the encounter rate integral
     res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = length(x_full))
     for (i in 1:no_sp) {
         # We compute the feeding kernel terms and their fft.

@@ -9,7 +9,7 @@
 #' the mizer vignette.
 #' \tabular{llll}{
 #'   Method name \tab Expression \tab Description \tab Section in vignette\cr
-#'   \code{\link{getEnergy}} \tab \eqn{E_{a.i}(w)} \tab Encountered energy \tab 3.2 \cr
+#'   \code{\link{getEncounter}} \tab \eqn{E_{a.i}(w)} \tab Encounter rate \tab 3.2 \cr
 #'   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
 #'   \code{\link{getPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
@@ -35,7 +35,7 @@ NULL
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-#' Get energy
+#' Get encounter rate
 #' 
 #' Calculates the amount \eqn{E_{e,i}(w)} of food encountered by each predator
 #' as a function of predator size.
@@ -59,9 +59,9 @@ NULL
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getEnergy(params,n,n_pp)
+#' getEncounter(params,n,n_pp)
 #' }
-getEnergy <- function(object, n, n_pp, B = 0) {
+getEncounter <- function(object, n, n_pp, B = 0) {
 
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
@@ -96,16 +96,14 @@ getEnergy <- function(object, n, n_pp, B = 0) {
                    B * object@rho)
     }
 
+    # Rate of encountering plankton cells
     prey <- outer(object@interaction_p, n_pp)
-    # Looking at Equation (3.4), for available energy in the mizer vignette,
-    # we have, for our predator species i, that prey[k] equals
-    # the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])
+    # Add the rate of encountering fish, theta_{i,j}*N_j(wFull[k])
     prey[, idx_sp] <- prey[, idx_sp] + object@interaction %*% n
-    # The vector f2 equals everything inside integral (3.4) except the feeding
-    # kernel phi_i(w_p/w).
-    # We work in log-space so an extra multiplier w_p is introduced.
+    # Multiply by two powers of weight, one to convert from number to biomass,
+    # the other for our change to log weight as the integration variable.
     f2 <- sweep(prey, 2, object@w_full^2, "*")
-    # Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
+    # Calculate the convolution integral of f2[w_p] and phi[w_p/w].
     # We approximate the integral by the trapezoidal method. Using the
     # convolution theorem we can evaluate the resulting sum via fast fourier
     # transform.
@@ -133,9 +131,9 @@ getEnergy <- function(object, n, n_pp, B = 0) {
 #' @param n_pp A vector of the plankton abundance by size. Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
 #' @param B A vector of biomasses of unstructured resource components
-#' @param energy The energy matrix (optional) of dimension no.
+#' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
-#'   using the \code{\link{getEnergy}} method. Only used if \code{object}
+#'   using the \code{\link{getEncounter}} method. Only used if \code{object}
 #'   argument is of type \code{MizerParams}.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
@@ -151,7 +149,7 @@ getEnergy <- function(object, n, n_pp, B = 0) {
 #'   If a \code{MizerSim} object is passed in, the method returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
-#' @seealso \code{\link{getEnergy}}
+#' @seealso \code{\link{getEncounter}}
 #' @export
 #' @examples
 #' \dontrun{
@@ -169,22 +167,21 @@ getEnergy <- function(object, n, n_pp, B = 0) {
 #' # Get the feeding level for time 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
-getFeedingLevel <- function(object, n, n_pp, B = 0, energy,
+getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
                             time_range, drop=FALSE){
     if (is(object, "MizerParams")) {
-        if (missing(energy)) {
-            energy <- getEnergy(object, n, n_pp, B)
+        if (missing(encounter)) {
+            encounter <- getEncounter(object, n, n_pp, B)
         }
-        # Check dims of energy
-
-        if (!all(dim(energy) == c(nrow(object@species_params),
+        # Check dims of encounter
+        if (!all(dim(encounter) == c(nrow(object@species_params),
                                   length(object@w)))) {
-            stop("energy argument must have dimensions: no. species (",
+            stop("encounter argument must have dimensions: no. species (",
                  nrow(object@species_params), ") x no. size bins (",
                  length(object@w), ")")
         }
         # calculate feeding level
-        f <- energy / (energy + object@intake_max)
+        f <- encounter / (encounter + object@intake_max)
         return(f)
     } else {
         if (missing(time_range)) {

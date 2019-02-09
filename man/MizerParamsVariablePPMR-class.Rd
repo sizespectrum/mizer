@@ -11,7 +11,7 @@ size.
 }
 \details{
 When the predator/prey mass ratio is size dependent, then the integrals
-for calculating available energy and predation death are not convolution
+for calculating encounter rate and predation death are not convolution
 integrals and hence can not be calculated with fast Fourier transforms.
 Instead they are calculated by sweeps over a 3-dimensional array holding
 the preference function.

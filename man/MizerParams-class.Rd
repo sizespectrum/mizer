@@ -54,7 +54,7 @@ for each species at size.}
 
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the available energy integral}
+appropriate for evaluating the encounter rate integral}
 
 \item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form

@@ -29,11 +29,11 @@ gamma <- p@species_params$gamma[sp]
 lm2 <- p@lambda - 2
 
 
-# getEnergy --------------------------------------------------------------
+# getEncounter --------------------------------------------------------------
 
-test_that("getEnergy approximates analytic result", {
+test_that("getEncounter approximates analytic result", {
     skip("This is still too imprecise.")
-    ea <- getEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
+    ea <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
     # Check that this is constant
     expect_equivalent(ea, rep(ea[1], length(ea)), tolerance = 1e-10)
     # Check that it agrees with analytic result
@@ -104,18 +104,18 @@ test_that("getFeedingLevel for MizerParams", {
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
     # A crap test - just returns what's already in the method
-    energy <- getEnergy(params, n = n, n_pp = n_full)
-    f <- energy / (energy + params@intake_max)
+    encounter <- getEncounter(params, n = n, n_pp = n_full)
+    f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
-    # passing in energy gives the same as not
-    fl2 <- getFeedingLevel(params, n, n_full, energy = energy)
+    # passing in encounter gives the same as not
+    fl2 <- getFeedingLevel(params, n, n_full, encounter = encounter)
     expect_identical(fl, fl2)
     # test value
     expect_known_value(fl, "values/getFeedingLevel")
-    # calling with energy of wrong dimension gives error
-    energy = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
-    expect_error(getFeedingLevel(params, n, n_full, energy = energy),
-                 'energy argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
+    # calling with encounter of wrong dimension gives error
+    encounter = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
+    expect_error(getFeedingLevel(params, n, n_full, encounter = encounter),
+                 'encounter argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
     )
 })
 
@@ -532,7 +532,7 @@ test_that("project methods return objects of correct dimension when community on
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     # MizerParams methods
-    expect_equal(dim(getEnergy(params, n, n_pp)), c(1, no_w))
+    expect_equal(dim(getEncounter(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getFeedingLevel(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getPredRate(params, n, n_pp)), c(1, no_w_full))
     expect_equal(dim(getPredMort(params, n, n_pp)), c(1, no_w))

@@ -17,7 +17,7 @@ test_that("project methods",{
     effort <- array(abs(rnorm(40)),dim=c(10,4))
     single_effort <- array(abs(rnorm(10)),dim=c(10,1))
 
-    expect_that(length(dim(getEnergy(params,n_mult,npp))), is_identical_to(length(dim(getEnergy(single_params,n_single,npp)))))
+    expect_that(length(dim(getEncounter(params,n_mult,npp))), is_identical_to(length(dim(getEncounter(single_params,n_single,npp)))))
     expect_that(length(dim(getFeedingLevel(params,n_mult,npp))), is_identical_to(length(dim(getFeedingLevel(single_params,n_single,npp)))))
     expect_that(length(dim(getPredRate(params,n_mult,npp))), is_identical_to(length(dim(getPredRate(single_params,n_single,npp)))))
     expect_that(length(dim(getPredMort(params,n_mult,npp))), is_identical_to(length(dim(getPredMort(single_params,n_single,npp)))))
