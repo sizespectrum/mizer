@@ -737,11 +737,11 @@ multispeciesParams <-
     
     # If no sel_func column in species_params, set to 'knife_edge'
     if (!("sel_func" %in% colnames(object))) {
-        message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
+        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
         object$sel_func <- 'knife_edge'
         # Set default selectivity size
         if (!("knife_edge_size" %in% colnames(object))) {
-            message("Note: \tNo knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
+            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
             object$knife_edge_size <- object$w_mat
         }
     }
@@ -761,9 +761,9 @@ multispeciesParams <-
         object$h <- rep(NA, no_sp)
     }
     if (any(is.na(object$h))) {
-        message("Note: \tNo h provided for some species, so using f0 and k_vb to calculate it.")
+        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(object))) {
-            stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
+            stop("\tExcept I can't because there is no k_vb column in the species data frame")
         }
         h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
         # Only overwrite missing h with calculated values
@@ -779,7 +779,7 @@ multispeciesParams <-
         object$gamma <- rep(NA, no_sp)
     }
     if (any(is.na(object$gamma))) {
-        message("Note: \tNo gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         lm2 <- lambda - 2
         ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
             exp(lm2^2 * object$sigma^2 / 2) *
@@ -802,13 +802,13 @@ multispeciesParams <-
     }
     missing <- is.na(object$z0)
     if (any(missing)) {
-        message("Note: \tUsing z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
         object$z0[missing] <- z0pre * object$w_inf[missing]^z0exp
     }
     
     # Sort out ks column
     if (!("ks" %in% colnames(object))) {
-        message("Note: \tNo ks column in species data frame so using ks = h * 0.2.")
+        message("Note: No ks column in species data frame so using ks = h * 0.2.")
         object$ks <- object$h * 0.2
     }
     missing <- is.na(object$ks)
