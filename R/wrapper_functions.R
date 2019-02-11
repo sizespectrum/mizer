@@ -761,16 +761,19 @@ set_scaling_model <- function(no_sp = 11,
     plankton_vec <- (kappa * w ^ (-lambda)) - sc
     # Cut off plankton at w_pp_cutoff
     plankton_vec[w >= w_pp_cutoff] <- 0
-    if (!perfect && any(plankton_vec < 0)) {
-        # Do not allow negative plankton abundance
-        message("Note: Negative plankton abundance values overwritten with zeros")
-        plankton_vec[plankton_vec < 0] <- 0
+    if (any(plankton_vec < 0)) {
+        message("Note: Negative plankton abundances")
+        if (!perfect) {
+            # Do not allow negative plankton abundance
+            message("Note: Negative plankton abundance values overwritten with zeros")
+            plankton_vec[plankton_vec < 0] <- 0
+        }
     }
-    # The cc_pp factor needs to be higher than the desired steady state in
-    # order to compensate for predation mortality
     params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
         plankton_vec
     initial_n_pp <- params@cc_pp
+    # The cc_pp factor needs to be higher than the desired steady state in
+    # order to compensate for predation mortality
     m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
     params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
     
@@ -783,9 +786,12 @@ set_scaling_model <- function(no_sp = 11,
         # params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
         # params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
-        if (!perfect && any(params@mu_b[i,] < 0)) {
-            message("Note: Negative background mortality rates overwritten with zeros")
-            params@mu_b[i, params@mu_b[i,] < 0] <- 0
+        if (any(params@mu_b[i,] < 0)) {
+            message("Note: negative background mortality.")
+            if (!perfect) {
+                message("Note: Negative background mortality rates overwritten with zeros")
+                params@mu_b[i, params@mu_b[i,] < 0] <- 0
+            }
         }
     }
     
