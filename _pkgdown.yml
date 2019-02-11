@@ -81,7 +81,8 @@ reference:
   - log_breaks
 - title: Calculating rates used in model
   contents:
-  - getEnergy
+  - getRates
+  - getEncounter
   - getEGrowth
   - getERepro
   - getEReproAndGrowth
@@ -98,6 +99,10 @@ reference:
   contents:
   - knife_edge
   - sigmoid_length
+  - dead_matter_dyn
+  - dead_animals_dyn
+  - detritus_dyn
+  - plankton_semichemostat
 - title: Classes
   contents:
   - MizerParams-class
