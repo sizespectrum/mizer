@@ -3,6 +3,8 @@ title: "Community Model"
 output:
   rmarkdown::html_vignette:
     toc: true
+    fig_width: 5
+    fig_height: 5
 vignette: >
   %\VignetteIndexEntry{Community Model}
   %\VignetteEngine{knitr::rmarkdown}
@@ -80,11 +82,10 @@ The resulting object, `sim`, is of type `MizerSim`. This class holds the results
 After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic `plot()` method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time Each of the plots can be show individually if desired.
 
 
-```{r label=print_plot_comm_sim, echo=FALSE, fig.height=9, fig.cap="Example plot of the community model."}
+```{r label=print_plot_comm_sim, fig.cap="Example plot of the community model."}
 plot(sim)
 ```
- {#fig:plot_comm_demo}
-
+ 
 
 In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium.
 Fishing mortality is 0 because we set the `effort` argument to 0 when running the simulation.
@@ -111,10 +112,10 @@ m2[51,]
 
 If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes.
 
-```{r label=print_plot_comm_m2, echo=FALSE, warning=FALSE, fig.height=4,fig.cap="Predation mortality without fishing in the community model (note the log scales for both axes)."}
+```{r label=print_plot_comm_m2, warning=FALSE, fig.cap="Predation mortality without fishing in the community model (note the log scales for both axes)."}
 plot(x = sim@params@w, y = m2[51,], log="xy", type="l", xlab = "Size", ylab = "Predation mortality")
 ```
- {#fig:plot_comm_m2}
+ 
 
 ## Example of a trophic cascade with the community model {#sec:trophic_cascade_comm_model}
 It is possible to use the community model to simulate a trophic cascade.
@@ -143,11 +144,10 @@ sim1 <- project(params_knife, effort = 1, t_max = 50)
 You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
 
-```{r label=print_plot_comm_fmort, echo=FALSE, fig.height=9,fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
+```{r label=print_plot_comm_fmort, fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
 plot(sim1)
 ```
- {#fig:plot_comm_fmort}
-
+ 
 To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are store in the `n` slot of the `MizerSim` objects. The `n` slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
 
 ```{r label='dim_n'}
@@ -160,23 +160,19 @@ We want the abundances in the final time step, and we can use these to calculate
 relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
 ```
 
-This can then be plotted (Figure~\@ref(fig:plot_relative_comm_abund)) using basic \R plotting commands.
+This can then be plotted using basic R plotting commands.
 The sizes are stored in the `params@w` slot (a slot of a slot!).
 
-```{r label=plot_relative_comm_abund}
+
+Relative abundances from the unfished (dashed line) and fished (solid line) community model.
+
+```{r label=plot_relative_comm_abund, fig.cap="Relative abundances from the unfished (dashed line) and fished (solid line) community model."}
 plot(x=sim0@params@w, y=relative_abundance, log="x", type="n",
     xlab = "Size (g)", ylab="Relative abundance")
 lines(x=sim0@params@w, y=relative_abundance)
 lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 ```
 
-\begin{figure}
-```{r label=print_plot_relative_comm_abund, echo=FALSE, fig.height=4}
-```{r plot_relative_comm_abund}
-```
-\caption{Relative abundances from the unfished (dashed line) and fished (solid line) community model.}
- {#fig:plot_relative_comm_abund}
-\end{figure}
 
 The impact of fishing on species larger than 1000g can be clearly seen.
 The fishing pressure lowers the abundance of large fish (the decrease in relative abundance at 1000 g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
@@ -204,17 +200,9 @@ sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
 
 Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` method:
 
-```{r label=plot_comm_biomass_sigma1}
+```{r label=plot_comm_biomass_sigma1, fig.keep='last', fig.cap="Biomass of the community model when sigma is reduced to a value of 1.0."}
 plotBiomass(sim_sigma1)
 ```
 
-\begin{figure}
-```{r label=print_plot_comm_biomass_sigma1, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_comm_biomass_sigma1}
-```
-\caption{Biomass of the community model when $\sigma$ is reduced to a value of 1.0.}
- {#fig:plot_comm_biomass_sigma1}
-\end{figure}
-
-Figure~\@ref(fig:plot_comm_biomass_sigma1) shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see Section~\@ref(sec:trait_based_model)) is implemented, the magnitude of the oscillations are much smaller.
+The plot above shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see Section~\@ref(sec:trait_based_model)) is implemented, the magnitude of the oscillations are much smaller.
 
