@@ -4,7 +4,7 @@
 \alias{detritus_dyn}
 \title{Detritus dynamics}
 \usage{
-detritus_dyn(params, n, n_pp, B, rates, dt)
+detritus_dyn(params, n, n_pp, B, rates, dt, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -40,7 +40,7 @@ The inflow of biomass consists of
 The outflow of biomass is due to
 \itemize{
 \item consumption by detritivorous species, where the encounter rate is
-specified by \code{params@rho[, "detritus"]}.
+specified by \code{params@rho[, "detritus", ]}.
 }
 
 This function can be used as the project_resources function in the case

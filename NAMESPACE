@@ -2,8 +2,8 @@
 
 export(MizerParams)
 export(addSpecies)
+export(carrion_dyn)
 export(change_pred_kernel)
-export(dead_animals_dyn)
 export(dead_matter_dyn)
 export(detritus_dyn)
 export(display_frames)

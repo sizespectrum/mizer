@@ -100,7 +100,7 @@ reference:
   - knife_edge
   - sigmoid_length
   - dead_matter_dyn
-  - dead_animals_dyn
+  - carrion_dyn
   - detritus_dyn
   - plankton_semichemostat
 - title: Classes

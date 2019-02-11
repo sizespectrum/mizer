@@ -4,7 +4,7 @@
 \alias{dead_matter_dyn}
 \title{Project two-component dead-matter biomass}
 \usage{
-dead_matter_dyn(params, n, n_pp, B, rates, dt)
+dead_matter_dyn(params, n, n_pp, B, rates, dt, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -14,7 +14,7 @@ dead_matter_dyn(params, n, n_pp, B, rates, dt)
 \item{n_pp}{A vector of the plankton abundance by size}
 
 \item{B}{Vector of biomasses with named components "detritus" and
-"dead_animals".}
+"carrion".}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
 
@@ -33,5 +33,6 @@ time step.
 }
 \details{
 This function in turn calls \code{\link[=project_detritus]{project_detritus()}} and
-\code{\link[=project_dead_animals]{project_dead_animals()}}.
+\code{\link[=project_carrion]{project_carrion()}}. Hence the parameter list in \code{params@resource_params}
+needs to contain the entries required by these functions.
 }

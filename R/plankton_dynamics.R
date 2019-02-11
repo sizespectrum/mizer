@@ -11,6 +11,13 @@
 #' @return Vector containing plankton spectrum at next timestep
 #' @export
 #' @md
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- multispeciesParams(NS_species_params_gears, inter,
+#'                              plankton_dyn = plankton_semichemostat)
+#' }
 plankton_semichemostat <- function(params, n, n_pp, B, rates, dt, ...) {
     # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
     # We use the exact solution under the assumption of constant mortality during timestep

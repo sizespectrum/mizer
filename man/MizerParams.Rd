@@ -9,8 +9,8 @@ MizerParams(object, interaction, min_w = 0.001,
   no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
   kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
   z0pre = 0.6, z0exp = n - 1, plankton_dyn = plankton_semichemostat,
-  interaction_p = rep(1, nrow(object)), resource_names = NULL,
-  resource_dyn = NULL, resource_params = NULL)
+  interaction_p = rep(1, nrow(object)), rho = NULL,
+  resource_names = NULL, resource_dyn = NULL, resource_params = NULL)
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -69,15 +69,33 @@ Default value is 0.6.}
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is n-1.}
 
-\item{plankton_dyn}{x}
+\item{plankton_dyn}{Function that determines plankton dynamics by calculating
+the plankton spectrum at the next time step from the current state. See
+\code{\link[=plankton_semichemostat]{plankton_semichemostat()}} for an example.}
 
-\item{interaction_p}{x}
+\item{interaction_p}{Vector specifying for each species its interaction with
+plankton, similar to what the interaction matrix does for the interaction
+with other species. Entries should be numbers between 0 and 1.}
 
-\item{resource_names}{x}
+\item{rho}{Either NULL (default), in which case there will be no unstructured
+resources in the model, or an array (species x resource) that gives the
+rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
+encounters biomass of resource \eqn{d}. The rate is assumed to scale
+allometrically with size with exponent \code{n}. So the total contribution of
+the resources to the rate at which the individual encounters biomass is
+\deqn{\sum_d\rho_{id} w^n B_d,}
+where \eqn{B_d} is the biomass of the d-th unstructured resource component.}
 
-\item{resource_dyn}{x}
+\item{resource_names}{Vector of strings giving the names of the unstructured
+resource components.}
 
-\item{resource_params}{x}
+\item{resource_dyn}{Either NULL (default) or a function that determines the
+dynamics of the unstructured resources by calculating their biomasses at
+the next time step from the current state. See \code{\link[=dead_matter_dyn]{dead_matter_dyn()}} for an
+example. Ignored if \code{rho} is NULL.}
+
+\item{resource_params}{Either NULL (default) or a list of parameters needed
+by the \code{resource_dyn} function. Ignored if \code{rho} is NULL.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -91,5 +109,5 @@ data(inter)
 params <- multispeciesParams(NS_species_params_gears, inter)
 }
 \seealso{
-\code{\link{project}} \linkS4class{MizerSim}
+\link{project}, \link{MizerSim}
 }

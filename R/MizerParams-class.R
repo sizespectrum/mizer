@@ -472,7 +472,7 @@ emptyParams <-
     if (length(species_names) != no_sp)
         stop("species_names must be the same length as the value of no_sp argument")
 
-    # Set up grids
+    # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
     # specify a grid with a non-constant log spacing. But we comment this out
     # for now because of the fft.
@@ -509,7 +509,7 @@ emptyParams <-
     #     min_w_pp <- w_full[1]
     # }
     
-    # Basic arrays for templates
+    # Basic arrays for templates ----
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
     # mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
@@ -553,7 +553,7 @@ emptyParams <-
     # Make an empty srr function, just to pass validity check
     srr <- function(rdi, species_params) return(0)
     
-    ## Unstructured resources
+    ## Set up resources ----
     if (is.null(resource_names)) {
         rho <- array(0, dim = 0)
         initial_B <- 0
@@ -569,7 +569,8 @@ emptyParams <-
     resource_dyn <- function(params, n, n_pp, B, rates, dt, t) return(B)
     resource_params <- list()
     
-    # Make colour and linetype scales for use in plots
+    # Colour and linetype scales ----
+    # for use in plots
     # Colour-blind-friendly palettes
     # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
     # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
@@ -587,7 +588,7 @@ emptyParams <-
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
     
-    # Make the new object
+    # Make the new object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
     res <- new("MizerParams",
                w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
@@ -601,7 +602,7 @@ emptyParams <-
                interaction = interaction, interaction_p = interaction_p,
                srr = srr, resource_dyn = resource_dyn,
                plankton_dyn = plankton_semichemostat,
-               resource_params = resource_params,
+               resource_params = resource_params, initial_B = initial_B,
                A = as.numeric(rep(NA, dim(interaction)[1])),
                linecolour = linecolour, linetype = linetype) 
     return(res)
@@ -609,7 +610,7 @@ emptyParams <-
 
 
 
-#' Construct \code{MizerParams} object for multispecies model
+#' Construct `MizerParams` object for multispecies model
 #'
 #' Provides default functional forms for all slots in the MizerParams object
 #' based on user-provided species parameters.
@@ -620,11 +621,11 @@ emptyParams <-
 #'   species (predator by prey). If missing a default interaction is used where
 #'   all interactions between species are set to 1. Note that any dimnames of
 #'   the interaction matrix argument are ignored by the constructor. The
-#'   dimnames of the interaction matrix in the returned \code{MizerParams}
-#'   object are taken from the species names in the \code{species_params} slot.
+#'   dimnames of the interaction matrix in the returned `MizerParams`
+#'   object are taken from the species names in the `species_params` slot.
 #'   This means that the order of the columns and rows of the interaction matrix
 #'   argument should be the same as the species name in the
-#'   \code{species_params} slot.
+#'   `species_params` slot.
 #' @param min_w The smallest size of the community spectrum.
 #' @param max_w The largest size of the community spectrum.
 #'    Default value is the largest w_inf in the community x 1.1.
@@ -642,42 +643,61 @@ emptyParams <-
 #' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
 #'   is 10.
-#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
+#' @param f0 Average feeding level. Used to calculated `h` and `gamma`
 #'   if those are not columns in the species data frame. Also requires
-#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
+#'   `k_vb` (the von Bertalanffy K parameter) to be a column in the species
+#'   data frame. If `h` and `gamma` are supplied then this argument is
 #'   ignored. Default is 0.6..
-#' @param z0pre If \code{z0}, the mortality from other sources, is not a column
+#' @param z0pre If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
-#' @param z0exp If \code{z0}, the mortality from other sources, is not a column
+#' @param z0exp If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
-#' @param plankton_dyn x
-#' @param interaction_p x
-#' @param resource_names x
-#' @param resource_dyn x
-#' @param resource_params x
-#' @param rho x
+#' @param plankton_dyn Function that determines plankton dynamics by calculating
+#'   the plankton spectrum at the next time step from the current state. See
+#'   [plankton_semichemostat()] for an example.
+#' @param interaction_p Vector specifying for each species its interaction with
+#'   plankton, similar to what the interaction matrix does for the interaction
+#'   with other species. Entries should be numbers between 0 and 1.
+#' @param resource_names Vector of strings giving the names of the unstructured
+#'   resource components.
+#' @param rho Either NULL (default), in which case there will be no unstructured
+#'   resources in the model, or an array (species x resource) that gives the
+#'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
+#'   encounters biomass of resource \eqn{d}. The rate is assumed to scale
+#'   allometrically with size with exponent `n`. So the total contribution of
+#'   the resources to the rate at which the individual encounters biomass is
+#'   \deqn{\sum_d\rho_{id} w^n B_d,}
+#'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
+#' @param resoure_names Optional vector of strings giving the names of the
+#'   resource components, in the order in which the resources are indexed in the
+#'   `rho` array. Only used if the array `rho` did not have the dimnames set.
+#' @param resource_dyn Either NULL (default) or a function that determines the
+#'   dynamics of the unstructured resources by calculating their biomasses at
+#'   the next time step from the current state. See [dead_matter_dyn()] for an
+#'   example. Ignored if `rho` is NULL.
+#' @param resource_params Either NULL (default) or a list of parameters needed
+#'   by the `resource_dyn` function. Ignored if `rho` is NULL.
 #' @param ... Additional arguments.
 #'
-#' @return An object of type \code{MizerParams}
+#' @return An object of type `MizerParams`
 #' 
-#' @note The only essential argument to the \code{MizerParams} constructor is a
-#'   data frame which contains the species data. The data frame is arranged
-#'   species by parameter, so each column of the parameter data frame is a
-#'   parameter and each row has the parameters for one of the species in the
-#'   model.
+#' @note The only essential argument is a data frame which contains the species
+#'   data. The data frame is arranged species by parameter, so each column of
+#'   the parameter data frame is a parameter and each row has the parameters for
+#'   one of the species in the model.
 #'   
 #'   There are some essential columns that must be included in the species parameter
 #'   data.frame and that do not have default values. Other columns do have
 #'   default values, so that if they are not included in the species parameter
-#'   data frame, they will be automatically added when the \code{MizerParams}
+#'   data frame, they will be automatically added when the `MizerParams`
 #'   object is created. See the accompanying vignette for details of these
 #'   columns.
 #'   
-#' @seealso \code{\link{project}} \linkS4class{MizerSim}
+#' @seealso [project], [MizerSim]
 #' @export
+#' @md
 #' @examples
 #' data(NS_species_params_gears)
 #' data(inter)
@@ -691,6 +711,7 @@ multispeciesParams <-
              f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
              plankton_dyn = plankton_semichemostat,
              interaction_p = rep(1, nrow(object)),
+             rho = NULL,
              resource_names = NULL,
              resource_dyn = NULL,
              resource_params = NULL) {
@@ -700,6 +721,37 @@ multispeciesParams <-
     
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
+    }
+    
+    if (!is.null(rho)) {
+        if (length(dim(rho)) != 2) {
+            stop("The `rho` argument needs to be a 2-dim array.")
+        }
+        no_res <- dim(rho)[2]
+        if (!is.function(resource_dyn)) {
+            stop("You need to supply a resource_dyn function.")
+        }
+        if (!is.list(resource_params)) {
+            stop("You need to supply a resource_params list.")
+        }
+        if (dim(rho)[1] != no_sp) {
+            stop("rho argument should have one row for each species.")
+        }
+        if (is.character(dimnames(rho)["res"])) {
+            # If resource names are provided via dimnames in rho array, use 
+            # these instead of any explicitly provided resource names
+            resource_names <- dimnames(rho)["res"]
+        }
+        if (!is.character(resource_names)) {
+            stop("Resource names need to be of type charater.")
+        }
+    } else {
+        if (!(is.null(resource_names) && 
+              is.null(resource_dyn) && 
+              is.null(resource_params))) {
+            message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources all other resource information has been ignored.")
+            resource_names <- NULL
+        }
     }
     
     ## Set default values for missing values in species params  --------------
@@ -823,7 +875,8 @@ multispeciesParams <-
     res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
                        min_w_pp = min_w_pp, no_w_pp = NA, 
                        species_names = object$species, 
-                       gear_names = unique(object$gear))
+                       gear_names = unique(object$gear),
+                       resource_names = resource_names)
     res@n <- n
     res@p <- p
     res@lambda <- lambda
@@ -886,6 +939,18 @@ multispeciesParams <-
     res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
     res@metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,k,p)ks * wx^p + k * wx, ks=object$ks,k=object$k,p=p))
     res@mu_b[] <- res@species_params$z0
+    
+    # Plankton
+    res@plankton_dyn <- plankton_dyn
+    res@interaction_p <- interaction_p
+    
+    # Resources
+    if (!is.null(rho)) {
+        res@resource_dyn <- resource_dyn
+        res@resource_params <- resource_params
+        res@rho[] <- outer(rho, res@w ^ res@n)
+        res@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
+    }
     
     # Set up predation kernels ------------------------------------------------
     Beta <- log(res@species_params$beta)
@@ -993,10 +1058,12 @@ multispeciesParams <-
     
     # Remove catchabiliy from species data.frame, now stored in slot
     #params@species_params[,names(params@species_params) != "catchability"]
-    res@species_params <- res@species_params[, -which(names(res@species_params) == "catchability")]
-    res@initial_n <- res@psi
+    res@species_params <- 
+        res@species_params[, -which(names(res@species_params) == "catchability")]
+
     res@initial_n <- get_initial_n(res)
     res@A <- rep(1, no_sp)
+    
     return(res)
 }
 

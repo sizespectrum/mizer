@@ -27,3 +27,11 @@ Vector containing plankton spectrum at next timestep
 \description{
 Project plankton using semichemostat model
 }
+\examples{
+\dontrun{
+data(NS_species_params_gears)
+data(inter)
+params <- multispeciesParams(NS_species_params_gears, inter,
+                             plankton_dyn = plankton_semichemostat)
+}
+}

@@ -68,34 +68,34 @@ NULL
 getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
     r <- list()
     # Calculate rate E_{e,i}(w) of encountered food
-    r$encounter <- getEncounter(object, n = n, n_pp = n_pp)
+    r$encounter <- getEncounter(object, n = n, n_pp = n_pp, B = B)
     # Calculate feeding level f_i(w)
-    r$feeding_level <- getFeedingLevel(object, n = n, n_pp = n_pp,
+    r$feeding_level <- getFeedingLevel(object, n = n, n_pp = n_pp, B = B,
                                        encounter = r$encounter)
     # Calculate the predation rate
-    r$pred_rate <- getPredRate(object, n = n, n_pp = n_pp,
+    r$pred_rate <- getPredRate(object, n = n, n_pp = n_pp, B = B,
                                feeding_level = r$feeding_level)
     # Calculate predation mortality on fish \mu_{p,i}(w)
     r$pred_mort <- getPredMort(object, pred_rate = r$pred_rate)
     # Calculate total mortality \mu_i(w)
-    r$mort <- getMort(object, n = n, n_pp = n_pp, 
+    r$mort <- getMort(object, n = n, n_pp = n_pp, B = B, 
                       effort = effort, m2 = r$pred_mort)
     # Calculate mortality on the plankton spectrum
-    r$plankton_mort <- getPlanktonMort(object, n = n, n_pp = n_pp,
+    r$plankton_mort <- getPlanktonMort(object, n = n, n_pp = n_pp, B = B,
                                        pred_rate = r$pred_rate)
     # Calculate the resources available for reproduction and growth
-    r$e <- getEReproAndGrowth(object, n = n, n_pp = n_pp, 
+    r$e <- getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B, 
                               feeding_level = r$feeding_level)
     # Calculate the resources for reproduction
-    r$e_repro <- getERepro(object, n = n, n_pp = n_pp, e = r$e)
+    r$e_repro <- getERepro(object, n = n, n_pp = n_pp, B = B, e = r$e)
     # Calculate the growth rate g_i(w)
-    r$e_growth <- getEGrowth(object, n = n, n_pp = n_pp, 
+    r$e_growth <- getEGrowth(object, n = n, n_pp = n_pp, B = B, 
                              e_repro = r$e_repro, e = r$e)
     # R_{p,i}
-    r$rdi <- getRDI(object, n = n, n_pp = n_pp, 
+    r$rdi <- getRDI(object, n = n, n_pp = n_pp, B = B, 
                     e_repro = r$e_repro, sex_ratio = sex_ratio)
     # R_i
-    r$rdd <- getRDD(object, n = n, n_pp = n_pp, rdi = r$rdi)
+    r$rdd <- getRDD(object, n = n, n_pp = n_pp, B = B, rdi = r$rdi)
     return(r)
 }
 
@@ -123,7 +123,9 @@ getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
 #' getEncounter(params,n,n_pp)
 #' }
 getEncounter <- function(object, n, n_pp, B = 0) {
-
+    if (missing(B)) {
+        B <- 0
+    }
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
@@ -153,8 +155,12 @@ getEncounter <- function(object, n, n_pp, B = 0) {
         phi_prey_background <- rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
-        return(object@search_vol * (phi_prey_species + phi_prey_background) +
-                   B * object@rho)
+        encounter <- object@search_vol * (phi_prey_species + phi_prey_background)
+        if (any(B != 0)) {
+            encounter <- encounter +
+                rowSums(sweep(object@rho, 2, B, "+"), 1)
+        }
+        return(encounter)
     }
 
     # Rate of encountering plankton cells
@@ -176,7 +182,12 @@ getEncounter <- function(object, n, n_pp, B = 0) {
     # Due to numerical errors we might get negative entries. They should be 0
     avail_energy[avail_energy < 0] <- 0
 
-    return(object@search_vol * avail_energy[, idx_sp, drop = FALSE])
+    encounter <- object@search_vol * avail_energy[, idx_sp, drop = FALSE]
+    if (any(B != 0)) {
+        encounter <- encounter +
+            rowSums(sweep(object@rho, 2, B, "+"), 1)
+    }
+    return(encounter)
 }
 
 
@@ -232,7 +243,7 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
                             time_range, drop=FALSE){
     if (is(object, "MizerParams")) {
         if (missing(encounter)) {
-            encounter <- getEncounter(object, n, n_pp, B)
+            encounter <- getEncounter(object, n, n_pp, B = B)
         }
         # Check dims of encounter
         if (!all(dim(encounter) == c(nrow(object@species_params),

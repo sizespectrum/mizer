@@ -103,7 +103,13 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                     initial_B = params@initial_B,
                     shiny_progress = NULL, ...) {
     validObject(params)
+    if (any(initial_B != 0)) {
+        if (!is.character(names(initial_B))) {
+            stop("The initial_B needs to be a named vector")
+        }
+    }
     
+    # Create effort array ----
     # Do we need to create an effort array?
     if (is.vector(effort)) {
         no_gears <- dim(params@catchability)[1]
@@ -161,7 +167,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     }
     effort_dt <- t(effort_dt)
     
-    # Make the MizerSim object with the right size
+    # Make the MizerSim object with the right size ----
     # We only save every t_save steps
     # Divisibility test needs to be careful about machine rounding errors,
     # see https://github.com/sizespectrum/mizer/pull/2
@@ -174,6 +180,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     # Fill up the effort array
     sim@effort[] <- effort_dt[t_dimnames_index,]
     
+    ## Initialise ----
     # Set initial population
     sim@n[1,,] <- initial_n 
     sim@n_pp[1,] <- initial_n_pp
@@ -202,7 +209,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     n <- array(sim@n[1, , ], dim = dim(sim@n)[2:3])
     dimnames(n) <- dimnames(sim@n)[2:3]
     n_pp <- sim@n_pp[1, ]
-    B <- sim@B[1, ]
+    B <- initial_B
     
     # Set up progress bar
     pb <- progress::progress_bar$new(
@@ -214,6 +221,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         proginc <- 1/length(t_dimnames_index)
     }
     
+    ## Loop over time ----
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
@@ -251,12 +259,14 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                                 w_min_idx = sim@params@w_min_idx)
         
         # Update unstructured resource biomasses
-        B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
-                                      rates = r, dt = dt, t = t)
+        if (any(B != 0)) {
+            B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
+                                     rates = r, dt = dt)
+        }
         
         # Update plankton
         n_pp <- params@plankton_dyn(params, n = n, n_pp = n_pp, B = B,
-                                        rates = r, dt = dt, t = t)
+                                        rates = r, dt = dt)
         
         # Update time
         t <- t + dt
