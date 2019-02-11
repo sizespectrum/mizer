@@ -12,7 +12,7 @@ output:
     toc_depth: 3
     number_sections: yes
 vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteIndexEntry{Mathematical Details behind Mizer}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
