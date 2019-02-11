@@ -7,11 +7,13 @@
 getMeanWeight(sim, species = 1:nrow(sim@params@species_params), ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}}
+\item{sim}{An object of class `MizerSim`}
 
 \item{species}{numeric or character vector of species to include in the calculation}
 
-\item{...}{Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.}
+\item{...}{Other arguments for the \code{\link{getN}} and
+\code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
+\code{min_l} and \code{max_l}.}
 }
 \value{
 A vector containing the mean weight of the community through time

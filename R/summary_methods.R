@@ -319,9 +319,11 @@ getProportionOfLargeFish <- function(sim,
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
-#' @param sim An object of class \code{MizerSim}
+#' @param sim An object of class `MizerSim`
 #' @param species numeric or character vector of species to include in the calculation
-#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
+#' @param ... Other arguments for the \code{\link{getN}} and
+#'   \code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
+#'   \code{min_l} and \code{max_l}.
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
@@ -356,11 +358,15 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' You can also specify the species to be used in the calculation.
 #'
 #' @param sim An object of class \code{MizerSim}.
-#' @param species numeric or character vector of species to include in the calculation.
+#' @param species numeric or character vector of species to include in the
+#'   calculation.
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
-#' @param ... Other arguments for the \code{getN} and \code{getBiomass} methods such as \code{min_w}, \code{max_w} \code{min_l} and \code{max_l}.
+#' @param ... Other arguments for the \code{\link{getN}} and
+#'   \code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
+#'   \code{min_l} and \code{max_l}.
 #'
-#' @return A matrix or vector containing the mean maximum weight of the community through time
+#' @return A matrix or vector containing the mean maximum weight of the
+#'   community through time
 #' @export
 #' @examples
 #' \dontrun{
