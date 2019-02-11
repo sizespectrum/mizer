@@ -512,9 +512,9 @@ emptyParams <-
     # Basic arrays for templates
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
-    mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
-                  dimnames = list(sp = species_names, w_pred = signif(w,3), 
-                                  w_prey = signif(w_full,3)))
+    # mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
+    #               dimnames = list(sp = species_names, w_pred = signif(w,3), 
+    #                               w_prey = signif(w_full,3)))
     
     ft_pred_kernel_e <- array(NA, dim = c(no_sp, no_w_full), 
                               dimnames = list(sp = species_names, k = 1:no_w_full))
