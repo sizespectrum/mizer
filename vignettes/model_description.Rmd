@@ -97,49 +97,59 @@ in the absence of predation, stored as a vector
 in the subsection [Plankton mortality].
 
 
-## Unstructured components
-Besides the size spectra of fish and plankton, mizer can also model 
-unstructured components of the ecosystem.
-Such unstructured components are appropriate whenever the
-predation on this component is not size based. Examples include a detritus 
-pool, biomass of dead animals, or biomass of plants on which fish can graze.
-Mizer allows an arbitrary number of unstructured components. We will use
-an index $d$ for these components. The biomass of the $d$th component is
-denoted by $B_d$. 
-The rate of change in biomasses is described by ODEs
-\[\frac{d}{dt}B_d = \]
+## Predator-prey preference
+The preference $\phi_{ij}(w, w_p)$ of
+an individual of species $i$ and weight $w$ for prey of species $j$ and
+weight $w_p$ is assumed to factorize as 
+\[\phi_{ij}(w, w_p)=\theta_{ij}\,\phi_i(w,w_p)\] 
+into a species preference matrix $\theta_{ij}$ and a weight selection function
+$\phi_i(w, w_p)$. 
+
+The species preference matrix $\theta_{ij}$, also referred to as the
+species interaction matrix, is stored in an array `interaction[i,j]`.
+
+The weight selection function is stored in an array
+`pred_kernel[i,a,c]`$=\phi_i($`w[a]`,`w_full[c]`$)$, 
+i.e., the first index specifies the predator species, the second the
+predator size class (and ranges only over fish spectrum) and the third index
+specifies the prey size class and ranges over the entire spectrum.
 
 
-## Encounter rates
-We first discuss the rates at which fish could predate if they were not
-subject to satiation. We refer to these as encounter rates. We will 
-discuss in the next subsection that satiation leads to only a certain 
-proportion of the encountered prey actually being consumed.
 
-Let $\gamma_{ij}(w,w_p)$ be the per capita predation rate at which a given 
-individual of species $i$ and weight $w$ encounters a given individual of 
-species $j$ and weight $w_p$. 
-Similarly let $\gamma_{iR}(w,w_p)$ be the per capita encounter rate at which a
-given  individual of species $i$ and weight $w$ encounters on a given plankton
-individual of weight $w_p$. Then the total rate at which prey biomass
-is encountered by a predator of species $i$ and weight $w$  is obtained by 
-integrating and summing over all possible prey, weighted by their biomass:
-\[\begin{split}
-E_{e.i}(w) = &\sum_j\int \gamma_{ij}(w,w_p)\, N_j(w_p)\,w_p\,dw_p\\
-&+\int \gamma_{iR}(w,w_p)\, N_R(w_p)\,w_p\,dw_p\\
-&+\sum_d\rho_{id}(w)\,B_d,
-\end{split}\]
-where we also included a term describing the feeding on the unstructured
-resource components depending linearly on their biomasses $B_d$ with
-rate coefficients $\rho_{id}(w)$.
+## Available energy
 
-The per capita encounter rate $\phi_{ij}(w, w_p)$ is assumed to factorize as 
-\[\gamma_{ij}(w, w_p)=\theta_{ij}\,\gamma_i(w,w_p)\] 
-into a species preference matrix $\theta_{ij}$ and an encounter rate
-$\gamma_i(w, w_p)$ that is independent of the prey species.
+The available food for a predator of species $i$ and weight $w$ is determined 
+by summing over all prey species and the resource spectrum and integrating
+over all prey sizes $w_p$, weighted by the size selection function: 
+
+\begin{equation}
+  \label{eq:1}
+  E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+  \phi_i(w,w_p) w_p \, dw_p.
+\end{equation}
+
+This available energy is calculated by the `getAvailEnergy()` function.
+The integral is approximated by a Riemann sum over all weight brackets.
+\[
+\text{avail_energy}[i,a] = \sum_{k}
+\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
+  \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
+\]
 
 
-## Consumption rates
+## Consumption
+
+The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
+volume rate (volume per time):
+
+\begin{equation}
+  \label{eq:Ee}
+  E_{e.i}(w) = \gamma_i(w) E_{a.i}(w).
+\end{equation}
+The search volume $\gamma_i(w)$ is stored in an array `search_vol[i,a]`
+where the first index specifies the species and the second the weight of the
+predator.
+
 The encountered food is consumed subjected to a standard Holling functional 
 response type II to represent satiation. This determines the 
 *feeding level* $f_i(w)$, which is a dimensionless number between 0 
@@ -152,34 +162,31 @@ encountered food that is consumed. The feeding level is given by
 \end{equation}
 
 where $h_i(w)$ is the maximum consumption rate stored in
-`params@intake_max[i,a]`. 
+`params@intake_max[i,a]`. The rate at which food is
+consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w)\, h_i(w)$.
 
 The feeding level is calculated with the function `getFeedingLevel()`.
 
-The rate at which food is consumed is then 
-\[E_{c.i}(w)=(1-f_i(w))E_{e.i}(w)=f_i(w)\, h_i(w).\]
 
 ## Metabolic losses
 
-Only a fraction $\alpha$ of the consumed food can be converted into predator
-biomass, and even of that some is first needed for metabolism and 
-activity and movement, and only what remains can be used for reproduction 
-and growth. 
-The rate $\text{metab}_i(w)$ at which biomass is lost to metabolism, activity 
-and movement is stored in the array `metab[i,a]`.
-
-So the rate at which biomass becomes available for growth and reproduction is
+Some of the consumed food is used to fuel the needs for metabolism and 
+activity and movement, at a rate $\text{metab}_i(w)$, stored in the
+array `metab[i,a]`.
+The remaining rate, if any, is assimilated with an efficiency $\alpha$ and 
+is then available for growth and reproduction. So the rate at which energy
+becomes available for growth and reproduction is
 \begin{equation}
   \label{eq:Er}
   E_{r.i}(w) = \max(0, \alpha f_i(w)\, h_i(w) - \text{metab}_i(w))
 \end{equation}
-This is calculated with the `getEReproAndGrowth()` function.
+ This is calculated with the `getEReproAndGrowth()` function.
 
 
 ## Investment into reproduction
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction
 is used for reproduction. This proportion should change from zero below the  
-weight $w_{m.i}$ of maturation to one at the asymptotic weight 
+weight $w_{m.i}$ of maturationto one at the asymptotic weight 
 $W_i$, where all available energy is used for reproduction. This proportion
 is stored in an array `psi[i,a]`$=\psi_i(w_a)$.
 
@@ -221,11 +228,26 @@ fishing mortality $\mu_{f.i}(w)$.
 
 Predation mortality is calculated such that all that is eaten translates into 
 corresponding predation mortalities on the ingested prey individuals. 
-Recalling that $1-f_i(w)$ is the proportion of the food encountered by a 
-predator of species $i$ and weight $w$ that is actually consumed, the
-rate at which an individual of species $j$ and weight $w_p$ is predated is
-\begin{equation}\label{eq:pred_mort}
-  \mu_{p.j}(w_p) = \sum_i \int \gamma_{ij}(w,w_p) (1-f_i(w))\, N_i(w) \, dw.
+Recalling that $1-f_j(w)$ is the proportion of the food encountered by a 
+predator of species $j$ and weight $w$ that is actually consumed, the
+rate at which all predators of species $j$ consume prey of size $w_p$ is
+\begin{equation}
+  \label{eq:pred_rated}
+  \text{pred_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
+  \gamma_j(w) N_j(w) \, dw.
+\end{equation}
+This predation rate is calculated by the function `getPredRate()`.
+The integral is approximated by a Riemann sum over all fish weight brackets.
+\[
+\text{pred_rate}[j,c] = \sum_{a}
+  \text{pred_kernel}[j,a,c]\,(1-\text{feeding_level}[j,a])\,
+  \gamma[j,a]\,n[j,a]\,dw[a].
+\]
+
+The mortality rate due to predation is then obtained as
+\begin{equation}
+  \label{eq:mup}
+  \mu_{p.i}(w_p) = \sum_j \text{pred_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`.
 
@@ -243,7 +265,7 @@ The predation mortality rate on plankton is given by a similar expression
 as the predation mortality on fish:
 \begin{equation}
   \label{eq:mupp}
-  \mu_{p}(w_p) =  \sum_i \int \gamma_{iR}(w,w_p) (1-f_i(w))\, N_i(w) \, dw.
+  \mu_{p}(w_p) = \sum_j \text{pred_rate}_j(w_p).
 \end{equation}
 This is the only mortality on plankton currently implemented in mizer.
 It is calculated with the function `getPlanktonMort()`.
