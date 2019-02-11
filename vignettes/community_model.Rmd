@@ -18,7 +18,7 @@ library(mizer)
 
 ## Setting up a community model {#sec:set_up_comm_model}
 
-As mentioned above, the first stage in implementing a model using `mizer` is to create an object of class `MizerParams`. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the fishing selectivity functions and the parameters of the resource spectrum. The class is fully described [here.](model_description.html)
+As mentioned above, the first stage in implementing a model using `mizer` is to create an object of class `MizerParams`. This class contains the model parameters including the life-history parameters of the species in the model, the stock-recruitment relationships, the fishing selectivity functions and the parameters of the plankton spectrum. The class is fully described [here.](model_description.html)
 
 To avoid having to make a `MizerParams` object directly, a wrapper function, `set_community_model()`, has been provided that conveniently creates a `MizerParams` object specifically for a community model. The documentation for the function can be seen by entering:
 
@@ -33,7 +33,7 @@ The arguments that you should pay attention to are: `z0` (the level of backgroun
 Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of `z0` is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
 The value of the constant recruitment should be set so that the community spectrum is a continuation of the plankton spectrum. This can be done with trial and error.  A reasonable value for `alpha` is 0.2. 
 
-The `set_community_model()` function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with `z0` = 1, `f0` = 0.7, `alpha` = 0.2 and `recruitment` = 4e7. All other parameters will have their default value:
+The `set_community_model()` function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with `z0` = 0.1, `f0` = 0.7, `alpha` = 0.2 and `recruitment` = 4e7. All other parameters will have their default value:
 
 ```{r label=demo_comm_model_params}
 params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
@@ -50,7 +50,7 @@ If you are going through this vignette for the first time, it is likely that you
 slotNames(params)
 ```
 
-As you can see, the `params` object is made up of lots of slots. They are discussed in detail [here.](multispecies_model.html). A quick description can be found in the `MizerParams` help page (run `class ? MizerParams`. The slots of an object are accessed by using the `@` operator. For example, to access the `w` slot (which contains a vector of the size bins in the model) you would use:
+As you can see, the `params` object is made up of lots of slots. They are discussed in detail [here.](multispecies_model.html) A quick description can be found in the `MizerParams` help page (run `class ? MizerParams`. The slots of an object are accessed by using the `@` operator. For example, to access the `w` slot (which contains a vector of the size bins in the model) you would use:
 
 ```{r label=demo_slot_accessor, results='hide'}
 params@w
@@ -62,7 +62,7 @@ Rather than picking through the slots to find out what is in a particular `Mizer
 summary(params)
 ```
 
-In the summary you can see that the size range of the community spectrum has been set from `r min(params@w)` to `r max(params@w)` and these are spread over `r length(params@w)` size bins. Similar information is available for the resource spectrum.
+In the summary you can see that the size range of the community spectrum has been set from `r min(params@w)` to `r max(params@w)` and these are spread over `r length(params@w)` size bins. Similar information is available for the plankton spectrum.
 Additionally, the community is made up of only one species, called *Community*, which has an asymptotic size of `r params@species_params$w_inf[1]` and a preferred predator prey mass ratio of `r params@species_params$beta[1]`. The `w_mat` parameter has been set to `NA` as it is not used when running a community model. These values have all been set by default using the `set_community_model()` function. If you want to set different values for these, you will need to call the `set_community_model()` function and pass in the the desired argument values. 
 
 ## Running the community model {#sec:running_comm_model}
@@ -77,7 +77,7 @@ To run a projection for 50 time steps, with no fishing effort (i.e. we want to m
 sim <- project(params, t_max=50, effort = 0)
 ```
 
-The resulting object, `sim`, is of type `MizerSim`. This class holds the results of the simulation, including the community and resource abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\@ref(sec:projection).
+The resulting object, `sim`, is of type `MizerSim`. This class holds the results of the simulation, including the community and plankton abundances at size through time, as well as the original model parameters. It is explained in detail in Section~\@ref(sec:projection).
 
 After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in Section~\@ref(sec:exploring). To quickly look at the results of the projection you can call the generic `plot()` method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time Each of the plots can be show individually if desired.
 
@@ -91,8 +91,8 @@ In the above plot there are several things going on that are worth talking about
 Fishing mortality is 0 because we set the `effort` argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
 The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the `f0` and `alpha` arguments passed to the `set_community_model()` function.
-The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to `r signif(params@w_full[1],3)` g).
-You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed recruitment (the `recruitment` argument passed to `set_community_model()`).
+The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to `r signif(params@w_full[1],3)` g).
+You can see that the community spectrum forms a continuum with the plankton spectrum. This is strongly affected by the level of fixed recruitment (the `recruitment` argument passed to `set_community_model()`).
 
 Note the *hump* in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the `z0` argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
 
@@ -143,6 +143,7 @@ sim1 <- project(params_knife, effort = 1, t_max = 50)
 
 You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
+Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.
 
 ```{r label=print_plot_comm_fmort, fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
 plot(sim1)
