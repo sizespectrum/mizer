@@ -5,7 +5,7 @@
 \title{Plot the abundance spectra}
 \usage{
 plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA,
-  NA), power = 1, biomass = TRUE, print_it = TRUE, total = FALSE,
+  NA), power = 1, biomass = TRUE, print_it = FALSE, total = FALSE,
   plankton = TRUE, background = TRUE, ...)
 }
 \arguments{
@@ -37,7 +37,7 @@ to logarithmic size bins.}
 \code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to TRUE}
+Defaults to FALSE}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}

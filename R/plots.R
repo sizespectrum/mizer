@@ -194,7 +194,7 @@ getBiomassFrame <- function(sim,
 #'   y axis. Use NA to refer to the existing minimum or maximum. Any values
 #'   below 1e-20 are always cut off.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
-#'   value is TRUE
+#'   value is FALSE
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE
 #' @param background A boolean value that determines whether background species
@@ -222,7 +222,7 @@ plotBiomass <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            y_ticks = 6, print_it = TRUE,
+            y_ticks = 6, print_it = FALSE,
             ylim = c(NA, NA),
             total = FALSE, background = TRUE, ...){
     b <- getBiomass(sim, ...)
@@ -292,7 +292,7 @@ plotBiomass <- function(sim,
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species contained in \code{sim} are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE.
+#'   Defaults to FALSE.
 #' @param total A boolean value that determines whether the total yield from
 #'   all species in the system is plotted as well. Default is FALSE.
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
@@ -317,7 +317,7 @@ plotBiomass <- function(sim,
 #' }
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
-                      print_it = TRUE, total = FALSE, log = TRUE, ...){
+                      print_it = FALSE, total = FALSE, log = TRUE, ...){
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -416,7 +416,7 @@ plotYield <- function(sim, sim2,
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object. 
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total yield
 #'   per gear over all species in the system is plotted as well. Default is FALSE
 #' @param ... Other arguments to pass to \code{\link{getYieldGear}} method
@@ -435,7 +435,7 @@ plotYield <- function(sim, sim2,
 #' }
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
-                          print_it = TRUE, total = FALSE, ...){
+                          print_it = FALSE, total = FALSE, ...){
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
@@ -494,7 +494,7 @@ plotYieldGear <- function(sim,
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
 #' @param plankton A boolean value that determines whether plankton is included.
@@ -521,7 +521,7 @@ plotYieldGear <- function(sim,
 plotSpectra <- function(object, species = NULL,
                         time_range,
                         min_w, ylim = c(NA, NA),
-                        power = 1, biomass = TRUE, print_it = TRUE,
+                        power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE, ...) {
     if (is(object, "MizerSim")) {
@@ -673,7 +673,7 @@ plot_spectra <- function(params, n, n_pp,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getFeedingLevel} method
 #'
 #' @return A ggplot2 object
@@ -691,7 +691,7 @@ plot_spectra <- function(params, n, n_pp,
 plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
             time_range = max(as.numeric(dimnames(sim@n)$time)),
-            print_it = TRUE, ...) {
+            print_it = FALSE, ...) {
     feed_time <- getFeedingLevel(sim, time_range = time_range,
                                  drop = FALSE, ...)
     feed <- apply(feed_time, c(2, 3), mean)
@@ -732,7 +732,7 @@ plotFeedingLevel <- function(sim,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getM2} method.
 #'
 #' @return A ggplot2 object
@@ -749,7 +749,7 @@ plotFeedingLevel <- function(sim,
 #' }
 plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
-                   print_it = TRUE, ...) {
+                   print_it = FALSE, ...) {
     m2_time <- getM2(sim, time_range = time_range, drop = FALSE, ...)
     m2 <- apply(m2_time, c(2, 3), mean)
     m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
@@ -791,7 +791,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getFMort} method
 #'
 #' @return A ggplot2 object
@@ -808,7 +808,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' }
 plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
-                      print_it = TRUE, ...){
+                      print_it = FALSE, ...){
     f_time <- getFMort(sim, time_range = time_range, drop = FALSE, ...)
     f <- apply(f_time, c(2, 3), mean)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
@@ -853,7 +853,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' @param percentage Boolean value. If TRUE, the size is shown as a percentage
 #'   of the maximal size.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments (unused)
 #' 
 #' @return A ggplot2 object
@@ -868,7 +868,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' }
 plotGrowthCurves <- function(object, species,
-            max_age = 20, percentage = FALSE, print_it = TRUE) {
+            max_age = 20, percentage = FALSE, print_it = FALSE) {
     if (is(object, "MizerSim")) {
         sim <- object
         if (missing(species)) {

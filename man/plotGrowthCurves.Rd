@@ -5,7 +5,7 @@
 \title{Plot growth curves giving weight as a function of age}
 \usage{
 plotGrowthCurves(object, species, max_age = 20, percentage = FALSE,
-  print_it = TRUE)
+  print_it = FALSE)
 }
 \arguments{
 \item{object}{MizerSim or MizerParams object}
@@ -19,7 +19,7 @@ default all species are plotted.}
 of the maximal size.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to TRUE}
+Defaults to FALSE}
 
 \item{...}{Other arguments (unused)}
 }

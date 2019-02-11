@@ -7,7 +7,7 @@
 plotBiomass(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  y_ticks = 6, print_it = TRUE, ylim = c(NA, NA), total = FALSE,
+  y_ticks = 6, print_it = FALSE, ylim = c(NA, NA), total = FALSE,
   background = TRUE, ...)
 }
 \arguments{
@@ -25,7 +25,7 @@ time series.}
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object. Default
-value is TRUE}
+value is FALSE}
 
 \item{ylim}{A numeric vector of length two providing limits of for the
 y axis. Use NA to refer to the existing minimum or maximum. Any values

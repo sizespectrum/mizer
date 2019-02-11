@@ -5,7 +5,7 @@
 \title{Plot predation mortality rate of each species against size}
 \usage{
 plotM2(sim, species = dimnames(sim@n)$sp,
-  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = TRUE,
+  time_range = max(as.numeric(dimnames(sim@n)$time)), print_it = FALSE,
   ...)
 }
 \arguments{
@@ -19,7 +19,7 @@ and max time, or a single value) to average the abundances over. Default is
 the final time step.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to TRUE}
+Defaults to FALSE}
 
 \item{...}{Other arguments to pass to \code{getM2} method.}
 }
