@@ -1,5 +1,12 @@
 # mizer development version
 
+* Added numerical unit tests
+* Allow user-defined plankton dynamics
+* Introduced a new parameter slot `interact_p` that sets the strength of
+  interaction of species with plankton.
+* Avoid duplicate graphs in rmarkdown documents by setting the default for
+  the `print_it` argument in plot functions to `FALSE`.
+* Introduce unstructured resources into mizer model
 * Correctly deal with NAs in species parameters.
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
 * Predation integrals now agree better with the analytic
