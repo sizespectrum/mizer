@@ -32,7 +32,7 @@
 #' @md
 detritus_dyn <- function(params, n, n_pp, B, rates, dt, ...) {
     consumption <- 
-        B* sum((params@rho[, "detritus", ] * n * (1 - rates$feeding_level)) %*%
+        B * sum((params@rho[, "detritus", ] * n * (1 - rates$feeding_level)) %*%
                params@dw)
     creation <- params@resource_params$detritus_external +
         params@resource_params$detritus_proportion *
@@ -86,13 +86,13 @@ carrion_dyn <- function(params, n, n_pp, B, rates, dt, ...) {
 
 #' Project two-component dead-matter biomass
 #' 
-#' This function can be used as the `project_resources` function in the case
+#' This function can be used as the `resource_dyn` function in the case
 #' where there are two unstructured resource components named "detritus"
 #' and "dead_animals". It gives the biomass of these components at the next
 #' time step.
 #' 
-#' This function in turn calls [project_detritus()] and
-#' [project_carrion()]. Hence the parameter list in `params@resource_params`
+#' This function in turn calls [detritus_dyn()] and
+#' [carrion_dyn()]. Hence the parameter list in `params@resource_params`
 #' needs to contain the entries required by these functions.
 #' 
 #' @param params A [MizerParams] object
@@ -109,9 +109,9 @@ carrion_dyn <- function(params, n, n_pp, B, rates, dt, ...) {
 #' @md
 dead_matter_dyn <- function(params, n, n_pp, B, rates, dt, ...) {
     Bn <- B
-    Bn["detritus"] <- detritus_dyn(params, n, n_pp, B["detritus"], 
-                                       rates, dt)
-    Bn["carrion"] <- carrion_dyn(params, n, n_pp, B["carrion"], 
-                                           rates, dt)
+    Bn["detritus"] <- detritus_dyn(params, n, n_pp, B["detritus"],
+                                   rates, dt)
+    Bn["carrion"] <- carrion_dyn(params, n, n_pp, B["carrion"],
+                                 rates, dt)
     return(Bn)
 }

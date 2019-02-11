@@ -86,8 +86,9 @@ the resources to the rate at which the individual encounters biomass is
 \deqn{\sum_d\rho_{id} w^n B_d,}
 where \eqn{B_d} is the biomass of the d-th unstructured resource component.}
 
-\item{resource_names}{Vector of strings giving the names of the unstructured
-resource components.}
+\item{resource_names}{Optional vector of strings giving the names of the
+resource components, in the order in which the resources are indexed in the
+\code{rho} array. Only used if the array \code{rho} did not have the dimnames set.}
 
 \item{resource_dyn}{Either NULL (default) or a function that determines the
 dynamics of the unstructured resources by calculating their biomasses at
@@ -96,10 +97,6 @@ example. Ignored if \code{rho} is NULL.}
 
 \item{resource_params}{Either NULL (default) or a list of parameters needed
 by the \code{resource_dyn} function. Ignored if \code{rho} is NULL.}
-
-\item{resoure_names}{Optional vector of strings giving the names of the
-resource components, in the order in which the resources are indexed in the
-\code{rho} array. Only used if the array \code{rho} did not have the dimnames set.}
 
 \item{...}{Additional arguments.}
 }

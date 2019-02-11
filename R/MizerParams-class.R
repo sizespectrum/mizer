@@ -257,12 +257,12 @@ validMizerParams <- function(object) {
 #'   carrying capacity of the plankton spectrum.
 #' @slot resource_dyn A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
-#'   \code{\link{project_detritus}} for an example.
+#'   \code{\link{dead_matter_dyn}} for an example.
 #' @slot plankton_dyn A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
 #'   an example.
 #' @slot resource_params A list containing the parameters needed by the
-#'   `project_resources` function.
+#'   `resources_dyn` function.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -271,7 +271,7 @@ validMizerParams <- function(object) {
 #'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
-#' @slot project_resources Function to calculate the biomasses of the
+#' @slot resource_dyn Function to calculate the biomasses of the
 #'   unstructured resources at the next time step
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}
@@ -660,8 +660,6 @@ emptyParams <-
 #' @param interaction_p Vector specifying for each species its interaction with
 #'   plankton, similar to what the interaction matrix does for the interaction
 #'   with other species. Entries should be numbers between 0 and 1.
-#' @param resource_names Vector of strings giving the names of the unstructured
-#'   resource components.
 #' @param rho Either NULL (default), in which case there will be no unstructured
 #'   resources in the model, or an array (species x resource) that gives the
 #'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
@@ -670,7 +668,7 @@ emptyParams <-
 #'   the resources to the rate at which the individual encounters biomass is
 #'   \deqn{\sum_d\rho_{id} w^n B_d,}
 #'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-#' @param resoure_names Optional vector of strings giving the names of the
+#' @param resource_names Optional vector of strings giving the names of the
 #'   resource components, in the order in which the resources are indexed in the
 #'   `rho` array. Only used if the array `rho` did not have the dimnames set.
 #' @param resource_dyn Either NULL (default) or a function that determines the

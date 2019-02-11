@@ -68,14 +68,14 @@ carrying capacity of the plankton spectrum.}
 
 \item{\code{resource_dyn}}{A function for projecting the biomasses in the
 unstructured resource components by one timestep. See
-\code{\link{project_detritus}} for an example.}
+\code{\link{dead_matter_dyn}} for an example.}
 
 \item{\code{plankton_dyn}}{A function for projecting the plankton abundance
 density by one timestep. See \code{\link{plankton_semichemostat}} for 
 an example.}
 
 \item{\code{resource_params}}{A list containing the parameters needed by the
-`project_resources` function.}
+`resources_dyn` function.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -90,7 +90,7 @@ an example.}
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
 
-\item{\code{project_resources}}{Function to calculate the biomasses of the
+\item{\code{resource_dyn}}{Function to calculate the biomasses of the
 unstructured resources at the next time step}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
