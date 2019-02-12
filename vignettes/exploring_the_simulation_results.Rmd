@@ -62,6 +62,10 @@ The `n_pp` slot can be accessed in the same way.
 As well as the `summary()` methods that are available for both `MizerParams` and `MizerSim` objects, there are some useful summary methods to pull information out of a `MizerSim` object (see Table~\@ref(tab:summary_methods)). All of these methods have help files to explain how they are used.
 (It is also possible to use most of these methods with a `MizerParams` object if you also supply the population abundance as an argument. This can be useful for exploring how changes in parameter value or abundance can affect summary statistics and indicators. We won't explore this here but you can see their help files for more details.)
 
+<!-- table was here -->
+
+<!--
+
 \begin{table}[ht]
     \begin{center}
 	\begin{tabularx}{\linewidth}{r|X|X}
@@ -88,6 +92,8 @@ As well as the `summary()` methods that are available for both `MizerParams` and
 	 {#tab:summary_methods}
     \end{center}
 \end{table}
+
+-->
 
 The methods `getBiomass()` and `getN()` have additional arguments that allow the user to set the size range over which to calculate the summary statistic.  This is done by passing in a combination of the arguments `min_l`, `min_w`, `max_l` and `max_w` for the minimum and maximum length or weight.
 
@@ -122,6 +128,8 @@ You can read the help pages for each of the methods for full instructions on how
 With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method `getBiomass()` in Section~\@ref(sec:summaries).
 It is also possible to specify which species to include in the calculation.  See the help files for more details.
 
+<!--
+
 \begin{table}[ht]
     \begin{center}
 	\begin{tabularx}{\linewidth}{r|X|X}
@@ -138,6 +146,8 @@ It is also possible to specify which species to include in the calculation.  See
 	 {#tab:indicator_methods}
     \end{center}
 \end{table}
+
+-->
 
 ### Examples of calculating indicators {#sec:indicators_example}
 
