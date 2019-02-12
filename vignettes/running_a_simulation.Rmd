@@ -201,17 +201,10 @@ You can see that the effort for each gear is constant but each gear has the effo
 This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, `plotFMort()`, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step).
 The fishing mortality on each of the species is determined by the effort of the gear that caught it (Figure~\@ref(fig:plotFmort_example)).
 
-```{r label=plotFMort}
+```{r label=plotFMort, fig.keep='last', fig.cap="An example of using the `plotFMort()` method to show how different efforts for different gears can be specified."}
 plotFMort(sim)
 ```
 
-\begin{figure}
-```{r label=print_plotFMort, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plotFMort}
-```
-\caption{An example of using the `plotFMort()` method to show how different efforts for different gears can be specified.}
- {#fig:plotFmort_example}
-\end{figure}
 
 ### An example of changing effort through time
 
