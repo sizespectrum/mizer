@@ -52,8 +52,9 @@ This object can therefore be interrogated in the same way as described in Sectio
 summary(params)
 ```
 
-The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from `r min(params@species_params$w_inf)`
-to `r max(params@species_params$w_inf)`. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see Equation \@ref(eq:4)). There are `r length(params@w)` size bins in the community and `r length(params@w_full)` size bins including the plankton spectrum.
+The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from  
+$`r min(params@species_params$w_inf)`$
+to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see Equation \@ref(eq:4)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}

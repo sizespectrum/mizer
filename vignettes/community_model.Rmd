@@ -62,8 +62,8 @@ Rather than picking through the slots to find out what is in a particular `Mizer
 summary(params)
 ```
 
-In the summary you can see that the size range of the community spectrum has been set from `r min(params@w)` to `r max(params@w)` and these are spread over `r length(params@w)` size bins. Similar information is available for the plankton spectrum.
-Additionally, the community is made up of only one species, called *Community*, which has an asymptotic size of `r params@species_params$w_inf[1]` and a preferred predator prey mass ratio of `r params@species_params$beta[1]`. The `w_mat` parameter has been set to `NA` as it is not used when running a community model. These values have all been set by default using the `set_community_model()` function. If you want to set different values for these, you will need to call the `set_community_model()` function and pass in the desired argument values. 
+In the summary you can see that the size range of the community spectrum has been set from $`r min(params@w)`$ to $`r max(params@w)`$ and these are spread over $`r length(params@w)`$ size bins. Similar information is available for the plankton spectrum.
+Additionally, the community is made up of only one species, called *Community*, which has an asymptotic size of $`r params@species_params$w_inf[1]`$ and a preferred predator prey mass ratio of $`r params@species_params$beta[1]`$. The `w_mat` parameter has been set to `NA` as it is not used when running a community model. These values have all been set by default using the `set_community_model()` function. If you want to set different values for these, you will need to call the `set_community_model()` function and pass in the desired argument values. 
 
 ## Running the community model {#sec:running_comm_model}
 By using the `set_community_model()` method we now have a `MizerParams` object that contains all the information we need about the model community. We can use this to perform a simulation and project the community through time.
@@ -91,7 +91,7 @@ In the above plot there are several things going on that are worth talking about
 Fishing mortality is 0 because we set the `effort` argument to 0 when running the simulation.
 The predation mortality rate (M2) is clearly a function of size, with the smallest sizes experiencing the highest levels of predation.
 The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the `f0` and `alpha` arguments passed to the `set_community_model()` function.
-The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to `r signif(params@w_full[1],3)` g).
+The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to $`r signif(params@w_full[1],3)`$ g).
 You can see that the community spectrum forms a continuum with the plankton spectrum. This is strongly affected by the level of fixed recruitment (the `recruitment` argument passed to `set_community_model()`).
 
 Note the *hump* in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as 'big things eating little things'. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the `z0` argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the M2 being so high for the smaller individuals.
@@ -103,7 +103,7 @@ This is easily done by using the `getM2()` method (see the help page for more de
 m2 <- getM2(sim)
 ```
 
-This `m2` object is a array that contains the predation mortality at time by species by size. Here we only have one species so the species dimension is dropped, leaving us with a two dimensional array of time by size. We projected the model for `r dim(m2)[1]-1` time steps but the length of the time dimension is `r dim(m2)[1]` as the initial population is also included as a time step.
+This `m2` object is a array that contains the predation mortality at time by species by size. Here we only have one species so the species dimension is dropped, leaving us with a two dimensional array of time by size. We projected the model for $`r dim(m2)[1]-1`$ time steps but the length of the time dimension is $`r dim(m2)[1]`$ as the initial population is also included as a time step.
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
@@ -177,7 +177,7 @@ The fishing pressure lowers the abundance of large fish (the decrease in relativ
 ## The impact of changing $\sigma$ {#sec:comm_model_change_sigma}
 
 As described above, the $\sigma$ parameter determines the width of the predator prey size preference. Here we take a look at how changing the value of $\sigma$ can affect the dynamics of the community.
-In the examples above, $\sigma$ is set in the `set_community_model()` function by default to a value of `r params_knife@species_params$sigma[1]`.
+In the examples above, $\sigma$ is set in the `set_community_model()` function by default to a value of $`r params_knife@species_params$sigma[1]`$.
 When projected through time, the community abundances converge to a stable equilibrium.
 What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into `set_community_model()`.
 
