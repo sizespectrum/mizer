@@ -39,6 +39,7 @@ articles:
   - community_model
   - trait_model
   - multispecies_model
+  - running_a_simulation
   - test
 - title: Developer Guides
   contents:
