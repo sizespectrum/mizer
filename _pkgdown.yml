@@ -40,6 +40,7 @@ articles:
   - trait_model
   - multispecies_model
   - running_a_simulation
+  - exploring_the_simulation_results
   - test
 - title: Developer Guides
   contents:
