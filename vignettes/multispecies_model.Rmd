@@ -67,9 +67,11 @@ For each species in the model community there are certain parameters that are es
 There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame.
 A description of the columns of the species parameter data.frame and any default values can be seen Table~\@ref(tab:species_params).
 
-The essential columns of the species parameters data.frame that have no default values are: `species`, the names of the species in the community; `w_inf`, the asymptotic mass of the species; `w_mat`, the mass at maturation; `beta` and `sigma`, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation~\@ref(eq:4)); stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a `r_max` column must be provided - see Section~\@ref(sec:srr) for more details).
+The essential columns of the species parameters data.frame that have no default values are: `species`, the names of the species in the community; `w_inf`, the asymptotic mass of the species; `w_mat`, the mass at maturation; `beta` and `sigma`, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation~\@ref(eq:4)) and the stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a `r_max` column must be provided - see Section~\@ref(sec:srr) for more details).
 
-Essential columns that have default values are: `k`, the activity coefficient (default = 0); `alpha`, the assimilation efficiency (default = 0.6); `erepro`, the reproductive efficiency (default value = 1); `w_min`, the size of recruits (default value is the smallest size of the community size spectrum); `sel_func`, the name of the fishing selectivity function (default value = "knife_edge"); `gear`, the name of the fishing gear that catches the species (default value is the name of the species in the `species` column); `catchability`, the catchability of the fishing gear on that species (default value = 1). Additionally, columns that contain the selectivity function parameters are needed. As mentioned, the default selectivity function is a ``knife_edge'' function. This has an argument `knife_edge_size` that determines the knife-edge position and has a default value of `w_min`.
+<!-- need to check these are still the defaults -->
+
+Essential columns that have default values are: `k`, the activity coefficient (default = 0); `alpha`, the assimilation efficiency (default = 0.6); `erepro`, the reproductive efficiency (default value = 1); `w_min`, the size of recruits (default value is the smallest size of the community size spectrum); `sel_func`, the name of the fishing selectivity function (default value = "knife_edge"); `gear`, the name of the fishing gear that catches the species (default value is the name of the species in the `species` column); `catchability`, the catchability of the fishing gear on that species (default value = 1). Additionally, columns that contain the selectivity function parameters are needed. As mentioned, the default selectivity function is a *knife_edge* function. This has an argument `knife_edge_size` that determines the knife-edge position and has a default value of `w_min`.
 If any of these columns are not included in the species parameter data.frame, the default values are used.
 
 As mentioned above, there are some columns that are essential but if they are not provided, values for them are estimated using the values in the other columns. These columns are:
@@ -87,10 +89,10 @@ This mean that if an `h` column is not included in the species parameter data.fr
 The `gamma` column is calculated using Equation~\@ref(eq:gamma).
 This calculation requires that the `h` column is available, either included in the species parameter data.frame, or calculated internally using the `k_vb` column as described above. This means that if you include a `k_vb` column in the data.frame, `h` and `gamma` will be calculated from it.
 
-The `z0` column (mortality from other sources) is calculated using Equation~\@ref(eq:mu_b). `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $W_\infty$ is raised to) can be passed as arguments to the `MizerParams()` constructor and have default values of 0.6 and `n`-1 (`n` has a default value of 2/3 - see below) respectively.
+The `z0` column (mortality from other sources) is calculated using Equation~\@ref(eq:mu_b). `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $W_\infty$ is raised to) can be passed as arguments to the `MizerParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
 
 The `ks` column is calculated as 20\% of `h`, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
-Standard metabolism is used in calculation of the growth of individuals as $ks * w_i^p$ (see Section~\@ref(sec:growth)).
+Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see Section~\@ref(sec:growth)).
  
 <!-- The old generator for table 2 used to be here, but I am commenting it out --> 
  
@@ -251,7 +253,7 @@ It should be noted that the order of species in the interaction matrix has to be
 Although you can specify the dimnames of the interaction matrix, these names are overwritten by the species names from the species parameters data.frame
 inside the `MizerParams` constructor.
 
-If an interaction matrix is not specified to the `MizerParams()` constructor the default iteration matrix is used. This has all values set to 1. 
+If an interaction matrix is not specified to the `MizerParams()` constructor the default interaction matrix is used. This has all values set to 1. 
 
 <!-- The next subsection is all about a table, and so I am commenting it out for now --> 
 
@@ -353,7 +355,7 @@ The example data.frame can be inspected by entering the name of the object.
 params_data
 ```
 
-You can see that there are `r nrow(params_data)` species and `r ncol(params_data)` columns of parameters: `species`, `w_inf`,`w_mat`,`beta`,`sigma`,`r_max` and `k_vb`.
+You can see that there are $`r nrow(params_data)`$ species and $`r ncol(params_data)`$ columns of parameters: `species`, `w_inf`,`w_mat`,`beta`,`sigma`,`r_max` and `k_vb`.
 
 Of these parameters, `species`, `w_inf`, `w_mat`, `beta` and `sigma` are essential and have no default values (as described in Section~\@ref(sec:species_parameters_dataframe)).
 `r_max` is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has `r_max` as an argument (see Section~\@ref(sec:srr)), making this column also essential.
@@ -399,7 +401,7 @@ As has been shown in Sections~\@ref(sec:comm_model) and~\@ref(sec:trait_based_mo
 summary(params)
 ```
 
-As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are `r length(params@w)` size classes in the community, ranging from `r signif(min(params@w),3)` to `r signif(max(params@w),3)`. These values are controlled by the arguments `no_w`, `min_w` and `max_w` respectively. For example, if we wanted 200 size classes in the model we would use:
+As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are $`r length(params@w)`$ size classes in the community, ranging from $`r signif(min(params@w),3)`$ to $`r signif(max(params@w),3)`$ . These values are controlled by the arguments `no_w`, `min_w` and `max_w` respectively. For example, if we wanted 200 size classes in the model we would use:
 
 ```{r label=MP_200, eval=FALSE}
 params200 <- MizerParams(params_data, no_w=200)
