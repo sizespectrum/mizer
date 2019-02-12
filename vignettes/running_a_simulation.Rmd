@@ -23,7 +23,7 @@ params_gears <- MizerParams(params_data_gears, interaction = inter)
 
 # Running a simulation {#sec:projection}
 
-In the preceding section and in the sections on the community and trait-based models above, we used the `project()` method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
+In the preceding section and in the sections on the community and trait-based models, we used the `project()` method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
 In the trait-based model example, we also looked at how the effort for different gears could be specified.
 In this section we take a detailed look at how the `project()` method works and the different ways in which effort and time can be set up.
 
@@ -58,7 +58,7 @@ There are three arguments that control time in the `project()` method:
 `dt`, `t_max` and `t_save`. All of them have default values.
 
 `t_max` determines the maximum time of the simulation, i.e. how long the projection is run for.
-The default value for `t_max` is 100 respectively.
+The default value for `t_max` is 100. 
 
 `dt` is the time step used by the numerical solver in `project()`.
 This is the time step on which the model operates. The smaller the value, the longer the model will take to run. However, sometimes it is necessary to use a small value to avoid numerical instabilities. The default value is 0.1.
@@ -101,7 +101,7 @@ The default value for `initial_n_pp` is the carrying capacity of the plankton sp
 ## What do you get from running `project()?` {#sec:mizersim}
 
 Running `project()` returns an object of type `MizerSim` that stores the results of the projection.
-Like the `MizerParams` class this is also made up of various ``slots'', which can be accessed using the `@` operator.
+Like the `MizerParams` class this is also made up of various *slots*, which can be accessed using the `@` operator.
 An object of `MizerSim` has four slots, details of which can be seen in the help page (`help("MizerSim-class"`).
 The `params` slot holds the `MizerParams` object that was passed in to `project()`.
 The `effort` slot holds the fishing effort of each gear through time. Note that the `effort` slot may not be exactly the same as the `effort` argument that was passed in to `project()`. This is because only the saved effort is stored (the frequency of saving is determined by the argument `t_save`).
@@ -147,7 +147,7 @@ plot(sim)
 ```
 
 
-Without fishing the community settles down to equilibria at about t = 50 (Figure~\@ref(fig:plot_food_demo)). The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the ``species'' had the same M2 and feeding level patterns (see Figure~\@ref(fig:plot_trait_demo)). Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
+Without fishing the community settles down to equilibrium at about t = 50 (Figure~\@ref(fig:plot_food_demo)). The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the *species* had the same M2 and feeding level patterns (see Figure~\@ref(fig:plot_trait_demo)). Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
 
 You can also see in Figure~\@ref(fig:plot_food_demo) that each species has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species `w_mat` parameter.
 
