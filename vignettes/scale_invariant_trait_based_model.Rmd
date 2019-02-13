@@ -172,7 +172,7 @@ function $N(w,t)$ that has dynamics given by the size-spectrum model
 weight $cW,$ where $c$ is a positive rescaling factor. Then Equation~\@ref(eq:MvF) 
 would be scale-invariant, if the latter species had dynamics the same as the 
 first when rescaled as $c^{\lambda + 1} N(c w, c^{1-n} t),$ for any $c>0$. 
-Here $\lambda$ is the exponent of the resource spectrum, and $n$ is the 
+Here $\lambda$ is the exponent of the plankton spectrum, and $n$ is the 
 exponent for maximum food intake. 
 
 This rather delphic statement basically says that, under scale invariance, 
@@ -301,7 +301,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  \item For the model to be scale invariant, the exponent of 
  metabolic intake $n$ needs to be equal to the exponent $p$ of metabolic loss.
  
- \item Scale invariance also requires that the exponent of the resource 
+ \item Scale invariance also requires that the exponent of the plankton 
  spectrum $\lambda$ must satisfy the relation $\lambda = 2-n+q$, where 
  $n$ is the exponent of metabolic intake and $q$ is the exponent of the 
  volumetric search rate.  
@@ -365,15 +365,15 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  invariant pattern. 
 mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
-\item (Equation~\@ref(eq:nb)) The resource spectrum extends from the smallest weight at which an explicitly 
+\item (Equation~\@ref(eq:nb)) The plankton spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
-resource so when our system is at steady state, the 
-combination of the resource spectrum and the aggregate abundance of 
+plankton so when our system is at steady state, the 
+combination of the plankton spectrum and the aggregate abundance of 
 the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
 model is given by Equation~\@ref(eq:cp). 
 or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
-$w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.  
+$w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.  
 
 \item By default the scale-invariant trait-based model is initialized at a 
  steady state (Equation~\@ref(eq:steady)) (provided no fishing is being 
@@ -627,15 +627,15 @@ We arrived at our expression for $\mu_b(w)$ by considering that in the steady st
 ) we ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
 
-## Resources in the scale invariant model
+## Plankton in the scale invariant model
 
-We define the carrying capacity $c_p(w)$ of the resource so when our system is at steady state, the 
-combination of the resource spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
-This is achieved choosing the carrying capacity of the resource to be 
+We define the carrying capacity $c_p(w)$ of the plankton so when our system is at steady state, the 
+combination of the plankton spectrum and the aggregate abundance of the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
+This is achieved choosing the carrying capacity of the plankton to be 
 \begin{equation} 
 % {#eq:cp}
 c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}
 \end{equation}
 Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
-%We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the resource declines to zero.
+%We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.
