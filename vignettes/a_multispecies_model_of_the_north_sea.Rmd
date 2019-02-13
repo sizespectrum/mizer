@@ -134,7 +134,7 @@ The catchability can be set by including a `catchability` column in the species 
 params_data$catchability <- as.numeric(f_history["1990",])
 ```
 
-Considering the other model parameters, we will use default values for all of the other parameters apart from `kappa`, the carrying capacity of the resource spectrum (see Section~\@ref(sec:parameters)).
+Considering the other model parameters, we will use default values for all of the other parameters apart from `kappa`, the carrying capacity of the plankton spectrum (see Section~\@ref(sec:parameters)).
 This was estimated along with the values `r_max` as part of the calibration process.
 
 We now have all the information we need to create the `MizerParams` object using the species parameters data.frame.
@@ -147,7 +147,7 @@ params <- MizerParams(params_data, inter, kappa = 9.27e10)
 
 As we set our catchability to be the level of fishing mortality in 1990, before we can run the projection we need to rescale the effort matrix to get a matrix of efforts relative to 1990. 
 To do this we want to rescale the `f_history` object to 1990 so that the relative fishing effort in 1990 = 1.
-This is done using \R function `sweep()`.
+This is done using R function `sweep()`.
 We then check a few rows of the effort matrix to check this has happened:
 
 ```{r label=rescale_effort}
@@ -231,7 +231,7 @@ slope <- getCommunitySlope(sim, species = demersal_species,
 ```
 
 We can plot the exploited and unexploited indicators, along LFI reference level.
-Here we do it using `ggplot2` which uses data.frames
+Here we do it using `ggplot2` which uses data.frames.
 We make three data.frames (one for the time series, one for the unexploited levels and one for the reference level):
 Each data.frame is a data.frame of each of the measures, stacked on top of each other.
 ```{r label=plot_ns_indicators, fig.cap="Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model."}
@@ -277,7 +277,7 @@ Rather than looking at community indicators here, we will calculate the SSB of e
 
 Before we can run the simulations, we need to set up arrays of future effort.
 We will continue to use effort relative to the level in 1990.
-Here we build on our existing array of relative effort to make an array for the first scenario. Note the use of the `t()` command to transpose the array. This is needed because \R recycles by rows, so we need to build the array with the dimensions rotated to start with.
+Here we build on our existing array of relative effort to make an array for the first scenario. Note the use of the `t()` command to transpose the array. This is needed because R recycles by rows, so we need to build the array with the dimensions rotated to start with.
 We make an array of the future effort, and then bind it underneath the `relative_effort` array used in the previous section.
 
 ```{r label = ns_scenario1_relative_effort}
@@ -286,7 +286,7 @@ scenario1 <- t(array(relative_effort["2010",], dim=c(12,40),
 scenario1 <- rbind(relative_effort, scenario1)
 ```
 
-The relative effort array for the second scenario is more complicated to make and requires a little bit of \R gymnastics
+The relative effort array for the second scenario is more complicated to make and requires a little bit of R gymnastics
 (it might be easier for you to prepare this in a spreadsheet and read it in).
 For this one we need values of $F_{MSY}$.  
 ```{r label = ns_scenario2_relative_effort}
