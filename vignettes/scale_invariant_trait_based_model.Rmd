@@ -60,7 +60,7 @@ b <- getBiomassFrame(sim)
 display_frames(b_trait, b, params)
 ```
 
-In the plot above there are ten species; $W$ is taken over a range 10 g
+In the plot above there are ten species; $w_\infty$ is taken over a range 10 g
 to 1000 g,
 uniformly spaced on the log-scaled mass axis. The 
 initial state is close to the steady state in the absence of fishing.  
@@ -106,7 +106,7 @@ more sensitive to fishing (Figure~\@ref(fig:plot_biomass_tb_vs_si).2).
 In the example shown, fishing drives the largest and most vulnerable species 
 to extinction (there is no stock-recruitment relationship in this instance).  
 Some density-dependent feedbacks still remain, but they emerge from the 
-internal dynamics [@rossberg_2013].
+internal dynamics.
 You can construct Figure~\@ref(fig:plot_biomass_tb_vs_si).2, using the 
 following code:
 
@@ -122,15 +122,14 @@ plotBiomass(sim)
 
 The key for constructing these models is a special power-law relationship 
 between body weight and density, which marine ecosystems are often observed 
-to be near, after aggregating over species [@sheldon_1972].  The significance 
+to be near, after aggregating over species.  The significance 
 of the power law is that, in its neighbourhood, coexistence of species 
 becomes easier to achieve.  In fact, on the exact power-law, it has been 
 proved that an infinite number of species coexist in a unicellular plankton 
-model [@cuesta_2018].  Related numerical simulations using  finite
+model.  Related numerical simulations using  finite
 number of species support the proposition that coexistence of multiple 
-species is easier to achieve near the power law [@law_2016].  
-These properties readily extend to multicellular fish assemblages 
-(Southwell, Delius unpublished results).
+species is easier to achieve near the power law.  
+These properties readily extend to multicellular fish assemblages.
 
 We build the alternative approach here in two steps.  First, this section 
 describes a background spectrum designed to bring the trait-based model 
@@ -154,12 +153,13 @@ briefly introduce some key concepts here.  There is little more in this
 than allometric scalings of ecological rates with respect to body weight, 
 for the most part familiar and widely documented in ecology. 
 
-{\bf What is scale invariance?}  
-Consider a species with some characteristic weight (maximum weight $W$
+### What is scale invariance?
+
+Consider a species with some characteristic weight (maximum weight $w_\infty$
 will do for the purpose), and with a density 
 function $N(w,t)$ that has dynamics given by the size-spectrum model 
 (Equation~\@ref(eq:MvF)).  Consider a second species with maximum 
-weight $cW,$ where $c$ is a positive rescaling factor. Then Equation~\@ref(eq:MvF) 
+weight $cw_\infty,$ where $c$ is a positive rescaling factor. Then Equation~\@ref(eq:MvF) 
 would be scale-invariant, if the latter species had dynamics the same as the 
 first when rescaled as $c^{\lambda + 1} N(c w, c^{1-n} t),$ for any $c>0$. 
 Here $\lambda$ is the exponent of the plankton spectrum, and $n$ is the 
@@ -169,18 +169,19 @@ This rather delphic statement basically says that, under scale invariance,
 knowing the dynamics of one species is enough to know the dynamics of 
 every species.  Strictly speaking, it could only apply to Equation~\@ref(eq:MvF) 
 if there was a continuum of maximum weights, with a species at
-every $W > 0$.  Clearly, this cannot be the case in a multispecies spectrum with 
-a finite set of species, because the $W$s are typically separated by finite 
+every $w_\infty > 0$.  Clearly, this cannot be the case in a multispecies spectrum with 
+a finite set of species, because the $w_\infty$s are typically separated by finite 
 intervals, and the spectrum has fixed lower and upper boundaries, outside which 
 there are no species.  Therefore, a scale-invariant system is, at best, an 
 idealisation of a size-spectrum model with a finite number of species.
 
 
-{\bf Why bother with scale invariance?} 
+### Why bother with scale invariance?
+
 There is an ecological reason and a mathematical one.  The ecological reason 
 is that, in marine ecosystems, abundance (aggregated over species) as a 
-function of body mass, is often observed to be quite close to a power law 
-[@sheldon_1972].  The existence of this remarkable regularity, plus the 
+function of body mass, is often observed to be quite close to a power law. 
+The existence of this remarkable regularity, plus the 
 fact that it promotes coexistence of species, supports the development 
 of scale-invariant models.
 
@@ -286,21 +287,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  \begin{equation}
  \psi_i(w)=\begin{cases}
  0 & \text{if } w<w_{*.i}\\
- \left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
- \end{cases}
- \end{equation}
- This can be achieved by taking the form given by Equation~\@ref(eq:psi), 
- and letting $u \rightarrow \infty.$  This is not a requirement 
- for scale invariance;  the assumption was made for the mathematical 
- reason that it is then possible to get a closed-form expression for 
- the steady state.
-
-* (Equation~\@ref(eq:psi)) We assume that the proportion of energy allocated to 
- reproduction $\psi_i(w)$ is given by the step-like function
- \begin{equation}
- \psi_i(w)=\begin{cases}
- 0 & \text{if } w<w_{*.i}\\
- \left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
+ \left(\frac{w}{w_{\infty.i}}\right)^{1-n} & \text{otherwise}
  \end{cases}
  \end{equation}
  This can be achieved by taking the form given by Equation~\@ref(eq:psi), 
@@ -316,7 +303,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  Egg size does vary over about two orders of magnitude in teleosts,
  but there is evidence that at least the larger teleosts are unusual in 
  marine systems in lacking a scaling relationship between egg wight and 
- adult weight [@andersen_2016].  Scale invariance of egg 
+ adult weight.  Scale invariance of egg 
  weight should therefore be seen as a mathematical restriction required 
  to generate the scale-invariant background assemblage, in so far as the 
  background comprises teleost fish.  
@@ -344,7 +331,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  induced by predators beyond the upper limit of body sizes explicitly modelled, 
  under the assumption that the abundance of such predators continue the scale 
  invariant pattern. 
-mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
+mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state.  This is done to ensure that the total mortality rate on explicitly modeled species is $\mu_0 w^{n-1}$ which scales with weight in the way required for scale invariance.
 
 * (Equation~\@ref(eq:nb)) The plankton spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
@@ -353,7 +340,7 @@ combination of the plankton spectrum and the aggregate abundance of
 the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
 model is given by Equation~\@ref(eq:cp). 
-or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
+or equal to the power law $\kappa w^{-\lambda}$ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.  
 
 * By default the scale-invariant trait-based model is initialized at a 
@@ -535,7 +522,7 @@ where
 \begin{equation} M_i (w)=
    \begin{cases}
       1, & \text{if}\ w<w_{*i} \\
-      \frac{1}{\left(1-\left(\frac{w}{W_{i}}\right)^{1-n}\right)}\left(\frac{1-\left(\frac{w}{W_{i}}\right)^{1-n}}{1-\left(\frac{w_{*i}}{W_{i}}\right)^{1-n}}\right)^{\frac{1}{1-n}\left(\frac{\mu_{0}}{\hbar}\right)}, & \text{otherwise}
+      \frac{1}{\left(1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}\right)}\left(\frac{1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}}{1-\left(\frac{w_{*i}}{w_{\infty.i}}\right)^{1-n}}\right)^{\frac{1}{1-n}\left(\frac{\mu_{0}}{\hbar}\right)}, & \text{otherwise}
     \end{cases}
 \end{equation}
 and 
@@ -546,7 +533,7 @@ and
 As the number of species becomes large we have that $\sum_i N_i (w)$ is approximately proportional to $\kappa w^{-\lambda},$  $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$ The constant $H$ is chosen so that $\sum_i N_i (w)$ is approximately equal to $\kappa w^{-\lambda}$ $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$
 This steady state is special because it is invariant under the type of rescaling described above. 
 We also have to choose parameters in such a way that Equation~\@ref(eq:Rp) holds. However, if it holds for one species, then it holds for all species due to scale-invariance.
-Although the original trait based model had a similar level of simplicity, and a partial description of something like a steady state was possible, a careful reading of  Section 3 of [@hartvig_food_2010] reveals that it was in fact impossible to setup such a system so that the average number of offspring produced over an individuals lifespan is one, for each species, without imposing a stock recruitment relationship. This is part of the reason why stock recruitment relationships were imposed on previous models. However we believe that the stock recruitment relationships should emerge out of the life histories which size spectrum models claim to be able to model, rather than being imposed for outside the model.
+Although the original trait based model had a similar level of simplicity, and a partial description of something like a steady state was possible, a careful reading of  Section 3 of reveals that it was in fact impossible to setup such a system so that the average number of offspring produced over an individuals lifespan is one, for each species, without imposing a stock recruitment relationship. This is part of the reason why stock recruitment relationships were imposed on previous models. However we believe that the stock recruitment relationships should emerge out of the life histories which size spectrum models claim to be able to model, rather than being imposed for outside the model.
 
 
 ## Background mortality in the scale invariant model
@@ -572,4 +559,3 @@ c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kapp
 \end{equation}
 Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
-%We also arrange things so that as $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.
