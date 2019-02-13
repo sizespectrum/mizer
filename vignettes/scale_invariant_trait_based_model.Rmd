@@ -559,3 +559,14 @@ c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kapp
 \end{equation}
 Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
+
+
+
+# Acknowledgements
+
+Finlay Scott would like to thank the Cefas Seedcorn Project DP266 and the Defra project MF1225 for supporting this work.
+This project has received funding from the European Union's Horizon 2020 Research and Innovation programme under Grant Agreement No 634495 (MINOUW).
+
+The work of Gustav Delius, Richard Southwell and Richard Law on updating mizer was funded by the European Commission Horizon 2020
+Research and Innovation Programme under Grant Agreement No. 634495
+for the project [MINOUW](http://minouw-project.eu/).
