@@ -37,7 +37,7 @@ sim <- project(params_gears,effort=effort_array, dt=0.1, t_save = 1)
 
 ## Directly accessing the slots of `MizerSim objects`
 
-We have seen in previous sections that a `MizerSim` object is made up of various ``slots'' that contain the original parameters (`species_params`), the population abundances (`n`), the abundance of the plankton spectrum (`n_pp`) and the fishing effort (`effort`).
+We have seen in previous sections that a `MizerSim` object is made up of various *slots* that contain the original parameters (`species_params`), the population abundances (`n`), the abundance of the plankton spectrum (`n_pp`) and the fishing effort (`effort`).
 
 The projected species abundances at size through time can be seen in the `n` slot.  This is a three-dimensional array (time x species x size).
 Consequently, this array can get very big so inspecting it can be difficult.
@@ -128,6 +128,8 @@ You can read the help pages for each of the methods for full instructions on how
 With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method `getBiomass()` in Section~\@ref(sec:summaries).
 It is also possible to specify which species to include in the calculation.  See the help files for more details.
 
+<!-- table was here -->
+
 <!--
 
 \begin{table}[ht]
@@ -187,6 +189,10 @@ Some of the plots plot values by size (for example `plotFeedingLevel()` and `plo
 For these plots, the default is to use the data at the final time step of the projection.
 With these plotting methods, it is also possible to specify a different time step or a time range to average the values over before plotting. 
 
+<!-- table was here -->
+
+<!--
+
 \begin{table}[ht]
     \begin{center}
 	\begin{tabularx}{\linewidth}{r|X}
@@ -207,6 +213,8 @@ With these plotting methods, it is also possible to specify a different time ste
 	 {#tab:plots}
     \end{center}
 \end{table}
+
+-->
 
 ### Plotting examples {#sec:plot_examples}
 
