@@ -41,7 +41,7 @@ small. Although coexistence can be achieved in this way, it can necessitate
 rather small values of $R_{max.i}$, with major effects on persistence and 
 stability of species.
 
-```{r plot_scale_sense2, echo=FALSE, warning=FALSE, message=FALSE}
+```{r plot_scale_sense2, echo=FALSE, warning=FALSE, message=FALSE, fig.keep='last', fig.cap="Biomass plots following introduction of fishing (1) in the trait-based model, and (2) in the scale-invariant model developed here."}
 params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
 sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
@@ -60,15 +60,7 @@ b <- getBiomassFrame(sim)
 display_frames(b_trait, b, params)
 ```
 
-
-
-\begin{figure}
-```{r label=print_plot_scale_sense, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_scale_sense2}
-```
-\caption{Biomass plots following introduction of fishing (1) in the trait-based 
-model from Section~\@ref(sec:trait_based_model), and (2) in the scale-invariant 
-model developed here.  There are ten species; $W$ is taken over a range 10 g
+In the plot above there are ten species; $W$ is taken over a range 10 g
 to 1000 g,
 uniformly spaced on the log-scaled mass axis. The 
 initial state is close to the steady state in the absence of fishing.  
@@ -76,9 +68,7 @@ Recruitment to the multispecies fishery is knife-edge at
 100 g
 and fishing mortality rate is set 
 at 
-$F = 1$ yr$^{-1}$.}
- {#fig:plot_biomass_tb_vs_si}
-\end{figure}
+$F = 1$ yr$^{-1}$.
 
 This and the next Section~\@ref(sec:explicit) provide an alternative way of 
 generating sets of coexisting species, without the need for such strong 
@@ -248,17 +238,9 @@ sim <- project(params, t_max=5, effort = 0)
 
 We make a plot of the biomass over time (Figure~\@ref(fig:plot_scale_demo)) as follows:
 
-```{r plot_scale_sim}
+```{r plot_scale_sim, echo=FALSE, fig.keep='last', fig.cap="A plot of time vs biomass for the scale invariant trait-based model with no fishing."}
 plotBiomass(sim)
 ```
-
-\begin{figure}
-```{r label=print_plot_scale_sim, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_scale_sim}
-```
-\caption{A plot of time vs biomass for the scale invariant trait-based model with no fishing.}
- {#fig:plot_scale_demo}
-\end{figure}
 
 One can see from Figure~\@ref(fig:plot_scale_demo) that the system is 
 initiated very close to a steady state, and it is further attracted to 
@@ -269,21 +251,9 @@ We can check that the steady state lies close to a power law by plotting the bio
 densities of the different species, as well as their total, which evidently is close 
 to the power law (Figure~\@ref(fig:plot_scale_demoBS)).
 
-```{r plot_scale_simBS}
+```{r plot_scale_simBS, echo=FALSE, fig.keep='last', fig.cap="A plot of weight vs biomass density for the steady state of the scale invariant trait-based model with no fishing."}
 plotSpectra(sim, total = TRUE)
 ```
-
-\begin{figure}
-```{r label=print_plot_scale_simBS, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_scale_simBS}
-```
-\caption{A plot of weight vs biomass density for the steady state of the scale invariant trait-based model with no fishing.}
- {#fig:plot_scale_demoBS}
-\end{figure}
-
-
-
-
 
 
 ## Details of changes to the trait-based model {#subsec:bullets}
@@ -296,29 +266,26 @@ get assemblages that are close to scale invariance.  The changes are as follows.
 
 
 
-\begin{itemize}
-
- \item For the model to be scale invariant, the exponent of 
+* For the model to be scale invariant, the exponent of 
  metabolic intake $n$ needs to be equal to the exponent $p$ of metabolic loss.
  
- \item Scale invariance also requires that the exponent of the plankton 
+* Scale invariance also requires that the exponent of the plankton 
  spectrum $\lambda$ must satisfy the relation $\lambda = 2-n+q$, where 
  $n$ is the exponent of metabolic intake and $q$ is the exponent of the 
  volumetric search rate.  
- 
- \item 
- (Equation~\@ref(eq:1)) Feeding depends on prey body size, but not on 
+
+* (Equation~\@ref(eq:1)) Feeding depends on prey body size, but not on 
  prey species identity, so $\theta_{ij}=1$ for all $i,j$. Note however 
  that the feeding preference function $\phi_i(w_p/w)$ already has scale 
  invariance built into it, because predation depends on the ratio of prey 
  to predator weight.  Thus no modification to growth and mortality 
  caused by predation is needed in moving to scale invariance.
- 
- \item (Equation~\@ref(eq:psi)) We assume that the proportion of energy allocated to 
+
+* (Equation~\@ref(eq:psi)) We assume that the proportion of energy allocated to 
  reproduction $\psi_i(w)$ is given by the step-like function
  \begin{equation}
  \psi_i(w)=\begin{cases}
- 0 & \text{if \ensuremath{w<w_{*.i}}}\\
+ 0 & \text{if } w<w_{*.i}\\
  \left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
  \end{cases}
  \end{equation}
@@ -328,7 +295,21 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  reason that it is then possible to get a closed-form expression for 
  the steady state.
 
- \item (Equation~\@ref(eq:Rp))
+* (Equation~\@ref(eq:psi)) We assume that the proportion of energy allocated to 
+ reproduction $\psi_i(w)$ is given by the step-like function
+ \begin{equation}
+ \psi_i(w)=\begin{cases}
+ 0 & \text{if } w<w_{*.i}\\
+ \left(\frac{w}{W_i}\right)^{1-n} & \text{otherwise}
+ \end{cases}
+ \end{equation}
+ This can be achieved by taking the form given by Equation~\@ref(eq:psi), 
+ and letting $u \rightarrow \infty.$  This is not a requirement 
+ for scale invariance;  the assumption was made for the mathematical 
+ reason that it is then possible to get a closed-form expression for 
+ the steady state.
+
+* (Equation~\@ref(eq:Rp))
  Scale invariance requires egg weight to 
  be a fixed fraction of maximum weight.  It is therefore indexed by 
  species $w_{0,i}$, rather than taking a single size $w_0$.
@@ -340,7 +321,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  to generate the scale-invariant background assemblage, in so far as the 
  background comprises teleost fish.  
 
- \item (Equation~\@ref(eq:R))  A stock-recruitment relationship is not 
+* (Equation~\@ref(eq:R))  A stock-recruitment relationship is not 
  required to create a steady state in the scale-invariant, trait-based model.  
  However, a stock-recruitment relationship can be included in the 
  scale-invariant trait-based model by setting the value of `r_fac`. 
@@ -351,7 +332,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  $R_{max.i}\rightarrow \infty$, and so Equation~\@ref(eq:R) is effectively 
  replaced with the simple relationship $R_i = R_{p.i}.$ 
 
- \item (Equation~\@ref(eq:mu_b)) Beyond the upper limit of body weight. 
+* (Equation~\@ref(eq:mu_b)) Beyond the upper limit of body weight. 
  The total mortality
  needs to scale with body weight. In practice, body weight always has an upper 
  limit in a real ecosystem, and predation mortality goes to zero as this limit 
@@ -365,7 +346,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  invariant pattern. 
 mortality, given by (Equation~\@ref(eq:mup)), where the abundance $N$ is the abundance at our steady state {\bf where shall we give N's formula ?}.  This is done to ensure that the total mortality rate on explicitly modeled species is $ \mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
-\item (Equation~\@ref(eq:nb)) The plankton spectrum extends from the smallest weight at which an explicitly 
+* (Equation~\@ref(eq:nb)) The plankton spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
 plankton so when our system is at steady state, the 
 combination of the plankton spectrum and the aggregate abundance of 
@@ -375,15 +356,10 @@ model is given by Equation~\@ref(eq:cp).
 or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
 $w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.  
 
-\item By default the scale-invariant trait-based model is initialized at a 
+* By default the scale-invariant trait-based model is initialized at a 
  steady state (Equation~\@ref(eq:steady)) (provided no fishing is being 
  performed), whereas the original trait based model is not initialized 
  near its steady state.
-
-\end{itemize}
-
-
-
 
 
 
@@ -463,34 +439,16 @@ sim <- project(params_bg_m, t_max = 25, effort = 0.4)
 
 We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state (Figure~\@ref(fig:plot_mullet_demo)):
 
-```{r plot_mullet_sim}
+```{r plot_mullet_sim, echo=FALSE, fig.height=4, fig.keep='last', fig.cap="Example plot of time vs biomass for the scale invariant trait-based model plus mullet."}
 plotBiomass(sim)
 ```
 
-\begin{figure}
-```{r label=print_plot_mullet_sim, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_mullet_sim}
-```
-\caption{Example plot of time vs biomass for the scale invariant trait-based model plus mullet.}
- {#fig:plot_mullet_demo}
-\end{figure}
 
 We can also visualize the relative abundances of the different species (Figure~\@ref(fig:plot_mullet_demo2)) with the following command:
 
-```{r plot_mullet_sim2}
+```{r plot_mullet_sim2, echo=FALSE, fig.keep='last', fig.cap="Example plot of weight vs abundance for the scale invariant trait-based model plus mullet, in the final state of our simulation."}
 plotSpectra(sim)
 ```
-
-\begin{figure}
-```{r label=print_plot_mullet_sim2, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_mullet_sim2}
-```
-\caption{Example plot of weight vs abundance for the scale invariant trait-based model plus mullet, in the final state of our simulation.}
- {#fig:plot_mullet_demo2}
-\end{figure}
-
-
-
 
 
 
@@ -535,32 +493,16 @@ params_bg_m_h <- addSpecies(params_bg_m, species_params, SSB = 1200,
 We visualize the initial condition, close to steady state (Figure~\@ref(fig:plot_mullet_hake_spectra)) using the following command:
 
 
-```{r plot_mullet_hake_spectra}
+```{r plot_mullet_hake_spectra, echo=FALSE, fig.keep='last', fig.cap="A plot of weight vs biomass density for the near steady state created by adding mullet and hake to a scale-invariant background."}
 plotSpectra(params_bg_m_h)
 ```
 
-\begin{figure}
-```{r label=print_plot_mullet_hake_spectra, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_mullet_hake_spectra}
-```
-\caption{A plot of weight vs biomass density for the near steady state created by adding mullet and hake to a scale-invariant background.}
- {#fig:plot_mullet_hake_spectra}
-\end{figure}
-
 To see that this is close to a steady state we shall evolve the system and show how biomass changes over time (Figure~\@ref(fig:plot_mullet_hake_biomass)):
 
-```{r plot_mullet_hake_biomass}
+```{r plot_mullet_hake_biomass, echo=FALSE, fig.keep='last', fig.cap="A plot of time vs biomass showing our system with background species, mullet and hake,  evolving to a nearby steady state."}
 sim <- project(params_bg_m_h, t_max = 50, t_save = 5, effort = 0.4)
 plotBiomass(sim)
 ```
-
-\begin{figure}
-```{r label=print_plot_mullet_hake_biomass, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_mullet_hake_biomass}
-```
-\caption{A plot of time vs biomass showing our system with background species, mullet and hake,  evolving to a nearby steady state.}
- {#fig:plot_mullet_hake_biomass}
-\end{figure}
 
 The `steady()` command can be used to fine tune the initial condition to be very close to a steady state:
 
@@ -571,18 +513,10 @@ params_bg_m_h2 <- steady(params_bg_m_h, effort = 0.4)
 
 This results in a a configuration very close to a steady state, as we can see by evolving the system and plotting how biomass changes over time (Figure~\@ref(fig:plot_mullet_hake_biomass_steady)):
 
-```{r plot_mullet_hake_biomass_steady}
+```{r plot_mullet_hake_biomass_steady, echo=FALSE, fig.keep='last', fig.cap="A plot of time vs biomass showing our system with background species, mullet and hake evolving from our fine tuned nearby steady state."}
 sim2 <- project(params_bg_m_h2, t_max = 50, t_save = 5, effort = 0.4)
 plotBiomass(sim2)
 ```
-
-\begin{figure}
-```{r label=print_plot_mullet_hake_biomass_steady, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_mullet_hake_biomass_steady}
-```
-\caption{A plot of time vs biomass showing our system with background species, mullet and hake evolving from our fine tuned nearby steady state.}
- {#fig:plot_mullet_hake_biomass_steady}
-\end{figure}
 
 
 
