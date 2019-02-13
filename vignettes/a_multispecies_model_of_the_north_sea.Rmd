@@ -1,6 +1,8 @@
 ---
 title: "A MultiSpecies Model Of The North Sea"
 output: html_document
+fig_width: 5
+fig_height: 5
 ---
 
 ```{r label=lib, include=FALSE}
@@ -180,18 +182,9 @@ sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 Plotting the results, we can see how the biomasses of the stocks change over time (Figure~\@ref(fig:plot_ns_biomass)).
 You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
-```{r label = plot_ns_biomass}
+```{r label = plot_ns_biomass, fig.keep='last', fig.cap="Simulated biomasses of stocks in the North Sea with 100 years of transients."}
 plotBiomass(sim)
 ```
-
-\begin{figure}
-```{r label=print_plot_ns_biomass, echo=FALSE, fig.height=4, fig.keep='last'}
-```{r plot_ns_biomass}
-```
-\caption{Simulated biomasses of stocks in the North Sea with 100 years of transients.}
- {#fig:plot_ns_biomass}
-\end{figure}
-
 
 To explore the state of the community it is useful to calculate indicators of the unexploited community.
 Therefore we also project forward for 100 years with 0 fishing effort.
@@ -241,7 +234,7 @@ We can plot the exploited and unexploited indicators, along LFI reference level.
 Here we do it using `ggplot2` which uses data.frames
 We make three data.frames (one for the time series, one for the unexploited levels and one for the reference level):
 Each data.frame is a data.frame of each of the measures, stacked on top of each other.
-```{r label=plot_ns_indicators}
+```{r label=plot_ns_indicators, fig.cap="Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model."}
 library(ggplot2)
 # Simulated data
 community_plot_data <- rbind(
@@ -267,13 +260,7 @@ p + geom_line(aes(x=year,y=data), linetype="dotted",
     data = community_reference_level)
 ```
 
-\begin{figure}
-```{r label=print_plot_ns_indicators, echo=FALSE, fig.height=6}
-```{r plot_ns_indicators}
-```
-\caption{Historical (solid) and unexploited (dashed) and reference (dotted) community indicators for the North Sea multispecies model.}
- {#fig:plot_ns_comm_indicators}
-\end{figure}
+
 
 According to our simulations, historically the LFI in the North Sea has been below the reference level.
 
@@ -282,10 +269,9 @@ According to our simulations, historically the LFI in the North Sea has been bel
 
 As well as investigating the historical simulations, we can run projections into the future.
 Here we run two projections to 2050 with different fishing scenarios.
-\begin{enumerate}
-    \item Continue fishing at 2010 levels (the status quo scenario).
-    \item From 2010 to 2015 linearly change the fishing mortality to approach $F_{MSY}$ and then continue at $F_{MSY}$ until 2050.
-\end{enumerate}
+
+* Continue fishing at 2010 levels (the status quo scenario).
+* From 2010 to 2015 linearly change the fishing mortality to approach $F_{MSY}$ and then continue at $F_{MSY}$ until 2050.
 
 Rather than looking at community indicators here, we will calculate the SSB of each species in the model and compare the projected levels to a biodiversity target based on the reference point $0.1 SSB_{F=0}.$ 
 
@@ -331,7 +317,7 @@ ssb0 <- getSSB(sim0)["100",]
 
 Now we build a data.frame of the projected SSB for each species, ignoring the transients.
 We make use of the `melt()` function in the very useful `reshape2` package (REF).
-```{r label=projected_ssb_ns}
+```{r label=projected_ssb_ns, fig.cap="Historical and projected SSB under two fishing scenarios. Status quo (red), Fmsy (yellow). Unexploited (blue) and reference levels (purple) are also shown."}
 library(reshape2)
 years <- 1967:2050
 ssb1 <- getSSB(sim1)[as.character(years),]
@@ -361,10 +347,4 @@ p <- ggplot(ssb_all_df) +
 p + theme(legend.position = "none")
 ```
 
-\begin{figure}
-```{r label=print_projected_ssb_ns, echo=FALSE, fig.height=9}
-```{r projected_ssb_ns}
-```
-\caption{Historical and projected SSB under two fishing scenarios. Status quo (red), Fmsy (yellow). Unexploited (blue) and reference levels (purple) are also shown. }
- {#fig:plot_projected_ssb_ns}
-\end{figure}
+
