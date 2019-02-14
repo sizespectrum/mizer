@@ -228,6 +228,18 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         r <- getRates(sim@params, n = n, n_pp = n_pp, B = B,
                       effort = effort_dt[i_time,])
         
+        # Update unstructured resource biomasses
+        B_current <- B  # So that the plankton dynamics can still use the 
+                        # current value
+        if (any(B != 0)) {
+            B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
+                                         rates = r, dt = dt)
+        }
+        
+        # Update plankton
+        n_pp <- params@plankton_dyn(params, n = n, n_pp = n_pp, B = B_current,
+                                        rates = r, dt = dt)
+        
         # Iterate species one time step forward:
         # See Ken's PDF
         # a_{ij} = - g_i(w_{j-1}) / dw_j dt
@@ -257,16 +269,6 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
                                 A = a, B = b, S = S,
                                 w_min_idx = sim@params@w_min_idx)
-        
-        # Update unstructured resource biomasses
-        if (any(B != 0)) {
-            B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
-                                     rates = r, dt = dt)
-        }
-        
-        # Update plankton
-        n_pp <- params@plankton_dyn(params, n = n, n_pp = n_pp, B = B,
-                                        rates = r, dt = dt)
         
         # Update time
         t <- t + dt
