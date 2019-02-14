@@ -1,3 +1,55 @@
+#' Unstructured resources
+#'
+#' Besides the size-structured planktonic resource, mizer can also model
+#' unstructured resource components. Such unstructured components are
+#' appropriate whenever the predation on this component is not size based.
+#' Examples include detritus as a resource for detritovores, carrion as a
+#' resource for scavengers, or plants on which fish can graze. 
+#' 
+#' Mizer allows an arbitrary number of unstructured components. The biomasses of
+#' all components are collected into a vector and stored in the `B` slot of the
+#' `MizerSim` object. The initial value `B` is stored in the `initial_B` slot of
+#' the `MizerParams` object but can also be specified explicitly as an argument
+#' to `project()`.
+#'
+#' @section Feeding on Resources:
+#' We denote by \eqn{\rho_{id}(w)} the rate at which a predator of species
+#' \eqn{i} and weight \eqn{w} encounters biomass from the d-th unstructured
+#' resource component. The contribution of the unstructured resources to the
+#' total rat at which biomass encountered is thus 
+#' \deqn{\sum_d \rho_{id}(w) B_d.} 
+#' The values of \eqn{\rho{id}(w)} are stored in the `rho` slot of the
+#' `MizerParams` object, which is a 3-dim array (predator species x resource x
+#' predator weight).
+#' 
+#' @section Resource Dynamics:
+#' During a simulation using `project()`, the biomasses of the resources is
+#' updated at each time step by calling the function specified in the
+#' `resource_dyn` slot of the `MizerParams` object. Mizer provides some
+#' functions that can be used: `detritus_dyn()`, `carrion_dyn()`, and 
+#' `dead_matter_dyn()`. As you can see in the documentation of these functions,
+#' their arguments are: the `MizerParams` object `params`, the current fish size
+#' spectra `n`, the plankton spectrum `n_pp`, the current resource biomasses
+#' `B` and the current rates calculated by the `get_rates()` function. This
+#' last argument is passed for efficiency reasons, so that the rates do not
+#' have to be recomputed. See the documentation of `get_rates()` for a list of 
+#' what it contains. The parameters needed by these functions must be contained
+#' in the `species_params` slot of `params`.
+#' 
+#' @section Setting up Resources:
+#' You can set up a Mizer model with unstructured resource components using
+#' the `multispeciesParams()` function. The arguments to that function that
+#' relate to the resources are:
+#' * `rho`
+#' * `resource_names`
+#' * `resource_dyn`
+#' * `resource_params`
+#' See the documentation of `multispeciesParams()` for details.
+#' 
+#' @name resources
+#' @md
+NULL
+
 #' Detritus dynamics
 #' 
 #' Calculates the detritus biomass at the next timestep from the current
