@@ -655,11 +655,12 @@ emptyParams <-
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
 #' @param plankton_dyn Function that determines plankton dynamics by calculating
-#'   the plankton spectrum at the next time step from the current state. See
-#'   [plankton_semichemostat()] for an example.
+#'   the plankton spectrum at the next time step from the current state. The
+#'   default is `"plankton_semichemostat"`, see [plankton_semichemostat()].
 #' @param interaction_p Vector specifying for each species its interaction with
 #'   plankton, similar to what the interaction matrix does for the interaction
-#'   with other species. Entries should be numbers between 0 and 1.
+#'   with other species. Entries should be numbers between 0 and 1. The 
+#'   default is a vector of 1s.
 #' @param rho Either NULL (default), in which case there will be no unstructured
 #'   resources in the model, or an array (species x resource) that gives the
 #'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
@@ -668,6 +669,7 @@ emptyParams <-
 #'   the resources to the rate at which the individual encounters biomass is
 #'   \deqn{\sum_d\rho_{id} w^n B_d,}
 #'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
+#'   See [resources] help for more details.
 #' @param resource_names Optional vector of strings giving the names of the
 #'   resource components, in the order in which the resources are indexed in the
 #'   `rho` array. Only used if the array `rho` did not have the dimnames set.
@@ -717,6 +719,7 @@ multispeciesParams <-
     row.names(object) <- object$species
     no_sp <- nrow(object)
     
+    # Check validity of arguments ----
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
@@ -739,6 +742,9 @@ multispeciesParams <-
             # If resource names are provided via dimnames in rho array, use 
             # these instead of any explicitly provided resource names
             resource_names <- dimnames(rho)["res"]
+        }
+        if (is.null(resource_names)) {
+            stop("You need to supply the resource_names argument")
         }
         if (!is.character(resource_names)) {
             stop("Resource names need to be of type charater.")

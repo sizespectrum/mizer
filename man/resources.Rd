@@ -8,21 +8,36 @@ Besides the size-structured planktonic resource, mizer can also model
 unstructured resource components. Such unstructured components are
 appropriate whenever the predation on this component is not size based.
 Examples include detritus as a resource for detritovores, carrion as a
-resource for scavengers, or plants on which fish can graze.
+resource for scavengers, or macroflora on which fish can graze.
 }
 \details{
 Mizer allows an arbitrary number of unstructured components. The biomasses of
 all components are collected into a vector and stored in the \code{B} slot of the
 \code{MizerSim} object. The initial value \code{B} is stored in the \code{initial_B} slot of
 the \code{MizerParams} object but can also be specified explicitly as an argument
-to \code{project()}.
+to \code{\link[=project]{project()}}.
 }
+\section{Setting up a Model with Resources}{
+
+You can set up a Mizer model with unstructured resource components using
+the \code{\link[=multispeciesParams]{multispeciesParams()}} function. The arguments to that function that
+relate to the resources are:
+\itemize{
+\item \code{rho}
+\item \code{resource_names}
+\item \code{resource_dyn}
+\item \code{resource_params}
+}
+
+See the documentation of \code{\link[=multispeciesParams]{multispeciesParams()}} for details.
+}
+
 \section{Feeding on Resources}{
 
 We denote by \eqn{\rho_{id}(w)} the rate at which a predator of species
 \eqn{i} and weight \eqn{w} encounters biomass from the d-th unstructured
 resource component. The contribution of the unstructured resources to the
-total rat at which biomass encountered is thus
+total rate at which biomass encountered is thus
 \deqn{\sum_d \rho_{id}(w) B_d.}
 The values of \eqn{\rho{id}(w)} are stored in the \code{rho} slot of the
 \code{MizerParams} object, which is a 3-dim array (predator species x resource x
@@ -31,31 +46,22 @@ predator weight).
 
 \section{Resource Dynamics}{
 
-During a simulation using \code{project()}, the biomasses of the resources is
+During a simulation using \code{\link[=project]{project()}}, the biomasses of the resources is
 updated at each time step by calling the function specified in the
 \code{resource_dyn} slot of the \code{MizerParams} object. Mizer provides some
-functions that can be used: \code{detritus_dyn()}, \code{carrion_dyn()}, and
-\code{dead_matter_dyn()}. As you can see in the documentation of these functions,
+functions that can be used: \code{\link[=detritus_dyn]{detritus_dyn()}}, \code{\link[=carrion_dyn]{carrion_dyn()}}, and
+\code{\link[=dead_matter_dyn]{dead_matter_dyn()}}.
+
+As you can see in the documentation of these functions,
 their arguments are: the \code{MizerParams} object \code{params}, the current fish size
 spectra \code{n}, the plankton spectrum \code{n_pp}, the current resource biomasses
-\code{B} and the current rates calculated by the \code{get_rates()} function. This
+\code{B} and the current rates calculated by the \code{\link[=get_rates]{get_rates()}} function. This
 last argument is passed for efficiency reasons, so that the rates do not
-have to be recomputed. See the documentation of \code{get_rates()} for a list of
-what it contains. The parameters needed by these functions must be contained
+have to be recomputed. See the documentation of \code{\link[=get_rates]{get_rates()}} for a list of
+what it contains.
+
+The resource dynamics will depend on some model parameters, like for
+example growth rates. These
 in the \code{species_params} slot of \code{params}.
-}
-
-\section{Setting up Resources}{
-
-You can set up a Mizer model with unstructured resource components using
-the \code{multispeciesParams()} function. The arguments to that function that
-relate to the resources are:
-\itemize{
-\item \code{rho}
-\item \code{resource_names}
-\item \code{resource_dyn}
-\item \code{resource_params}
-See the documentation of \code{multispeciesParams()} for details.
-}
 }
 
