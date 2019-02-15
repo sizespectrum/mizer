@@ -11,15 +11,16 @@ my.array[,1] = 2*10^(-12)
 my.array[,2] = 2*10^(-12)
 
 
-resource_params <- list("detritus_external" = 1, "detritus_proportion" = 0, "carrion_external"=1)
+resource_params <- list("detritus_external" = 1, "detritus_proportion" = 10^(-12), "carrion_external"=1)
 
 params <- multispeciesParams(NS_species_params_gears, inter, rho = my.array, 
                              resource_dyn = dead_matter_dyn, resource_params = resource_params, 
                              resource_names= c("detritus","carrion"))
 
-sim <- project(params, dt=0.01, t_save = .1, t_max = 100)
+sim <- project(params, dt=0.01, t_save = .1, t_max = 250)
 
-plot(sim@B[400:500,1],type="l")
+#plot(sim@B[400:500,1],type="l")
+plot(sim@B[,1],type="l")
 
 plot(sim@B[,2])
 
