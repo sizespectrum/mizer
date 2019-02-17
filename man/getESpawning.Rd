@@ -4,8 +4,9 @@
 \alias{getESpawning}
 \title{Alias for getERepro}
 \usage{
-getESpawning(object, n, n_pp, B = 0, e = getEReproAndGrowth(object, n =
-  n, n_pp = n_pp, B = B))
+getESpawning(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, e = getEReproAndGrowth(object, n = n, n_pp =
+  n_pp, B = B))
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

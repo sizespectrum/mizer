@@ -1232,7 +1232,7 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
 #'   after each of which we check for convergence. Default value is 2.
 #' @param tol The simulation stops when the relative change in the egg
-#'   production RDI over a t_per is less than rel_tol for every background
+#'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
 #' @param shiny_progress A shiny progress object to implement progress bar
 #' @export

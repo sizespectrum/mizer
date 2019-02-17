@@ -18,7 +18,7 @@ steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
 after each of which we check for convergence. Default value is 2.}
 
 \item{tol}{The simulation stops when the relative change in the egg
-production RDI over a t_per is less than rel_tol for every background
+production RDI over t_per years is less than tol for every background
 species. Default value is 1/100.}
 
 \item{shiny_progress}{A shiny progress object to implement progress bar}

@@ -65,7 +65,10 @@ NULL
 #'     \item rdd from \code{\link{getRDD}}
 #'   }
 #' @export
-getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
+getRates <- function(object, n = object@initial_n, 
+                     n_pp = object@intitial_n_pp,
+                     B = object@initial_B,
+                     effort = 0, sex_ratio = 0.5) {
     r <- list()
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- getEncounter(object, n = n, n_pp = n_pp, B = B)
@@ -95,7 +98,8 @@ getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
     r$rdi <- getRDI(object, n = n, n_pp = n_pp, B = B, 
                     e_repro = r$e_repro, sex_ratio = sex_ratio)
     # R_i
-    r$rdd <- getRDD(object, n = n, n_pp = n_pp, B = B, rdi = r$rdi)
+    r$rdd <- object@srr(rdi = r$rdi, species_params = object@species_params)
+    
     return(r)
 }
 
@@ -106,7 +110,10 @@ getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
 #' 
 #' This function is used by the \code{\link{project}} method for
 #' performing simulations.
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #'   
 #' @return A two dimensional array (predator species x predator size)
 #' @seealso \code{\link{project}}
@@ -122,10 +129,10 @@ getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
 #' n_pp <- sim@@n_pp[21,]
 #' getEncounter(params,n,n_pp)
 #' }
-getEncounter <- function(object, n, n_pp, B = 0) {
-    if (missing(B)) {
-        B <- 0
-    }
+getEncounter <- function(object, n = object@initial_n, 
+                         n_pp = object@intitial_n_pp,
+                         B = object@initial_B) {
+
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (length(object@w_full) - length(object@w) + 1):length(object@w_full)
@@ -284,7 +291,10 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
 #' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
 #' (see \code{\link{getPredMort}}).
 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
@@ -307,7 +317,9 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
 #' getPredRate(params,n,n_pp)
 #' }
 
-getPredRate <- function(object, n,  n_pp, B = 0,
+getPredRate <- function(object, n = object@initial_n, 
+                        n_pp = object@intitial_n_pp,
+                        B = object@initial_B,
                         feeding_level = getFeedingLevel(object, n = n,
                                                         n_pp = n_pp, B = B)
                         ) {
@@ -449,7 +461,10 @@ getM2 <- getPredMort
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
 #' spectrum by plankton size. Used by the \code{project} method for running size
 #' based simulations.
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
@@ -471,7 +486,9 @@ getM2 <- getPredMort
 #' getPlanktonMort(params,n,n_pp)
 #' }
 getPlanktonMort <- 
-    function(object, n, n_pp, B = 0,
+    function(object, n = object@initial_n, 
+             n_pp = object@intitial_n_pp,
+             B = object@initial_B,
              pred_rate = getPredRate(object, n = n, n_pp = n_pp, B = B)) {
 
     if ( (!all(dim(pred_rate) ==
@@ -684,7 +701,10 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
 #' from predation mortality, background mortality and fishing mortality
 #' for a single time step.
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
@@ -705,8 +725,11 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' # Get the total mortality at a particular time step
 #' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
-getMort <- function(object, n, n_pp, B = 0, effort,
-                 m2 = getPredMort(object, n = n, n_pp = n_pp, B = B)){
+getMort <- function(object, n = object@initial_n, 
+                    n_pp = object@intitial_n_pp,
+                    B = object@initial_B,
+                    effort, 
+                    m2 = getPredMort(object, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(m2) == c(nrow(object@species_params), length(object@w)))) {
         stop("m2 argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
@@ -729,7 +752,10 @@ getZ <- getMort
 #' growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
 #' Used by the \code{project} method for performing simulations.
 #' 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{getFeedingLevel()} method.
@@ -747,7 +773,9 @@ getZ <- getMort
 #' # Get the energy at a particular time step
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEReproAndGrowth <- function(object, n, n_pp, B = 0,
+getEReproAndGrowth <- function(object, n = object@initial_n, 
+                               n_pp = object@intitial_n_pp,
+                               B = object@initial_B,
                                feeding_level = getFeedingLevel(object, n = n,
                                                                n_pp = n_pp, B = B)) {
     if (!all(dim(feeding_level) == c(nrow(object@species_params), length(object@w)))) {
@@ -772,7 +800,10 @@ getEReproAndGrowth <- function(object, n, n_pp, B = 0,
 #' \eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} method for performing
 #' simulations.
 #' 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param e The energy available for reproduction and growth (optional). A
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using the \code{getEReproAndGrowth()} method.
@@ -790,8 +821,10 @@ getEReproAndGrowth <- function(object, n, n_pp, B = 0,
 #' # Get the energy at a particular time step
 #' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getERepro <- function(object, n, n_pp, B = 0,
-                         e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B)) {
+getERepro <- function(object, n = object@initial_n, 
+                      n_pp = object@intitial_n_pp,
+                      B = object@initial_B,
+                      e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
         stop("e argument must have dimensions: no. species (",
              nrow(object@species_params), ") x no. size bins (",
@@ -816,7 +849,10 @@ getESpawning <- getERepro
 #' Used by the \code{\link{project}} method for performing simulations.
 #' @param object A \linkS4class{MizerParams} object.
 #' 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param e The energy available for reproduction and growth (optional, although
 #'   if specified, e_repro must also be specified). A matrix of size no.
 #'   species x no. size bins. If not supplied, is calculated internally using
@@ -839,7 +875,9 @@ getESpawning <- getERepro
 #' # Get the energy at a particular time step
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEGrowth <- function(object, n, n_pp, B = 0,
+getEGrowth <- function(object, n = object@initial_n, 
+                       n_pp = object@intitial_n_pp,
+                       B = object@initial_B,
                        e_repro = getERepro(object, n = n, n_pp = n_pp, B = B),
                        e=getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(e_repro) == c(nrow(object@species_params), length(object@w)))) {
@@ -865,7 +903,10 @@ getEGrowth <- function(object, n, n_pp, B = 0,
 #' \eqn{R_{p.i}} before density dependence, by species. Used by the
 #' \code{project} method for performing simulations.
 #' 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param e_repro The energy available for reproduction (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{\link{getERepro}} method.
@@ -885,7 +926,9 @@ getEGrowth <- function(object, n, n_pp, B = 0,
 #' # Get the recruitment at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDI <- function(object, n, n_pp, B = 0,
+getRDI <- function(object, n = object@initial_n, 
+                   n_pp = object@intitial_n_pp,
+                   B = object@initial_B,
                    e_repro = getERepro(object, n = n, n_pp = n_pp, B = B),
                    sex_ratio = 0.5) {
     if (!all(dim(e_repro) == c(nrow(object@species_params), length(object@w)))) {
@@ -906,10 +949,12 @@ getRDI <- function(object, n, n_pp, B = 0,
 #' for each species. This is the flux entering the smallest size class of each
 #' species. The density dependent recruitment is the density independent
 #' recruitment after it has been put through the density dependent
-#' stock-recruitment relationship function. This method is used by the
-#' \code{project} method for performing simulations.
+#' stock-recruitment relationship function.
 #' 
-#' @inheritParams getRates
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param B A vector of biomasses of unstructured resource components
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' @param rdi A vector of density independent recruitment for each species. 
@@ -928,7 +973,9 @@ getRDI <- function(object, n, n_pp, B = 0,
 #' # Get the energy at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDD <- function(object, n, n_pp, B = 0, sex_ratio = 0.5,
+getRDD <- function(object, n = object@initial_n, 
+                   n_pp = object@intitial_n_pp,
+                   B = object@initial_B, sex_ratio = 0.5,
                    rdi = getRDI(object, n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio)) {
     rdd <- object@srr(rdi = rdi, species_params = object@species_params)
     return(rdd)

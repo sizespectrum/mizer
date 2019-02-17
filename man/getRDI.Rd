@@ -4,8 +4,9 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n, n_pp, B = 0, e_repro = getERepro(object, n = n, n_pp
-  = n_pp, B = B), sex_ratio = 0.5)
+getRDI(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
+  B = B), sex_ratio = 0.5)
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

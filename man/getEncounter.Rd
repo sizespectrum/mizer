@@ -4,7 +4,8 @@
 \alias{getEncounter}
 \title{Get encounter rate}
 \usage{
-getEncounter(object, n, n_pp, B = 0)
+getEncounter(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B)
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

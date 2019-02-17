@@ -4,7 +4,8 @@
 \alias{getRates}
 \title{Get rates}
 \usage{
-getRates(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5)
+getRates(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, effort = 0, sex_ratio = 0.5)
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

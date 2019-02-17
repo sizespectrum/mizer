@@ -4,9 +4,9 @@
 \alias{getEGrowth}
 \title{Get energy rate available for growth}
 \usage{
-getEGrowth(object, n, n_pp, B = 0, e_repro = getERepro(object, n = n,
-  n_pp = n_pp, B = B), e = getEReproAndGrowth(object, n = n, n_pp = n_pp,
-  B = B))
+getEGrowth(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
+  B = B), e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object.}
@@ -26,6 +26,8 @@ size bins. If not supplied, is calculated internally using the
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
 the \code{\link{getEReproAndGrowth}} method.}
+
+\item{object}{An \linkS4class{MizerParams} object}
 }
 \value{
 A two dimensional array (prey species x prey size)

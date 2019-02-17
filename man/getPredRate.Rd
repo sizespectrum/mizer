@@ -4,8 +4,9 @@
 \alias{getPredRate}
 \title{Get predation rate}
 \usage{
-getPredRate(object, n, n_pp, B = 0,
-  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B))
+getPredRate(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, feeding_level = getFeedingLevel(object, n = n,
+  n_pp = n_pp, B = B))
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

@@ -4,8 +4,9 @@
 \alias{getM2Background}
 \title{Alias for getPlanktonMort}
 \usage{
-getM2Background(object, n, n_pp, B = 0, pred_rate = getPredRate(object,
-  n = n, n_pp = n_pp, B = B))
+getM2Background(object, n = object@initial_n,
+  n_pp = object@intitial_n_pp, B = object@initial_B,
+  pred_rate = getPredRate(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}

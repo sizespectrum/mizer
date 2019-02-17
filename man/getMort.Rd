@@ -4,8 +4,9 @@
 \alias{getMort}
 \title{Get total mortality rate}
 \usage{
-getMort(object, n, n_pp, B = 0, effort, m2 = getPredMort(object, n = n,
-  n_pp = n_pp, B = B))
+getMort(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+  B = object@initial_B, effort, m2 = getPredMort(object, n = n, n_pp =
+  n_pp, B = B))
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}
