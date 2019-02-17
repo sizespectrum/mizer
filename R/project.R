@@ -21,6 +21,9 @@ NULL
 #' plotting methods.
 #' 
 #' @param params A \linkS4class{MizerParams} object
+#' @param sim Optional \linkS4class{MizerSim} object. If supplied, then the
+#'   initial values for the abundances of species and of plankton and the
+#'   resource biomasses are taken from the final time of that simulation.
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The maximum time the projection runs for. The default value is
 #'   100. However, this argument is not needed if an array is used for the
@@ -29,16 +32,19 @@ NULL
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
-#' @param initial_n The initial populations of the species. By default the 
-#'   \code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
-#'   See the notes below.
-#' @param initial_n_pp The initial population of the plankton spectrum. It
-#'   should be a numeric vector of the same length as the \code{w_full} slot of
-#'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
-#'   \linkS4class{MizerParams} argument is used.
-#' @param initial_B The initial biomasses of the unstructured resources. By
-#'   default the \code{initial_B} slot of the \linkS4class{MizerParams}
-#'   argument is used. Ignored if the model has no resource components.
+#' @param initial_n The initial abundances of species. Ignored if a \code{sim}
+#'   argument is supplied. A matrix with dimensions species x size. The order of
+#'   species must be the same as in the \code{MizerParams} argument. By default
+#'   is set to the \code{initial_n} slot of the \code{params} argument.
+#' @param initial_n_pp The initial abundances of plankton. Ignored if a
+#'   \code{sim} argument is supplied. A numeric vector of the same length as the
+#'   \code{w_full} slot of the \code{MizerParams} argument. By default is set to
+#'   the \code{initial_n_pp} slot of the \code{params} argument.
+#' @param initial_B The initial biomasses of the unstructured resources. It
+#'   should be a vector with one entry for each resource, with the names the
+#'   same as the names of the list in the \code{resource_dynamics} slot of the
+#'   \code{MizerParams}. By default is set to the \code{initial_B} slot of the
+#'   \code{params} argument.
 #' @param shiny_progress A shiny progress object used to update shiny progress bar.
 #'   Default NULL.
 #' @param ... Currently unused.
@@ -64,12 +70,6 @@ NULL
 #' set to 0. Also, if the effort is an array then the \code{t_max} argument is 
 #' ignored and the maximum simulation time is the largest time of the effort
 #' array.
-#' 
-#' The \code{initial_n} argument is a matrix with dimensions species x size. 
-#' It specifies the abundances of the species at the initial time. The
-#' order of species must be the same as in the \code{MizerParams} argument. If
-#' the initial population is not specified, the argument is set by default by
-#' the \code{get_initial_n} function which is set up for a North Sea model.
 #' 
 #' @return An object of type \linkS4class{MizerSim}.
 #' 
@@ -97,12 +97,25 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save = 1,
+project <- function(params, sim = NULL, effort = 0,
+                    t_max = 100, dt = 0.1, t_save = 1,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,
                     initial_B = params@initial_B,
                     shiny_progress = NULL, ...) {
     validObject(params)
+    if (hasArg(sim)) {
+        assert_that(is(sim, "MizerSim"))
+        no_t <- dim(sim@B)[1]
+        initial_n <- sim@n[no_t, , ]
+        initial_n_pp <- sim@n_pp[no_t, ]
+        initial_B <- sim@B[no_t, ]
+    }
+    no_sp <- length(params@w_min_idx)
+    assert_that(is.array(initial_n),
+                are_equal(dim(initial_n), c(no_sp, length(params@w))))
+    assert_that(is.vector(initial_n_pp),
+                length(initial_n_pp) == length(params@w_full))
     if (length(params@resource_dynamics) > 0) {
         if (!is.character(names(initial_B))) {
             stop("The initial_B needs to be a named vector")

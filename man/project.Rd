@@ -4,12 +4,17 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(params, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
-  initial_n = params@initial_n, initial_n_pp = params@initial_n_pp,
-  initial_B = params@initial_B, shiny_progress = NULL, ...)
+project(params, sim = NULL, effort = 0, t_max = 100, dt = 0.1,
+  t_save = 1, initial_n = params@initial_n,
+  initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
+  shiny_progress = NULL, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
+
+\item{sim}{Optional \linkS4class{MizerSim} object. If supplied, then the
+initial values for the abundances of species and of plankton and the
+resource biomasses are taken from the final time of that simulation.}
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
@@ -23,18 +28,21 @@ below.}
 \item{t_save}{The frequency with which the output is stored. The default
 value is 1. Must be an integer multiple of dt.}
 
-\item{initial_n}{The initial populations of the species. By default the 
-\code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
-See the notes below.}
+\item{initial_n}{The initial abundances of species. Ignored if a \code{sim}
+argument is supplied. A matrix with dimensions species x size. The order of
+species must be the same as in the \code{MizerParams} argument. By default
+is set to the \code{initial_n} slot of the \code{params} argument.}
 
-\item{initial_n_pp}{The initial population of the plankton spectrum. It
-should be a numeric vector of the same length as the \code{w_full} slot of
-the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
-\linkS4class{MizerParams} argument is used.}
+\item{initial_n_pp}{The initial abundances of plankton. Ignored if a
+\code{sim} argument is supplied. A numeric vector of the same length as the
+\code{w_full} slot of the \code{MizerParams} argument. By default is set to
+the \code{initial_n_pp} slot of the \code{params} argument.}
 
-\item{initial_B}{The initial biomasses of the unstructured resources. By
-default the \code{initial_B} slot of the \linkS4class{MizerParams}
-argument is used. Ignored if the model has no resource components.}
+\item{initial_B}{The initial biomasses of the unstructured resources. It
+should be a vector with one entry for each resource, with the names the
+same as the names of the list in the \code{resource_dynamics} slot of the
+\code{MizerParams}. By default is set to the \code{initial_B} slot of the
+\code{params} argument.}
 
 \item{shiny_progress}{A shiny progress object used to update shiny progress bar.
 Default NULL.}
@@ -72,12 +80,6 @@ used as the initial time for the simulation. Otherwise the initial time is
 set to 0. Also, if the effort is an array then the \code{t_max} argument is 
 ignored and the maximum simulation time is the largest time of the effort
 array.
-
-The \code{initial_n} argument is a matrix with dimensions species x size. 
-It specifies the abundances of the species at the initial time. The
-order of species must be the same as in the \code{MizerParams} argument. If
-the initial population is not specified, the argument is set by default by
-the \code{get_initial_n} function which is set up for a North Sea model.
 }
 \examples{
 \dontrun{
