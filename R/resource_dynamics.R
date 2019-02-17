@@ -67,15 +67,20 @@
 #' the documentation of [getRates()] for a list of what it contains.
 #' 
 #' The other arguments are model parameters, like for example growth rates.
-#' These need to be stored in the `resource_params` slot of `params`. When
-#' writing your own resource dynamics functions, you can choose any names for
-#' your model parameters, but you must make sure not to use the same name in
-#' the function for another resource component. One way to ensure this is
-#' to prefix the parameter name with your resource name.
+#' These need to be stored in the `resource_params` slot of `params`. One model
+#' parameter that must always be present is the rate of change due to external
+#' causes. This must be given a name of the form `resource_external` where
+#' `resource` should be replaced by the name of the resource, see for example
+#' `detritus_external` in [detritus_dynamics()]
+#' 
+#' When writing your own resource dynamics functions, you can choose any names
+#' for your other model parameters, but you must make sure not to use the same
+#' name in the function for another resource component. One way to ensure this
+#' is to prefix all parameter namse with your resource name.
 #' 
 #' The dynamics for a resource should always have a loss term accounting for
 #' the consumption of the resource. This should always have the form used in the
-#' examples [detritus_dynamics()] and [carrion_dynamics()].
+#' example function [detritus_dynamics()].
 #' 
 #' @name resource_dynamics
 #' @md
@@ -125,11 +130,11 @@ detritus_dynamics <-
                                  (1 - rates$feeding_level)) %*%
                                 params@dw)
    
-    creation <- detritus_external +
+    creation <-
         detritus_proportion *
           sum((rates$feeding_level * params@intake_max * n) %*% params@dw)
      
-    return(B["detritus"] + (creation - consumption) * dt)
+    return(B["detritus"] + (creation - consumption + detritus_external) * dt)
 }
 
 
@@ -169,10 +174,10 @@ carrion_dynamics <-
             B["carrion"] * sum((params@rho[, "carrion", ] * n *
                                     (1 - rates$feeding_level)) %*%
                                    params@dw)
-        creation <- params@resource_params$carrion_external +
-            # the other parts still need to be written
+        creation <- 
+            # still need to be written
             0
         
-        return(B["carrion"] + (creation - consumption) * dt)
+        return(B["carrion"] + (creation - consumption + carrion_external) * dt)
 }
 

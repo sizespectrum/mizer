@@ -1221,10 +1221,10 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 
 #' Tune params object to be at steady state
 #' 
-#' This is done by running the dynamics for a specified number of years
-#' while keeping recruitment constant to reach steady state. Then
-#' the reproductive efficiencies are retuned to achieve that level of
-#' recruitment.
+#' This is done by running the dynamics for a specified number of years while
+#' keeping recruitment and resources constant to reach steady state. Then the
+#' reproductive efficiencies and the external resource rates are retuned to
+#' achieve that level of recruitment.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort. Default is 0
@@ -1234,10 +1234,11 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
+#' @param dt The time step to use in `project()`
 #' @param shiny_progress A shiny progress object to implement progress bar
 #' @export
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-                   shiny_progress = NULL) {
+                   dt = 0.1, shiny_progress = NULL) {
     p <- params
     
     if (hasArg(shiny_progress)) {
@@ -1245,29 +1246,39 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
         shiny_progress$set(message = "Finding steady state", value = 0)
         proginc <- 1/ceiling(t_max/t_per)
     }
+    
     # Force the recruitment to stay at the current level
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+    rdd <- getRDD(p)
     p@srr <- function(rdi, species_params) {rdd}
+    old_rdi <- getRDI(p)
+    # Force resources to stay at current level
+    old_resource_dynamics <- p@resource_dynamics
+    for (res in names(p@resource_dynamics)) {
+        resource_dynamics[[res]] <- 
+            function(params, n, n_pp, B, rates, dt) B[res]
+    }
     
     n <- p@initial_n
     n_pp <- p@initial_n_pp
-    old_rdi <- getRDI(p, n, n_pp)
-    for (ti in (1:ceiling(t_max/t_per))){
-        sim <- project(p, t_max = t_per, t_save = t_per, effort = effort, 
-                       initial_n = n, initial_n_pp = n_pp)
+    B <- p@initial_B
+    for (ti in (1:ceiling(t_max/t_per))) {
+        sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
+                       effort = effort, 
+                       initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
         if (hasArg(shiny_progress)) {
             shiny_progress$inc(amount = proginc)
         }
-        n <- sim@n[dim(sim@n)[1],,]
-        n_pp <- sim@n_pp[dim(sim@n_pp)[1],]
-        new_rdi <- getRDI(p, n, n_pp)
+        no_t <- dim(sim@n)[1]
+        n <- sim@n[no_t, , ]
+        n_pp <- sim@n_pp[no_t, ]
+        B <- sim@B[no_t, ]
+        new_rdi <- getRDI(p, n, n_pp, B)
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi)[!is.na(p@A)])
         if (deviation < tol) {
             break
         }
         old_rdi <- new_rdi
-        
     }
     if (deviation >= tol) {
         warning(paste(
@@ -1277,27 +1288,39 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
         message(paste("Steady state was reached after ", ti * t_per, "years."))
     }
     
-    # Restore original stock-recruitment relationship
+    # Restore original stock-recruitment relationship and resource dynamics
     p@srr <- params@srr
+    p@resource_dynamics <- old_resource_dynamics
     
     no_sp <- length(p@species_params$species)
     no_t <- dim(sim@n)[1]
     p@initial_n <- sim@n[no_t, , ]
     p@initial_n_pp <- sim@n_pp[no_t, ]
+    p@initial_B <- sim@B[no_t, ]
+    
+    # Set rates of external resource influx to keep resources at steady state
+    r <- getRates(p, effort = effort)
+    for (res in names(p@resource_dynamics)) {
+        res_external <- paste0(res, "_external")
+        if (!res_external %in% names(resource_params)) {
+            stop(paste("The parameter", res_external, "is missing from resource_params."))
+        }
+        p@resource_params$res_external <- 
+            p@resource_params$res_external +
+            (B[res] - p@resource_dynamics[[res]](p, p@initial_n, p@initial_n_pp,
+                                                 p@initial_B, rates = r, 
+                                                 dt = dt)) / dt
+    }
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
-    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
-    # TODO: vectorise this
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, p@w_min_idx[i]]
-        mumu0 <- mumu[i, p@w_min_idx[i]]
+        gg0 <- r$e_growth[i, p@w_min_idx[i]]
+        mumu0 <- r$mort[i, p@w_min_idx[i]]
         DW <- p@dw[p@w_min_idx[i]]
         p@species_params$erepro[i] <- p@species_params$erepro[i] *
             (p@initial_n[i, p@w_min_idx[i]] *
-                 (gg0 + DW * mumu0)) / rdd[i]
+                 (gg0 + DW * mumu0)) / r$rdd[i]
     }
     
     return(p)

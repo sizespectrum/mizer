@@ -81,14 +81,19 @@ for efficiency reasons, so that the rates do not have to be recomputed. See
 the documentation of \code{\link[=getRates]{getRates()}} for a list of what it contains.
 
 The other arguments are model parameters, like for example growth rates.
-These need to be stored in the \code{resource_params} slot of \code{params}. When
-writing your own resource dynamics functions, you can choose any names for
-your model parameters, but you must make sure not to use the same name in
-the function for another resource component. One way to ensure this is
-to prefix the parameter name with your resource name.
+These need to be stored in the \code{resource_params} slot of \code{params}. One model
+parameter that must always be present is the rate of change due to external
+causes. This must be given a name of the form \code{resource_external} where
+\code{resource} should be replaced by the name of the resource, see for example
+\code{detritus_external} in \code{\link[=detritus_dynamics]{detritus_dynamics()}}
+
+When writing your own resource dynamics functions, you can choose any names
+for your other model parameters, but you must make sure not to use the same
+name in the function for another resource component. One way to ensure this
+is to prefix all parameter namse with your resource name.
 
 The dynamics for a resource should always have a loss term accounting for
 the consumption of the resource. This should always have the form used in the
-examples \code{\link[=detritus_dynamics]{detritus_dynamics()}} and \code{\link[=carrion_dynamics]{carrion_dynamics()}}.
+example function \code{\link[=detritus_dynamics]{detritus_dynamics()}}.
 }
 

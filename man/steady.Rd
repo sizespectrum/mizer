@@ -5,7 +5,7 @@
 \title{Tune params object to be at steady state}
 \usage{
 steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-  shiny_progress = NULL)
+  dt = 0.1, shiny_progress = NULL)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -21,11 +21,13 @@ after each of which we check for convergence. Default value is 2.}
 production RDI over t_per years is less than tol for every background
 species. Default value is 1/100.}
 
+\item{dt}{The time step to use in `project()`}
+
 \item{shiny_progress}{A shiny progress object to implement progress bar}
 }
 \description{
-This is done by running the dynamics for a specified number of years
-while keeping recruitment constant to reach steady state. Then
-the reproductive efficiencies are retuned to achieve that level of
-recruitment.
+This is done by running the dynamics for a specified number of years while
+keeping recruitment and resources constant to reach steady state. Then the
+reproductive efficiencies and the external resource rates are retuned to
+achieve that level of recruitment.
 }
