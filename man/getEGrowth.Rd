@@ -4,7 +4,7 @@
 \alias{getEGrowth}
 \title{Get energy rate available for growth}
 \usage{
-getEGrowth(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getEGrowth(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
   B = B), e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B))
 }

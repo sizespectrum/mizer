@@ -4,7 +4,7 @@
 \alias{getRDD}
 \title{Get density dependent recruitment}
 \usage{
-getRDD(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getRDD(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, sex_ratio = 0.5, rdi = getRDI(object, n = n,
   n_pp = n_pp, B = B, sex_ratio = sex_ratio))
 }

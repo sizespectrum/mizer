@@ -66,7 +66,7 @@ NULL
 #'   }
 #' @export
 getRates <- function(object, n = object@initial_n, 
-                     n_pp = object@intitial_n_pp,
+                     n_pp = object@initial_n_pp,
                      B = object@initial_B,
                      effort = 0, sex_ratio = 0.5) {
     r <- list()
@@ -130,7 +130,7 @@ getRates <- function(object, n = object@initial_n,
 #' getEncounter(params,n,n_pp)
 #' }
 getEncounter <- function(object, n = object@initial_n, 
-                         n_pp = object@intitial_n_pp,
+                         n_pp = object@initial_n_pp,
                          B = object@initial_B) {
 
     # idx_sp are the index values of object@w_full such that
@@ -318,7 +318,7 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
 #' }
 
 getPredRate <- function(object, n = object@initial_n, 
-                        n_pp = object@intitial_n_pp,
+                        n_pp = object@initial_n_pp,
                         B = object@initial_B,
                         feeding_level = getFeedingLevel(object, n = n,
                                                         n_pp = n_pp, B = B)
@@ -487,7 +487,7 @@ getM2 <- getPredMort
 #' }
 getPlanktonMort <- 
     function(object, n = object@initial_n, 
-             n_pp = object@intitial_n_pp,
+             n_pp = object@initial_n_pp,
              B = object@initial_B,
              pred_rate = getPredRate(object, n = n, n_pp = n_pp, B = B)) {
 
@@ -726,7 +726,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
 getMort <- function(object, n = object@initial_n, 
-                    n_pp = object@intitial_n_pp,
+                    n_pp = object@initial_n_pp,
                     B = object@initial_B,
                     effort, 
                     m2 = getPredMort(object, n = n, n_pp = n_pp, B = B)) {
@@ -774,7 +774,7 @@ getZ <- getMort
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEReproAndGrowth <- function(object, n = object@initial_n, 
-                               n_pp = object@intitial_n_pp,
+                               n_pp = object@initial_n_pp,
                                B = object@initial_B,
                                feeding_level = getFeedingLevel(object, n = n,
                                                                n_pp = n_pp, B = B)) {
@@ -822,7 +822,7 @@ getEReproAndGrowth <- function(object, n = object@initial_n,
 #' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getERepro <- function(object, n = object@initial_n, 
-                      n_pp = object@intitial_n_pp,
+                      n_pp = object@initial_n_pp,
                       B = object@initial_B,
                       e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
@@ -876,7 +876,7 @@ getESpawning <- getERepro
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEGrowth <- function(object, n = object@initial_n, 
-                       n_pp = object@intitial_n_pp,
+                       n_pp = object@initial_n_pp,
                        B = object@initial_B,
                        e_repro = getERepro(object, n = n, n_pp = n_pp, B = B),
                        e=getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B)) {
@@ -927,7 +927,7 @@ getEGrowth <- function(object, n = object@initial_n,
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDI <- function(object, n = object@initial_n, 
-                   n_pp = object@intitial_n_pp,
+                   n_pp = object@initial_n_pp,
                    B = object@initial_B,
                    e_repro = getERepro(object, n = n, n_pp = n_pp, B = B),
                    sex_ratio = 0.5) {
@@ -974,7 +974,7 @@ getRDI <- function(object, n = object@initial_n,
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDD <- function(object, n = object@initial_n, 
-                   n_pp = object@intitial_n_pp,
+                   n_pp = object@initial_n_pp,
                    B = object@initial_B, sex_ratio = 0.5,
                    rdi = getRDI(object, n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio)) {
     rdd <- object@srr(rdi = rdi, species_params = object@species_params)

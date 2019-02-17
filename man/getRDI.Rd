@@ -4,7 +4,7 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getRDI(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
   B = B), sex_ratio = 0.5)
 }

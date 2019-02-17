@@ -5,7 +5,7 @@
 \title{Get energy after metabolism and movement}
 \usage{
 getEReproAndGrowth(object, n = object@initial_n,
-  n_pp = object@intitial_n_pp, B = object@initial_B,
+  n_pp = object@initial_n_pp, B = object@initial_B,
   feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{getESpawning}
 \title{Alias for getERepro}
 \usage{
-getESpawning(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getESpawning(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, e = getEReproAndGrowth(object, n = n, n_pp =
   n_pp, B = B))
 }

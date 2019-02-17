@@ -4,7 +4,7 @@
 \alias{getMort}
 \title{Get total mortality rate}
 \usage{
-getMort(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getMort(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, effort, m2 = getPredMort(object, n = n, n_pp =
   n_pp, B = B))
 }

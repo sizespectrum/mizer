@@ -4,7 +4,7 @@
 \alias{getZ}
 \title{Alias for getMort}
 \usage{
-getZ(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getZ(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, effort, m2 = getPredMort(object, n = n, n_pp =
   n_pp, B = B))
 }

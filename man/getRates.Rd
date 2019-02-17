@@ -4,7 +4,7 @@
 \alias{getRates}
 \title{Get rates}
 \usage{
-getRates(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getRates(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, effort = 0, sex_ratio = 0.5)
 }
 \arguments{

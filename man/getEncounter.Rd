@@ -4,7 +4,7 @@
 \alias{getEncounter}
 \title{Get encounter rate}
 \usage{
-getEncounter(object, n = object@initial_n, n_pp = object@intitial_n_pp,
+getEncounter(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B)
 }
 \arguments{
