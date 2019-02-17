@@ -99,9 +99,8 @@ reference:
   contents:
   - knife_edge
   - sigmoid_length
-  - dead_matter_dyn
-  - carrion_dyn
-  - detritus_dyn
+  - carrion_dynamics
+  - detritus_dynamics
   - plankton_semichemostat
 - title: Classes
   contents:

@@ -10,8 +10,8 @@ multispeciesParams(object, interaction, min_w = 0.001,
   kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
   z0pre = 0.6, z0exp = n - 1,
   plankton_dynamics = plankton_semichemostat, interaction_p = rep(1,
-  nrow(object)), rho = NULL, resource_names = NULL,
-  resource_dynamics = NULL, resource_params = NULL)
+  nrow(object)), rho = NULL, resource_dynamics = list(),
+  resource_params = list())
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -48,10 +48,10 @@ be logarithmically equally spaced.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 10.}
 
-\item{kappa}{Carrying capacity of the resource spectrum. Default value is
+\item{kappa}{Carrying capacity of the plankton spectrum. Default value is
 1e11.}
 
-\item{lambda}{Exponent of the resource spectrum. Default value is (2+q-n).}
+\item{lambda}{Exponent of the plankton spectrum. Default value is (2+q-n).}
 
 \item{w_pp_cutoff}{The cut off size of the plankton spectrum. Default value
 is 10.}
@@ -89,17 +89,13 @@ the resources to the rate at which the individual encounters biomass is
 where \eqn{B_d} is the biomass of the d-th unstructured resource component.
 See \link{resources} help for more details.}
 
-\item{resource_names}{Optional vector of strings giving the names of the
-resource components, in the order in which the resources are indexed in the
-\code{rho} array. Only used if the array \code{rho} did not have the dimnames set.}
-
-\item{resource_dynamics}{Either NULL (default) or a function that determines the
+\item{resource_dynamics}{A named list of functions that determine the
 dynamics of the unstructured resources by calculating their biomasses at
-the next time step from the current state. See \code{\link[=dead_matter_dynamics]{dead_matter_dynamics()}} for an
-example. Ignored if \code{rho} is NULL.}
+the next time step from the current state. See \link{resource_dynamics} for
+details. Ignored if \code{rho} is NULL.}
 
-\item{resource_params}{Either NULL (default) or a list of parameters needed
-by the \code{resource_dynamics} function. Ignored if \code{rho} is NULL.}
+\item{resource_params}{A list of parameters needed by the \code{resource_dynamics}
+functions. Ignored if \code{rho} is NULL.}
 
 \item{...}{Additional arguments.}
 }

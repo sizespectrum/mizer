@@ -239,8 +239,8 @@ validMizerParams <- function(object) {
 #'   each species at size.
 #' @slot search_vol An array (species x size) that holds the search volume for
 #'   each species at size.
-#' @slot rho An array (species x unstructured resources) of the encounter
-#'   rates for unstructured resources
+#' @slot rho A 3-dim array (species x resource x size) holding the encounter
+#'   rates for unstructured resources. See [resource_dynamics] for details.
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -255,14 +255,15 @@ validMizerParams <- function(object) {
 #'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum.
-#' @slot resource_dynamics A function for projecting the biomasses in the
-#'   unstructured resource components by one timestep. See
-#'   \code{\link{dead_matter_dynamics}} for an example.
+#' @slot resource_dynamics A named list of functions for projecting the
+#'   biomasses in the unstructured resource components by one timestep. The
+#'   names of the list entries are the resource names. See [resource_dynamics]
+#'   for details.
 #' @slot plankton_dynamics A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
 #'   an example.
 #' @slot resource_params A list containing the parameters needed by the
-#'   `resources_dynamics` function.
+#'   `resource_dynamics` functions, see [resource_dynamics] for details.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -325,7 +326,7 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
-        resource_dynamics = "function",
+        resource_dynamics = "list",
         plankton_dynamics = "function",
         resource_params = "list",
         sc = "numeric",
@@ -454,7 +455,8 @@ setClass("MizerParamsVariablePPMR",
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
-#' @param resource_names Names of unstructured resources
+#' @param resource_names Names of unstructured resources. Empty if the model
+#'   does not contain unstructured resource components.
 #' 
 #' @return An empty but valid MizerParams object
 #' 
@@ -463,7 +465,7 @@ emptyParams <-
     function(no_sp, min_w = 0.001, # w_full = NA,
              max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
              species_names = 1:no_sp, gear_names = species_names,
-             resource_names = NULL) {
+             resource_names = list()) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
@@ -552,11 +554,11 @@ emptyParams <-
     srr <- function(rdi, species_params) return(0)
     
     ## Set up resources ----
-    if (is.null(resource_names)) {
+    no_res <- length(resource_names)
+    if (no_res == 0) {
         rho <- array(0, dim = 0)
         initial_B <- 0
     } else {
-        no_res <- length(resource_names)
         rho <- array(NA, dim = c(no_sp, no_res, no_w), 
                           dimnames = list(sp = species_names, 
                                           res = resource_names,
@@ -564,7 +566,10 @@ emptyParams <-
         initial_B <- rep(0, no_res)
         names(initial_B) <- resource_names
     }
-    resource_dynamics <- function(params, n, n_pp, B, rates, dt, t) return(B)
+    resource_dynamics <- list()
+    for (res in resource_names) {
+        resource_dynamics[[res]] <- function(params, n, n_pp, B, rates, dt) 0
+    }
     resource_params <- list()
     
     # Colour and linetype scales ----
@@ -655,9 +660,9 @@ emptyParams <-
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
 #' @param r_pp Growth rate of the primary productivity. Default value is 10. 
-#' @param kappa Carrying capacity of the resource spectrum. Default value is
+#' @param kappa Carrying capacity of the plankton spectrum. Default value is
 #'   1e11.
-#' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
+#' @param lambda Exponent of the plankton spectrum. Default value is (2+q-n).
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
 #'   is 10.
 #' @param f0 Average feeding level. Used to calculated `h` and `gamma`
@@ -687,15 +692,12 @@ emptyParams <-
 #'   \deqn{\sum_d\rho_{id} w^n B_d,}
 #'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
 #'   See [resources] help for more details.
-#' @param resource_names Optional vector of strings giving the names of the
-#'   resource components, in the order in which the resources are indexed in the
-#'   `rho` array. Only used if the array `rho` did not have the dimnames set.
-#' @param resource_dynamics Either NULL (default) or a function that determines the
+#' @param resource_dynamics A named list of functions that determine the
 #'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. See [dead_matter_dynamics()] for an
-#'   example. Ignored if `rho` is NULL.
-#' @param resource_params Either NULL (default) or a list of parameters needed
-#'   by the `resource_dynamics` function. Ignored if `rho` is NULL.
+#'   the next time step from the current state. See [resource_dynamics] for
+#'   details. Ignored if `rho` is NULL.
+#' @param resource_params A list of parameters needed by the `resource_dynamics`
+#'   functions. Ignored if `rho` is NULL.
 #' @param ... Additional arguments.
 #'
 #' @return An object of type `MizerParams`
@@ -729,53 +731,40 @@ multispeciesParams <-
              plankton_dynamics = plankton_semichemostat,
              interaction_p = rep(1, nrow(object)),
              rho = NULL,
-             resource_names = NULL,
-             resource_dynamics = NULL,
-             resource_params = NULL) {
+             resource_dynamics = list(),
+             resource_params = list()) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
     
     # Check validity of arguments ----
-    if (missing(interaction)) {
-        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
-    }
-    
     if (!is.null(rho)) {
-        if (length(dim(rho)) != 2) {
-            stop("The `rho` argument needs to be a 2-dim array.")
-        }
+        assert_that(are_equal(length(dim(rho)), 2))
         no_res <- dim(rho)[2]
-        if (!is.function(resource_dynamics)) {
-            stop("You need to supply a resource_dynamics function.")
-        }
-        if (!is.list(resource_params)) {
-            stop("You need to supply a resource_params list.")
-        }
+        assert_that(is.list(resource_dynamics))
+        assert_that(is.list(resource_params))
+        assert_that(length(resource_dynamics) == no_res)
+        # TODO: check that all parameters needed by resource dynamics functions
+        # are included in resource_params
         if (dim(rho)[1] != no_sp) {
             stop("rho argument should have one row for each species.")
         }
         if (is.character(dimnames(rho)["res"])) {
-            # If resource names are provided via dimnames in rho array, use 
-            # these instead of any explicitly provided resource names
-            resource_names <- dimnames(rho)["res"]
-        }
-        if (is.null(resource_names)) {
-            stop("You need to supply the resource_names argument")
-        }
-        if (!is.character(resource_names)) {
-            stop("Resource names need to be of type charater.")
+            assert_that(are_equal(dimnames(rho)["res"], 
+                                  names(resource_dynamics)))
         }
     } else {
-        if (!(is.null(resource_names) && 
-              is.null(resource_dynamics) && 
-              is.null(resource_params))) {
-            message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources all other resource information has been ignored.")
-            resource_names <- NULL
+        if (length(resource_dynamics) > 0 || length(resource_params) > 0) {
+            message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources. All other resource information has been ignored.")
         }
     }
     
-    ## Set default values for missing values in species params  --------------
+    ## Set default values for missing values in species params  ----
+    
+    if (missing(interaction)) {
+        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
+    }
+    
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object))) {
         object$gear <- object$species
@@ -897,7 +886,7 @@ multispeciesParams <-
                        min_w_pp = min_w_pp, no_w_pp = NA, 
                        species_names = object$species, 
                        gear_names = unique(object$gear),
-                       resource_names = resource_names)
+                       resource_names = names(resource_dynamics))
     res@n <- n
     res@p <- p
     res@lambda <- lambda
@@ -1031,7 +1020,7 @@ multispeciesParams <-
     
     # plankton spectrum -------------------------------------------------
     res@rr_pp[] <- r_pp * res@w_full^(n - 1) # weight specific plankton growth rate
-    res@cc_pp[] <- kappa*res@w_full^(-lambda) # the resource carrying capacity - one for each mp and m (130 of them)
+    res@cc_pp[] <- kappa*res@w_full^(-lambda) # the plankton carrying capacity - one for each mp and m (130 of them)
     res@cc_pp[res@w_full > w_pp_cutoff] <- 0  # set density of sizes < plankton cutoff size
     
     # Beverton Holt esque stock-recruitment relationship ----------------------

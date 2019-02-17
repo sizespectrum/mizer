@@ -16,43 +16,68 @@
 #' You can set up a Mizer model with unstructured resource components using
 #' the [multispeciesParams()] function. The arguments to that function that
 #' relate to the resources are:
-#' * `rho`
-#' * `resource_names`
+#' * `rho` The encounter rate, see "Feeding on Resources" section below.
+#' * `resource_names` Your chosen names for the resource components.
+#' * `resource_dynamics` Functions to update resource biomass during 
+#'     simulations, see "Resource Dynamics" section below.
+#' * `resource_params` Model parameters for the resource dynamics, see 
+#'     "Resource Dynamics" section below.
+#' 
+#' You can also set up the resource dynamics by hand by overwriting the
+#' following slots in an existing `MizerParams` object:
+#' * `rho` A 3-dim array described in "Feeding on Resources" dynamics below
 #' * `resource_dynamics`
 #' * `resource_params`
-#' 
-#' See the documentation of [multispeciesParams()] for details.
 #'
 #' @section Feeding on Resources:
 #' We denote by \eqn{\rho_{id}(w)} the rate at which a predator of species
-#' \eqn{i} and weight \eqn{w} encounters biomass from the d-th unstructured
+#' \eqn{i} and size \eqn{w} encounters biomass from the d-th unstructured
 #' resource component. The contribution of the unstructured resources to the
-#' total rate at which biomass encountered is thus 
-#' \deqn{\sum_d \rho_{id}(w) B_d.} 
-#' The values of \eqn{\rho{id}(w)} are stored in the `rho` slot of the
+#' total rate at which biomass encountered by an individual of species \eqn{i}
+#' and size \eqn{w} is thus
+#' \deqn{\sum_d \rho_{id}(w) B_d.}
+#' Resource consumption is subject to satiation in the same way as other food,
+#' so that a consumer only consumes a fraction \eqn{1-f_i(w)} of the encountered
+#' resource biomass, where \eqn{f_i(w)} is the feeding level.
+#' 
+#' A sensible assumption for the size dependence of the encounter rate is that
+#' it scales allometrically with the same exponent as the maximum intake rate,
+#' so that
+#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
+#' This is the choice made for you when you set up the model with the
+#' [multispeciesModel()] function, but you can always overwrite it with your own
+#' choice by assigning your values of \eqn{\rho{id}(w)} to the `rho` slot of the
 #' `MizerParams` object, which is a 3-dim array (predator species x resource x
-#' predator weight).
+#' predator size). See examples section.
 #' 
 #' @section Resource Dynamics:
 #' During a simulation using [project()], the biomasses of the resources is
-#' updated at each time step by calling the function specified in the
-#' `resource_dynamics` slot of the `MizerParams` object. Mizer provides some
-#' functions that can be used: [detritus_dynamics()], [carrion_dynamics()], and 
-#' [dead_matter_dynamics()]. 
+#' updated at each time step by calling the functions specified in the
+#' `resource_dynamics` slot of the `MizerParams` object. This slot holds a
+#' vector of functions, one for each unstructured resource component. Mizer
+#' provides two functions that you can use: [detritus_dynamics()] and
+#' [carrion_dynamics()], but you can easily implement others by following those
+#' templates.
 #' 
-#' As you can see in the documentation of these functions,
-#' their arguments are: the `MizerParams` object `params`, the current fish size
-#' spectra `n`, the plankton spectrum `n_pp`, the current resource biomasses
-#' `B` and the current rates calculated by the [get_rates()] function. This
-#' last argument is passed for efficiency reasons, so that the rates do not
-#' have to be recomputed. See the documentation of [get_rates()] for a list of 
-#' what it contains. 
+#' As you can see in the documentation of these functions, their arguments are:
+#' the `MizerParams` object `params`, the current fish size spectra `n`, the
+#' plankton spectrum `n_pp`, the current resource biomasses `B` and the current
+#' rates calculated by the [getRates()] function. This last argument is passed
+#' for efficiency reasons, so that the rates do not have to be recomputed. See
+#' the documentation of [getRates()] for a list of what it contains.
 #' 
-#' The resource dynamics will depend on some model parameters, like for
-#' example growth rates. These 
-#' in the `species_params` slot of `params`.
+#' The other arguments are model parameters, like for example growth rates.
+#' These need to be stored in the `resource_params` slot of `params`. When
+#' writing your own resource dynamics functions, you can choose any names for
+#' your model parameters, but you must make sure not to use the same name in
+#' the function for another resource component. One way to ensure this is
+#' to prefix the parameter name with your resource name.
 #' 
-#' @name resources
+#' The dynamics for a resource should always have a loss term accounting for
+#' the consumption of the resource. This should always have the form used in the
+#' examples [detritus_dynamics()] and [carrion_dynamics()].
+#' 
+#' @name resource_dynamics
 #' @md
 NULL
 
@@ -62,40 +87,49 @@ NULL
 #' detritus biomass.
 #' 
 #' The inflow of biomass consists of
-#' * an external inflow at a rate given by 
-#'   `params@resource_params$detritus_external` and
-#' * an inflow of feces, calculated as a proportion 
-#'   `params@resource_params$detritus_proportion` of the biomass consumed.
+#' * an external inflow at a rate given by `detritus_external` and
+#' * an inflow of feces, calculated as a proportion `detritus_proportion` of the
+#'   biomass consumed.
 #' 
 #' The outflow of biomass is due to 
 #' * consumption by detritivorous species, where the encounter rate is 
 #'   specified by `params@rho[, "detritus", ]`.
 #' 
-#' This function can be used as the project_resources function in the case
-#' where there is only a single unstructured resource that represents 
-#' detritus, or as part of a more comprehensive function when there are also
-#' other unstructured resource components. It is used for example in the
-#' [dead_matter_dynamics()] function.
-#' 
 #' @param params A [MizerParams] object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the plankton abundance by size
-#' @param B The biomass of detritus
+#' @param n A matrix of current species abundances (species x size)
+#' @param n_pp A vector of current plankton abundance by size
+#' @param B A vector of current resource biomasses
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
+#' @param detritus_external External inflow rate of detritus biomass
+#' @param detritus_proportion Proportion of consumption by fish that flows into
+#'   the detritus component.
 #' @param ... Unused
 #'   
 #' @return Biomass of detritus at next time step
 #' @export
 #' @md
-detritus_dynamics <- function(params, n, n_pp, B, rates, dt, ...) {
-    consumption <- 
-        B * sum((params@rho[, "detritus", ] * n * (1 - rates$feeding_level)) %*%
-               params@dw)
-    creation <- params@resource_params$detritus_external +
-        params@resource_params$detritus_proportion *
+detritus_dynamics <- 
+    function(params, n, n_pp, B, rates, dt,
+             detritus_external = params@resource_params$detritus_external,
+             detritus_proportion = params@resource_params$detritus_proportion,
+             ...) {
+    
+    # Total consumption is obtained by multiplying the encounter rate per
+    # consumer by the number density of consumers and their feeding rate
+    # and then integrating over all consumer weights and summing over all
+    # consumer species. This should not be changed because it needs to be in
+    # agreement with the calculation of consumption in getEGrowth().
+    consumption <-
+        B["detritus"] * sum((params@rho[, "detritus",] * n * 
+                                 (1 - rates$feeding_level)) %*%
+                                params@dw)
+   
+    creation <- detritus_external +
+        detritus_proportion *
           sum((rates$feeding_level * params@intake_max * n) %*% params@dw)
-    return(B + (creation - consumption) * dt)
+     
+    return(B["detritus"] + (creation - consumption) * dt)
 }
 
 
@@ -105,8 +139,7 @@ detritus_dynamics <- function(params, n, n_pp, B, rates, dt, ...) {
 #' the current biomass.
 #' 
 #' The inflow of carrion biomass consists of 
-#' * An external inflow at a rate given by 
-#'   `params@resource_params$carrion_external`.
+#' * An external inflow at a rate given by `carrion_external`.
 #' * Discards from fishing.
 #' * Animals killed by fishing gear.
 #' * Animals that have died by causes other than predation.
@@ -115,61 +148,31 @@ detritus_dynamics <- function(params, n, n_pp, B, rates, dt, ...) {
 #' * consumption by scavenger species, where the encounter rate is 
 #'   specified by `params@rho[, "carrion", ]`.
 #' 
-#' This function can be used as the project_resources function in the case
-#' where there is only a single unstructured resource that represents 
-#' carrion, or as part of a more comprehensive function when there are also
-#' other unstructured resource components. It is used for example in the
-#' [dead_matter_dynamics()] function.
-#' 
 #' @param params A [MizerParams] object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the plankton abundance by size
-#' @param B The biomass of carrion
+#' @param n A matrix of current species abundances (species x size)
+#' @param n_pp A vector of current plankton abundance by size
+#' @param B A vector of current resource biomasses
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
+#' @param carrion_external External inflow rate of carrion biomass
 #' @param ... Unused
 #'   
 #' @return Biomass of carrion at next time step
 #' @export
 #' @md
-carrion_dynamics <- function(params, n, n_pp, B, rates, dt, ...) {
-    consumption <- 
-        B * sum((params@rho[, "carrion", ] * n * (1 - rates$feeding_level)) %*%
-                   params@dw)
-    creation <- params@resource_params$carrion_external +
-        # the other parts still need to be written
-        0
-    return(B + (creation - consumption) * dt)
+carrion_dynamics <- 
+    function(params, n, n_pp, B, rates, dt,
+             carrion_external = params@resource_params$carrion_external,
+             ...) {
+        
+        consumption <- 
+            B["carrion"] * sum((params@rho[, "carrion", ] * n *
+                                    (1 - rates$feeding_level)) %*%
+                                   params@dw)
+        creation <- params@resource_params$carrion_external +
+            # the other parts still need to be written
+            0
+        
+        return(B["carrion"] + (creation - consumption) * dt)
 }
 
-#' Project two-component dead-matter biomass
-#' 
-#' This function can be used as the `resource_dynamics` function in the case
-#' where there are two unstructured resource components named "detritus"
-#' and "dead_animals". It gives the biomass of these components at the next
-#' time step.
-#' 
-#' This function in turn calls [detritus_dynamics()] and
-#' [carrion_dynamics()]. Hence the parameter list in `params@resource_params`
-#' needs to contain the entries required by these functions.
-#' 
-#' @param params A [MizerParams] object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the plankton abundance by size
-#' @param B Vector of biomasses with named components "detritus" and
-#'   "carrion".
-#' @param rates A list of rates as returned by [getRates()]
-#' @param dt Time step
-#' @param ... Unused
-#'   
-#' @return Named vector of biomasses at next time step
-#' @export
-#' @md
-dead_matter_dynamics <- function(params, n, n_pp, B, rates, dt, ...) {
-    Bn <- B
-    Bn["detritus"] <- detritus_dynamics(params, n, n_pp, B["detritus"],
-                                   rates, dt)
-    Bn["carrion"] <- carrion_dynamics(params, n, n_pp, B["carrion"],
-                                 rates, dt)
-    return(Bn)
-}

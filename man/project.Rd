@@ -33,8 +33,8 @@ the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 \linkS4class{MizerParams} argument is used.}
 
 \item{initial_B}{The initial biomasses of the unstructured resources. By
-default the \code{initial_n_pp} slot of the \linkS4class{MizerParams}
-argument is used.}
+default the \code{initial_B} slot of the \linkS4class{MizerParams}
+argument is used. Ignored if the model has no resource components.}
 
 \item{shiny_progress}{A shiny progress object used to update shiny progress bar.
 Default NULL.}

@@ -33,7 +33,7 @@ NULL
 #' community-type models can be easily set up and run. A community model has
 #' several features that distinguish it from the food-web type models. Only one
 #' 'species' is resolved, i.e. one 'species' is used to represent the whole
-#' community. The resource spectrum only extends to the start of the community
+#' community. The plankton spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
 #' constant and set by the user. As recruitment is constant, the proportion of
 #' energy invested in reproduction (the slot \code{psi} of the returned 
@@ -59,8 +59,8 @@ NULL
 #' 
 #' @param z0 The background mortality of the community. Default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. Default value 0.2
-#' @param f0 The average feeding level of individuals who feed mainly on the 
-#'   resource. This value is used to calculate the search rate parameter 
+#' @param f0 The average feeding level of individuals who feed on a power-law 
+#'   spectrum. This value is used to calculate the search rate parameter 
 #'   \code{gamma} (see the package vignette). Default value is 0.7.
 #' @param h The maximum food intake rate. Default value is 10.
 #' @param beta The preferred predator prey mass ratio. Default value is 100.
@@ -814,7 +814,7 @@ set_scaling_model <- function(no_sp = 11,
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
-    # Record abundance of fish and resources at steady state, as slots.
+    # Record abundance of fish and plankton at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
     # set rmax=fac*RDD
@@ -1084,7 +1084,7 @@ addSpecies <- function(params, species_params, SSB = NA,
         w_pp_cutoff = max(params@w_full),
         r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
     )
-    # Use the same resource spectrum as params
+    # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
     new_sp <- length(params@species_params$species) + 1

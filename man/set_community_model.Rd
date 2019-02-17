@@ -37,8 +37,8 @@ is 1000.}
 \item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
 - n.}
 
-\item{f0}{The average feeding level of individuals who feed mainly on the 
-resource. This value is used to calculate the search rate parameter 
+\item{f0}{The average feeding level of individuals who feed on a power-law 
+spectrum. This value is used to calculate the search rate parameter 
 \code{gamma} (see the package vignette). Default value is 0.7.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 10.}
@@ -70,7 +70,7 @@ This functions creates a \code{\linkS4class{MizerParams}} object so that
 community-type models can be easily set up and run. A community model has
 several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The resource spectrum only extends to the start of the community
+community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
 energy invested in reproduction (the slot \code{psi} of the returned 

@@ -43,8 +43,8 @@ each species at size.}
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
 each species at size.}
 
-\item{\code{rho}}{An array (species x unstructured resources) of the encounter
-rates for unstructured resources}
+\item{\code{rho}}{A 3-dim array (species x resource x size) holding the encounter
+rates for unstructured resources. See [resource_dynamics] for details.}
 
 \item{\code{metab}}{An array (species x size) that holds the metabolism
 for each species at size.}
@@ -66,16 +66,17 @@ growth rate of the plankton spectrum.}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the plankton spectrum.}
 
-\item{\code{resource_dynamics}}{A function for projecting the biomasses in the
-unstructured resource components by one timestep. See
-\code{\link{dead_matter_dynamics}} for an example.}
+\item{\code{resource_dynamics}}{A named list of functions for projecting the
+biomasses in the unstructured resource components by one timestep. The
+names of the list entries are the resource names. See [resource_dynamics]
+for details.}
 
 \item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
 density by one timestep. See \code{\link{plankton_semichemostat}} for 
 an example.}
 
 \item{\code{resource_params}}{A list containing the parameters needed by the
-`resources_dynamics` function.}
+`resource_dynamics` functions, see [resource_dynamics] for details.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 

@@ -4,20 +4,27 @@
 \alias{detritus_dynamics}
 \title{Detritus dynamics}
 \usage{
-detritus_dynamics(params, n, n_pp, B, rates, dt, ...)
+detritus_dynamics(params, n, n_pp, B, rates, dt,
+  detritus_external = params@resource_params$detritus_external,
+  detritus_proportion = params@resource_params$detritus_proportion, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of current species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of current plankton abundance by size}
 
-\item{B}{The biomass of detritus}
+\item{B}{A vector of current resource biomasses}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
 
 \item{dt}{Time step}
+
+\item{detritus_external}{External inflow rate of detritus biomass}
+
+\item{detritus_proportion}{Proportion of consumption by fish that flows into
+the detritus component.}
 
 \item{...}{Unused}
 }
@@ -31,10 +38,9 @@ detritus biomass.
 \details{
 The inflow of biomass consists of
 \itemize{
-\item an external inflow at a rate given by
-\code{params@resource_params$detritus_external} and
-\item an inflow of feces, calculated as a proportion
-\code{params@resource_params$detritus_proportion} of the biomass consumed.
+\item an external inflow at a rate given by \code{detritus_external} and
+\item an inflow of feces, calculated as a proportion \code{detritus_proportion} of the
+biomass consumed.
 }
 
 The outflow of biomass is due to
@@ -42,10 +48,4 @@ The outflow of biomass is due to
 \item consumption by detritivorous species, where the encounter rate is
 specified by \code{params@rho[, "detritus", ]}.
 }
-
-This function can be used as the project_resources function in the case
-where there is only a single unstructured resource that represents
-detritus, or as part of a more comprehensive function when there are also
-other unstructured resource components. It is used for example in the
-\code{\link[=dead_matter_dynamics]{dead_matter_dynamics()}} function.
 }

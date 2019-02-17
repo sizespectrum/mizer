@@ -4,20 +4,23 @@
 \alias{carrion_dynamics}
 \title{Carrion dynamics}
 \usage{
-carrion_dynamics(params, n, n_pp, B, rates, dt, ...)
+carrion_dynamics(params, n, n_pp, B, rates, dt,
+  carrion_external = params@resource_params$carrion_external, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of current species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of current plankton abundance by size}
 
-\item{B}{The biomass of carrion}
+\item{B}{A vector of current resource biomasses}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
 
 \item{dt}{Time step}
+
+\item{carrion_external}{External inflow rate of carrion biomass}
 
 \item{...}{Unused}
 }
@@ -31,8 +34,7 @@ the current biomass.
 \details{
 The inflow of carrion biomass consists of
 \itemize{
-\item An external inflow at a rate given by
-\code{params@resource_params$carrion_external}.
+\item An external inflow at a rate given by \code{carrion_external}.
 \item Discards from fishing.
 \item Animals killed by fishing gear.
 \item Animals that have died by causes other than predation.
@@ -43,10 +45,4 @@ The outflow of biomass is due to
 \item consumption by scavenger species, where the encounter rate is
 specified by \code{params@rho[, "carrion", ]}.
 }
-
-This function can be used as the project_resources function in the case
-where there is only a single unstructured resource that represents
-carrion, or as part of a more comprehensive function when there are also
-other unstructured resource components. It is used for example in the
-\code{\link[=dead_matter_dynamics]{dead_matter_dynamics()}} function.
 }

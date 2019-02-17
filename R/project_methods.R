@@ -83,10 +83,10 @@ getRates <- function(object, n, n_pp, B = 0, effort = 0, sex_ratio = 0.5) {
     # Calculate mortality on the plankton spectrum
     r$plankton_mort <- getPlanktonMort(object, n = n, n_pp = n_pp, B = B,
                                        pred_rate = r$pred_rate)
-    # Calculate the resources available for reproduction and growth
+    # Calculate the energy available for reproduction and growth
     r$e <- getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B, 
                               feeding_level = r$feeding_level)
-    # Calculate the resources for reproduction
+    # Calculate the energy for reproduction
     r$e_repro <- getERepro(object, n = n, n_pp = n_pp, B = B, e = r$e)
     # Calculate the growth rate g_i(w)
     r$e_growth <- getEGrowth(object, n = n, n_pp = n_pp, B = B, 

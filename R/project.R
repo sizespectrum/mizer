@@ -37,8 +37,8 @@ NULL
 #'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
 #'   \linkS4class{MizerParams} argument is used.
 #' @param initial_B The initial biomasses of the unstructured resources. By
-#'   default the \code{initial_n_pp} slot of the \linkS4class{MizerParams}
-#'   argument is used.
+#'   default the \code{initial_B} slot of the \linkS4class{MizerParams}
+#'   argument is used. Ignored if the model has no resource components.
 #' @param shiny_progress A shiny progress object used to update shiny progress bar.
 #'   Default NULL.
 #' @param ... Currently unused.
@@ -97,15 +97,18 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
+project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save = 1,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,
                     initial_B = params@initial_B,
                     shiny_progress = NULL, ...) {
     validObject(params)
-    if (any(initial_B != 0)) {
+    if (length(params@resource_dynamics) > 0) {
         if (!is.character(names(initial_B))) {
             stop("The initial_B needs to be a named vector")
+        }
+        if (!setequal(names(initial_B), names(params@resource_dynamics))) {
+            stop("The names of the entries in initial_B do not match the names of the unstructured resource components of the model.")
         }
     }
     
@@ -134,24 +137,24 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     
     # Check that number and names of gears in effort array is same as in MizerParams object
     no_gears <- dim(params@catchability)[1]
-    if(dim(effort)[2] != no_gears){
-        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep="")
+    if (dim(effort)[2] != no_gears) {
+        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep = "")
         stop(no_gears_error_message)
     }
     gear_names <- dimnames(params@catchability)[[1]]
-    if(!all(gear_names %in% dimnames(effort)[[2]])){
-        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse=", "), ") do not match those in the effort array.", sep="")
+    if (!all(gear_names %in% dimnames(effort)[[2]])) {
+        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse = ", "), ") do not match those in the effort array.", sep = "")
         stop(gear_names_error_message)
     }
     # Sort effort array to match order in MizerParams
-    effort <- effort[,gear_names, drop=FALSE]
+    effort <- effort[,gear_names, drop = FALSE]
     
     # Blow up time dimension of effort array
     # i.e. effort might have been passed in using time steps of 1, but actual dt = 0.1, so need to blow up
-    if (is.null(dimnames(effort)[[1]])){
+    if (is.null(dimnames(effort)[[1]])) {
         stop("The time dimname of the effort argument must be numeric.")
     }
-    if (any(is.na(as.numeric(dimnames(effort)[[1]])))){
+    if (any(is.na(as.numeric(dimnames(effort)[[1]])))) {
         stop("The time dimname of the effort argument must be numeric.")
     }
     time_effort <- as.numeric(dimnames(effort)[[1]])
@@ -161,8 +164,10 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     t_max <- time_effort[length(time_effort)]
     # Blow up effort so that rows are dt spaced
     time_effort_dt <- seq(from = time_effort[1], to = t_max, by = dt)
-    effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), dimnames=list(time = time_effort_dt, dimnames(effort)[[2]])))
-    for (i in 1:(length(time_effort)-1)){
+    effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), 
+                         dimnames = list(time = time_effort_dt,
+                                         dimnames(effort)[[2]])))
+    for (i in 1:(length(time_effort) - 1)) {
         effort_dt[,time_effort_dt >= time_effort[i]] <- effort[i,]
     }
     effort_dt <- t(effort_dt)
@@ -171,7 +176,7 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     # We only save every t_save steps
     # Divisibility test needs to be careful about machine rounding errors,
     # see https://github.com/sizespectrum/mizer/pull/2
-    if((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
+    if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
         stop("t_save must be a positive multiple of dt")
     t_skip <- round(t_save/dt)
     t_dimnames_index <- seq(1, to = length(time_effort_dt), by = t_skip)
@@ -225,15 +230,24 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        r <- getRates(sim@params, n = n, n_pp = n_pp, B = B,
+        r <- getRates(params, n = n, n_pp = n_pp, B = B,
                       effort = effort_dt[i_time,])
         
         # Update unstructured resource biomasses
         B_current <- B  # So that the plankton dynamics can still use the 
                         # current value
-        if (any(B != 0)) {
-            B <- params@resource_dynamics(params, n = n, n_pp = n_pp,
-                                          B = B_current, rates = r, dt = dt)
+        if (length(params@resource_dynamics) > 0) {
+            for (res in names(params@resource_dynamics)) {
+                B[res] <-
+                    params@resource_dynamics[[res]](
+                        params,
+                        n = n,
+                        n_pp = n_pp,
+                        B = B_current,
+                        rates = r,
+                        dt = dt
+                    )
+            }
         }
         
         # Update plankton
