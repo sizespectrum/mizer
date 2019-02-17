@@ -255,14 +255,14 @@ validMizerParams <- function(object) {
 #'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum.
-#' @slot resource_dyn A function for projecting the biomasses in the
+#' @slot resource_dynamics A function for projecting the biomasses in the
 #'   unstructured resource components by one timestep. See
-#'   \code{\link{dead_matter_dyn}} for an example.
-#' @slot plankton_dyn A function for projecting the plankton abundance
+#'   \code{\link{dead_matter_dynamics}} for an example.
+#' @slot plankton_dynamics A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
 #'   an example.
 #' @slot resource_params A list containing the parameters needed by the
-#'   `resources_dyn` function.
+#'   `resources_dynamics` function.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
@@ -271,8 +271,6 @@ validMizerParams <- function(object) {
 #'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
-#' @slot resource_dyn Function to calculate the biomasses of the
-#'   unstructured resources at the next time step
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}
 #' @slot catchability An array (gear x species) that holds the catchability of
@@ -327,8 +325,8 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
-        resource_dyn = "function",
-        plankton_dyn = "function",
+        resource_dynamics = "function",
+        plankton_dynamics = "function",
         resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -566,7 +564,7 @@ emptyParams <-
         initial_B <- rep(0, no_res)
         names(initial_B) <- resource_names
     }
-    resource_dyn <- function(params, n, n_pp, B, rates, dt, t) return(B)
+    resource_dynamics <- function(params, n, n_pp, B, rates, dt, t) return(B)
     resource_params <- list()
     
     # Colour and linetype scales ----
@@ -590,21 +588,40 @@ emptyParams <-
     
     # Make the new object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
-    res <- new("MizerParams",
-               w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
-               psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1,
-               rho = rho,
-               metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
-               ft_pred_kernel_p = ft_pred_kernel_p,
-               selectivity = selectivity, catchability = catchability,
-               rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
-               species_params = species_params,
-               interaction = interaction, interaction_p = interaction_p,
-               srr = srr, resource_dyn = resource_dyn,
-               plankton_dyn = plankton_semichemostat,
-               resource_params = resource_params, initial_B = initial_B,
-               A = as.numeric(rep(NA, dim(interaction)[1])),
-               linecolour = linecolour, linetype = linetype) 
+    res <- new(
+        "MizerParams",
+        w = w,
+        dw = dw,
+        w_full = w_full,
+        dw_full = dw_full,
+        w_min_idx = w_min_idx,
+        psi = mat1,
+        initial_n = mat1,
+        intake_max = mat1,
+        search_vol = mat1,
+        rho = rho,
+        metab = mat1,
+        mu_b = mat1,
+        ft_pred_kernel_e = ft_pred_kernel_e,
+        ft_pred_kernel_p = ft_pred_kernel_p,
+        selectivity = selectivity,
+        catchability = catchability,
+        rr_pp = vec1,
+        cc_pp = vec1,
+        sc = w,
+        initial_n_pp = vec1,
+        species_params = species_params,
+        interaction = interaction,
+        interaction_p = interaction_p,
+        srr = srr,
+        resource_dynamics = resource_dynamics,
+        plankton_dynamics = plankton_semichemostat,
+        resource_params = resource_params,
+        initial_B = initial_B,
+        A = as.numeric(rep(NA, dim(interaction)[1])),
+        linecolour = linecolour,
+        linetype = linetype
+    ) 
     return(res)
 }
 
@@ -654,7 +671,7 @@ emptyParams <-
 #' @param z0exp If `z0`, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
-#' @param plankton_dyn Function that determines plankton dynamics by calculating
+#' @param plankton_dynamics Function that determines plankton dynamics by calculating
 #'   the plankton spectrum at the next time step from the current state. The
 #'   default is `"plankton_semichemostat"`, see [plankton_semichemostat()].
 #' @param interaction_p Vector specifying for each species its interaction with
@@ -673,12 +690,12 @@ emptyParams <-
 #' @param resource_names Optional vector of strings giving the names of the
 #'   resource components, in the order in which the resources are indexed in the
 #'   `rho` array. Only used if the array `rho` did not have the dimnames set.
-#' @param resource_dyn Either NULL (default) or a function that determines the
+#' @param resource_dynamics Either NULL (default) or a function that determines the
 #'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. See [dead_matter_dyn()] for an
+#'   the next time step from the current state. See [dead_matter_dynamics()] for an
 #'   example. Ignored if `rho` is NULL.
 #' @param resource_params Either NULL (default) or a list of parameters needed
-#'   by the `resource_dyn` function. Ignored if `rho` is NULL.
+#'   by the `resource_dynamics` function. Ignored if `rho` is NULL.
 #' @param ... Additional arguments.
 #'
 #' @return An object of type `MizerParams`
@@ -709,11 +726,11 @@ multispeciesParams <-
              n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
              kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
              f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
-             plankton_dyn = plankton_semichemostat,
+             plankton_dynamics = plankton_semichemostat,
              interaction_p = rep(1, nrow(object)),
              rho = NULL,
              resource_names = NULL,
-             resource_dyn = NULL,
+             resource_dynamics = NULL,
              resource_params = NULL) {
     
     row.names(object) <- object$species
@@ -729,8 +746,8 @@ multispeciesParams <-
             stop("The `rho` argument needs to be a 2-dim array.")
         }
         no_res <- dim(rho)[2]
-        if (!is.function(resource_dyn)) {
-            stop("You need to supply a resource_dyn function.")
+        if (!is.function(resource_dynamics)) {
+            stop("You need to supply a resource_dynamics function.")
         }
         if (!is.list(resource_params)) {
             stop("You need to supply a resource_params list.")
@@ -751,7 +768,7 @@ multispeciesParams <-
         }
     } else {
         if (!(is.null(resource_names) && 
-              is.null(resource_dyn) && 
+              is.null(resource_dynamics) && 
               is.null(resource_params))) {
             message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources all other resource information has been ignored.")
             resource_names <- NULL
@@ -945,12 +962,12 @@ multispeciesParams <-
     res@mu_b[] <- res@species_params$z0
     
     # Plankton
-    res@plankton_dyn <- plankton_dyn
+    res@plankton_dynamics <- plankton_dynamics
     res@interaction_p <- interaction_p
     
     # Resources
     if (!is.null(rho)) {
-        res@resource_dyn <- resource_dyn
+        res@resource_dynamics <- resource_dynamics
         res@resource_params <- resource_params
         res@rho[] <- outer(rho, res@w ^ res@n)
         res@initial_B[] <- rep(1, no_res)  # TODO: find better initial value

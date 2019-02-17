@@ -6,16 +6,16 @@
 \description{
 Besides the size-structured planktonic resource, mizer can also model
 unstructured resource components. Such unstructured components are
-appropriate whenever the predation on this component is not size based.
+appropriate whenever the predation on these componente is not size based.
 Examples include detritus as a resource for detritovores, carrion as a
 resource for scavengers, or macroflora on which fish can graze.
 }
 \details{
 Mizer allows an arbitrary number of unstructured components. The biomasses of
-all components are collected into a vector and stored in the \code{B} slot of the
-\code{MizerSim} object. The initial value \code{B} is stored in the \code{initial_B} slot of
-the \code{MizerParams} object but can also be specified explicitly as an argument
-to \code{\link[=project]{project()}}.
+all components are collected into a named vector and stored in the \code{B} slot
+of the \code{MizerSim} object. The initial value \code{B} is stored in the \code{initial_B}
+slot of the \code{MizerParams} object but can also be specified explicitly as an
+argument to \code{\link[=project]{project()}}.
 }
 \section{Setting up a Model with Resources}{
 
@@ -25,7 +25,7 @@ relate to the resources are:
 \itemize{
 \item \code{rho}
 \item \code{resource_names}
-\item \code{resource_dyn}
+\item \code{resource_dynamics}
 \item \code{resource_params}
 }
 
@@ -48,9 +48,9 @@ predator weight).
 
 During a simulation using \code{\link[=project]{project()}}, the biomasses of the resources is
 updated at each time step by calling the function specified in the
-\code{resource_dyn} slot of the \code{MizerParams} object. Mizer provides some
-functions that can be used: \code{\link[=detritus_dyn]{detritus_dyn()}}, \code{\link[=carrion_dyn]{carrion_dyn()}}, and
-\code{\link[=dead_matter_dyn]{dead_matter_dyn()}}.
+\code{resource_dynamics} slot of the \code{MizerParams} object. Mizer provides some
+functions that can be used: \code{\link[=detritus_dynamics]{detritus_dynamics()}}, \code{\link[=carrion_dynamics]{carrion_dynamics()}}, and
+\code{\link[=dead_matter_dynamics]{dead_matter_dynamics()}}.
 
 As you can see in the documentation of these functions,
 their arguments are: the \code{MizerParams} object \code{params}, the current fish size

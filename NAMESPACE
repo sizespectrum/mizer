@@ -2,10 +2,10 @@
 
 export(MizerParams)
 export(addSpecies)
-export(carrion_dyn)
+export(carrion_dynamics)
 export(change_pred_kernel)
-export(dead_matter_dyn)
-export(detritus_dyn)
+export(dead_matter_dynamics)
+export(detritus_dynamics)
 export(display_frames)
 export(emptyParams)
 export(getBiomass)

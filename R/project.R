@@ -232,13 +232,13 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         B_current <- B  # So that the plankton dynamics can still use the 
                         # current value
         if (any(B != 0)) {
-            B <- params@resource_dyn(params, n = n, n_pp = n_pp, B = B,
-                                         rates = r, dt = dt)
+            B <- params@resource_dynamics(params, n = n, n_pp = n_pp,
+                                          B = B_current, rates = r, dt = dt)
         }
         
         # Update plankton
-        n_pp <- params@plankton_dyn(params, n = n, n_pp = n_pp, B = B_current,
-                                        rates = r, dt = dt)
+        n_pp <- params@plankton_dynamics(params, n = n, n_pp = n_pp, 
+                                         B = B_current, rates = r, dt = dt)
         
         # Iterate species one time step forward:
         # See Ken's PDF

@@ -8,9 +8,10 @@ MizerParams(object, interaction, min_w = 0.001,
   max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
   no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
   kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
-  z0pre = 0.6, z0exp = n - 1, plankton_dyn = plankton_semichemostat,
-  interaction_p = rep(1, nrow(object)), rho = NULL,
-  resource_names = NULL, resource_dyn = NULL, resource_params = NULL)
+  z0pre = 0.6, z0exp = n - 1,
+  plankton_dynamics = plankton_semichemostat, interaction_p = rep(1,
+  nrow(object)), rho = NULL, resource_names = NULL,
+  resource_dynamics = NULL, resource_params = NULL)
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -69,7 +70,7 @@ Default value is 0.6.}
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is n-1.}
 
-\item{plankton_dyn}{Function that determines plankton dynamics by calculating
+\item{plankton_dynamics}{Function that determines plankton dynamics by calculating
 the plankton spectrum at the next time step from the current state. The
 default is \code{"plankton_semichemostat"}, see \code{\link[=plankton_semichemostat]{plankton_semichemostat()}}.}
 
@@ -92,13 +93,13 @@ See \link{resources} help for more details.}
 resource components, in the order in which the resources are indexed in the
 \code{rho} array. Only used if the array \code{rho} did not have the dimnames set.}
 
-\item{resource_dyn}{Either NULL (default) or a function that determines the
+\item{resource_dynamics}{Either NULL (default) or a function that determines the
 dynamics of the unstructured resources by calculating their biomasses at
-the next time step from the current state. See \code{\link[=dead_matter_dyn]{dead_matter_dyn()}} for an
+the next time step from the current state. See \code{\link[=dead_matter_dynamics]{dead_matter_dynamics()}} for an
 example. Ignored if \code{rho} is NULL.}
 
 \item{resource_params}{Either NULL (default) or a list of parameters needed
-by the \code{resource_dyn} function. Ignored if \code{rho} is NULL.}
+by the \code{resource_dynamics} function. Ignored if \code{rho} is NULL.}
 }
 \value{
 An object of type \code{MizerParams}
