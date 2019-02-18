@@ -22,9 +22,13 @@ rho[,2] <- species_params$scavQ*10^20
 resource_dynamics <- 
     list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
          "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
+resource_params <- list("detritus_external" = 0,
+                          "detritus_proportion" = 0.5, 
+                          "carrion_external" = 0)
 
 params <- multispeciesParams(species_params, rho = rho,
-                             resource_dynamics = resource_dynamics)
+                             resource_dynamics = resource_dynamics,
+                             resource_params = resource_params)
 
 # TODO: choose the initial_n to correspond somewhat to the actual abundances
 # observed in the ecosystem.
@@ -51,8 +55,8 @@ detritus_cons <-
 
 ## Update params object
 p <- params
-p@resource_dynamics <- list(detritus = detritus_dynamics,
-                            carrion = carrion_dynamics)
+p@resource_dynamics <- list("detritus" = detritus_dynamics,
+                            "carrion" = carrion_dynamics)
 p@resource_params <- list("detritus_external" = detritus_cons,
                           "detritus_proportion" = 0, 
                         "carrion_external" = carrion_cons)
