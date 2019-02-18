@@ -15,7 +15,7 @@ library(mizer)
 As mentioned above,the trait-based size spectrum model can be derived as a simplification of the general model outline in Section~\@ref(sec:principles).
 It is more complicated than a community model and the most significant difference between the two is that while the community model only resolves a single *species*, the trait-based model resolves many species.
 In a trait-based model the asymptotic size is considered to be the most important *trait* characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size.
-For example, the weight at maturation, $w_{m.i} = \eta W_{\infty.i}$, where $\eta = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
+For example, the weight at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
 
 ## Setting up a trait-based model {#sec:set_up_trait_model}
 
