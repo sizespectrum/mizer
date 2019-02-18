@@ -187,7 +187,7 @@ becomes available for growth and reproduction is
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction
 is used for reproduction. This proportion should change from zero below the  
 weight $w_{m.i}$ of maturationto one at the asymptotic weight 
-$W_i$, where all available energy is used for reproduction. This proportion
+$w_{\infty.i}$, where all available energy is used for reproduction. This proportion
 is stored in an array `psi[i,a]`$=\psi_i(w_a)$.
 
 The total production rate of egg production $R_{p.i}$ (numbers per time) is found by 
@@ -328,8 +328,8 @@ loss due to activity and movement, scaling with exponent $1$:
 \[\text{metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
 
 * Background mortality
-\[\mu_{b.i}(w) = \mu_b W_i^{1-n},\]
-where $W_i$ is the asymptotic size of species $i$.
+\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]
+where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
 
 ## Investment into reproduction
