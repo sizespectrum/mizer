@@ -36,7 +36,7 @@ For additional help you can look at the help page for the class by entering `cla
 
 The `MizerParams` class stores the:
 
-* life-history parameters of the species in the community, such as $W_{\infty}$;
+* life-history parameters of the species in the community, such as $w_{\infty}$;
 * size-based biological parameters for the species, such as the search volume, $V(w)$;
 * stock-recruitment relationship functions and parameters of each species;
 * interaction matrix to describe the spatial overlap of pairs of species;
@@ -80,7 +80,7 @@ As mentioned above, there are some columns that are essential but if they are no
 The `h` column is calculated as:
 
 \begin{equation}
-    h = \frac{3 k_{vb}}{\alpha f_0} W_\infty^{1/3}
+    h = \frac{3 k_{vb}}{\alpha f_0} w_\infty^{1/3}
 \end{equation}
 
 where $k_{vb}$ is the von Bertalanffy $K$ parameter and $f_0$ is the feeding level of small individuals feeding mainly on the plankton.
@@ -89,7 +89,7 @@ This mean that if an `h` column is not included in the species parameter data.fr
 The `gamma` column is calculated using Equation~\@ref(eq:gamma).
 This calculation requires that the `h` column is available, either included in the species parameter data.frame, or calculated internally using the `k_vb` column as described above. This means that if you include a `k_vb` column in the data.frame, `h` and `gamma` will be calculated from it.
 
-The `z0` column (mortality from other sources) is calculated using Equation~\@ref(eq:mu_b). `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $W_\infty$ is raised to) can be passed as arguments to the `MizerParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
+The `z0` column (mortality from other sources) is calculated using Equation~\@ref(eq:mu_b). `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $w_\infty$ is raised to) can be passed as arguments to the `MizerParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
 
 The `ks` column is calculated as 20\% of `h`, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
 Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see Section~\@ref(sec:growth)).
