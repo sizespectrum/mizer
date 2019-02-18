@@ -2,13 +2,11 @@ species_params <- read.csv("vignettes/Blanes_species_params_full.csv", sep = ";"
 library(readr)
 theta <- read_csv("vignettes/Blanes_theta_full3.csv", 
                   col_names = FALSE)
-theta <- as.matrix(theta)
-
-
+theta <- t(as.matrix(theta))
 
 ## Choose B ----
 
-B <- c(detritus = 0, carrion = 1)
+B <- c(detritus = 1, carrion = 1)
 
 ## Choose rho ----
 my_rho  <- 10^20
@@ -32,7 +30,7 @@ params <- multispeciesParams(species_params, rho = rho,
 # observed in the ecosystem.
 
 # and constant reproduction
-rdd <- getRDD(params, params@initial_n, params@initial_n_pp, B)
+rdd <- getRDD(params)
 params@srr <- function(rdi, species_params) {rdd}
 
 ## Run to steady state ----
@@ -44,16 +42,19 @@ n <- sim@n[no_t, , ]
 n_pp <- sim@n_pp[no_t, ]
 
 ## compute carrion consumption for steady state ----
-feeding_level <- getFeedingLevel(params, n, n_pp, B = B)
+r <- getRates(params, n, n_pp, B = B)
 carrion_cons <-
-    B["carrion"] * sum((params@rho[, "carrion", ] * n * (1 - feeding_level)) %*%
+    B["carrion"] * sum((params@rho[, "carrion", ] * n * (1 - r$feeding_level)) %*%
                 params@dw)
+detritus_cons <-
+    B["detritus"] - detritus_dynamics(params, n, n_pp, B, rates = r, dt = 0.1)
 
 ## Update params object
 p <- params
 p@resource_dynamics <- list(detritus = detritus_dynamics,
                             carrion = carrion_dynamics)
-p@resource_params <- list("detritus_external" = 0, "detritus_proportion" = 0, 
+p@resource_params <- list("detritus_external" = detritus_cons,
+                          "detritus_proportion" = 0, 
                         "carrion_external" = carrion_cons)
 p@initial_n <- n
 p@initial_n_pp <- n_pp
