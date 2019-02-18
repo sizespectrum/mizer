@@ -1,4 +1,10 @@
-params_data <- read.csv("vignettes/Blanes_species_params_play.csv", sep = ";")
+species_params <- read.csv("vignettes/Blanes_species_params_full.csv", sep = ";")
+library(readr)
+theta <- read_csv("vignettes/Blanes_theta_full3.csv", 
+                  col_names = FALSE)
+theta <- as.matrix(theta)
+
+
 
 ## Choose B ----
 
@@ -6,9 +12,12 @@ B <- c(detritus = 0, carrion = 1)
 
 ## Choose rho ----
 my_rho  <- 10^20
-no_sp <- dim(params_data)[1]
-rho.array <- array(0, dim = c(no_sp,2))
-rho.array[1,2] <- my_rho
+no_sp <- dim(species_params)[1]
+rho <- array(0, dim = c(no_sp,2))
+#rho[1,2] <- my_rho
+rho[,1] <- species_params$detQ*10^20
+rho[,2] <- species_params$scavQ*10^20
+################################
 
 ## Set up params ----
 # with constant resource biomass
@@ -16,7 +25,7 @@ resource_dynamics <-
     list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
          "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
 
-params <- multispeciesParams(params_data, rho = rho.array,
+params <- multispeciesParams(species_params, rho = rho,
                              resource_dynamics = resource_dynamics)
 
 # TODO: choose the initial_n to correspond somewhat to the actual abundances
