@@ -381,8 +381,6 @@ Here the critical feeding level $f_c$ is given by the equation
 
 If $n=p$ and $k=0$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
 
--->
-
 <!-- Similar to the way the initial feeding level $f_0$ is used to describe the relation between the production and the maximum consumption, the critical feeding level $f_c$ (Equation~\ref{eq:fc}) is used to describe the relation between the factors for standard metabolism $k_s$ and maximum consumption $h$. A critical feeding level of $f_c \approx 0.2$ seems to be reasonable.
 
 The free parameter $\kappa$ may in principle be determined analytically, based on an assumption that all species have maximum recruitment, $R_i = R_{\mathrm{max}.i}$.
