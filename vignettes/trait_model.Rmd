@@ -12,7 +12,7 @@ library(mizer)
 
 
 ## Introduction
-As mentioned above,the trait-based size spectrum model can be derived as a simplification of the general model outline in Section~\@ref(sec:principles).
+As mentioned above,the trait-based size spectrum model can be derived as a simplification of the general model outline in [the model description section.](model_description.html)
 It is more complicated than a community model and the most significant difference between the two is that while the community model only resolves a single *species*, the trait-based model resolves many species.
 In a trait-based model the asymptotic size is considered to be the most important *trait* characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size.
 For example, the weight at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
@@ -29,7 +29,7 @@ The main parameters of interest are the number of the species in the model (`no_
 
 One of the key differences between the community type model described above and the trait-based model is that reproduction and egg production are considered.
 In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production.
-In the trait-based model, the egg production is modeled using a *Beverton-Holt* type function (the default in `mizer`, see Section~\@ref(sec:recruitment)) where the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
+In the trait-based model, the egg production is modeled using a *Beverton-Holt* type function (the default in `mizer`, see [the section on stock-recruitment relationships](model_description.html#sec:recruitment)) where the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
 The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as an argument (`k0`) to the `set_trait_model()` function. `k0` has a default value of 50. 
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
@@ -46,22 +46,28 @@ This function returns an object of type `MizerParams`, which holds all the model
 class(params)
 ```
 
-This object can therefore be interrogated in the same way as described in Section~\@ref(sec:comm_model) above, either by inspecting the individual slots or by using the `summary()` function.
+This object can therefore be interrogated in the same way as described in [the section on the community model](community_model.html), either by inspecting the individual slots or by using the `summary()` function.
 
 ```{r label=summary_comm_params2}
 summary(params)
 ```
 
+
 The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from  
 $`r min(params@species_params$w_inf)`$
-to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see Equation \@ref(eq:4)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
+to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}
 
 As with the community model described above, we can project the model through time using the `project()` method.
 Here we project the model for 75 time steps without any fishing (the `effort` argument is set to 0).
-We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see Section \@ref(sec:setting_initial_abundances)).
+We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see [the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
+
+
+
+
+
 
 ```{r label=trait_project_no_fishing}
 sim <- project(params, t_max=75, effort = 0)
@@ -103,7 +109,7 @@ First we perform a simulation without fishing in the same way we did above by se
 sim0 <- project(params_knife, effort = 0, t_max = 75)
 ```
 
-Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in Section~\@ref(sec:trophic_cascade_comm_model), the fishing mortality on a species is calculated as the product of effort, catchability and selectivity (see Section~\@ref(sec:fishing_gear) for more details). Selectivity ranges between 0 (not selected) and 1 (fully selected). The default value of catchability is 1. Therefore, in this simulation the fishing mortality of a fully selected individual is simply equal to the effort. This effort is constant throughout the duration of the simulation (however, this is does not necessarily have to be the case, see Section\@ref(sec:projection)).
+Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in [the section on trophic cascades in the community model](community_model.html#sec:trophic_cascade_comm_model), the fishing mortality on a species is calculated as the product of effort, catchability and selectivity (see [the section on fishing gears](multispecies_model.html#sec:fishing_gear) for more details). Selectivity ranges between 0 (not selected) and 1 (fully selected). The default value of catchability is 1. Therefore, in this simulation the fishing mortality of a fully selected individual is simply equal to the effort. This effort is constant throughout the duration of the simulation (however, this is does not necessarily have to be the case).
 
 ```{r label=sim_trait_with_fish}
 sim1 <- project(params_knife, effort = 0.75, t_max = 75)

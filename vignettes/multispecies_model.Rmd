@@ -182,7 +182,8 @@ For example, it can be set so that an effort of 1 gives a desired fishing mortal
 In this way effort can then be specified relative to a 'base effort', e.g. the effort
 in a particular year.
 Fishing effort is not stored in the `MizerParams` object.
-Instead, effort is set when the simulation is run and can vary through time (see Section~\@ref(sec:projection)).
+Instead, effort is set when the simulation is run and can vary through time (see [the section on running a simulation](running_a_simulation.html)).
+
 
 At the moment a species can only be selected by one fishing gear, although each gear can select more than one species (this is a limitation with the current package that will be developed in future releases).
 
@@ -208,8 +209,10 @@ The first argument, `w`, is size (the function calculates selectivity at size).
 All selectivity functions must have `w` as the first argument.
 The values for the other arguments must be found in the species parameters data.frame.
 So for the `knife_edge()` function there should be a `knife_edge_size` column (but note that because `knife_edge()` is the default selectivity function, the `knife_edge_size` argument actually has a default value = `w_mat`).
-This can be seen in the example in Section \@ref(sec:params_example).
+This can be seen in the example in [the section with examples of making a MizerParams object.](multispecies_model.html#sec:params_example)
 If the columns of the selectivity function arguments are not in the species parameter data.frame, an error is thrown when the `MizerParams` object is created.
+
+
 
 Users are able to write their own size based selectivity function. The first argument to the
 function must be `w` and the function must return a vector of the selectivity
@@ -222,11 +225,12 @@ This approach can be used to explore the impacts of changing fishing mortality o
 
 ## The stock-recruitment relationship {#sec:srr}
 
+
 In size spectrum modelling recruitment refers to the flux of individuals that enter the size-spectrum at the smallest size group of that species (given by the parameter `w_min` in the species parameter data.frame).
-As can be seen in Section~\@ref(sec:principles), calculating the recruitment flux involves calculating the ``density independent'' recruitment, $R_{p.i}$ (see Section~\@ref(sec:reproduction)).
-The $R_{p.i}$ is then modified by a stock-recruitment relationship (SRR) to impose some form of density-dependence. This then results in the density-dependent recruitment, $R_i$ (see Section~\@ref(sec:recruitment)).
+As can be seen in [the section on reproduction](model_description.html#sec:repro), calculating the recruitment flux involves calculating the density independent recruitment, $R_{p.i}$.
+The $R_{p.i}$ is then modified by a stock-recruitment relationship (SRR) to impose some form of density-dependence. This then results in the density-dependent recruitment, $R_i$ (see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)).
 Without this density dependence, the realised recruitment flux to the smallest size class is determined only by $R_{p.i}$.
-The default SRR is a Beverton-Holt type function (see Equation~\@ref(eq:R)).
+The default SRR is a Beverton-Holt type function.
 
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
 For example, the default stock-recruitment function has a second argument to it, `r_max`. Therefore the species parameter data.frame must have an `r_max` column.
@@ -234,12 +238,13 @@ For example, the default stock-recruitment function has a second argument to it,
 Users are able to write their own stock-recruitment function. The first argument to the function must be `rdi`, which is the density independent recruitment $R_{p.i}$, the second argument must be `species_params`, the dataframe with the species parameters. This function should then be assigned to the `srr` slot of the MizerParams object.
 
 
+
 ## The interaction matrix {#sec:interaction_matrix}
 
 The interaction matrix describes the interaction of each pair of species
 in the model. This can be viewed as a proxy for spatial interaction
 e.g. to model predator-prey interaction that is not size based.
-The values in the interaction matrix are used to scale the encountered food and predation mortality (see Section~\@ref(sec:encounter)).
+The values in the interaction matrix are used to scale the encountered food and predation mortality (see [the section on predator-prey preference](model_description.html#sec:pref)).
 The matrix is square with every element being the interaction between a pair of species. The dimensions, nrows and ncolumns, therefore equal the number of species.
 The values are between 0 (species do not overlap and therefore do not interact with each other) to 1 (species overlap perfectly).
 If all the values in the interaction matrix are set to 1 then predator-prey interactions are determined entirely by size-preference.

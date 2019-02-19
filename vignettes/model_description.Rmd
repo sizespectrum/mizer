@@ -97,7 +97,7 @@ in the absence of predation, stored as a vector
 in the subsection [Plankton mortality].
 
 
-## Predator-prey preference
+## Predator-prey preference {#sec:pref}
 The preference $\phi_{ij}(w, w_p)$ of
 an individual of species $i$ and weight $w$ for prey of species $j$ and
 weight $w_p$ is assumed to factorize as 
@@ -183,7 +183,7 @@ becomes available for growth and reproduction is
  This is calculated with the `getEReproAndGrowth()` function.
 
 
-## Investment into reproduction
+## Investment into reproduction  {#sec:repro}
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction
 is used for reproduction. This proportion should change from zero below the  
 weight $w_{m.i}$ of maturationto one at the asymptotic weight 
@@ -287,7 +287,7 @@ This grid is set up when creating a MizerParams object, see
 `emptyParams()` for details.
 
 
-## Fixed predator/prey mass ratio
+## Fixed predator/prey mass ratio {#sec:ppmr}
 An important simplification occurs when the preference $\phi_i(w,w_p)$
 of a predator of size $w$ for prey of size $w_p$ depends on the size 
 of the prey **only** through the predator/prey size ratio $w_p/w$,
@@ -349,22 +349,9 @@ Mizer provides a default function
 \]
 
 
-# Fishing
-This section still to be written.
+## Volumetric search rate {#eq:gamma}
 
-
-# Parameter Choices
-
-Sometimes one does not know all the parameters, and some parameters may be estimated 
-by assuming they follow theoretical relationships. This leads to various additional equations, 
-which are not part of essential core of mizer, but may be used to fill out missing parameter values. 
-We shall discuss such equations here
-
-The default parameter values for the model have been derived on the basis of meta-analyses of data on marine fish. Two parameters deserving special mention are the initial and critical feeding levels. These are used as physiological measures characterizing the productivity of the system and the metabolic requirements of the individuals.
-
-The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the  resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma.$
-
-## Volumetric search rate equation {#eq:gamma}
+The system is driven by the production of the plankton The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the  plankton If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the plankton at carrying capacity, is used as the control parameter for the plankton productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma.$
 
 
 \begin{equation}
@@ -381,12 +368,23 @@ Here the critical feeding level $f_c$ is given by the equation
 
 If $n=p$ and $k=0$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
 
-<!-- Similar to the way the initial feeding level $f_0$ is used to describe the relation between the production and the maximum consumption, the critical feeding level $f_c$ (Equation~\ref{eq:fc}) is used to describe the relation between the factors for standard metabolism $k_s$ and maximum consumption $h$. A critical feeding level of $f_c \approx 0.2$ seems to be reasonable.
+## Stock-recruitment relationship {#sec:recruitment}
 
-The free parameter $\kappa$ may in principle be determined analytically, based on an assumption that all species have maximum recruitment, $R_i = R_{\mathrm{max}.i}$.
-However, the depletion of resources makes it difficult to find an analytical approximation of $\kappa$ and until that has been achieved, $\kappa$ has to be adjusted manually such that the resulting community spectrum forms a continuation of the resource spectrum.
+In mizer, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR).
+The default functional form is such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a *Beverton-Holt* type of SRR:
 
--->
+\begin{equation}
+  \label{eq:R}
+  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
+\end{equation}
+where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
+
+The *Beverton-Holt* type of SRR is not the only density dependence model that mizer can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or *hockey-stick.*
+
+# Fishing
+This section still to be written.
+
+
 
 
 
