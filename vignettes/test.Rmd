@@ -17,18 +17,17 @@ knitr::opts_chunk$set(echo = TRUE)
 library(mizer)
 ```
 
-Here is a link [this link](#github-link)
-
 
 
 ## Testing
 
 Here is a link to the [Consumption](model_description.html#consumption) section.
 
+<!--
+
+Here is a link [this link](#github-link)
 
 
 # {#github-link}
 
-a
-
-a
+-->
