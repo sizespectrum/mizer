@@ -352,7 +352,6 @@ Mizer provides a default function
 # Fishing
 This section still to be written.
 
-<!--
 
 # Parameter Choices
 
@@ -365,7 +364,7 @@ The default parameter values for the model have been derived on the basis of met
 
 The system is driven by the production of the resource. The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the  resource. If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the resource at carrying capacity, is used as the control parameter for the resource productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma.$
 
-# {#eq:gamma}
+## Volumetric search rate equation {#eq:gamma}
 
 
 \begin{equation}
