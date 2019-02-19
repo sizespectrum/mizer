@@ -26,9 +26,12 @@ To avoid having to make a `MizerParams` object directly, a wrapper function, `se
 ?set_community_model
 ```
 
-As can be seen in the help page, the function can take many arguments. These are passed on to the `MizerParams` constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen [here.](multispecies_model.html)
+As can be seen in the help page, the function can take many arguments. These are passed on to the `MizerParams` constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen [in the section on multispecies models](multispecies_model.html)
 
-The arguments that you should pay attention to are: `z0` (the level of background mortality), `alpha` (the assimilation efficiency of the community), `f0` (the average feeding level of the community which is used to calculate $\gamma,$ as described in Equation~\@ref(eq:gamma)) and `recruitment` (the level of constant recruitment).
+The arguments that you should pay attention to are: `z0` (the level of background mortality), `alpha` (the assimilation efficiency of the community), `f0` (the average feeding level of the community which is used to calculate $\gamma,$ as described in [the equation for gamma](#eq:gamma) and `recruitment` (the level of constant recruitment).
+
+
+
 
 Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of `z0` is 0.1. Increasing this value effectively 'shortens' the length of the community spectrum. 
 The value of the constant recruitment should be set so that the community spectrum is a continuation of the plankton spectrum. This can be done with trial and error.  A reasonable value for `alpha` is 0.2. 
