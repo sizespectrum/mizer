@@ -286,7 +286,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  reproduction $\psi_i(w)$ is given by the step-like function
  \begin{equation}
  \psi_i(w)=\begin{cases}
- 0 & \text{if } w<w_{*.i}\\
+ 0 & \text{if } w<w_{m.i}\\
  \left(\frac{w}{w_{\infty.i}}\right)^{1-n} & \text{otherwise}
  \end{cases}
  \end{equation}
@@ -340,8 +340,8 @@ combination of the plankton spectrum and the aggregate abundance of
 the explicitly modeled species is the power law $\kappa w^{-\lambda}.$ 
 An expression for how we set $c_p(w)$ within the scale-invariant trait-based 
 model is given by Equation~\@ref(eq:cp). 
-or equal to the power law $\kappa w^{-\lambda}$ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
-$w$ approaches $\min\{w_{*i}\}$ from below, the carrying capacity of the plankton declines to zero.  
+or equal to the power law $\kappa w^{-\lambda}$ within the appropriate size range (i.e., for $w\leq\min\{w_{m.i}\}$), 
+$w$ approaches $\min\{w_{m.i}\}$ from below, the carrying capacity of the plankton declines to zero.  
 
 * By default the scale-invariant trait-based model is initialized at a 
  steady state (Equation~\@ref(eq:steady)) (provided no fishing is being 
@@ -521,8 +521,8 @@ N_i (w,t) = H \left(\frac{w_{0,1}}{w_{0,i}}\right)^{\lambda} \left(\frac{w_{0,i}
 where 
 \begin{equation} M_i (w)=
    \begin{cases}
-      1, & \text{if}\ w<w_{*i} \\
-      \frac{1}{\left(1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}\right)}\left(\frac{1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}}{1-\left(\frac{w_{*i}}{w_{\infty.i}}\right)^{1-n}}\right)^{\frac{1}{1-n}\left(\frac{\mu_{0}}{\hbar}\right)}, & \text{otherwise}
+      1, & \text{if}\ w<w_{m.i} \\
+      \frac{1}{\left(1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}\right)}\left(\frac{1-\left(\frac{w}{w_{\infty.i}}\right)^{1-n}}{1-\left(\frac{w_{m.i}}{w_{\infty.i}}\right)^{1-n}}\right)^{\frac{1}{1-n}\left(\frac{\mu_{0}}{\hbar}\right)}, & \text{otherwise}
     \end{cases}
 \end{equation}
 and 
@@ -530,7 +530,7 @@ and
 % {#eq:mu0}
  \mu_0 = (1 - f_0)  \sqrt{2 \pi} \kappa  \gamma  \sigma \beta ^{n - 1} \exp\left(\frac{\sigma ^ 2  (n - 1) ^ 2} {2}\right). 
  \end{equation}
-As the number of species becomes large we have that $\sum_i N_i (w)$ is approximately proportional to $\kappa w^{-\lambda},$  $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$ The constant $H$ is chosen so that $\sum_i N_i (w)$ is approximately equal to $\kappa w^{-\lambda}$ $\forall w \in [\min \{w_{*i} \} , \max \{w_{*i} \}].$
+As the number of species becomes large we have that $\sum_i N_i (w)$ is approximately proportional to $\kappa w^{-\lambda},$  $\forall w \in [\min \{w_{m.i} \} , \max \{w_{m.i} \}].$ The constant $H$ is chosen so that $\sum_i N_i (w)$ is approximately equal to $\kappa w^{-\lambda}$ $\forall w \in [\min \{w_{m.i} \} , \max \{w_{m.i} \}].$
 This steady state is special because it is invariant under the type of rescaling described above. 
 We also have to choose parameters in such a way that Equation~\@ref(eq:Rp) holds. However, if it holds for one species, then it holds for all species due to scale-invariance.
 Although the original trait based model had a similar level of simplicity, and a partial description of something like a steady state was possible, a careful reading of  Section 3 of reveals that it was in fact impossible to setup such a system so that the average number of offspring produced over an individuals lifespan is one, for each species, without imposing a stock recruitment relationship. This is part of the reason why stock recruitment relationships were imposed on previous models. However we believe that the stock recruitment relationships should emerge out of the life histories which size spectrum models claim to be able to model, rather than being imposed for outside the model.
@@ -557,7 +557,7 @@ This is achieved choosing the carrying capacity of the plankton to be
 % {#eq:cp}
 c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}
 \end{equation}
-Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{*i}\}$), 
+Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{m.i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
 
 
