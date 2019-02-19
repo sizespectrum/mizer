@@ -252,7 +252,11 @@ If all the values in the interaction matrix are set to 1 then predator-prey inte
 The interaction matrix must be of type `array` or `matrix`. 
 One way of creating your own is to enter the data using a spreadsheet (such as LibreOffice) and saving it as a .csv file. 
 The data can be read into R using the command `read.csv()`. This reads in the data as a data.frame. We then need
-to convert this to a matrix using the `as()` function. An example of how to do this is given in Section~\@ref(sec:params_example).
+to convert this to a matrix using the `as()` function. An example of how to do this is given in [the section with examples of making MizerParams objects.](multispecies_model.html#sec:params_example)
+
+
+
+
 
 It should be noted that the order of species in the interaction matrix has to be the same as the order in the species parameters data.frame.
 Although you can specify the dimnames of the interaction matrix, these names are overwritten by the species names from the species parameters data.frame
@@ -319,9 +323,9 @@ help(MizerParams)
 
 This shows that the constructor takes the following arguments:
 
-`object` The species parameter data.frame (see Section~\@ref(sec:species_parameters_dataframe)). This is compulsory with no default value.
+`object` The species parameter data.frame (see [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)). This is compulsory with no default value.
 
-`inter` The interaction matrix (see Section~\@ref(sec:interaction_matrix)). The default is a matrix of 1s.
+`inter` The interaction matrix (see [the section on predator-prey preference](model_description.html#sec:pref)). The default is a matrix of 1s.
     
 `...` Other model parameters (see Section~\@ref(sec:other_mizerparams_arguments)).
 
