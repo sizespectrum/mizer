@@ -306,7 +306,7 @@ hard-coded to the truncated log-normal function
 where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
 width of the weight selection function.
 
-## Allometric rates
+## Allometric rates {#sec:allo}
 Mizer has several size-dependent rates for which it is sensible to assume
 an allometric scaling with size:
 
