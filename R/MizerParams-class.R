@@ -760,6 +760,31 @@ multispeciesParams <-
     }
     
     ## Set default values for missing values in species params  ----
+    if (!("m" %in% colnames(object))) {
+        object$m <- 1-n
+    }
+    
+    missing <- is.na(object$m)
+    if (any(missing)) {
+        object$m[missing] <- 1-n
+    }
+    
+    # w25 is the weight at which 25% of the fish are mature, 
+    # if it is not specified in the dataframe then it is chosen 
+    # so as to correspond with a value of U=10 in the maturation 
+    # kernel that is a factor of psi.
+    
+    if (!("w25" %in% colnames(object))){
+        object$w25 <- object$w_mat/(3^(1/10))
+    }
+    
+    # also we need to fill w25 in, if it is just included for some
+    # species
+    
+    missing <- is.na(object$w25)
+    if (any(missing)) {
+        object$w25[missing] <- object$w_mat[missing]/(3^(1/10))
+    }
     
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
@@ -924,13 +949,20 @@ multispeciesParams <-
     
     # Now fill up the slots using default formulations:
     # psi - allocation to reproduction - from original Setup() function
+    
+    # m is a species-specific parameter taking its value from 
+    # the data frame, unless it is missing, in which case 
+    # it takes the value of 1-n, by default.
+    
     res@psi[] <- 
         unlist(
             tapply(res@w, 1:length(res@w),
-                   function(wx, w_inf, w_mat,n) {
-                       ((1 + (wx / (w_mat))^-10)^-1) * (wx / w_inf)^(1 - n)
+                   function(wx, w_inf, w_mat,m,w25) {
+                       U <- log(3)/log(w_mat/w25)
+                       return(((1 + (wx / (w_mat))^-U)^-1) * (wx / w_inf)^m)
                    },
-                   w_inf = object$w_inf, w_mat = object$w_mat, n = n
+                   w_inf = object$w_inf, w_mat = object$w_mat, m = object$m,
+                   w25 =object$w25
             )
         )
     # Set w < 10% of w_mat to 0
