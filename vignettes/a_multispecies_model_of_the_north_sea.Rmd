@@ -59,9 +59,13 @@ The species in the model are `r paste(params_data[,"species"], collapse=", ")` w
 The `params_data` object is a data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`, `r_max` and `k_vb`. 
 
 We have seen before that only having these columns in the species data.frame is sufficient to make a `MizerParams` object. Any missing columns will be added by the default values and relationships in the `MizerParams` constructor.
-For example, the data.frame does not include columns for `h` or `gamma`. This means that they will be estimated using the `k_vb` column (see Section~\@ref(sec:species_parameters_dataframe)).
+For example, the data.frame does not include columns for `h` or `gamma`. This means that they will be estimated using the `k_vb` column (see [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)).
 
-We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\@ref(sec:srr), this requires a column `r_max` in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the `params_data` data.frame. 
+
+
+
+
+We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. This requires a column `r_max` in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the `params_data` data.frame. 
 The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
 
 At the moment, the species data.frame does not contain any information on the selectivity of the species.
@@ -76,10 +80,12 @@ The sigmoid selectivity function is expressed in terms of length rather than wei
 
 where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = \log(3) / (l50 - l25)$ and $S1$ = $l50 \cdot S2$.
 
+
+
 This selectivity function is included in `mizer` as `sigmoid_length()`. You can see the help page for more details.
 As well as the arguments `l25` and `l50`, this function has the arguments `a` and `b` to convert between length and weight: $w = a l^b$.
 This is because the sigmoid selectivity function is defined in terms of length, and the size spectrum model works in terms of weight.
-As explained in Section~\@ref(sec:fishing_gear), all arguments of the selectivity function need to be in the species parameter data.frame.
+As explained in [the section on fishing gears and selectivity](multispecies_model.html#sec:fishing_gear), all arguments of the selectivity function need to be in the species parameter data.frame.
 Therefore, columns for `l25`, `l50`, `a` and `b` need to be added to `params_data`.
 We also add a column specifying the name of the selectivity function we wish to use.
 Note it would probably be easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
@@ -117,7 +123,7 @@ We can take a look at the first years of the data:
 head(f_history)
 ```
 
-As mentioned in Section~\@ref(sec:fishing_gear), fishing mortality is calculated as the product of selectivity, catchability and fishing effort (see Equation~\@ref(eq:sel)).
+Fishing mortality is calculated as the product of selectivity, catchability and fishing effort.
 The values in `f_history` are absolute levels of fishing mortality.
 We have seen that the fishing mortality in the `mizer` simulations is driven by the fishing effort argument passed to the `project()` function.
 Therefore if we want to project forward with historical fishing levels, we need to provide `project()` with effort values that will result in these historical fishing mortality levels.
@@ -134,7 +140,9 @@ The catchability can be set by including a `catchability` column in the species 
 params_data$catchability <- as.numeric(f_history["1990",])
 ```
 
-Considering the other model parameters, we will use default values for all of the other parameters apart from `kappa`, the carrying capacity of the plankton spectrum (see Section~\@ref(sec:parameters)).
+
+
+Considering the other model parameters, we will use default values for all of the other parameters apart from `kappa`, the carrying capacity of the plankton spectrum (see [see the section on allometric rates](model_description.html#sec:allo)).
 This was estimated along with the values `r_max` as part of the calibration process.
 
 We now have all the information we need to create the `MizerParams` object using the species parameters data.frame.
@@ -179,7 +187,7 @@ We use `dt` = 0.5 (the simulation will run faster than with the default value of
 sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 ```
 
-Plotting the results, we can see how the biomasses of the stocks change over time (Figure~\@ref(fig:plot_ns_biomass)).
+Plotting the results, we can see how the biomasses of the stocks change over time.
 You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
 ```{r label = plot_ns_biomass, fig.keep='last', fig.cap="Simulated biomasses of stocks in the North Sea with 100 years of transients."}
@@ -200,7 +208,11 @@ We calculate the community indicators ``mean maximum weight``, ``mean individual
 We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI of $0.8 LFI_{F=0}$.
 
 
-The indicators are calculated using the methods described in see Table~\@ref(tab:indicator_methods) and Section~\@ref(sec:summaries).
+
+
+
+The indicators are calculated using the methods described in 
+<!--see Table~\@ref(tab:indicator_methods) and --> [the section about summary methods for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
 Here we calculate the LFI and the other community indicators for the unexploited community. When calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
 Each of these methods returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = `100`).
 
