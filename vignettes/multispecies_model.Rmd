@@ -275,51 +275,21 @@ inside the `MizerParams` constructor.
 
 If an interaction matrix is not specified to the `MizerParams()` constructor the default interaction matrix is used. This has all values set to 1. 
 
-<!-- The next subsection is all about a table, and so I am commenting it out for now --> 
 
-<!--
 
 ## The other `MizerParams() arguments` {#sec:other_mizerparams_arguments}
 
 As well as the essential species parameters data.frame and the interaction
 matrix, there are several other arguments to the `MizerParams` constructor.
 These have default values. 
-The arguments can be seen in Table~\@ref(tab:other_params).
-
-\begin{table}[ht]
-    \begin{center}
-	\begin{tabularx}{\linewidth}{r|X|X}
-	\hline
-	Argument & Description & Default value \\
-	\hline
-	min_w & The smallest size of the species community size spectrum. Note that this a different w_min to the one in the species parameter data.frame. & 0.001 \\
-	max_w & The largest size of the species size spectrum. & The largest w_inf in the species parameters data.frame * 1.1 \\
-	no_w & The number of size bins in the species size spectrum. & 100 \\
-	min_w_pp & The smallest size of the plankton size spectrum. & 1e-10 \\
-	no_w_pp & The number of size bins in the plankton size spectrum. & round(no_w) * 0.3 \\
-	n & The scaling of intake. & 2/3 \\
-	p & The scaling of standard metabolism. & 0.7 \\
-	q & The search volume exponent. & 0.8 \\
-	r_pp & The growth rate of the primary productivity (the plankton spectrum). & 10 \\
-	kappa & The carrying capacity of the plankton spectrum. & 1e11 \\
-	lambda & The exponent of the spectrum. & 2+q-n \\
-	w_pp_cutoff & The cut off size of the plankton spectrum. & 10 \\
-    f0 & The feeding level of small individuals feeding mainly on the resource. Used to calculate `h` and `gamma` if they are not provided in the species parameter data.frame. & 0.6\\
-    z0pre & If `z0`, the mortality from other sources, is not a column in the species data.frame, it is calculated as $z0pre * w_\infty ^{z0exp}$. & 0.6 \\
-    z0exp & See z0pre & n - 1\\
-	\end{tabularx}
-	\caption{Other parameters to the `MizerParams()` constructor}
-	 {#tab:other_params}
-    \end{center}
-\end{table}
+The arguments can be seen in the `multispeciesParams()` help page.
 
 Some of these parameters may be used to calculate the species specific parameters if they are not provided. For example, if there is no `gamma` column in the species parameter data.frame, then it is calculated using `kappa` and `f0`.
-This means that depending on which columns have been provided in the species parameters data.frame, some of the parameters in Table~\@ref(tab:other_params) may not be used. For example, if the column `z0` (the mortality from other sources) has been included, then the arguments `z0pre` and `z0exp` are not used.
+This means that depending on which columns have been provided in the species parameters data.frame, some of the parameters from the the `multispeciesParams()` help page may not be used. For example, if the column `z0` (the mortality from other sources) has been included, then the arguments `z0pre` and `z0exp` are not used.
 
 Determining a value for the `kappa` argument can be difficult and may need to be estimated through some kind calibration process.
 The default value `kappa` is for the North Sea model.
 
--->
 
 ## Examples of making a `MizerParams objects` {#sec:params_example}
 
