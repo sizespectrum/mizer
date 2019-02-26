@@ -56,7 +56,7 @@ The number of individuals in the size bin between `w[a]` and
 where `dw[a]= w[a+1]-w[a]`.
 
 The time evolution of the size spectrum is described by the 
-McKendrik-von Foerster equation, which is simply a transport equation:
+McKendrik-von Foerster equation, which is a transport equation with loss:
 
 \begin{equation}
   \label{eq:MvF}
@@ -332,7 +332,7 @@ loss due to activity and movement, scaling with exponent $1$:
 where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
 
-## Investment into reproduction
+## Investment into reproduction {#sec:invest}
 The proportion $\psi_i(w)$ that determines how much of the available energy
 is used for reproduction should be described by a function that starts rising
 from $0$ at around the maturity size $w_{\text{mat}.i}$ of the species $i$ and reaches $1$ at
