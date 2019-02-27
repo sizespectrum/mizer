@@ -187,7 +187,7 @@ head(slope)
 R is very powerful when it comes to exploring data through plots.  A useful package for plotting is `ggplot2`.  `ggplot2` uses data.frames for input data. Many of the summary methods and slots of the `mizer` classes are arrays or matrices. Fortunately it is straightforward to turn arrays and matrices into data.frames using the command `melt` which is in the `reshape2` package.
 Although `mizer` does include some dedicated plots, it is definitely worth your time getting to grips with these `ggplot2` and other plotting packages. This will make it possible for you to make your own plots.
 
-Included in `mizer` are several dedicated plots that use `MizerSim` objects as inputs (see Table~\@ref(tab:plots)).
+Included in `mizer` are several dedicated plots that use `MizerSim` objects as inputs (see [the plots help page.](../reference/plots.html)).
 As well as displaying the plots, these methods all return objects of type `ggplot` from the `ggplot2` package meaning that they can be further modified by the user (e.g. by changing the plotting theme).
 See the help page of the individual plot methods for more details.
 The generic `plot()` method has also been overloaded for `MizerSim` objects. This produces several plots in the same window to provide a snapshot of the results of the simulation.
