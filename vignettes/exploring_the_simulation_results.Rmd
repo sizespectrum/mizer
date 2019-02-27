@@ -59,7 +59,7 @@ This returns a two-dimensional array: time x size, containing the cod abundances
 
 The `n_pp` slot can be accessed in the same way.
 
-## Summary methods for `MizerSim objects` {#sec:summaries}
+## Summary methods for `MizerSim` objects {#sec:summaries}
 
 As well as the `summary()` methods that are available for both `MizerParams` and `MizerSim` objects, there are some useful summary methods to pull information out of a `MizerSim` object. A description of the different summary methods available is 
 given in [the summary methods help page.](../reference/summary_methods.html) 
@@ -104,7 +104,8 @@ All of these methods have help files to explain how they are used.
 
 The methods `getBiomass()` and `getN()` have additional arguments that allow the user to set the size range over which to calculate the summary statistic.  This is done by passing in a combination of the arguments `min_l`, `min_w`, `max_l` and `max_w` for the minimum and maximum length or weight.
 
-If `min_l` is specified there is no need to specify `min_w` and so on. However, if a length is specified (minimum or maximum) then it is necessary for the species parameter data.frame (see Section~\@ref(sec:species_parameters_dataframe)) to include the parameters `a` and `b` for length-weight conversion.
+
+If `min_l` is specified there is no need to specify `min_w` and so on. However, if a length is specified (minimum or maximum) then it is necessary for the species parameter data.frame (see [the species parameters section](multispecies_model.html#sec:species_parameters_dataframe)) to include the parameters `a` and `b` for length-weight conversion.
 It is possible to mix length and weight constraints, e.g. by supplying a minimum weight and a maximum length. The default values are the minimum and maximum weights of the spectrum, i.e. the full range of the size spectrum is used.
 
 
@@ -132,8 +133,10 @@ Methods are available to calculate a range of indicators from a `MizerSim` objec
 given in [the summary methods help page.](../reference/summary_methods.html)
 You can read the help pages for each of the methods for full instructions on how to use them, along with examples.
 
-With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method `getBiomass()` in Section~\@ref(sec:summaries).
+With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method `getBiomass()` in [the section on summary methods for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
 It is also possible to specify which species to include in the calculation.  See the help files for more details.
+
+
 
 <!-- table was here -->
 
@@ -233,14 +236,14 @@ plotBiomass(sim)
 
 As mentioned above, some of the plot methods plot values against size at a point in time (or averaged over a time period).
 For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step.
-Here we plot the abundance spectra (biomass), averaged over time = 5 to 10 (see Figure~\@ref(fig:plotSpectra_example)):
+Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:
 
 ```{r label=plotSpectra_example, fig.keep='last', fig.cap="An example of using the plotSpectra() method, plotting values averaged over the period t = 5 to 10."}
 plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 ```
 
 
-As mentioned above, and as we have seen several times in this vignette, the generic `plot()` method has also been overloaded.  This produces 5 plots in the same window (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()` and `plotSpectra()`, see Figure~\@ref(fig:plot_example)). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
+As mentioned above, and as we have seen several times in this vignette, the generic `plot()` method has also been overloaded.  This produces 5 plots in the same window (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()` and `plotSpectra()`). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
 
 ```{r label=demo_summary_plot, fig.cap="Example output from using the summary plot() method."}
 plot(sim)
