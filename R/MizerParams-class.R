@@ -624,16 +624,21 @@ emptyParams <-
 #'   
 #'   
 #'   \tabular{lll}{
-#'   Method \tab Returns \tab Description \cr
-#'   \code{\link{getSSB}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
-#'   \code{\link{getBiomass}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
-#'   \code{\link{getN}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
-#'   \code{\link{getFeedingLevel}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
-#'   \code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
-#'   \code{\link{getFMort}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
-#'   \code{\link{getFMortGear}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
-#'   \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
-#'   \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+#'   Column name \tab Description \tab Default value \cr
+#'   species \tab Name of the species \tab Compulsory (no default) \cr
+#'   w_inf \tab The asymptotic mass of the species \tab Compulsory (no default) \cr
+#'   w_mat \tab The maturation mass of the species \tab Compulsory (no default) \cr
+#'   beta \tab Preferred predator prey mass ratio \tab Compulsory (no default) \cr
+#'   sigma \tab Width of prey size preference \tab Compulsory (no default) \cr
+#'   h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional (no default) \cr
+#'   k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional (no default) \cr
+#'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional (no default) \cr
+#'   ks \tab Standard metabolism coefficient \tab h*0.2 \cr
+#'   z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
+#'   k \tab Activity coefficient \tab 0 \cr
+#'   alpha \tab Assimilation efficiency \tab 0.6 \cr
+#'   erepro \tab Reproductive efficiency \tab 1 \cr
+#'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum \cr
 #' }
 #'   
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
