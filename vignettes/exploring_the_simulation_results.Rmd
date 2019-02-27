@@ -128,8 +128,8 @@ head(biomass)
 
 ## Methods for calculating indicators
 
-Methods are available to calculate a range of indicators from a `MizerSim` object after a projection.
-These can be seen in Table~\@ref(tab:indicator_methods).
+Methods are available to calculate a range of indicators from a `MizerSim` object after a projection. A description of the different indicator methods available is 
+given in [the summary methods help page.](../reference/summary_methods.html)
 You can read the help pages for each of the methods for full instructions on how to use them, along with examples.
 
 With all of the methods in the table it is possible to specify the size range of the community to be used in the calculation (e.g. to exclude very small or very large individuals) so that the calculated metrics can be compared to empirical data. This is used in the same way that we saw with the method `getBiomass()` in Section~\@ref(sec:summaries).
