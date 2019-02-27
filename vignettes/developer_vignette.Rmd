@@ -135,6 +135,21 @@ An object of class 'MizerParams' holds all the information needed for the
 We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
 
+## Rebuild package after altering code
+If you make a change to mizer's code you will have to rebuild the package after 
+you are done. In RStudio this can be done by clicking on the *Build* tab at the 
+top right and clicking *Install and Restart*. To be sure that the changes have 
+taken proper effect it may also help to clean the enviroment and/or restart 
+RStudio.
+
+To be sure that the package
+builds properly, make sure that the Roxygen2 package is properly installed, and 
+click the *More* dropdown, on the *Build* tab, and click *Configure Build Tools*
+and tick *Use devtools package functions if available* and
+*Generate documentation with Roxygen*, and click *Configure* and under
+*Automatically roxygenize when running:* tick *Build & Reload*.
+
+
 
 
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd)
