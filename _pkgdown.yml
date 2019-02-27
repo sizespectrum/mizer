@@ -122,6 +122,7 @@ reference:
 - title: Others
   contents:
   - get_initial_n
+  - project_methods
 - title: Aliases
   desc: These aliases are available for backwards compatibility with earlier
         versions of mizer
