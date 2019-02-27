@@ -64,7 +64,8 @@ Although many of the arguments used when creating a `MizerParams` object are opt
 Although it is possible to create the data.frame by hand in R, it is probably easier to create the data externally as a .csv file (perhaps using a suitable open source spreadsheet such as LibreOffice) and then read the data into R.
 
 For each species in the model community there are certain parameters that are essential and that do not have default values. The user must provide values for these parameters.
-There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame.
+There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame. The species parameter information is stored as a data.frame which hold the information given in [the MizerParams help page.](../reference/multispeciesParams.html#note)
+
 
 <!-- 
 
@@ -103,7 +104,7 @@ This calculation requires that the `h` column is available, either included in t
 The `z0` column (mortality from other sources) is calculated using the equation $\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n}.$ The values `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $w_\infty$ is raised to) can be passed as arguments to the `multispeciesParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
 
 The `ks` column is calculated as 20\% of `h`, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
-Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see [the section on allometric rates](model_description.html#allo)).
+Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see [the section on allometric rates](model_description.html#allo)). The species parameter information is stored as a data.frame which hold the information described in [the MizerParams help page.](../reference/multispeciesParams.html#note)
  
 <!-- The old generator for table 2 used to be here, but I am commenting it out --> 
  

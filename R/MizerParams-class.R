@@ -620,6 +620,22 @@ emptyParams <-
 #'   object is created. See the accompanying vignette for details of these
 #'   columns.
 #'   
+#' The following table gives different components of a species parameters data.frame.
+#'   
+#'   
+#'   \tabular{lll}{
+#'   Method \tab Returns \tab Description \cr
+#'   \code{\link{getSSB}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
+#'   \code{\link{getBiomass}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
+#'   \code{\link{getN}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
+#'   \code{\link{getFeedingLevel}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
+#'   \code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
+#'   \code{\link{getFMort}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
+#'   \code{\link{getFMortGear}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
+#'   \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
+#'   \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+#' }
+#'   
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
 #' @export
 #' @examples

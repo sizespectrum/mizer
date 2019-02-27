@@ -384,8 +384,4 @@ The *Beverton-Holt* type of SRR is not the only density dependence model that mi
 # Fishing
 This section still to be written.
 
-
-
-
-
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd)
