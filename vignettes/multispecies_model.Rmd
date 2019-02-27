@@ -1,6 +1,8 @@
 ---
 title: "MultiSpecies Model"
 output: html_document
+fig_width: 5
+fig_height: 5
 ---
 
 ```{r label=lib, include=FALSE}
