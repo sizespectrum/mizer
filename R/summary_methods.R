@@ -9,6 +9,9 @@
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Soundtrack: The Definitive Lead Belly
+#' Summary methods
+#' @name summary_methods
+NULL
 #' Calculate the SSB of species
 #' 
 #' Calculates the spawning stock biomass (SSB) through time of the species in
