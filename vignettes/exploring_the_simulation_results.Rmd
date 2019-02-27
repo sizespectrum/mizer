@@ -61,7 +61,12 @@ The `n_pp` slot can be accessed in the same way.
 
 ## Summary methods for `MizerSim objects` {#sec:summaries}
 
-As well as the `summary()` methods that are available for both `MizerParams` and `MizerSim` objects, there are some useful summary methods to pull information out of a `MizerSim` object (see Table~\@ref(tab:summary_methods)). All of these methods have help files to explain how they are used.
+As well as the `summary()` methods that are available for both `MizerParams` and `MizerSim` objects, there are some useful summary methods to pull information out of a `MizerSim` object. A description of the different summary methods available is 
+given in [the summary methods help page.](../reference/summary_methods.html) 
+
+
+<!--(see Table~\@ref(tab:summary_methods)). -->
+All of these methods have help files to explain how they are used. 
 (It is also possible to use most of these methods with a `MizerParams` object if you also supply the population abundance as an argument. This can be useful for exploring how changes in parameter value or abundance can affect summary statistics and indicators. We won't explore this here but you can see their help files for more details.)
 
 <!-- table was here -->
