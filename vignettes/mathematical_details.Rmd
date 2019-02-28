@@ -23,7 +23,7 @@ differential equation solver to evolve ecosystem models forwards in
 time. 
 
 The partial differential equations include convolution integrals to
-determine growth and death rates. In the original version of mizer
+determine growth and death rates. In the original version of mizer (version 0.3)
 these integrals were performed using Riemann sums, which made the
 simulations slow. We have substantially increased the speed of mizer by
 using spectral methods (exploiting the speed of the Fast Fourier Transform)
@@ -42,39 +42,67 @@ weights at which we track the abundance of fish. In mizer the fish
 grid points are specified by the following three numbers:
 
 1. The number of fish grid points $|w|.$ 
-2. The fish egg size $W_{e}.$ 
+2. The minimum fish egg size $W_{e}.$ 
 3. The maximum fish size $W_{+}.$ 
 
-The vector $w$ has length $|w|,$ and is such that $w_{1}=W_{e}$
+The vector $w$ has $|w|$ elements, and is such that $w_{1}=W_{e}$
 and $w_{|w|}=W_{+}.$ Also the log of $w$ is a vector with a constant
 difference between successive entries. In other words, $\forall k\in\left\{ 1,..,|w|\right\}$
 we have $w_{k}=10^{y_{k}}$ where
 
 \begin{equation}
-y_{k}=\log_{10}(W_{e})+(k-1)\left(\frac{\log_{10}(W_{+})-\log_{10}(W_{e})}{|w|-1}\right).
+y_{k}=\log_{10}(W_{e})+(k-1) \Delta x.
+\end{equation}
+
+where
+
+\begin{equation}
+\Delta x = \left(\frac{\log_{10}(W_{+})-\log_{10}(W_{e})}{|w|-1}\right)
 \end{equation}
 
 A vector $\Delta w$ of differences is useful for Riemann sums and
-PDE schemes. For each $k\in\left\{ 1,..,|w|-1\right\}$ this is defined
+PDE schemes. For each $k\in\left\{ 1,..,|w|\right\}$ this is defined so that 
+$(\Delta w)_k = (10^{\Delta x} - 1)w_k = w_{k+1}-w_k.$
+
+<!--
 as $\left(\Delta w\right)_{k}=w_{k+1}-w_{k}.$ It is most natural
 to continue the pattern (that there is a constant ratio between successive
 entries of $\Delta w$) to specify $\left(\Delta w\right)_{|w|},$
-however, unfortunately the original version of mizer instead defined
+however, unfortunately the original version of mizer (version 0.3) instead defined
 $\left(\Delta w\right)_{|w|}=\left(\Delta w\right)_{|w|-1}.$ 
+-->
+
 
 The plankton grid points $w_{k}^{full}$ consist of the fish grid
 points together with extra points that refer to smaller weights of
-plankton, below the fish egg size. In mizer the plankton grid points
-are specified by two numbers:
-\begin{itemize}
-\item The number of plankton grid points $|w^{full}|$. . 
-\item The smallest considered plankton size $W_{-}.$ .
-\end{itemize}
-The vector $w^{full}$ is defined such that $\forall k\in\left\{ 1,\dots,|w^{full}|-|w|\right\}$
-we have $w_{k}=10^{z_{k}}$ where
+plankton, below the fish egg size. In the current version of mizer the plankton grid points
+are specified by setting the smallest considered plankton size $W_{-}.$ .
+
+In order for our fast Fourier transform to work, the log of plankton grid points must have the 
+same spacing as the log of the $w$ grid points (for fish) described above. Note that this was 
+not so in previous versions of mizer (version 0.3, and before), which did allow a different spacing 
+for the plankton and other grid points.
+
+To define the plankton grid points in mizer we first generate a vector $(z_1,..,z_m)$ where 
+$\forall k \in \{ 1,\dots,m \}$ we have $z_k = \log_{10} (W_-) + (k-1) \Delta x,$ 
+where the number of additional plankton grid points $m$ is such that $z_m = \log_{10}(W_e)-\Delta x$ (note that the value of $W_-$ may have to be coerced slightly, so that it lies on a grid point and makes this possible).
+
+The full vector of plankton grid points is then given by the concatenation
 
 \begin{equation}
-z_{k}=\log_{10}(W_{-})+(k-1)\left(\frac{\log_{10}(W_{e}-\left(\Delta w\right)_{1})-\log_{10}(W_{-})}{|w^{full}|-|w|-1}\right),
+\left(w^{full}_1,..,w^{full}_{|w^{full}|} \right) = \left(10^{z_1},..,10^{z_m},w_1,..,w_{|w|} \right).
+\end{equation}
+
+The number of plankton grid points is hence $|w^{full}| = m + |w|,$ and the spacing between successive 
+plankton grid points is $\Delta w_k ^{full} = (10^{\Delta x} - 1) w^{full} _k.$
+
+<!--
+
+In the current version of mizer the plankton grid points $w^{full}$ are defined such that $\forall k\in\left\{ 1,\dots,|w^{full}|-|w|\right\}$
+we have $w_{k}=10^{z_{k}}$ where $z_1 = \log_{10}(W_-),$ and $z_|$
+
+\begin{equation}
+z_{k}=\log_{10}(W_{-})+(k-1)\left(\frac{\log_{10}(W_{e}-\left(\Delta w\right)_{0})-\log_{10}(W_{-})}{|w^{full}|-|w|-1}\right),
 \end{equation}
 
 and the remaining $|w|$ terms are given by
@@ -93,6 +121,8 @@ For each $k\in\left\{ 1,\dots,|w^{full}|-1\right\}$ this is defined
 as $\left(\Delta w^{full}\right)_{k}=w_{k+1}^{full}-w_{k}^{full}.$
 Unfortunately, again, the original version of mizer defined $\left(\Delta w^{full}\right)_{|w^{full}|}$
 as being equal to $\left(\Delta w^{full}\right)_{|w^{full}|-1}.$
+
+-->
 
 ### Available Energy Integral
 
@@ -389,7 +419,7 @@ in $y,$ we can rewrite it as
 
 $\forall k\in\left\{ 1,..,|w^{full}|\right\}$ let $x_{k}^{full}=\ln(w_{k}^{full}/W_{-}),$
 and suppose $\Delta x=x_{2}^{full}-x_{1}^{full}.$ Note that $x_{k}^{full}=(k-1)\Delta x.$
-Let us define a longer vector $x^{P}$ of length $|x^{P}|=1+(P/\Delta x$)
+Let us define a longer vector $x^{P}$ with $|x^{P}|=1+(P/\Delta x)$ elements.
 such that $\forall k\in\left\{ 1,..,|x^{P}|\right\}$ we have $x_{k}^{P}=(k-1)\Delta x$.
 Now we can approximate this integral by a Riemann sum, for $l\in{1,..,|w^{^{full}}|},$
 by writing
