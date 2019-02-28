@@ -175,19 +175,7 @@ and $k\in\left\{ 1,..,|w|\right\}$ simultaneously.
 We say they are `left' Riemann sums because the value of the integrand
 on the left side of each interval is multiplied by the length of that
 interval, to give the rectangular area contribution for a given interval/size-bin.
-However, for $P_{s}[i,k],$ in order to have the true form of a left
-Riemann sum approximation of an integration from $W_{e}=w_{1}$ to
-$W_{+}=w_{|w|}$ we should sum over indexes $k'$ from $1$ to $\left|w\right|-1,$
-and omit the final term in the expression for $P_{s}[i,k]$ above.
-However, in practice each $N_{j}(w_{\left|w\right|})=0,$ and so the
-above expression works fine.
 
-Similarly, for $P_{b}[i,k],$ in order to have the true form of a
-left Riemann sum approximation of an integration from $W_{-}=w_{1}^{full}$
-to $W_{+}=w_{|w^{full}|}^{full}$ we should sum over indexes $k'$
-from $1$ to $\left|w^{full}\right|-1,$ and omit the final term in
-the expression for $P_{s}[i,k]$ above. However, in practice $N_{R}(w_{\left|w^{full}\right|})=0,$
-and so the above expression works fine.
 
 ### Mortality Integral
 
@@ -206,10 +194,6 @@ by the Riemann sum
 \mu_{p.i}(w_{k'})=\sum_{j=1}^{s}\theta_{j,i}\sum_{k=1}^{|w|}\Phi_{j}(w_{k'}/w_{k})(1-f_{j}(w_{k}))\gamma_{j}w_{k}^{q}N_{j}(w_{k})(\Delta w)_{k}
 \end{equation}
 
-As in the available energy integral, this is a left Riemann sum, although
-we should really just sum with the index $k$ going up to $|w|-1.$
-However in practice each $N_{j}(w_{|w|})=0,$ so it does not matter
-if the final term is included in the sum or not.
 
 ## Spectral Integration
 
