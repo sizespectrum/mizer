@@ -91,14 +91,25 @@ NULL
 #' Calculates the detritus biomass at the next timestep from the current
 #' detritus biomass.
 #' 
-#' The inflow of biomass consists of
-#' * an external inflow at a rate given by `detritus_external` and
-#' * an inflow of feces, calculated as a proportion `detritus_proportion` of the
-#'   biomass consumed.
-#' 
-#' The outflow of biomass is due to 
-#' * consumption by detritivorous species, where the encounter rate is 
+#' The equation for the time evolution of the detritus biomass \eqn{B} is
+#' assumed to be of the form
+#' \deqn{dB/dt = `inflow` - `consumption` * B + `external`} 
+#' where 
+#' * `inflow` comes from feces, calculated as a proportion 
+#'   `detritus_proportion` of the biomass consumed by all consumers.
+#' * `consumption is by detritivorous species, where the encounter rate is 
 #'   specified by `params@rho[, "detritus", ]`.
+#' * `external` is an influx from external sources. It can be negative in which
+#'   case it represents a loss to external sources.
+#' 
+#' This equation is solved analytically to
+#' \deqn{B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+#'   +\frac{inflow + external}{consumption}
+#'   (1-\exp(-consumption \cdot \Delta t)).}{B(t+\Delta t) 
+#'   = B(t) exp(-consumption * \Delta t)
+#'   +(inflow + external)/(consumption) * (1 - exp(-consumption * \Delta t)).}
+#' This avoids the stability problems that would arise if we used the Euler
+#' method to solve the equation numerically.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of current species abundances (species x size)
@@ -106,7 +117,7 @@ NULL
 #' @param B A vector of current resource biomasses
 #' @param rates A list of rates as returned by [getRates()]
 #' @param dt Time step
-#' @param detritus_external External inflow rate of detritus biomass
+#' @param detritus_external Rate of change from external sources
 #' @param detritus_proportion Proportion of consumption by fish that flows into
 #'   the detritus component.
 #' @param ... Unused
@@ -125,17 +136,16 @@ detritus_dynamics <-
     # and then integrating over all consumer weights and summing over all
     # consumer species. This should not be changed because it needs to be in
     # agreement with the calculation of consumption in getEGrowth().
-    consumption <-
-        B["detritus"] * sum((params@rho[, "detritus",] * n * 
-                                 (1 - rates$feeding_level)) %*%
-                                params@dw)
-   
-    creation <-
+    consumption <- sum((params@rho[, "detritus",] * n *
+                            (1 - rates$feeding_level)) %*% params@dw)
+    inflow <-
         detritus_proportion *
           sum((rates$feeding_level * params@intake_max * n) %*% params@dw)
-     
-    return(B["detritus"] + (creation - consumption + detritus_external) * dt)
-}
+    
+    et <- exp(consumption * dt)
+    return(B["detritus"] * et + 
+               (inflow  + detritus_external) / consumption  * (1 - et))
+    }
 
 
 #' Carrion dynamics
@@ -143,15 +153,28 @@ detritus_dynamics <-
 #' Calculates the biomass of carrion (dead animals) at the next timestep from
 #' the current biomass.
 #' 
-#' The inflow of carrion biomass consists of 
-#' * An external inflow at a rate given by `carrion_external`.
-#' * Discards from fishing.
-#' * Animals killed by fishing gear.
-#' * Animals that have died by causes other than predation.
-#' 
-#' The outflow of biomass is due to 
-#' * consumption by scavenger species, where the encounter rate is 
+#' The equation for the time evolution of the carrion biomass \eqn{B} is
+#' assumed to be of the form
+#' \deqn{dB/dt = `inflow` - `consumption` * B + `external`} 
+#' where 
+#' * `inflow` comes from
+#'     + Discards from fishing.
+#'     + Animals killed by fishing gear.
+#'     + Animals that have died by causes other than predation. 
+#'   `detritus_proportion` of the biomass consumed by all consumers.
+#' * `consumption is by scavenger species, where the encounter rate is 
 #'   specified by `params@rho[, "carrion", ]`.
+#' * `external` is an influx from external sources. It can be negative in which
+#'   case it represents a loss to external sources.
+#' 
+#' This equation is solved analytically to
+#' \deqn{B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+#'   +\frac{inflow + external}{consumption}
+#'   (1-\exp(-consumption \cdot \Delta t)).}{B(t+\Delta t) 
+#'   = B(t) exp(-consumption * \Delta t)
+#'   +(inflow + external)/(consumption) * (1 - exp(-consumption * \Delta t)).}
+#' This avoids the stability problems that would arise if we used the Euler
+#' method to solve the equation numerically.
 #' 
 #' @param params A [MizerParams] object
 #' @param n A matrix of current species abundances (species x size)
@@ -170,14 +193,14 @@ carrion_dynamics <-
              carrion_external = params@resource_params$carrion_external,
              ...) {
         
-        consumption <- 
-            B["carrion"] * sum((params@rho[, "carrion", ] * n *
-                                    (1 - rates$feeding_level)) %*%
-                                   params@dw)
-        creation <- 
+        consumption <- sum((params@rho[, "carrion", ] * n *
+                                (1 - rates$feeding_level)) %*% params@dw)
+        inflow <- 
             # still need to be written
             0
         
-        return(B["carrion"] + (creation - consumption + carrion_external) * dt)
+        et <- exp(consumption * dt)
+        return(B["carrion"] * et + 
+                   (inflow  + carrion_external) / consumption  * (1 - et))
 }
 

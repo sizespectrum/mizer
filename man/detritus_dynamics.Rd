@@ -21,7 +21,7 @@ detritus_dynamics(params, n, n_pp, B, rates, dt,
 
 \item{dt}{Time step}
 
-\item{detritus_external}{External inflow rate of detritus biomass}
+\item{detritus_external}{Rate of change from external sources}
 
 \item{detritus_proportion}{Proportion of consumption by fish that flows into
 the detritus component.}
@@ -36,16 +36,24 @@ Calculates the detritus biomass at the next timestep from the current
 detritus biomass.
 }
 \details{
-The inflow of biomass consists of
+The equation for the time evolution of the detritus biomass \eqn{B} is
+assumed to be of the form
+\deqn{dB/dt = `inflow` - `consumption` * B + `external`}
+where
 \itemize{
-\item an external inflow at a rate given by \code{detritus_external} and
-\item an inflow of feces, calculated as a proportion \code{detritus_proportion} of the
-biomass consumed.
+\item \code{inflow} comes from feces, calculated as a proportion
+\code{detritus_proportion} of the biomass consumed by all consumers.
+\item \code{consumption is by detritivorous species, where the encounter rate is  specified by }params@rho\link{, "detritus", }`.
+\item \code{external} is an influx from external sources. It can be negative in which
+case it represents a loss to external sources.
 }
 
-The outflow of biomass is due to
-\itemize{
-\item consumption by detritivorous species, where the encounter rate is
-specified by \code{params@rho[, "detritus", ]}.
-}
+This equation is solved analytically to
+\deqn{B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+  +\frac{inflow + external}{consumption}
+  (1-\exp(-consumption \cdot \Delta t)).}{B(t+\Delta t) 
+  = B(t) exp(-consumption * \Delta t)
+  +(inflow + external)/(consumption) * (1 - exp(-consumption * \Delta t)).}
+This avoids the stability problems that would arise if we used the Euler
+method to solve the equation numerically.
 }

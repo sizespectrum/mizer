@@ -32,17 +32,29 @@ Calculates the biomass of carrion (dead animals) at the next timestep from
 the current biomass.
 }
 \details{
-The inflow of carrion biomass consists of
+The equation for the time evolution of the carrion biomass \eqn{B} is
+assumed to be of the form
+\deqn{dB/dt = `inflow` - `consumption` * B + `external`}
+where
 \itemize{
-\item An external inflow at a rate given by \code{carrion_external}.
+\item \code{inflow} comes from
+\itemize{
 \item Discards from fishing.
 \item Animals killed by fishing gear.
 \item Animals that have died by causes other than predation.
+\code{detritus_proportion} of the biomass consumed by all consumers.
+}
+\item \code{consumption is by scavenger species, where the encounter rate is  specified by }params@rho\link{, "carrion", }`.
+\item \code{external} is an influx from external sources. It can be negative in which
+case it represents a loss to external sources.
 }
 
-The outflow of biomass is due to
-\itemize{
-\item consumption by scavenger species, where the encounter rate is
-specified by \code{params@rho[, "carrion", ]}.
-}
+This equation is solved analytically to
+\deqn{B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+  +\frac{inflow + external}{consumption}
+  (1-\exp(-consumption \cdot \Delta t)).}{B(t+\Delta t) 
+  = B(t) exp(-consumption * \Delta t)
+  +(inflow + external)/(consumption) * (1 - exp(-consumption * \Delta t)).}
+This avoids the stability problems that would arise if we used the Euler
+method to solve the equation numerically.
 }

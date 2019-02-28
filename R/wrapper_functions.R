@@ -1254,8 +1254,7 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     # Force resources to stay at current level
     old_resource_dynamics <- p@resource_dynamics
     for (res in names(p@resource_dynamics)) {
-        resource_dynamics[[res]] <- 
-            function(params, n, n_pp, B, rates, dt) B[res]
+        p@resource_dynamics[[res]] <- constant_resource(res)
     }
     
     n <- p@initial_n
@@ -1324,4 +1323,10 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     }
     
     return(p)
+}
+
+# Helper function to create constant resource dynamics
+constant_resource <- function(resource_name) {
+    force(resource_name)
+    function(params, n, n_pp, B, rates, dt, ...) B[resource_name]
 }

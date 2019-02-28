@@ -68,15 +68,16 @@ carrying capacity of the plankton spectrum.}
 
 \item{\code{resource_dynamics}}{A named list of functions for projecting the
 biomasses in the unstructured resource components by one timestep. The
-names of the list entries are the resource names. See [resource_dynamics]
-for details.}
+names of the list entries are the resource names. See
+\code{\link{resource_dynamics}} for details.}
 
 \item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
 density by one timestep. See \code{\link{plankton_semichemostat}} for 
 an example.}
 
 \item{\code{resource_params}}{A list containing the parameters needed by the
-`resource_dynamics` functions, see [resource_dynamics] for details.}
+`resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+details.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -104,7 +105,7 @@ at each weight at our candidate steady state solution.}
 the plankton abundance at each weight.}
 
 \item{\code{initial_B}}{A vector containing the biomasses of the unstructured
-resource components.}
+resource components, see \code{\link{resource_dynamics}} for details.}
 
 \item{\code{n}}{Exponent of maximum intake rate.}
 
