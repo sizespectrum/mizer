@@ -29,8 +29,6 @@ Perhaps the easiest way for newcomers to get into using mizer is to access
 full functionality of mizer we recommend the user installs it with R, as 
 described in the next section. 
 
-Note that there also [help pages](reference/index.html) explaining the details of implementing all of the functions and methods of mizer.
-
 
 ## Installing mizer
 
