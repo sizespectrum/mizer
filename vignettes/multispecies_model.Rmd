@@ -482,3 +482,5 @@ In the next section we will see that to project the model through time you can s
 By setting the gears up in this way you can run different management scenarios of changing the efforts of the fishing gears rather than on
 individual species.
 It also means that after a simulation has been run you can examine the catches by gear.
+
+Now that we know how to create a multispecies model we shall discuss how to [run a multispecies model.](running_a_simulation)

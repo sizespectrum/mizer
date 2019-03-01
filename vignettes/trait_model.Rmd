@@ -12,7 +12,7 @@ library(mizer)
 
 
 ## Introduction
-As mentioned above,the trait-based size spectrum model can be derived as a simplification of the general model outline in [the model description section.](model_description.html)
+The trait-based size spectrum model can be derived as a simplification of the general model outline in [the model description section.](model_description.html)
 It is more complicated than a community model and the most significant difference between the two is that while the community model only resolves a single *species*, the trait-based model resolves many species.
 In a trait-based model the asymptotic size is considered to be the most important *trait* characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size.
 For example, the weight at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
@@ -288,3 +288,5 @@ lines(x=c(min(sim0@params@w),max(sim0@params@w)), y=c(1,1),lty=2)
 
 
 This shows another trophic cascade, although this time one driven by fishing the species at the midrange part of the spectrum, not the largest individuals as before. This trophic cascade acts in both directions. The cascade upwards is driven by the lack of food for predators leading to smaller realised maximum sizes. The cascade downwards has the same mechanism as fishing on large fish, a combination of predation mortality and food limitation.
+
+The next section explains how to setup the more general [multispecies model.](multispecies_model.html)

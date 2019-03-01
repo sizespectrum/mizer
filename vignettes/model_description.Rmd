@@ -22,7 +22,7 @@ in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/package
 but taking care to separate the essential features of the model that are
 hard-coded and the various possible specialisations for which mizer 
 provides setup functions. We will not go into detail of how this model is 
-realised in code. Such detail will be provided in the [developer_vignette].
+realised in code. Such detail will be provided in the [Developer guide.](developer_vignette.html)
 
 # The mizer size-spectrum model
 
@@ -380,8 +380,11 @@ The default functional form is such that the recruitment flux $R_i$ (numbers per
 where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
 
 The *Beverton-Holt* type of SRR is not the only density dependence model that mizer can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or *hockey-stick.*
-
+<!--
 # Fishing
 This section still to be written.
+-->
+
+The next section is about how to implement these ideas in the [community model.](community_model.html) 
 
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd)

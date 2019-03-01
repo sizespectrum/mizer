@@ -27,7 +27,10 @@ There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUss
 Perhaps the easiest way for newcomers to get into using mizer is to access 
 [the online app](https://mizer.shinyapps.io/selectivity/). However, to enjoy the 
 full functionality of mizer we recommend the user installs it with R, as 
-described below: 
+described in the next section. 
+
+Note that there also [help pages](reference/index.html) explaining the details of implementing all of the functions and methods of mizer.
+
 
 ## Installing mizer
 
@@ -189,4 +192,6 @@ Care should be taken when the community model is used to infer the dynamical
 properties of marine ecosystems, since it is prone to unrealistically strong
 oscillations due to the lack of dampening effects provided by the life-history
 diversity in the trait-based and multi-species models. 
+
+The next section gives a description of [the general mizer model.](model_description.html) 
 

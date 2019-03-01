@@ -27,9 +27,7 @@ effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 
-# Scale-invariant, trait-based model {#sec:scale_invariant_trait_based_model}
-
-## Introduction
+## Introduction {#sec:scale_invariant_trait_based_model}
 
 
 

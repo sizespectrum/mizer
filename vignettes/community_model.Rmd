@@ -208,6 +208,6 @@ Let's take a look at how the abundances change through time. We can do this with
 plotBiomass(sim_sigma1)
 ```
 
-The plot above shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model (see [the section on the trait based model](trait_model.html)) is implemented, the magnitude of the oscillations are much smaller.
+The plot above shows that abundances of the community no longer converge to a stable equilibrium and the dynamics appear to be chaotic. The ecological significance of the change in dynamics, and of the ability of simple community models to show chaotic behaviour, is still being debated. It can be argued that the size of the oscillations are too large to be 'true'. Additionally, when a trait-based model is implemented, the magnitude of the oscillations are much smaller. The next section is about [the trait based model.](trait_model.html)
 
 
