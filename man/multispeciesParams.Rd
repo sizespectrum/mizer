@@ -8,7 +8,7 @@ multispeciesParams(object, interaction, min_w = 0.001,
   max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
   no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
   kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
-  z0pre = 0.6, z0exp = n - 1)
+  z0pre = 0.6, z0exp = n - 1, store_kernel = (no_w <= 100))
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -67,6 +67,11 @@ z0pre * w_inf ^ z0exp. Default value is 0.6.}
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not
 a column in the species data frame, it is calculated as 
 z0pre * w_inf ^ z0exp. Default value is n-1.}
+
+\item{store_kernel}{A boolean flag that determines whether the full
+feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
+The default is TRUE if the number of size bins is no larger than 100 and
+FALSE otherwise.}
 
 \item{species_names}{Names of the species. Generally not needed as normally
 taken from the \code{object} data.frame.}

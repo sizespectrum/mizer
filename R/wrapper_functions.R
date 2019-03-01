@@ -390,7 +390,7 @@ set_trait_model <- function(no_sp = 10,
 #'   that holds the predation coefficient of each predator at size on 
 #'   each prey size. The dimensions are thus no_sp, no_w, no_w_full.
 #'   
-#' @return A \linkS4class{MizerParamsVariablePPMR} object
+#' @return A \linkS4class{MizerParams} object
 #' @export
 #' @examples 
 #' \dontrun{
@@ -416,7 +416,12 @@ change_pred_kernel <- function(params, pred_kernel) {
     if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
         stop("The pred_kerel has the wrong dimensions")
     }
-    return(new("MizerParamsVariablePPMR", params, pred_kernel = pred_kernel))
+    params@pred_kernel <- pred_kernel
+    # Empty the Fourier transforms of kernel, to ensure that the FFT is not
+    # used by model
+    params@ft_pred_kernel_e <- array()
+    params@ft_pred_kernel_p <- array()
+    return(params)
 }
 
 

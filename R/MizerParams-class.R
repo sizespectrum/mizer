@@ -229,12 +229,18 @@ validMizerParams <- function(object) {
 #'   for each species at size. Default \eqn{k_{s.i} w^p + k_i w}
 #' @slot mu_b An array (species x size) that holds the background death 
 #'   \eqn{\mu_{b.i}(w)}
-#' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio) that holds 
-#'   the Fourier transform of the feeding kernel in a form appropriate for
-#'   evaluating the available energy integral
-#' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio) that holds 
-#'   the Fourier transform of the feeding kernel in a form appropriate for
-#'   evaluating the predation mortality integral
+#' @slot pred_kernel An array (species x predator size x prey size) that holds
+#'   the predation coefficient of each predator at size on each prey size. If
+#'   this is NA then the following two slots will be used.
+#' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the available energy integral. If this is NA
+#'   then the \code{pred_kernel} will be used to calculate the available 
+#'   energy integral.
+#' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the predation mortality integral. If this is NA
+#'   then the \code{pred_kernel} will be used to calculate the integral.
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the plankton spectrum. Default \eqn{r_0 w^{p-1}}
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -291,6 +297,7 @@ setClass(
         intake_max = "array",
         search_vol = "array",
         metab = "array",
+        pred_kernel = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
         mu_b = "array",
@@ -330,6 +337,11 @@ setClass(
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        pred_kernel = array(
+            NA, dim = c(1,1,1), dimnames = list(
+                sp = NULL, w_pred = NULL, w_prey = NULL
+            )
+        ),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -354,27 +366,6 @@ setClass(
     validity = validMizerParams
 )
 
-#' A class to hold the parameters for a size based model with variable PPMR
-#' 
-#' A subclass of the \linkS4class{MizerParams} class with an additional slot for
-#' a predation kernel that depends on both the predator size and the prey
-#' size.
-#' 
-#' When the predator/prey mass ratio is size dependent, then the integrals
-#' for calculating available energy and predation death are not convolution
-#' integrals and hence can not be calculated with fast Fourier transforms.
-#' Instead they are calculated by sweeps over a 3-dimensional array holding
-#' the preference function.
-#' 
-#' The class inherits all slots from the \linkS4class{MizerParams}
-#' class and has one additional slot:
-#' 
-#' @slot pred_kernel An array (species x predator size x prey size) that holds
-#'   the predation coefficient of each predator at size on each prey size
-#' @export
-setClass("MizerParamsVariablePPMR",
-         representation(pred_kernel = "array"),
-         contains = "MizerParams")
 
 #' Basic constructor that creates empty MizerParams object of the right size
 #' 
@@ -488,7 +479,7 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
                w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
                psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1,
                metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel_e, 
-               ft_pred_kernel_p = ft_pred_kernel_p,
+               ft_pred_kernel_p = ft_pred_kernel_p, pred_kernel = array(),
                selectivity = selectivity, catchability = catchability,
                rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
                species_params = species_params,
@@ -550,6 +541,10 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' @param gear_names Names of the gears that catch each species. Generally not
 #'   needed as normally taken from the \code{object} data.frame. Default is
 #'   \code{species_names}.
+#' @param store_kernel A boolean flag that determines whether the full
+#'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
+#'   The default is TRUE if the number of size bins is no larger than 100 and
+#'   FALSE otherwise.
 #' @param ... Additional arguments.
 #'
 #' @return An object of type \code{MizerParams}
@@ -578,7 +573,8 @@ multispeciesParams <- function(object, interaction,
                     min_w_pp = 1e-10, no_w_pp = NA,
                     n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
                     kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-                    f0 = 0.6, z0pre = 0.6, z0exp = n - 1) {
+                    f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
+                    store_kernel = (no_w <= 100)) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
@@ -715,6 +711,7 @@ multispeciesParams <- function(object, interaction,
     res@q <- q
     res@f0 <- f0
     res@kappa <- kappa
+    no_w_full <- length(res@w_full)
     
     # If not w_min column in species_params, set to w_min of community
     if (!("w_min" %in% colnames(object)))
@@ -773,6 +770,14 @@ multispeciesParams <- function(object, interaction,
     res@mu_b[] <- res@species_params$z0
     
     # Set up predation kernels ------------------------------------------------
+    if (store_kernel) {
+        res@pred_kernel <- array(0,
+                                dim = c(no_sp, no_w, no_w_full),
+                                dimnames = list(sp = object$species,
+                                                w_pred = signif(res@w, 3),
+                                                w_prey = signif(res@w_full, 3))
+                                )
+    }
     Beta <- log(res@species_params$beta)
     sigma <- res@species_params$sigma
     # w_full has the weights from the smallest relevant plankton, to the largest fish
@@ -781,9 +786,9 @@ multispeciesParams <- function(object, interaction,
     x_full <- x_full - x_full[1]
     dx <- x_full[2] - x_full[1]
     # The first choice makes the calculation agree with the old mizer
-    # Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx, 
+    Dx <- res@w[2]/res@w[1] - 1  # dw = w Dx, 
     # The following gives a better agreement with analytic results
-    Dx <- dx
+    # Dx <- dx
     
     # rr is the log of the maximal predator/prey mass ratio
     # Here we use default rr = Beta + 3*sigma
@@ -800,6 +805,12 @@ multispeciesParams <- function(object, interaction,
         phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
         phi[x_full > rr[i]] <- 0
         res@ft_pred_kernel_e[i, ] <- Dx * fft(phi)
+        if (store_kernel) {
+            for (k in seq_len(no_w)) {
+                res@pred_kernel[i, k, (no_w_full - no_w + k):1] <-
+                    phi[1:(no_w_full - no_w + k)]
+            }
+        }
     }
     
     # ft_pred_kernel_p is an array (no_sp x P (to be determined below)) 

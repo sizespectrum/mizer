@@ -14,7 +14,7 @@ that holds the predation coefficient of each predator at size on
 each prey size. The dimensions are thus no_sp, no_w, no_w_full.}
 }
 \value{
-A \linkS4class{MizerParamsVariablePPMR} object
+A \linkS4class{MizerParams} object
 }
 \description{
 One way to set up a model with size-dependent predator/prey mass ratio
