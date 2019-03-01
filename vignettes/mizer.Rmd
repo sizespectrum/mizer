@@ -125,10 +125,9 @@ examined using a range of plots and summaries.
 These stages and the accompanying classes and methods are explained in detail in
 the rest of the document.
 
+
 It is probably easier to learn the basics of mizer through examples. We do this
-by looking at four set-ups of the framework: the community model, the
-trait-based model, the multi-species model and the scale-invariant trait-based
-model.  Of these models, the community model is the simplest and the
+by looking at four set-ups of the framework: [the community model](community_model.html), [the trait-based model](trait_model.html), the multi-species model [the multispecies model](multispecies_model.html) and [the scale-invariant model.](scale_invariant_trait_based_model.html)  Of these models, the community model is the simplest and the
 multi-species model the most complex.  The common denominator is the reliance of
 a size-based description of the structure of the fish community and of the
 predator-prey interactions between individuals.
