@@ -117,6 +117,8 @@ below we assume that the `MizerParams` object is called `params` and the
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
 
+<!--
+
 ## The project methods
 
 ## The MizerSim object
@@ -126,6 +128,8 @@ An object of class 'MizerParams' holds all the information needed for the
 # Developer guidelines
 
 ## Collaborating on Github
+
+-->
 
 ## Coding style
 [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
