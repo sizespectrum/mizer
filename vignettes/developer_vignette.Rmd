@@ -143,7 +143,7 @@ We use [testthat](http://testthat.r-lib.org/) and
 If you make a change to mizer's code you will have to rebuild the package after 
 you are done. In RStudio this can be done by clicking on the *Build* tab at the 
 top right and clicking *Install and Restart*. To be sure that the changes have 
-taken proper effect it may also help to clean the enviroment and/or restart 
+taken proper effect it may also help to clean the environment and/or restart 
 RStudio.
 
 To be sure that the package

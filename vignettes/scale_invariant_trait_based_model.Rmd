@@ -35,7 +35,7 @@ Constructing models that allow fish species to coexist is not trivial. This
 applies as much to size-spectrum models that use the mizer software tool, as 
 it does to other kinds of multispecies models.  Current size-spectrum models 
 achieve coexistence by assuming that stock-recruitment relationships are strong 
-enough within species to promote coexistance of the species.  They do this 
+enough within species to promote coexistence of the species.  They do this 
 by making the controlling parameter $R_{max.i}$ (described in 
 [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)) and keeping recruitment sufficiently 
 low. Although coexistence can be achieved in this way, it can necessitate 

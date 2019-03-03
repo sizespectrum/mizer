@@ -50,7 +50,7 @@ holds $N_i(w_a,t_u)$.
 
 Note that, contrary to what one might have expected,
 `n[i, a]` is not the *number* of individuals in a size bin
-but the *density* at a gid point.
+but the *density* at a grid point.
 The number of individuals in the size bin between `w[a]` and
 `w[a+1]=w[a]+dw[a]` is only approximately given as `n[i, a]*dw[a]`,
 where `dw[a]= w[a+1]-w[a]`.
@@ -186,7 +186,7 @@ becomes available for growth and reproduction is
 ## Investment into reproduction  {#sec:repro}
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction
 is used for reproduction. This proportion should change from zero below the  
-weight $w_{m.i}$ of maturationto one at the asymptotic weight 
+weight $w_{m.i}$ of maturation to one at the asymptotic weight 
 $w_{\infty.i}$, where all available energy is used for reproduction. This proportion
 is stored in an array `psi[i,a]`$=\psi_i(w_a)$.
 
