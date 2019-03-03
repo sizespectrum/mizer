@@ -26,7 +26,7 @@ To avoid having to make a `MizerParams` object directly, a wrapper function, `se
 ?set_community_model
 ```
 
-As can be seen in the help page, the function can take many arguments. These are passed on to the `MizerParams` constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen [in the section on multispecies models](multispecies_model.html)
+As can be seen in the help page, the function can take many arguments. These are passed on to the `MizerParams` constructor when the function is called. We can ignore most of these arguments for the moment as they almost all come with default values. Full details of those arguments can be seen [in the section on the multispecies model.](multispecies_model.html)
 
 The arguments that you should pay attention to are: `z0` (the level of background mortality), `alpha` (the assimilation efficiency of the community), `f0` (the average feeding level of the community which is used to calculate $\gamma,$ as described in [the equation for gamma](model_description.html#eq:gamma) and `recruitment` (the level of constant recruitment).
 

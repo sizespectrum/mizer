@@ -558,7 +558,7 @@ We arrived at our expression for $\mu_b(w)$ by considering that in the steady st
 %  {#eq:newmub}
   \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{p.i}(w),0 \}
   \end{equation}
-  where equations for $\mu_0$ and the predation mortality $\mu_{p.i} (w)$ are in[the section on the steady state solution.](scale_invariant_trait_based_model.html#sec:steadyeq)  This is done so that (provided we choose parameters so $\mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0.$) 
+  where equations for $\mu_0$ and the predation mortality $\mu_{p.i} (w)$ are in [the section on the steady state solution.](scale_invariant_trait_based_model.html#sec:steadyeq)  This is done so that (provided we choose parameters so $\mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0.$) 
 ) we ensure that the total mortality rate on explicitly modeled species is $\mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
 

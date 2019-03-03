@@ -128,7 +128,7 @@ the rest of the document.
 
 
 It is probably easier to learn the basics of mizer through examples. We do this
-by looking at four set-ups of the framework: [the community model](community_model.html), [the trait-based model](trait_model.html), the multi-species model [the multispecies model](multispecies_model.html) and [the scale-invariant model.](scale_invariant_trait_based_model.html)  Of these models, the community model is the simplest and the
+by looking at four set-ups of the framework: [the community model](community_model.html), [the trait-based model](trait_model.html), [the multispecies model](multispecies_model.html) and [the scale-invariant model.](scale_invariant_trait_based_model.html)  Of these models, the community model is the simplest and the
 multi-species model the most complex.  The common denominator is the reliance of
 a size-based description of the structure of the fish community and of the
 predator-prey interactions between individuals.
@@ -143,16 +143,15 @@ questions where detailed trait- and species-level parameterisations are not
 tractable.
 
 The trait-based model resolves a continuum of species with varying asymptotic
-sizes. The asymptotic size, $W_\infty$, is considered to be the most important
+sizes. The asymptotic size is considered to be the most important
 trait that characterizes the species life history.
 The continuum is represented by a discrete number of species spread evenly over
 the range of asymptotic sizes. The number of species is not important and does
 not affect the general dynamics of the model.
-Many of the parameters, such as $\beta$ and $\sigma$, are the same for all
+Many of the parameters, such as the preferred predator-prey mass ratio  are the same for all
 species. Other model parameters are determined by the asymptotic size.
-For example, the weight at maturation is given by, $W_{mat} = \eta_m W_\infty,$
-where the default value of $\eta_m$ is 0.25. In the trait-based model
-species-level complexity is captured through different life histories, and both
+For example, the weight at maturation of each species is a set fraction of the asymptotic size.
+In the trait-based model species-level complexity is captured through different life histories, and both
 intra- and inter-specific size spectra emerge.
 This approach is powerful for examining the generic population and whole
 community level responses to both size and species selective fishing without the

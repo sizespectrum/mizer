@@ -79,7 +79,7 @@ There are three ways of setting the fishing effort. Examples of all three can be
 
 The simplest way is by passing the `effort` argument as a single number.
 This value is then used as the fishing effort by all of the gears at each time step of the projection, i.e. fishing effort is constant throughout the simulation and is the same for all gears. We have seen this method in the community and trait-based model sections above.
-The length of the simulation is determined by the `t_max` argument (see [the section on time arguments](multispecies_model.html#sec:time_arguments)).
+The length of the simulation is determined by the `t_max` argument.
 
 
 
@@ -117,7 +117,7 @@ The `n` and `n_pp` slots hold the saved abundances of the species and the plankt
 
 In this section we'll look at how to run simulations with the `project()` method.
 The examples will focus on how fishing effort can be specified in different ways.
-The results of the simulations will not be explored in detail. We will leave that for [the section on summary methods for MizerSim objects.](exploring_the_simulation_results.html#).
+The results of the simulations will not be explored in detail. We will leave that for [the section on exploring the simulation results.](exploring_the_simulation_results.html#).
 
 
 
