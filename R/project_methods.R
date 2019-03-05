@@ -110,10 +110,13 @@ getAvailEnergy <- function(object, n, n_pp) {
     # to the transposed matrices and then transpose again at the end.
     avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)),
                                inverse = TRUE))) / length(object@w_full)
+    # Only keep the bit for fish sizes
+    avail_energy <- avail_energy[, idx_sp, drop = FALSE]
     # Due to numerical errors we might get negative entries. They should be 0
     avail_energy[avail_energy < 0] <- 0
-
-    return(avail_energy[, idx_sp, drop = FALSE])
+    
+    dimnames(avail_energy) <- dimnames(object@metab)
+    return(avail_energy)
 }
 
 #' Alias for getAvailEnergy
@@ -287,11 +290,15 @@ getPredRate <- function(object, n,  n_pp,
     # We do our spectral integration in parallel over the different species
     pred_rate <- Re(t(mvfft(t(object@ft_pred_kernel_p) *
                                  mvfft(t(Q)), inverse = TRUE))) / no_P
+    # We drop some of the final columns to get our output
+    pred_rate <- pred_rate[, 1:no_w_full, drop = FALSE]
     # Unfortunately due to numerical errors some entries might be negative
     # So we have to set them to zero. Is this the fastest way to do that?
-    pred_rate[pred_rate < 0] <- 0
-    # We drop some of the final columns to get our output
-    return(pred_rate[, 1:no_w_full, drop = FALSE])
+    pred_rate[pred_rate <= 0] <- 0
+    
+    dimnames(pred_rate) <- list(sp = object@species_params$species,
+                                w_prey = names(n_pp))
+    return(pred_rate)
 }
 
 
