@@ -69,7 +69,7 @@ getAvailEnergy <- function(object, n, n_pp) {
     # If the feeding kernel does not have a fixed predator/prey mass ratio
     # then the integral is not a convolution integral and we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (is.na(object@ft_pred_kernel_e)) {
+    if (length(object@ft_pred_kernel_e) == 1) {
         # n_eff_prey is the total prey abundance by size exposed to each
         # predator (prey not broken into species - here we are just working out
         # how much a predator eats - not which species are being eaten - that is
@@ -256,7 +256,7 @@ getPredRate <- function(object, n,  n_pp,
     # If the feeding kernel does not have a fixed predator/prey mass ratio
     # then the integral is not a convolution integral and we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (is.na(object@ft_pred_kernel_p)) {
+    if (length(object@ft_pred_kernel_p) == 1) {
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
         pred_rate <- sweep(object@pred_kernel, c(1,2),
