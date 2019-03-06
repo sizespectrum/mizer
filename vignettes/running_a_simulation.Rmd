@@ -21,11 +21,11 @@ params_gears <- MizerParams(params_data_gears, interaction = inter)
 
 
 
-# Running a simulation {#sec:projection}
+## Introduction {#sec:projection}
 
-In the preceding section and in the sections on the community and trait-based models, we used the `project()` method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
+In the [community](community_model.html) and [trait-based](trait_model.html) models, we used the `project()` method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
 In the trait-based model example, we also looked at how the effort for different gears could be specified.
-In this section we take a detailed look at how the `project()` method works and the different ways in which effort and time can be set up.
+In this section we take a detailed look at how the `project()` method works and the different ways in which effort and time can be set up. This will allow us to run more general systems like the [multispecies model.](multispecies_model.html)
 
 In `mizer`, simulations are performed using the `project()` method. This method takes a `MizerParams` object and projects it
 forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.
@@ -79,7 +79,7 @@ There are three ways of setting the fishing effort. Examples of all three can be
 
 The simplest way is by passing the `effort` argument as a single number.
 This value is then used as the fishing effort by all of the gears at each time step of the projection, i.e. fishing effort is constant throughout the simulation and is the same for all gears. We have seen this method in the community and trait-based model sections above.
-The length of the simulation is determined by the `t_max` argument (see [the section on time arguments](multispecies_model.html#sec:time_arguments)).
+The length of the simulation is determined by the `t_max` argument.
 
 
 
@@ -117,7 +117,7 @@ The `n` and `n_pp` slots hold the saved abundances of the species and the plankt
 
 In this section we'll look at how to run simulations with the `project()` method.
 The examples will focus on how fishing effort can be specified in different ways.
-The results of the simulations will not be explored in detail. We will leave that for [the section on summary methods for MizerSim objects.](exploring_the_simulation_results.html#).
+The results of the simulations will not be explored in detail. We will leave that for [the section on exploring the simulation results.](exploring_the_simulation_results.html#).
 
 
 
@@ -273,3 +273,5 @@ As you can see, it can be quite fiddly to set up a complicated effort array so i
 We give an example of this in [the section on the North Sea model.](a_multispecies_model_of_the_north_sea.html)
 
 Note that in this example we set up the effort array so that the effort was set every whole time step (e.g. time = 1, 2, etc). This does not have to be the case and it is possible to set the effort more frequently than that, e.g. at time = 1.0, 1.5, 2.0, 2.5 etc. The only restriction is that the difference between time dimension names must be at least as big as the `dt` argument.
+
+Now that we know how to run a simulation, the we are ready to learn how to [explore the simulation results.](exploring_the_simulation_results.html)

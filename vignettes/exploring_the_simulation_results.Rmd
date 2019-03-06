@@ -27,9 +27,9 @@ effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 
-# Exploring the simulation results {#sec:exploring}
+## Introduction {#sec:exploring}
 
-In the previous sections we saw how to set up a model and project it forward through time under our desired fishing scenario. The result of running a projection is an object of class `MizerSim`. What do we then do?  How can we explore the results of the simulation? In this section we introduce a range of summaries, plots and indicators that can be easily produced using methods included in `mizer`.
+In the sections on [the multispecies model](multispecies_model.html) and on [running a simulation](running_a_simulation.html) we saw how to set up a model and project it forward through time under our desired fishing scenario. The result of running a projection is an object of class `MizerSim`. What do we then do?  How can we explore the results of the simulation? In this section we introduce a range of summaries, plots and indicators that can be easily produced using methods included in `mizer`.
 
 We will use the same `MizerSim` object for these examples:
 
@@ -249,3 +249,4 @@ As mentioned above, and as we have seen several times in this vignette, the gene
 plot(sim)
 ```
 
+The next section describes how to use what we have used to [model the North Sea.](a_multispecies_model_of_the_north_sea.html) 

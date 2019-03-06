@@ -27,9 +27,7 @@ effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 
-# Scale-invariant, trait-based model {#sec:scale_invariant_trait_based_model}
-
-## Introduction
+## Introduction {#sec:scale_invariant_trait_based_model}
 
 
 
@@ -37,7 +35,7 @@ Constructing models that allow fish species to coexist is not trivial. This
 applies as much to size-spectrum models that use the mizer software tool, as 
 it does to other kinds of multispecies models.  Current size-spectrum models 
 achieve coexistence by assuming that stock-recruitment relationships are strong 
-enough within species to promote coexistance of the species.  They do this 
+enough within species to promote coexistence of the species.  They do this 
 by making the controlling parameter $R_{max.i}$ (described in 
 [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)) and keeping recruitment sufficiently 
 low. Although coexistence can be achieved in this way, it can necessitate 
@@ -560,7 +558,7 @@ We arrived at our expression for $\mu_b(w)$ by considering that in the steady st
 %  {#eq:newmub}
   \mu_{b.i}(w) = \max \{ \mu_0 w^{n-1} - \mu_{p.i}(w),0 \}
   \end{equation}
-  where equations for $\mu_0$ and the predation mortality $\mu_{p.i} (w)$ are in[the section on the steady state solution.](scale_invariant_trait_based_model.html#sec:steadyeq)  This is done so that (provided we choose parameters so $\mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0.$) 
+  where equations for $\mu_0$ and the predation mortality $\mu_{p.i} (w)$ are in [the section on the steady state solution.](scale_invariant_trait_based_model.html#sec:steadyeq)  This is done so that (provided we choose parameters so $\mu_{b.i}(w) = \mu_0 w^{n-1}  - \mu_{p.i}(w)\geq 0.$) 
 ) we ensure that the total mortality rate on explicitly modeled species is $\mu_0 w^{n-1},$ which scales with weight in the way required for scale invariance.
 
 

@@ -27,7 +27,7 @@ effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 
-# A multispecies model of the North Sea {#sec:north_sea_example}
+## A multispecies model of the North Sea {#sec:north_sea_example}
 
 In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
 First we will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
@@ -359,4 +359,4 @@ p <- ggplot(ssb_all_df) +
 p + theme(legend.position = "none")
 ```
 
-
+In the next section we describe the [scale-invariant trait based model](scale_invariant_trait_based_model.html)

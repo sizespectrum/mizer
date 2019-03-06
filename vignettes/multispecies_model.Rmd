@@ -106,7 +106,7 @@ This calculation requires that the `h` column is available, either included in t
 The `z0` column (mortality from other sources) is calculated using the equation $\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n}.$ The values `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $w_\infty$ is raised to) can be passed as arguments to the `multispeciesParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
 
 The `ks` column is calculated as 20\% of `h`, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
-Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see [the section on allometric rates](model_description.html#allo)). The species parameter information is stored as a data.frame which hold the information described in [the MizerParams help page.](../reference/multispeciesParams.html#note)
+Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see [the section on allometric rates](model_description.html#sec:allo)). The species parameter information is stored as a data.frame which hold the information described in [the MizerParams help page.](../reference/multispeciesParams.html#note)
  
 <!-- The old generator for table 2 used to be here, but I am commenting it out --> 
  
@@ -351,8 +351,8 @@ params_data
 You can see that there are $`r nrow(params_data)`$ species and $`r ncol(params_data)`$ columns of parameters: `species`, `w_inf`,`w_mat`,`beta`,`sigma`,`r_max` and `k_vb`.
 
 
-Of these parameters, `species`, `w_inf`, `w_mat`, `beta` and `sigma` are essential and have no default values (as described in [the section on species parameters](model_description.html#sec:species_parameters_dataframe)).
-`r_max` is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has `r_max` as an argument (see [the section on the stock-recruitment relationship](multispecies_model.html#sec:recruitment)), making this column also essential.
+Of these parameters, `species`, `w_inf`, `w_mat`, `beta` and `sigma` are essential and have no default values (as described in [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)).
+`r_max` is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has `r_max` as an argument (see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)), making this column also essential.
 The final column, `k_vb`, will be used to calculate values for `h` and then `gamma`. This column is only essential here because the `h` and `gamma` are not included in the data.frame. It would also have been possible to include `h` and `gamma` columns in the data.frame and not include the `k_vb` column.
 
 The values of the non-essential species specific parameters `alpha`, `k`, `ks`, `z0`, `w_min` and `erepro` are not included in the data.frame. This means that the default values will be automatically used when we create the `MizerParams` object.
@@ -360,7 +360,7 @@ The values of the non-essential species specific parameters `alpha`, `k`, `ks`, 
 
 
 Note that there are no columns describing the fishing selectivity. There is no `sel_func` column to determine the selectivity function.
-This means that the default selectivity function, `knife_edge`, will be used. As mentioned in [the section on fishing gears](multispecies_model.html#fishing_gear),
+This means that the default selectivity function, `knife_edge`, will be used. As mentioned in [the section on fishing gears](multispecies_model.html#sec:fishing_gear),
 this function also needs another argument, `knife_edge_size`. This is not present in the data.frame and so it will be set to the default value of `w_mat`. Also, there is no `catchability` column so a default value for `catchability` of 1 will be used for all gears and species.
 
 This species parameter data.frame is the minimum we need to create a `MizerParams` object as it contains only essential columns. To create the `MizerParams` object we pass the data.frame into the `multispeciesParams()` constructor method:
@@ -482,3 +482,10 @@ In the next section we will see that to project the model through time you can s
 By setting the gears up in this way you can run different management scenarios of changing the efforts of the fishing gears rather than on
 individual species.
 It also means that after a simulation has been run you can examine the catches by gear.
+
+## Reaching steady state
+
+Once the `MizerParams` object has been properly setup, it may be the case that one wishes put the system in steady state. Sometimes this can be done simply by running the model using `project' until it reaches steady state. However, this method is 
+not sure to work, and there is a function called `steady()` that is more reliable. The function `steady()` must be supplied with a MizerParams object. It takes that MizerParams object, looks at the initial system state, computes the levels of reproduction of the different species, hold them fixed, and evolves the system until a steady state is reached (or more precisely, until the amount that the population abundances change during a time-step is below some small tolerance level). After this, the reproductive efficiency of each species is altered so that when the reproduction dynamics are turned back on (i.e., when we stop holding recruitment levels fixed), the values of the reproduction levels which we held the system fixed at will be realized. The steady function is not sure to converge, and the way it re-tunes the reproductive efficiency values may not be realistic, but the idea is to alter the other parameters in the system until `steady()` does arrive at a steady state with sensible reproductive efficiency values.
+
+Now that we know how to create a multispecies model we shall discuss how to [run a multispecies model.](running_a_simulation.html)

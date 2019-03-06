@@ -126,6 +126,8 @@ below we assume that the `MizerParams` object is called `params` and the
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
 
+<!--
+
 ## The project methods
 
 ## The MizerSim object
@@ -135,6 +137,8 @@ An object of class 'MizerParams' holds all the information needed for the
 # Developer guidelines
 
 ## Collaborating on Github
+
+-->
 
 ## Coding style
 [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
@@ -148,7 +152,7 @@ We use [testthat](http://testthat.r-lib.org/) and
 If you make a change to mizer's code you will have to rebuild the package after 
 you are done. In RStudio this can be done by clicking on the *Build* tab at the 
 top right and clicking *Install and Restart*. To be sure that the changes have 
-taken proper effect it may also help to clean the enviroment and/or restart 
+taken proper effect it may also help to clean the environment and/or restart 
 RStudio.
 
 To be sure that the package
