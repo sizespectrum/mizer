@@ -129,7 +129,7 @@ getPhiPrey <- getAvailEnergy
 
 #' Get feeding level
 #'
-#' Calculates the feeding level \eqn{f_i(w)} as a by predator size based on food
+#' Calculates the feeding level \eqn{f_i(w)} by predator size based on food
 #' availability, search volume and maximum intake. The feeding level is the
 #' proportion of the encountered food that is actually consumed. This method is
 #' used by the \code{\link{project}} method for performing simulations.
@@ -147,7 +147,7 @@ getPhiPrey <- getAvailEnergy
 #'   single value. Default is the whole time range. Only used if the
 #'   \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped,
-#'   simplifying the output. Defaults to TRUE.
+#'   simplifying the output. Defaults to FALSE.
 #'
 #' @note If a \code{MizerParams} object is passed in, the method returns a two
 #'   dimensional array (predator species x predator size) based on the
@@ -175,7 +175,7 @@ getPhiPrey <- getAvailEnergy
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
 getFeedingLevel <- function(object, n, n_pp, avail_energy,
-                            time_range, drop=FALSE){
+                            time_range, drop = FALSE) {
     if (is(object, "MizerParams")) {
         if (missing(avail_energy)) {
             avail_energy <- getAvailEnergy(object, n, n_pp)
