@@ -405,9 +405,12 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
     }
     
     # For fft methods we need a constant log step size throughout. 
-    # Therefore we use as many steps as are necessary to almost reach min_w_pp. 
-    x_pp <- rev(seq(from = log10(min_w), log10(min_w_pp), 
-                    by = log10(min_w / max_w) / (no_w - 1))[-1])
+    # Therefore we use as many steps as are necessary so that the first size
+    # class includes min_w_pp. 
+    dx <- log10(max_w / min_w) / (no_w - 1)
+    x_pp <- rev(seq(from = log10(min_w),
+                    to = log10(min_w_pp) - dx / 2,
+                    by = -dx)) - dx
     w_full <- c(10^x_pp, w)
     no_w_full <- length(w_full)
     dw_full <- diff(w_full)
@@ -507,9 +510,10 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #'   This means that the order of the columns and rows of the interaction matrix
 #'   argument should be the same as the species name in the
 #'   \code{species_params} slot.
-#' @param min_w The smallest size of the community spectrum.
-#' @param max_w The largest size of the community spectrum.
-#'    Default value is the largest w_inf in the community x 1.1.
+#' @param min_w The smallest size of the community spectrum. This is ignored if
+#'   the egg sizes of the species are given in the species_params data frame.
+#' @param max_w Obsolete. The largest fish size is now set to the largest
+#'   w_inf specified in the species_params data frame.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w_pp The smallest size of the plankton spectrum.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
@@ -569,8 +573,8 @@ emptyParams <- function(object, min_w = 0.001, max_w = 1000, no_w = 100,
 #' data(inter)
 #' params <- multispeciesParams(NS_species_params_gears, inter)
 multispeciesParams <- function(object, interaction,
-                    min_w = 0.001, max_w = max(object$w_inf) * 1.1, no_w = 100,
-                    min_w_pp = 1e-10, no_w_pp = NA,
+                    min_w = 0.001, max_w = NA, no_w = 100,
+                    min_w_pp = NA, no_w_pp = NA,
                     n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
                     kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
                     f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
@@ -579,11 +583,22 @@ multispeciesParams <- function(object, interaction,
     row.names(object) <- object$species
     no_sp <- nrow(object)
     
+    if (!is.na(max_w)) {
+        message("Note: The max_w argument will be ignored. The fish spectrum extends to the asymptotic size of the largest species.")
+    }
+    
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
     
     ## Set default values for missing values in species params  --------------
+    
+    if (!("w_min" %in% colnames(object))) {
+        object$w_min <- min_w
+    } else {
+        min_w <- min(object$w_min)
+    }
+    
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object))) {
         object$gear <- object$species
@@ -699,6 +714,23 @@ multispeciesParams <- function(object, interaction,
     
     # Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
     check_species_params_dataframe(object)
+    
+    max_w <- max(object$w_inf)
+    
+    # If no provided, set min_w_pp so that all fish have their full feeding 
+    # kernel inside plankton spectrum
+    min_w_feeding <- object$w_min / object$beta / exp(3 * object$sigma)
+    if (is.na(min_w_pp)) {
+        min_w_pp <- min(min_w_feeding)
+    } else {
+        hungry_sp <- object$species[min_w_feeding < min_w_pp]
+        if (length(hungry_sp) > 0) {
+            message(paste(
+                "Note: The following species have feeding kernels that extend",
+                "below the smallest plankton size specified by min_w_pp:",
+                toString(hungry_sp)))
+        }
+    }
     
     ## Make an empty object of the right dimensions -----------------------------
     res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  

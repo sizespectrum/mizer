@@ -85,7 +85,7 @@ NULL
 #' @param knife_is_min Is the knife-edge selectivity function selecting above 
 #'   (TRUE) or below (FALSE) the edge. Default is TRUE.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the 
-#'   species used to represent the community is set to 0.9 * this value. The 
+#'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
@@ -120,7 +120,7 @@ set_community_model <- function(max_w = 1e6,
                                 recruitment = kappa * min_w^-lambda,
                                 rec_mult = 1,
                                 ...) {
-    w_inf <- max_w * 0.9
+    w_inf <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
     p <- n # But not used as ks = 0
@@ -153,7 +153,7 @@ set_community_model <- function(max_w = 1e6,
         return(species_params$constant_recruitment)
     }
     com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
-                              kappa = kappa, min_w = min_w, max_w = max_w, 
+                              kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@srr <- constant_recruitment
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
@@ -210,9 +210,10 @@ set_community_model <- function(max_w = 1e6,
 #' @param max_w_inf The asymptotic size of the largest species in the community.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w The smallest size of the community spectrum.
-#' @param max_w The largest size of the community spectrum. Default value is the
-#'   largest w_inf in the community x 1.1.
-#' @param min_w_pp The smallest size of the plankton spectrum.
+#' @param max_w Obsolete argument because the maximum size of the consumer
+#'   spectrum is set to max_w_inf.
+#' @param min_w_pp Obsolete argument because the smallest plankton size is set
+#'   to the smallest size at which the consumers feed.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
@@ -279,8 +280,7 @@ set_trait_model <- function(no_sp = 10,
                             max_w_inf = 1e5,
                             no_w = 100,
                             min_w = 0.001,
-                            max_w = max_w_inf * 1.1,
-                            min_w_pp = 1e-10,
+                            min_w_pp = NA,
                             no_w_pp = NA,
                             w_pp_cutoff = 1,
                             k0 = 50, # recruitment adjustment parameter
@@ -342,9 +342,7 @@ set_trait_model <- function(no_sp = 10,
         MizerParams(
             trait_params_df,
             min_w = min_w,
-            max_w = max_w,
             no_w = no_w,
-            min_w_pp = min_w_pp,
             w_pp_cutoff = w_pp_cutoff,
             n = n,
             p = p,
@@ -501,8 +499,8 @@ change_pred_kernel <- function(params, pred_kernel) {
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
 #'   is such that there are 100 bins for each factor of 10 in weight.
-#' @param min_w_pp The smallest size of the plankton spectrum. Default value
-#'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+#' @param min_w_pp Obsolete argument because the smallest plankton size is now
+#'   set so that it covers the entire range of the
 #'   feeding kernel of even the smallest fish larva.
 #' @param w_pp_cutoff The largest size of the plankton spectrum. Default
 #'   value is max_w_inf unless \code{perfect = TRUE} when it is Inf.
@@ -551,7 +549,7 @@ set_scaling_model <- function(no_sp = 11,
                               min_egg = 10 ^ (-4),
                               min_w_mat = 10 ^ (0.4),
                               no_w = log10(max_w_inf / min_egg) * 100 + 1,
-                              min_w_pp = min_egg / (beta * exp(5 * sigma)),
+                              min_w_pp = NA,
                               w_pp_cutoff = min_w_inf,
                               n = 2 / 3,
                               q = 3 / 4,
@@ -669,9 +667,7 @@ set_scaling_model <- function(no_sp = 11,
             f0 = f0,
             kappa = kappa,
             min_w = min_w,
-            max_w = max_w,
             no_w = no_w,
-            min_w_pp = min_w_pp,
             w_pp_cutoff = max_w,
             r_pp = r_pp
         )
@@ -1067,9 +1063,7 @@ addSpecies <- function(params, species_params, SSB = NA,
         f0 = params@f0,
         kappa = params@kappa,
         min_w = min(params@w),
-        max_w = max(params@w),
         no_w = length(params@w),
-        min_w_pp = min(params@w_full),
         w_pp_cutoff = max(params@w_full),
         r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
     )
