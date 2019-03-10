@@ -99,21 +99,22 @@ getAvailEnergy <- function(object, n, n_pp) {
     prey[, idx_sp] <- object@interaction %*% n
     # The vector f2 equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
-    # We work in log-space so an extra multiplier w_p is introduced.
-    f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
-    # Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
+    prey <- sweep(sweep(prey, 2, n_pp, "+"), 2, 
+                object@w_full * object@dw_full, "*")
+    # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
     # We approximate the integral by the trapezoidal method. Using the
     # convolution theorem we can evaluate the resulting sum via fast fourier
     # transform.
     # mvfft() does a Fourier transform of each column of its argument, but
     # we need the Fourier transforms of each row, so we need to apply mvfft()
     # to the transposed matrices and then transpose again at the end.
-    avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)),
+    avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(prey)),
                                inverse = TRUE))) / length(object@w_full)
     # Only keep the bit for fish sizes
     avail_energy <- avail_energy[, idx_sp, drop = FALSE]
-    # Due to numerical errors we might get negative entries. They should be 0
-    avail_energy[avail_energy < 0] <- 0
+    # Due to numerical errors we might get negative or very small entries that
+    # should be 0
+    avail_energy[avail_energy < 1e-18] <- 0
     
     dimnames(avail_energy) <- dimnames(object@metab)
     return(avail_energy)
@@ -273,28 +274,21 @@ getPredRate <- function(object, n,  n_pp,
 
     # Get indices of w_full that give w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
-    # get period used in spectral integration
-    no_P <- length(object@ft_pred_kernel_p[1, ])
-    # We express the intermediate values as a a convolution integral involving
+    # We express the result as a a convolution  involving
     # two objects: Q[i,] and ft_pred_kernel_p[i,].
     # Here Q[i,] is all the integrand of (3.12) except the feeding kernel
-    # and theta, and we sample it from 0 to P, but it is only non-zero from
-    # fishEggSize to X, where P = X + beta + 3*sigma, and X is the max fish
-    # size in the log space
-
-    Q <- matrix(0, nrow = no_sp, ncol = no_P)
-    # We fill the middle of each row of Q with the proper values
+    # and theta
+    Q <- matrix(0, nrow = no_sp, ncol = no_w_full)
+    # We fill the end of each row of Q with the proper values
     Q[, idx_sp] <- sweep( (1 - feeding_level) * object@search_vol * n, 2,
-                         object@w, "*")
+                         object@dw, "*")
 
     # We do our spectral integration in parallel over the different species
     pred_rate <- Re(t(mvfft(t(object@ft_pred_kernel_p) *
-                                 mvfft(t(Q)), inverse = TRUE))) / no_P
-    # We drop some of the final columns to get our output
-    pred_rate <- pred_rate[, 1:no_w_full, drop = FALSE]
-    # Unfortunately due to numerical errors some entries might be negative
-    # So we have to set them to zero. Is this the fastest way to do that?
-    pred_rate[pred_rate <= 0] <- 0
+                                 mvfft(t(Q)), inverse = TRUE))) / no_w_full
+    # Due to numerical errors we might get negative or very small entries that
+    # should be 0
+    pred_rate[pred_rate < 1e-18] <- 0
     
     dimnames(pred_rate) <- list(sp = object@species_params$species,
                                 w_prey = names(n_pp))
