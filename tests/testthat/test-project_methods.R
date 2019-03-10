@@ -482,11 +482,11 @@ test_that("Test that fft based integrator gives similar result as old code", {
     # Test available energy integral
     afft <- getAvailEnergy(params, params@initial_n, params@initial_n_pp)
     a <- getAvailEnergy(params2, params@initial_n, params@initial_n_pp)
-    expect_equal(as.vector(afft), as.vector(a))
+    expect_equivalent(afft, a, tolerance = 1e-15)
     # Test available energy integral
     pfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     p <- getPredRate(params2, params@initial_n, params@initial_n_pp)
-    expect_equal(as.vector(pfft), as.vector(p))
+    expect_equivalent(pfft, p, tolerance = 1e-15)
 })
 
 test_that("project methods return objects of correct dimension when community only has one species",{
