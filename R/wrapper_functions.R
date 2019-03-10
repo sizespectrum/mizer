@@ -407,8 +407,8 @@ set_trait_model <- function(no_sp = 10,
 #'                        1, sigma, "/") ^ 2)
 #' pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
 #' 
-#' ## Create a new MizerParamsVariablePPMR object to use the new predation kernel
-#' params_old <- change_pred_kernel(params, pred_kernel = pk)
+#' ## Create a new MizerParams object to use the new predation kernel
+#' params_new <- change_pred_kernel(params, pred_kernel = pk)
 #' }
 change_pred_kernel <- function(params, pred_kernel) {
     if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
