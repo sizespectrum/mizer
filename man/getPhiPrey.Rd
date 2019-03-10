@@ -22,6 +22,9 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \details{
 This function is used by the \code{\link{project}} method for
 performing simulations.
+
+The function returns values also for sizes outside the size-range of the
+species. These values should not be trusted, as they are meaningless.
 }
 \examples{
 \dontrun{

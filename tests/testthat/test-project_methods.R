@@ -147,51 +147,6 @@ test_that("getPredRate approximates analytic result", {
     expect_equal(unname(pr[i]), ear, tolerance = 1e-14)
 })
 
-test_that("getPredRate gives similar result with or without fft", {
-    # We calculate predation rate using old code without fft
-    old_getPredRate <- function(params, n, n_pp, pk) {
-        feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp)
-        n_total_in_size_bins <-
-            sweep(n, 2, params@dw, '*', check.margin = FALSE) # N_i(w)dw
-        pred_rate <-
-            sweep(
-                pk,
-                c(1, 2),
-                (1 - feeding_level) * params@search_vol * n_total_in_size_bins,
-                "*",
-                check.margin = FALSE
-            )
-        return(colSums(aperm(pred_rate, c(2, 1, 3)), dims = 1))
-    }
-    
-    # Calculate predation kernel using old code
-    beta <- params@species_params$beta
-    sigma <- params@species_params$sigma
-    w <- params@w
-    w_full <- params@w_full
-    pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-    pk <- exp(-0.5 * sweep(log(sweep(sweep(pk, 3, w_full, "*") ^ -1, 2, w, "*")), 1, sigma, "/") ^ 2)
-    # find out the untrues and then multiply
-    pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
-    
-    # Initial n and n_pp
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getPredRate(params, n, n_pp, pk)
-    new <- getPredRate(params, n, n_pp)
-    expect_true(max(abs(old - new)) < 0.0001)
-    
-    # Different egg sizes
-    NS_species_params_gears$w_min <-
-        seq(0.001, 1, length.out = no_sp)
-    params <- MizerParams(NS_species_params_gears, inter)
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getPredRate(params, n, n_pp, pk)
-    new <- getPredRate(params, n, n_pp)
-    expect_true(max(abs(old - new)) < 0.0001)
-})
-
 
 # getPredMort -------------------------------------------------------------------
 
@@ -482,7 +437,9 @@ test_that("Test that fft based integrator gives similar result as old code", {
     # Test available energy integral
     afft <- getAvailEnergy(params, params@initial_n, params@initial_n_pp)
     a <- getAvailEnergy(params2, params@initial_n, params@initial_n_pp)
-    expect_equivalent(afft, a, tolerance = 1e-15)
+    # Only check values at fish sizes
+    fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
+    expect_equivalent(afft[fish], a[fish], tolerance = 2e-15)
     # Test available energy integral
     pfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     p <- getPredRate(params2, params@initial_n, params@initial_n_pp)

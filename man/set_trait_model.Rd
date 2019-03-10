@@ -5,13 +5,12 @@
 \title{Sets up parameters for a trait-based model}
 \usage{
 set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e+05,
-  no_w = 100, min_w = 0.001, max_w = max_w_inf * 1.1,
-  min_w_pp = 1e-10, no_w_pp = NA, w_pp_cutoff = 1, k0 = 50,
-  n = 2/3, p = 0.75, q = 0.9, eta = 0.25, r_pp = 4,
-  kappa = 0.005, lambda = 2 + q - n, alpha = 0.6, ks = 4,
-  z0pre = 0.6, h = 30, beta = 100, sigma = 1.3, f0 = 0.5,
-  gamma = NA, knife_edge_size = 1000, gear_names = "knife_edge_gear",
-  ...)
+  no_w = 100, min_w = 0.001, min_w_pp = NA, no_w_pp = NA,
+  w_pp_cutoff = 1, k0 = 50, n = 2/3, p = 0.75, q = 0.9,
+  eta = 0.25, r_pp = 4, kappa = 0.005, lambda = 2 + q - n,
+  alpha = 0.6, ks = 4, z0pre = 0.6, h = 30, beta = 100,
+  sigma = 1.3, f0 = 0.5, gamma = NA, knife_edge_size = 1000,
+  gear_names = "knife_edge_gear", ...)
 }
 \arguments{
 \item{no_sp}{The number of species in the model. The default value is 10. The
@@ -26,10 +25,8 @@ community.}
 
 \item{min_w}{The smallest size of the community spectrum.}
 
-\item{max_w}{The largest size of the community spectrum. Default value is the
-largest w_inf in the community x 1.1.}
-
-\item{min_w_pp}{The smallest size of the plankton spectrum.}
+\item{min_w_pp}{Obsolete argument because the smallest plankton size is set
+to the smallest size at which the consumers feed.}
 
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
@@ -82,6 +79,9 @@ species. Must be of length 1 or no_sp.}
 same length as the number of species. Default is 1 - no_sp.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
+
+\item{max_w}{Obsolete argument because the maximum size of the consumer
+spectrum is set to max_w_inf.}
 }
 \value{
 An object of type \code{MizerParams}

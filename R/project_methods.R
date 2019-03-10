@@ -42,6 +42,10 @@ NULL
 #' 
 #' This function is used by the \code{\link{project}} method for
 #' performing simulations.
+#' 
+#' The function returns values also for sizes outside the size-range of the
+#' species. These values should not be trusted, as they are meaningless.
+#' 
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -215,12 +219,11 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 
 #' Get predation rate
 #' 
-#' Calculates the predation rate of each predator species at size on prey size. 
+#' Calculates the potential rate at which a prey individual of a given size 
+#' \eqn{w} is killed by predators from species \eqn{i}. 
 #' In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
-#' This method is used by the \code{\link{project}} method for performing
-#' simulations. In the simulations, it is combined with the interaction matrix
-#' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
-#' (see \code{\link{getPredMort}}).
+#' This potential rate is used in the function \code{\link{getPredMort}} to
+#' calculate the realised predation mortality rate on the prey individual.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the plankton abundance by size.
@@ -231,8 +234,8 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over fish community plus plankton spectrum.
 #' @export
-#' @seealso \code{\link{project}}, \code{\link{getPredMort}}, 
-#'   \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
+#' @seealso \code{\link{getPredMort}} and
+#'   \code{\link{getFeedingLevel}}
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)

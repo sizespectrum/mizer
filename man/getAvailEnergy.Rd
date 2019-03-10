@@ -23,6 +23,9 @@ a function of predator size.
 \details{
 This function is used by the \code{\link{project}} method for
 performing simulations.
+
+The function returns values also for sizes outside the size-range of the
+species. These values should not be trusted, as they are meaningless.
 }
 \examples{
 \dontrun{

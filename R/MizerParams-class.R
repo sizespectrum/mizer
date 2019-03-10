@@ -705,7 +705,7 @@ multispeciesParams <- function(object, interaction,
     
     # If not provided, set min_w_pp so that all fish have their full feeding 
     # kernel inside plankton spectrum
-    min_w_feeding <- min_w / object$beta / exp(3 * object$sigma)
+    min_w_feeding <- object$w_min / object$beta / exp(3 * object$sigma)
     if (is.na(min_w_pp)) {
         min_w_pp <- min(min_w_feeding)
     } else {
@@ -802,8 +802,10 @@ multispeciesParams <- function(object, interaction,
     x_full <- log(res@w_full)
     # We choose the origin of the x axis to be at the smallest plankton size
     x_full <- x_full - x_full[1]
+    dx <- x_full[2] - x_full[1]
     # rr is the maximal log predator/prey mass ratio
     rr <- Beta + 3 * sigma
+    ri <- floor(rr / dx)
     
     res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = length(x_full))
     for (i in 1:no_sp) {
@@ -813,13 +815,13 @@ multispeciesParams <- function(object, interaction,
         phi[1] <- 0
         # Fourier transform of feeding kernel for evaluating available energy
         res@ft_pred_kernel_e[i, ] <- fft(phi)
-        # Fourier transform of feeding kernel for evaluating available energy
+        # Fourier transform of feeding kernel for evaluating predation rate
         phi_p <- rep(0, no_w_full)
-        min_w_idx <- no_w_full - no_w + 1  # Index of smallest consumer size
-        phi_p[(no_w_full - min_w_idx + 2):no_w_full] <- phi[min_w_idx:2]
+        phi_p[(no_w_full - ri[i] + 1):no_w_full] <- phi[(ri[i] + 1):2]
         res@ft_pred_kernel_p[i, ] <- fft(phi_p)
         # Full feeding kernel array
         if (store_kernel) {
+            min_w_idx <- no_w_full - no_w + 1
             for (k in seq_len(no_w)) {
                 res@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
                     phi[1:(min_w_idx - 1 + k)]
