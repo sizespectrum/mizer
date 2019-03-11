@@ -445,11 +445,15 @@ emptyParams <-
         
         # For fft methods we need a constant log bin size throughout. 
         # Therefore we use as many steps as are necessary so that the first size
-        # class includes min_w_pp. 
-        dx <- log10(max_w / min_w) / (no_w - 1)
+        # class includes min_w_pp.
         x_pp <- rev(seq(from = log10(min_w),
-                        to = log10(min_w_pp) - dx / 2,
+                        to = log10(min_w_pp),
                         by = -dx)) - dx
+        # If min_w_pp happened to lie exactly on a grid point, we now added
+        # one grid point to much which we need to remove again
+        if (x_pp[2] == log10(min_w_pp)) {
+            x_pp <- x_pp[2:length(x_pp)]
+        }
         w_full <- c(10^x_pp, w)
         no_w_full <- length(w_full)
         dw_full <- (10^dx - 1) * w_full	
@@ -542,7 +546,6 @@ emptyParams <-
 }
 
 
-
 #' Construct \code{MizerParams} object for multispecies model
 #'
 #' Provides default functional forms for all slots in the MizerParams object
@@ -559,12 +562,14 @@ emptyParams <-
 #'   This means that the order of the columns and rows of the interaction matrix
 #'   argument should be the same as the species name in the
 #'   \code{species_params} slot.
-#' @param min_w The smallest size of the community spectrum. This is ignored if
-#'   the egg sizes of the species are given in the species_params data frame.
-#' @param max_w Obsolete. The largest fish size is now set to the largest
-#'   w_inf specified in the species_params data frame.
+#' @param min_w The smallest size of the community spectrum. By default his is
+#'   set to the smallest w_min given in the species_params data frame, or to
+#'   0.001g if the w_min slot is missing.
+#' @param max_w The largest size of the community spectrum. By default this is
+#'   set to the largest w_inf specified in the species_params data frame.
 #' @param no_w The number of size bins in the community spectrum.
-#' @param min_w_pp The smallest size of the plankton spectrum.
+#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#'   is set so the smallest value at which any of the consumers can feed.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
@@ -653,10 +658,6 @@ multispeciesParams <-
     row.names(object) <- object$species
     no_sp <- nrow(object)
     
-    if (!is.na(max_w)) {
-        message("Note: The max_w argument will be ignored. The fish spectrum extends to the asymptotic size of the largest species.")
-    }
-    
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
@@ -666,7 +667,15 @@ multispeciesParams <-
     if (!("w_min" %in% colnames(object))) {
         object$w_min <- min_w
     } else {
-        min_w <- min(object$w_min)
+        if (missing(min_w)) {
+            min_w <- min(object$w_min)
+        } else {
+            if (min(object$w_min) < min_w) {
+                too_small <- object$species[min_w > object$w_min]
+                stop(paste0("Some of your species have an egg size smaller than min_w: ",
+                            toString(too_small)))
+            }
+        }
     }
     
     # If no gear_name column in object, then named after species
@@ -707,7 +716,7 @@ multispeciesParams <-
         object$sel_func <- 'knife_edge'
         # Set default selectivity size
         if (!("knife_edge_size" %in% colnames(object))) {
-            message("Note: \tNo knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
+            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
             object$knife_edge_size <- object$w_mat
         }
     }
@@ -727,7 +736,7 @@ multispeciesParams <-
         object$h <- rep(NA, no_sp)
     }
     if (any(is.na(object$h))) {
-        message("Note: \tNo h provided for some species, so using f0 and k_vb to calculate it.")
+        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(object))) {
             stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
         }
@@ -745,7 +754,7 @@ multispeciesParams <-
         object$gamma <- rep(NA, no_sp)
     }
     if (any(is.na(object$gamma))) {
-        message("Note: \tNo gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         lm2 <- lambda - 2
         ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
             exp(lm2^2 * object$sigma^2 / 2) *
@@ -768,13 +777,13 @@ multispeciesParams <-
     }
     missing <- is.na(object$z0)
     if (any(missing)) {
-        message("Note: \tUsing z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
         object$z0[missing] <- z0pre * object$w_inf[missing]^z0exp
     }
     
     # Sort out ks column
     if (!("ks" %in% colnames(object))) {
-        message("Note: \tNo ks column in species data frame so using ks = h * 0.2.")
+        message("Note: No ks column in species data frame so using ks = h * 0.2.")
         object$ks <- object$h * 0.2
     }
     missing <- is.na(object$ks)
@@ -785,7 +794,16 @@ multispeciesParams <-
     # Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
     check_species_params_dataframe(object)
     
-    max_w <- max(object$w_inf)
+    if (!is.na(max_w)) {
+        if (max_w < max(object$w_inf)) {
+            too_large <- object$species[max_w < object$w_inf]
+            stop(paste0("Some of your species have a maximum size larger than max_w: ",
+                        toString(too_large)))
+        }
+    } else {
+        max_w <- max(object$w_inf)
+    }
+    
     
     # If not provided, set min_w_pp so that all fish have their full feeding 
     # kernel inside plankton spectrum

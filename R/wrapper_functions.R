@@ -778,6 +778,7 @@ set_scaling_model <- function(no_sp = 11,
     
     ## Setup background death ----
     m2 <- getPredMort(params, initial_n, initial_n_pp)
+    flag <- FALSE
     for (i in 1:no_sp) {
         # The steplike psi was only needed when we wanted to use the analytic
         # expression for the steady-state solution
@@ -786,9 +787,11 @@ set_scaling_model <- function(no_sp = 11,
         # params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
         if (!perfect && any(params@mu_b[i,] < 0)) {
-            message("Note: Negative background mortality rates overwritten with zeros")
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
+    }
+    if (flag) {
+        message("Note: Negative background mortality rates overwritten with zeros")
     }
     
     ## Set erepro to meet boundary condition ----
@@ -1074,6 +1077,8 @@ addSpecies <- function(params, species_params, SSB = NA,
         f0 = params@f0,
         kappa = params@kappa,
         min_w = min(params@w),
+        max_w = max(params@w),
+        min_w_pp = min(params@w_full),
         no_w = length(params@w),
         w_pp_cutoff = max(params@w_full),
         r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]

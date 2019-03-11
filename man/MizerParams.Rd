@@ -24,15 +24,17 @@ This means that the order of the columns and rows of the interaction matrix
 argument should be the same as the species name in the
 \code{species_params} slot.}
 
-\item{min_w}{The smallest size of the community spectrum. This is ignored if
-the egg sizes of the species are given in the species_params data frame.}
+\item{min_w}{The smallest size of the community spectrum. By default his is
+set to the smallest w_min given in the species_params data frame, or to
+0.001g if the w_min slot is missing.}
 
-\item{max_w}{Obsolete. The largest fish size is now set to the largest
-w_inf specified in the species_params data frame.}
+\item{max_w}{The largest size of the community spectrum. By default this is
+set to the largest w_inf specified in the species_params data frame.}
 
 \item{no_w}{The number of size bins in the community spectrum.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum.}
+\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+is set so the smallest value at which any of the consumers can feed.}
 
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
