@@ -3,6 +3,7 @@
 language: R
 sudo: false
 cache: packages
+r_check_args: "--no-vignettes"
 
 branches:
   only:
