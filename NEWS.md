@@ -1,9 +1,15 @@
+
 # mizer development version
 
+* Added function to get diet of predators
+* Removed discrepancies between FFT method and old method for calculating integrals
+* Values for minimum plankton size, and minimum and maximum consumer sizes set
+  automatically
+* Allowing feeding kernel to be kept even when using FFT methods
+* Function change_pred_kernel() for changing predation kernel
+* Set names on arrays returned by getAvailEnergy and getPredRate
 * Correctly deal with NAs in species parameters.
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
-* Predation integrals now agree better with the analytic
-  results rather than the old mizer results.
 * `cc_pp` is calculated in a way that reduces rounding errors.
 * `set_scaling_model()` now produces perfectly scale-invariant model when
   called with `perfect = TRUE`.

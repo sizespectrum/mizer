@@ -100,5 +100,4 @@ test_that("w_min_idx is being set correctly", {
     expect_true(all(params@w_min_idx[c(1:6, 8:12)] == 1))
     expect_equal(params@w_min_idx[7], max(which(params@w <= 10)), 
                  check.names = FALSE)
-    expect_error(MizerParams(NS_species_params_gears, inter, min_w = 1))
 })

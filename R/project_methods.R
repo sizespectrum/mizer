@@ -42,6 +42,10 @@ NULL
 #' 
 #' This function is used by the \code{\link{project}} method for
 #' performing simulations.
+#' 
+#' The function returns values also for sizes outside the size-range of the
+#' species. These values should not be trusted, as they are meaningless.
+#' 
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -69,8 +73,8 @@ getAvailEnergy <- function(object, n, n_pp) {
     # If the feeding kernel does not have a fixed predator/prey mass ratio
     # then the integral is not a convolution integral and we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (is(object, "MizerParamsVariablePPMR")) {
-        # n_eff_prey is the total prey biomass density by size exposed to each
+    if (length(object@ft_pred_kernel_e) == 1) {
+        # n_eff_prey is the total prey abundance by size exposed to each
         # predator (prey not broken into species - here we are just working out
         # how much a predator eats - not which species are being eaten - that is
         # in the mortality calculation
@@ -100,21 +104,25 @@ getAvailEnergy <- function(object, n, n_pp) {
     prey[, idx_sp] <- object@interaction %*% n
     # The vector f2 equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
-    # We work in log-space so an extra multiplier w_p is introduced.
-    f2 <- sweep(sweep(prey, 2, n_pp, "+"), 2, object@w_full^2, "*")
-    # Eq (3.4) is then a convolution integral in terms of f2[w_p] and phi[w_p/w].
+    prey <- sweep(sweep(prey, 2, n_pp, "+"), 2, 
+                object@w_full * object@dw_full, "*")
+    # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
     # We approximate the integral by the trapezoidal method. Using the
     # convolution theorem we can evaluate the resulting sum via fast fourier
     # transform.
     # mvfft() does a Fourier transform of each column of its argument, but
     # we need the Fourier transforms of each row, so we need to apply mvfft()
     # to the transposed matrices and then transpose again at the end.
-    avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(f2)),
+    avail_energy <- Re(t(mvfft(t(object@ft_pred_kernel_e) * mvfft(t(prey)),
                                inverse = TRUE))) / length(object@w_full)
-    # Due to numerical errors we might get negative entries. They should be 0
-    avail_energy[avail_energy < 0] <- 0
-
-    return(avail_energy[, idx_sp, drop = FALSE])
+    # Only keep the bit for fish sizes
+    avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+    # Due to numerical errors we might get negative or very small entries that
+    # should be 0
+    avail_energy[avail_energy < 1e-18] <- 0
+    
+    dimnames(avail_energy) <- dimnames(object@metab)
+    return(avail_energy)
 }
 
 #' Alias for getAvailEnergy
@@ -127,7 +135,7 @@ getPhiPrey <- getAvailEnergy
 
 #' Get feeding level
 #'
-#' Calculates the feeding level \eqn{f_i(w)} as a by predator size based on food
+#' Calculates the feeding level \eqn{f_i(w)} by predator size based on food
 #' availability, search volume and maximum intake. The feeding level is the
 #' proportion of the encountered food that is actually consumed. This method is
 #' used by the \code{\link{project}} method for performing simulations.
@@ -145,7 +153,7 @@ getPhiPrey <- getAvailEnergy
 #'   single value. Default is the whole time range. Only used if the
 #'   \code{object} argument is of type \code{MizerSim}.
 #' @param drop should extra dimensions of length 1 in the output be dropped,
-#'   simplifying the output. Defaults to TRUE.
+#'   simplifying the output. Defaults to FALSE.
 #'
 #' @note If a \code{MizerParams} object is passed in, the method returns a two
 #'   dimensional array (predator species x predator size) based on the
@@ -173,7 +181,7 @@ getPhiPrey <- getAvailEnergy
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
 getFeedingLevel <- function(object, n, n_pp, avail_energy,
-                            time_range, drop=FALSE){
+                            time_range, drop = FALSE) {
     if (is(object, "MizerParams")) {
         if (missing(avail_energy)) {
             avail_energy <- getAvailEnergy(object, n, n_pp)
@@ -212,12 +220,11 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 
 #' Get predation rate
 #' 
-#' Calculates the predation rate of each predator species on prey size. 
-#' In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
-#' This method is used by the \code{\link{project}} method for performing
-#' simulations. In the simulations, it is combined with the interaction matrix
-#' (see \code{\link{MizerParams}}) to calculate the realised predation mortality
-#' (see \code{\link{getPredMort}}).
+#' Calculates the potential rate at which a prey individual of a given size 
+#' \eqn{w} is killed by predators from species \eqn{i}. In formulas 
+#' \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+#' This potential rate is used in the function \code{\link{getPredMort}} to
+#' calculate the realised predation mortality rate on the prey individual.
 #' @param object A \code{MizerParams} object.
 #' @param n A matrix of species abundance (species x size).
 #' @param n_pp A vector of the plankton abundance by size.
@@ -228,8 +235,8 @@ getFeedingLevel <- function(object, n, n_pp, avail_energy,
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over fish community plus plankton spectrum.
 #' @export
-#' @seealso \code{\link{project}}, \code{\link{getPredMort}}, 
-#'   \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
+#' @seealso \code{\link{getPredMort}} and
+#'   \code{\link{getFeedingLevel}}
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -257,7 +264,7 @@ getPredRate <- function(object, n,  n_pp,
     # If the feeding kernel does not have a fixed predator/prey mass ratio
     # then the integral is not a convolution integral and we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (is(object, "MizerParamsVariablePPMR")) {
+    if (length(object@ft_pred_kernel_p) == 1) {
         n_total_in_size_bins <- sweep(n, 2, object@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
         pred_rate <- sweep(object@pred_kernel, c(1,2),
@@ -271,28 +278,25 @@ getPredRate <- function(object, n,  n_pp,
 
     # Get indices of w_full that give w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
-    # get period used in spectral integration
-    no_P <- length(object@ft_pred_kernel_p[1, ])
-    # We express the intermediate values as a a convolution integral involving
+    # We express the result as a a convolution  involving
     # two objects: Q[i,] and ft_pred_kernel_p[i,].
     # Here Q[i,] is all the integrand of (3.12) except the feeding kernel
-    # and theta, and we sample it from 0 to P, but it is only non-zero from
-    # fishEggSize to X, where P = X + beta + 3*sigma, and X is the max fish
-    # size in the log space
-
-    Q <- matrix(0, nrow = no_sp, ncol = no_P)
-    # We fill the middle of each row of Q with the proper values
+    # and theta
+    Q <- matrix(0, nrow = no_sp, ncol = no_w_full)
+    # We fill the end of each row of Q with the proper values
     Q[, idx_sp] <- sweep( (1 - feeding_level) * object@search_vol * n, 2,
-                         object@w, "*")
+                         object@dw, "*")
 
     # We do our spectral integration in parallel over the different species
     pred_rate <- Re(t(mvfft(t(object@ft_pred_kernel_p) *
-                                 mvfft(t(Q)), inverse = TRUE))) / no_P
-    # Unfortunately due to numerical errors some entries might be negative
-    # So we have to set them to zero. Is this the fastest way to do that?
-    pred_rate[pred_rate < 0] <- 0
-    # We drop some of the final columns to get our output
-    return(pred_rate[, 1:no_w_full, drop = FALSE])
+                                 mvfft(t(Q)), inverse = TRUE))) / no_w_full
+    # Due to numerical errors we might get negative or very small entries that
+    # should be 0
+    pred_rate[pred_rate < 1e-18] <- 0
+    
+    dimnames(pred_rate) <- list(sp = object@species_params$species,
+                                w_prey = names(n_pp))
+    return(pred_rate)
 }
 
 

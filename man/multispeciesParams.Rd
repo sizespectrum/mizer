@@ -4,11 +4,11 @@
 \alias{multispeciesParams}
 \title{Construct \code{MizerParams} object for multispecies model}
 \usage{
-multispeciesParams(object, interaction, min_w = 0.001,
-  max_w = max(object$w_inf) * 1.1, no_w = 100, min_w_pp = 1e-10,
-  no_w_pp = NA, n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
-  kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6,
-  z0pre = 0.6, z0exp = n - 1)
+multispeciesParams(object, interaction, min_w = 0.001, max_w = NA,
+  no_w = 100, min_w_pp = NA, no_w_pp = NA, n = 2/3, p = 0.7,
+  q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
+  w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
+  store_kernel = (no_w <= 100))
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -24,10 +24,11 @@ This means that the order of the columns and rows of the interaction matrix
 argument should be the same as the species name in the
 \code{species_params} slot.}
 
-\item{min_w}{The smallest size of the community spectrum.}
+\item{min_w}{The smallest size of the community spectrum. This is ignored if
+the egg sizes of the species are given in the species_params data frame.}
 
-\item{max_w}{The largest size of the community spectrum.
-Default value is the largest w_inf in the community x 1.1.}
+\item{max_w}{Obsolete. The largest fish size is now set to the largest
+w_inf specified in the species_params data frame.}
 
 \item{no_w}{The number of size bins in the community spectrum.}
 
@@ -57,7 +58,7 @@ is 10.}
 if those are not columns in the species data frame. Also requires
 \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
 data frame. If \code{h} and \code{gamma} are supplied then this argument is
-ignored. Default is 0.6..}
+ignored. Default is 0.6.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
@@ -66,6 +67,18 @@ Default value is 0.6.}
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is n-1.}
+
+\item{store_kernel}{A boolean flag that determines whether the full
+feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
+The default is TRUE if the number of size bins is no larger than 100 and
+FALSE otherwise.}
+
+\item{species_names}{Names of the species. Generally not needed as normally
+taken from the \code{object} data.frame.}
+
+\item{gear_names}{Names of the gears that catch each species. Generally not
+needed as normally taken from the \code{object} data.frame. Default is
+\code{species_names}.}
 
 \item{...}{Additional arguments.}
 }

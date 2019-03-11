@@ -33,15 +33,18 @@ lm2 <- p@lambda - 2
 test_that("getAvailEnergy approximates analytic result", {
     ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
     # Check that this is constant
-    expect_equal(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
+    expect_equivalent(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
     # Check that it agrees with analytic result
+    Dx <- p@w[2] / p@w[1] - 1
+    dx <- log(p@w[2] / p@w[1])
     avail_energy_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * 
         # The following factor takes into account the cutoff in the integral
-        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
-    expect_equal(ea[1], avail_energy_analytic, tolerance = 1e-6)
+        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) *
+        Dx / dx
+    expect_equivalent(ea[1], avail_energy_analytic, tolerance = 1e-6)
     
-    # Check that it agrees with Riemann sum from w-Beta-3*sigma to w 
+    # Check that it agrees with left Riemann sum from w-Beta-3*sigma to w 
     Beta <- log(beta)
     x_full <- log(p@w_full)
     dx <- x_full[2] - x_full[1]
@@ -50,49 +53,14 @@ test_that("getAvailEnergy approximates analytic result", {
     # Choose some predator weight w[i]
     i <- jj + 100
     ear <- 0
-    # The following corresponds to the right Riemann sum because the sum
-    # goes all the way to the right limit of j == i
-    for (j in (i - jj + 1):i) {
+    # Calculate left Riemann sum
+    for (j in (i - jj + 1):(i - 1)) {
         ear <- ear + p@w_full[j]^(2 - p@lambda) * 
             exp(-(x_full[i] - x_full[j] - Beta)^2 / (2 * sigma^2))
     }
     ear <- ear * p@kappa * p@w_full[i]^(p@lambda - 2) * dx
-    expect_equal(ea[1], ear, tolerance = 1e-14)
+    expect_equivalent(ea[1], ear * Dx / dx, tolerance = 1e-14)
 })
-
-# test_that("Test that fft based integrator gives similar result as old code",{
-#     # Agreement will not be very good because we now prefer the new code to be
-#     # close to analytic results rather than close to old mizer code.
-# 
-#     # Calculate predation kernel using old code
-#     beta <- params@species_params$beta
-#     sigma <- params@species_params$sigma
-#     w <- params@w
-#     w_full <- params@w_full
-#     pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-#     pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
-#     pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*") # find out the untrues and then multiply
-# 
-#     # Initial n and n_pp
-#     n <- get_initial_n(params)
-#     n_pp <- params@cc_pp
-# 
-#     params_old <- change_pred_kernel(params, pred_kernel = pk)
-#     old <- getAvailEnergy(params_old, n, n_pp)
-#     new <- getAvailEnergy(params, n, n_pp)
-#     expect_lt(max(abs(log(old/new))), 0.1)
-# 
-#     # Different egg sizes
-#     NS_species_params_gears$w_min <- seq(0.001, 1, length.out = no_sp)
-#     params <- MizerParams(NS_species_params_gears, inter)
-#     params_old <- change_pred_kernel(params, pred_kernel = pk)
-#     n <- get_initial_n(params)
-#     n_pp <- params@cc_pp
-#     old <- getAvailEnergy(params_old, n, n_pp)
-#     new <- getAvailEnergy(params, n, n_pp)
-#     expect_lt(max(abs(log(old/new))), 0.1)
-# 
-# })
 
 
 # getFeedingLevel -----------------------------------------
@@ -177,51 +145,6 @@ test_that("getPredRate approximates analytic result", {
     }
     ear <- ear * (1 - f0) * p@kappa * gamma * p@w_full[i]^(1 - p@n) * dx
     expect_equal(unname(pr[i]), ear, tolerance = 1e-14)
-})
-
-test_that("getPredRate gives similar result as old code", {
-    # We calculate predation rate using old code without fft
-    old_getPredRate <- function(params, n, n_pp, pk) {
-        feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp)
-        n_total_in_size_bins <-
-            sweep(n, 2, params@dw, '*', check.margin = FALSE) # N_i(w)dw
-        pred_rate <-
-            sweep(
-                pk,
-                c(1, 2),
-                (1 - feeding_level) * params@search_vol * n_total_in_size_bins,
-                "*",
-                check.margin = FALSE
-            )
-        return(colSums(aperm(pred_rate, c(2, 1, 3)), dims = 1))
-    }
-    
-    # Calculate predation kernel using old code
-    beta <- params@species_params$beta
-    sigma <- params@species_params$sigma
-    w <- params@w
-    w_full <- params@w_full
-    pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-    pk <- exp(-0.5 * sweep(log(sweep(sweep(pk, 3, w_full, "*") ^ -1, 2, w, "*")), 1, sigma, "/") ^ 2)
-    # find out the untrues and then multiply
-    pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
-    
-    # Initial n and n_pp
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getPredRate(params, n, n_pp, pk)
-    new <- getPredRate(params, n, n_pp)
-    expect_true(max(abs(old - new)) < 0.0001)
-    
-    # Different egg sizes
-    NS_species_params_gears$w_min <-
-        seq(0.001, 1, length.out = no_sp)
-    params <- MizerParams(NS_species_params_gears, inter)
-    n <- get_initial_n(params)
-    n_pp <- params@cc_pp
-    old <- old_getPredRate(params, n, n_pp, pk)
-    new <- getPredRate(params, n, n_pp)
-    expect_true(max(abs(old - new)) < 0.0001)
 })
 
 
@@ -499,6 +422,29 @@ test_that("getEGrowth is working", {
 
 # general -----------------------------------------------------------------
 
+test_that("Test that fft based integrator gives similar result as old code", {
+    # Make it harder by working with kernels that need a lot of cutoff
+    species_params <- NS_species_params_gears
+    species_params$sigma[3] <- 3
+    species_params$beta <- species_params$beta / 100
+    # and use different egg sizes
+    species_params$w_min <- seq(0.001, 1, length.out = no_sp)
+    params <- MizerParams(species_params, inter, no_w = 30)
+    # create a second params object that does not use fft
+    params2 <- params
+    params2@ft_pred_kernel_e <- array()
+    params2@ft_pred_kernel_p <- array()
+    # Test available energy integral
+    afft <- getAvailEnergy(params, params@initial_n, params@initial_n_pp)
+    a <- getAvailEnergy(params2, params@initial_n, params@initial_n_pp)
+    # Only check values at fish sizes
+    fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
+    expect_equivalent(afft[fish], a[fish], tolerance = 2e-15)
+    # Test available energy integral
+    pfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
+    p <- getPredRate(params2, params@initial_n, params@initial_n_pp)
+    expect_equivalent(pfft, p, tolerance = 1e-15)
+})
 
 test_that("project methods return objects of correct dimension when community only has one species",{
     params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)

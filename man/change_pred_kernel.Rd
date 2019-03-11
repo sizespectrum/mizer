@@ -14,7 +14,7 @@ that holds the predation coefficient of each predator at size on
 each prey size. The dimensions are thus no_sp, no_w, no_w_full.}
 }
 \value{
-A \linkS4class{MizerParamsVariablePPMR} object
+A \linkS4class{MizerParams} object
 }
 \description{
 One way to set up a model with size-dependent predator/prey mass ratio
@@ -34,11 +34,12 @@ beta <- params@species_params$beta
 sigma <- params@species_params$sigma
 w <- params@w
 w_full <- params@w_full
-pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
-pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*")
+pk = array(beta, dim = c(length(beta),length(w), length(w_full)))
+pk <- exp(-0.5 * sweep(log(sweep(sweep(pk, 3, w_full, "*") ^ -1, 2, w, "*")),
+                       1, sigma, "/") ^ 2)
+pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
 
-## Create a new MizerParamsVariablePPMR object to use the new predation kernel
-params_old <- change_pred_kernel(params, pred_kernel = pk)
+## Create a new MizerParams object to use the new predation kernel
+params_new <- change_pred_kernel(params, pred_kernel = pk)
 }
 }

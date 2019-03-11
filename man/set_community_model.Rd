@@ -12,7 +12,7 @@ set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 0.1,
 }
 \arguments{
 \item{max_w}{The maximum size of the community. The \code{w_inf} of the 
-species used to represent the community is set to 0.9 * this value. The 
+species used to represent the community is set to this value. The 
 default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
