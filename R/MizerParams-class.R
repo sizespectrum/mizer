@@ -614,10 +614,9 @@ emptyParams <-
 #'   object is created. See the accompanying vignette for details of these
 #'   columns.
 #'   
+#' \if{html}{
 #' The following table gives different components of a species parameters data.frame.
-#'   
-#'   
-#'   \tabular{lll}{
+#' \tabular{lll}{
 #'   Column name \tab Description \tab Default value \cr
 #'   species \tab Name of the species \tab Compulsory (no default) \cr
 #'   w_inf \tab The asymptotic mass of the species \tab Compulsory (no default) \cr
@@ -632,8 +631,8 @@ emptyParams <-
 #'   k \tab Activity coefficient \tab 0 \cr
 #'   alpha \tab Assimilation efficiency \tab 0.6 \cr
 #'   erepro \tab Reproductive efficiency \tab 1 \cr
-#'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum \cr
-#' }
+#'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum
+#' }}
 #'   
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
 #' @export
