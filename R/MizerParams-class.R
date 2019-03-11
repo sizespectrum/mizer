@@ -291,6 +291,9 @@ validMizerParams <- function(object) {
 #'   abundances or harvest effort through time. These are held in
 #'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
+#'   \code{\link{emptyParams}} \code{\link{multispeciesParams}}
+#'   \code{\link{set_community_model}}
+#'   \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 #' @export
 setClass(
     "MizerParams",

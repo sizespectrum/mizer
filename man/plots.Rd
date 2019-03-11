@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plots}
 \alias{plots}
-\title{Plots}
+\title{Plotting functions}
 \description{
 Here we describe the plotting methods for the MizerSim class.
 }

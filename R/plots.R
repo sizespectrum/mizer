@@ -1,4 +1,4 @@
-#' Plots
+#' Plotting functions
 #' 
 #' Here we describe the plotting methods for the MizerSim class.
 #'

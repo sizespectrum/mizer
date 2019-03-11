@@ -34,7 +34,7 @@ https://groups.google.com/forum/#!forum/size-spectrum-models
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and therefore
 available from R's build-it package manager.
 See the accompanying
-[vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
+[website](http://gustavdelius.github.io/mizer/)
 for more details on how the package works, including detailed examples.
 
 
