@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_methods.R
 \name{getDiet}
 \alias{getDiet}
-\title{Get diet of predator resolved by prey species}
+\title{Get diet of predator at size, resolved by prey species}
 \usage{
 getDiet(params, n, n_pp)
 }

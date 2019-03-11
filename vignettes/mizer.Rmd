@@ -7,97 +7,118 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+## Overview
 The mizer package implements multi-species size-based modelling in R. It has 
 been designed for modelling marine ecosystems.
+The general model is described in the section [Model Description].
 
-Using mizer is relatively simple.  There are three main stages: 
+Using mizer is relatively simple.  There are four main stages, each
+described in more detail in sections below.
 
-1. Setting the model parameters. This is done by creating an object of 
-class \code{MizerParams}. This includes model parameters such as the life 
-history parameters of each species, and the range of the size spectrum.
+1. [Installing mizer]. 
 
-2. Running a simulation. This is done by calling the \code{project()} 
-method on the model parameters. This produces an object of \code{MizerSim} 
-which contains the results of the simulation.
+2. [Setting the model parameters]. 
 
-3. Exploring results. After a simulation has been run, the results can be 
-explored using a range of plots and summaries. 
+3. [Running a simulation].
+
+4. [Exploring the results].
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) explaining how to use and install mizer.
-Perhaps the easiest way for newcomers to get into using mizer is to access 
-[the online app](https://mizer.shinyapps.io/selectivity/). However, to enjoy the 
-full functionality of mizer we recommend the user installs it with R, as 
-described below: 
+
+## Model Description
+
 
 ## Installing mizer
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/GsdE14HMQGE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-mizer is a package for the R open-source statistical programming language. R is 
-available from the CRAN website, which is also an excellent source of
-documentation and tutorials.
-
-The easiest way to install mizer (assuming you have an active internet
-connection) is to start an session and then type:
-
-```{r, eval=FALSE}
-install.packages("mizer")
-```
-
-After installing mizer, to actually use it you need to load the package using
-the \code{library()} function. Note that whilst you only need to install the
-package once, it will need to be loaded every time you start a new R session.
-
-```{r, eval=FALSE}
-library(mizer)
-```
-
-The source code for mizer is hosted on
-[Github.](https://github.com/sizespectrum/mizer) If you are feeling brave and
-wish to try out a development version of mizer you can install the package from
-here using the R package devtools (which was used extensively in putting
-together mizer).
-
-## Getting help in R
-
-As you probably know, to access documentation in R you can use the \code{help()}
-function. This can be used to access package documentation in a range of ways.
-For example:
-
-```{r, eval=FALSE}
-help(package="mizer")
-help(mizer)
-help(project)
-```
-
-The first command gives a technical summary of the package, including the
-available functions.
-The second command gives a brief introduction to mizer.
-The third gives the documentation page for the method \code{project()}.
-
-Some methods are associated with several R classes. For example, the
-\code{plot()} method is generic and can be used on a wide range of R objects.
-The \code{plot()} method has been overloaded in mizer to plot MizerSim objects. 
-To select the help page for the appropriate plotting method you can either just
-use \code{help(plot)} and then select from a menu of packages or you can supply
-the package name in the \code{help()} command:
-
-```{r, eval=FALSE}
-help(plot, package="mizer")
-```
-To access the the help page of a particular function you can use:
-\code{? function-name}. For example, to access the help page of the
-\code{getFeedingLevel()} function you can use:
-
-```{r, eval=FALSE}
-? getFeedingLevel
-```
-
-Slightly different syntax is used to get information on a class. For example, to get the help
-page on the MizerParams class you can use:
-
-```{r, eval=FALSE}
-class ? MizerParams
-```
 
 
+
+## Setting the model parameters
+
+With mizer it is possible to implement the community, trait-based, multispecies
+and scale-invariant trait-based models, using the same basic tools and methods.
+Using the package is relatively simple. 
+    
+Setting the model parameters is done by creating an object of `class ?
+MizerParams`. This includes model parameters such as the life history parameters
+of each species, and the fishing gears. It is possible to create a MizerParams
+object directly using the class constructor or by using one of the convenient
+wrapper functions provided in the package.
+
+
+It is probably easier to learn the basics of mizer through examples. We do this
+by looking at four set-ups of the framework: [the community model](community_model.html), [the trait-based model](trait_model.html), [the multispecies model](multispecies_model.html) and [the scale-invariant model.](scale_invariant_trait_based_model.html)  Of these models, the community model is the simplest and the
+multi-species model the most complex.  The common denominator is the reliance of
+a size-based description of the structure of the fish community and of the
+predator-prey interactions between individuals.
+
+In the community model, individuals are only characterized by their size and are
+represented by a single group representing an across species average. Community
+size spectrum models have been used to investigate how abundance size spectra
+emerge solely from individual-level process of size-based predation and how
+fishing impacts metrics of community-level size spectra. Since few parameters
+are required it has been used for investigating large-scale community-level
+questions where detailed trait- and species-level parameterisations are not
+tractable.
+
+The trait-based model resolves a continuum of species with varying asymptotic
+sizes. The asymptotic size is considered to be the most important
+trait that characterizes the species life history.
+The continuum is represented by a discrete number of species spread evenly over
+the range of asymptotic sizes. The number of species is not important and does
+not affect the general dynamics of the model.
+Many of the parameters, such as the preferred predator-prey mass ratio  are the same for all
+species. Other model parameters are determined by the asymptotic size.
+For example, the weight at maturation of each species is a set fraction of the asymptotic size.
+In the trait-based model species-level complexity is captured through different life histories, and both
+intra- and inter-specific size spectra emerge.
+This approach is powerful for examining the generic population and whole
+community level responses to both size and species selective fishing without the
+requirement for detailed species-specific parameters.
+
+In the multispecies model individual species are resolved in detail and each has
+distinct life history, feeding and reproduction parameters. More detailed
+information is required to parameterise the multispecies model but the approach
+can be used to address management strategies for a realistic community in a
+specific region or subset of interacting species.
+
+
+The scale-invariant trait-based model is similar to the aforementioned
+trait-based model, except that the different traits have more symmetries, so 
+that the resulting system is close to being scale-invariant. This allows us to 
+setup a stable steady state more easily without having to impose an external 
+stock-recruitment relationship.
+
+
+All four models predict abundance, biomass and yield as well as predation and
+mortality rates at size. They are useful for establishing baselines of abundance
+of unexploited communities, for understanding how fishing impacts aquatic
+communities and for testing indicators that are being developed to support an
+ecosystem approach to fisheries management.  Which model to use in a specific
+case depends on needs and on the amount of information available to calibrate
+the model.  The multi-species model could be set up for most systems where
+calibration parameters can be estimated.  This requires a lot of insight and
+data.  If the parameters are just guesstimates the results of the multi-species
+model will be no more accurate than the results from the trait-based model.
+In such situations we therefore recommend the use of the trait-based model, even
+though it only provides general information about the asymptotic size
+distribution and not about specific species.  The community model is useful for
+large-scale community-level questions where only the average spectrum is needed.
+Care should be taken when the community model is used to infer the dynamical
+properties of marine ecosystems, since it is prone to unrealistically strong
+oscillations due to the lack of dampening effects provided by the life-history
+diversity in the trait-based and multi-species models. 
+
+## Running a simulation 
+This is done by calling the `project()` method on
+the model parameters. This produces an object of MizerSim} which contains the
+results of the simulation. The `project()` method controls the length and
+time-step of the simulation, as well as the levels of fishing effort.
+
+## Exploring the results
+After a simulation has been run, the results can be
+examined using a range of plots and summaries.
+
+## Online apps
+Perhaps the easiest way for newcomers to get into using mizer is to access
+[the online app](https://mizer.shinyapps.io/selectivity/). 

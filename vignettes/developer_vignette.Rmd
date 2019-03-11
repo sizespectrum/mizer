@@ -21,8 +21,9 @@ knitr::opts_chunk$set(
 
 This vignette is for you if you need to extend mizer 
 to meet the needs of your research project.
-You will already have read the [main mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) and thus be
-familiar with what mizer can do out of the box.
+You will already have read the mizer model description in
+`vignette("model_description")`
+and thus be familiar with what mizer can do out of the box.
 You now want to implement the extension or modification of the
 model required for your research, and for that you need to dive into 
 the internal workings of mizer. This vignette is meant to make
@@ -51,7 +52,7 @@ This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
 to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
-frequently. This guide was written with version 1.2.1114.
+frequently. This guide was written with version 1.2.1268.
 
 To work with R packages as a developer, you will need to
 [install additional tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites). Once you have these in place, you should install the devtools package with
@@ -60,6 +61,8 @@ install.packages("devtools")
 ```
 You are now all set to develop R packages, and 
 [RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet for package development accessible from the Help menu in RStudio.
+
+
 
 ## Installing git
 In case git is not already installed on your system, you need to 
@@ -77,6 +80,12 @@ To work with the code you will create your own git repository with a copy of the
 
 Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
 Then create a version control new project in Rstudio, and indicate your depository url.
+
+You will want to set up RStudio so that it automatically builds the 
+documentation using roxygen.
+* Go to Build -> Configure Build Tools, tick the checkbox "Generate
+  documentation with roxygen".
+
 On the "Git" tab select the "dev" branch. This contains the latest development
 code for mizer. 
 
@@ -117,6 +126,8 @@ below we assume that the `MizerParams` object is called `params` and the
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
 
+<!--
+
 ## The project methods
 
 ## The MizerSim object
@@ -127,6 +138,8 @@ An object of class 'MizerParams' holds all the information needed for the
 
 ## Collaborating on Github
 
+-->
+
 ## Coding style
 [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
 [The tidyverse style guide](http://style.tidyverse.org/)
@@ -134,6 +147,21 @@ An object of class 'MizerParams' holds all the information needed for the
 ## Always write tests for your code
 We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+
+## Rebuild package after altering code
+If you make a change to mizer's code you will have to rebuild the package after 
+you are done. In RStudio this can be done by clicking on the *Build* tab at the 
+top right and clicking *Install and Restart*. To be sure that the changes have 
+taken proper effect it may also help to clean the environment and/or restart 
+RStudio.
+
+To be sure that the package
+builds properly, make sure that the Roxygen2 package is properly installed, and 
+click the *More* dropdown, on the *Build* tab, and click *Configure Build Tools*
+and tick *Use devtools package functions if available* and
+*Generate documentation with Roxygen*, and click *Configure* and under
+*Automatically roxygenize when running:* tick *Build & Reload*.
+
 
 
 

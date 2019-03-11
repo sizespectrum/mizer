@@ -1,3 +1,26 @@
+#' Plotting functions
+#' 
+#' Here we describe the plotting methods for the MizerSim class.
+#'
+#' The table below shows the different plotting methods.
+#'
+#' \tabular{ll}{
+#'   Plot \tab Description \cr
+#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method getBiomass(). \cr
+#'   \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+#'   \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
+#'   \code{\link{plotM2}} \tab Plots the predation mortality of each species against size. \cr
+#'   \code{\link{plotFMort}} \tab Plots the total fishing mortality of each species against size. \cr
+#'   \code{\link{plotYield}} \tab Plots the total yield of each species across all fishing gears against time. \cr
+#'   \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
+#'   \code{\link{plot}} \tab Produces 5 plots (plotFeedingLevel(), plotBiomass(), plotM2(), plotFMort() and plotSpectra()) in the same window as a summary. \cr
+#' }
+#'   
+#' @name plots
+NULL
+
+
+
 # Plotting methods for the MizerSim class
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.

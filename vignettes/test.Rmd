@@ -1,0 +1,32 @@
+---
+title: "Test"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r label=lib, include=FALSE}
+library(mizer)
+```
+
+
+
+## Testing
+
+Here is a link to the [Consumption](model_description.html#consumption) section.
+
+
+
+Here is a link [this link](#github-link)
+
+
+## . {#github-link}
+

@@ -128,4 +128,7 @@ The \linkS4class{MizerParams} class is fairly complex with a large number of
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}
+  \code{\link{emptyParams}} \code{\link{multispeciesParams}}
+  \code{\link{set_community_model}}
+  \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 }

@@ -102,6 +102,27 @@ The only essential argument to the \code{MizerParams} constructor is a
   data frame, they will be automatically added when the \code{MizerParams}
   object is created. See the accompanying vignette for details of these
   columns.
+  
+The following table gives different components of a species parameters data.frame.
+  
+  
+  \tabular{lll}{
+  Column name \tab Description \tab Default value \cr
+  species \tab Name of the species \tab Compulsory (no default) \cr
+  w_inf \tab The asymptotic mass of the species \tab Compulsory (no default) \cr
+  w_mat \tab The maturation mass of the species \tab Compulsory (no default) \cr
+  beta \tab Preferred predator prey mass ratio \tab Compulsory (no default) \cr
+  sigma \tab Width of prey size preference \tab Compulsory (no default) \cr
+  h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional (no default) \cr
+  k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional (no default) \cr
+  gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional (no default) \cr
+  ks \tab Standard metabolism coefficient \tab h*0.2 \cr
+  z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
+  k \tab Activity coefficient \tab 0 \cr
+  alpha \tab Assimilation efficiency \tab 0.6 \cr
+  erepro \tab Reproductive efficiency \tab 1 \cr
+  w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum \cr
+}
 }
 \examples{
 data(NS_species_params_gears)

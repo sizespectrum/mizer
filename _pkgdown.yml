@@ -35,7 +35,16 @@ navbar:
 articles:
 - title: User Guides
   contents:
+  - installation
   - model_description
+  - community_model
+  - trait_model
+  - multispecies_model
+  - running_a_simulation
+  - exploring_the_simulation_results
+  - a_multispecies_model_of_the_north_sea
+  - scale_invariant_trait_based_model
+  - test
 - title: Developer Guides
   contents:
   - developer_vignette
@@ -114,6 +123,9 @@ reference:
 - title: Others
   contents:
   - get_initial_n
+  - project_methods
+  - summary_methods
+  - plots
 - title: Aliases
   desc: These aliases are available for backwards compatibility with earlier
         versions of mizer

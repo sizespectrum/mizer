@@ -22,7 +22,7 @@ in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/package
 but taking care to separate the essential features of the model that are
 hard-coded and the various possible specialisations for which mizer 
 provides setup functions. We will not go into detail of how this model is 
-realised in code. Such detail will be provided in the [developer_vignette].
+realised in code. Such detail will be provided in the [developer guide.](developer_vignette.html)
 
 # The mizer size-spectrum model
 
@@ -50,13 +50,13 @@ holds $N_i(w_a,t_u)$.
 
 Note that, contrary to what one might have expected,
 `n[i, a]` is not the *number* of individuals in a size bin
-but the *density* at a gid point.
+but the *density* at a grid point.
 The number of individuals in the size bin between `w[a]` and
 `w[a+1]=w[a]+dw[a]` is only approximately given as `n[i, a]*dw[a]`,
 where `dw[a]= w[a+1]-w[a]`.
 
 The time evolution of the size spectrum is described by the 
-McKendrik-von Foerster equation, which is simply a transport equation:
+McKendrik-von Foerster equation, which is a transport equation with loss:
 
 \begin{equation}
   \label{eq:MvF}
@@ -97,7 +97,7 @@ in the absence of predation, stored as a vector
 in the subsection [Plankton mortality].
 
 
-## Predator-prey preference
+## Predator-prey preference {#sec:pref}
 The preference $\phi_{ij}(w, w_p)$ of
 an individual of species $i$ and weight $w$ for prey of species $j$ and
 weight $w_p$ is assumed to factorize as 
@@ -183,11 +183,11 @@ becomes available for growth and reproduction is
  This is calculated with the `getEReproAndGrowth()` function.
 
 
-## Investment into reproduction
+## Investment into reproduction  {#sec:repro}
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction
 is used for reproduction. This proportion should change from zero below the  
-weight $w_{m.i}$ of maturationto one at the asymptotic weight 
-$W_i$, where all available energy is used for reproduction. This proportion
+weight $w_{m.i}$ of maturation to one at the asymptotic weight 
+$w_{\infty.i}$, where all available energy is used for reproduction. This proportion
 is stored in an array `psi[i,a]`$=\psi_i(w_a)$.
 
 The total production rate of egg production $R_{p.i}$ (numbers per time) is found by 
@@ -287,7 +287,7 @@ This grid is set up when creating a MizerParams object, see
 `emptyParams()` for details.
 
 
-## Fixed predator/prey mass ratio
+## Fixed predator/prey mass ratio {#sec:ppmr}
 An important simplification occurs when the preference $\phi_i(w,w_p)$
 of a predator of size $w$ for prey of size $w_p$ depends on the size 
 of the prey **only** through the predator/prey size ratio $w_p/w$,
@@ -306,7 +306,7 @@ hard-coded to the truncated log-normal function
 where $\beta_i$ is the preferred predator-prey mass ratio and $\sigma_i$ the 
 width of the weight selection function.
 
-## Allometric rates
+## Allometric rates {#sec:allo}
 Mizer has several size-dependent rates for which it is sensible to assume
 an allometric scaling with size:
 
@@ -328,11 +328,11 @@ loss due to activity and movement, scaling with exponent $1$:
 \[\text{metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
 
 * Background mortality
-\[\mu_{b.i}(w) = \mu_b W_i^{1-n},\]
-where $W_i$ is the asymptotic size of species $i$.
+\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]
+where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
 
-## Investment into reproduction
+## Investment into reproduction {#sec:invest}
 The proportion $\psi_i(w)$ that determines how much of the available energy
 is used for reproduction should be described by a function that starts rising
 from $0$ at around the maturity size $w_{\text{mat}.i}$ of the species $i$ and reaches $1$ at
@@ -349,9 +349,42 @@ Mizer provides a default function
 \]
 
 
+## Volumetric search rate {#eq:gamma}
+
+The system is driven by the production of the plankton The ratio between the production and the maximum consumption will determine the feeding level $f_0$ of small individuals feeding mainly on the  plankton If $f_0$ is close to 1 the individuals are satiated, and growth will be largely independent of changes in food availability. If $f_0$ is in the linear range of the functional response, growth will be dependent on available food. If $f_0$ is close to the critical feeding level $f_c$, where the available food is only sufficient to cover standard metabolism, growth will be stunted. The initial feeding level $f_0$, calculated as the feeding level of an individual feeding on the plankton at carrying capacity, is used as the control parameter for the plankton productivity. The initial feeding level is then used to calculate the search rate parameter $\gamma.$
+
+
+\begin{equation}
+  \gamma_i(f_0) = \frac{f_0 h_i \beta_i^{2-\lambda}\exp(-(\lambda-2)^2 \sigma_i^2/2)}{(1-f_0)\sqrt{2\pi}\kappa \sigma_i}.
+\end{equation}
+
+
+Here the critical feeding level $f_c$ is given by the equation
+
+
+\begin{equation}
+  f_{c.i}(w) = \frac{k_{s.i} w^p+k_i w}{\alpha h_i w^n}.
+\end{equation}
+
+If $n=p$ and $k=0$ (which is the case for the set of default parameters chosen here), $f_c$ is independent of $w$.
+
+## Stock-recruitment relationship {#sec:recruitment}
+
+In mizer, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR).
+The default functional form is such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a *Beverton-Holt* type of SRR:
+
+\begin{equation}
+  \label{eq:R}
+  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
+\end{equation}
+where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
+
+The *Beverton-Holt* type of SRR is not the only density dependence model that mizer can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or *hockey-stick.*
+<!--
 # Fishing
 This section still to be written.
+-->
 
-
+The next section is about how to implement these ideas in the [community model.](community_model.html) 
 
 [Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd)
