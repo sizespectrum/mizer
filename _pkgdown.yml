@@ -35,6 +35,7 @@ navbar:
 articles:
 - title: User Guides
   contents:
+  - installation
   - model_description
   - community_model
   - trait_model
