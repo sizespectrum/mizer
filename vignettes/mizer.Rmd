@@ -7,124 +7,43 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+## Overview
 The mizer package implements multi-species size-based modelling in R. It has 
 been designed for modelling marine ecosystems.
+The general model is described in the section [Model Description].
 
-Using mizer is relatively simple.  There are three main stages: 
+Using mizer is relatively simple.  There are four main stages, each
+described in more detail in sections below.
 
-1. Setting the model parameters. This is done by creating an object of 
-class `MizerParams`. This includes model parameters such as the life 
-history parameters of each species, and the range of the size spectrum.
+1. [Installing mizer]. 
 
-2. Running a simulation. This is done by calling the `project()` 
-method on the model parameters. This produces an object of `MizerSim` 
-which contains the results of the simulation.
+2. [Setting the model parameters]. 
 
-3. Exploring results. After a simulation has been run, the results can be 
-explored using a range of plots and summaries. 
+3. [Running a simulation].
+
+4. [Exploring the results].
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) explaining how to use and install mizer.
-Perhaps the easiest way for newcomers to get into using mizer is to access 
-[the online app](https://mizer.shinyapps.io/selectivity/). However, to enjoy the 
-full functionality of mizer we recommend the user installs it with R, as 
-described in the next section. 
+
+## Model Description
 
 
 ## Installing mizer
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/GsdE14HMQGE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-mizer is a package for the R open-source statistical programming language. R is 
-available from the CRAN website, which is also an excellent source of
-documentation and tutorials.
 
-The easiest way to install mizer (assuming you have an active internet
-connection) is to start an session and then type:
 
-```{r, eval=FALSE}
-install.packages("mizer")
-```
-
-After installing mizer, to actually use it you need to load the package using
-the `library()` function. Note that whilst you only need to install the
-package once, it will need to be loaded every time you start a new R session.
-
-```{r, eval=FALSE}
-library(mizer)
-```
-
-The source code for mizer is hosted on
-[Github.](https://github.com/sizespectrum/mizer) If you are feeling brave and
-wish to try out a development version of mizer you can install the package from
-here using the R package devtools (which was used extensively in putting
-together mizer).
-
-## Getting help in R
-
-As you probably know, to access documentation in R you can use the `help()`
-function. This can be used to access package documentation in a range of ways.
-For example:
-
-```{r, eval=FALSE}
-help(package="mizer")
-help(mizer)
-help(project)
-```
-
-The first command gives a technical summary of the package, including the
-available functions.
-The second command gives a brief introduction to mizer.
-The third gives the documentation page for the method `project()`.
-
-Some methods are associated with several R classes. For example, the
-`plot()` method is generic and can be used on a wide range of R objects.
-The `plot()` method has been overloaded in mizer to plot MizerSim objects. 
-To select the help page for the appropriate plotting method you can either just
-use `help(plot)` and then select from a menu of packages or you can supply
-the package name in the `help()` command:
-
-```{r, eval=FALSE}
-help(plot, package="mizer")
-```
-To access the the help page of a particular function you can use:
-`? function-name`. For example, to access the help page of the
-`getFeedingLevel()` function you can use:
-
-```{r, eval=FALSE}
-? getFeedingLevel
-```
-
-Slightly different syntax is used to get information on a class. For example,
-to get the help page on the MizerParams class you can use:
-
-```{r, eval=FALSE}
-class ? MizerParams
-```
-
-## Functionality of mizer in R
+## Setting the model parameters
 
 With mizer it is possible to implement the community, trait-based, multispecies
 and scale-invariant trait-based models, using the same basic tools and methods.
-Using the package is relatively simple.  There are three main stages to
-implementing a model:
+Using the package is relatively simple. 
     
-* Setting the model parameters. This is done by creating an object of class
-MizerParams. This includes model parameters such as the life history parameters
+Setting the model parameters is done by creating an object of `class ?
+MizerParams`. This includes model parameters such as the life history parameters
 of each species, and the fishing gears. It is possible to create a MizerParams
 object directly using the class constructor or by using one of the convenient
 wrapper functions provided in the package.
-
-* Running a simulation. This is done by calling the `project()` method on
-the model parameters. This produces an object of MizerSim} which contains the
-results of the simulation. The `project()` method controls the length and
-time-step of the simulation, as well as the levels of fishing effort.
-
-* Exploring the results. After a simulation has been run, the results can be
-examined using a range of plots and summaries.
-
-
-These stages and the accompanying classes and methods are explained in detail in
-the rest of the document.
 
 
 It is probably easier to learn the basics of mizer through examples. We do this
@@ -190,5 +109,16 @@ properties of marine ecosystems, since it is prone to unrealistically strong
 oscillations due to the lack of dampening effects provided by the life-history
 diversity in the trait-based and multi-species models. 
 
-The next section gives a description of [the general mizer model.](model_description.html) 
+## Running a simulation 
+This is done by calling the `project()` method on
+the model parameters. This produces an object of MizerSim} which contains the
+results of the simulation. The `project()` method controls the length and
+time-step of the simulation, as well as the levels of fishing effort.
 
+## Exploring the results
+After a simulation has been run, the results can be
+examined using a range of plots and summaries.
+
+## Online apps
+Perhaps the easiest way for newcomers to get into using mizer is to access
+[the online app](https://mizer.shinyapps.io/selectivity/). 
