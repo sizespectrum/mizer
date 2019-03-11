@@ -75,13 +75,6 @@ feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
 The default is TRUE if the number of size bins is no larger than 100 and
 FALSE otherwise.}
 
-\item{species_names}{Names of the species. Generally not needed as normally
-taken from the \code{object} data.frame.}
-
-\item{gear_names}{Names of the gears that catch each species. Generally not
-needed as normally taken from the \code{object} data.frame. Default is
-\code{species_names}.}
-
 \item{...}{Additional arguments.}
 }
 \value{

@@ -280,6 +280,7 @@ set_trait_model <- function(no_sp = 10,
                             max_w_inf = 1e5,
                             no_w = 100,
                             min_w = 0.001,
+                            max_w = NA,
                             min_w_pp = NA,
                             no_w_pp = NA,
                             w_pp_cutoff = 1,
@@ -304,6 +305,8 @@ set_trait_model <- function(no_sp = 10,
                             ...){
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
+    if (!is.na(max_w))
+            warning("New mizer code does not support the parameter max_w")
     
     w_inf <- 10^seq(from = log10(min_w_inf), to = log10(max_w_inf), length = no_sp)
     w_mat <- w_inf * eta

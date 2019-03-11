@@ -593,11 +593,6 @@ emptyParams <-
 #' @param z0exp If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is n-1.
-#' @param species_names Names of the species. Generally not needed as normally
-#'   taken from the \code{object} data.frame.
-#' @param gear_names Names of the gears that catch each species. Generally not
-#'   needed as normally taken from the \code{object} data.frame. Default is
-#'   \code{species_names}.
 #' @param store_kernel A boolean flag that determines whether the full
 #'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
 #'   The default is TRUE if the number of size bins is no larger than 100 and

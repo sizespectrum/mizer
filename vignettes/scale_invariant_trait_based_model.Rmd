@@ -3,6 +3,10 @@ title: "Scale-Invariant, Trait-Based Model"
 output: html_document
 fig_width: 5
 fig_height: 5
+vignette: >
+  %\VignetteIndexEntry{Mizer Developer Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r label=lib, include=FALSE}
