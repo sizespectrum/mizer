@@ -12,13 +12,13 @@
 #' There are several setup functions that help to create a MizerParams objects
 #' for particular types of models:
 #' \itemize{
-#'   \item \code{\link{set_community_model()}}
-#'   \item \code{\link{set_trait_model()}}
-#'   \item \code{\link{set_scaling_model()}}
-#'   \item \code{\link{set_multispecies_model()}}
+#'   \item \code{\link{set_community_model}}
+#'   \item \code{\link{set_trait_model}}
+#'   \item \code{\link{set_scaling_model}}
+#'   \item \code{\link{set_multispecies_model}}
 #' }
 #' \item Running a simulation. This is done by calling the
-#' \code{\link{project()}} method on the model parameters. This produces an
+#' \code{\link{project}} method on the model parameters. This produces an
 #' object of \linkS4class{MizerSim} that contains the results of the simulation.
 #'
 #' \item Exploring results. After a simulation has been run, the results can be
