@@ -72,6 +72,7 @@ reference:
   - project
 - title: Analysing results
   contents:
+  - summary_functions
   - getDiet
   - getBiomass
   - getCommunitySlope
@@ -84,6 +85,7 @@ reference:
   - getYieldGear
 - title: Plotting results
   contents:
+  - plotting_functions
   - starts_with("plot")
   - getBiomassFrame
   - getSSBFrame
@@ -124,8 +126,6 @@ reference:
   contents:
   - get_initial_n
   - project_methods
-  - summary_methods
-  - plots
 - title: Aliases
   desc: These aliases are available for backwards compatibility with earlier
         versions of mizer

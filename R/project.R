@@ -17,7 +17,8 @@ NULL
 #' 
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
-#' \linkS4class{MizerSim} that can then be explored with a range of summary and
+#' \linkS4class{MizerSim} that can then be explored with a range of
+#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}
 #' plotting methods.
 #' 
 #' @param params A \linkS4class{MizerParams} object
@@ -66,12 +67,13 @@ NULL
 #' It specifies the abundances of the species at the initial time. The
 #' order of species must be the same as in the \code{MizerParams} argument. If
 #' the initial population is not specified, the argument is set by default by
-#' the \code{get_initial_n} function which is set up for a North Sea model.
+#' the \code{\link{get_initial_n}} function which is set up for a North Sea model.
 #' 
-#' @return An object of type \linkS4class{MizerSim}.
+#' @return An object of class \linkS4class{MizerSim}.
 #' 
 #' @export
-#' @seealso \code{\link{MizerParams}}
+#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}} and 
+#'   \code{\link{plotting_functions}}
 #' @examples
 #' \dontrun{
 #' # Data set with different fishing gears

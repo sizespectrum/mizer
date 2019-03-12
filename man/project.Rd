@@ -38,12 +38,13 @@ Default NULL.}
 \item{...}{Currently unused.}
 }
 \value{
-An object of type \linkS4class{MizerSim}.
+An object of class \linkS4class{MizerSim}.
 }
 \description{
 Runs the size spectrum model simulation.
 The function returns an object of type
-\linkS4class{MizerSim} that can then be explored with a range of summary and
+\linkS4class{MizerSim} that can then be explored with a range of
+\code{\link{summary_functions}} and \code{\link{plotting_functions}}
 plotting methods.
 }
 \note{
@@ -73,7 +74,7 @@ The \code{initial_n} argument is a matrix with dimensions species x size.
 It specifies the abundances of the species at the initial time. The
 order of species must be the same as in the \code{MizerParams} argument. If
 the initial population is not specified, the argument is set by default by
-the \code{get_initial_n} function which is set up for a North Sea model.
+the \code{\link{get_initial_n}} function which is set up for a North Sea model.
 }
 \examples{
 \dontrun{
@@ -99,5 +100,6 @@ sim <- project(params, effort = effort_array)
 }
 }
 \seealso{
-\code{\link{MizerParams}}
+\code{\link{MizerParams}}, \code{\link{summary_functions}} and 
+  \code{\link{plotting_functions}}
 }

@@ -706,7 +706,7 @@ multispeciesParams <-
     
     # If no sel_func column in species_params, set to 'knife_edge'
     if (!("sel_func" %in% colnames(object))) {
-        message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
+        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
         object$sel_func <- 'knife_edge'
         # Set default selectivity size
         if (!("knife_edge_size" %in% colnames(object))) {

@@ -1,9 +1,19 @@
+# Plotting functions for the MizerSim class
+
+# Copyright 2012 Finlay Scott and Julia Blanchard.
+# Copyright 2019 Gustav Delius and Richard Southwell.
+# Development has received funding from the European Commission's Horizon 2020 
+# Research and Innovation Programme under Grant Agreement No. 634495 
+# for the project MINOUW (http://minouw-project.eu/).
+# Distributed under the GPL 3 or later 
+# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
+
 #' Plotting functions
 #' 
-#' Here we describe the plotting methods for the MizerSim class.
+#' Mizer provides a range of plotting functions for visualising the results
+#' of running a simulation, stored in a MizerSim object.
 #'
-#' The table below shows the different plotting methods.
-#'
+#' This table shows the available plotting functions.
 #' \tabular{ll}{
 #'   Plot \tab Description \cr
 #'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method getBiomass(). \cr
@@ -15,21 +25,14 @@
 #'   \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
 #'   \code{\link{plot}} \tab Produces 5 plots (plotFeedingLevel(), plotBiomass(), plotM2(), plotFMort() and plotSpectra()) in the same window as a summary. \cr
 #' }
-#'   
-#' @name plots
+#' 
+#' These functions use the ggplot2 package and return the plot as a ggplot
+#' object. This means that you can manipulate the plot further after its 
+#' creation using the ggplot grammar of graphics.
+#' 
+#' @seealso \code{\link{summary_functions}}
+#' @name plotting_functions
 NULL
-
-
-
-# Plotting methods for the MizerSim class
-
-# Copyright 2012 Finlay Scott and Julia Blanchard.
-# Copyright 2018 Gustav Delius and Richard Southwell.
-# Development has received funding from the European Commission's Horizon 2020 
-# Research and Innovation Programme under Grant Agreement No. 634495 
-# for the project MINOUW (http://minouw-project.eu/).
-# Distributed under the GPL 3 or later 
-# Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
@@ -39,6 +42,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'
 #' This is needed when the logarithmic y-axis spans less than one order of
 #' magnitude, in which case the ggplot2 default produces no ticks.
+#' 
 #' Thanks to Heather Turner at
 #' https://stackoverflow.com/questions/14255533/pretty-ticks-for-log-normal-scale-using-ggplot2-dynamic-not-manual
 #'

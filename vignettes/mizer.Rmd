@@ -30,29 +30,98 @@ There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUss
 
 ## Installing mizer
 
+If you already have R installed on your computer, then installation of the
+mizer package is very simple
+(assuming you have an active internet
+connection). Just start an R session and then type:
 
+```{r, eval=FALSE}
+install.packages("mizer")
+```
+
+After installing mizer, to actually use it, you need to load the package using
+the `library()` function. Note that whilst you only need to install the
+package once, it will need to be loaded every time you start a new R session.
+
+```{r}
+library(mizer)
+```
+If you still need to install R as well, or if you are interested in
+installing a development version of mizer, see the
+[Installing mizer](installation.html) vignette for further details
 
 
 ## Setting the model parameters
 
-With mizer it is possible to implement the community, trait-based, multispecies
-and scale-invariant trait-based models, using the same basic tools and methods.
-Using the package is relatively simple. 
+With mizer it is possible to implement many different types of size-spectrum
+models using the same basic tools and methods. 
     
 Setting the model parameters is done by creating an object of `class ?
 MizerParams`. This includes model parameters such as the life history parameters
 of each species, and the fishing gears. It is possible to create a MizerParams
-object directly using the class constructor or by using one of the convenient
-wrapper functions provided in the package.
+object directly using the class constructor, but most likely you will want to
+use one of the convenient wrapper functions provided in the package. These make
+reasonable default choices for many of the model parameters that you do not want
+to specify explicitly. For example to set up a simple model (described
+more in the [Community Model] vignette) you can even let mizer choose all the
+parameters for you.
+```{r}
+params <- set_community_model()
+```
+For a more complicated multi-species model you need to provide a data frame
+with some species parameters. An example of a North Sea model is provided
+with the package
+```{r}
+data(NS_species_params)
+data(inter)
+params <- MizerParams(NS_species_params_gears, inter)
+```
+The notes printed out by the function show us that mizer calculated sensible
+default values for parameters that were not provided.
 
 
-It is probably easier to learn the basics of mizer through examples. We do this
-by looking at four set-ups of the framework: [the community model](community_model.html), [the trait-based model](trait_model.html), [the multispecies model](multispecies_model.html) and [the scale-invariant model.](scale_invariant_trait_based_model.html)  Of these models, the community model is the simplest and the
-multi-species model the most complex.  The common denominator is the reliance of
-a size-based description of the structure of the fish community and of the
-predator-prey interactions between individuals.
 
-In the community model, individuals are only characterized by their size and are
+## Running a simulation 
+This is done by calling the `project()` method on the model parameters.
+```{r}
+sim <- project(params, t_max = 50, effort = 0.01)
+```
+This produces an object of MizerSim} which contains the
+results of the simulation. In this example we chose to set some parameters
+of the `project()` function to specify that we want to project 50 years into
+the future, under the assumption of zero fishing effort. 
+You can see the help page for `project()` for more details and it is described
+fully in [the section on running a simulation.](running_a_simulation.html)
+
+## Exploring the results
+After a simulation has been run, the results can be
+examined using a range of `plotting_functions` and `summary functions`.
+The `plot()` function combines several of these plots into one:
+```{r}
+plot(sim)
+```
+We might be interested in how the proportion of large fish varies over time. 
+For example we can get the proportion of Herrings in terms of biomass that have 
+a weight above 50g in each of the 50 years:
+```{r}
+getProportionOfLargeFish(sim, species = "Herring", threshold_w = 50, biomass_proportion = TRUE)
+```
+We can then use the full power of R to work with these results.
+
+The functionality provided by mizer to explore the simulation results is more
+fully described in [the section on exploring the simulation
+results.](exploring_the_simulation_results.html)
+
+## Examples
+It is easiest to learn the basics of mizer through examples. We do this by
+looking at four set-ups of the framework, of increasing complexity. For
+each one there is a vignette that describes how to set up the model,
+run it in different scenarios, and explore the results. We
+recommend that you explore these in the following order:
+
+### Community model
+In the [community model](community_model.html), individuals are only 
+characterized by their size and are
 represented by a single group representing an across species average. Community
 size spectrum models have been used to investigate how abundance size spectra
 emerge solely from individual-level process of size-based predation and how
@@ -61,40 +130,47 @@ are required it has been used for investigating large-scale community-level
 questions where detailed trait- and species-level parameterisations are not
 tractable.
 
-The trait-based model resolves a continuum of species with varying asymptotic
-sizes. The asymptotic size is considered to be the most important
-trait that characterizes the species life history.
-The continuum is represented by a discrete number of species spread evenly over
-the range of asymptotic sizes. The number of species is not important and does
-not affect the general dynamics of the model.
-Many of the parameters, such as the preferred predator-prey mass ratio  are the same for all
-species. Other model parameters are determined by the asymptotic size.
-For example, the weight at maturation of each species is a set fraction of the asymptotic size.
-In the trait-based model species-level complexity is captured through different life histories, and both
-intra- and inter-specific size spectra emerge.
-This approach is powerful for examining the generic population and whole
-community level responses to both size and species selective fishing without the
-requirement for detailed species-specific parameters.
+### Trait-based model
+The [trait-based model](trait_model.html) resolves a continuum of species with
+varying asymptotic sizes. The asymptotic size is considered to be the most
+important trait that characterizes the species life history. The continuum is
+represented by a discrete number of species spread evenly over the range of
+asymptotic sizes. The number of species is not important and does not affect the
+general dynamics of the model. Many of the parameters, such as the preferred
+predator-prey mass ratio  are the same for all species. Other model parameters
+are determined by the asymptotic size. For example, the weight at maturation of
+each species is a set fraction of the asymptotic size. In the trait-based model
+species-level complexity is captured through different life histories, and both
+intra- and inter-specific size spectra emerge. This approach is powerful for
+examining the generic population and whole community level responses to both
+size and species selective fishing without the requirement for detailed
+species-specific parameters.
 
-In the multispecies model individual species are resolved in detail and each has
-distinct life history, feeding and reproduction parameters. More detailed
-information is required to parameterise the multispecies model but the approach
-can be used to address management strategies for a realistic community in a
-specific region or subset of interacting species.
+### Multispecies model
+In the [multispecies model](multispecies_model.html) individual species are
+resolved in detail and each has distinct life history, feeding and reproduction
+parameters. More detailed information is required to parameterise the
+multispecies model but the approach can be used to address management strategies
+for a realistic community in a specific region or subset of interacting species.
 
-
-The scale-invariant trait-based model is similar to the aforementioned
-trait-based model, except that the different traits have more symmetries, so 
-that the resulting system is close to being scale-invariant. This allows us to 
-setup a stable steady state more easily without having to impose an external 
+<!--
+## Scale-invariant trait-based model
+The [scale-invariant trait-based model](scale_invariant_trait_based_model.html)
+is a version of the trait-based model with even more symmetries, so that the
+resulting system is close to being scale-invariant. This allows us to obtain
+analytic expressions for the steady state of the model, which makes setting a
+stable steady state easier, without having to impose an external
 stock-recruitment relationship.
+-->
 
-
+### Which model to use
 All four models predict abundance, biomass and yield as well as predation and
 mortality rates at size. They are useful for establishing baselines of abundance
 of unexploited communities, for understanding how fishing impacts aquatic
 communities and for testing indicators that are being developed to support an
-ecosystem approach to fisheries management.  Which model to use in a specific
+ecosystem approach to fisheries management.  
+
+Which model to use in a specific
 case depends on needs and on the amount of information available to calibrate
 the model.  The multi-species model could be set up for most systems where
 calibration parameters can be estimated.  This requires a lot of insight and
@@ -102,23 +178,18 @@ data.  If the parameters are just guesstimates the results of the multi-species
 model will be no more accurate than the results from the trait-based model.
 In such situations we therefore recommend the use of the trait-based model, even
 though it only provides general information about the asymptotic size
-distribution and not about specific species.  The community model is useful for
+distribution and not about specific species.  
+
+The community model is useful for
 large-scale community-level questions where only the average spectrum is needed.
 Care should be taken when the community model is used to infer the dynamical
 properties of marine ecosystems, since it is prone to unrealistically strong
 oscillations due to the lack of dampening effects provided by the life-history
 diversity in the trait-based and multi-species models. 
 
-## Running a simulation 
-This is done by calling the `project()` method on
-the model parameters. This produces an object of MizerSim} which contains the
-results of the simulation. The `project()` method controls the length and
-time-step of the simulation, as well as the levels of fishing effort.
-
-## Exploring the results
-After a simulation has been run, the results can be
-examined using a range of plots and summaries.
-
 ## Online apps
-Perhaps the easiest way for newcomers to get into using mizer is to access
-[the online app](https://mizer.shinyapps.io/selectivity/). 
+Perhaps the easiest way for newcomers to get into using mizer is via
+online apps. We are in the process to develop a variety of apps for setting
+up and exploring models. Here is an example of an online app to [explore
+the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/). 
+
