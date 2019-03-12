@@ -3,7 +3,6 @@
 language: R
 sudo: false
 cache: packages
-r_check_args: "--no-vignettes"
 
 branches:
   only:
@@ -13,8 +12,8 @@ branches:
 # see https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/
 
 after_success:
-  - Rscript -e 'covr::codecov(type = "all")'
   - Rscript -e 'pkgdown::build_site()'
+  - Rscript -e 'covr::codecov(type = "all")'
 
 deploy:
   provider: pages
