@@ -6,7 +6,7 @@
 \usage{
 emptyParams(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
   min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:no_sp,
-  gear_names = species_names)
+  gear_names = species_names, resource_names = list())
 }
 \arguments{
 \item{no_sp}{Number of species}
@@ -25,6 +25,9 @@ many size bins are created for the plankton spectrum.}
 \item{species_names}{Names of species}
 
 \item{gear_names}{Names of gears}
+
+\item{resource_names}{Names of unstructured resources. Empty if the model
+does not contain unstructured resource components.}
 }
 \value{
 An empty but valid MizerParams object

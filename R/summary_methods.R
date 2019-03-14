@@ -50,7 +50,7 @@ NULL
 #' plankton like another prey species. 
 #' 
 #' This function performs the same integration as
-#' \code{\link{getAvailEnergy}} but does not aggregate over prey species, and
+#' \code{\link{getEncounter}} but does not aggregate over prey species, and
 #' multiplies by (1-feeding_level) to get the consumed biomass rather than the
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
@@ -62,7 +62,7 @@ NULL
 #' @return An array (predator species  x predator size x (prey species + plankton) )
 #' @export
 getDiet <- function(params, n, n_pp) {
-    # The code is based on that for getAvailEnergy()
+    # The code is based on that for getEncounter()
     no_sp <- dim(n)[1]
     no_w <- dim(n)[2]
     no_w_full <- length(n_pp)

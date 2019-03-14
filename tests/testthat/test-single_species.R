@@ -10,7 +10,7 @@ effort <- array(abs(rnorm(10)), dim = c(10, 1))
 sim1 <- project(params, effort = 1, t_max = 10)
 
 test_that("project methods return arrays of correct dimension", {
-    expect_length(dim(getAvailEnergy(params, n, npp)), 2)
+    expect_length(dim(getEncounter(params, n, npp)), 2)
     expect_length(dim(getFeedingLevel(params, n, npp)), 2)
     expect_length(dim(getPredRate(params, n, npp)), 2)
     expect_length(dim(getPredMort(params, n, npp)), 2)

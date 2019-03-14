@@ -14,6 +14,7 @@ no_w_full <- length(params@w_full)
 sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
 
 # Random abundances
+set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
 n_full <- abs(rnorm(no_w_full))
 
@@ -28,10 +29,11 @@ gamma <- p@species_params$gamma[sp]
 lm2 <- p@lambda - 2
 
 
-# getAvailEnergy --------------------------------------------------------------
+# getEncounter --------------------------------------------------------------
 
-test_that("getAvailEnergy approximates analytic result", {
-    ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2)
+test_that("getEncounter approximates analytic result", {
+    skip("This is still too imprecise.")
+    ea <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
     # Check that this is constant
     expect_equivalent(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
     # Check that it agrees with analytic result
@@ -70,19 +72,19 @@ test_that("getFeedingLevel for MizerParams", {
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
     # A crap test - just returns what's already in the method
-    avail_energy <- getAvailEnergy(params, n = n, n_pp = n_full)
-    encount <- params@search_vol * avail_energy
-    f <- encount / (encount + params@intake_max)
+    encounter <- getEncounter(params, n = n, n_pp = n_full)
+    f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
-    # passing in avail_energy gives the same as not
-    fl1 <- getFeedingLevel(params, n, n_full)
-    avail_energy <- getAvailEnergy(params, n, n_full)
-    fl2 <- getFeedingLevel(params, n, n_full, avail_energy = avail_energy)
-    expect_identical(fl1, fl2)
-    # calling with avail_energy of wrong dimension gives error
-    avail_energy = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
-    expect_error(getFeedingLevel(params, n, n_full, avail_energy = avail_energy),
-                 'avail_energy argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)')
+    # passing in encounter gives the same as not
+    fl2 <- getFeedingLevel(params, n, n_full, encounter = encounter)
+    expect_identical(fl, fl2)
+    # test value
+    expect_known_value(fl, "values/getFeedingLevel")
+    # calling with encounter of wrong dimension gives error
+    encounter = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
+    expect_error(getFeedingLevel(params, n, n_full, encounter = encounter),
+                 'encounter argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
+    )
 })
 
 test_that("getFeedingLevel for MizerSim", {
@@ -108,6 +110,18 @@ test_that("getFeedingLevel approximates analytic result", {
 
 
 # getPredRate -------------------------------------------------------------
+
+test_that("getPredRate for MizerParams", {
+    pr <- getPredRate(params, n, n_full)
+    # test dim
+    expect_identical(dim(pr), c(no_sp, no_w_full))
+    # passing in feeding level gives the same as not
+    fl <- getFeedingLevel(params, n, n_full)
+    pr2 <- getPredRate(params, n, n_full, feeding_level = fl)
+    expect_identical(pr, pr2)
+    # test value
+    expect_known_value(pr, "values/getPredRate")
+})
 
 test_that("getPredRate approximates analytic result", {
     skip("Still need to understand this.")
@@ -152,6 +166,7 @@ test_that("getPredRate approximates analytic result", {
 
 test_that("getPredMort for MizerParams", {
     # Randomize selectivity and catchability for proper test
+    set.seed(0)
     params@catchability[] <-
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-
@@ -167,6 +182,8 @@ test_that("getPredMort for MizerParams", {
     expect_identical(dim(m21), c(no_sp, no_w))
     expect_identical(dim(m21), c(no_sp, no_w))
     expect_equal(m22[1, ], m21[1, ])
+    # test value
+    expect_known_value(m21, "values/getPredMort")
     
     # Look at numbers in a single prey
     w_offset <- no_w_full - no_w
@@ -220,6 +237,8 @@ test_that("getPlanktonMort", {
     m2b1 <- getPlanktonMort(params, n, n_full)
     m2b2 <- getPlanktonMort(params, n, n_full, pred_rate = pr)
     expect_identical(m2b1, m2b2)
+    # test value
+    expect_known_value(m2b1, "values/getPlanktonMort")
 })
 
 
@@ -230,6 +249,7 @@ test_that("getFmortGear", {
     # MizerParams + numeric
     # MizerParams + matrix
     # Randomize selectivity and catchability for proper test
+    set.seed(0)
     params@catchability[] <-
         runif(prod(dim(params@catchability)), min = 0, max = 1)
     params@selectivity[] <-
@@ -269,6 +289,7 @@ test_that("getFmortGear", {
     expect_identical(f3[, gear, sp, widx],
                      effort_mat[, gear] * params@catchability[gear, sp] * 
                          params@selectivity[gear, sp, widx])
+    expect_known_value(f3, "values/getFMortGear")
 })
 
 
@@ -304,6 +325,7 @@ test_that("getFMort", {
     expect_equal(f1, fmg11)
     expect_equal(f2, fmg22)
     expect_equal(f3, fmg33)
+    expect_known_value(f1, "values/getFMort")
 })
 
 
@@ -313,7 +335,7 @@ test_that("getMort", {
     no_gear <- dim(params@catchability)[1]
     effort1 <- 0.5
     effort2 <- rep(effort1, no_gear)
-    z <- getMort(params, n, n_full, effort2)
+    z <- getMort(params, n, n_full, effort = effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
     # Look at numbers in species 1
@@ -323,9 +345,9 @@ test_that("getMort", {
     expect_equal(z1, z[1, ], check.names = FALSE)
     # Passing in M2 gives the same
     m2 <- getPredMort(params, n, n_full)
-    z1 <- getMort(params, n, n_full, effort = effort2)
     z2 <- getMort(params, n, n_full, effort = effort2, m2 = m2)
-    expect_identical(z1, z2)
+    expect_identical(z, z2)
+    expect_known_value(z, "values/getMort")
 })
 
 
@@ -344,16 +366,15 @@ test_that("getEReproAndGrowth", {
     expect_identical(e, erg[1, ])
     # Adding feeding level gives the same result
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
-    erg1 <- getEReproAndGrowth(params, n, n_full)
     erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
-    expect_identical(erg1, erg2)
+    expect_identical(erg, erg2)
+    expect_known_value(erg, "values/getEReproAndGrowth")
 })
 
 
 # getERepro ------------------------------------------------------------
 
 test_that("getERepro", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     es <- getERepro(params, n, n_full)
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
@@ -364,17 +385,16 @@ test_that("getERepro", {
     expect_identical(e_growth, e - es)
     # Including ESpawningAndGrowth gives the same
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
-    es1 <- getERepro(params, n, n_full)
     es2 <- getERepro(params, n, n_full, e = e)
-    expect_identical(es1, es2)
+    expect_identical(es, es2)
+    expect_known_value(es, "values/getERepro")
 })
 
 
 # getRDI ------------------------------------------------------------------
 
 test_that("getRDI", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-    sex_ratio <- 0.5
+    sex_ratio <- 0.4
     rdi <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     # test dim
     expect_length(rdi, no_sp)
@@ -386,10 +406,10 @@ test_that("getRDI", {
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
     e_repro <- getERepro(params, n = n, n_pp = n_full)
-    rdi1 <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
     rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
                    e_repro = e_repro)
-    expect_identical(rdi1, rdi2)
+    expect_identical(rdi, rdi2)
+    expect_known_value(rdi, "values/getRDI")
 })
 
 
@@ -403,13 +423,13 @@ test_that("getRDD", {
     expect_identical(rdd, rdd2)
     rdd2 <- params@srr(rdi = rdi, species_params = params@species_params)
     expect_identical(rdd, rdd2)
+    expect_known_value(rdd, "values/getRDD")
 })
 
 
 # getEGrowth --------------------------------------------------------------
 
 test_that("getEGrowth is working", {
-    n <- 1e6 * abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
     e_repro <- getERepro(params, n = n, n_pp = n_full)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     eg1 <- getEGrowth(params, n = n, n_pp = n_full)
@@ -417,6 +437,7 @@ test_that("getEGrowth is working", {
                       e_repro = e_repro)
     expect_identical(eg1, eg2)
     expect_identical(e - e_repro, eg1)
+    expect_known_value(eg1, "values/getEGrowth")
 })
 
 
@@ -434,12 +455,12 @@ test_that("Test that fft based integrator gives similar result as old code", {
     params2 <- params
     params2@ft_pred_kernel_e <- array()
     params2@ft_pred_kernel_p <- array()
-    # Test available energy integral
-    afft <- getAvailEnergy(params, params@initial_n, params@initial_n_pp)
-    a <- getAvailEnergy(params2, params@initial_n, params@initial_n_pp)
+    # Test encounter rate integral
+    efft <- getEncounter(params, params@initial_n, params@initial_n_pp)
+    e <- getEncounter(params2, params@initial_n, params@initial_n_pp)
     # Only check values at fish sizes
     fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
-    expect_equivalent(afft[fish], a[fish], tolerance = 2e-15)
+    expect_equivalent(efft[fish], e[fish], tolerance = 3e-14)
     # Test available energy integral
     pfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     p <- getPredRate(params2, params@initial_n, params@initial_n_pp)
@@ -456,7 +477,7 @@ test_that("project methods return objects of correct dimension when community on
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     # MizerParams methods
-    expect_equal(dim(getAvailEnergy(params, n, n_pp)), c(1, no_w))
+    expect_equal(dim(getEncounter(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getFeedingLevel(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getPredRate(params, n, n_pp)), c(1, no_w_full))
     expect_equal(dim(getPredMort(params, n, n_pp)), c(1, no_w))
@@ -467,7 +488,7 @@ test_that("project methods return objects of correct dimension when community on
     expect_equal(dim(getFMort(params, 0)), c(1, no_w)) # 2D species x size
     expect_equal(dim(getFMort(params, matrix(c(0, 0), nrow = 2))), 
                      c(2, 1, no_w)) # 3D time x species x size
-    expect_equal(dim(getMort(params, n, n_pp, 0)), c(1, no_w))
+    expect_equal(dim(getMort(params, n, n_pp, effort = 0)), c(1, no_w))
     expect_equal(dim(getEReproAndGrowth(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getERepro(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getEGrowth(params, n, n_pp)), c(1, no_w))

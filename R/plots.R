@@ -221,7 +221,7 @@ getBiomassFrame <- function(sim,
 #'   y axis. Use NA to refer to the existing minimum or maximum. Any values
 #'   below 1e-20 are always cut off.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
-#'   value is TRUE
+#'   value is FALSE
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE
 #' @param background A boolean value that determines whether background species
@@ -249,7 +249,7 @@ plotBiomass <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            y_ticks = 6, print_it = TRUE,
+            y_ticks = 6, print_it = FALSE,
             ylim = c(NA, NA),
             total = FALSE, background = TRUE, ...){
     b <- getBiomass(sim, ...)
@@ -319,7 +319,7 @@ plotBiomass <- function(sim,
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species contained in \code{sim} are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE.
+#'   Defaults to FALSE.
 #' @param total A boolean value that determines whether the total yield from
 #'   all species in the system is plotted as well. Default is FALSE.
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
@@ -344,7 +344,7 @@ plotBiomass <- function(sim,
 #' }
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
-                      print_it = TRUE, total = FALSE, log = TRUE, ...){
+                      print_it = FALSE, total = FALSE, log = TRUE, ...){
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -443,7 +443,7 @@ plotYield <- function(sim, sim2,
 #' @param species Name or vector of names of the species to be plotted. By
 #'   default all species are plotted.
 #' @param print_it Display the plot, or just return the ggplot2 object. 
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total yield
 #'   per gear over all species in the system is plotted as well. Default is FALSE
 #' @param ... Other arguments to pass to \code{\link{getYieldGear}} method
@@ -462,7 +462,7 @@ plotYield <- function(sim, sim2,
 #' }
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
-                          print_it = TRUE, total = FALSE, ...){
+                          print_it = FALSE, total = FALSE, ...){
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
@@ -521,7 +521,7 @@ plotYieldGear <- function(sim,
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
 #' @param plankton A boolean value that determines whether plankton is included.
@@ -548,7 +548,7 @@ plotYieldGear <- function(sim,
 plotSpectra <- function(object, species = NULL,
                         time_range,
                         min_w, ylim = c(NA, NA),
-                        power = 1, biomass = TRUE, print_it = TRUE,
+                        power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE, ...) {
     if (is(object, "MizerSim")) {
@@ -700,7 +700,7 @@ plot_spectra <- function(params, n, n_pp,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getFeedingLevel} method
 #'
 #' @return A ggplot2 object
@@ -718,7 +718,7 @@ plot_spectra <- function(params, n, n_pp,
 plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
             time_range = max(as.numeric(dimnames(sim@n)$time)),
-            print_it = TRUE, ...) {
+            print_it = FALSE, ...) {
     feed_time <- getFeedingLevel(sim, time_range = time_range,
                                  drop = FALSE, ...)
     feed <- apply(feed_time, c(2, 3), mean)
@@ -759,7 +759,7 @@ plotFeedingLevel <- function(sim,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getM2} method.
 #'
 #' @return A ggplot2 object
@@ -776,7 +776,7 @@ plotFeedingLevel <- function(sim,
 #' }
 plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
-                   print_it = TRUE, ...) {
+                   print_it = FALSE, ...) {
     m2_time <- getM2(sim, time_range = time_range, drop = FALSE, ...)
     m2 <- apply(m2_time, c(2, 3), mean)
     m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
@@ -818,7 +818,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments to pass to \code{getFMort} method
 #'
 #' @return A ggplot2 object
@@ -835,7 +835,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' }
 plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
-                      print_it = TRUE, ...){
+                      print_it = FALSE, ...){
     f_time <- getFMort(sim, time_range = time_range, drop = FALSE, ...)
     f <- apply(f_time, c(2, 3), mean)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
@@ -861,6 +861,53 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 }
 
 
+#' Get growth curves giving weight as a function of age
+#' 
+#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+#' time of a simulation to calculate the size at age. If given a
+#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
+#' 
+#' @param object MizerSim or MizerParams object
+#' @param max_age The age up to which the weight is to be plotted. Default is 20
+#'
+#' @return A ggplot2 object
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' getGrowthCurves(params)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' getGrowthCurves(sim, max_age = 24)
+#' }
+getGrowthCurves <- function(object, max_age = 24) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+        t <- dim(object@n)[1]
+        n <- object@n[t, , ]
+        n_pp <- object@n_pp[t, ]
+    } else if (is(object, "MizerParams")) {
+        params <- object
+        n <- object@initial_n
+        n_pp <- object@initial_n_pp
+    }
+    species <- dimnames(n)$sp
+    age <- seq(0, max_age, length.out = 50)
+    ws <- array(dim = c(length(species), length(age)),
+                dimnames = list(Species = species, Age = age))
+    g <- getEGrowth(params, n, n_pp)
+    for (i in 1:length(species)) {
+        g_fn <- stats::approxfun(params@w, g[i, ])
+        myodefun <- function(t, state, parameters){
+            return(list(g_fn(state)))
+        }
+        ws[i, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                times = age, func = myodefun)[, 2]
+    }
+    return(ws)
+}
+
 #' Plot growth curves giving weight as a function of age
 #' 
 #' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
@@ -880,7 +927,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' @param percentage Boolean value. If TRUE, the size is shown as a percentage
 #'   of the maximal size.
 #' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to TRUE
+#'   Defaults to FALSE
 #' @param ... Other arguments (unused)
 #' 
 #' @return A ggplot2 object
@@ -895,138 +942,81 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' }
 plotGrowthCurves <- function(object, species,
-            max_age = 20, percentage = FALSE, print_it = TRUE) {
+            max_age = 20, percentage = FALSE, print_it = FALSE) {
     if (is(object, "MizerSim")) {
-        sim <- object
-        if (missing(species)) {
-            species <- dimnames(sim@n)$sp
-        }
-        # reorder list of species to coincide with order in sim
-        idx <- which(dimnames(sim@n)$sp %in% species)
-        species <- dimnames(sim@n)$sp[idx]
-        age <- seq(0, max_age, length.out = 50)
-        ws <- array(dim = c(length(species), length(age)),
-                    dimnames = list("Species" = species, "Age" = age))
-        g <- getEGrowth(sim@params, sim@n[dim(sim@n)[1], , ], 
-                        sim@n_pp[dim(sim@n)[1], ])
-        for (j in 1:length(species)) {
-            i <- idx[j]
-            g_fn <- stats::approxfun(sim@params@w, g[i, ])
-            myodefun <- function(t, state, parameters){
-                return(list(g_fn(state)))
-            }
-            ws[j, ] <- deSolve::ode(y = sim@params@species_params$w_min[i],
-                                    times = age, func = myodefun)[, 2]
-            if (percentage) {
-                ws[j, ] <- ws[j, ] / sim@params@species_params$w_inf[i] * 100
-            }
-        }
-        plot_dat <- reshape2::melt(ws)
-        plot_dat$Species <- as.character(plot_dat$Species)
-        if (length(species) > 12) {
-            p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value, group = Species))
-        } else {
-            p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value,
-                              colour = Species, linetype = Species))
-        }
-        y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
-        p <- p +
-            scale_x_continuous(name = "Age [Years]") +
-            scale_y_continuous(name = y_label) +
-            scale_colour_manual(values = sim@params@linecolour) +
-            scale_linetype_manual(values = sim@params@linetype)
-
-        # Extra stuff for single-species case
-        if (length(species) == 1 && !percentage) {
-            w_inf <- sim@params@species_params$w_inf[idx[1]]
-            p <- p + geom_hline(yintercept = w_inf) +
-                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-            w_mat <- sim@params@species_params$w_mat[idx[1]]
-            p <- p + geom_hline(yintercept = w_mat) +
-                annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if (all(c("a", "b", "k_vb") %in% names(sim@params@species_params))) {
-                a <- sim@params@species_params$a[idx[1]]
-                b <- sim@params@species_params$b[idx[1]]
-                k_vb <- sim@params@species_params$k_vb[idx[1]]
-                L_inf <- (w_inf/a)^(1/b)
-                vb <- a * (L_inf * (1 - exp(-k_vb * age)))^b
-                dat <- data.frame("x" = age, "y" = vb)
-                p <- p + geom_line(data = dat, aes(x = x, y = y))
-            }
-        }
-
-        if (print_it) {
-            print(p)
-        }
-        return(p)
-    } else {
-        # Plot growth curves using a MizerParams object.
+        params <- object@params
+        t <- dim(object@n)[1]
+        n <- object@n[t, , ]
+        n_pp <- object@n_pp[t, ]
+    } else if (is(object, "MizerParams")) {
         params <- object
-        if (missing(species)) {
-            species <- dimnames(params@initial_n)$sp
-        }
-        # reorder list of species to coincide with order in params
-        idx <- which(dimnames(params@initial_n)$sp %in% species)
-        species <- dimnames(params@initial_n)$sp[idx]
-        age <- seq(0, max_age, length.out = 50)
-        ws <- array(dim = c(length(species), length(age)),
-                    dimnames = list(Species = species, Age = age))
-        g <- getEGrowth(params, params@initial_n, params@initial_n_pp)
-        for (j in 1:length(species)) {
-            i <- idx[j]
-            g_fn <- stats::approxfun(params@w, g[i, ])
-            myodefun <- function(t, state, parameters){
-                return(list(g_fn(state)))
-            }
-            ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
-                                    times = age, func = myodefun)[, 2]
-            if (percentage) {
-                ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
-            }
-        }
-        plot_dat <- reshape2::melt(ws)
-        plot_dat$Species <- as.character(plot_dat$Species)
-        if (length(species) > 12) {
-            p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value, group = Species))
-        } else {
-            p <- ggplot(plot_dat) +
-                geom_line(aes(x = Age, y = value,
-                              colour = Species, linetype = Species))
-        }
-        y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
-        p <- p +
-            scale_x_continuous(name = "Age [Years]") +
-            scale_y_continuous(name = y_label) +
-            scale_colour_manual(values = params@linecolour) +
-            scale_linetype_manual(values = params@linetype)
-
-        # Extra stuff for single-species case
-        if (length(species) == 1 && !percentage) {
-            w_inf <- params@species_params$w_inf[idx[1]]
-            p <- p + geom_hline(yintercept = w_inf) +
-                annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-            w_mat <- params@species_params$w_mat[idx[1]]
-            p <- p + geom_hline(yintercept = w_mat) +
-                annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
-            if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-                a <- params@species_params$a[idx[1]]
-                b <- params@species_params$b[idx[1]]
-                k_vb <- params@species_params$k_vb[idx[1]]
-                L_inf <- (w_inf/a)^(1/b)
-                vb <- a * (L_inf * (1 - exp(-k_vb * age)))^b
-                dat <- data.frame(x = age, y = vb)
-                p <- p + geom_line(data = dat, aes(x = x, y = y))
-            }
-        }
-
-        if (print_it) {
-            print(p)
-        }
-        return(p)
+        n <- object@initial_n
+        n_pp <- object@initial_n_pp
     }
+    if (missing(species)) {
+        species <- dimnames(n)$sp
+    }
+    # reorder list of species to coincide with order in params
+    idx <- which(dimnames(n)$sp %in% species)
+    species <- dimnames(n)$sp[idx]
+    age <- seq(0, max_age, length.out = 50)
+    ws <- array(dim = c(length(species), length(age)),
+                dimnames = list(Species = species, Age = age))
+    g <- getEGrowth(params, n, n_pp)
+    for (j in 1:length(species)) {
+        i <- idx[j]
+        g_fn <- stats::approxfun(params@w, g[i, ])
+        myodefun <- function(t, state, parameters){
+            return(list(g_fn(state)))
+        }
+        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                times = age, func = myodefun)[, 2]
+        if (percentage) {
+            ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
+        }
+    }
+    plot_dat <- reshape2::melt(ws)
+    plot_dat$Species <- as.character(plot_dat$Species)
+    if (length(species) > 12) {
+        p <- ggplot(plot_dat) +
+            geom_line(aes(x = Age, y = value, group = Species))
+    } else {
+        p <- ggplot(plot_dat) +
+            geom_line(aes(x = Age, y = value,
+                          colour = Species, linetype = Species))
+    }
+    y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
+    p <- p +
+        scale_x_continuous(name = "Age [Years]") +
+        scale_y_continuous(name = y_label) +
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype)
+    
+    # Extra stuff for single-species case
+    if (length(species) == 1 && !percentage) {
+        w_inf <- params@species_params$w_inf[idx[1]]
+        p <- p + geom_hline(yintercept = w_inf) +
+            annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
+        w_mat <- params@species_params$w_mat[idx[1]]
+        p <- p + geom_hline(yintercept = w_mat) +
+            annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
+        if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
+            a <- params@species_params$a[idx[1]]
+            b <- params@species_params$b[idx[1]]
+            k_vb <- params@species_params$k_vb[idx[1]]
+            t0 <- params@species_params$t0[idx[1]]
+            if (is.null(t0)) t0 <- 0
+            L_inf <- (w_inf/a)^(1/b)
+            vb <- a * (L_inf * (1 - exp(-k_vb * (age - t0))))^b
+            dat <- data.frame(x = age, y = vb)
+            p <- p + geom_line(data = dat, aes(x = x, y = y))
+        }
+    }
+    
+    if (print_it) {
+        print(p)
+    }
+    return(p)
 }
 
 

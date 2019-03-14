@@ -22,9 +22,9 @@ largest asymptotic size.}
 the same length as the w_full slot. The last entry is not determined by
 the w slot but represents the size of the last size bin.}
 
-\item{\code{w_full}}{The size grid for the full size range including the resource
+\item{\code{w_full}}{The size grid for the full size range including the plankton
 spectrum. An increasing vector of weights (in grams) running from the
-smallest resource size to the largest asymptotic size of fish. The
+smallest plankton size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
 \item{\code{dw_full}}{The spacing in the full size grid. 
@@ -43,6 +43,9 @@ each species at size.}
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
 each species at size.}
 
+\item{\code{rho}}{A 3-dim array (species x resource x size) holding the encounter
+rates for unstructured resources. See [resource_dynamics] for details.}
+
 \item{\code{metab}}{An array (species x size) that holds the metabolism
 for each species at size.}
 
@@ -55,7 +58,7 @@ this is NA then the following two slots will be used.}
 
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the available energy integral. If this is NA
+appropriate for evaluating the encounter rate integral. If this is NA
 then the \code{pred_kernel} will be used to calculate the available 
 energy integral.}
 
@@ -70,12 +73,28 @@ growth rate of the plankton spectrum.}
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
 carrying capacity of the plankton spectrum.}
 
+\item{\code{resource_dynamics}}{A named list of functions for projecting the
+biomasses in the unstructured resource components by one timestep. The
+names of the list entries are the resource names. See
+\code{\link{resource_dynamics}} for details.}
+
+\item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
+density by one timestep. See \code{\link{plankton_semichemostat}} for 
+an example.}
+
+\item{\code{resource_params}}{A list containing the parameters needed by the
+`resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+details.}
+
 \item{\code{sc}}{The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters
 (see the mizer vignette, Table 2, for details)}
 
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}}
+
+\item{\code{interaction_p}}{The species specific interaction with plankton,
+\eqn{\theta_{ip}}}
 
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
@@ -92,17 +111,20 @@ at each weight at our candidate steady state solution.}
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
 the plankton abundance at each weight.}
 
+\item{\code{initial_B}}{A vector containing the biomasses of the unstructured
+resource components, see \code{\link{resource_dynamics}} for details.}
+
 \item{\code{n}}{Exponent of maximum intake rate.}
 
 \item{\code{p}}{Exponent of metabolic cost.}
 
-\item{\code{lambda}}{Exponent of resource spectrum.}
+\item{\code{lambda}}{Exponent of plankton spectrum.}
 
 \item{\code{q}}{Exponent for volumetric search rate.}
 
 \item{\code{f0}}{Initial feeding level.}
 
-\item{\code{kappa}}{Magnitude of resource spectrum.}
+\item{\code{kappa}}{Magnitude of plankton spectrum.}
 
 \item{\code{A}}{Abundance multipliers.}
 

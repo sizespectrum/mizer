@@ -216,9 +216,9 @@ validMizerParams <- function(object) {
 #' @slot dw The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
 #'   the same length as the w_full slot. The last entry is not determined by
 #'   the w slot but represents the size of the last size bin.
-#' @slot w_full The size grid for the full size range including the resource
+#' @slot w_full The size grid for the full size range including the plankton
 #'   spectrum. An increasing vector of weights (in grams) running from the
-#'   smallest resource size to the largest asymptotic size of fish. The
+#'   smallest plankton size to the largest asymptotic size of fish. The
 #'   last entries of the vector have to be equal to the content of the w slot.
 #' @slot dw_full The spacing in the full size grid. 
 #'   So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
@@ -231,6 +231,8 @@ validMizerParams <- function(object) {
 #'   each species at size.
 #' @slot search_vol An array (species x size) that holds the search volume for
 #'   each species at size.
+#' @slot rho A 3-dim array (species x resource x size) holding the encounter
+#'   rates for unstructured resources. See [resource_dynamics] for details.
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -240,7 +242,7 @@ validMizerParams <- function(object) {
 #'   this is NA then the following two slots will be used.
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the available energy integral. If this is NA
+#'   appropriate for evaluating the encounter rate integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the available 
 #'   energy integral.
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
@@ -251,10 +253,22 @@ validMizerParams <- function(object) {
 #'   growth rate of the plankton spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum.
+#' @slot resource_dynamics A named list of functions for projecting the
+#'   biomasses in the unstructured resource components by one timestep. The
+#'   names of the list entries are the resource names. See
+#'   \code{\link{resource_dynamics}} for details.
+#' @slot plankton_dynamics A function for projecting the plankton abundance
+#'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
+#'   an example.
+#' @slot resource_params A list containing the parameters needed by the
+#'   `resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+#'   details.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
+#' @slot interaction_p The species specific interaction with plankton,
+#'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
@@ -262,15 +276,17 @@ validMizerParams <- function(object) {
 #' @slot catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}
 #' @slot initial_n An array (species x size) that holds abundance of each species
-#'  at each weight at our candidate steady state solution.
+#'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
-#'  the plankton abundance at each weight.
+#'   the plankton abundance at each weight.
+#' @slot initial_B A vector containing the biomasses of the unstructured
+#'   resource components, see \code{\link{resource_dynamics}} for details.
 #' @slot n Exponent of maximum intake rate.
 #' @slot p Exponent of metabolic cost.
-#' @slot lambda Exponent of resource spectrum.
+#' @slot lambda Exponent of plankton spectrum.
 #' @slot q Exponent for volumetric search rate.
 #' @slot f0 Initial feeding level.
-#' @slot kappa Magnitude of resource spectrum.
+#' @slot kappa Magnitude of plankton spectrum.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species. Used 
 #'   to give consistent colours to species in plots.
@@ -305,17 +321,23 @@ setClass(
         initial_n = "array",
         intake_max = "array",
         search_vol = "array",
+        rho = "array",
         metab = "array",
         pred_kernel = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
         mu_b = "array",
         rr_pp = "numeric",
-        cc_pp = "numeric", # was NinPP, carrying capacity of plankton
+        cc_pp = "numeric",
+        resource_dynamics = "list",
+        plankton_dynamics = "function",
+        resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
+        initial_B = "numeric",
         species_params = "data.frame",
         interaction = "array",
+        interaction_p = "numeric",
         srr  = "function",
         selectivity = "array",
         catchability = "array",
@@ -345,6 +367,7 @@ setClass(
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
+        rho = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         pred_kernel = array(
             NA, dim = c(1,1,1), dimnames = list(
@@ -358,13 +381,15 @@ setClass(
         cc_pp = NA_real_,
         sc = NA_real_,
         initial_n_pp = NA_real_,
+        initial_B = NA_real_,
         A = NA_real_,
         linecolour = NA_character_,
         linetype = NA_character_,
         #speciesParams = data.frame(),
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
-        ), # which dimension is prey and which is prey?
+        ),
+        interaction_p = NA_real_,
         selectivity = array(
             NA, dim = c(1,1,1), dimnames = list(gear = NULL, sp = NULL, w = NULL)
         ),
@@ -417,6 +442,8 @@ setClass(
 #' @param no_w_pp  No longer used
 #' @param species_names Names of species
 #' @param gear_names Names of gears
+#' @param resource_names Names of unstructured resources. Empty if the model
+#'   does not contain unstructured resource components.
 #' 
 #' @return An empty but valid MizerParams object
 #' 
@@ -424,14 +451,15 @@ setClass(
 emptyParams <- 
     function(no_sp, min_w = 0.001, # w_full = NA,
              max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
-             species_names = 1:no_sp, gear_names = species_names) {
+             species_names = 1:no_sp, gear_names = species_names,
+             resource_names = list()) {
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     # Some checks
     if (length(species_names) != no_sp)
         stop("species_names must be the same length as the value of no_sp argument")
 
-    # Set up grids
+    # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
     # specify a grid with a non-constant log spacing. But we comment this out
     # for now because of the fft.
@@ -476,15 +504,15 @@ emptyParams <-
     #     min_w_pp <- w_full[1]
     # }
     
-    # Basic arrays for templates
+    # Basic arrays for templates ----
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
-    mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
-                  dimnames = list(sp = species_names, w_pred = signif(w,3), 
-                                  w_prey = signif(w_full,3)))
+    # mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
+    #               dimnames = list(sp = species_names, w_pred = signif(w,3), 
+    #                               w_prey = signif(w_full,3)))
     
-    ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full), 
-                              dimnames = list(sp = species_names, k = 1:no_w_full))
+    ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
+                            dimnames = list(sp = species_names, k = 1:no_w_full))
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
@@ -494,6 +522,9 @@ emptyParams <-
     interaction <- array(1, dim = c(no_sp, no_sp), 
                          dimnames = list(predator = species_names, 
                                          prey = species_names))
+    interaction_p <- rep(1, no_sp)
+    names(interaction_p) <- species_names
+    
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
     w_min_idx <- rep(1, no_sp)
@@ -511,7 +542,27 @@ emptyParams <-
     # Make an empty srr function, just to pass validity check
     srr <- function(rdi, species_params) return(0)
     
-    # Make colour and linetype scales for use in plots
+    ## Set up resources ----
+    no_res <- length(resource_names)
+    if (no_res == 0) {
+        rho <- array(0, dim = 0)
+        initial_B <- 0
+    } else {
+        rho <- array(NA, dim = c(no_sp, no_res, no_w), 
+                          dimnames = list(sp = species_names, 
+                                          res = resource_names,
+                                          w = signif(w,3)))
+        initial_B <- rep(0, no_res)
+        names(initial_B) <- resource_names
+    }
+    resource_dynamics <- list()
+    for (res in resource_names) {
+        resource_dynamics[[res]] <- function(params, n, n_pp, B, rates, dt) 0
+    }
+    resource_params <- list()
+    
+    # Colour and linetype scales ----
+    # for use in plots
     # Colour-blind-friendly palettes
     # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
     # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
@@ -529,27 +580,51 @@ emptyParams <-
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
     
-    # Make the new object
+    # Make the new object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
-    res <- new("MizerParams",
-               w = w, dw = dw, w_full = w_full, dw_full = dw_full, w_min_idx = w_min_idx,
-               psi = mat1, initial_n = mat1, intake_max = mat1, search_vol = mat1,
-               metab = mat1, mu_b = mat1, ft_pred_kernel_e = ft_pred_kernel, 
-               ft_pred_kernel_p = ft_pred_kernel, pred_kernel = array(),
-               selectivity = selectivity, catchability = catchability,
-               rr_pp = vec1, cc_pp = vec1, sc = w, initial_n_pp = vec1, 
-               species_params = species_params,
-               interaction = interaction, srr = srr, 
-               A = as.numeric(rep(NA, dim(interaction)[1])),
-               linecolour = linecolour, linetype = linetype) 
+    res <- new(
+        "MizerParams",
+        w = w,
+        dw = dw,
+        w_full = w_full,
+        dw_full = dw_full,
+        w_min_idx = w_min_idx,
+        psi = mat1,
+        initial_n = mat1,
+        intake_max = mat1,
+        search_vol = mat1,
+        rho = rho,
+        metab = mat1,
+        mu_b = mat1,
+        ft_pred_kernel_e = ft_pred_kernel,
+        ft_pred_kernel_p = ft_pred_kernel,
+        pred_kernel = array(),
+        selectivity = selectivity,
+        catchability = catchability,
+        rr_pp = vec1,
+        cc_pp = vec1,
+        sc = w,
+        initial_n_pp = vec1,
+        species_params = species_params,
+        interaction = interaction,
+        interaction_p = interaction_p,
+        srr = srr,
+        resource_dynamics = resource_dynamics,
+        plankton_dynamics = plankton_semichemostat,
+        resource_params = resource_params,
+        initial_B = initial_B,
+        A = as.numeric(rep(NA, dim(interaction)[1])),
+        linecolour = linecolour,
+        linetype = linetype
+    )
     return(res)
 }
 
 
-#' Construct \code{MizerParams} object for multispecies model
+#' Construct MizerParams object for multispecies model
 #'
-#' Provides default functional forms for all slots in the MizerParams object
-#' based on user-provided species parameters.
+#' Provides default functional forms for all slots in the
+#' \linkS4class{MizerParams} object based on user-provided species parameters.
 #' 
 #' @param object A data frame of species specific parameter values (see notes
 #'   below).
@@ -576,10 +651,10 @@ emptyParams <-
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.7. 
 #' @param q Exponent of the search volume. Default value is 0.8. 
-#' @param r_pp Growth rate of the primary productivity. Default value is 10.
-#' @param kappa Carrying capacity of the resource spectrum. Default value is
+#' @param r_pp Growth rate of the primary productivity. Default value is 10. 
+#' @param kappa Carrying capacity of the plankton spectrum. Default value is
 #'   1e11.
-#' @param lambda Exponent of the resource spectrum. Default value is (2+q-n).
+#' @param lambda Exponent of the plankton spectrum. Default value is (2+q-n).
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
 #'   is 10.
 #' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
@@ -591,23 +666,44 @@ emptyParams <-
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
 #' @param z0exp If \code{z0}, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-#'   Default value is n-1.
+#'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+#'   Default value is \code{n-1}.
 #' @param store_kernel A boolean flag that determines whether the full
 #'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
 #'   The default is TRUE if the number of size bins is no larger than 100 and
 #'   FALSE otherwise.
+#' @param plankton_dynamics Function that determines plankton dynamics by
+#'   calculating the plankton spectrum at the next time step from the current
+#'   state. The default is \code{"\link{plankton_semichemostat}"}.
+#' @param interaction_p Vector specifying for each species its interaction with
+#'   plankton, similar to what the interaction matrix does for the interaction
+#'   with other species. Entries should be numbers between 0 and 1. The 
+#'   default is a vector of 1s.
+#' @param rho Either NULL (default), in which case there will be no unstructured
+#'   resources in the model, or an array (species x resource) that gives the
+#'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
+#'   encounters biomass of resource \eqn{d}. The rate is assumed to scale
+#'   allometrically with size with exponent \code{n}. So the total contribution
+#'   of the resources to the rate at which the individual encounters biomass is
+#'   \deqn{\sum_d\rho_{id} w^n B_d,}
+#'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
+#'   See \code{\link{resource_dynamics}} help for more details.
+#' @param resource_dynamics A named list of functions that determine the
+#'   dynamics of the unstructured resources by calculating their biomasses at
+#'   the next time step from the current state. See
+#'   \code{\link{resource_dynamics}} for details. Ignored if \code{rho} is NULL.
+#' @param resource_params A list of parameters needed by the
+#'   \code{resource_dynamics} functions. Ignored if \code{rho} is NULL.
 #' @param ... Additional arguments.
 #'
-#' @return An object of type \code{MizerParams}
+#' @return An object of type \linkS4class{MizerParams}
 #' 
-#' @note The only essential argument to the \code{MizerParams} constructor is a
-#'   data frame which contains the species data. The data frame is arranged
-#'   species by parameter, so each column of the parameter data frame is a
-#'   parameter and each row has the parameters for one of the species in the
-#'   model.
+#' @note The only essential argument is a data frame which contains the species
+#'   data. The data frame is arranged species by parameter, so each column of
+#'   the parameter data frame is a parameter and each row has the parameters for
+#'   one of the species in the model.
 #'   
-#'   There are some essential columns that must be included in the parameter
+#'   There are some essential columns that must be included in the species parameter
 #'   data.frame and that do not have default values. Other columns do have
 #'   default values, so that if they are not included in the species parameter
 #'   data frame, they will be automatically added when the \code{MizerParams}
@@ -647,10 +743,64 @@ multispeciesParams <-
              n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
              kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
              f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
-             store_kernel = (no_w <= 100)) {
+             store_kernel = (no_w <= 100),
+             plankton_dynamics = plankton_semichemostat,
+             interaction_p = rep(1, nrow(object)),
+             rho = NULL,
+             resource_dynamics = list(),
+             resource_params = list()) {
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
+    
+    # Check validity of arguments ----
+    if (!is.null(rho)) {
+        assert_that(are_equal(length(dim(rho)), 2))
+        no_res <- dim(rho)[2]
+        assert_that(is.list(resource_dynamics))
+        assert_that(is.list(resource_params))
+        assert_that(length(resource_dynamics) == no_res)
+        # TODO: check that all parameters needed by resource dynamics functions
+        # are included in resource_params
+        if (dim(rho)[1] != no_sp) {
+            stop("rho argument should have one row for each species.")
+        }
+        if (is.character(dimnames(rho)["res"])) {
+            assert_that(are_equal(dimnames(rho)["res"], 
+                                  names(resource_dynamics)))
+        }
+    } else {
+        if (length(resource_dynamics) > 0 || length(resource_params) > 0) {
+            message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources. All other resource information has been ignored.")
+        }
+    }
+    
+    ## Set default values for missing values in species params  ----
+    if (!("m" %in% colnames(object))) {
+        object$m <- 1 - n
+    }
+    
+    missing <- is.na(object$m)
+    if (any(missing)) {
+        object$m[missing] <- 1 - n
+    }
+    
+    # w25 is the weight at which 25% of the fish are mature, 
+    # if it is not specified in the dataframe then it is chosen 
+    # so as to correspond with a value of U=10 in the maturation 
+    # kernel that is a factor of psi.
+    
+    if (!("w25" %in% colnames(object))){
+        object$w25 <- object$w_mat/(3^(1/10))
+    }
+    
+    # also we need to fill w25 in, if it is just included for some
+    # species
+    
+    missing <- is.na(object$w25)
+    if (any(missing)) {
+        object$w25[missing] <- object$w_mat[missing]/(3^(1/10))
+    }
     
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
@@ -732,7 +882,7 @@ multispeciesParams <-
     if (any(is.na(object$h))) {
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(object))) {
-            stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
+            stop("\tExcept I can't because there is no k_vb column in the species data frame")
         }
         h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
         # Only overwrite missing h with calculated values
@@ -818,7 +968,8 @@ multispeciesParams <-
     res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
                        min_w_pp = min_w_pp, no_w_pp = NA, 
                        species_names = object$species, 
-                       gear_names = unique(object$gear))
+                       gear_names = unique(object$gear),
+                       resource_names = names(resource_dynamics))
     res@n <- n
     res@p <- p
     res@lambda <- lambda
@@ -857,13 +1008,20 @@ multispeciesParams <-
     
     # Now fill up the slots using default formulations:
     # psi - allocation to reproduction - from original Setup() function
+    
+    # m is a species-specific parameter taking its value from 
+    # the data frame, unless it is missing, in which case 
+    # it takes the value of 1-n, by default.
+    
     res@psi[] <- 
         unlist(
             tapply(res@w, 1:length(res@w),
-                   function(wx, w_inf, w_mat,n) {
-                       ((1 + (wx / (w_mat))^-10)^-1) * (wx / w_inf)^(1 - n)
+                   function(wx, w_inf, w_mat,m,w25) {
+                       U <- log(3)/log(w_mat/w25)
+                       return(((1 + (wx / (w_mat))^-U)^-1) * (wx / w_inf)^m)
                    },
-                   w_inf = object$w_inf, w_mat = object$w_mat, n = n
+                   w_inf = object$w_inf, w_mat = object$w_mat, m = object$m,
+                   w25 = object$w25
             )
         )
     # Set w < 10% of w_mat to 0
@@ -882,6 +1040,18 @@ multispeciesParams <-
     res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
     res@metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,k,p)ks * wx^p + k * wx, ks=object$ks,k=object$k,p=p))
     res@mu_b[] <- res@species_params$z0
+    
+    # Plankton
+    res@plankton_dynamics <- plankton_dynamics
+    res@interaction_p <- interaction_p
+    
+    # Resources
+    if (!is.null(rho)) {
+        res@resource_dynamics <- resource_dynamics
+        res@resource_params <- resource_params
+        res@rho[] <- outer(rho, res@w ^ res@n)
+        res@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
+    }
     
     # Set up predation kernels ------------------------------------------------
     if (store_kernel) {
@@ -926,9 +1096,11 @@ multispeciesParams <-
     }
     
     # plankton spectrum -------------------------------------------------
-    res@rr_pp[] <- r_pp * res@w_full^(n - 1) # weight specific plankton growth rate
-    res@cc_pp[] <- kappa*res@w_full^(-lambda) # the resource carrying capacity - one for each mp and m (130 of them)
-    res@cc_pp[res@w_full > w_pp_cutoff] <- 0  # set density of sizes < plankton cutoff size
+    # weight specific plankton growth rate
+    res@rr_pp[] <- r_pp * res@w_full^(n - 1)
+    # the plankton carrying capacity
+    res@cc_pp[] <- kappa*res@w_full^(-lambda)
+    res@cc_pp[res@w_full > w_pp_cutoff] <- 0
     
     # Beverton Holt esque stock-recruitment relationship ----------------------
     # Can add more functional forms or user specifies own
@@ -975,10 +1147,12 @@ multispeciesParams <-
     
     # Remove catchabiliy from species data.frame, now stored in slot
     #params@species_params[,names(params@species_params) != "catchability"]
-    res@species_params <- res@species_params[, -which(names(res@species_params) == "catchability")]
-    res@initial_n <- res@psi
+    res@species_params <- 
+        res@species_params[, -which(names(res@species_params) == "catchability")]
+
     res@initial_n <- get_initial_n(res)
     res@A <- rep(1, no_sp)
+    
     return(res)
 }
 

@@ -13,8 +13,9 @@ model described in section 3 of the mizer vignette.
 In this list we relate the functions in this file to the quantities named in
 the mizer vignette.
 \tabular{llll}{
-  Method name \tab Expression \tab Description \tab Section in vignette\cr
-  \code{\link{getAvailEnergy}} \tab \eqn{E_{a.i}(w)} \tab Available energy \tab 3.2 \cr
+  Function \tab Expression \tab Description \tab Section in vignette\cr
+  \code{\link{getRates}} \tab \tab All of the below \cr
+  \code{\link{getEncounter}} \tab \eqn{E_{e.i}(w)} \tab Encounter rate \tab 3.2 \cr
   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
   \code{\link{getPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr

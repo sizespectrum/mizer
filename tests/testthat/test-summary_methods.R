@@ -1,8 +1,11 @@
 context("Summary methods")
 
+data(NS_species_params_gears)
+data(inter)
+params <- MizerParams(NS_species_params_gears, inter)
+sim <- project(params, effort = 1, t_max = 10)
+
 test_that("get_size_range_array",{
-    data(NS_species_params_gears)
-    data(inter)
     NS_species_params_gears$a <- 0.01
     NS_species_params_gears$b <- 3
     params <- MizerParams(NS_species_params_gears, inter)
@@ -66,12 +69,11 @@ test_that("get_size_range_array",{
 })
 
 test_that("get_time_elements",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=10, dt = 0.5, t_save = 0.5)
-    expect_that(length(get_time_elements(sim,as.character(3:4))), equals(dim(sim@n)[1]))
-    expect_that(length(get_time_elements(sim,3:4)), equals(dim(sim@n)[1]))
+    expect_equal(length(get_time_elements(sim, as.character(3:4))),
+                 dim(sim@n)[1])
+    expect_equal(length(get_time_elements(sim, 3:4)),
+                 dim(sim@n)[1])
     expect_that(sum(get_time_elements(sim,3:4)), equals(3))
     expect_that(sum(get_time_elements(sim,3:50)), throws_error())
     expect_that(which(get_time_elements(sim,seq(from=3,to=4,by = 0.1))), is_equivalent_to(c(7,8,9)))
@@ -86,10 +88,7 @@ test_that("get_time_elements",{
 
 
 test_that("getProportionOfLargeFish works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
-    sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
+    sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
     prop <- getProportionOfLargeFish(sim, threshold_w = 500)
     time_idx <- 40
@@ -104,13 +103,12 @@ test_that("getProportionOfLargeFish works",{
     total_biomass <- sum(sweep(sim@n[time_idx,,],2, range_w * sim@params@w * sim@params@dw, "*"))
     larger_biomass <- sum(sweep(sim@n[time_idx,,],2, threshold_w * range_w * sim@params@w * sim@params@dw, "*"))
     expect_that(prop[time_idx] , is_equivalent_to(larger_biomass / total_biomass))
+    # numeric test
+    expect_known_value(prop, "values/getProportionOfLargeFish")
 })
 
 
 test_that("check_species works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     expect_that(check_species(sim,c("Cod","Haddock")), is_true())
     expect_that(check_species(sim,c(10,11)), is_true())
@@ -120,9 +118,6 @@ test_that("check_species works",{
 })
 
 test_that("getMeanWeight works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     # all species, all size range
     total_biomass <- apply(sweep(sim@n, 3, sim@params@w * sim@params@dw, "*"),1,sum)
@@ -154,14 +149,12 @@ test_that("getMeanWeight works",{
     expect_that(mw, equals(mw4))
     # errors
     expect_that(getMeanWeight(sim,species=c("Dougal","Ted")), throws_error())
+    # numeric test
+    expect_known_value(mw, "values/getMeanWeight")
 })
 
 
 test_that("getYieldGear works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
-    sim <- project(params, effort=1, t_max=10)
     y <- getYieldGear(sim)
     # check dims
     expect_that(dim(y),equals(c(11,dim(params@catchability)[1],dim(params@catchability)[2])))
@@ -169,13 +162,11 @@ test_that("getYieldGear works",{
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f_gear <- getFMortGear(sim)
     expect_that(sum((biomass*f_gear[,1,,])[1,1,]),equals(y[1,1,1]))
+    # numeric test
+    expect_known_value(y, "values/getYieldGear")
 })
 
 test_that("getYield works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
-    sim <- project(params, effort=1, t_max=10)
     y <- getYield(sim)
     # check dims
     expect_that(dim(y),equals(c(11,dim(params@catchability)[2])))
@@ -183,13 +174,11 @@ test_that("getYield works",{
     biomass <- sweep(sim@n,3,sim@params@w * sim@params@dw, "*")
     f <- getFMort(sim)
     expect_that(sum((f*biomass)[1,1,]),equals(y[1,1]))
+    # numeric test
+    expect_known_value(y, "values/getYield")
 })
 
 test_that("getCommunitySlope works",{
-    data(NS_species_params_gears)
-    data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
-    sim <- project(params, effort=1, t_max=10)
     slope_b <- getCommunitySlope(sim)
     # dims
     expect_that(dim(slope_b), equals(c(dim(sim@n)[1],3)))
@@ -228,4 +217,6 @@ test_that("getCommunitySlope works",{
     expect_that(slope_b3[dim(sim@n)[1],"r2"],equals(summary(lm_res)$r.squared))
     expect_that(slope_b3[dim(sim@n)[1],"slope"],equals(summary(lm_res)$coefficients[2,1]))
     expect_that(slope_b3[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
+    # numeric test
+    expect_known_value(slope_b3, "values/getCommunitySlope")
 })

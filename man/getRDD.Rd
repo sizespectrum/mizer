@@ -4,15 +4,18 @@
 \alias{getRDD}
 \title{Get density dependent recruitment}
 \usage{
-getRDD(object, n, n_pp, sex_ratio = 0.5, rdi = getRDI(object, n = n,
-  n_pp = n_pp, sex_ratio = sex_ratio))
+getRDD(object, n = object@initial_n, n_pp = object@initial_n_pp,
+  B = object@initial_B, sex_ratio = 0.5, rdi = getRDI(object, n = n,
+  n_pp = n_pp, B = B, sex_ratio = sex_ratio))
 }
 \arguments{
-\item{object}{An \code{MizerParams} object}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size)}
+\item{n}{A matrix of species abundances (species x size)}
 
 \item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}
@@ -29,8 +32,7 @@ Calculates the density dependent recruitment (total egg production) \eqn{R_i}
 for each species. This is the flux entering the smallest size class of each
 species. The density dependent recruitment is the density independent
 recruitment after it has been put through the density dependent
-stock-recruitment relationship function. This method is used by the
-\code{project} method for performing simulations.
+stock-recruitment relationship function.
 }
 \examples{
 \dontrun{

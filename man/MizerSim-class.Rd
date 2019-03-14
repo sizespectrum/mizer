@@ -28,6 +28,8 @@ gear}
 
 \item{\code{n_pp}}{Array that stores the projected plankton abundance by time and
 size}
+
+\item{\code{B}}{Array that stores biomasses of unstructured resources by time}
 }}
 
 \seealso{

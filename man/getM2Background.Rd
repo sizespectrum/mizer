@@ -4,15 +4,18 @@
 \alias{getM2Background}
 \title{Alias for getPlanktonMort}
 \usage{
-getM2Background(object, n, n_pp, pred_rate = getPredRate(object, n = n,
-  n_pp = n_pp))
+getM2Background(object, n = object@initial_n,
+  n_pp = object@initial_n_pp, B = object@initial_B,
+  pred_rate = getPredRate(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
-\item{object}{A \code{MizerParams} object.}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size).}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +

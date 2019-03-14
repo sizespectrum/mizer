@@ -147,6 +147,26 @@ An object of class 'MizerParams' holds all the information needed for the
 ## Always write tests for your code
 We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+The test are in the directory `tests/testthat`. 
+
+Some tests compare the results of calculations to the results the code gave in
+the past, using the `expect_known_value()` test. The past values are stored in
+tests/testthat/values. If one of the tests gives a value that is different from
+the stored value, then the test throws an error *and* overwrites the stored
+value with the new result. The second time the test is run, it then no longer
+fails. Luckily the original values will still be in the git repository. So after
+you think you have fixed the error that led to the wrong result, you should
+revert to the old stored values before re-running the test. Reverting to the old
+stored values is easy: Just go to the Git tab in RStudio, select the changed
+files in tests/testthat/values (select, not tick), then right-click and choose
+Revert.
+
+It may be that the change in the result of a calculation is intended, perhaps
+because your new code is more accurate than the old code. If you are 100%
+certain of this, but only then, should you commit the changed files in
+tests/testthat/values, so that these new values form the basis of future
+comparison tests.
+
 
 ## Rebuild package after altering code
 If you make a change to mizer's code you will have to rebuild the package after 
@@ -162,6 +182,11 @@ and tick *Use devtools package functions if available* and
 *Generate documentation with Roxygen*, and click *Configure* and under
 *Automatically roxygenize when running:* tick *Build & Reload*.
 
+
+
+Some tests check that code produces the same numerical values as in the
+past with the `expect_known_value()` function. This is set up to store
+the correct values in files in `tests/testthat/values`.
 
 
 

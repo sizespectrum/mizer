@@ -33,7 +33,7 @@ NULL
 #' community-type models can be easily set up and run. A community model has
 #' several features that distinguish it from the food-web type models. Only one
 #' 'species' is resolved, i.e. one 'species' is used to represent the whole
-#' community. The resource spectrum only extends to the start of the community
+#' community. The plankton spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
 #' constant and set by the user. As recruitment is constant, the proportion of
 #' energy invested in reproduction (the slot \code{psi} of the returned 
@@ -60,8 +60,8 @@ NULL
 #' 
 #' @param z0 The background mortality of the community. Default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. Default value 0.2
-#' @param f0 The average feeding level of individuals who feed mainly on the 
-#'   resource. This value is used to calculate the search rate parameter 
+#' @param f0 The average feeding level of individuals who feed on a power-law 
+#'   spectrum. This value is used to calculate the search rate parameter 
 #'   \code{gamma} (see the package vignette). Default value is 0.7.
 #' @param h The maximum food intake rate. Default value is 10.
 #' @param beta The preferred predator prey mass ratio. Default value is 100.
@@ -767,16 +767,19 @@ set_scaling_model <- function(no_sp = 11,
     plankton_vec <- (kappa * w ^ (-lambda)) - sc
     # Cut off plankton at w_pp_cutoff
     plankton_vec[w >= w_pp_cutoff] <- 0
-    if (!perfect && any(plankton_vec < 0)) {
-        # Do not allow negative plankton abundance
-        message("Note: Negative plankton abundance values overwritten with zeros")
-        plankton_vec[plankton_vec < 0] <- 0
+    if (any(plankton_vec < 0)) {
+        message("Note: Negative plankton abundances")
+        if (!perfect) {
+            # Do not allow negative plankton abundance
+            message("Note: Negative plankton abundance values overwritten with zeros")
+            plankton_vec[plankton_vec < 0] <- 0
+        }
     }
-    # The cc_pp factor needs to be higher than the desired steady state in
-    # order to compensate for predation mortality
     params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
         plankton_vec
     initial_n_pp <- params@cc_pp
+    # The cc_pp factor needs to be higher than the desired steady state in
+    # order to compensate for predation mortality
     m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
     params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
     
@@ -792,6 +795,7 @@ set_scaling_model <- function(no_sp = 11,
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
         if (!perfect && any(params@mu_b[i,] < 0)) {
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
+            flag <- TRUE
         }
     }
     if (flag) {
@@ -817,7 +821,7 @@ set_scaling_model <- function(no_sp = 11,
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
-    # Record abundance of fish and resources at steady state, as slots.
+    # Record abundance of fish and plankton at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
     # set rmax=fac*RDD
@@ -1087,7 +1091,7 @@ addSpecies <- function(params, species_params, SSB = NA,
         w_pp_cutoff = max(params@w_full),
         r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
     )
-    # Use the same resource spectrum as params
+    # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
     new_sp <- length(params@species_params$species) + 1
@@ -1224,10 +1228,10 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 
 #' Tune params object to be at steady state
 #' 
-#' This is done by running the dynamics for a specified number of years
-#' while keeping recruitment constant to reach steady state. Then
-#' the reproductive efficiencies are retuned to achieve that level of
-#' recruitment.
+#' This is done by running the dynamics for a specified number of years while
+#' keeping recruitment and resources constant to reach steady state. Then the
+#' reproductive efficiencies and the external resource rates are retuned to
+#' achieve that level of recruitment.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort. Default is 0
@@ -1235,12 +1239,13 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
 #'   after each of which we check for convergence. Default value is 2.
 #' @param tol The simulation stops when the relative change in the egg
-#'   production RDI over a t_per is less than rel_tol for every background
+#'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
+#' @param dt The time step to use in `project()`
 #' @param shiny_progress A shiny progress object to implement progress bar
 #' @export
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-                   shiny_progress = NULL) {
+                   dt = 0.1, shiny_progress = NULL) {
     p <- params
     
     if (hasArg(shiny_progress)) {
@@ -1248,29 +1253,38 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
         shiny_progress$set(message = "Finding steady state", value = 0)
         proginc <- 1/ceiling(t_max/t_per)
     }
+    
     # Force the recruitment to stay at the current level
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+    rdd <- getRDD(p)
     p@srr <- function(rdi, species_params) {rdd}
+    old_rdi <- getRDI(p)
+    # Force resources to stay at current level
+    old_resource_dynamics <- p@resource_dynamics
+    for (res in names(p@resource_dynamics)) {
+        p@resource_dynamics[[res]] <- constant_resource(res)
+    }
     
     n <- p@initial_n
     n_pp <- p@initial_n_pp
-    old_rdi <- getRDI(p, n, n_pp)
-    for (ti in (1:ceiling(t_max/t_per))){
-        sim <- project(p, t_max = t_per, t_save = t_per, effort = effort, 
-                       initial_n = n, initial_n_pp = n_pp)
+    B <- p@initial_B
+    for (ti in (1:ceiling(t_max/t_per))) {
+        sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
+                       effort = effort, 
+                       initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
         if (hasArg(shiny_progress)) {
             shiny_progress$inc(amount = proginc)
         }
-        n <- sim@n[dim(sim@n)[1],,]
-        n_pp <- sim@n_pp[dim(sim@n_pp)[1],]
-        new_rdi <- getRDI(p, n, n_pp)
+        no_t <- dim(sim@n)[1]
+        n <- sim@n[no_t, , ]
+        n_pp <- sim@n_pp[no_t, ]
+        B <- sim@B[no_t, ]
+        new_rdi <- getRDI(p, n, n_pp, B)
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi)[!is.na(p@A)])
         if (deviation < tol) {
             break
         }
         old_rdi <- new_rdi
-        
     }
     if (deviation >= tol) {
         warning(paste(
@@ -1280,28 +1294,46 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
         message(paste("Steady state was reached after ", ti * t_per, "years."))
     }
     
-    # Restore original stock-recruitment relationship
+    # Restore original stock-recruitment relationship and resource dynamics
     p@srr <- params@srr
+    p@resource_dynamics <- old_resource_dynamics
     
     no_sp <- length(p@species_params$species)
     no_t <- dim(sim@n)[1]
     p@initial_n <- sim@n[no_t, , ]
     p@initial_n_pp <- sim@n_pp[no_t, ]
+    p@initial_B <- sim@B[no_t, ]
+    
+    # Set rates of external resource influx to keep resources at steady state
+    r <- getRates(p, effort = effort)
+    for (res in names(p@resource_dynamics)) {
+        res_external <- paste0(res, "_external")
+        if (!res_external %in% names(p@resource_params)) {
+            stop(paste("The parameter", res_external, "is missing from resource_params."))
+        }
+        p@resource_params$res_external <- 
+            p@resource_params$res_external +
+            (B[res] - p@resource_dynamics[[res]](p, p@initial_n, p@initial_n_pp,
+                                                 p@initial_B, rates = r, 
+                                                 dt = dt)) / dt
+    }
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
-    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-    rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
-    # TODO: vectorise this
     for (i in (1:no_sp)) {
-        gg0 <- gg[i, p@w_min_idx[i]]
-        mumu0 <- mumu[i, p@w_min_idx[i]]
+        gg0 <- r$e_growth[i, p@w_min_idx[i]]
+        mumu0 <- r$mort[i, p@w_min_idx[i]]
         DW <- p@dw[p@w_min_idx[i]]
         p@species_params$erepro[i] <- p@species_params$erepro[i] *
             (p@initial_n[i, p@w_min_idx[i]] *
-                 (gg0 + DW * mumu0)) / rdd[i]
+                 (gg0 + DW * mumu0)) / r$rdd[i]
     }
     
     return(p)
+}
+
+# Helper function to create constant resource dynamics
+constant_resource <- function(resource_name) {
+    force(resource_name)
+    function(params, n, n_pp, B, rates, dt, ...) B[resource_name]
 }

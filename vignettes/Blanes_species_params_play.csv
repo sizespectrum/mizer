@@ -1,0 +1,8 @@
+species;w_inf;w_mat;beta;sigma;r_max;k_vb;common_name;t0;a;b;l50;egg_length;w_min
+Mullus barbatus;251.94;16.48;283;1.8;79000;0.6;Red mullet;-0.1;0.00624;3.1497;13.2;3;0.1985973301
+Merluccius merluccius;10470.1;246.83;283;1.8;681489;0.178;Hake ;-0.0028;0.00667;3.035097;10.54;3.5;0.2988306387
+Lophius spp;10470.1;246.83;283;1.8;681489;0.178;Anglerfish ;-0.0028;0.00667;3.035097;10.54;3;0.1871695183
+Trisopterus minutus;96.13;21.09;283;1.8;21463;0.39;Poor cod;-1.62;0.0075;3.06;12.47;3;0.2162978999
+Trachurus spp;511.47;88.52;283;1.8;54300;0.266;Horse mackerel ;0.7;0.011825;2.886;12.46;3;0.2816910772
+Illex coindietii;755.97;305.68;283;1.8;125000;0.2;Southern shortfin squid ;0;0.0188;3.2;17.383;3;0.6323330249
+Micromesistiu poutassou;666.62;20.49;283;1.8;150000;0.35;Blue whiting;0;0.004;3.154;17.383;3;0.1279088012

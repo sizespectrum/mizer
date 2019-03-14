@@ -4,15 +4,18 @@
 \alias{getRDI}
 \title{Get density independent recruitment}
 \usage{
-getRDI(object, n, n_pp, e_repro = getERepro(object, n = n, n_pp = n_pp),
-  sex_ratio = 0.5)
+getRDI(object, n = object@initial_n, n_pp = object@initial_n_pp,
+  B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
+  B = B), sex_ratio = 0.5)
 }
 \arguments{
-\item{object}{A \code{MizerParams} object.}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size).}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally

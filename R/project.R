@@ -22,6 +22,9 @@ NULL
 #' plotting methods.
 #' 
 #' @param params A \linkS4class{MizerParams} object
+#' @param sim Optional \linkS4class{MizerSim} object. If supplied, then the
+#'   initial values for the abundances of species and of plankton and the
+#'   resource biomasses are taken from the final time of that simulation.
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The maximum time the projection runs for. The default value is
 #'   100. However, this argument is not needed if an array is used for the
@@ -30,13 +33,19 @@ NULL
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
-#' @param initial_n The initial populations of the species. By default the 
-#'   \code{initial_n} slot of the \linkS4class{MizerParams} argument is used.
-#'   See the notes below.
-#' @param initial_n_pp The initial population of the plankton spectrum. It
-#'   should be a numeric vector of the same length as the \code{w_full} slot of
-#'   the \code{MizerParams} argument. By default the \code{initial_n_pp} slot of the
-#'   \linkS4class{MizerParams} argument is used.
+#' @param initial_n The initial abundances of species. Ignored if a \code{sim}
+#'   argument is supplied. A matrix with dimensions species x size. The order of
+#'   species must be the same as in the \code{MizerParams} argument. By default
+#'   is set to the \code{initial_n} slot of the \code{params} argument.
+#' @param initial_n_pp The initial abundances of plankton. Ignored if a
+#'   \code{sim} argument is supplied. A numeric vector of the same length as the
+#'   \code{w_full} slot of the \code{MizerParams} argument. By default is set to
+#'   the \code{initial_n_pp} slot of the \code{params} argument.
+#' @param initial_B The initial biomasses of the unstructured resources. It
+#'   should be a vector with one entry for each resource, with the names the
+#'   same as the names of the list in the \code{resource_dynamics} slot of the
+#'   \code{MizerParams}. By default is set to the \code{initial_B} slot of the
+#'   \code{params} argument.
 #' @param shiny_progress A shiny progress object used to update shiny progress bar.
 #'   Default NULL.
 #' @param ... Currently unused.
@@ -96,12 +105,35 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
+project <- function(params, sim = NULL, effort = 0,
+                    t_max = 100, dt = 0.1, t_save = 1,
                     initial_n = params@initial_n,
-                    initial_n_pp = params@initial_n_pp, 
+                    initial_n_pp = params@initial_n_pp,
+                    initial_B = params@initial_B,
                     shiny_progress = NULL, ...) {
     validObject(params)
+    if (hasArg(sim)) {
+        assert_that(is(sim, "MizerSim"))
+        no_t <- dim(sim@B)[1]
+        initial_n <- sim@n[no_t, , ]
+        initial_n_pp <- sim@n_pp[no_t, ]
+        initial_B <- sim@B[no_t, ]
+    }
+    no_sp <- length(params@w_min_idx)
+    assert_that(is.array(initial_n),
+                are_equal(dim(initial_n), c(no_sp, length(params@w))))
+    assert_that(is.vector(initial_n_pp),
+                length(initial_n_pp) == length(params@w_full))
+    if (length(params@resource_dynamics) > 0) {
+        if (!is.character(names(initial_B))) {
+            stop("The initial_B needs to be a named vector")
+        }
+        if (!setequal(names(initial_B), names(params@resource_dynamics))) {
+            stop("The names of the entries in initial_B do not match the names of the unstructured resource components of the model.")
+        }
+    }
     
+    # Create effort array ----
     # Do we need to create an effort array?
     if (is.vector(effort)) {
         no_gears <- dim(params@catchability)[1]
@@ -126,24 +158,24 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     
     # Check that number and names of gears in effort array is same as in MizerParams object
     no_gears <- dim(params@catchability)[1]
-    if(dim(effort)[2] != no_gears){
-        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep="")
+    if (dim(effort)[2] != no_gears) {
+        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep = "")
         stop(no_gears_error_message)
     }
     gear_names <- dimnames(params@catchability)[[1]]
-    if(!all(gear_names %in% dimnames(effort)[[2]])){
-        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse=", "), ") do not match those in the effort array.", sep="")
+    if (!all(gear_names %in% dimnames(effort)[[2]])) {
+        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse = ", "), ") do not match those in the effort array.", sep = "")
         stop(gear_names_error_message)
     }
     # Sort effort array to match order in MizerParams
-    effort <- effort[,gear_names, drop=FALSE]
+    effort <- effort[,gear_names, drop = FALSE]
     
     # Blow up time dimension of effort array
     # i.e. effort might have been passed in using time steps of 1, but actual dt = 0.1, so need to blow up
-    if (is.null(dimnames(effort)[[1]])){
+    if (is.null(dimnames(effort)[[1]])) {
         stop("The time dimname of the effort argument must be numeric.")
     }
-    if (any(is.na(as.numeric(dimnames(effort)[[1]])))){
+    if (any(is.na(as.numeric(dimnames(effort)[[1]])))) {
         stop("The time dimname of the effort argument must be numeric.")
     }
     time_effort <- as.numeric(dimnames(effort)[[1]])
@@ -153,17 +185,19 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     t_max <- time_effort[length(time_effort)]
     # Blow up effort so that rows are dt spaced
     time_effort_dt <- seq(from = time_effort[1], to = t_max, by = dt)
-    effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), dimnames=list(time = time_effort_dt, dimnames(effort)[[2]])))
-    for (i in 1:(length(time_effort)-1)){
+    effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), 
+                         dimnames = list(time = time_effort_dt,
+                                         dimnames(effort)[[2]])))
+    for (i in 1:(length(time_effort) - 1)) {
         effort_dt[,time_effort_dt >= time_effort[i]] <- effort[i,]
     }
     effort_dt <- t(effort_dt)
     
-    # Make the MizerSim object with the right size
+    # Make the MizerSim object with the right size ----
     # We only save every t_save steps
     # Divisibility test needs to be careful about machine rounding errors,
     # see https://github.com/sizespectrum/mizer/pull/2
-    if((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
+    if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0)))
         stop("t_save must be a positive multiple of dt")
     t_skip <- round(t_save/dt)
     t_dimnames_index <- seq(1, to = length(time_effort_dt), by = t_skip)
@@ -172,9 +206,11 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     # Fill up the effort array
     sim@effort[] <- effort_dt[t_dimnames_index,]
     
+    ## Initialise ----
     # Set initial population
     sim@n[1,,] <- initial_n 
     sim@n_pp[1,] <- initial_n_pp
+    sim@B[1,] <- initial_B
     
     # Handy things
     no_sp <- nrow(sim@params@species_params) # number of species
@@ -189,16 +225,18 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
     sex_ratio <- 0.5
     
     # Matrices for solver
-    A <- matrix(0, nrow = no_sp, ncol = no_w)
-    B <- matrix(0, nrow = no_sp, ncol = no_w)
+    a <- matrix(0, nrow = no_sp, ncol = no_w)
+    b <- matrix(0, nrow = no_sp, ncol = no_w)
     S <- matrix(0, nrow = no_sp, ncol = no_w)
     
-    # initialise n and nPP
-    # We want the first time step only but cannot use drop as there may only be a single species
+    # initialise n n_pp and B
+    # We want the first time step only but cannot use drop as there may only 
+    # be a single species
     n <- array(sim@n[1, , ], dim = dim(sim@n)[2:3])
     dimnames(n) <- dimnames(sim@n)[2:3]
     n_pp <- sim@n_pp[1, ]
-    t_steps <- dim(effort_dt)[1] - 1
+    B <- initial_B
+    
     # Set up progress bar
     pb <- progress::progress_bar$new(
         format = "[:bar] :percent ETA: :eta",
@@ -208,64 +246,67 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
         shiny_progress$set(message = "Running simulation", value = 0)
         proginc <- 1/length(t_dimnames_index)
     }
+    
+    ## Loop over time ----
+    t <- 0  # keep track of time
+    t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        # Do it piece by piece to save repeatedly calling functions
-        # Calculate amount E_{a,i}(w) of available food
-        avail_energy <- getAvailEnergy(sim@params, n = n, n_pp = n_pp)
-        # Calculate amount f_i(w) of food consumed
-        feeding_level <- getFeedingLevel(sim@params, n = n, n_pp = n_pp,
-                                         avail_energy = avail_energy)
-        # Calculate the predation rate
-        pred_rate <- getPredRate(sim@params, n = n, n_pp = n_pp,
-                                 feeding_level = feeding_level)
-        # Calculate predation mortality on fish \mu_{p,i}(w)
-        m2 <- getPredMort(sim@params, pred_rate = pred_rate)
-        # Calculate total mortality \mu_i(w)
-        z <- getMort(sim@params, n = n, n_pp = n_pp, 
-                     effort = effort_dt[i_time,], m2 = m2)
-        # Calculate mortality on the plankton spectrum
-        m2_background <- getPlanktonMort(sim@params, n = n, n_pp = n_pp,
-                                         pred_rate = pred_rate)
-        # Calculate the resources available for reproduction and growth
-        e <- getEReproAndGrowth(sim@params, n = n, n_pp = n_pp, 
-                                feeding_level = feeding_level)
-        # Calculate the resources for reproduction
-        e_repro <- getERepro(sim@params, n = n, n_pp = n_pp, e = e)
-        # Calculate the growth rate g_i(w)
-        e_growth <- getEGrowth(sim@params, n = n, n_pp = n_pp, 
-                               e_repro = e_repro, e = e)
-        # R_{p,i}
-        rdi <- getRDI(sim@params, n = n, n_pp = n_pp, 
-                      e_repro = e_repro, sex_ratio = sex_ratio)
-        # R_i
-        rdd <- getRDD(sim@params, n = n, n_pp = n_pp, rdi = rdi)
+        r <- getRates(params, n = n, n_pp = n_pp, B = B,
+                      effort = effort_dt[i_time,])
+        
+        # Update unstructured resource biomasses
+        B_current <- B  # So that the plankton dynamics can still use the 
+                        # current value
+        if (length(params@resource_dynamics) > 0) {
+            for (res in names(params@resource_dynamics)) {
+                B[res] <-
+                    params@resource_dynamics[[res]](
+                        params,
+                        n = n,
+                        n_pp = n_pp,
+                        B = B_current,
+                        rates = r,
+                        dt = dt
+                    )
+            }
+        }
+        
+        # Update plankton
+        n_pp <- params@plankton_dynamics(params, n = n, n_pp = n_pp, 
+                                         B = B_current, rates = r, dt = dt)
         
         # Iterate species one time step forward:
         # See Ken's PDF
-        # A_{ij} = - g_i(w_{j-1}) / dw_j dt
-        A[,idx] <- sweep(-e_growth[,idx-1,drop=FALSE]*dt, 2, sim@params@dw[idx], "/")
-        # B_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
-        B[,idx] <- 1 + sweep(e_growth[,idx,drop=FALSE]*dt,2,sim@params@dw[idx],"/") + z[,idx,drop=FALSE]*dt
+        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
+        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
+                          sim@params@dw[idx], "/")
+        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
+        b[, idx] <- 1 + sweep(r$e_growth[, idx, drop = FALSE] * dt, 2, 
+                              sim@params@dw[idx], "/") +
+                        r$mort[, idx, drop = FALSE] * dt
         # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[,idx,drop=FALSE]
+        S[,idx] <- n[, idx, drop = FALSE]
         # Boundary condition upstream end (recruitment)
-        B[w_min_idx_array_ref] <- 1+e_growth[w_min_idx_array_ref]*dt/sim@params@dw[sim@params@w_min_idx]+z[w_min_idx_array_ref]*dt
+        b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
+                                        sim@params@dw[sim@params@w_min_idx] +
+                                    r$mort[w_min_idx_array_ref] * dt
         # Update first size group of n
-        n[w_min_idx_array_ref] <- (n[w_min_idx_array_ref] + rdd*dt/sim@params@dw[sim@params@w_min_idx]) / B[w_min_idx_array_ref]
+        n[w_min_idx_array_ref] <-
+            (n[w_min_idx_array_ref] + r$rdd * dt / 
+                 sim@params@dw[sim@params@w_min_idx]) /
+            b[w_min_idx_array_ref]
         # Update n
-        # for (i in 1:no_sp) # number of species assumed small, so no need to vectorize this loop over species
+        # for (i in 1:no_sp) # number of species assumed small, so no need to 
+        #                      vectorize this loop over species
         #     for (j in (sim@params@w_min_idx[i]+1):no_w)
         #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
-        
+        # This is implemented via Rcpp
         n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
-                                A = A, B = B, S = S,
+                                A = a, B = b, S = S,
                                 w_min_idx = sim@params@w_min_idx)
         
-        # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
-        # We use the exact solution under the assumption of constant mortality during timestep
-        tmp <- sim@params@rr_pp * sim@params@cc_pp / (sim@params@rr_pp + m2_background)
-        n_pp <- tmp - (tmp - n_pp) * exp(-(sim@params@rr_pp + m2_background) * dt)
-        
+        # Update time
+        t <- t + dt
         # Store results only every t_step steps.
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
@@ -275,8 +316,9 @@ project <- function(params, effort = 0,  t_max = 100, dt = 0.1, t_save=1,
                 shiny_progress$inc(amount = proginc)
             }
             # Store result
-            sim@n[which(store), , ] <- n 
+            sim@n[which(store), , ] <- n
             sim@n_pp[which(store), ] <- n_pp
+            sim@B[which(store), ] <- B
         }
     }
     return(sim)

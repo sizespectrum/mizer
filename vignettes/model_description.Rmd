@@ -116,39 +116,33 @@ specifies the prey size class and ranges over the entire spectrum.
 
 
 
-## Available energy
+## Encounter rate
 
-The available food for a predator of species $i$ and weight $w$ is determined 
-by summing over all prey species and the resource spectrum and integrating
-over all prey sizes $w_p$, weighted by the size selection function: 
-
+The rate at which a predator of species $i$ and weight $w$ encounters food 
+(mass per time) is
+determined by summing over all prey species and the resource spectrum and
+integrating over all prey sizes $w_p$, weighted by the size selection function
+$\phi(w,w_p)$,
 \begin{equation}
   \label{eq:1}
-  E_{a.i}(w) = \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+  E_{i}(w) = \gamma_i(w) \int \left( N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}
+The overall prefactor $\gamma_i(w)$ sets the predation power of the predator. It
+could be interpreted as a search volume and is stored in an array
+`search_vol[i,a]` where the first index specifies the species and the second the
+weight of the predator.
 
-This available energy is calculated by the `getAvailEnergy()` function.
+This encouter rate is calculated by the `getEncounter()` function.
 The integral is approximated by a Riemann sum over all weight brackets.
 \[
-\text{avail_energy}[i,a] = \sum_{k}
+\text{encounter}[i,a] = \text{search_vol}[i,a]\sum_{k}
 \left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
   \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 \]
 
 
 ## Consumption
-
-The food actually encountered $E_{e.i}$ (mass per time) depends on the search 
-volume rate (volume per time):
-
-\begin{equation}
-  \label{eq:Ee}
-  E_{e.i}(w) = \gamma_i(w) E_{a.i}(w).
-\end{equation}
-The search volume $\gamma_i(w)$ is stored in an array `search_vol[i,a]`
-where the first index specifies the species and the second the weight of the
-predator.
 
 The encountered food is consumed subjected to a standard Holling functional 
 response type II to represent satiation. This determines the 
@@ -158,12 +152,12 @@ encountered food that is consumed. The feeding level is given by
 
 \begin{equation}
   \label{eq:f}
-  f_i(w) = \frac{E_{e.i}(w)}{E_{e.i}(w) + h_i(w)},
+  f_i(w) = \frac{E_{i}(w)}{E_{e.i}(w) + h_i(w)},
 \end{equation}
 
 where $h_i(w)$ is the maximum consumption rate stored in
 `params@intake_max[i,a]`. The rate at which food is
-consumed is then $(1-f_i(w))E_{e.i}(w)=f_i(w)\, h_i(w)$.
+consumed is then $(1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w)$.
 
 The feeding level is calculated with the function `getFeedingLevel()`.
 

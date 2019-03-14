@@ -4,15 +4,18 @@
 \alias{getERepro}
 \title{Get energy rate available for reproduction}
 \usage{
-getERepro(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp =
-  n_pp))
+getERepro(object, n = object@initial_n, n_pp = object@initial_n_pp,
+  B = object@initial_B, e = getEReproAndGrowth(object, n = n, n_pp =
+  n_pp, B = B))
 }
 \arguments{
-\item{object}{A \code{MizerParams} object.}
+\item{object}{An \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundance (species x size).}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector of the plankton abundance by size.}
+\item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated

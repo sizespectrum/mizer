@@ -23,7 +23,7 @@ plankton like another prey species.
 }
 \details{
 This function performs the same integration as
-\code{\link{getAvailEnergy}} but does not aggregate over prey species, and
+\code{\link{getEncounter}} but does not aggregate over prey species, and
 multiplies by (1-feeding_level) to get the consumed biomass rather than the
 available biomass. Outside the range of sizes for a predator species the
 returned rate is zero.

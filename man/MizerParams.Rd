@@ -8,7 +8,10 @@ MizerParams(object, interaction, min_w = 0.001, max_w = NA,
   no_w = 100, min_w_pp = NA, no_w_pp = NA, n = 2/3, p = 0.7,
   q = 0.8, r_pp = 10, kappa = 1e+11, lambda = (2 + q - n),
   w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
-  store_kernel = (no_w <= 100))
+  store_kernel = (no_w <= 100),
+  plankton_dynamics = plankton_semichemostat, interaction_p = rep(1,
+  nrow(object)), rho = NULL, resource_dynamics = list(),
+  resource_params = list())
 }
 \arguments{
 \item{object}{A data frame of species specific parameter values (see notes
@@ -48,10 +51,10 @@ be logarithmically equally spaced.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 10.}
 
-\item{kappa}{Carrying capacity of the resource spectrum. Default value is
+\item{kappa}{Carrying capacity of the plankton spectrum. Default value is
 1e11.}
 
-\item{lambda}{Exponent of the resource spectrum. Default value is (2+q-n).}
+\item{lambda}{Exponent of the plankton spectrum. Default value is (2+q-n).}
 
 \item{w_pp_cutoff}{The cut off size of the plankton spectrum. Default value
 is 10.}
@@ -67,16 +70,43 @@ in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
 
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is n-1.}
+in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+Default value is \code{n-1}.}
 
 \item{store_kernel}{A boolean flag that determines whether the full
 feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
 The default is TRUE if the number of size bins is no larger than 100 and
 FALSE otherwise.}
+
+\item{plankton_dynamics}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state. The default is \code{"\link{plankton_semichemostat}"}.}
+
+\item{interaction_p}{Vector specifying for each species its interaction with
+plankton, similar to what the interaction matrix does for the interaction
+with other species. Entries should be numbers between 0 and 1. The 
+default is a vector of 1s.}
+
+\item{rho}{Either NULL (default), in which case there will be no unstructured
+resources in the model, or an array (species x resource) that gives the
+rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
+encounters biomass of resource \eqn{d}. The rate is assumed to scale
+allometrically with size with exponent \code{n}. So the total contribution
+of the resources to the rate at which the individual encounters biomass is
+\deqn{\sum_d\rho_{id} w^n B_d,}
+where \eqn{B_d} is the biomass of the d-th unstructured resource component.
+See \code{\link{resource_dynamics}} help for more details.}
+
+\item{resource_dynamics}{A named list of functions that determine the
+dynamics of the unstructured resources by calculating their biomasses at
+the next time step from the current state. See
+\code{\link{resource_dynamics}} for details. Ignored if \code{rho} is NULL.}
+
+\item{resource_params}{A list of parameters needed by the
+\code{resource_dynamics} functions. Ignored if \code{rho} is NULL.}
 }
 \value{
-An object of type \code{MizerParams}
+An object of type \linkS4class{MizerParams}
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0

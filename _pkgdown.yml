@@ -93,7 +93,8 @@ reference:
   - log_breaks
 - title: Calculating rates used in model
   contents:
-  - getAvailEnergy
+  - getRates
+  - getEncounter
   - getEGrowth
   - getERepro
   - getEReproAndGrowth
@@ -106,10 +107,16 @@ reference:
   - getPredRate
   - getRDD
   - getRDI
+- title: Dynamics of unstructured resources
+  contents:
+  - resource_dynamics
+  - carrion_dynamics
+  - detritus_dynamics
 - title: Functions used in model
   contents:
   - knife_edge
   - sigmoid_length
+  - plankton_semichemostat
 - title: Classes
   contents:
   - MizerParams-class
@@ -134,5 +141,4 @@ reference:
   - getESpawning
   - getM2
   - getM2Background
-  - getPhiPrey
   - getZ

@@ -1,38 +1,26 @@
 ---
 title: "Mathematical Details behind Mizer"
-author: "Gustav Delius and Richard Southwell"
-date: "26/07/2018"
+date: "`r Sys.Date()`"
 output:
   html_document:
     number_sections: yes
     toc: yes
+  rmarkdown::html_vignette:
+    toc: true
   pdf_document:
     toc: yes
     toc_depth: 3
     number_sections: yes
 vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Mathematical Details behind Mizer}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
-# Spectral Integration To Speed Up Mizer
-
-Mizer uses a numeric partial
-differential equation solver to evolve ecosystem models forwards in
-time. 
-
-The partial differential equations include convolution integrals to
-determine growth and death rates. In the original version of mizer (version 0.3)
-these integrals were performed using Riemann sums, which made the
-simulations slow. We have substantially increased the speed of mizer by
-using spectral methods (exploiting the speed of the Fast Fourier Transform)
-to perform such integrals.
 
 ## Discrete Approximations of Integrals
 
 ### Grid Points
-
 
 In size spectrum models we wish to keep track of the abundance of
 fish for a continuum of different weights, however in computer simulations
@@ -168,7 +156,7 @@ P_{b}[i,k]=\sum_{k'=1}^{\left|w^{full}\right|}\Phi_{i}\left(\frac{w_{k'}^{full}}
 \end{equation}
 
 is a left Riemann sum for the available energy from eating on the
-resource spectrum. These terms are calculated in a way that exploits R's vectorized
+plankton spectrum. These terms are calculated in a way that exploits R's vectorized
 arithmetic to determine these values for each $i\in\left\{ 1,..,s\right\}$
 and $k\in\left\{ 1,..,|w|\right\}$ simultaneously.
 
@@ -195,7 +183,18 @@ by the Riemann sum
 \end{equation}
 
 
-## Spectral Integration
+# Spectral Integration To Speed Up Mizer
+
+Mizer uses a numeric partial
+differential equation solver to evolve ecosystem models forwards in
+time. 
+
+The partial differential equations include convolution integrals to
+determine growth and death rates. In the original version of mizer
+these integrals were performed using Riemann sums, which made the
+simulations slow. We have substantially increased the speed of mizer by
+using spectral methods (exploiting the speed of the Fast Fourier Transform)
+to perform such integrals.
 
 ### Spectral Integration For available energy
 

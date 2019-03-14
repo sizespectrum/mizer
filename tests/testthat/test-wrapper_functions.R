@@ -1,9 +1,10 @@
 context("Wrapper functions for trait and community models")
 
-test_that("scaling model is set up correctly", {
+# Scaling model is set up correctly ----
+test_that("Scaling model is set up correctly", {
     skip("Does not work yet")
-    p <- set_scaling_model(perfect = TRUE)
-    sim <- project(p, t_max=5, effort = 0)
+    p <- set_scaling_model(perfect = TRUE, sigma=1)
+    sim <- project(p, t_max = 5)
     
     # Check some dimensions
     no_sp <- length(p@species_params$species)
@@ -20,13 +21,13 @@ test_that("scaling model is set up correctly", {
     mu0 <- (1 - p@f0) * sqrt(2 * pi) * p@kappa * gamma * sigma *
         (beta ^ (p@n - 1)) * exp(sigma ^ 2 * (p@n - 1) ^ 2 / 2)
     hbar <- alpha * h * p@f0 - ks
-    # Check available energy
+    # Check encounter rate
     lm2 <- p@lambda - 2
-    ea <- getAvailEnergy(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^lm2
-    ae <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
+    e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
+    ae <- gamma * p@kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * 
         # The following factor takes into account the cutoff in the integral
-        (pnorm(3 + lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
+        (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
     expect_equal(ea, rep(ae, length(ea)), tolerance = 1e-15)
     # Check feeding level
     f <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)[sp, ]
@@ -60,7 +61,8 @@ test_that("scaling model is set up correctly", {
     expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
 })
 
-test_that("retune_abundance reproduces scaling model", {
+# retune_abundance() reproduces scaling model ----
+test_that("retune_abundance() reproduces scaling model", {
     # This numeric test failed on Solaris and without long doubles. So for now
     # skipping it on CRAN
     skip_on_cran()
@@ -72,6 +74,7 @@ test_that("retune_abundance reproduces scaling model", {
     expect_lt(max(abs(initial_n - pr@initial_n)), 2e-11)
 })
 
+# addSpecies works when adding a second identical species ----
 test_that("addSpecies works when adding a second identical species", {
     p <- set_scaling_model()
     no_sp <- length(p@A)
@@ -87,7 +90,8 @@ test_that("addSpecies works when adding a second identical species", {
     expect_lt(max(abs(p@initial_n[5,] - pa@initial_n[5, ])), 0.7)
 })
 
-test_that("trait-based model multiple gears",{
+# Multiple gears work correctly in trait-based model ----
+test_that("Multiple gears work correctly in trait-based model", {
     # Check multiple gears are working properly
     min_w_inf <- 10
     max_w_inf <- 1e5

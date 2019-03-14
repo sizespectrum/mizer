@@ -4,7 +4,7 @@
 \alias{getPredMort}
 \title{get predation mortality rate}
 \usage{
-getPredMort(object, n, n_pp, pred_rate, time_range, drop = TRUE)
+getPredMort(object, n, n_pp, B = 0, pred_rate, time_range, drop = TRUE)
 }
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object.}
@@ -14,6 +14,8 @@ getPredMort(object, n, n_pp, pred_rate, time_range, drop = TRUE)
 
 \item{n_pp}{A vector of the plankton abundance by size. Only used if
 \code{object} argument is of type \code{MizerParams}.}
+
+\item{B}{A vector of biomasses of unstructured resource components}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
