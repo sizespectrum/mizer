@@ -53,7 +53,17 @@ The source code for mizer is hosted on
 [Github.](https://github.com/sizespectrum/mizer) If you are feeling brave and
 wish to try out a development version of mizer you can install the package from
 here using the R package devtools (which was used extensively in putting
-together mizer).
+together mizer). If you have not yet installed devtools, do
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+Then you can install the latest version from github using
+```{r, eval=FALSE}
+devtools::install_github("sizespectrum/mizer")
+```
+Using the same `devtools::install_github()` function you can also install code
+from forked mizer repositories or from other branches on the official
+repository.
 
 
 ## Getting help in R
