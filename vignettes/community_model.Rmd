@@ -14,19 +14,12 @@ vignette: >
 ```{r label=lib, include=FALSE}
 library(mizer)
 ```
-The simplest version of the size spectrum model is the community model In the
+The simplest version of the size spectrum model is the community model. In the
 community model, individuals are only characterized by their size and are
 represented by a single group representing an across species average.
-Reproduction is not considered, so $\psi(w)=0$ and the recruitment flux $R$ is
+Reproduction is not considered and the recruitment flux $R$ is
 set to be constant. The resource spectrum only extends to the start of the
-community spectrum. Standard metabolism is turned off by setting $k_{s}$ to 0.
-Growth is therefore given by the simpler equation
-\begin{equation}
-    \label{eq:comm_growth}
-    g(w) = \alpha f(w) h w^n,
-\end{equation}
-where $f(w) h w^n$ is the consumed food and $\alpha$ is the efficiency with
-which the consumed food is transformed into growth.
+community spectrum. Standard metabolism is turned off.
 
 In this section we describe how a community model can be set up and projected
 through time. We then use a community model to illustrate the idea of a ’trophic

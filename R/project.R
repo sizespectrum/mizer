@@ -46,8 +46,9 @@ NULL
 #'   same as the names of the list in the \code{resource_dynamics} slot of the
 #'   \code{MizerParams}. By default is set to the \code{initial_B} slot of the
 #'   \code{params} argument.
-#' @param shiny_progress A shiny progress object used to update shiny progress bar.
-#'   Default NULL.
+#' @param progress_bar Either a boolean value to determine whether a progress
+#'   bar should be shown in the console of a shiny progress object to implement 
+#'   a progress bar in a shiny app
 #' @param ... Currently unused.
 #' 
 #' @note The \code{effort} argument specifies the level of fishing effort during
@@ -110,7 +111,7 @@ project <- function(params, sim = NULL, effort = 0,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,
                     initial_B = params@initial_B,
-                    shiny_progress = NULL, ...) {
+                    progress_bar = TRUE, ...) {
     validObject(params)
     if (hasArg(sim)) {
         assert_that(is(sim, "MizerSim"))
@@ -238,12 +239,14 @@ project <- function(params, sim = NULL, effort = 0,
     B <- initial_B
     
     # Set up progress bar
-    pb <- progress::progress_bar$new(
-        format = "[:bar] :percent ETA: :eta",
-        total = length(t_dimnames_index), width = 60)
-    if (hasArg(shiny_progress)) {
+    if (progress_bar == TRUE) {
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = length(t_dimnames_index), width = 60)
+    }
+    if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
-        shiny_progress$set(message = "Running simulation", value = 0)
+        progress_bar$set(message = "Running simulation", value = 0)
         proginc <- 1/length(t_dimnames_index)
     }
     
@@ -311,9 +314,11 @@ project <- function(params, sim = NULL, effort = 0,
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
             # Advance progress bar
-            pb$tick()
-            if (hasArg(shiny_progress)) {
-                shiny_progress$inc(amount = proginc)
+            if (is(progress_bar, "Progress")) {
+                progress_bar$inc(amount = proginc)
+            }
+            if (progress_bar == TRUE) {
+                pb$tick()
             }
             # Store result
             sim@n[which(store), , ] <- n

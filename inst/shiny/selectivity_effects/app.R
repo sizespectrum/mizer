@@ -104,7 +104,7 @@ server <- function(input, output, session) {
     #     on.exit(progress$close())
     #     
     #     project(p(), t_max = 50, t_save = 5, effort = fixed_effort, 
-    #             shiny_progress = progress)
+    #             progress_bar = progress)
     # })
     
     # Data frame for yield plot
@@ -172,7 +172,7 @@ server <- function(input, output, session) {
         on.exit(progress$close())
         
         project(params(), t_max = 15, t_save = 0.1, effort = fixed_effort, 
-                shiny_progress = progress)
+                progress_bar = progress)
     })
     
     # Plot yield ####

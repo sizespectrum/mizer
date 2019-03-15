@@ -1,5 +1,5 @@
 
-# mizer development version
+# mizer 1.1
 
 * `project()` can now continue projection from last time step of a previous
   simulation provided in an optional `sim` argument

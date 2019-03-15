@@ -88,7 +88,7 @@
       <h1>Get started</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/mizer.Rmd"><code>vignettes/mizer.Rmd</code></a></small>
+      <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/mizer.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/mizer.Rmd"><code>vignettes/mizer.Rmd</code></a></small>
       <div class="hidden name"><code>mizer.Rmd</code></div>
 
     </div>
@@ -106,6 +106,7 @@
 <li><p><a href="#running-a-simulation">Running a simulation</a>.</p></li>
 <li><p><a href="#exploring-the-results">Exploring the results</a>.</p></li>
 </ol>
+<p>If you run into any difficulties or have any questions or suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new">issue tracker</a>. We love to hear from you.</p>
 <p>There is a <a href="https://www.youtube.com/watch?v=zh0PDyTUssw&amp;list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B">series of YouTube videos</a> explaining how to use and install mizer.</p>
 </div>
 <div id="installing-mizer" class="section level2">
@@ -121,7 +122,7 @@
 <h2 class="hasAnchor">
 <a href="#setting-the-model-parameters" class="anchor"></a>Setting the model parameters</h2>
 <p>With mizer it is possible to implement many different types of size-spectrum models using the same basic tools and methods.</p>
-<p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package. These make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="#community-model">Community Model</a> vignette) you can even let mizer choose all the parameters for you.</p>
+<p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package. These make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> vignette) you can even let mizer choose all the parameters for you.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_community_model.html">set_community_model</a></span>()</a></code></pre></div>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters. An example of a North Sea model is provided with the package</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(NS_species_params)</a>

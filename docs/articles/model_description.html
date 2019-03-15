@@ -87,9 +87,8 @@
     <div class="page-header toc-ignore">
       <h1>Model Description</h1>
             
-            <h4 class="date">2019-03-15</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/model_description.Rmd"><code>vignettes/model_description.Rmd</code></a></small>
+      <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/model_description.Rmd"><code>vignettes/model_description.Rmd</code></a></small>
       <div class="hidden name"><code>model_description.Rmd</code></div>
 
     </div>
@@ -100,12 +99,12 @@
 <div id="the-mizer-size-spectrum-model" class="section level1">
 <h1 class="hasAnchor">
 <a href="#the-mizer-size-spectrum-model" class="anchor"></a>The mizer size-spectrum model</h1>
-<div id="fish-size-spectrum" class="section level2">
+<div id="consumer-size-spectra" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fish-size-spectrum" class="anchor"></a>Fish size spectrum</h2>
+<a href="#consumer-size-spectra" class="anchor"></a>Consumer size spectra</h2>
 <p>The model framework builds on two central assumption and a number of lesser standard assumption.</p>
 <p>The first central assumption is that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>.</p>
-<p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector ‘w’ of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big.</p>
+<p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big.</p>
 <p>In the code the size spectrum is stored as an array such that <code>n[i, a]</code> holds the density <span class="math inline">\(N_i(w_a)\)</span> at weights <span class="math inline">\(w_a=\)</span><code>w[a]</code>, or, if time dependence is included, an array such that <code>n[i, a, u]</code> holds <span class="math inline">\(N_i(w_a,t_u)\)</span>.</p>
 <p>Note that, contrary to what one might have expected, <code>n[i, a]</code> is not the <em>number</em> of individuals in a size bin but the <em>density</em> at a grid point. The number of individuals in the size bin between <code>w[a]</code> and <code>w[a+1]=w[a]+dw[a]</code> is only approximately given as <code>n[i, a]*dw[a]</code>, where <code>dw[a]= w[a+1]-w[a]</code>.</p>
 <p>The time evolution of the size spectrum is described by the McKendrik-von Foerster equation, which is a transport equation with loss:</p>
@@ -293,8 +292,6 @@ weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the 
 # Fishing
 This section still to be written.
 --></p>
-<p>The next section is about how to implement these ideas in the <a href="community_model.html">community model.</a></p>
-<p><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd">Edit this page</a></p>
 </div>
 </div>
   </div>
@@ -306,7 +303,7 @@ This section still to be written.
       <ul class="nav nav-pills nav-stacked">
 <li>
 <a href="#the-mizer-size-spectrum-model">The mizer size-spectrum model</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#fish-size-spectrum">Fish size spectrum</a></li>
+<li><a href="#consumer-size-spectra">Consumer size spectra</a></li>
       <li><a href="#resource-size-spectrum">Resource size spectrum</a></li>
       <li><a href="#sec:pref">Predator-prey preference</a></li>
       <li><a href="#encounter-rate">Encounter rate</a></li>

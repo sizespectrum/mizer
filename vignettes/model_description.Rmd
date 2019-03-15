@@ -1,6 +1,5 @@
 ---
 title: "Model Description"
-date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -26,7 +25,7 @@ realised in code. Such detail will be provided in the [developer guide.](develop
 
 # The mizer size-spectrum model
 
-## Fish size spectrum
+## Consumer size spectra
 The model framework builds on two central assumption and a number of lesser 
 standard assumption.  
 
@@ -37,7 +36,7 @@ species $i$ such that $\int_w^{w+dw}N_i(w)dw$ is the *number* of individuals of
 species $i$ in the size interval $[w,w+dw]$. 
 
 To represent this continuous size spectrum in the computer, the size
-variable $w$ is discretized into a vector 'w' of discrete weights,
+variable $w$ is discretized into a vector `w` of discrete weights,
 providing a grid of sizes spanning the range from the smallest egg size
 to the largest asymptotic size. These grid values divide the full size
 range into a finite number of size bins. The size bins should be chosen
@@ -379,6 +378,3 @@ The *Beverton-Holt* type of SRR is not the only density dependence model that mi
 This section still to be written.
 -->
 
-The next section is about how to implement these ideas in the [community model.](community_model.html) 
-
-[Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/model_description.Rmd)

@@ -81,6 +81,20 @@ To work with the code you will create your own git repository with a copy of the
 Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
 Then create a version control new project in Rstudio, and indicate your depository url.
 
+Go the the Git tab and from "More" select "Shell..." to open up a Git shell.
+There issue the commands
+```
+git remote add upstream git@github.com:sizespectrum/mizer.git
+git fetch upstream
+```
+This will allow you to, from time to time, sync changes made in the 
+sizespectrum/mizer repository into your own fork (see [https://help.github.com/en/articles/syncing-a-fork]). 
+You do this with the command
+```
+git merge upstream/dev
+```
+
+
 You will want to set up RStudio so that it automatically builds the 
 documentation using roxygen.
 * Go to Build -> Configure Build Tools, tick the checkbox "Generate
@@ -181,13 +195,3 @@ click the *More* dropdown, on the *Build* tab, and click *Configure Build Tools*
 and tick *Use devtools package functions if available* and
 *Generate documentation with Roxygen*, and click *Configure* and under
 *Automatically roxygenize when running:* tick *Build & Reload*.
-
-
-
-Some tests check that code produces the same numerical values as in the
-past with the `expect_known_value()` function. This is set up to store
-the correct values in files in `tests/testthat/values`.
-
-
-
-[Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd)

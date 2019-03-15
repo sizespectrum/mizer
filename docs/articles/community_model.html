@@ -88,17 +88,14 @@
       <h1>Community Model</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/community_model.Rmd"><code>vignettes/community_model.Rmd</code></a></small>
+      <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/community_model.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/community_model.Rmd"><code>vignettes/community_model.Rmd</code></a></small>
       <div class="hidden name"><code>community_model.Rmd</code></div>
 
     </div>
 
     
     
-<p>The simplest version of the size spectrum model is the community model In the community model, individuals are only characterized by their size and are represented by a single group representing an across species average. Reproduction is not considered, so <span class="math inline">\(\psi(w)=0\)</span> and the recruitment flux <span class="math inline">\(R\)</span> is set to be constant. The resource spectrum only extends to the start of the community spectrum. Standard metabolism is turned off by setting <span class="math inline">\(k_{s}\)</span> to 0. Growth is therefore given by the simpler equation <span class="math display">\[\begin{equation}
-    \label{eq:comm_growth}
-    g(w) = \alpha f(w) h w^n,
-\end{equation}\]</span> where <span class="math inline">\(f(w) h w^n\)</span> is the consumed food and <span class="math inline">\(\alpha\)</span> is the efficiency with which the consumed food is transformed into growth.</p>
+<p>The simplest version of the size spectrum model is the community model. In the community model, individuals are only characterized by their size and are represented by a single group representing an across species average. Reproduction is not considered and the recruitment flux <span class="math inline">\(R\)</span> is set to be constant. The resource spectrum only extends to the start of the community spectrum. Standard metabolism is turned off.</p>
 <p>In this section we describe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a ’trophic cascade’. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the mizer package. Consequently, this section should hopefully serve as an introduction to using mizer and some of the main classes and methods.</p>
 <div id="sec:set_up_comm_model" class="section level2">
 <h2 class="hasAnchor">

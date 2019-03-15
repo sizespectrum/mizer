@@ -127,7 +127,7 @@ achieve that level of recruitment." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Tune params object to be at steady state</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
     <div class="hidden name"><code>steady.Rd</code></div>
     </div>
 
@@ -141,7 +141,7 @@ achieve that level of recruitment.</p>
     </div>
 
     <pre class="usage"><span class='fu'>steady</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
-  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>shiny_progress</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -174,8 +174,10 @@ species. Default value is 1/100.</p></td>
       <td><p>The time step to use in `project()`</p></td>
     </tr>
     <tr>
-      <th>shiny_progress</th>
-      <td><p>A shiny progress object to implement progress bar</p></td>
+      <th>progress_bar</th>
+      <td><p>Either a boolean value to determine whether a progress
+bar should be shown in the console of a shiny progress object to implement 
+a progress bar in a shiny app. Default TRUE</p></td>
     </tr>
     </table>
     

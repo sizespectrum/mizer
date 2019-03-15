@@ -234,17 +234,17 @@ getBiomassFrame <- function(sim,
 #' @export
 #' @seealso \code{\link{getBiomass}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 #' plotBiomass(sim)
 #' plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
 #' plotBiomass(sim, min_w = 10, max_w = 1000)
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
-#' }
+#' 
 plotBiomass <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -330,18 +330,18 @@ plotBiomass <- function(sim,
 #' @export
 #' @seealso \code{\link{getYield}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim)
 #' plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 #' 
 #' # Comparing with yield from twice the effort
-#' sim2 <- project(params, effort=2, t_max=20, t_save = 0.2)
+#' sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
-#' }
+#' 
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
                       print_it = FALSE, total = FALSE, log = TRUE, ...){
@@ -452,14 +452,14 @@ plotYield <- function(sim, sim2,
 #' @export
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYieldGear(sim)
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
-#' }
+#' 
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
                           print_it = FALSE, total = FALSE, ...){
@@ -534,17 +534,17 @@ plotYieldGear <- function(sim,
 #' @return A ggplot2 object
 #' @export
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
 #' plotSpectra(sim, min_w = 1e-6)
 #' plotSpectra(sim, time_range = 10:20)
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
-#' }
+#' 
 plotSpectra <- function(object, species = NULL,
                         time_range,
                         min_w, ylim = c(NA, NA),
@@ -707,14 +707,14 @@ plot_spectra <- function(params, n, n_pp,
 #' @export
 #' @seealso \code{\link{getFeedingLevel}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20)
-#' }
+#' 
 plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
             time_range = max(as.numeric(dimnames(sim@n)$time)),
@@ -766,14 +766,14 @@ plotFeedingLevel <- function(sim,
 #' @export
 #' @seealso \code{\link{getM2}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotM2(sim)
 #' plotM2(sim, time_range = 10:20)
-#' }
+#' 
 plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
                    print_it = FALSE, ...) {
@@ -825,14 +825,14 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' @export
 #' @seealso \code{\link{getFMort}}
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
 #' plotFMort(sim, time_range = 10:20)
-#' }
+#' 
 plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
                       print_it = FALSE, ...){
@@ -873,14 +873,14 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' @return An array (species x age) containing the weight in grams.
 #' @export
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
 #' getGrowthCurves(params)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' getGrowthCurves(sim, max_age = 24)
-#' }
+#' 
 getGrowthCurves <- function(object, max_age = 24) {
     if (is(object, "MizerSim")) {
         params <- object@params
@@ -933,14 +933,14 @@ getGrowthCurves <- function(object, max_age = 24) {
 #' @return A ggplot2 object
 #' @export
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
-#' }
+#' 
 plotGrowthCurves <- function(object, species,
             max_age = 20, percentage = FALSE, print_it = FALSE) {
     if (is(object, "MizerSim")) {
@@ -1038,15 +1038,15 @@ plotGrowthCurves <- function(object, species,
 #' @export
 #' @rdname plotMizerSim
 #' @examples
-#' \dontrun{
+#' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots
 #' plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
-#' }
+#' 
 setMethod("plot", signature(x = "MizerSim", y = "missing"),
           function(x, ...) {
               p1 <- plotFeedingLevel(x, print_it = FALSE, ...)

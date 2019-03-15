@@ -1,6 +1,6 @@
 pandoc: 2.3.1
 pkgdown: 1.3.0.9000
-pkgdown_sha: 5be3a87f203ba8dd30c5783ae8c2f4480f42df01
+pkgdown_sha: ~
 articles:
   a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
   community_model: community_model.html

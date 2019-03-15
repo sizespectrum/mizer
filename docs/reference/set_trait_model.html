@@ -41,10 +41,12 @@
 <meta property="og:description" content="This functions creates a MizerParams object so that trait-based-type 
 models can be easily set up and run. The trait-based size spectrum model can
 be derived as a simplification of the general size-based model used in
-mizer. All the species-specific parameters are the same, except for
+mizer. The species-specific parameters are the same for all species, 
+except for
 the asymptotic size, which is considered the most important trait
 characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by w_inf * eta, where eta is
+size. For example, the size at maturity is given by w_inf * eta, 
+where eta is
 the same for all species. For the trait-based model the number of species is
 not important. For applications of the trait-based model see Andersen &amp;amp;
 Pedersen (2010). See the mizer vignette for more details and examples
@@ -134,7 +136,7 @@ of the trait-based model." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Sets up parameters for a trait-based model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
     <div class="hidden name"><code>set_trait_model.Rd</code></div>
     </div>
 
@@ -143,10 +145,12 @@ of the trait-based model." />
     <p>This functions creates a <code>MizerParams</code> object so that trait-based-type 
 models can be easily set up and run. The trait-based size spectrum model can
 be derived as a simplification of the general size-based model used in
-<code>mizer</code>. All the species-specific parameters are the same, except for
+<code>mizer</code>. The species-specific parameters are the same for all species, 
+except for
 the asymptotic size, which is considered the most important trait
 characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by w_inf * eta, where eta is
+size. For example, the size at maturity is given by <code>w_inf * eta</code>, 
+where <code>eta</code> is
 the same for all species. For the trait-based model the number of species is
 not important. For applications of the trait-based model see Andersen &amp;
 Pedersen (2010). See the <code>mizer</code> vignette for more details and examples
@@ -316,7 +320,7 @@ length of 1) or by a different gear (the length of <code>knife_edge_size</code> 
 the same length as the number of species and the order of selectivity size is
 that of the asymptotic size).</p>
 <p>The resulting <code>MizerParams</code> object can be projected forward using
-<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting
+<code>project</code> like any other <code>MizerParams</code> object. When projecting
 the community model it may be necessary to reduce <code>dt</code> to 0.1 to avoid
 any instabilities with the solver. You can check this by plotting the biomass
 or abundance through time after the projection.</p>

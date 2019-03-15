@@ -61,5 +61,5 @@ VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 Encoding: UTF-8
 LazyData: true
-URL: https://sizespectrum.github.io/mizer/, https://github.com/sizespectrum/mizer
-BugReports: https://github.com/sizespectrum/mizer/issues
+URL: https://gustavdelius.github.io/mizer/, https://github.com/gustavdelius/mizer
+BugReports: https://github.com/gustavdelius/mizer/issues

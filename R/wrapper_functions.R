@@ -1245,15 +1245,16 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
 #' @param dt The time step to use in `project()`
-#' @param shiny_progress A shiny progress object to implement progress bar
+#' @param progress_bar A shiny progress object to implement 
+#'   a progress bar in a shiny app. Default FALSE
 #' @export
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-                   dt = 0.1, shiny_progress = NULL) {
+                   dt = 0.1, progress_bar = TRUE) {
     p <- params
     
-    if (hasArg(shiny_progress)) {
+    if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
-        shiny_progress$set(message = "Finding steady state", value = 0)
+        progress_bar$set(message = "Finding steady state", value = 0)
         proginc <- 1/ceiling(t_max/t_per)
     }
     
@@ -1275,8 +1276,8 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
                        effort = effort, 
                        initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
-        if (hasArg(shiny_progress)) {
-            shiny_progress$inc(amount = proginc)
+        if (is(progress_bar, "Progress")) {
+            progress_bar$inc(amount = proginc)
         }
         no_t <- dim(sim@n)[1]
         n <- sim@n[no_t, , ]

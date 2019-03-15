@@ -7,7 +7,7 @@
 project(params, sim = NULL, effort = 0, t_max = 100, dt = 0.1,
   t_save = 1, initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  shiny_progress = NULL, ...)
+  progress_bar = TRUE, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -44,8 +44,9 @@ same as the names of the list in the \code{resource_dynamics} slot of the
 \code{MizerParams}. By default is set to the \code{initial_B} slot of the
 \code{params} argument.}
 
-\item{shiny_progress}{A shiny progress object used to update shiny progress bar.
-Default NULL.}
+\item{progress_bar}{Either a boolean value to determine whether a progress
+bar should be shown in the console of a shiny progress object to implement 
+a progress bar in a shiny app}
 
 \item{...}{Currently unused.}
 }

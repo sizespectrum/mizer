@@ -121,9 +121,78 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+      <small><a href='https://github.com/gustavdelius/mizer/edit/master/NEWS.md'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="mizer-1-1" class="section level1">
+<h1 class="page-header">
+<a href="#mizer-1-1" class="anchor"></a>mizer 1.1<small> Unreleased </small>
+</h1>
+<ul>
+<li>
+<code><a href="../reference/project.html">project()</a></code> can now continue projection from last time step of a previous simulation provided in an optional <code>sim</code> argument</li>
+<li>Added function to get diet of predators</li>
+<li>Removed discrepancies between FFT method and old method for calculating integrals</li>
+<li>Values for minimum plankton size, and minimum and maximum consumer sizes set automatically</li>
+<li>Allowing feeding kernel to be kept even when using FFT methods</li>
+<li>Function change_pred_kernel() for changing predation kernel</li>
+<li>Set names on arrays returned by getEncounter and getPredRate</li>
+<li>Replaced <code>getPhiPrey()</code> by <code><a href="../reference/getEncounter.html">getEncounter()</a></code> which includes the search volume factor.</li>
+<li>Added numerical unit tests</li>
+<li>Allow user-defined plankton dynamics</li>
+<li>Introduced a new parameter slot <code>interact_p</code> that sets the strength of interaction of species with plankton.</li>
+<li>Avoid duplicate graphs in rmarkdown documents by setting the default for the <code>print_it</code> argument in plot functions to <code>FALSE</code>.</li>
+<li>Introduce unstructured resources into mizer model</li>
+<li>Use a more general expression for the maturity ogive <code>psi</code> with two additional species parameters <code>m</code> and <code>w25</code>.</li>
+<li>Correctly deal with NAs in species parameters.</li>
+<li>Consistently cutting off predation kernel at 0 and beta + 3 sigma.</li>
+<li>
+<code>cc_pp</code> is calculated in a way that reduces rounding errors.</li>
+<li>
+<code><a href="../reference/set_scaling_model.html">set_scaling_model()</a></code> now produces perfectly scale-invariant model when called with <code>perfect = TRUE</code>.</li>
+<li>Using Singular Value Decomposition to retune background species to keep community close to power law.</li>
+<li>Background species with very low abundances are automatically removed.</li>
+<li>Converted all S4 methods to functions to decrease the learning curve for new developers.</li>
+<li>Changed naming convention: function names are now in camelCase.</li>
+<li>Renamed some functions for consistency and to make them easier to understand, but kept old names as aliases for backwards compatibility:
+<ul>
+<li>
+<code>getmM2</code> -&gt; <code>getPredMort</code>
+</li>
+<li>
+<code>getM2background</code> -&gt; <code>getPlanktonMort</code>
+</li>
+<li>
+<code>getZ</code> -&gt; <code>getMort</code>
+</li>
+<li>
+<code>getESpawning</code> -&gt; <code>getERepro</code>
+</li>
+<li>
+<code>MizerParams</code> -&gt; <code>emptyParams</code> or <code>multispeciesParams</code>
+</li>
+</ul>
+</li>
+<li>Improvement to MizerParams class:
+<ul>
+<li>Merged <code>std_metab</code> and <code>activity</code> slots into a single <code>metab</code> slot.</li>
+<li>Moved <code>w_min_idx</code> out of <code>species_params</code> into its own slot.</li>
+</ul>
+</li>
+<li>Started work on two new vignettes:
+<ul>
+<li><code>developer_vignette.Rmd</code></li>
+<li><code>mathematical_details.Rmd</code></li>
+</ul>
+</li>
+<li>Code improvements:
+<ul>
+<li>Starting to use assert_that to check arguments to functions.</li>
+<li>Added more unit tests.</li>
+</ul>
+</li>
+</ul>
+</div>
     <div id="mizer-1-0" class="section level1">
 <h1 class="page-header">
 <a href="#mizer-1-0" class="anchor"></a>mizer 1.0<small> 2018-05-01 </small>
@@ -198,6 +267,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#mizer-1-1">1.1</a></li>
         <li><a href="#mizer-1-0">1.0</a></li>
         <li><a href="#mizer-0-4">0.4</a></li>
         <li><a href="#mizer-0-3">0.3</a></li>

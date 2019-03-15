@@ -5,7 +5,7 @@
 \title{Tune params object to be at steady state}
 \usage{
 steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-  dt = 0.1, shiny_progress = NULL)
+  dt = 0.1, progress_bar = TRUE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -23,7 +23,8 @@ species. Default value is 1/100.}
 
 \item{dt}{The time step to use in `project()`}
 
-\item{shiny_progress}{A shiny progress object to implement progress bar}
+\item{progress_bar}{A shiny progress object to implement 
+a progress bar in a shiny app. Default FALSE}
 }
 \description{
 This is done by running the dynamics for a specified number of years while

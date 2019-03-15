@@ -50,17 +50,17 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
 }
 \examples{
-\dontrun{
+
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 plotBiomass(sim)
 plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
 plotBiomass(sim, min_w = 10, max_w = 1000)
 plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
-}
+
 }
 \seealso{
 \code{\link{getBiomass}}
