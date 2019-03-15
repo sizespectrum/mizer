@@ -26,7 +26,7 @@ described in more detail in sections below.
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) explaining how to use and install mizer.
 
 ## Model Description
-
+To be written.
 
 ## Installing mizer
 

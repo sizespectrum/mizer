@@ -29,7 +29,7 @@ the detritus component.}
 \item{...}{Unused}
 }
 \value{
-Biomass of detritus at next time step
+A single number giving the biomass of detritus at next time step
 }
 \description{
 Calculates the detritus biomass at the next timestep from the current
@@ -50,11 +50,11 @@ case it represents a loss to external sources.
 }
 
 This equation is solved analytically to
-\deqn{B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+\deqn{B(t+dt) = B(t)\exp(-consumption \cdot dt)
   +\frac{inflow + external}{consumption}
-  (1-\exp(-consumption \cdot \Delta t)).}{B(t+\Delta t) 
-  = B(t) exp(-consumption * \Delta t)
-  +(inflow + external)/(consumption) * (1 - exp(-consumption * \Delta t)).}
+  (1-\exp(-consumption \cdot dt)).}{B(t+dt) 
+  = B(t) exp(-consumption * dt)
+  +(inflow + external)/(consumption) * (1 - exp(-consumption * dt)).}
 This avoids the stability problems that would arise if we used the Euler
 method to solve the equation numerically.
 }

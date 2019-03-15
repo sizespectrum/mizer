@@ -178,7 +178,7 @@ the current biomass.</p>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Biomass of carrion at next time step</p>
+    <p>A single number giving the biomass of carrion at next time step</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -198,9 +198,9 @@ specified by <code>params@rho[, "carrion", ]</code>.</p></li>
 case it represents a loss to external sources.</p></li>
 </ul>
     <p>This equation is solved analytically to
-$$B(t+\Delta t) = B(t)\exp(-consumption \cdot \Delta t)
+$$B(t+dt) = B(t)\exp(-consumption \cdot dt)
   +\frac{inflow + external}{consumption}
-  (1-\exp(-consumption \cdot \Delta t)).$$
+  (1-\exp(-consumption \cdot dt)).$$
 This avoids the stability problems that would arise if we used the Euler
 method to solve the equation numerically.</p>
     

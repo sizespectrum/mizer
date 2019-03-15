@@ -16,10 +16,6 @@ community indicators such as the slope of the size spectrum. Size-based models
 can be complicated so mizer contains many default options that can be easily
 changed by the user.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc"
-frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; 
-picture-in-picture" allowfullscreen></iframe>
-
 Mizer is still under active development, currently funded by the European
 Commission Horizon 2020 Research and Innovation Programme under Grant Agreement
 No. 634495 for the project MINOUW (http://minouw-project.eu/) and the Australian
@@ -38,7 +34,7 @@ for more details on how the package works, including detailed examples.
 # Learning resources
 No matter whether you are new to ecological modelling, a fisheries scientist, a policy maker, a mathematician, or someone interested in further developing mizer, you will find useful resources on this website.
 
-For those new to mizer, head to the [Get Started](articles/mizer.html) page to start learning about mizer, or watch the [online video tutorials,](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) which explain how to make use of the different features that the mizer software provides. 
+For those new to mizer, head to the [Get Started](articles/mizer.html) page to start learning about mizer
 
 <!--
 A gentle way to get into actually using mizer is to try out the [online mizer simulation app.](https://mizer.shinyapps.io/selectivity/) This app allows you to experiment with running mizer simulations under different conditions, and investigate the outcome of changing different fishing policies on the system, without having to learn how to use R.
@@ -54,8 +50,12 @@ Mizer can also be used to create web apps that allow users to explore models
 without the need to install R. An [example of such an
 app](https://mizer.shinyapps.io/selectivity/) investigates the effect of
 switching to a gear with a T90 extension net to reduce the catches of undersized
-hake and red mullet
+hake and red mullet.
 
-
+We also have a series of [online video tutorials,](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B)
+that explain how to make use of the different features that the mizer package provides. 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc"
+frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; 
+picture-in-picture" allowfullscreen></iframe>
 
 

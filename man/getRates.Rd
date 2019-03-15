@@ -38,6 +38,6 @@ A list with the following components:
   }
 }
 \description{
-Calls all the other functions in sequence and collects the results in a
+Calls all the other rate functions in sequence and collects the results in a
 list.
 }

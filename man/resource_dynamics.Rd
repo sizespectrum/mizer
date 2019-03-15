@@ -13,9 +13,9 @@ resource for scavengers, or macroflora on which fish can graze.
 \details{
 Mizer allows an arbitrary number of unstructured components. The biomasses of
 all components are collected into a named vector and stored in the \code{B} slot
-of the \code{MizerSim} object. The initial value \code{B} is stored in the \code{initial_B}
-slot of the \code{MizerParams} object but can also be specified explicitly as an
-argument to \code{\link[=project]{project()}}.
+of the \code{MizerSim} object. The initial value for \code{B} is stored in the
+\code{initial_B} slot of the \code{MizerParams} object but can also be specified
+explicitly as an argument to \code{\link[=project]{project()}}.
 }
 \section{Setting up a Model with Resources}{
 
@@ -45,7 +45,7 @@ following slots in an existing \code{MizerParams} object:
 We denote by \eqn{\rho_{id}(w)} the rate at which a predator of species
 \eqn{i} and size \eqn{w} encounters biomass from the d-th unstructured
 resource component. The contribution of the unstructured resources to the
-total rate at which biomass encountered by an individual of species \eqn{i}
+total rate at which biomass is encountered by an individual of species \eqn{i}
 and size \eqn{w} is thus
 \deqn{\sum_d \rho_{id}(w) B_d.}
 Resource consumption is subject to satiation in the same way as other food,
@@ -58,7 +58,7 @@ so that
 \deqn{\rho_{id}(w) = \rho_{id} w^n.}
 This is the choice made for you when you set up the model with the
 \code{\link[=multispeciesModel]{multispeciesModel()}} function, but you can always overwrite it with your own
-choice by assigning your values of \eqn{\rho{id}(w)} to the \code{rho} slot of the
+choice by assigning your values of \eqn{\rho_{id}(w)} to the \code{rho} slot of the
 \code{MizerParams} object, which is a 3-dim array (predator species x resource x
 predator size). See examples section.
 }
@@ -75,15 +75,16 @@ templates.
 
 As you can see in the documentation of these functions, their arguments are:
 the \code{MizerParams} object \code{params}, the current fish size spectra \code{n}, the
-plankton spectrum \code{n_pp}, the current resource biomasses \code{B} and the current
+current plankton spectrum \code{n_pp}, the current resource biomasses \code{B} and the current
 rates calculated by the \code{\link[=getRates]{getRates()}} function. This last argument is passed
 for efficiency reasons, so that the rates do not have to be recomputed. See
 the documentation of \code{\link[=getRates]{getRates()}} for a list of what it contains.
 
-The other arguments are model parameters, like for example growth rates.
+The other arguments to the resource dynamics functions are model parameters,
+like for example growth rates.
 These need to be stored in the \code{resource_params} slot of \code{params}. One model
-parameter that must always be present is the rate of change due to external
-causes. This must be given a name of the form \code{resource_external} where
+parameter that should always be present is the rate of change due to external
+causes. This should be given a name of the form \code{resource_external} where
 \code{resource} should be replaced by the name of the resource, see for example
 \code{detritus_external} in \code{\link[=detritus_dynamics]{detritus_dynamics()}}
 
@@ -94,6 +95,7 @@ is to prefix all parameter namse with your resource name.
 
 The dynamics for a resource should always have a loss term accounting for
 the consumption of the resource. This should always have the form used in the
-example function \code{\link[=detritus_dynamics]{detritus_dynamics()}}.
+example function \code{\link[=detritus_dynamics]{detritus_dynamics()}}, in order to be in agreement with the
+feeding by consumers described above in the "Feeding on Resources" section.
 }
 
