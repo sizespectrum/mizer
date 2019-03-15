@@ -170,10 +170,12 @@ set_community_model <- function(max_w = 1e6,
 #' This functions creates a \code{MizerParams} object so that trait-based-type 
 #' models can be easily set up and run. The trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
-#' \code{mizer}. All the species-specific parameters are the same, except for
+#' \code{mizer}. The species-specific parameters are the same for all species, 
+#' except for
 #' the asymptotic size, which is considered the most important trait
 #' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by w_inf * eta, where eta is
+#' size. For example, the size at maturity is given by \code{w_inf * eta}, 
+#' where \code{eta} is
 #' the same for all species. For the trait-based model the number of species is
 #' not important. For applications of the trait-based model see Andersen &
 #' Pedersen (2010). See the \code{mizer} vignette for more details and examples
@@ -200,10 +202,11 @@ set_community_model <- function(max_w = 1e6,
 #' that of the asymptotic size).
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using
-#' \code{project()} like any other \code{MizerParams} object. When projecting
+#' \code{project} like any other \code{MizerParams} object. When projecting
 #' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
 #' any instabilities with the solver. You can check this by plotting the biomass
 #' or abundance through time after the projection.
+#' 
 #' @param no_sp The number of species in the model. The default value is 10. The
 #'   more species, the longer takes to run.
 #' @param min_w_inf The asymptotic size of the smallest species in the
@@ -219,7 +222,7 @@ set_community_model <- function(max_w = 1e6,
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
-#'   is 1.
+#'    is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.75.
@@ -307,7 +310,7 @@ set_trait_model <- function(no_sp = 10,
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
     if (!is.na(max_w))
-            warning("New mizer code does not support the parameter max_w")
+        warning("New mizer code does not support the parameter max_w")
     
     w_inf <- 10^seq(from = log10(min_w_inf), to = log10(max_w_inf), length = no_sp)
     w_mat <- w_inf * eta

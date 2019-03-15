@@ -12,7 +12,7 @@ getGrowthCurves(object, max_age = 24)
 \item{max_age}{The age up to which the weight is to be plotted. Default is 20}
 }
 \value{
-A ggplot2 object
+An array (species x age) containing the weight in grams.
 }
 \description{
 If given a \linkS4class{MizerSim} object, uses the growth rates at the final

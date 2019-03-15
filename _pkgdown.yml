@@ -83,6 +83,7 @@ reference:
   - getSSB
   - getYield
   - getYieldGear
+  - getGrowthCurves
 - title: Plotting results
   contents:
   - plotting_functions

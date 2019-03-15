@@ -870,7 +870,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' @param object MizerSim or MizerParams object
 #' @param max_age The age up to which the weight is to be plotted. Default is 20
 #'
-#' @return A ggplot2 object
+#' @return An array (species x age) containing the weight in grams.
 #' @export
 #' @examples
 #' \dontrun{

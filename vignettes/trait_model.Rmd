@@ -15,25 +15,49 @@ library(mizer)
 
 
 ## Introduction
-The trait-based size spectrum model can be derived as a simplification of the general model outline in [the model description section.](model_description.html)
-It is more complicated than a community model and the most significant difference between the two is that while the community model only resolves a single *species*, the trait-based model resolves many species.
-In a trait-based model the asymptotic size is considered to be the most important *trait* characterizing a species. All of the species-specific parameters, such as $\beta$ and $\sigma$, are the same for all species. Other model parameters are determined by the asymptotic size.
-For example, the weight at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number of species is not important and does not affect the general dynamics of the model. The asymptotic sizes of the species are spread evenly over the size range of the community.
+The trait-based size spectrum model can be derived as a simplification of the
+general model outline in the [model description](model_description.html)
+section. It is more complicated than a [community model](community_model.html)
+and the most significant difference between the two is that while the community
+model only resolves a single *species*, the trait-based model resolves many
+species. In a trait-based model the asymptotic size is considered to be the most
+important *trait* characterizing a species. All of the species-specific
+parameters, such as $\beta$ and $\sigma$, are the same for all species. Other
+model parameters are determined by the asymptotic size. For example, the weight
+at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number
+of species is not important and does not affect the general dynamics of the
+model. The asymptotic sizes of the species are spread evenly over the size range
+of the community.
 
 ## Setting up a trait-based model {#sec:set_up_trait_model}
 
-To help set up a trait-based model, there is a wrapper function, `set_trait_model()`. Like the `set_community_model()` function described above, this function can take many arguments. Most of them have default values so you don't need to worry about them for the moment. See the help page for more details.
+To help set up a trait-based model, there is a wrapper function,
+`set_trait_model()`. Like the `set_community_model()` function described in the
+section on the [community model](community_model.html), this function can take
+many arguments. Most of them have default values so you don't need to worry
+about them for the moment. See the help page for more details.
 
 ```{r label=help_set_trait_model, eval=FALSE}
 ?set_trait_model
 ```
 
-The main parameters of interest are the number of the species in the model (`no_sp`) and the minimum and maximum asymptotic sizes (`min_w_inf` and `max_w_inf` respectively), the asymptotic sizes are spread evenly on a logarithmic scale.
+The main parameters of interest are the number of the species in the model
+(`no_sp`) and the minimum and maximum asymptotic sizes (`min_w_inf` and
+`max_w_inf` respectively); the asymptotic sizes are spread evenly on a
+logarithmic scale between these values.
 
-One of the key differences between the community type model described above and the trait-based model is that reproduction and egg production are considered.
-In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production.
-In the trait-based model, the egg production is modeled using a *Beverton-Holt* type function (the default in `mizer`, see [the section on stock-recruitment relationships](model_description.html#sec:recruitment)) where the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases.
-The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as an argument (`k0`) to the `set_trait_model()` function. `k0` has a default value of 50. 
+One of the key differences between the community type model and
+the trait-based model is that reproduction and egg production are considered. In
+the community model, recruitment is constant and there is no relationship
+between the abundance in the community and egg production. In the trait-based
+model, the egg production is modeled using a *Beverton-Holt* type function (the
+default in `mizer`, see [the section on stock-recruitment
+relationships](model_description.html#sec:recruitment)) where the recruitment
+flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg
+production increases. The maximum recruitment flux is calculated using
+equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as
+an argument (`k0`) to the `set_trait_model()` function. `k0` has a default value
+of 50.
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 

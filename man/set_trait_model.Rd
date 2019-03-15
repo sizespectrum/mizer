@@ -90,10 +90,12 @@ An object of type \code{MizerParams}
 This functions creates a \code{MizerParams} object so that trait-based-type 
 models can be easily set up and run. The trait-based size spectrum model can
 be derived as a simplification of the general size-based model used in
-\code{mizer}. All the species-specific parameters are the same, except for
+\code{mizer}. The species-specific parameters are the same for all species, 
+except for
 the asymptotic size, which is considered the most important trait
 characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by w_inf * eta, where eta is
+size. For example, the size at maturity is given by \code{w_inf * eta}, 
+where \code{eta} is
 the same for all species. For the trait-based model the number of species is
 not important. For applications of the trait-based model see Andersen &
 Pedersen (2010). See the \code{mizer} vignette for more details and examples
@@ -121,7 +123,7 @@ the same length as the number of species and the order of selectivity size is
 that of the asymptotic size).
 
 The resulting \code{MizerParams} object can be projected forward using
-\code{project()} like any other \code{MizerParams} object. When projecting
+\code{project} like any other \code{MizerParams} object. When projecting
 the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
 any instabilities with the solver. You can check this by plotting the biomass
 or abundance through time after the projection.
