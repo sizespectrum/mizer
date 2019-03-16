@@ -71,6 +71,7 @@ test_that("getFeedingLevel for MizerParams", {
     fl <- getFeedingLevel(params, n, n_full)
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
+    expect_identical(dimnames(fl), dimnames(params@initial_n))
     # A crap test - just returns what's already in the method
     encounter <- getEncounter(params, n = n, n_pp = n_full)
     f <- encounter / (encounter + params@intake_max)
@@ -89,7 +90,12 @@ test_that("getFeedingLevel for MizerParams", {
 
 test_that("getFeedingLevel for MizerSim", {
     time_range <- 15:20
-    expect_length(dim(getFeedingLevel(sim, time_range = time_range)), 3)
+    fl <- getFeedingLevel(sim, time_range = time_range)
+    expect_length(dim(fl), 3)
+    # because t_save is 0.5, there should be 11 time steps in the range 15:20
+    expect_equal(dim(fl), c(11, dim(params@initial_n)))
+    expect_identical(dimnames(fl)$sp, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(fl)$w, dimnames(params@initial_n)$w)
     time_range <- 20
     expect_length(dim(getFeedingLevel(sim, time_range = time_range)), 3)
     expect_identical(
