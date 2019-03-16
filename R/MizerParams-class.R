@@ -291,7 +291,7 @@ validMizerParams <- function(object) {
 #' @slot linecolour A named vector of colour values, named by species. Used 
 #'   to give consistent colours to species in plots.
 #' @slot linetype A named vector of linetypes, named by species. Used 
-#'   to give consistent colours to species in plots.
+#'   to give consistent line types to species in plots.
 
 #' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
@@ -407,9 +407,10 @@ setClass(
 #' Only the size grids as well as the species names and gear names are set up.
 #' 
 #' This will produce a valid MizerParams object with all the slots initialised
-#' but filled with meaningless placeholders values, except for the size grid
-#' slots. The dimension names of the array slots are correctly set using the
-#' weight grid and species and gear names.
+#' but mostly filled with meaningless placeholders values, except for the size
+#' grid slots. The dimension names of the array slots are correctly set using
+#' the weight grid and species and gear names. The linecolour and linetype slots
+#' used for plots is filled with values from a default palette.
 #' 
 # Some code is commented out that would allow the user to 
 # specify a grid with a non-constant log spacing. But we comment this out
@@ -418,10 +419,9 @@ setClass(
 #' A size grid is created so that
 #' the log-sizes are equally spaced. The spacing is chosen so that there will be
 #' `no_w` fish size bins, with the smallest starting at `min_w` and the largest
-#' starting at `max_w`. For `w_full` additional size bins are added between
-#' `min_w_pp` and `min_w`, with the same log size. Because `min_w` is always
-#' a size-bin boundary, in general due to the fixed bin size the smallest
-#' size bin may start a bit above `min_w_pp`. 
+#' starting at `max_w`. For `w_full` additional size bins are added below
+#' `min_w`, with the same log size. The number of extra bins is such that
+#' `min_w_pp` comes to lie within the smallest bin. 
 #' 
 #' @param no_sp Number of species
 #' @param min_w  Smallest weight. Default 0.001

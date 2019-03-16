@@ -1,4 +1,4 @@
-# Plotting functions for the MizerSim class
+# Plotting functions ----
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2019 Gustav Delius and Richard Southwell.
@@ -11,7 +11,8 @@
 #' Plotting functions
 #' 
 #' Mizer provides a range of plotting functions for visualising the results
-#' of running a simulation, stored in a MizerSim object.
+#' of running a simulation, stored in a MizerSim object, or the initial state
+#' stored in a MizerParams object.
 #'
 #' This table shows the available plotting functions.
 #' \tabular{ll}{
@@ -30,8 +31,50 @@
 #' object. This means that you can manipulate the plot further after its 
 #' creation using the ggplot grammar of graphics.
 #' 
+#' While most plot functions take their data from a MizerSim object, some of
+#' those that make plots representing data at a single time can also take their
+#' data from the initial values in a MizerParams object.
+#' 
+#' Where plots show results for species, the line colour and line type for each 
+#' species are specified by the `linecolour` and `linetype` slots in the 
+#' MizerParams object. These were either taken from a default palette
+#' hard-coded into \code{\link{emptyParams}} or they were specified by the user
+#' in the species parameters dataframe used to set up the MizerParams object.
+#' The `linecolour` and `linetype` slots hold named vectors, named by the
+#' species. They can be overwritten by the user at any time.
+#' 
+#' Most plots allow the user to select to show only a subset of species,
+#' specified as a vector in the `species` argument to the plot function.
+#' 
+#' The ordering of the species in the legend is the same as the ordering in
+#' the species parameter data frame.
+#' 
 #' @seealso \code{\link{summary_functions}}
 #' @name plotting_functions
+#' @examples
+#' # Set up example MizerParams and MizerSim objects
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+#' 
+#' # Some example plots
+#' plotFeedingLevel(sim)
+#' 
+#' # Plotting only a subset of species
+#' plotFeedingLevel(sim, species = c("Cod", "Herring"))
+#' 
+#' # Specifying new colours and linetypes for some species
+#' sim@params@linetype["Cod"] <- "solid"
+#' sim@params@linecolour["Cod"] <- "red"
+#' plotFeedingLevel(sim, species = c("Cod", "Herring"))
+#' 
+#' # Manipulating the plot
+#' library(ggplot2)
+#' p <- plotFeedingLevel(sim)
+#' p <- p + geom_hline(aes(yintercept = 0.7))
+#' p <- p + theme_bw()
+#' p
 NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
@@ -251,7 +294,9 @@ plotBiomass <- function(sim,
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
             y_ticks = 6, print_it = FALSE,
             ylim = c(NA, NA),
-            total = FALSE, background = TRUE, ...){
+            total = FALSE, background = TRUE, ...) {
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     b <- getBiomass(sim, ...)
     if (start_time >= end_time) {
         stop("start_time must be less than end_time")
@@ -269,7 +314,7 @@ plotBiomass <- function(sim,
     bm <- reshape2::melt(b)
     # Force Species column to be a factor (otherwise if numeric labels are
     # used they may be interpreted as integer and hence continuous)
-    bm$Species <- as.factor(bm$Species)
+    bm$Species <- factor(bm$Species, levels = species_levels)
     # Implement ylim and a minimal cutoff
     min_value <- 1e-20
     bm <- bm[bm$value >= min_value &
@@ -345,6 +390,8 @@ plotBiomass <- function(sim,
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
                       print_it = FALSE, total = FALSE, log = TRUE, ...){
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -356,9 +403,9 @@ plotYield <- function(sim, sim2,
         }
         ym <- reshape2::melt(y, varnames = c("Year", "Species"),
                              value.name = "Yield")
-        ym$Species <- as.factor(ym$Species)
+        ym$Species <- factor(ym$Species, levels = species_levels)
         ym <- subset(ym, ym$Yield > 0)
-        if (nlevels(ym$Species) > 12) {
+        if (length(species) > 12) {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, group = Species))
         } else {
@@ -404,7 +451,7 @@ plotYield <- function(sim, sim2,
         ym$Simulation <- 1
         ym2$Simulation <- 2
         ym <- rbind(ym, ym2)
-        ym$Species <- as.factor(ym$Species)
+        ym$Species <- factor(ym$Species, levels = species_levels)
         ym$Simulation <- as.factor(ym$Simulation)
         ym <- subset(ym, ym$Yield > 0)
         if (nlevels(ym$Species) > 12) {
@@ -463,11 +510,15 @@ plotYield <- function(sim, sim2,
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
                           print_it = FALSE, total = FALSE, ...){
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
     y <- y[, , dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
     ym <- reshape2::melt(y)
+    ym$Species <- factor(ym$Species, levels = species_levels)
     if (total) {
         yt <- reshape2::melt(y_total)
         yt$Species <- "Total"
@@ -510,9 +561,9 @@ plotYieldGear <- function(sim,
 #' @param min_w Minimum weight to be plotted (useful for truncating the
 #'   plankton spectrum). Default value is a hundredth of the minimum size
 #'   value of the community.
-#' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
-#'   below 1e-20 are always cut off.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
+#'   values below 1e-20 are always cut off.
 #' @param power The abundance is plotted as the number density times the weight
 #' raised to \code{power}. The default \code{power = 1} gives the biomass 
 #' density, whereas \code{power = 2} gives the biomass density with respect
@@ -592,10 +643,12 @@ plotSpectra <- function(object, species = NULL,
 plot_spectra <- function(params, n, n_pp,
                          species, min_w, ylim, power, print_it,
                          total, plankton, background) {
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(params@initial_n)$sp,
+                        "Background", "Plankton", "Total")
     if (total) {
         # Calculate total community abundance
-        fish_idx <- (length(params@w_full) - length(params@w) + 1):
-            length(params@w_full)
+        fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
         total_n <- n_pp
         total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
         total_n <- total_n * params@w_full^power
@@ -616,7 +669,9 @@ plot_spectra <- function(params, n, n_pp,
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
     plot_dat <- data.frame(value = c(spec_n),
-                           Species = as.factor(dimnames(spec_n)[[1]]),
+                           # ordering of factor is important for legend
+                           Species = factor(dimnames(spec_n)[[1]],
+                                            levels = species_levels),
                            w = rep(params@w,
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
@@ -643,13 +698,13 @@ plot_spectra <- function(params, n, n_pp,
     # lop off 0s and apply min_w
     plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w), ]
     # Impose ylim
-    if (!is.na(ylim[1])) {
-        plot_dat <- plot_dat[plot_dat$value < ylim[1], ]
+    if (!is.na(ylim[2])) {
+        plot_dat <- plot_dat[plot_dat$value <= ylim[2], ]
     }
-    if (is.na(ylim[2])) {
-        ylim[2] <- 1e-20
+    if (is.na(ylim[1])) {
+        ylim[1] <- 1e-20
     }
-    plot_dat <- plot_dat[plot_dat$value > ylim[2], ]
+    plot_dat <- plot_dat[plot_dat$value > ylim[1], ]
     # Create plot
     p <- ggplot(plot_dat, aes(x = w, y = value)) +
         scale_x_continuous(name = "Size [g]", trans = "log10",
@@ -713,7 +768,7 @@ plot_spectra <- function(params, n, n_pp,
 #' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
-#' plotFeedingLevel(sim, time_range = 10:20)
+#' plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 #' 
 plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
@@ -722,10 +777,14 @@ plotFeedingLevel <- function(sim,
     feed_time <- getFeedingLevel(sim, time_range = time_range,
                                  drop = FALSE, ...)
     feed <- apply(feed_time, c(2, 3), mean)
-    feed <- feed[as.character(dimnames(feed)[[1]]) %in% species, ,
-                 drop = FALSE]
+    # selector for desired species
+    sel_sp <- as.character(dimnames(feed)$sp) %in% species
+    feed <- feed[sel_sp, , drop = FALSE]
     plot_dat <- data.frame(value = c(feed),
-                           Species = dimnames(feed)[[1]],
+                           # ggplot orders the legend according to the ordering
+                           # of the factors, hence we need the levels argument
+                           Species = factor(dimnames(feed)$sp, 
+                                            levels = dimnames(feed)$sp),
                            w = rep(sim@params@w, each = length(species)))
     if (length(species) > 12) {
         p <- ggplot(plot_dat) +
@@ -777,12 +836,16 @@ plotFeedingLevel <- function(sim,
 plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
                    print_it = FALSE, ...) {
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    
     m2_time <- getM2(sim, time_range = time_range, drop = FALSE, ...)
     m2 <- apply(m2_time, c(2, 3), mean)
     m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
              drop = FALSE]
     plot_dat <- data.frame(value = c(m2),
-                           Species = dimnames(m2)[[1]],
+                           Species = factor(dimnames(m2)[[1]],
+                                            levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
     if (length(species) > 12) {
         p <- ggplot(plot_dat) +
@@ -835,12 +898,16 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' 
 plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
-                      print_it = FALSE, ...){
+                      print_it = FALSE, ...) {
+    # Need to keep species in order for legend
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    
     f_time <- getFMort(sim, time_range = time_range, drop = FALSE, ...)
     f <- apply(f_time, c(2, 3), mean)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(f),
-                           Species = dimnames(f)[[1]],
+                           Species = factor(dimnames(f)[[1]],
+                                            levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
     if (length(species) > 12) {
         p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, group = Species))
@@ -942,7 +1009,9 @@ getGrowthCurves <- function(object, max_age = 24) {
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' 
 plotGrowthCurves <- function(object, species,
-            max_age = 20, percentage = FALSE, print_it = FALSE) {
+                             max_age = 20,
+                             percentage = FALSE,
+                             print_it = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
@@ -976,7 +1045,8 @@ plotGrowthCurves <- function(object, species,
         }
     }
     plot_dat <- reshape2::melt(ws)
-    plot_dat$Species <- as.character(plot_dat$Species)
+    # Need to keep species in order for legend
+    plot_dat$Species <- factor(plot_dat$Species, dimnames(n)$sp)
     if (length(species) > 12) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value, group = Species))

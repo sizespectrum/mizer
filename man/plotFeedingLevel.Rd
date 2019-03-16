@@ -38,7 +38,7 @@ data(inter)
 params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFeedingLevel(sim)
-plotFeedingLevel(sim, time_range = 10:20)
+plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 
 }
 \seealso{

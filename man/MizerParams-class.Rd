@@ -132,7 +132,7 @@ resource components, see \code{\link{resource_dynamics}} for details.}
 to give consistent colours to species in plots.}
 
 \item{\code{linetype}}{A named vector of linetypes, named by species. Used 
-to give consistent colours to species in plots.}
+to give consistent line types to species in plots.}
 }}
 
 \note{

@@ -5,7 +5,8 @@
 \title{Plotting functions}
 \description{
 Mizer provides a range of plotting functions for visualising the results
-of running a simulation, stored in a MizerSim object.
+of running a simulation, stored in a MizerSim object, or the initial state
+stored in a MizerParams object.
 }
 \details{
 This table shows the available plotting functions.
@@ -24,6 +25,49 @@ This table shows the available plotting functions.
 These functions use the ggplot2 package and return the plot as a ggplot
 object. This means that you can manipulate the plot further after its 
 creation using the ggplot grammar of graphics.
+
+While most plot functions take their data from a MizerSim object, some of
+those that make plots representing data at a single time can also take their
+data from the initial values in a MizerParams object.
+
+Where plots show results for species, the line colour and line type for each 
+species are specified by the `linecolour` and `linetype` slots in the 
+MizerParams object. These were either taken from a default palette
+hard-coded into \code{\link{emptyParams}} or they were specified by the user
+in the species parameters dataframe used to set up the MizerParams object.
+The `linecolour` and `linetype` slots hold named vectors, named by the
+species. They can be overwritten by the user at any time.
+
+Most plots allow the user to select to show only a subset of species,
+specified as a vector in the `species` argument to the plot function.
+
+The ordering of the species in the legend is the same as the ordering in
+the species parameter data frame.
+}
+\examples{
+# Set up example MizerParams and MizerSim objects
+data(NS_species_params_gears)
+data(inter)
+params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
+
+# Some example plots
+plotFeedingLevel(sim)
+
+# Plotting only a subset of species
+plotFeedingLevel(sim, species = c("Cod", "Herring"))
+
+# Specifying new colours and linetypes for some species
+sim@params@linetype["Cod"] <- "solid"
+sim@params@linecolour["Cod"] <- "red"
+plotFeedingLevel(sim, species = c("Cod", "Herring"))
+
+# Manipulating the plot
+library(ggplot2)
+p <- plotFeedingLevel(sim)
+p <- p + geom_hline(aes(yintercept = 0.7))
+p <- p + theme_bw()
+p
 }
 \seealso{
 \code{\link{summary_functions}}
