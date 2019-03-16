@@ -104,14 +104,30 @@ log_breaks <- function(n = 6){
 
 #' Display frames
 #' 
+#' Takes two data frames with plotting data and displays them side-by-side,
+#' using the same axes and legend.
+#' 
+#' The two data frames each need to have the same three variables. The first
+#' variable will go on the x-axis, the third on the y-axis with a logarithmic
+#' scale. The second variable should be the species and will be used to group
+#' the data and display with the linetype and linecolour specified by the
+#' `linetype` and `linecolour` slots of the `params` object.
+#' 
+#' The recommended way is to obtain the data frames using one of the supplied
+#' functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
+#' 
 #' @param f1 Data frame for left plot
 #' @param f2 Data frame for right plot
 #' @param params A MizerParams object
+#' @param xlab Label for x-axis. Defaults to first variable name.
+#' @param ylab Label for y-axis. Defaults to third variable name.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' 
 #' @return ggplot2 object
 #' @export
-display_frames <- function(f1, f2, params, y_ticks = 6) {
+display_frames <- function(f1, f2, params, 
+                           xlab = NA, ylab = NA,
+                           y_ticks = 6) {
     var_names <- names(f1)
     if (!(length(var_names) == 3)) {
         stop("A frame needs to have three variables.")
@@ -120,9 +136,21 @@ display_frames <- function(f1, f2, params, y_ticks = 6) {
         stop("Both frames need to have the same variable names.")
     }
     f <- rbind(cbind(f1, Simulation = 1), cbind(f2, Simulation = 2))
+    
+    if (is.na(xlab)) {
+        xlab <- var_names[1]
+    }
+    if (is.na(ylab)) {
+        ylab <- var_names[3]
+    }
+    ytrans <- "log10"
+    breaks <- log_breaks(n = y_ticks)
+    
     p <- ggplot(f, aes_string(x = names(f)[1], y = names(f)[3],
                               colour = names(f)[2], linetype = names(f)[2])) +
-        scale_y_log10(breaks = log_breaks(n = y_ticks), labels = prettyNum) +
+        scale_y_continuous(trans = ytrans, breaks = breaks,
+                           labels = prettyNum, name = ylab) +
+        scale_x_continuous(name = xlab) +
         geom_line() +
         facet_wrap(~ Simulation) +
         scale_colour_manual(values = params@linecolour) +
@@ -169,7 +197,6 @@ getSSBFrame <- function(sim,
     # Include total
     if (total) {
         b <- cbind(b, Total = b_total)
-        species <- c("Total", species)
     }
     bm <- reshape2::melt(b)
     # Implement ylim and a minimal cutoff
@@ -191,7 +218,9 @@ getSSBFrame <- function(sim,
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
+#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
+#' returns a dataframe that can be displayed with 
+#' \code{\link{display_frames}}.
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
@@ -200,9 +229,9 @@ getSSBFrame <- function(sim,
 #'   of the time series.
 #' @param end_time The last time to be plotted. Default is the end of the
 #'   time series.
-#' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
-#'   below 1e-20 are always cut off.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
+#'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
 #'   all species is plotted as well. Default is FALSE
 #' @param ... Other arguments to pass to \code{getBiomass} method, for example
@@ -211,11 +240,21 @@ getSSBFrame <- function(sim,
 #' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
 #' @seealso \code{\link{getBiomass}}
+#' @examples 
+#' # Set up example MizerParams and MizerSim objects
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
+#' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
+#' 
+#' # Display biomass from each simulation next to each other
+#' display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            ylim = c(NA, NA), total = FALSE, ...){
+            ylim = c(NA, NA), total = FALSE, ...) {
     b <- getBiomass(sim, ...)
     if (start_time >= end_time) {
         stop("start_time must be less than end_time")
@@ -230,15 +269,20 @@ getBiomassFrame <- function(sim,
         species <- c("Total", species)
     }
     bm <- reshape2::melt(b)
+    
     # Implement ylim and a minimal cutoff
     min_value <- 1e-20
     bm <- bm[bm$value >= min_value &
                  (is.na(ylim[1]) | bm$value >= ylim[1]) &
                  (is.na(ylim[2]) | bm$value <= ylim[1]), ]
     names(bm) <- c("Year", "Species", "Biomass")
+    
     # Force Species column to be a factor (otherwise if numeric labels are
-    # used they may be interpreted as integer and hence continuous)
-    bm$Species <- as.factor(bm$Species)
+    # used they may be interpreted as integer and hence continuous).
+    # Need to keep species in order for legend.
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    bm$Species <- factor(bm$Species, levels = species_levels)
+    
     # Select species
     bm <- bm[bm$Species %in% species, ]
 
@@ -252,21 +296,10 @@ getBiomassFrame <- function(sim,
 #' against time. The biomass is calculated within user defined size limits 
 #' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
 #' 
-#' @param sim An object of class \linkS4class{MizerSim}
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param start_time The first time to be plotted. Default is the beginning
-#'   of the time series.
-#' @param end_time The last time to be plotted. Default is the end of the
-#'   time series.
+#' @inheritParams getBiomassFrame
 #' @param y_ticks The approximate number of ticks desired on the y axis
-#' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
-#'   below 1e-20 are always cut off.
 #' @param print_it Display the plot, or just return the ggplot2 object. Default
 #'   value is FALSE
-#' @param total A boolean value that determines whether the total biomass from
-#'   all species is plotted as well. Default is FALSE
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
@@ -295,36 +328,16 @@ plotBiomass <- function(sim,
             y_ticks = 6, print_it = FALSE,
             ylim = c(NA, NA),
             total = FALSE, background = TRUE, ...) {
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
-    b <- getBiomass(sim, ...)
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # Select time range
-    b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) &
-               (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
-    b_total <- rowSums(b)
-    # Include total
-    if (total) {
-        b <- cbind(b, Total = b_total)
-        species <- c("Total", species)
-    }
-    names(dimnames(b)) <- c("time", "Species")
-    bm <- reshape2::melt(b)
-    # Force Species column to be a factor (otherwise if numeric labels are
-    # used they may be interpreted as integer and hence continuous)
-    bm$Species <- factor(bm$Species, levels = species_levels)
-    # Implement ylim and a minimal cutoff
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[1]), ]
+    # First we get the data frame for all species, including the background
+    bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
+                          start_time = start_time,
+                          end_time = end_time,
+                          ylim = ylim, total = total)
     # Select species
-    spec_bm <- bm[bm$Species %in% species, ]
+    spec_bm <- bm[bm$Species %in% c("Total", species), ]
     x_label <- "Year"
     y_label <- "Biomass [g]"
-    p <- ggplot(spec_bm, aes(x = time, y = value)) +
+    p <- ggplot(spec_bm, aes(x = Year, y = Biomass)) +
         scale_y_continuous(trans = "log10", breaks = log_breaks(n = y_ticks),
                            labels = prettyNum, name = y_label) +
         scale_x_continuous(name = x_label) +

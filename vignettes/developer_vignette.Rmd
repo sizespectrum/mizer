@@ -164,7 +164,7 @@ We use [testthat](http://testthat.r-lib.org/) and
 The test are in the directory `tests/testthat`. 
 
 Some tests compare the results of calculations to the results the code gave in
-the past, using the `expect_known_value()` test. The past values are stored in
+the past, using the `testthat::expect_known_value()` test. The past values are stored in
 tests/testthat/values. If one of the tests gives a value that is different from
 the stored value, then the test throws an error *and* overwrites the stored
 value with the new result. The second time the test is run, it then no longer
@@ -172,8 +172,14 @@ fails. Luckily the original values will still be in the git repository. So after
 you think you have fixed the error that led to the wrong result, you should
 revert to the old stored values before re-running the test. Reverting to the old
 stored values is easy: Just go to the Git tab in RStudio, select the changed
-files in tests/testthat/values (select, not tick), then right-click and choose
+files in `tests/testthat/values` (select, not tick), then right-click and choose
 Revert.
+
+When a plot has changed, the error message from `testthat::expect_known_value()`
+is not particularly useful, because it compares two ggplot objects. In this 
+case you should carefully compare the plots by eye. To view the old plot you 
+have to first revert the file in `tests/testthat/values` and then load the plot
+from that file with `readRDS("tests/testthat/values/name_of_plot_function")`.
 
 It may be that the change in the result of a calculation is intended, perhaps
 because your new code is more accurate than the old code. If you are 100%

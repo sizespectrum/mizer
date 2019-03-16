@@ -4,7 +4,7 @@
 \alias{display_frames}
 \title{Display frames}
 \usage{
-display_frames(f1, f2, params, y_ticks = 6)
+display_frames(f1, f2, params, xlab = NA, ylab = NA, y_ticks = 6)
 }
 \arguments{
 \item{f1}{Data frame for left plot}
@@ -13,11 +13,26 @@ display_frames(f1, f2, params, y_ticks = 6)
 
 \item{params}{A MizerParams object}
 
+\item{xlab}{Label for x-axis. Defaults to first variable name.}
+
+\item{ylab}{Label for y-axis. Defaults to third variable name.}
+
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 }
 \value{
 ggplot2 object
 }
 \description{
-Display frames
+Takes two data frames with plotting data and displays them side-by-side,
+using the same axes and legend.
+}
+\details{
+The two data frames each need to have the same three variables. The first
+variable will go on the x-axis, the third on the y-axis with a logarithmic
+scale. The second variable should be the species and will be used to group
+the data and display with the linetype and linecolour specified by the
+`linetype` and `linecolour` slots of the `params` object.
+
+The recommended way is to obtain the data frames using one of the supplied
+functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
 }
