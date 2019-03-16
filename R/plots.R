@@ -49,6 +49,10 @@
 #' The ordering of the species in the legend is the same as the ordering in
 #' the species parameter data frame.
 #' 
+#' Sometimes one wants to show two plots side-by-side with the same axes and
+#' the same legend. This is made possible for some of the plots via the
+#' \code{\link{display_frames}} function.
+#' 
 #' @seealso \code{\link{summary_functions}}
 #' @name plotting_functions
 #' @examples
@@ -75,6 +79,10 @@
 #' p <- p + geom_hline(aes(yintercept = 0.7))
 #' p <- p + theme_bw()
 #' p
+#' 
+#' # Viewing plot with ggplotly
+#' library(plotly)
+#' ggplotly()
 NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
@@ -125,6 +133,17 @@ log_breaks <- function(n = 6){
 #' 
 #' @return ggplot2 object
 #' @export
+#' @seealso \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
+#' @examples 
+#' # Set up example MizerParams and MizerSim objects
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+#' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
+#' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
+#' 
+#' # Display biomass from each simulation next to each other
+#' display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 display_frames <- function(f1, f2, params, 
                            xlab = NA, ylab = NA,
                            y_ticks = 6) {
@@ -239,7 +258,8 @@ getSSBFrame <- function(sim,
 #'   
 #' @return A data frame that can be used in \code{\link{display_frames}}
 #' @export
-#' @seealso \code{\link{getBiomass}}
+#' @seealso \code{\link{getBiomass}}, \code{\link{display_frames}},
+#'   \code{\link{getSSBFrame}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
@@ -310,13 +330,14 @@ getBiomassFrame <- function(sim,
 #' @export
 #' @seealso \code{\link{getBiomass}}
 #' @examples
-#' 
+#' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+#' 
 #' plotBiomass(sim)
-#' plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
+#' plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
 #' plotBiomass(sim, min_w = 10, max_w = 1000)
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
@@ -348,8 +369,10 @@ plotBiomass <- function(sim,
         # Add background species in light grey
         back_sp <- dimnames(sim@n)$sp[is.na(sim@params@A)]
         back_bm <- bm[bm$Species %in% back_sp, ]
-        p <- p + geom_line(aes(group = Species), data = back_bm,
-                           colour = "lightgrey")
+        if (nrow(back_bm) > 0) {
+            p <- p + geom_line(aes(group = Species), data = back_bm,
+                               colour = "lightgrey")
+        }
     }
 
     if ( (length(species) + total) > 12) {
@@ -739,10 +762,12 @@ plot_spectra <- function(params, n, n_pp,
             plot_back <- plot_back[plot_back$value < ylim[1], ]
         }
         plot_back <- plot_back[plot_back$value > ylim[2], ]
-        # Add background species in grey
-        p <- p +
-            geom_line(aes(group = Species), colour = "grey",
-                      data = plot_back)
+        if (nrow(plot_back) > 0) {
+            # Add background species in grey
+            p <- p +
+                geom_line(aes(group = Species), colour = "grey",
+                          data = plot_back)
+        }
     }
     if ( (length(species) + plankton + total) > 13) {
         p <- p + geom_line(aes(group = Species))
