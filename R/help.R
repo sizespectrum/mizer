@@ -34,6 +34,7 @@
 #' @importFrom stats fft mvfft lm pnorm
 #' @importFrom deSolve ode
 #' @importFrom progress progress_bar
+#' @importFrom plotly ggplotly
 #'
 #' @docType package
 #' @name mizer

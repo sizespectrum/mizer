@@ -53,5 +53,6 @@ sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 }
 \seealso{
-\code{\link{getBiomass}}
+\code{\link{getBiomass}}, \code{\link{display_frames}},
+  \code{\link{getSSBFrame}}
 }

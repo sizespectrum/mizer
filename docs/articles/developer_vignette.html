@@ -87,7 +87,6 @@
     <div class="page-header toc-ignore">
       <h1>Developer Guide</h1>
             
-            <h4 class="date">2019-03-15</h4>
       
       <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/developer_vignette.Rmd"><code>vignettes/developer_vignette.Rmd</code></a></small>
       <div class="hidden name"><code>developer_vignette.Rmd</code></div>
@@ -125,6 +124,11 @@
 <a href="#forking-mizer-from-github" class="anchor"></a>Forking mizer from github</h2>
 <p>Mizer is developed using the version control system <em>git</em> and the code is hosted on github. To work with the code you will create your own git repository with a copy of the mizer code.</p>
 <p>Go to <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> and fork it into your own repository. Then create a version control new project in Rstudio, and indicate your depository url.</p>
+<p>Go the the Git tab and from “More” select “Shell…” to open up a Git shell. There issue the commands</p>
+<pre><code>git remote add upstream git@github.com:sizespectrum/mizer.git
+git fetch upstream</code></pre>
+<p>This will allow you to, from time to time, sync changes made in the sizespectrum/mizer repository into your own fork (see [<a href="https://help.github.com/en/articles/syncing-a-fork" class="uri">https://help.github.com/en/articles/syncing-a-fork</a>]). You do this with the command</p>
+<pre><code>git merge upstream/dev</code></pre>
 <p>You will want to set up RStudio so that it automatically builds the documentation using roxygen. * Go to Build -&gt; Configure Build Tools, tick the checkbox “Generate documentation with roxygen”.</p>
 <p>On the “Git” tab select the “dev” branch. This contains the latest development code for mizer.</p>
 <p>To run this code go to the “Build” tab in RStudio and click on “Install and Restart”. This builds and loads the mizer package based on this development code.</p>
@@ -165,7 +169,8 @@
 <h2 class="hasAnchor">
 <a href="#always-write-tests-for-your-code" class="anchor"></a>Always write tests for your code</h2>
 <p>We use <a href="http://testthat.r-lib.org/">testthat</a> and <a href="https://rstudio.github.io/shinytest/articles/shinytest.html">shinytest</a>. The test are in the directory <code>tests/testthat</code>.</p>
-<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code>expect_known_value()</code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in tests/testthat/values (select, not tick), then right-click and choose Revert.</p>
+<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://www.rdocumentation.org/packages/testthat/topics/expect_known_output">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
+<p>When a plot has changed, the error message from <code><a href="https://www.rdocumentation.org/packages/testthat/topics/expect_known_output">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://www.rdocumentation.org/packages/base/topics/readRDS">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
 <p>It may be that the change in the result of a calculation is intended, perhaps because your new code is more accurate than the old code. If you are 100% certain of this, but only then, should you commit the changed files in tests/testthat/values, so that these new values form the basis of future comparison tests.</p>
 </div>
 <div id="rebuild-package-after-altering-code" class="section level2">

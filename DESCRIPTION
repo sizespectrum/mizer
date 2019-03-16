@@ -27,6 +27,7 @@ Imports:
     ggplot2,
     grid,
     methods,
+    plotly,
     plyr,
     progress,
     Rcpp,

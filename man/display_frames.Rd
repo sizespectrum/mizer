@@ -36,3 +36,17 @@ the data and display with the linetype and linecolour specified by the
 The recommended way is to obtain the data frames using one of the supplied
 functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
 }
+\examples{
+# Set up example MizerParams and MizerSim objects
+data(NS_species_params_gears)
+data(inter)
+params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
+sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
+
+# Display biomass from each simulation next to each other
+display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
+}
+\seealso{
+\code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
+}

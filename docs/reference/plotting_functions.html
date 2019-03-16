@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plotting functions — plotting_functions • mizer</title>
+<title>Description of the plotting functions — plotting_functions • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -36,10 +36,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Plotting functions — plotting_functions" />
+<meta property="og:title" content="Description of the plotting functions — plotting_functions" />
 
 <meta property="og:description" content="Mizer provides a range of plotting functions for visualising the results
-of running a simulation, stored in a MizerSim object." />
+of running a simulation, stored in a MizerSim object, or the initial state
+stored in a MizerParams object. 
+Every plotting function exists in two versions, plotSomething and 
+plotlySomething. The plotly version is more interactive but not
+suitable for inclusion in documents." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,7 +128,7 @@ of running a simulation, stored in a MizerSim object." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plotting functions</h1>
+    <h1>Description of the plotting functions</h1>
     <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
     <div class="hidden name"><code>plotting_functions.Rd</code></div>
     </div>
@@ -132,7 +136,11 @@ of running a simulation, stored in a MizerSim object." />
     <div class="ref-description">
     
     <p>Mizer provides a range of plotting functions for visualising the results
-of running a simulation, stored in a MizerSim object.</p>
+of running a simulation, stored in a MizerSim object, or the initial state
+stored in a MizerParams object. 
+Every plotting function exists in two versions, <code>plotSomething</code> and 
+<code>plotlySomething</code>. The plotly version is more interactive but not
+suitable for inclusion in documents.</p>
     
     </div>
 
@@ -152,13 +160,53 @@ of running a simulation, stored in a MizerSim object.</p>
 </table>
     <p>These functions use the ggplot2 package and return the plot as a ggplot
 object. This means that you can manipulate the plot further after its 
-creation using the ggplot grammar of graphics.</p>
+creation using the ggplot grammar of graphics. The corresponding function
+names with <code>plot</code> replaced by <code>plotly</code> produce interactive plots
+with the help of the plotly package.</p>
+<p>While most plot functions take their data from a MizerSim object, some of
+those that make plots representing data at a single time can also take their
+data from the initial values in a MizerParams object.</p>
+<p>Where plots show results for species, the line colour and line type for each 
+species are specified by the `linecolour` and `linetype` slots in the 
+MizerParams object. These were either taken from a default palette
+hard-coded into <code><a href='emptyParams.html'>emptyParams</a></code> or they were specified by the user
+in the species parameters dataframe used to set up the MizerParams object.
+The `linecolour` and `linetype` slots hold named vectors, named by the
+species. They can be overwritten by the user at any time.</p>
+<p>Most plots allow the user to select to show only a subset of species,
+specified as a vector in the `species` argument to the plot function.</p>
+<p>The ordering of the species in the legend is the same as the ordering in
+the species parameter data frame.</p>
+<p>Sometimes one wants to show two plots side-by-side with the same axes and
+the same legend. This is made possible for some of the plots via the
+<code><a href='display_frames.html'>display_frames</a></code> function.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='summary_functions.html'>summary_functions</a></code></p></div>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Set up example MizerParams and MizerSim objects</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
+<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># Some example plots</span>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>)</div><div class='img'><img src='plotting_functions-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Plotting only a subset of species</span>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Specifying new colours and linetypes for some species</span>
+<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>linetype</span>[<span class='st'>"Cod"</span>] <span class='kw'>&lt;-</span> <span class='st'>"solid"</span>
+<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>linecolour</span>[<span class='st'>"Cod"</span>] <span class='kw'>&lt;-</span> <span class='st'>"red"</span>
+<span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotting_functions-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='co'># Manipulating the plot</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>)
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>)
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>yintercept</span> <span class='kw'>=</span> <span class='fl'>0.7</span>))
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span>()
+<span class='no'>p</span></div><div class='img'><img src='plotting_functions-4.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -167,7 +215,9 @@ creation using the ggplot grammar of graphics.</p>
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

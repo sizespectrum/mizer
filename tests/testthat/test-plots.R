@@ -30,3 +30,16 @@ expect_known_value(plotGrowthCurves(sim, species = species, percentage = TRUE,
                    "values/plotGrowthCurves")
 })
 
+test_that("plotly function do not throw error", {
+    expect_error(plotlyBiomass(sim, species = species), NA)
+    expect_error(plotlyFeedingLevel(sim, species = species), NA)
+    expect_error(plotlyYield(sim, species = species), NA)
+    expect_error(plotlyYield(sim, sim), NA)
+    expect_error(plotlyYieldGear(sim, species = species), NA)
+    expect_error(plotlySpectra(params, species = species), NA)
+    expect_error(plotlyM2(sim, species = species), NA)
+    expect_error(plotlyFMort(sim, species = species), NA)
+    expect_error(plotlyGrowthCurves(sim, species = species), NA)
+    expect_error(plotlyGrowthCurves(params, species = species), NA)
+})
+

@@ -2,11 +2,14 @@
 % Please edit documentation in R/plots.R
 \name{plotting_functions}
 \alias{plotting_functions}
-\title{Plotting functions}
+\title{Description of the plotting functions}
 \description{
 Mizer provides a range of plotting functions for visualising the results
 of running a simulation, stored in a MizerSim object, or the initial state
-stored in a MizerParams object.
+stored in a MizerParams object. 
+Every plotting function exists in two versions, \code{plotSomething} and 
+\code{plotlySomething}. The plotly version is more interactive but not
+suitable for inclusion in documents.
 }
 \details{
 This table shows the available plotting functions.
@@ -24,7 +27,9 @@ This table shows the available plotting functions.
 
 These functions use the ggplot2 package and return the plot as a ggplot
 object. This means that you can manipulate the plot further after its 
-creation using the ggplot grammar of graphics.
+creation using the ggplot grammar of graphics. The corresponding function
+names with \code{plot} replaced by \code{plotly} produce interactive plots
+with the help of the plotly package.
 
 While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
@@ -43,6 +48,10 @@ specified as a vector in the `species` argument to the plot function.
 
 The ordering of the species in the legend is the same as the ordering in
 the species parameter data frame.
+
+Sometimes one wants to show two plots side-by-side with the same axes and
+the same legend. This is made possible for some of the plots via the
+\code{\link{display_frames}} function.
 }
 \examples{
 # Set up example MizerParams and MizerSim objects

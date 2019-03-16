@@ -8,11 +8,14 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-#' Plotting functions
+#' Description of the plotting functions
 #' 
 #' Mizer provides a range of plotting functions for visualising the results
 #' of running a simulation, stored in a MizerSim object, or the initial state
-#' stored in a MizerParams object.
+#' stored in a MizerParams object. 
+#' Every plotting function exists in two versions, \code{plotSomething} and 
+#' \code{plotlySomething}. The plotly version is more interactive but not
+#' suitable for inclusion in documents.
 #'
 #' This table shows the available plotting functions.
 #' \tabular{ll}{
@@ -29,7 +32,9 @@
 #' 
 #' These functions use the ggplot2 package and return the plot as a ggplot
 #' object. This means that you can manipulate the plot further after its 
-#' creation using the ggplot grammar of graphics.
+#' creation using the ggplot grammar of graphics. The corresponding function
+#' names with \code{plot} replaced by \code{plotly} produce interactive plots
+#' with the help of the plotly package.
 #' 
 #' While most plot functions take their data from a MizerSim object, some of
 #' those that make plots representing data at a single time can also take their
@@ -79,10 +84,6 @@
 #' p <- p + geom_hline(aes(yintercept = 0.7))
 #' p <- p + theme_bw()
 #' p
-#' 
-#' # Viewing plot with ggplotly
-#' library(plotly)
-#' ggplotly()
 NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
@@ -353,7 +354,7 @@ plotBiomass <- function(sim,
     bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
                           start_time = start_time,
                           end_time = end_time,
-                          ylim = ylim, total = total)
+                          ylim = ylim, total = total, ...)
     # Select species
     spec_bm <- bm[bm$Species %in% c("Total", species), ]
     x_label <- "Year"
@@ -385,6 +386,26 @@ plotBiomass <- function(sim,
         print(p)
     }
     return(p)
+}
+
+#' Plot the biomass of species against time with plotly
+#' 
+#' @inherit plotBiomass params return description details seealso
+#' @export
+plotlyBiomass <- function(sim,
+             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
+             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+             y_ticks = 6,
+             print_it = FALSE,
+             ylim = c(NA, NA),
+             total = FALSE,
+             background = TRUE,
+             ...) {
+    argg <- c(as.list(environment()), list(...))
+    ggplotly(do.call("plotBiomass", argg))
+    # ggplotly(do.callplotBiomass(sim, species, start_time, end_time, y_ticks,
+    #                      print_it, ylim, total, background, ...))
 }
 
 
@@ -511,6 +532,16 @@ plotYield <- function(sim, sim2,
     }
 }
 
+#' Plot the total yield of species through time with plotly
+#' @inherit plotYield params return description details seealso
+#' @export
+plotlyYield <- function(sim, sim2,
+                      species = dimnames(sim@n)$sp,
+                      print_it = FALSE, total = FALSE, log = TRUE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotYield", argg))
+}
+
 
 #' Plot the total yield of each species by gear through time
 #'
@@ -576,6 +607,15 @@ plotYieldGear <- function(sim,
     return(p)
 }
 
+#' Plot the total yield of each species by gear through time with plotly
+#' @inherit plotYieldGear params return description details seealso
+#' @export
+plotlyYieldGear <- function(sim,
+                          species = dimnames(sim@n)$sp,
+                          print_it = FALSE, total = FALSE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotYieldGear", argg))
+}
 
 #' Plot the abundance spectra
 #' 
@@ -779,6 +819,19 @@ plot_spectra <- function(params, n, n_pp,
     return(p)
 }
 
+#' Plotly plot of the abundance spectra
+#' @inherit plotSpectra params return description details seealso
+#' @export
+plotlySpectra <- function(object, species = NULL,
+                        time_range,
+                        min_w, ylim = c(NA, NA),
+                        power = 1, biomass = TRUE, print_it = FALSE,
+                        total = FALSE, plankton = TRUE, 
+                        background = TRUE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotSpectra", argg))
+}
+
 
 #' Plot the feeding level of species by size
 #' 
@@ -842,6 +895,18 @@ plotFeedingLevel <- function(sim,
     return(p)
 }
 
+#' Plot the feeding level of species by size with plotly
+#' 
+#' @inherit plotFeedingLevel params return description details seealso
+#' @export
+plotlyFeedingLevel <- function(sim,
+                             species = dimnames(sim@n)$sp,
+                             time_range = max(as.numeric(dimnames(sim@n)$time)),
+                             print_it = FALSE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotFeedingLevel", argg))
+}
+    
 
 #' Plot predation mortality rate of each species against size
 #' 
@@ -904,6 +969,15 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
     return(p)
 }
 
+#' Plot predation mortality rate of each species against size with plotly
+#' @inherit plotM2 params return description details seealso
+#' @export
+plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
+                   time_range = max(as.numeric(dimnames(sim@n)$time)),
+                   print_it = FALSE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotM2", argg))
+}
 
 #' Plot total fishing mortality of each species by size
 #' 
@@ -965,6 +1039,15 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
     return(p)
 }
 
+#' Plot total fishing mortality of each species by size with plotly
+#' @inherit plotM2 params return description details seealso
+#' @export
+plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
+                      time_range = max(as.numeric(dimnames(sim@n)$time)),
+                      print_it = FALSE, ...) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotFMort", argg))
+}
 
 #' Get growth curves giving weight as a function of age
 #' 
@@ -1125,6 +1208,17 @@ plotGrowthCurves <- function(object, species,
         print(p)
     }
     return(p)
+}
+
+#' Plot growth curves giving weight as a function of age with plotly
+#' @inherit plotM2 params return description details seealso
+#' @export
+plotlyGrowthCurves <- function(object, species,
+                             max_age = 20,
+                             percentage = FALSE,
+                             print_it = FALSE) {
+    argg <- as.list(environment())
+    ggplotly(do.call("plotGrowthCurves", argg))
 }
 
 
