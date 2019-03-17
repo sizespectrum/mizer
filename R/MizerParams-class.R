@@ -801,27 +801,11 @@ set_multispecies_model <-   function(object,
         }
     }
     
-    ## Set default values for missing values in species params  ----
-    
-    if (missing(interaction)) {
-        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
-    }
-    
-
-    
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object))) {
         object$gear <- object$species
     }
     
-    # If no k (activity coefficient), then set to 0
-    if (!("k" %in% colnames(object))) {
-        object$k <- rep(NA, no_sp)
-    }
-    missing <- is.na(object$k)
-    if (any(missing)) {
-        object$k[missing] <- 0
-    }
     
     # If no alpha (conversion efficiency), then set to 0.6
     if (!("alpha" %in% colnames(object))) {
@@ -861,66 +845,12 @@ set_multispecies_model <-   function(object,
         object$catchability[missing] <- 1
     }
     
-    # Sort out h column If not passed in directly, is calculated from f0 and
-    # k_vb if they are also passed in
-    if (!("h" %in% colnames(object))) {
-        object$h <- rep(NA, no_sp)
-    }
-    if (any(is.na(object$h))) {
-        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
-        if (!("k_vb" %in% colnames(object))) {
-            stop("\tExcept I can't because there is no k_vb column in the species data frame")
-        }
-        h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
-        # Only overwrite missing h with calculated values
-        missing <- is.na(object$h)
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
-        }
-        object$h[missing] <- h[missing]
-    }
+
     
-    # Sorting out gamma column
-    if (!("gamma" %in% colnames(object))) {
-        object$gamma <- rep(NA, no_sp)
-    }
-    if (any(is.na(object$gamma))) {
-        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        lm2 <- lambda - 2
-        ae <- sqrt(2 * pi) * object$sigma * object$beta^lm2 *
-            exp(lm2^2 * object$sigma^2 / 2) *
-            # The factor on the following lines takes into account the cutoff
-            # of the integral at 0 and at beta + 3 sigma
-            (pnorm(3 - lm2 * object$sigma) + 
-                 pnorm(log(object$beta)/object$sigma + lm2 * object$sigma) - 1)
-        gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
-        # Only overwrite missing gammas with calculated values
-        missing <- is.na(object$gamma)
-        if (any(is.na(gamma[missing]))) {
-            stop("Could not calculate gamma.")
-        }
-        object$gamma[missing] <- gamma[missing]
-    }
+
     
-    # Sort out z0 (background mortality)
-    if (!("z0" %in% colnames(object))) {
-        object$z0 <- rep(NA, no_sp)
-    }
-    missing <- is.na(object$z0)
-    if (any(missing)) {
-        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
-        object$z0[missing] <- z0pre * object$w_inf[missing]^z0exp
-    }
+
     
-    # Sort out ks column
-    if (!("ks" %in% colnames(object))) {
-        message("Note: No ks column in species data frame so using ks = h * 0.2.")
-        object$ks <- object$h * 0.2
-    }
-    missing <- is.na(object$ks)
-    if (any(missing)) {
-        object$ks[missing] <- object$h[missing] * 0.2
-    }
     
     
     if (!is.na(max_w)) {
@@ -974,30 +904,17 @@ set_multispecies_model <-   function(object,
     
     ## Start filling the slots ---------------------------------------------
     res <- setReproProp(res)
+    if (missing(interaction)) {
+        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
+    }
+    res <- setInteraction(res, interaction)
+    res <- setIntakeMax(res)
+    res <- setSearchVol(res)
+    res <- setMetab(res)
+    res <- setBMort(res, z0pre, z0exp)
     res@w_min_idx[] <- as.vector(
         tapply(object$w_min, 1:length(object$w_min),
                function(w_min, wx) max(which(wx <= w_min)), wx = res@w))
-    # Check dims of interaction argument - make sure it's right
-    if (!isTRUE(all.equal(dim(res@interaction), dim(interaction))))
-        stop("interaction matrix is not of the right dimensions. Must be number of species x number of species")
-    # Check that all values of interaction matrix are 0 - 1. Issue warning if not
-    if (!all((interaction >= 0) & (interaction <= 1))) {
-        warning("Values in the interaction matrix should be between 0 and 1")
-    }
-    # In case user has supplied names to interaction matrix which are wrong order
-    for (dim_check in 1:length(dimnames(res@interaction))) {
-        if (!is.null(dimnames(interaction)[[dim_check]]) & (!(isTRUE(all.equal(dimnames(res@interaction)[[dim_check]],dimnames(interaction)[[dim_check]]))))) {
-            warning("Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
-        }
-    }
-    res@interaction[] <- interaction
-    
-    # Now fill up the slots using default formulations:
-    
-    res@intake_max[] <- unlist(tapply(res@w,1:length(res@w),function(wx,h,n)h * wx^n,h=object$h,n=n))
-    res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
-    res@metab[] <-  unlist(tapply(res@w,1:length(res@w),function(wx,ks,k,p)ks * wx^p + k * wx, ks=object$ks,k=object$k,p=p))
-    res@mu_b[] <- res@species_params$z0
     
     # Plankton
     res@plankton_dynamics <- plankton_dynamics
@@ -1228,7 +1145,184 @@ setReproProp <- function(params) {
     return(params)
 }
 
+#' Set species interation matrix
+#' 
+#' Checks that the supplied interaction matrix is valid and then stores it in
+#' the \code{interaction} slot of the params object before returning that 
+#' object.
+#' 
+#' @param params MizerParams object
+#' @param interaction The interaction matrix of the species (predator by prey)
+#' 
+#' @return MizerParams object
+#' @export
+setInteraction <- function(params, interaction) {
+    
+    # Check dims of interaction argument - make sure it's right
+    if (!isTRUE(all.equal(dim(params@interaction), dim(interaction))))
+        stop("interaction matrix is not of the right dimensions. Must be number of species x number of species")
+    # Check that all values of interaction matrix are 0 - 1. Issue warning if not
+    if (!all((interaction >= 0) & (interaction <= 1))) {
+        warning("Values in the interaction matrix should be between 0 and 1")
+    }
+    # In case user has supplied names to interaction matrix which are wrong order
+    for (dim_check in 1:length(dimnames(params@interaction))) {
+        if (!is.null(dimnames(interaction)[[dim_check]]) & 
+            (!(isTRUE(all.equal(dimnames(params@interaction)[[dim_check]],dimnames(interaction)[[dim_check]]))))) {
+            warning("Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
+        }
+    }
+    params@interaction[] <- interaction
+    return(params)
+}
 
+#' Set maximum intake rate
+#' 
+#' Still need to document
+#' 
+#' @param params MizerParams
+#' @param f0 Optional feeding level
+#' 
+#' @return MizerParams
+#' @export
+setIntakeMax <- function(params) {
+    species_params <- params@species_params
+    # If h column is not supplied, it is calculated from f0 and k_vb if they 
+    # are supplied
+    if (!("h" %in% colnames(species_params))) {
+        species_params$h <- rep(NA, nrow(species_params))
+    }
+    if (any(is.na(species_params$h))) {
+        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
+        if (!("k_vb" %in% colnames(species_params))) {
+            stop("\tExcept I can't because there is no k_vb column in the species data frame")
+        }
+        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
+            (species_params$w_inf ^ (1/3))
+        # Only overwrite missing h with calculated values
+        missing <- is.na(species_params$h)
+        if (any(is.na(h[missing]))) {
+            stop("Could not calculate h, perhaps k_vb is missing?")
+        }
+        species_params$h[missing] <- h[missing]
+        params@species_params$h <- species_params$h
+    }
+    params@intake_max[] <- 
+        unlist(tapply(params@w, 1:length(params@w), 
+                      function(wx, h, n) h * wx^n,
+                      h = species_params$h, n = params@n))
+    return(params)
+}
+
+#' Set search volume
+#' 
+#' Still need to document
+#' 
+#' @param params MizerParams
+#' 
+#' @return MizerParams
+#' @export
+setSearchVol <- function(params) {
+    species_params <- params@species_params
+    # Sorting out gamma column
+    if (!("gamma" %in% colnames(species_params))) {
+        species_params$gamma <- rep(NA, nrow(species_params))
+    }
+    if (any(is.na(species_params$gamma))) {
+        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        lm2 <- params@lambda - 2
+        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
+            exp(lm2^2 * species_params$sigma^2 / 2) *
+            # The factor on the following lines takes into account the cutoff
+            # of the integral at 0 and at beta + 3 sigma
+            (pnorm(3 - lm2 * species_params$sigma) + 
+                 pnorm(log(species_params$beta)/species_params$sigma + 
+                           lm2 * species_params$sigma) - 1)
+        gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
+        # Only overwrite missing gammas with calculated values
+        missing <- is.na(species_params$gamma)
+        if (any(is.na(gamma[missing]))) {
+            stop("Could not calculate gamma.")
+        }
+        species_params$gamma[missing] <- gamma[missing]
+        params@species_params$gamma <- species_params$gamma
+    }
+    params@search_vol[] <- 
+        unlist(tapply(params@w, 1:length(params@w),
+                      function(wx, gamma, q) gamma * wx^q,
+                      gamma = species_params$gamma, q = params@q))
+    return(params)
+}
+
+#' Set metabolic rate
+#' 
+#' Still need to document
+#' 
+#' @param params MizerParams
+#' 
+#' @return MizerParams
+#' @export
+setMetab <- function(params) {
+    species_params <- params@species_params
+    
+    # If no k (activity coefficient), then set to 0
+    if (!("k" %in% colnames(species_params))) {
+        species_params$k <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$k)
+    if (any(missing)) {
+        species_params$k[missing] <- 0
+    }
+    
+    # Sort out ks column
+    if (!("ks" %in% colnames(species_params))) {
+        message("Note: No ks column in species data frame so using ks = h * 0.2.")
+        species_params$ks <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$ks)
+    if (any(missing)) {
+        species_params$ks[missing] <- species_params$h[missing] * 0.2
+        params@species_params$ks <- species_params$ks
+    }
+    
+    params@metab[] <-  
+        unlist(tapply(params@w, 1:length(params@w),
+                      function(wx, ks, k, p) ks * wx^p + k * wx,
+                      ks = species_params$ks, k = species_params$k, p = params@p))
+    return(params)
+}
+
+#' Set background mortality rate
+#' 
+#' Still need to document
+#' 
+#' @param params MizerParams
+#' @param z0pre If \code{z0}, the mortality from other sources, is not a column
+#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+#'   Default value is 0.6.
+#' @param z0exp If \code{z0}, the mortality from other sources, is not a column
+#'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+#'   Default value is \code{n-1}.
+#' 
+#' @return MizerParams
+#' @export
+setBMort <- function(params, z0pre, z0exp) {
+    species_params <- params@species_params
+    
+    # Sort out z0 (background mortality)
+    if (!("z0" %in% colnames(species_params))) {
+        species_params$z0 <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$z0)
+    if (any(missing)) {
+        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+        species_params$z0[missing] <- z0pre * species_params$w_inf[missing]^z0exp
+        params@species_params$z0 <- species_params$z0
+    }
+    
+    params@mu_b[] <- params@species_params$z0
+    return(params)
+}
 
 #' Check that species parameter dataframe has essential variables
 #' 
