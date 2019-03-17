@@ -3,7 +3,7 @@ context("Plotting methods")
 # Initialisation ----------------
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter, no_w = 30)
+params <- set_multispecies_model(NS_species_params_gears, inter, no_w = 30)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 species <- c("Cod", "Haddock")
 

@@ -190,7 +190,7 @@ the same legend. This is made possible for some of the plots via the
     <pre class="examples"><div class='input'><span class='co'># Set up example MizerParams and MizerSim objects</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='co'># Some example plots</span>

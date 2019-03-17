@@ -155,7 +155,7 @@ explicitly as an argument to <code><a href='project.html'>project()</a></code>.<
 
     
     <p>You can set up a Mizer model with unstructured resource components using
-the <code><a href='multispeciesParams.html'>multispeciesParams()</a></code> function. The arguments to that function that
+the <code><a href='set_multispecies_model.html'>set_multispecies_model()</a></code> function. The arguments to that function that
 relate to the resources are:</p><ul>
 <li><p><code>rho</code> The encounter rate, see "Feeding on Resources" section below.</p></li>
 <li><p><code>resource_names</code> Your chosen names for the resource components.</p></li>
@@ -188,7 +188,7 @@ it scales allometrically with the same exponent as the maximum intake rate,
 so that
 $$\rho_{id}(w) = \rho_{id} w^n.$$
 This is the choice made for you when you set up the model with the
-<code>multispeciesModel()</code> function, but you can always overwrite it with your own
+<code><a href='set_multispecies_model.html'>set_multispecies_model()</a></code> function, but you can always overwrite it with your own
 choice by assigning your values of \(\rho_{id}(w)\) to the <code>rho</code> slot of the
 <code>MizerParams</code> object, which is a 3-dim array (predator species x resource x
 predator size). See examples section.</p>

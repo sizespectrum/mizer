@@ -126,7 +126,7 @@ getRates <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' n <- sim@@n[21,,]
@@ -244,7 +244,7 @@ getEncounter <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
@@ -317,7 +317,7 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the feeding level at one time step
@@ -414,7 +414,7 @@ getPredRate <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get predation mortality at one time step
@@ -483,7 +483,7 @@ getM2 <- getPredMort
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get plankton mortality at one time step
@@ -552,7 +552,7 @@ getM2Background <- getPlanktonMort
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Get the fishing mortality when effort is constant
 #' # for all gears and time:
 #' getFMortGear(params, effort = 1)
@@ -658,7 +658,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Get the total fishing mortality when effort is constant for all 
 #' # gears and time:
 #' getFMort(params, effort = 1)
@@ -725,7 +725,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the total mortality at a particular time step
@@ -773,7 +773,7 @@ getZ <- getMort
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -821,7 +821,7 @@ getEReproAndGrowth <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -873,7 +873,7 @@ getESpawning <- getERepro
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step
@@ -924,7 +924,7 @@ getEGrowth <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the recruitment at a particular time step
@@ -971,7 +971,7 @@ getRDI <- function(object, n = object@initial_n,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # Get the energy at a particular time step

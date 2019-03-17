@@ -20,7 +20,7 @@ explicitly as an argument to \code{\link[=project]{project()}}.
 \section{Setting up a Model with Resources}{
 
 You can set up a Mizer model with unstructured resource components using
-the \code{\link[=multispeciesParams]{multispeciesParams()}} function. The arguments to that function that
+the \code{\link[=set_multispecies_model]{set_multispecies_model()}} function. The arguments to that function that
 relate to the resources are:
 \itemize{
 \item \code{rho} The encounter rate, see "Feeding on Resources" section below.
@@ -57,7 +57,7 @@ it scales allometrically with the same exponent as the maximum intake rate,
 so that
 \deqn{\rho_{id}(w) = \rho_{id} w^n.}
 This is the choice made for you when you set up the model with the
-\code{\link[=multispeciesModel]{multispeciesModel()}} function, but you can always overwrite it with your own
+\code{\link[=set_multispecies_model]{set_multispecies_model()}} function, but you can always overwrite it with your own
 choice by assigning your values of \eqn{\rho_{id}(w)} to the \code{rho} slot of the
 \code{MizerParams} object, which is a 3-dim array (predator species x resource x
 predator size). See examples section.

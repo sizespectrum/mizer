@@ -305,7 +305,7 @@ validMizerParams <- function(object) {
 #'   abundances or harvest effort through time. These are held in
 #'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
-#'   \code{\link{emptyParams}} \code{\link{multispeciesParams}}
+#'   \code{\link{emptyParams}} \code{\link{set_multispecies_model}}
 #'   \code{\link{set_community_model}}
 #'   \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 #' @export
@@ -735,8 +735,8 @@ emptyParams <-
 #' @examples
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- multispeciesParams(NS_species_params_gears, inter)
-multispeciesParams <- 
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
+set_multispecies_model <- 
     function(object, interaction,
              min_w = 0.001, max_w = NA, no_w = 100,
              min_w_pp = NA, no_w_pp = NA,
@@ -1156,12 +1156,12 @@ multispeciesParams <-
     return(res)
 }
 
-#' Alias for multispeciesParams
+#' Alias for set_multispecies_model
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit multispeciesParams
+#' @inherit set_multispecies_model
 #' @export
-MizerParams <- multispeciesParams
+MizerParams <- set_multispecies_model
 
 
 # Check that the species_params dataset is OK

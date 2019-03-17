@@ -59,23 +59,23 @@ test_that("constructor with species_params and interaction signature gives the r
     data(NS_species_params_gears)
     data(NS_species_params)
     data(inter)
-    test_params <- MizerParams(NS_species_params, inter) # seems fine
+    test_params <- set_multispecies_model(NS_species_params, inter) # seems fine
     expect_that(test_params, is_a("MizerParams"))
     expect_equal(dim(test_params@psi)[1], nrow(NS_species_params))
     expect_equal(dimnames(test_params@psi)$sp, as.character(NS_species_params$species))
     expect_equal(dimnames(test_params@selectivity)$gear, dimnames(test_params@selectivity)$sp)
-    test_params_gears <- MizerParams(NS_species_params_gears, inter)  
+    test_params_gears <- set_multispecies_model(NS_species_params_gears, inter)  
     expect_equal(unique(dimnames(test_params_gears@selectivity)$gear), 
                 as.character(unique(test_params_gears@species_params$gear)))
     # pass in other arguments
-    test_params_gears <- MizerParams(NS_species_params_gears, inter, no_w = 50)  
+    test_params_gears <- set_multispecies_model(NS_species_params_gears, inter, no_w = 50)  
     expect_length(test_params_gears@w, 50)
 })
 
 test_that("constructor with only species_params signature gives the right dimensions", {
     data(NS_species_params_gears)
     data(NS_species_params)
-    test_params <- MizerParams(NS_species_params)  
+    test_params <- set_multispecies_model(NS_species_params)  
     expect_true(all(test_params@interaction == 1))
     expect_equal(dim(test_params@interaction), c(dim(test_params@psi)[1],
                                                  dim(test_params@psi)[1]))
@@ -86,17 +86,17 @@ test_that("w_min_idx is being set correctly", {
     data(NS_species_params_gears)
     data(inter)
     # default - no w_min in params data so set to first size
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     expect_true(all(params@species_params$w_min == params@w[1]))
     expect_true(all(params@w_min_idx == 1))
     # Set w_min to be the min by hand
     NS_species_params_gears$w_min <- 0.001
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     expect_true(all(params@w_min_idx == 1))
     # Change w_min of one of the species
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[7] <- 10
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     expect_true(all(params@w_min_idx[c(1:6, 8:12)] == 1))
     expect_equal(params@w_min_idx[7], max(which(params@w <= 10)), 
                  check.names = FALSE)

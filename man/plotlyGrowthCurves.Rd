@@ -8,8 +8,15 @@ plotlyGrowthCurves(object, species, max_age = 20, percentage = FALSE,
   print_it = FALSE)
 }
 \arguments{
+\item{object}{MizerSim or MizerParams object}
+
 \item{species}{Name or vector of names of the species to be plotted. By
 default all species are plotted.}
+
+\item{max_age}{The age up to which the weight is to be plotted. Default is 20}
+
+\item{percentage}{Boolean value. If TRUE, the size is shown as a percentage
+of the maximal size.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.
 Defaults to FALSE}
@@ -18,10 +25,14 @@ Defaults to FALSE}
 A ggplot2 object
 }
 \description{
-After running a projection, plot the predation mortality rate of each species
-by size. The mortality rate is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step).
+If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+time of a simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.
 }
-\seealso{
-\code{\link{getM2}}
+\details{
+When the growth curve for only a single species is plotted, horizontal
+lines are included that indicate the maturity size and the maximum size for 
+that species. If furthermore the species parameters contain the variables
+a and b for length to weight conversion and the von Bertalanffy parameter
+k_vb, then the von Bertalanffy growth curve is superimposed in black.
 }

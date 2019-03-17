@@ -3,7 +3,7 @@ context("methods work for a single species data set")
 data(inter)
 data(NS_species_params_gears)
 # We choose the largest species for our single-species
-params <- MizerParams(NS_species_params_gears[12, ])
+params <- set_multispecies_model(NS_species_params_gears[12, ])
 n <- params@initial_n
 npp <- params@initial_n_pp
 effort <- array(abs(rnorm(10)), dim = c(10, 1))

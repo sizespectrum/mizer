@@ -14,7 +14,7 @@
 #' 
 #' @section Setting up a Model with Resources:
 #' You can set up a Mizer model with unstructured resource components using
-#' the [multispeciesParams()] function. The arguments to that function that
+#' the [set_multispecies_model()] function. The arguments to that function that
 #' relate to the resources are:
 #' * `rho` The encounter rate, see "Feeding on Resources" section below.
 #' * `resource_names` Your chosen names for the resource components.
@@ -45,7 +45,7 @@
 #' so that
 #' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
 #' This is the choice made for you when you set up the model with the
-#' [multispeciesModel()] function, but you can always overwrite it with your own
+#' [set_multispecies_model()] function, but you can always overwrite it with your own
 #' choice by assigning your values of \eqn{\rho_{id}(w)} to the `rho` slot of the
 #' `MizerParams` object, which is a 3-dim array (predator species x resource x
 #' predator size). See examples section.

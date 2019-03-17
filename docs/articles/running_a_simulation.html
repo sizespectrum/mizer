@@ -150,7 +150,7 @@
 <a href="#projections-with-single-simple-constant-effort" class="anchor"></a>Projections with single, simple constant effort</h3>
 <p>When we use a single value for the <code>effort</code> argument, the value is used as a constant effort for all the gears. This method can be particularly useful for quickly projecting forward without fishing (you just set the <code>effort</code> argument to 0).</p>
 <p>We will use the <code>params</code> object that was created in <a href="multispecies_model.html#sec:params_example">the section with examples of making a MizerParams objects</a> in which each species is caught by a separate gear. Here we make the object again:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MizerParams.html">MizerParams</a></span>(params_data, <span class="dt">interaction =</span> inter)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_multispecies_model.html">set_multispecies_model</a></span>(params_data, <span class="dt">interaction =</span> inter)</a></code></pre></div>
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>

@@ -53,7 +53,7 @@ against time. The biomass is calculated within user defined size limits
 # Set up example MizerParams and MizerSim objects
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 
 plotBiomass(sim)

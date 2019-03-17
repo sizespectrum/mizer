@@ -127,7 +127,7 @@
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters. An example of a North Sea model is provided with the package</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(NS_species_params)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(inter)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/MizerParams.html">MizerParams</a></span>(NS_species_params_gears, inter)</a></code></pre></div>
+<a class="sourceLine" id="cb4-3" data-line-number="3">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_multispecies_model.html">set_multispecies_model</a></span>(NS_species_params_gears, inter)</a></code></pre></div>
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>

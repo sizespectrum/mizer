@@ -59,7 +59,7 @@ reference:
   - set_community_model
   - set_scaling_model
   - set_trait_model
-  - multispeciesParams
+  - set_multispecies_model
   - steady
   - change_pred_kernel
   - emptyParams

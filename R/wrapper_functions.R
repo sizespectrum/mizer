@@ -153,7 +153,7 @@ set_community_model <- function(max_w = 1e6,
     constant_recruitment <- function(rdi, species_params){
         return(species_params$constant_recruitment)
     }
-    com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
+    com_params <- set_multispecies_model(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@srr <- constant_recruitment
@@ -346,7 +346,7 @@ set_trait_model <- function(no_sp = 10,
     )
     # Make the MizerParams
     trait_params <-
-        MizerParams(
+        set_multispecies_model(
             trait_params_df,
             min_w = min_w,
             no_w = no_w,
@@ -402,7 +402,7 @@ set_trait_model <- function(no_sp = 10,
 #' ## Set up a MizerParams object
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' 
 #' ## Create a predation kernel
 #' beta <- params@species_params$beta
@@ -675,7 +675,7 @@ set_scaling_model <- function(no_sp = 11,
         gear = gear_names
     )
     params <-
-        MizerParams(
+        set_multispecies_model(
             species_params,
             p = p,
             n = n,
@@ -1079,7 +1079,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     
     # use dataframe and global settings from params to make a new MizerParams 
     # object.
-    p <- MizerParams(
+    p <- set_multispecies_model(
         combi_species_params,
         p = params@p,
         n = params@n,
@@ -1217,7 +1217,7 @@ addSpecies <- function(params, species_params, SSB = NA,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 #' sim <- setBackground(sim, species = c("Sprat", "Sandeel", 
 #'                                             "N.pout", "Dab", "Saithe"))

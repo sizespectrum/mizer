@@ -77,7 +77,7 @@ with the package
 ```{r}
 data(NS_species_params)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 ```
 The notes printed out by the function show us that mizer calculated
 default values for parameters that were not provided.

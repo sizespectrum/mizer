@@ -162,7 +162,7 @@ time of a simulation to calculate the size at age. If given a
     <pre class="examples"><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
 <span class='fu'>getGrowthCurves</span>(<span class='no'>params</span>)</div><div class='output co'>#&gt;          Age
 #&gt; Species       0 0.489795918367347 0.979591836734694 1.46938775510204
 #&gt;   Sprat   0.001         0.3022132         1.6802528         4.743035

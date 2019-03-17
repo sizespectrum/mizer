@@ -6,7 +6,7 @@ context("Methods used in project")
 # North sea
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
@@ -223,7 +223,7 @@ test_that("getPredMort for MizerSim", {
 
 test_that("interaction is right way round in getPredMort method", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
     expect_true(all(m2["Dab", ] == 0))
 })
@@ -456,7 +456,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$beta <- species_params$beta / 100
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- MizerParams(species_params, inter, no_w = 30)
+    params <- set_multispecies_model(species_params, inter, no_w = 30)
     # create a second params object that does not use fft
     params2 <- params
     params2@ft_pred_kernel_e <- array()

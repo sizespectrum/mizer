@@ -168,7 +168,7 @@ background species. By default this is set to all species.</p></td>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>0.2</span>)
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'>setBackground</span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Sprat"</span>, <span class='st'>"Sandeel"</span>,
                                             <span class='st'>"N.pout"</span>, <span class='st'>"Dab"</span>, <span class='st'>"Saithe"</span>))

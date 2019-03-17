@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{MizerParams}
 \alias{MizerParams}
-\title{Alias for multispeciesParams}
+\title{Alias for set_multispecies_model}
 \usage{
 MizerParams(object, interaction, min_w = 0.001, max_w = NA,
   no_w = 100, min_w_pp = NA, no_w_pp = NA, n = 2/3, p = 0.7,
@@ -114,7 +114,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \examples{
 data(NS_species_params_gears)
 data(inter)
-params <- multispeciesParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 }
 \seealso{
 \code{\link{project}} \linkS4class{MizerSim}

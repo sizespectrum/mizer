@@ -36,7 +36,7 @@ You can also specify the species to be used in the calculation.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=10)
 getMeanMaxWeight(sim)
 getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))

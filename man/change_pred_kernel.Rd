@@ -27,7 +27,7 @@ and an array holding the predation kernel.
 ## Set up a MizerParams object
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 
 ## Create a predation kernel
 beta <- params@species_params$beta

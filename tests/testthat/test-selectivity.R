@@ -8,7 +8,7 @@ test_that("knife-edge selectivity function is working properly",{
     # Chop off l25, l50, a and b columns - the trawl selectivity
     NS_species_params_gears <- NS_species_params_gears[,!(colnames(NS_species_params_gears) %in% c("l25","l50","a","b"))]
     data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     industrial_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"])
     pelagic_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"])
     beam_trawl_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Beam"])

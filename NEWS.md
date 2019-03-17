@@ -38,7 +38,7 @@
   + `getM2background` -> `getPlanktonMort`
   + `getZ` -> `getMort`
   + `getESpawning` -> `getERepro`
-  + `MizerParams` -> `emptyParams` or `multispeciesParams`
+  + `MizerParams` -> `emptyParams` or `set_multispecies_model`
 * Improvement to MizerParams class:
   + Merged `std_metab` and `activity` slots into a single `metab` slot.
   + Moved `w_min_idx` out of `species_params` into its own slot.

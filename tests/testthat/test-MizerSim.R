@@ -4,7 +4,7 @@ test_that("basic constructor sets dimensions properly",{
     # check dimension against t input arguments
     data(NS_species_params_gears)
     data(inter)
-    params <- MizerParams(NS_species_params_gears, inter)
+    params <- set_multispecies_model(NS_species_params_gears, inter)
     # Make MizerSims with t_max and t_save
     t_max <- 5
     t_save <- 1

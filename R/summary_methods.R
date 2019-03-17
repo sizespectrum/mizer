@@ -136,7 +136,7 @@ getDiet <- function(params, n, n_pp) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
@@ -167,7 +167,7 @@ getSSB <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getBiomass(sim)
@@ -199,7 +199,7 @@ getBiomass <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getN(sim)
@@ -227,7 +227,7 @@ getN <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
@@ -255,7 +255,7 @@ getYieldGear <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
@@ -307,7 +307,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears,inter)
+#' params <- set_multispecies_model(NS_species_params_gears,inter)
 #' summary(params)
 #' }
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
@@ -349,7 +349,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears,inter)
+#' params <- set_multispecies_model(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
 #' }
@@ -393,7 +393,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getProportionOfLargeFish(sim)
 #' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
@@ -444,7 +444,7 @@ getProportionOfLargeFish <- function(sim,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanWeight(sim)
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -485,7 +485,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanMaxWeight(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -535,7 +535,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
 #' slope_biomass <- getCommunitySlope(sim)

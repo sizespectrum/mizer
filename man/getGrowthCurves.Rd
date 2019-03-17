@@ -23,7 +23,7 @@ time of a simulation to calculate the size at age. If given a
 
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(MizerParams(NS_species_params_gears, inter))
+params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 getGrowthCurves(params)
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 getGrowthCurves(sim, max_age = 24)

@@ -48,7 +48,7 @@ used.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Get the fishing mortality when effort is constant
 # for all gears and time:
 getFMortGear(params, effort = 1)

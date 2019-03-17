@@ -148,9 +148,6 @@
     <loc>https://gustavdelius.github.io/mizer//reference/mizer.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/multispeciesParams.html</loc>
-  </url>
-  <url>
     <loc>https://gustavdelius.github.io/mizer//reference/plankton_semichemostat.html</loc>
   </url>
   <url>
@@ -227,6 +224,9 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/set_community_model.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/set_multispecies_model.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/set_scaling_model.html</loc>
