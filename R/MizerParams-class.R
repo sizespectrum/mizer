@@ -903,6 +903,7 @@ set_multispecies_model <-   function(object,
     }
     
     ## Start filling the slots ---------------------------------------------
+    res <- setFeedingKernel(res, store_kernel)
     res <- setReproProp(res)
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
@@ -929,46 +930,7 @@ set_multispecies_model <-   function(object,
     }
     
     # Set up predation kernels ------------------------------------------------
-    if (store_kernel) {
-        res@pred_kernel <- array(0,
-                                dim = c(no_sp, no_w, no_w_full),
-                                dimnames = list(sp = object$species,
-                                                w_pred = signif(res@w, 3),
-                                                w_prey = signif(res@w_full, 3))
-                                )
-    }
-    Beta <- log(res@species_params$beta)
-    sigma <- res@species_params$sigma
-    # w_full has the weights from the smallest relevant plankton, to the largest fish
-    x_full <- log(res@w_full)
-    # We choose the origin of the x axis to be at the smallest plankton size
-    x_full <- x_full - x_full[1]
-    dx <- x_full[2] - x_full[1]
-    # rr is the maximal log predator/prey mass ratio
-    rr <- Beta + 3 * sigma
-    ri <- floor(rr / dx)
     
-    res@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = length(x_full))
-    for (i in 1:no_sp) {
-        # We compute the feeding kernel terms and their fft.
-        phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
-        phi[x_full > rr[i]] <- 0
-        phi[1] <- 0
-        # Fourier transform of feeding kernel for evaluating available energy
-        res@ft_pred_kernel_e[i, ] <- fft(phi)
-        # Fourier transform of feeding kernel for evaluating predation rate
-        phi_p <- rep(0, no_w_full)
-        phi_p[(no_w_full - ri[i] + 1):no_w_full] <- phi[(ri[i] + 1):2]
-        res@ft_pred_kernel_p[i, ] <- fft(phi_p)
-        # Full feeding kernel array
-        if (store_kernel) {
-            min_w_idx <- no_w_full - no_w + 1
-            for (k in seq_len(no_w)) {
-                res@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
-                    phi[1:(min_w_idx - 1 + k)]
-            }
-        }
-    }
     
     # plankton spectrum -------------------------------------------------
     # weight specific plankton growth rate
@@ -1037,6 +999,64 @@ set_multispecies_model <-   function(object,
 #' @inherit set_multispecies_model
 #' @export
 MizerParams <- set_multispecies_model
+
+#' Set feeding kernel
+#' 
+#' Still need to document
+#' 
+#' @param params MizerParams
+#' 
+#' @return MizerParams
+#' @export
+setFeedingKernel <- function(params, store_kernel) {
+    species_params <- params@species_params
+    no_sp <- nrow(species_params)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    if (store_kernel) {
+        params@pred_kernel <- 
+            array(0,
+                  dim = c(no_sp, no_w, no_w_full),
+                  dimnames = list(sp = species_params$species,
+                                  w_pred = signif(params@w, 3),
+                                  w_prey = signif(params@w_full, 3))
+        )
+    }
+    Beta <- log(params@species_params$beta)
+    sigma <- params@species_params$sigma
+    # w_full has the weights from the smallest relevant plankton, to the largest fish
+    x_full <- log(params@w_full)
+    # We choose the origin of the x axis to be at the smallest plankton size
+    x_full <- x_full - x_full[1]
+    dx <- x_full[2] - x_full[1]
+    # rr is the maximal log predator/prey mass ratio
+    rr <- Beta + 3 * sigma
+    ri <- floor(rr / dx)
+    
+    params@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = no_w_full)
+    for (i in 1:no_sp) {
+        # We compute the feeding kernel terms and their fft.
+        phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
+        phi[x_full > rr[i]] <- 0
+        phi[1] <- 0
+        # Fourier transform of feeding kernel for evaluating available energy
+        params@ft_pred_kernel_e[i, ] <- fft(phi)
+        # Fourier transform of feeding kernel for evaluating predation rate
+        phi_p <- rep(0, no_w_full)
+        phi_p[(no_w_full - ri[i] + 1):no_w_full] <- phi[(ri[i] + 1):2]
+        params@ft_pred_kernel_p[i, ] <- fft(phi_p)
+        # Full feeding kernel array
+        if (store_kernel) {
+            min_w_idx <- no_w_full - no_w + 1
+            for (k in seq_len(no_w)) {
+                params@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
+                    phi[1:(min_w_idx - 1 + k)]
+            }
+        }
+    }
+    
+    return(params)
+}
 
 #' Set reproduction proportion
 #' 
