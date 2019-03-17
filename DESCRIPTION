@@ -47,6 +47,7 @@ Suggests:
 Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'
+    'multispecies_params.R'
     'selectivity_funcs.R'
     'resource_dynamics.R'
     'plankton_dynamics.R'

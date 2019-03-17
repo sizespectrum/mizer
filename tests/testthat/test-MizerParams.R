@@ -1,16 +1,17 @@
 context("MizerParams constructor dimension checks")
 
 test_that("basic constructor sets dimensions properly", {
-    expect_is(emptyParams(1), "MizerParams")
+    data("NS_species_params")
+    species_params <- NS_species_params[c(6, 10, 11), ]
+    species_names <- species_params$species
     no_sp <- 3
     min_w <- 0.1
     max_w <- 5000
     no_w <- 200
     min_w_pp <- 1e-8
-    species_names <- c("Cod","Haddock","Whiting")
     test_params <- 
-        emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w, 
-                    min_w_pp = min_w_pp, species_names = species_names)
+        emptyParams(species_params, min_w = min_w, max_w = max_w, no_w = no_w, 
+                    min_w_pp = min_w_pp)
     # Lengths of sizes OK?
     expect_length(test_params@w, no_w)
     expect_length(test_params@dw, no_w)
@@ -41,10 +42,10 @@ test_that("basic constructor sets dimensions properly", {
     expect_length(test_params@cc_pp, no_w_full) 
     # Final check to make sure that the gears are being treated properly
     gear_names <- c("Trawl", "Pelagic")
+    species_params$gear <- c("Trawl", "Pelagic", "Trawl")
     test_params_gears <-
-        emptyParams(no_sp, min_w = min_w, max_w = max_w,
-                    no_w = no_w, min_w_pp = min_w_pp,
-                    species_names = species_names, gear_names = gear_names)
+        emptyParams(species_params, min_w = min_w, max_w = max_w,
+                    no_w = no_w, min_w_pp = min_w_pp)
     expect_equal(dim(test_params_gears@catchability), 
                  c(length(gear_names),no_sp))
     expect_equal(dim(test_params_gears@selectivity), 

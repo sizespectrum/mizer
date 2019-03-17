@@ -187,13 +187,13 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     
-    # species_params data.frame must have columns: 
-    # species, z0, alpha, eRepro
-    species_params_cols <- c("species","z0","alpha","erepro")
-    if (!all(species_params_cols %in% names(object@species_params))) {
-        msg <- "species_params data.frame must have 'species', 'z0', 'alpha' and 'erepro' columms"
-        errors <- c(errors,msg)
-    }
+    # # species_params data.frame must have columns: 
+    # # species, z0, alpha, eRepro
+    # species_params_cols <- c("species","z0","alpha","erepro")
+    # if (!all(species_params_cols %in% names(object@species_params))) {
+    #     msg <- "species_params data.frame must have 'species', 'z0', 'alpha' and 'erepro' columms"
+    #     errors <- c(errors,msg)
+    # }
     # must also have SRR params but sorted out yet
     
     # species_params
@@ -201,6 +201,7 @@ validMizerParams <- function(object) {
     # If everything is OK
     if (length(errors) == 0) TRUE else errors
 }
+
 
 #### Class definition ####
 #' A class to hold the parameters for a size based model. 
@@ -423,8 +424,10 @@ setClass(
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 
-#' @param no_sp Number of species
-#' @param min_w  Smallest weight. Default 0.001
+#' @param species_params A data frame of species-specific parameter values.
+#' @param no_w The number of size bins in the consumer spectrum.
+#' @param min_w Sets the size of the eggs of all species for which this is not
+#'   given in the \code{w_min} column of the \code{species_params} dataframe.
 # #' @param w_full Increasing vector of weights giving the boundaries of size
 # #'   classes. Must include the value min_w. Has one more entry than the number
 # #'   of size bins. The last entry is the upper end of the largest size class. It
@@ -432,33 +435,106 @@ setClass(
 # #'   the w_full slot of the returned MizerParams object. If this argument is not
 # #'   provided then size classes are set by the other arguments as described in
 # #'   the Details.
-#' @param max_w  Start of largest weight brackt. Default 1000. 
-# #'   Ignored if w_full is specified.
-#' @param no_w   Number of fish weight brackets. Default 100. 
-# #' Ignored if w_full is specified.
-#' @param min_w_pp Smallest plankton weight. Default 1e-10. This determines how
-#'   many size bins are created for the plankton spectrum. 
+#' @param max_w The largest size of the consumer spectrum. By default this is
+#'   set to the largest w_inf specified in the species_params data frame.
+#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#'   is set to the smallest value at which any of the consumers can feed.
 # #'   Ignored if w_full is specified.
 #' @param no_w_pp  No longer used
-#' @param species_names Names of species
-#' @param gear_names Names of gears
-#' @param resource_names Names of unstructured resources. Empty if the model
-#'   does not contain unstructured resource components.
+#' @param resource_dynamics A named list of functions that determine the
+#'   dynamics of the unstructured resources by calculating their biomasses at
+#'   the next time step from the current state. See
+#'   \code{\link{resource_dynamics}} for details. Ignored if \code{rho} is NULL.
+#' @param resource_params A list of parameters needed by the
+#'   \code{resource_dynamics} functions. Ignored if \code{rho} is NULL.
+#' @inheritParams setInteraction
 #' 
 #' @return An empty but valid MizerParams object
 #' 
 #' @export
-emptyParams <- 
-    function(no_sp, min_w = 0.001, # w_full = NA,
-             max_w = 1000, no_w = 100, min_w_pp = 1e-10, no_w_pp = NA,
-             species_names = 1:no_sp, gear_names = species_names,
-             resource_names = list()) {
-    if (!is.na(no_w_pp))
+emptyParams <- function(species_params,
+                        interaction = matrix(1,
+                                             nrow = nrow(species_params),
+                                             ncol = nrow(species_params)),
+                        no_w = 100,
+                        min_w = 0.001,
+                        # w_full = NA,
+                        max_w = NA,
+                        min_w_pp = 1e-10,
+                        no_w_pp = NA,
+                        resource_dynamics = list(),
+                        resource_params = list(),
+                        srr = srrBevertonHolt) {
+    if (!is.na(no_w_pp)) {
         warning("New mizer code does not support the parameter no_w_pp")
-    # Some checks
-    if (length(species_names) != no_sp)
-        stop("species_names must be the same length as the value of no_sp argument")
-
+    }
+    assert_that(is.data.frame(species_params))
+    assert_that(no_w > 10)
+    
+    if (!("species" %in% colnames(species_params))) {
+        stop("The species params dataframe needs a column 'species' with the species names")
+    }
+    species_names <- species_params$species
+    row.names(species_params) <- species_names
+    no_sp <- nrow(species_params)
+    
+    ## Set defaults ----
+    if (!("w_min" %in% colnames(species_params))) {
+        species_params$w_min <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$w_min)
+    if (any(missing)) {
+        species_params$w_min[missing] <- min_w
+    }
+    min_w <- min(species_params$w_min)
+    
+    if (!("w_inf" %in% colnames(species_params))) {
+        species_params$w_inf <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$w_inf)
+    if (any(missing)) {
+        stop("You need to specify maximum sizes for all species.")
+    }
+    if (is.na(max_w)) {
+        max_w <- max(species_params$w_inf)
+    } else {
+        if (max(species_params$w_inf) < max_w) {
+            too_large <- species_params$species[max_w > species_params$w_inf]
+            stop(paste0("Some of your species have an maximum size larger than max_w: ",
+                        toString(too_large)))
+        }
+    }
+    
+    # If no gear_name column in species_params, then named after species
+    if (!("gear" %in% colnames(species_params))) {
+        species_params$gear <- species_params$species
+    }
+    gear_names <- unique(species_params$gear)
+    
+    # If no alpha (conversion efficiency), then set to 0.6
+    if (!("alpha" %in% colnames(species_params))) {
+        species_params$alpha <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$alpha)
+    if (any(missing)) {
+        species_params$alpha[missing] <- 0.6
+    }
+    
+    # If not provided, set min_w_pp so that all fish have their full feeding 
+    # kernel inside plankton spectrum
+    min_w_feeding <- species_params$w_min / getMaxPPMR(species_params)
+    if (is.na(min_w_pp)) {
+        min_w_pp <- min(min_w_feeding)
+    } else {
+        hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
+        if (length(hungry_sp) > 0) {
+            message(paste(
+                "Note: The following species have feeding kernels that extend",
+                "below the smallest plankton size specified by min_w_pp:",
+                toString(hungry_sp)))
+        }
+    }
+    
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
     # specify a grid with a non-constant log spacing. But we comment this out
@@ -510,7 +586,10 @@ emptyParams <-
     # mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
     #               dimnames = list(sp = species_names, w_pred = signif(w,3), 
     #                               w_prey = signif(w_full,3)))
-    
+        
+    mat3 <- array(1, dim = c(no_sp, no_sp),
+                  dimnames = list(predator = species_names, 
+                                  prey = species_names))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
     
@@ -519,33 +598,25 @@ emptyParams <-
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
-    interaction <- array(1, dim = c(no_sp, no_sp), 
-                         dimnames = list(predator = species_names, 
-                                         prey = species_names))
     interaction_p <- rep(1, no_sp)
     names(interaction_p) <- species_names
     
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
-    w_min_idx <- rep(1, no_sp)
+    
+    w_min_idx <- as.vector(
+        tapply(species_params$w_min, 1:no_sp,
+               function(w_min, wx) max(which(wx <= w_min)), wx = w))
     names(w_min_idx) = species_names
     
-    # Make an empty data.frame for species_params
-    # This is just to pass validity check. 
-    # The project method uses the columns species z0 alpha erepro
-    # so these must be in there
-    # There is also a seperate function to check the dataframe that is
-    # passed in by users (not used in validity check)
-    species_params <- data.frame(species = species_names,
-                                 z0 = NA, alpha = NA, erepro = NA)
-    
-    # Make an empty srr function, just to pass validity check
-    srr <- function(rdi, species_params) return(0)
-    
-    ## Set up resources ----
-    no_res <- length(resource_names)
+    ## Resources  set up----
+    assert_that(is.list(resource_dynamics))
+    assert_that(is.list(resource_params))
+    no_res <- length(resource_dynamics)
+    resource_names = names(resource_dynamics)
     if (no_res == 0) {
         rho <- array(0, dim = 0)
+        resource_dynamics <- list()
         initial_B <- 0
     } else {
         rho <- array(NA, dim = c(no_sp, no_res, no_w), 
@@ -555,11 +626,6 @@ emptyParams <-
         initial_B <- rep(0, no_res)
         names(initial_B) <- resource_names
     }
-    resource_dynamics <- list()
-    for (res in resource_names) {
-        resource_dynamics[[res]] <- function(params, n, n_pp, B, rates, dt) 0
-    }
-    resource_params <- list()
     
     # Colour and linetype scales ----
     # for use in plots
@@ -579,10 +645,19 @@ emptyParams <-
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
+    # Override default if colours or linetypes are contained in species parameters
+    if ("linetype" %in% names(species_params)) {
+        linetype[!is.na(species_params$linetype)] <- 
+            species_params$linetype[!is.na(species_params$linetype)]
+    }
+    if ("linecolour" %in% names(species_params)) {
+        linecolour[!is.na(species_params$linecolour)] <- 
+            species_params$linecolour[!is.na(species_params$linecolour)]
+    }
     
-    # Make the new object ----
+    # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
-    res <- new(
+    params <- new(
         "MizerParams",
         w = w,
         dw = dw,
@@ -606,7 +681,7 @@ emptyParams <-
         sc = w,
         initial_n_pp = vec1,
         species_params = species_params,
-        interaction = interaction,
+        interaction = mat3,
         interaction_p = interaction_p,
         srr = srr,
         resource_dynamics = resource_dynamics,
@@ -617,553 +692,22 @@ emptyParams <-
         linecolour = linecolour,
         linetype = linetype
     )
-    return(res)
-}
-
-
-#' Construct MizerParams object for multispecies model
-#'
-#' Provides default functional forms for all slots in the
-#' \linkS4class{MizerParams} object based on user-provided species parameters.
-#' 
-#' @param object A data frame of species specific parameter values (see notes
-#'   below).
-#' @param interaction Optional argument to specify the interaction matrix of the
-#'   species (predator by prey). If missing a default interaction is used where
-#'   all interactions between species are set to 1. Note that any dimnames of
-#'   the interaction matrix argument are ignored by the constructor. The
-#'   dimnames of the interaction matrix in the returned \code{MizerParams}
-#'   object are taken from the species names in the \code{species_params} slot.
-#'   This means that the order of the columns and rows of the interaction matrix
-#'   argument should be the same as the species name in the
-#'   \code{species_params} slot.
-#' @param min_w The smallest size of the community spectrum. By default his is
-#'   set to the smallest w_min given in the species_params data frame, or to
-#'   0.001g if the w_min slot is missing.
-#' @param max_w The largest size of the community spectrum. By default this is
-#'   set to the largest w_inf specified in the species_params data frame.
-#' @param no_w The number of size bins in the community spectrum.
-#' @param min_w_pp The smallest size of the plankton spectrum. By default this
-#'   is set so the smallest value at which any of the consumers can feed.
-#' @param no_w_pp Obsolete argument that is no longer used because the number
-#'    of plankton size bins is determined because all size bins have to
-#'    be logarithmically equally spaced.
-#' @param n Scaling of the intake. Default value is 2/3.
-#' @param p Scaling of the standard metabolism. Default value is 0.7. 
-#' @param q Exponent of the search volume. Default value is 0.8. 
-#' @param r_pp Growth rate of the primary productivity. Default value is 10. 
-#' @param kappa Carrying capacity of the plankton spectrum. Default value is
-#'   1e11.
-#' @param lambda Exponent of the plankton spectrum. Default value is (2+q-n).
-#' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
-#'   is 10.
-#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
-#'   if those are not columns in the species data frame. Also requires
-#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
-#'   ignored. Default is 0.6.
-#' @param z0pre If \code{z0}, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-#'   Default value is 0.6.
-#' @param z0exp If \code{z0}, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-#'   Default value is \code{n-1}.
-#' @param store_kernel A boolean flag that determines whether the full
-#'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
-#'   The default is TRUE if the number of size bins is no larger than 100 and
-#'   FALSE otherwise.
-#' @param plankton_dynamics Function that determines plankton dynamics by
-#'   calculating the plankton spectrum at the next time step from the current
-#'   state. The default is \code{"\link{plankton_semichemostat}"}.
-#' @param interaction_p Vector specifying for each species its interaction with
-#'   plankton, similar to what the interaction matrix does for the interaction
-#'   with other species. Entries should be numbers between 0 and 1. The 
-#'   default is a vector of 1s.
-#' @param rho Either NULL (default), in which case there will be no unstructured
-#'   resources in the model, or an array (species x resource) that gives the
-#'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
-#'   encounters biomass of resource \eqn{d}. The rate is assumed to scale
-#'   allometrically with size with exponent \code{n}. So the total contribution
-#'   of the resources to the rate at which the individual encounters biomass is
-#'   \deqn{\sum_d\rho_{id} w^n B_d,}
-#'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-#'   See \code{\link{resource_dynamics}} help for more details.
-#' @param resource_dynamics A named list of functions that determine the
-#'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. See
-#'   \code{\link{resource_dynamics}} for details. Ignored if \code{rho} is NULL.
-#' @param resource_params A list of parameters needed by the
-#'   \code{resource_dynamics} functions. Ignored if \code{rho} is NULL.
-#' @param ... Additional arguments.
-#'
-#' @return An object of type \linkS4class{MizerParams}
-#' 
-#' @note The only essential argument is a data frame which contains the species
-#'   data. The data frame is arranged species by parameter, so each column of
-#'   the parameter data frame is a parameter and each row has the parameters for
-#'   one of the species in the model.
-#'   
-#'   There are some essential columns that must be included in the species parameter
-#'   data.frame and that do not have default values. Other columns do have
-#'   default values, so that if they are not included in the species parameter
-#'   data frame, they will be automatically added when the \code{MizerParams}
-#'   object is created. See the accompanying vignette for details of these
-#'   columns.
-#'   
-#' \if{html}{
-#' The following table gives different components of a species parameters data.frame.
-#' \tabular{lll}{
-#'   Column name \tab Description \tab Default value \cr
-#'   species \tab Name of the species \tab Compulsory (no default) \cr
-#'   w_inf \tab The asymptotic mass of the species \tab Compulsory (no default) \cr
-#'   w_mat \tab The maturation mass of the species \tab Compulsory (no default) \cr
-#'   beta \tab Preferred predator prey mass ratio \tab Compulsory (no default) \cr
-#'   sigma \tab Width of prey size preference \tab Compulsory (no default) \cr
-#'   h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional (no default) \cr
-#'   k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional (no default) \cr
-#'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional (no default) \cr
-#'   ks \tab Standard metabolism coefficient \tab h*0.2 \cr
-#'   z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
-#'   k \tab Activity coefficient \tab 0 \cr
-#'   alpha \tab Assimilation efficiency \tab 0.6 \cr
-#'   erepro \tab Reproductive efficiency \tab 1 \cr
-#'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum
-#' }}
-#'   
-#' @seealso \code{\link{project}} \linkS4class{MizerSim}
-#' @export
-#' @examples
-#' data(NS_species_params_gears)
-#' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
-set_multispecies_model <-   function(object,
-                                     interaction,
-                                     min_w = 0.001,
-                                     max_w = NA,
-                                     no_w = 100,
-                                     min_w_pp = NA,
-                                     no_w_pp = NA,
-                                     n = 2 / 3,
-                                     p = 0.7,
-                                     q = 0.8,
-                                     r_pp = 10,
-                                     kappa = 1e11,
-                                     lambda = (2 + q - n),
-                                     w_pp_cutoff = 10,
-                                     f0 = 0.6,
-                                     z0pre = 0.6,
-                                     z0exp = n - 1,
-                                     store_kernel = (no_w <= 100),
-                                     plankton_dynamics = plankton_semichemostat,
-                                     interaction_p = rep(1, nrow(object)),
-                                     rho = NULL,
-                                     resource_dynamics = list(),
-                                     resource_params = list()) {
-    ## Set default values for missing values in species params  --------------
-    if (!("w_min" %in% colnames(object))) {
-        object$w_min <- min_w
-    } else {
-        if (missing(min_w)) {
-            min_w <- min(object$w_min)
-        } else {
-            if (min(object$w_min) < min_w) {
-                too_small <- object$species[min_w > object$w_min]
-                stop(paste0("Some of your species have an egg size smaller than min_w: ",
-                            toString(too_small)))
-            }
-        }
-    }
-    # Check essential columns
-    checkSpeciesParams(object)
     
-    row.names(object) <- object$species
-    no_sp <- nrow(object)
-    
-    # Check validity of arguments ----
-    if (!is.null(rho)) {
-        assert_that(are_equal(length(dim(rho)), 2))
-        no_res <- dim(rho)[2]
-        assert_that(is.list(resource_dynamics))
-        assert_that(is.list(resource_params))
-        assert_that(length(resource_dynamics) == no_res)
-        # TODO: check that all parameters needed by resource dynamics functions
-        # are included in resource_params
-        if (dim(rho)[1] != no_sp) {
-            stop("rho argument should have one row for each species.")
-        }
-        if (is.character(dimnames(rho)["res"])) {
-            assert_that(are_equal(dimnames(rho)["res"], 
-                                  names(resource_dynamics)))
-        }
-    } else {
-        if (length(resource_dynamics) > 0 || length(resource_params) > 0) {
-            message("Note: You did not provide `rho` and therefore the model has been set up without unstructured resources. All other resource information has been ignored.")
-        }
-    }
-    
-    # If no gear_name column in object, then named after species
-    if (!("gear" %in% colnames(object))) {
-        object$gear <- object$species
-    }
-    
-    
-    # If no alpha (conversion efficiency), then set to 0.6
-    if (!("alpha" %in% colnames(object))) {
-        object$alpha <- rep(NA, no_sp)
-    }
-    missing <- is.na(object$alpha)
-    if (any(missing)) {
-        object$alpha[missing] <- 0.6
-    }
+    params <- setInteraction(params, interaction = interaction)
+    params <- setFishing(params)
     
     # If no erepro (reproductive efficiency), then set to 1
-    if (!("erepro" %in% colnames(object))) {
-        object$erepro <- rep(NA, no_sp)
+    if (!("erepro" %in% colnames(species_params))) {
+        species_params$erepro <- rep(NA, no_sp)
     }
-    missing <- is.na(object$erepro)
+    missing <- is.na(species_params$erepro)
     if (any(missing)) {
-        object$erepro[missing] <- 1
+        species_params$erepro[missing] <- 1
+        params@species_params$erepro <- species_params$erepro
     }
-    
-    # If no sel_func column in species_params, set to 'knife_edge'
-    if (!("sel_func" %in% colnames(object))) {
-        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
-        object$sel_func <- 'knife_edge'
-        # Set default selectivity size
-        if (!("knife_edge_size" %in% colnames(object))) {
-            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
-            object$knife_edge_size <- object$w_mat
-        }
-    }
-    
-    # If no catchability column in species_params, set to 1
-    if (!("catchability" %in% colnames(object))) {
-        object$catchability <- rep(NA, no_sp)
-    }
-    missing <- is.na(object$catchability)
-    if (any(missing)) {
-        object$catchability[missing] <- 1
-    }
-    
-
-    
-
-    
-
-    
-    
-    
-    if (!is.na(max_w)) {
-        if (max_w < max(object$w_inf)) {
-            too_large <- object$species[max_w < object$w_inf]
-            stop(paste0("Some of your species have a maximum size larger than max_w: ",
-                        toString(too_large)))
-        }
-    } else {
-        max_w <- max(object$w_inf)
-    }
-    
-    
-    # If not provided, set min_w_pp so that all fish have their full feeding 
-    # kernel inside plankton spectrum
-    min_w_feeding <- object$w_min / object$beta / exp(3 * object$sigma)
-    if (is.na(min_w_pp)) {
-        min_w_pp <- min(min_w_feeding)
-    } else {
-        hungry_sp <- object$species[min_w_feeding < min_w_pp]
-        if (length(hungry_sp) > 0) {
-            message(paste(
-                "Note: The following species have feeding kernels that extend",
-                "below the smallest plankton size specified by min_w_pp:",
-                toString(hungry_sp)))
-        }
-    }
-    
-    ## Make an empty object of the right dimensions -----------------------------
-    res <- emptyParams(no_sp, min_w = min_w, max_w = max_w, no_w = no_w,  
-                       min_w_pp = min_w_pp, no_w_pp = NA, 
-                       species_names = object$species, 
-                       gear_names = unique(object$gear),
-                       resource_names = names(resource_dynamics))
-    res@species_params <- object
-    res@n <- n
-    res@p <- p
-    res@lambda <- lambda
-    res@q <- q
-    res@f0 <- f0
-    res@kappa <- kappa
-    no_w_full <- length(res@w_full)
-    
-    # If not w_min column in species_params, set to w_min of community
-    if (!("w_min" %in% colnames(object)))
-        object$w_min <- min(res@w)
-    # Check min_w argument is not > w_min in species_params
-    if (any(object$w_min < min(res@w))) {
-        stop("One or more of your w_min values is less than the smallest size of the community spectrum")
-    }
-    
-    ## Start filling the slots ---------------------------------------------
-    res <- setFeedingKernel(res, store_kernel)
-    res <- setReproProp(res)
-    if (missing(interaction)) {
-        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
-    }
-    res <- setInteraction(res, interaction)
-    res <- setIntakeMax(res)
-    res <- setSearchVol(res)
-    res <- setMetab(res)
-    res <- setBMort(res, z0pre, z0exp)
-    res@w_min_idx[] <- as.vector(
-        tapply(object$w_min, 1:length(object$w_min),
-               function(w_min, wx) max(which(wx <= w_min)), wx = res@w))
-    
-    # Plankton
-    res@plankton_dynamics <- plankton_dynamics
-    res@interaction_p <- interaction_p
-    
-    # Resources
-    if (!is.null(rho)) {
-        res@resource_dynamics <- resource_dynamics
-        res@resource_params <- resource_params
-        res@rho[] <- outer(rho, res@w ^ res@n)
-        res@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
-    }
-    
-    # Set up predation kernels ------------------------------------------------
-    
-    
-    # plankton spectrum -------------------------------------------------
-    # weight specific plankton growth rate
-    res@rr_pp[] <- r_pp * res@w_full^(n - 1)
-    # the plankton carrying capacity
-    res@cc_pp[] <- kappa*res@w_full^(-lambda)
-    res@cc_pp[res@w_full > w_pp_cutoff] <- 0
-    
-    # Beverton Holt esque stock-recruitment relationship ----------------------
-    # Can add more functional forms or user specifies own
-    res@initial_n_pp <- res@cc_pp
-    res@srr <- function(rdi, species_params){
-        return(rdi / (1 + rdi/species_params$r_max))
-    }
-    
-    # Set fishing parameters: selectivity and catchability -------------
-    # At the moment, each species is only caught by 1 gear so in species_params
-    # there are the columns: gear_name and sel_func.
-    # BEWARE! This routine assumes that each species has only one gear operating on it
-    # So we can just go row by row through the species parameters
-    # However, I really hope we can do something better soon
-    for (g in 1:nrow(object)) {
-        # Do selectivity first
-        # get args
-        # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(object[g,'sel_func'])))
-        # lop off w as that is always the first argument of the selectivity functions
-        arg <- arg[!(arg %in% "w")]
-        if (!all(arg %in% colnames(object))) {
-            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
-        }
-        # Check that there is only one column in object with the same name
-        # Check that column of arguments exists
-        par <- c(w = list(res@w), as.list(object[g,arg]))
-        sel <- do.call(as.character(object[g, 'sel_func']), args = par)
-        # Dump Sel in the right place
-        res@selectivity[as.character(object[g,'gear']), g, ] <- sel
-        # Now do catchability
-        res@catchability[as.character(object[g,'gear']), g] <- object[g,"catchability"]
-    }
-    
-    # Store colours and linetypes in slots if contained in species parameters
-    if ("linetype" %in% names(object)) {
-        linetype <- object$linetype[!is.na(object$linetype)]
-        res@linetype[object$species[!is.na(object$linetype)]] <- linetype
-    }
-    if ("linecolour" %in% names(object)) {
-        linecolour <- object$linecolour[!is.na(object$linecolour)]
-        res@linecolour[object$species[!is.na(object$linecolour)]] <- linecolour
-    }
-    
-    # Remove catchabiliy from species data.frame, now stored in slot
-    #params@species_params[,names(params@species_params) != "catchability"]
-    res@species_params <- 
-        res@species_params[, -which(names(res@species_params) == "catchability")]
-
-    res@initial_n <- get_initial_n(res)
-    res@A <- rep(1, no_sp)
-    
-    return(res)
-}
-
-#' Alias for set_multispecies_model
-#' 
-#' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit set_multispecies_model
-#' @export
-MizerParams <- set_multispecies_model
-
-#' Set feeding kernel
-#' 
-#' Still need to document
-#' 
-#' @param params MizerParams
-#' 
-#' @return MizerParams
-#' @export
-setFeedingKernel <- function(params, store_kernel) {
-    species_params <- params@species_params
-    no_sp <- nrow(species_params)
-    no_w <- length(params@w)
-    no_w_full <- length(params@w_full)
-    if (store_kernel) {
-        params@pred_kernel <- 
-            array(0,
-                  dim = c(no_sp, no_w, no_w_full),
-                  dimnames = list(sp = species_params$species,
-                                  w_pred = signif(params@w, 3),
-                                  w_prey = signif(params@w_full, 3))
-        )
-    }
-    Beta <- log(params@species_params$beta)
-    sigma <- params@species_params$sigma
-    # w_full has the weights from the smallest relevant plankton, to the largest fish
-    x_full <- log(params@w_full)
-    # We choose the origin of the x axis to be at the smallest plankton size
-    x_full <- x_full - x_full[1]
-    dx <- x_full[2] - x_full[1]
-    # rr is the maximal log predator/prey mass ratio
-    rr <- Beta + 3 * sigma
-    ri <- floor(rr / dx)
-    
-    params@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = no_w_full)
-    for (i in 1:no_sp) {
-        # We compute the feeding kernel terms and their fft.
-        phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
-        phi[x_full > rr[i]] <- 0
-        phi[1] <- 0
-        # Fourier transform of feeding kernel for evaluating available energy
-        params@ft_pred_kernel_e[i, ] <- fft(phi)
-        # Fourier transform of feeding kernel for evaluating predation rate
-        phi_p <- rep(0, no_w_full)
-        phi_p[(no_w_full - ri[i] + 1):no_w_full] <- phi[(ri[i] + 1):2]
-        params@ft_pred_kernel_p[i, ] <- fft(phi_p)
-        # Full feeding kernel array
-        if (store_kernel) {
-            min_w_idx <- no_w_full - no_w + 1
-            for (k in seq_len(no_w)) {
-                params@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
-                    phi[1:(min_w_idx - 1 + k)]
-            }
-        }
-    }
-    
     return(params)
 }
 
-#' Set reproduction proportion
-#' 
-#' Sets the proportion of the energy available for reproduction and growth that
-#' is invested into reproduction as a function of the size of the individual.
-#' 
-#' @param params A MizerParams object
-#' 
-#' @return A MizerParams object
-#' 
-#' The proportion is set to the product of a sigmoidal maturity ogive that 
-#' gives the proportion of individuals of a given species and size that are
-#' mature, and a factor that describes how investment into reproduction by mature
-#' individuals scales with size. In formulas:
-#' \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{[1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
-#' Here \eqn{n} is the scaling exponent of the energy income rate.
-#' The exponent \eqn{m} determines the scaling of the investment into
-#' reproduction for mature individuals. By default it is chosen to be \eqn{m =
-#' 1} so that the rate at which energy is invested into reproduction scales
-#' linearly with the size. This default can be overridden by including a column
-#' \code{m} in the species parameter dataframe.
-#' 
-#' The exponent \eqn{U} determines the steepness of the maturity ogive. By default it is
-#' chosen as \eqn{U = 10}, however this can be overridden by including a 
-#' column \code{w_mat25} in the species parameter dataframe that specifies the weight
-#' at which 25\% of individuals are mature, which sets 
-#' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
-#' 
-#' The result for \eqn{\psi(w)} for all species is stored in the \code{psi} slot
-#' of the params object and this object is returned.
-#' 
-#' @export
-setReproProp <- function(params) {
-    species_params <- params@species_params
-    # Check maximum sizes
-    if (!("w_inf" %in% colnames(species_params))) {
-        stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
-    }
-    missing <- is.na(species_params$w_inf)
-    if (any(missing)) {
-        stop(paste("The following species are missing data for their maximum size w_inf:"),
-             toString(species_params$species[missing]))
-    }
-    if (any(species_params$w_inf <= species_params$w_min)) {
-        stop("Some of the asymptotic sizes are smaller than the egg sizes.")
-    }
-    # Check maturity sizes
-    if (!("w_mat" %in% colnames(species_params))) {
-        stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
-    }
-    missing <- is.na(species_params$w_mat)
-    if (any(missing)) {
-        stop(paste("The following species are missing data for their maturity size w_mat:"),
-             toString(species_params$species[missing]))
-    }
-    assert_that(all(species_params$w_mat > species_params$w_min))
-    
-    # Set defaults for w_mat25
-    if (!("w_mat25" %in% colnames(species_params))) {
-        species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
-    }
-    missing <- is.na(species_params$w_mat25)
-    if (any(missing)) {
-        species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
-    }
-    # Check w_mat25
-    assert_that(all(species_params$w_mat25 > species_params$w_min))
-    assert_that(all(species_params$w_mat25 < species_params$w_mat))
-    
-    # Set defaults for m
-    if (!("m" %in% colnames(species_params))) {
-        species_params$m <- 1 - params@n
-    }
-    missing <- is.na(species_params$m)
-    if (any(missing)) {
-        species_params$m[missing] <- 1 - params@n
-    }
-    # Check m
-    assert_that(is.numeric(species_params$m), 
-                all(species_params$m > 0 & species_params$m < 2))
-    
-    params@psi[] <- 
-        unlist(
-            tapply(params@w, 1:length(params@w),
-                   function(wx, w_inf, w_mat, m, w_mat25) {
-                       U <- log(3) / log(w_mat / w_mat25)
-                       return((1 + (wx / w_mat)^-U)^-1 * (wx / w_inf)^m)
-                   },
-                   w_inf = species_params$w_inf, 
-                   w_mat = species_params$w_mat, 
-                   m = species_params$m,
-                   w_mat25 = species_params$w_mat25
-            )
-        )
-    # Set w < 10% of w_mat to 0
-    params@psi[unlist(
-        tapply(params@w, 1:length(params@w),
-               function(wx, w_mat) wx < (w_mat * 0.1),
-               w_mat = species_params$w_mat))] <- 0
-    # Set all w > w_inf to 1
-    params@psi[unlist(
-        tapply(params@w, 1:length(params@w),
-               function(wx, w_inf) (wx/w_inf) > 1,
-               w_inf = species_params$w_inf))] <- 1
-    return(params)
-}
 
 #' Set species interation matrix
 #' 
@@ -1171,8 +715,16 @@ setReproProp <- function(params) {
 #' the \code{interaction} slot of the params object before returning that 
 #' object.
 #' 
+#' Any dimnames of the interaction matrix argument are ignored by the
+#' constructor. The dimnames of the interaction matrix in the returned
+#' \code{MizerParams} object are taken from the species names in the
+#' \code{species_params} slot. This means that the order of the columns and rows
+#' of the interaction matrix argument should be the same as the species name in
+#' the \code{species_params} slot.
+#' 
 #' @param params MizerParams object
-#' @param interaction The interaction matrix of the species (predator by prey)
+#' @param interaction Interaction matrix of the species (predator by prey). By
+#'   default all interactions between species are set to 1.
 #' 
 #' @return MizerParams object
 #' @export
@@ -1196,175 +748,72 @@ setInteraction <- function(params, interaction) {
     return(params)
 }
 
-#' Set maximum intake rate
+#' Set fishing parameters
 #' 
-#' Still need to document
+#' Needs to be documented
 #' 
-#' @param params MizerParams
-#' @param f0 Optional feeding level
+#' @param params A MizerParams object
 #' 
-#' @return MizerParams
+#' @return MizerParams object
 #' @export
-setIntakeMax <- function(params) {
+setFishing <- function(params) {
     species_params <- params@species_params
-    # If h column is not supplied, it is calculated from f0 and k_vb if they 
-    # are supplied
-    if (!("h" %in% colnames(species_params))) {
-        species_params$h <- rep(NA, nrow(species_params))
-    }
-    if (any(is.na(species_params$h))) {
-        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
-        if (!("k_vb" %in% colnames(species_params))) {
-            stop("\tExcept I can't because there is no k_vb column in the species data frame")
-        }
-        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
-            (species_params$w_inf ^ (1/3))
-        # Only overwrite missing h with calculated values
-        missing <- is.na(species_params$h)
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
-        }
-        species_params$h[missing] <- h[missing]
-        params@species_params$h <- species_params$h
-    }
-    params@intake_max[] <- 
-        unlist(tapply(params@w, 1:length(params@w), 
-                      function(wx, h, n) h * wx^n,
-                      h = species_params$h, n = params@n))
-    return(params)
-}
-
-#' Set search volume
-#' 
-#' Still need to document
-#' 
-#' @param params MizerParams
-#' 
-#' @return MizerParams
-#' @export
-setSearchVol <- function(params) {
-    species_params <- params@species_params
-    # Sorting out gamma column
-    if (!("gamma" %in% colnames(species_params))) {
-        species_params$gamma <- rep(NA, nrow(species_params))
-    }
-    if (any(is.na(species_params$gamma))) {
-        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        lm2 <- params@lambda - 2
-        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
-            exp(lm2^2 * species_params$sigma^2 / 2) *
-            # The factor on the following lines takes into account the cutoff
-            # of the integral at 0 and at beta + 3 sigma
-            (pnorm(3 - lm2 * species_params$sigma) + 
-                 pnorm(log(species_params$beta)/species_params$sigma + 
-                           lm2 * species_params$sigma) - 1)
-        gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
-        # Only overwrite missing gammas with calculated values
-        missing <- is.na(species_params$gamma)
-        if (any(is.na(gamma[missing]))) {
-            stop("Could not calculate gamma.")
-        }
-        species_params$gamma[missing] <- gamma[missing]
-        params@species_params$gamma <- species_params$gamma
-    }
-    params@search_vol[] <- 
-        unlist(tapply(params@w, 1:length(params@w),
-                      function(wx, gamma, q) gamma * wx^q,
-                      gamma = species_params$gamma, q = params@q))
-    return(params)
-}
-
-#' Set metabolic rate
-#' 
-#' Still need to document
-#' 
-#' @param params MizerParams
-#' 
-#' @return MizerParams
-#' @export
-setMetab <- function(params) {
-    species_params <- params@species_params
+    no_sp <- nrow(species_params)
     
-    # If no k (activity coefficient), then set to 0
-    if (!("k" %in% colnames(species_params))) {
-        species_params$k <- rep(NA, nrow(species_params))
+    # If no gear_name column in species_params, then named after species
+    if (!("gear" %in% colnames(species_params))) {
+        species_params$gear <- species_params$species
     }
-    missing <- is.na(species_params$k)
+    
+    # If no sel_func column in species_params, set to 'knife_edge'
+    if (!("sel_func" %in% colnames(species_params))) {
+        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
+        species_params$sel_func <- 'knife_edge'
+        # Set default selectivity size
+        if (!("knife_edge_size" %in% colnames(species_params))) {
+            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
+            species_params$knife_edge_size <- species_params$w_mat
+        }
+    }
+    
+    # If no catchability column in species_params, set to 1
+    if (!("catchability" %in% colnames(species_params))) {
+        species_params$catchability <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$catchability)
     if (any(missing)) {
-        species_params$k[missing] <- 0
+        species_params$catchability[missing] <- 1
     }
     
-    # Sort out ks column
-    if (!("ks" %in% colnames(species_params))) {
-        message("Note: No ks column in species data frame so using ks = h * 0.2.")
-        species_params$ks <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$ks)
-    if (any(missing)) {
-        species_params$ks[missing] <- species_params$h[missing] * 0.2
-        params@species_params$ks <- species_params$ks
-    }
-    
-    params@metab[] <-  
-        unlist(tapply(params@w, 1:length(params@w),
-                      function(wx, ks, k, p) ks * wx^p + k * wx,
-                      ks = species_params$ks, k = species_params$k, p = params@p))
-    return(params)
-}
-
-#' Set background mortality rate
-#' 
-#' Still need to document
-#' 
-#' @param params MizerParams
-#' @param z0pre If \code{z0}, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-#'   Default value is 0.6.
-#' @param z0exp If \code{z0}, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-#'   Default value is \code{n-1}.
-#' 
-#' @return MizerParams
-#' @export
-setBMort <- function(params, z0pre, z0exp) {
-    species_params <- params@species_params
-    
-    # Sort out z0 (background mortality)
-    if (!("z0" %in% colnames(species_params))) {
-        species_params$z0 <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$z0)
-    if (any(missing)) {
-        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
-        species_params$z0[missing] <- z0pre * species_params$w_inf[missing]^z0exp
-        params@species_params$z0 <- species_params$z0
-    }
-    
-    params@mu_b[] <- params@species_params$z0
-    return(params)
-}
-
-#' Check that species parameter dataframe has essential variables
-#' 
-#' Checks for the presence of the following variables:
-#' * `species` The names of the species
-#' * `w_inf`   The maximum sizes of species in grams
-#' * `w_min`   The egg sizes of species in grams
-#' 
-#' @md
-#' @export
-checkSpeciesParams <- function(species_params) {
-    # Check species_params dataframe (with a function) for essential cols
-    # Essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # z0
-    essential_cols <- c("species","w_inf","w_mat")
-    missing_cols <- !(essential_cols %in% colnames(species_params))
-    if (any(missing_cols)) {
-        errors <- character()
-        for (i in essential_cols[missing_cols]) {
-            errors <- paste(errors, i, sep = " ")
+    # At the moment, each species is only caught by 1 gear so in species_params
+    # there are the columns: gear_name and sel_func.
+    # BEWARE! This routine assumes that each species has only one gear operating on it
+    # So we can just go row by row through the species parameters
+    # However, I really hope we can do something better soon
+    for (g in 1:nrow(species_params)) {
+        # Do selectivity first
+        # get args
+        # These as.characters are annoying - but factors everywhere
+        arg <- names(formals(as.character(species_params[g, 'sel_func'])))
+        # lop off w as that is always the first argument of the selectivity functions
+        arg <- arg[!(arg %in% "w")]
+        if (!all(arg %in% colnames(species_params))) {
+            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
         }
-        stop("You are missing these columns from the input dataframe:\n", errors)
+        # Check that there is only one column in species_params with the same name
+        # Check that column of arguments exists
+        par <- c(w = list(params@w), as.list(species_params[g, arg]))
+        sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
+        # Dump Sel in the right place
+        params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+        # Now do catchability
+        params@catchability[as.character(species_params[g,'gear']), g] <- 
+            species_params[g, "catchability"]
     }
-    return(TRUE)
+    
+    return(params)
 }
 
+srrBevertonHolt <- function(rdi, species_params) {
+    return(rdi / (1 + rdi/species_params$r_max))
+}
