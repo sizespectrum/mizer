@@ -136,9 +136,9 @@ specified by the <code>power</code> argument.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotlySpectra</span>(<span class='no'>object</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>time_range</span>, <span class='no'>min_w</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>NA</span>,
-  <span class='fl'>NA</span>), <span class='kw'>power</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>biomass</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>print_it</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plankton</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>background</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>plotlySpectra</span>(<span class='no'>object</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>time_range</span>, <span class='kw'>wlim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
+  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>), <span class='kw'>power</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>biomass</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>print_it</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>plankton</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>background</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,10 +160,9 @@ the final time step. Ignored when called with a <a href='MizerParams-class.html'
 object.</p></td>
     </tr>
     <tr>
-      <th>min_w</th>
-      <td><p>Minimum weight to be plotted (useful for truncating the
-plankton spectrum). Default value is a hundredth of the minimum size
-value of the community.</p></td>
+      <th>wlim</th>
+      <td><p>A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA to refer to the existing minimum or maximum.</p></td>
     </tr>
     <tr>
       <th>ylim</th>

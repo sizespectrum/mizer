@@ -4,9 +4,9 @@
 \alias{plotlySpectra}
 \title{Plotly plot of the abundance spectra}
 \usage{
-plotlySpectra(object, species = NULL, time_range, min_w, ylim = c(NA,
-  NA), power = 1, biomass = TRUE, print_it = FALSE, total = FALSE,
-  plankton = TRUE, background = TRUE, ...)
+plotlySpectra(object, species = NULL, time_range, wlim = c(NA, NA),
+  ylim = c(NA, NA), power = 1, biomass = TRUE, print_it = FALSE,
+  total = FALSE, plankton = TRUE, background = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -19,9 +19,8 @@ and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
-\item{min_w}{Minimum weight to be plotted (useful for truncating the
-plankton spectrum). Default value is a hundredth of the minimum size
-value of the community.}
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA to refer to the existing minimum or maximum.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to refer to the existing minimum or maximum. Any

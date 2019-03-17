@@ -634,9 +634,8 @@ plotlyYieldGear <- function(sim,
 #'   and max time, or a single value) to average the abundances over. Default is
 #'   the final time step. Ignored when called with a \linkS4class{MizerParams}
 #'   object.
-#' @param min_w Minimum weight to be plotted (useful for truncating the
-#'   plankton spectrum). Default value is a hundredth of the minimum size
-#'   value of the community.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the w axis. Use NA to refer to the existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
 #'   values below 1e-20 are always cut off.
@@ -667,47 +666,38 @@ plotlyYieldGear <- function(sim,
 #' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
-#' plotSpectra(sim, min_w = 1e-6)
+#' plotSpectra(sim, wlim = c(1e-6, NA))
 #' plotSpectra(sim, time_range = 10:20)
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 #' 
 plotSpectra <- function(object, species = NULL,
                         time_range,
-                        min_w, ylim = c(NA, NA),
+                        wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE, ...) {
+    # to deal with old-type biomass argument
+    if (missing(power)) {
+        power <- as.numeric(biomass)
+    }
     if (is(object, "MizerSim")) {
-        if (missing(time_range)){
+        if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
-        if (missing(min_w)){
-            min_w <- min(object@params@w) / 100
-        }
-        # to deal with old-type biomass argument
-        if (missing(power)) {
-            power <- as.numeric(biomass)
-        }
-        time_elements <- get_time_elements(object,time_range)
-        n <- apply(object@n[time_elements, , ,drop = FALSE], c(2, 3), mean)
-        n_pp <- apply(object@n_pp[time_elements,,drop = FALSE], 2, mean)
+        time_elements <- get_time_elements(object, time_range)
+        n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+        n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
         ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
-                           species = species, min_w = min_w, ylim = ylim,
+                           species = species, wlim = wlim, ylim = ylim,
                            power = power, print_it = print_it,
                            total = total, plankton = plankton,
                            background = background)
         return(ps)
     } else {
-        if (missing(power)) {
-            power <- as.numeric(biomass)
-        }
-        if (missing(min_w)) {
-            min_w <- min(object@w) / 100
-        }
         ps <- plot_spectra(object, n = object@initial_n,
                            n_pp = object@initial_n_pp,
-                           species = species, min_w = min_w, ylim = ylim,
+                           species = species, wlim = wlim, ylim = ylim,
                            power = power, print_it = print_it,
                            total = total, plankton = plankton,
                            background = background)
@@ -717,8 +707,14 @@ plotSpectra <- function(object, species = NULL,
 
 
 plot_spectra <- function(params, n, n_pp,
-                         species, min_w, ylim, power, print_it,
+                         species, wlim, ylim, power, print_it,
                          total, plankton, background) {
+    if (is.na(wlim[1])) {
+        wlim[1] <- min(params@w) / 100
+    }
+    if (is.na(wlim[2])) {
+        wlim[2] <- max(params@w_full)
+    }
     # Need to keep species in order for legend
     species_levels <- c(dimnames(params@initial_n)$sp,
                         "Background", "Plankton", "Total")
@@ -756,14 +752,18 @@ plot_spectra <- function(params, n, n_pp,
         if (is.na(max_w)) {
             max_w <- Inf
         }
-        plankton_sel <- params@w_full >= min_w &
-            params@w_full < max_w
-        w_plankton <- params@w_full[plankton_sel]
-        plank_n <- n_pp[plankton_sel] * w_plankton^power
-        plot_dat <- rbind(plot_dat,
-                          data.frame(value = c(plank_n),
-                                     Species = "Plankton",
-                                     w = w_plankton))
+        plankton_sel <- (params@w_full >= wlim[1]) & 
+                        (params@w_full <= wlim[2]) &
+                        (params@w_full <= max_w)
+        # Do we have any plankton to plot?
+        if (sum(plankton_sel) > 0) {
+            w_plankton <- params@w_full[plankton_sel]
+            plank_n <- n_pp[plankton_sel] * w_plankton^power
+            plot_dat <- rbind(plot_dat,
+                              data.frame(value = c(plank_n),
+                                         Species = "Plankton",
+                                         w = w_plankton))
+        }
     }
     if (total) {
         plot_dat <- rbind(plot_dat,
@@ -771,8 +771,10 @@ plot_spectra <- function(params, n, n_pp,
                                      Species = "Total",
                                      w = params@w_full))
     }
-    # lop off 0s and apply min_w
-    plot_dat <- plot_dat[(plot_dat$value > 0) & (plot_dat$w >= min_w), ]
+    # lop off 0s and apply wlim
+    plot_dat <- plot_dat[(plot_dat$value > 0) & 
+                             (plot_dat$w >= wlim[1]) &
+                             (plot_dat$w <= wlim[2]), ]
     # Impose ylim
     if (!is.na(ylim[2])) {
         plot_dat <- plot_dat[plot_dat$value <= ylim[2], ]
@@ -795,8 +797,10 @@ plot_spectra <- function(params, n, n_pp,
                                 Species = as.factor(dimnames(back_n)[[1]]),
                                 w = rep(params@w,
                                         each = dim(back_n)[[1]]))
-        # lop off 0s and apply min_w
-        plot_back <- plot_back[(plot_back$value > 0) & (plot_back$w >= min_w), ]
+        # lop off 0s and apply wlim
+        plot_back <- plot_back[(plot_back$value > 0) & 
+                                   (plot_back$w >= wlim[1]) &
+                                   (plot_back$w <= wlim[2]), ]
         # Impose ylim
         if (!is.na(ylim[1])) {
             plot_back <- plot_back[plot_back$value < ylim[1], ]
@@ -824,7 +828,7 @@ plot_spectra <- function(params, n, n_pp,
 #' @export
 plotlySpectra <- function(object, species = NULL,
                         time_range,
-                        min_w, ylim = c(NA, NA),
+                        wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE, ...) {
@@ -865,8 +869,7 @@ plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
             time_range = max(as.numeric(dimnames(sim@n)$time)),
             print_it = FALSE, ...) {
-    feed_time <- getFeedingLevel(sim, time_range = time_range,
-                                 drop = FALSE, ...)
+    feed_time <- getFeedingLevel(sim, time_range = time_range, drop = FALSE)
     feed <- apply(feed_time, c(2, 3), mean)
     # selector for desired species
     sel_sp <- as.character(dimnames(feed)$sp) %in% species
@@ -942,7 +945,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
-    m2_time <- getM2(sim, time_range = time_range, drop = FALSE, ...)
+    m2_time <- getM2(sim, time_range = time_range, drop = FALSE)
     m2 <- apply(m2_time, c(2, 3), mean)
     m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
              drop = FALSE]
@@ -1014,7 +1017,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
-    f_time <- getFMort(sim, time_range = time_range, drop = FALSE, ...)
+    f_time <- getFMort(sim, time_range = time_range, drop = FALSE)
     f <- apply(f_time, c(2, 3), mean)
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(f),

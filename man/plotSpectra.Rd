@@ -4,9 +4,9 @@
 \alias{plotSpectra}
 \title{Plot the abundance spectra}
 \usage{
-plotSpectra(object, species = NULL, time_range, min_w, ylim = c(NA,
-  NA), power = 1, biomass = TRUE, print_it = FALSE, total = FALSE,
-  plankton = TRUE, background = TRUE, ...)
+plotSpectra(object, species = NULL, time_range, wlim = c(NA, NA),
+  ylim = c(NA, NA), power = 1, biomass = TRUE, print_it = FALSE,
+  total = FALSE, plankton = TRUE, background = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -19,9 +19,8 @@ and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
-\item{min_w}{Minimum weight to be plotted (useful for truncating the
-plankton spectrum). Default value is a hundredth of the minimum size
-value of the community.}
+\item{wlim}{A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA to refer to the existing minimum or maximum.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to refer to the existing minimum or maximum. Any
@@ -71,7 +70,7 @@ data(inter)
 params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotSpectra(sim)
-plotSpectra(sim, min_w = 1e-6)
+plotSpectra(sim, wlim = c(1e-6, NA))
 plotSpectra(sim, time_range = 10:20)
 plotSpectra(sim, time_range = 10:20, power = 0)
 plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
