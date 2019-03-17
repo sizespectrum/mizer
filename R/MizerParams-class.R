@@ -736,19 +736,45 @@ emptyParams <-
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
-set_multispecies_model <- 
-    function(object, interaction,
-             min_w = 0.001, max_w = NA, no_w = 100,
-             min_w_pp = NA, no_w_pp = NA,
-             n = 2/3, p = 0.7, q = 0.8, r_pp = 10,
-             kappa = 1e11, lambda = (2 + q - n), w_pp_cutoff = 10,
-             f0 = 0.6, z0pre = 0.6, z0exp = n - 1,
-             store_kernel = (no_w <= 100),
-             plankton_dynamics = plankton_semichemostat,
-             interaction_p = rep(1, nrow(object)),
-             rho = NULL,
-             resource_dynamics = list(),
-             resource_params = list()) {
+set_multispecies_model <-   function(object,
+                                     interaction,
+                                     min_w = 0.001,
+                                     max_w = NA,
+                                     no_w = 100,
+                                     min_w_pp = NA,
+                                     no_w_pp = NA,
+                                     n = 2 / 3,
+                                     p = 0.7,
+                                     q = 0.8,
+                                     r_pp = 10,
+                                     kappa = 1e11,
+                                     lambda = (2 + q - n),
+                                     w_pp_cutoff = 10,
+                                     f0 = 0.6,
+                                     z0pre = 0.6,
+                                     z0exp = n - 1,
+                                     store_kernel = (no_w <= 100),
+                                     plankton_dynamics = plankton_semichemostat,
+                                     interaction_p = rep(1, nrow(object)),
+                                     rho = NULL,
+                                     resource_dynamics = list(),
+                                     resource_params = list()) {
+    ## Set default values for missing values in species params  --------------
+    if (!("w_min" %in% colnames(object))) {
+        object$w_min <- min_w
+    } else {
+        if (missing(min_w)) {
+            min_w <- min(object$w_min)
+        } else {
+            if (min(object$w_min) < min_w) {
+                too_small <- object$species[min_w > object$w_min]
+                stop(paste0("Some of your species have an egg size smaller than min_w: ",
+                            toString(too_small)))
+            }
+        }
+    }
+    # Check essential columns
+    checkSpeciesParams(object)
     
     row.names(object) <- object$species
     no_sp <- nrow(object)
@@ -776,51 +802,12 @@ set_multispecies_model <-
     }
     
     ## Set default values for missing values in species params  ----
-    if (!("m" %in% colnames(object))) {
-        object$m <- 1 - n
-    }
-    
-    missing <- is.na(object$m)
-    if (any(missing)) {
-        object$m[missing] <- 1 - n
-    }
-    
-    # w25 is the weight at which 25% of the fish are mature, 
-    # if it is not specified in the dataframe then it is chosen 
-    # so as to correspond with a value of U=10 in the maturation 
-    # kernel that is a factor of psi.
-    
-    if (!("w25" %in% colnames(object))){
-        object$w25 <- object$w_mat/(3^(1/10))
-    }
-    
-    # also we need to fill w25 in, if it is just included for some
-    # species
-    
-    missing <- is.na(object$w25)
-    if (any(missing)) {
-        object$w25[missing] <- object$w_mat[missing]/(3^(1/10))
-    }
     
     if (missing(interaction)) {
         interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
     }
     
-    ## Set default values for missing values in species params  --------------
-    
-    if (!("w_min" %in% colnames(object))) {
-        object$w_min <- min_w
-    } else {
-        if (missing(min_w)) {
-            min_w <- min(object$w_min)
-        } else {
-            if (min(object$w_min) < min_w) {
-                too_small <- object$species[min_w > object$w_min]
-                stop(paste0("Some of your species have an egg size smaller than min_w: ",
-                            toString(too_small)))
-            }
-        }
-    }
+
     
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object))) {
@@ -935,8 +922,6 @@ set_multispecies_model <-
         object$ks[missing] <- object$h[missing] * 0.2
     }
     
-    # Check essential columns: species (name), wInf, wMat, h, gamma,  ks, beta, sigma 
-    check_species_params_dataframe(object)
     
     if (!is.na(max_w)) {
         if (max_w < max(object$w_inf)) {
@@ -970,6 +955,7 @@ set_multispecies_model <-
                        species_names = object$species, 
                        gear_names = unique(object$gear),
                        resource_names = names(resource_dynamics))
+    res@species_params <- object
     res@n <- n
     res@p <- p
     res@lambda <- lambda
@@ -987,7 +973,7 @@ set_multispecies_model <-
     }
     
     ## Start filling the slots ---------------------------------------------
-    res@species_params <- object
+    res <- setReproProp(res)
     res@w_min_idx[] <- as.vector(
         tapply(object$w_min, 1:length(object$w_min),
                function(w_min, wx) max(which(wx <= w_min)), wx = res@w))
@@ -1007,34 +993,6 @@ set_multispecies_model <-
     res@interaction[] <- interaction
     
     # Now fill up the slots using default formulations:
-    # psi - allocation to reproduction - from original Setup() function
-    
-    # m is a species-specific parameter taking its value from 
-    # the data frame, unless it is missing, in which case 
-    # it takes the value of 1-n, by default.
-    
-    res@psi[] <- 
-        unlist(
-            tapply(res@w, 1:length(res@w),
-                   function(wx, w_inf, w_mat,m,w25) {
-                       U <- log(3)/log(w_mat/w25)
-                       return(((1 + (wx / (w_mat))^-U)^-1) * (wx / w_inf)^m)
-                   },
-                   w_inf = object$w_inf, w_mat = object$w_mat, m = object$m,
-                   w25 = object$w25
-            )
-        )
-    # Set w < 10% of w_mat to 0
-    res@psi[unlist(
-        tapply(res@w, 1:length(res@w),
-               function(wx, w_mat) wx < (w_mat * 0.1),
-               w_mat = object$w_mat))] <- 0
-    # Set all w > w_inf to 1 # Check this is right...
-    res@psi[unlist(
-        tapply(res@w, 1:length(res@w),
-               function(wx, w_inf) (wx/w_inf) > 1,
-               w_inf = object$w_inf))] <- 1
-    # note sure what a and n0_mult are in get_initial_n
     
     res@intake_max[] <- unlist(tapply(res@w,1:length(res@w),function(wx,h,n)h * wx^n,h=object$h,n=n))
     res@search_vol[] <- unlist(tapply(res@w,1:length(res@w),function(wx,gamma,q)gamma * wx^q, gamma=object$gamma, q=q))
@@ -1163,13 +1121,128 @@ set_multispecies_model <-
 #' @export
 MizerParams <- set_multispecies_model
 
+#' Set reproduction proportion
+#' 
+#' Sets the proportion of the energy available for reproduction and growth that
+#' is invested into reproduction as a function of the size of the individual.
+#' 
+#' @param params A MizerParams object
+#' 
+#' @return A MizerParams object
+#' 
+#' The proportion is set to the product of a sigmoidal maturity ogive that 
+#' gives the proportion of individuals of a given species and size that are
+#' mature, and a factor that describes how investment into reproduction by mature
+#' individuals scales with size. In formulas:
+#' \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
+#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{[1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
+#' Here \eqn{n} is the scaling exponent of the energy income rate.
+#' The exponent \eqn{m} determines the scaling of the investment into
+#' reproduction for mature individuals. By default it is chosen to be \eqn{m =
+#' 1} so that the rate at which energy is invested into reproduction scales
+#' linearly with the size. This default can be overridden by including a column
+#' \code{m} in the species parameter dataframe.
+#' 
+#' The exponent \eqn{U} determines the steepness of the maturity ogive. By default it is
+#' chosen as \eqn{U = 10}, however this can be overridden by including a 
+#' column \code{w_mat25} in the species parameter dataframe that specifies the weight
+#' at which 25\% of individuals are mature, which sets 
+#' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
+#' 
+#' The result for \eqn{\psi(w)} for all species is stored in the \code{psi} slot
+#' of the params object and this object is returned.
+#' 
+#' @export
+setReproProp <- function(params) {
+    species_params <- params@species_params
+    # Check maximum sizes
+    if (!("w_inf" %in% colnames(species_params))) {
+        stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
+    }
+    missing <- is.na(species_params$w_inf)
+    if (any(missing)) {
+        stop(paste("The following species are missing data for their maximum size w_inf:"),
+             toString(species_params$species[missing]))
+    }
+    if (any(species_params$w_inf <= species_params$w_min)) {
+        stop("Some of the asymptotic sizes are smaller than the egg sizes.")
+    }
+    # Check maturity sizes
+    if (!("w_mat" %in% colnames(species_params))) {
+        stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
+    }
+    missing <- is.na(species_params$w_mat)
+    if (any(missing)) {
+        stop(paste("The following species are missing data for their maturity size w_mat:"),
+             toString(species_params$species[missing]))
+    }
+    assert_that(all(species_params$w_mat > species_params$w_min))
+    
+    # Set defaults for w_mat25
+    if (!("w_mat25" %in% colnames(species_params))) {
+        species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
+    }
+    missing <- is.na(species_params$w_mat25)
+    if (any(missing)) {
+        species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
+    }
+    # Check w_mat25
+    assert_that(all(species_params$w_mat25 > species_params$w_min))
+    assert_that(all(species_params$w_mat25 < species_params$w_mat))
+    
+    # Set defaults for m
+    if (!("m" %in% colnames(species_params))) {
+        species_params$m <- 1 - params@n
+    }
+    missing <- is.na(species_params$m)
+    if (any(missing)) {
+        species_params$m[missing] <- 1 - params@n
+    }
+    # Check m
+    assert_that(is.numeric(species_params$m), 
+                all(species_params$m > 0 & species_params$m < 2))
+    
+    params@psi[] <- 
+        unlist(
+            tapply(params@w, 1:length(params@w),
+                   function(wx, w_inf, w_mat, m, w_mat25) {
+                       U <- log(3) / log(w_mat / w_mat25)
+                       return((1 + (wx / w_mat)^-U)^-1 * (wx / w_inf)^m)
+                   },
+                   w_inf = species_params$w_inf, 
+                   w_mat = species_params$w_mat, 
+                   m = species_params$m,
+                   w_mat25 = species_params$w_mat25
+            )
+        )
+    # Set w < 10% of w_mat to 0
+    params@psi[unlist(
+        tapply(params@w, 1:length(params@w),
+               function(wx, w_mat) wx < (w_mat * 0.1),
+               w_mat = species_params$w_mat))] <- 0
+    # Set all w > w_inf to 1
+    params@psi[unlist(
+        tapply(params@w, 1:length(params@w),
+               function(wx, w_inf) (wx/w_inf) > 1,
+               w_inf = species_params$w_inf))] <- 1
+    return(params)
+}
 
-# Check that the species_params dataset is OK
-# internal only
-check_species_params_dataframe <- function(species_params) {
+
+
+#' Check that species parameter dataframe has essential variables
+#' 
+#' Checks for the presence of the following variables:
+#' * `species` The names of the species
+#' * `w_inf`   The maximum sizes of species in grams
+#' * `w_min`   The egg sizes of species in grams
+#' 
+#' @md
+#' @export
+checkSpeciesParams <- function(species_params) {
     # Check species_params dataframe (with a function) for essential cols
     # Essential columns: species (name) # wInf # wMat # h # gamma - search Volume #  ks # beta # z0
-    essential_cols <- c("species","w_inf","w_mat","h","gamma","ks","beta","sigma", "z0")
+    essential_cols <- c("species","w_inf","w_mat")
     missing_cols <- !(essential_cols %in% colnames(species_params))
     if (any(missing_cols)) {
         errors <- character()
