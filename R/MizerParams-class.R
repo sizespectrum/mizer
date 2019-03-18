@@ -520,21 +520,6 @@ emptyParams <- function(species_params,
         species_params$alpha[missing] <- 0.6
     }
     
-    # If not provided, set min_w_pp so that all fish have their full feeding 
-    # kernel inside plankton spectrum
-    min_w_feeding <- species_params$w_min / getMaxPPMR(species_params)
-    if (is.na(min_w_pp)) {
-        min_w_pp <- min(min_w_feeding)
-    } else {
-        hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
-        if (length(hungry_sp) > 0) {
-            message(paste(
-                "Note: The following species have feeding kernels that extend",
-                "below the smallest plankton size specified by min_w_pp:",
-                toString(hungry_sp)))
-        }
-    }
-    
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
     # specify a grid with a non-constant log spacing. But we comment this out

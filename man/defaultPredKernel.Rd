@@ -4,19 +4,42 @@
 \alias{defaultPredKernel}
 \title{Set default feeding kernel}
 \usage{
-defaultPredKernel(params, store_kernel)
+defaultPredKernel(params, pred_kernel_type = "lognormal",
+  store_kernel = (length(params@w) <= 100))
 }
 \arguments{
-\item{params}{MizerParams}
+\item{params}{A MizerParams object}
+
+\item{pred_kernel_type}{A string that determines which predation kernel
+function is used. Default is "lognormal".}
 
 \item{store_kernel}{A boolean flag that determines whether the full
-feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
+predation kernel is stored. If FALSE, only its Fourier transforms are stored.
 The default is TRUE if the number of size bins is no larger than 100 and
 FALSE otherwise.}
 }
 \value{
-MizerParams
+A MizerParams object
 }
 \description{
-Still need to document
+Sets a feeding kernel that depends only on the ratio of predator mass to
+prey mass, not on the two masses independently.
+}
+\details{
+The default pred_kernel_type is "lognormal". This will call the function
+\code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
+function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
+mass ratio for each species.
+
+You can use any other string as the type. If for example you choose "my" then
+you need to define a function \code{my_pred_kernel}. You also need to define
+a function \code{my_max_ppmr} if you want the smallest plankton size to be
+calculated automatically by \code{\link{set_multispecies_model}}, otherwise
+you need to specify the \code{min_w_pp} argument explicitly.
+
+If you want to work with a feeding kernel that depends on predator mass and
+prey mass independently, you can use the function 
+\code{\link{setPredKernel}}, but the simulations will run much more slowly,
+because fast Fourier transform techniques can no longer be used to calculate
+the encounter and mortality rates.
 }

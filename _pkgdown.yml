@@ -116,6 +116,8 @@ reference:
   - detritus_dynamics
 - title: Functions used in model
   contents:
+  - lognormal_pred_kernel
+  - lognormal_max_ppmr
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat

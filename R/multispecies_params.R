@@ -1,17 +1,4 @@
-#' Get maximum predator/prey mass ratio for each species
-#' 
-#' Because of how we cut of the Gaussian feeding kernel, the maximum
-#' predator/prey mass ratio is \eqn{\beta * \exp(3 \sigma)}.
-#' 
-#' This is used in \code{\link{emptyParams}} when setting up the size grid to
-#' determine the smallest relevant plankton size. The reason we have a function
-#' to calculate this is that it makes it easier for users to modify when they
-#' choose their own feeding kernel.
-#' 
-#' @param species_params
-#' 
-#' @return Vector with the maximum predator/prey ratio for each species
-#' @export
+
 getMaxPPMR <- function(species_params) {
     #TODO: check validity of beta and sigma
     species_params$beta * exp(3 * species_params$sigma)
@@ -20,25 +7,47 @@ getMaxPPMR <- function(species_params) {
 
 #' Set default feeding kernel
 #' 
-#' Still need to document
+#' Sets a feeding kernel that depends only on the ratio of predator mass to
+#' prey mass, not on the two masses independently.
 #' 
-#' @param params MizerParams
-#' @param pred_kernel_func A function giving the predation kernel as a function
-#'   of the predator/prey mass ratio
+#' The default pred_kernel_type is "lognormal". This will call the function
+#' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
+#' function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
+#' mass ratio for each species. 
+#' 
+#' You can use any other string as the type. If for example you choose "my" then
+#' you need to define a function \code{my_pred_kernel}. You also need to define
+#' a function \code{my_max_ppmr} if you want the smallest plankton size to be
+#' calculated automatically by \code{\link{set_multispecies_model}}, otherwise
+#' you need to specify the \code{min_w_pp} argument explicitly.
+#' 
+#' If you want to work with a feeding kernel that depends on predator mass and
+#' prey mass independently, you can use the function 
+#' \code{\link{setPredKernel}}, but the simulations will run much more slowly,
+#' because fast Fourier transform techniques can no longer be used to calculate
+#' the encounter and mortality rates.
+#' 
+#' @param params A MizerParams object
+#' @param pred_kernel_type A string that determines which predation kernel
+#'   function is used. Default is "lognormal".
 #' @param store_kernel A boolean flag that determines whether the full
-#'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
+#'   predation kernel is stored. If FALSE, only its Fourier transforms are stored.
 #'   The default is TRUE if the number of size bins is no larger than 100 and
 #'   FALSE otherwise.
 #' 
-#' @return MizerParams
+#' @return A MizerParams object
 #' @export
 defaultPredKernel <- function(params, 
-                              pred_kernel_func = lognormal_pred_kernel,
+                              pred_kernel_type = "lognormal",
                               store_kernel = (length(params@w) <= 100)) {
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
+    pred_kernel_func <- get0(paste0(pred_kernel_type, "_pred_kernel"))
+    assert_that(is.function(pred_kernel_func))
+    # TODO: check that the arguments of pred_kernel_func are contained in
+    # species params
     if (store_kernel) {
         params@pred_kernel <- 
             array(0,
@@ -480,6 +489,7 @@ set_multispecies_model <- function(species_params,
                                    f0 = 0.6,
                                    z0pre = 0.6,
                                    z0exp = n - 1,
+                                   pred_kernel_type = "lognormal",
                                    store_kernel = (no_w <= 100),
                                    plankton_dynamics = plankton_semichemostat,
                                    interaction_p = rep(1, nrow(species_params)),
@@ -487,8 +497,43 @@ set_multispecies_model <- function(species_params,
                                    resource_dynamics = list(),
                                    resource_params = list(),
                                    srr = srrBevertonHolt) {
+    assert_that(is.data.frame(species_params))
+    no_sp <- nrow(species_params)
     
-    ## Make an empty MizerParams object of the right dimensions
+    ## Determine min_w_pp ----
+    # If not provided, set min_w_pp so that all fish have their full feeding 
+    # kernel inside plankton spectrum
+    getMaxPPMR <- get0(paste0(pred_kernel_type, "_max_ppmr"))
+    if (is.function(getMaxPPMR)) {
+        # First we need to set w_min if missing because we use it below
+        if (!("w_min" %in% colnames(species_params))) {
+            species_params$w_min <- rep(NA, no_sp)
+        }
+        missing <- is.na(species_params$w_min)
+        if (any(missing)) {
+            species_params$w_min[missing] <- min_w
+        }
+        min_w_feeding <- species_params$w_min / getMaxPPMR(species_params)
+        if (is.na(min_w_pp)) {
+            min_w_pp <- min(min_w_feeding)
+        } else {
+            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
+            if (length(hungry_sp) > 0) {
+                message(paste(
+                    "Note: The following species have feeding kernels that extend",
+                    "below the smallest plankton size specified by min_w_pp:",
+                    toString(hungry_sp)))
+            }
+        }
+    } else {
+        if (is.na(min_w_pp)) {
+            stop(paste0("You need to explicitly specify the minimum plankton ",
+            "size via the min_w_pp argument or you need to define a function ",
+            getMaxPPMR))
+        }
+    }
+    
+    ## Create MizerParams object ----
     params <- emptyParams(species_params,
                           interaction = interaction,
                           no_w = no_w, 
@@ -500,7 +545,7 @@ set_multispecies_model <- function(species_params,
                           resource_params = resource_params,
                           srr = srr)
     
-    # Start filling the slots
+    ## Fill the slots ----
     params@n <- n
     params@p <- p
     params@lambda <- lambda
