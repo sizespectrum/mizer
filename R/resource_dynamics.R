@@ -17,7 +17,6 @@
 #' the [set_multispecies_model()] function. The arguments to that function that
 #' relate to the resources are:
 #' * `rho` The encounter rate, see "Feeding on Resources" section below.
-#' * `resource_names` Your chosen names for the resource components.
 #' * `resource_dynamics` Functions to update resource biomass during 
 #'     simulations, see "Resource Dynamics" section below.
 #' * `resource_params` Model parameters for the resource dynamics, see 
@@ -44,11 +43,10 @@
 #' it scales allometrically with the same exponent as the maximum intake rate,
 #' so that
 #' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' This is the choice made for you when you set up the model with the
-#' [set_multispecies_model()] function, but you can always overwrite it with your own
-#' choice by assigning your values of \eqn{\rho_{id}(w)} to the `rho` slot of the
-#' `MizerParams` object, which is a 3-dim array (predator species x resource x
-#' predator size). See examples section.
+#' This is the default set by [defaultResourceEncounter()] which is called
+#' automatically when you set up the model with the [set_multispecies_model()]
+#' function. However you can always overwrite it with your own choice using the
+#' [setResourceEncounter()] function.
 #' 
 #' @section Resource Dynamics:
 #' During a simulation using [project()], the biomasses of the resources is

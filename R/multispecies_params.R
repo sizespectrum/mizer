@@ -67,6 +67,11 @@ defaultPredKernel <- function(params,
     
     for (i in 1:no_sp) {
         phi <- pred_kernel_func(ppmr, i, params)
+        if (anyNA(phi)) {
+            stop(paste0("The function ", pred_kernel_func,
+                        "returned NA. Did you correctly specify all required",
+                        "parameters in the species parameter dataframe?"))
+        }
         # Fourier transform of feeding kernel for evaluating available energy
         params@ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
@@ -89,33 +94,87 @@ defaultPredKernel <- function(params,
 
 #' Set default resource encounter rate
 #' 
+#' This sets up an allometric rate
+#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
+#' The total contribution of the resources to the rate at which an individual of
+#' species \eqn{i} and weight \eqn{w} encounters biomass is
+#' \deqn{\sum_d\rho_{id} w^n B_d,} where \eqn{B_d} is the biomass of the d-th
+#' unstructured resource component. See \code{\link{resource_dynamics}} help for
+#' more details.
+#' 
+#' The ordering of the rows and columns of the array \code{rho} is important.
+#' The order of the species in the first array dimension (columns) needs to
+#' be the same as that in the species parameter dataframe. The order of the
+#' resources in the second array dimension (rows) must be the same as in the
+#' list of resource dynamics.
+#' 
 #' @param params A MizerParams object
 #' @param rho An array (species x resource) that gives the
 #'   rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
-#'   encounters biomass of resource \eqn{d}. The rate is assumed to scale
-#'   allometrically with size with exponent \code{n}. So the total contribution
-#'   of the resources to the rate at which the individual encounters biomass is
-#'   \deqn{\sum_d\rho_{id} w^n B_d,}
-#'   where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-#'   See \code{\link{resource_dynamics}} help for more details.
+#'   encounters biomass of resource \eqn{d}.
 #' 
 #' @return A MizerParams object
 #' @export
 defaultResourceEncounter <- function(params, rho) {
     # Check validity of arguments
     assert_that(are_equal(length(dim(rho)), 2))
-    no_res <- dim(rho)[2]
-    assert_that(length(params@resource_dynamics) == no_res)
-    # TODO: check that all parameters needed by resource dynamics functions
-    # are included in resource_params
-    if (dim(rho)[1] != no_sp) {
+    if (nrow(params@species_params) != dim(rho)[1]) {
         stop("rho argument should have one row for each species.")
+    }
+    no_res <- dim(rho)[2]
+    if (length(params@resource_dynamics) != no_res) {
+        stop("rho argument should have one column for each resource.")
     }
     if (is.character(dimnames(rho)["res"])) {
         assert_that(are_equal(dimnames(rho)["res"],
                               names(resource_dynamics)))
     }
     params@rho[] <- outer(rho, params@w^params@n)
+    params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
+    
+    return(params)
+}
+
+#' Set resource encounter rate
+#' 
+#' This sets the rate \eqn{\rho_{id}(w)} that determines the rate at which an
+#' individual of species \eqn{i} encounters biomass of resource \eqn{d},
+#' \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the d-th
+#' unstructured resource component. 
+#' See \code{\link{resource_dynamics}} help for more details.
+#' 
+#' The ordering of the entries in the array \code{rho} is important. The order
+#' of the species in the first array dimension needs to be the same as that in
+#' the species parameter dataframe. The order of the resources in the second
+#' array dimension must be the same as in the list of resource dynamics. The
+#' third dimension is the size dimension.
+#' 
+#' @param params A MizerParams object
+#' @param rho 3-dim array (predator species x resource x predator size) that
+#'   gives the
+#' 
+#' @return A MizerParams object
+#' @export
+setResourceEncounter <- function(params, rho) {
+    # Check validity of arguments
+    if (length(dim(rho)) != 3) {
+        stop("The rho argument must be a three-dimensional array.")
+    }
+    if (nrow(params@species_params) != dim(rho)[1]) {
+        stop("The first dimension of the rho argument should equal the number of species.")
+    }
+    no_res <- dim(rho)[2]
+    if (length(params@resource_dynamics) != no_res) {
+        stop("The second dimension of the rho argument should equal the number of resource.")
+    }
+    if (nlength(params@w) != dim(rho)[3]) {
+        stop("The third dimension of the rho array should have one entry for every consumer size.")
+    }
+    if (is.character(dimnames(rho)["res"])) {
+        assert_that(are_equal(dimnames(rho)["res"],
+                              names(resource_dynamics)))
+    }
+    params@rho[] <- rho
     params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
     
     return(params)
