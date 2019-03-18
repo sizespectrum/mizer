@@ -9,7 +9,8 @@ setInteraction(params, interaction)
 \arguments{
 \item{params}{MizerParams object}
 
-\item{interaction}{The interaction matrix of the species (predator by prey)}
+\item{interaction}{Interaction matrix of the species (predator by prey). By
+default all interactions between species are set to 1.}
 }
 \value{
 MizerParams object
@@ -18,4 +19,12 @@ MizerParams object
 Checks that the supplied interaction matrix is valid and then stores it in
 the \code{interaction} slot of the params object before returning that 
 object.
+}
+\details{
+Any dimnames of the interaction matrix argument are ignored by the
+constructor. The dimnames of the interaction matrix in the returned
+\code{MizerParams} object are taken from the species names in the
+\code{species_params} slot. This means that the order of the columns and rows
+of the interaction matrix argument should be the same as the species name in
+the \code{species_params} slot.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_methods.R
 \name{summary_functions}
 \alias{summary_functions}
-\title{Summary functions}
+\title{Description of summary functions}
 \description{
 Mizer provides a range of functions to extract information about a simulation
 from a MizerSim object.

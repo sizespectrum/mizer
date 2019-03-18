@@ -18,7 +18,7 @@ getMaxPPMR <- function(species_params) {
 }
 
 
-#' Set feeding kernel
+#' Set default feeding kernel
 #' 
 #' Still need to document
 #' 
@@ -30,7 +30,7 @@ getMaxPPMR <- function(species_params) {
 #' 
 #' @return MizerParams
 #' @export
-setFeedingKernel <- function(params, store_kernel) {
+defaultPredKernel <- function(params, store_kernel) {
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
@@ -81,7 +81,7 @@ setFeedingKernel <- function(params, store_kernel) {
 }
 
 
-#' Set resource encounter rate
+#' Set default resource encounter rate
 #' 
 #' @param params A MizerParams object
 #' @param rho An array (species x resource) that gives the
@@ -95,7 +95,7 @@ setFeedingKernel <- function(params, store_kernel) {
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho) {
+defaultResourceEncounter <- function(params, rho) {
     # Check validity of arguments
     assert_that(are_equal(length(dim(rho)), 2))
     no_res <- dim(rho)[2]
@@ -148,7 +148,7 @@ setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
 }
 
 
-#' Set reproduction proportion
+#' Set default reproduction proportion
 #' 
 #' Sets the proportion of the energy available for reproduction and growth that
 #' is invested into reproduction as a function of the size of the individual.
@@ -179,7 +179,7 @@ setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
 #' 
 #' @return A MizerParams object
 #' @export
-setReproProp <- function(params) {
+defaultReproProp <- function(params) {
     species_params <- params@species_params
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
@@ -254,7 +254,7 @@ setReproProp <- function(params) {
     return(params)
 }
 
-#' Set maximum intake rate
+#' Set default maximum intake rate
 #' 
 #' Still need to document
 #' 
@@ -262,7 +262,7 @@ setReproProp <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params) {
+defaultIntakeMax <- function(params) {
     species_params <- params@species_params
     # If h column is not supplied, it is calculated from f0 and k_vb if they 
     # are supplied
@@ -291,7 +291,7 @@ setIntakeMax <- function(params) {
     return(params)
 }
 
-#' Set search volume
+#' Set default search volume
 #' 
 #' Still need to document
 #' 
@@ -299,7 +299,7 @@ setIntakeMax <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
-setSearchVol <- function(params) {
+defaultSearchVol <- function(params) {
     species_params <- params@species_params
     # Sorting out gamma column
     if (!("gamma" %in% colnames(species_params))) {
@@ -331,7 +331,7 @@ setSearchVol <- function(params) {
     return(params)
 }
 
-#' Set metabolic rate
+#' Set default metabolic rate
 #' 
 #' Still need to document
 #' 
@@ -339,7 +339,7 @@ setSearchVol <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
-setMetab <- function(params) {
+defaultMetab <- function(params) {
     species_params <- params@species_params
     
     # If no k (activity coefficient), then set to 0
@@ -369,7 +369,7 @@ setMetab <- function(params) {
     return(params)
 }
 
-#' Set background mortality rate
+#' Set default background mortality rate
 #' 
 #' Still need to document
 #' 
@@ -383,7 +383,7 @@ setMetab <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
-setBMort <- function(params, z0pre, z0exp) {
+defaultBMort <- function(params, z0pre, z0exp) {
     species_params <- params@species_params
     
     # Sort out z0 (background mortality)
@@ -422,10 +422,10 @@ setBMort <- function(params, z0pre, z0exp) {
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
 #'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
 #'   ignored. Default is 0.6.
-#' @inheritParams setFeedingKernel
-#' @inheritParams setResourceEncounter
+#' @inheritParams defaultPredKernel
+#' @inheritParams defaultResourceEncounter
 #' @inheritParams setPlankton
-#' @inheritParams setBMort
+#' @inheritParams defaultBMort
 #' @param ... Additional arguments.
 #'
 #' @return An object of type \linkS4class{MizerParams}
@@ -515,17 +515,17 @@ set_multispecies_model <- function(species_params,
     params@f0 <- f0
     params@kappa <- kappa
     
-    params <- setFeedingKernel(params, store_kernel = store_kernel)
+    params <- defaultPredKernel(params, store_kernel = store_kernel)
     params <- setPlankton(params, r_pp = r_pp, w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics,
                           interaction_p = interaction_p)
-    params <- setReproProp(params)
-    params <- setIntakeMax(params)
-    params <- setSearchVol(params)
-    params <- setMetab(params)
-    params <- setBMort(params, z0pre = z0pre, z0exp = z0exp)
+    params <- defaultReproProp(params)
+    params <- defaultIntakeMax(params)
+    params <- defaultSearchVol(params)
+    params <- defaultMetab(params)
+    params <- defaultBMort(params, z0pre = z0pre, z0exp = z0exp)
     if (!is.null(rho)) {
-        params <- setResourceEncounter(params, rho)
+        params <- defaultResourceEncounter(params, rho)
     }
     
     params@initial_n <- get_initial_n(params)

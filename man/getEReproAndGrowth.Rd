@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getEReproAndGrowth}
 \alias{getEReproAndGrowth}
-\title{Get energy after metabolism and movement}
+\title{Get energy rate available for reproduction and growth}
 \usage{
 getEReproAndGrowth(object, n = object@initial_n,
   n_pp = object@initial_n_pp, B = object@initial_B,

@@ -10,7 +10,7 @@
 
 # Soundtrack: The Definitive Lead Belly
 
-#' Summary functions
+#' Description of summary functions
 #' 
 #' Mizer provides a range of functions to extract information about a simulation
 #' from a MizerSim object.

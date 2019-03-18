@@ -2420,7 +2420,7 @@ params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
 sim <- project(params, t_max=15, effort = 1)
 b_trait <- getBiomassFrame(sim_trait)
 b <- getBiomassFrame(sim)
-display_frames(b_trait, b, params)
+displayFrames(b_trait, b, params)
 @
 
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/resource_dynamics.R
 \name{resource_dynamics}
 \alias{resource_dynamics}
-\title{Unstructured resources}
+\title{Description of the dynamics of unstructured resources}
 \description{
 Besides the size-structured planktonic resource, mizer can also model
 unstructured resource components. Such unstructured components are

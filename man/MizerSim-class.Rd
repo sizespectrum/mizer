@@ -3,7 +3,7 @@
 \docType{class}
 \name{MizerSim-class}
 \alias{MizerSim-class}
-\title{MizerSim}
+\title{A class to hold the results of a simulation}
 \description{
 A class that holds the results of projecting a \linkS4class{MizerParams}
 object through time.

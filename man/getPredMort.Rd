@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getPredMort}
 \alias{getPredMort}
-\title{get predation mortality rate}
+\title{Get total predation mortality rate}
 \usage{
 getPredMort(object, n, n_pp, B = 0, pred_rate, time_range, drop = TRUE)
 }

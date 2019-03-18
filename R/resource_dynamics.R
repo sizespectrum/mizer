@@ -1,4 +1,4 @@
-#' Unstructured resources
+#' Description of the dynamics of unstructured resources
 #'
 #' Besides the size-structured planktonic resource, mizer can also model
 #' unstructured resource components. Such unstructured components are

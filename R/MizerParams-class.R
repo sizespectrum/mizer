@@ -404,14 +404,12 @@ setClass(
 
 #' Create empty MizerParams object of the right size
 #' 
-#' Sets up a MizerParams object in which most slots are left empty. 
-#' Only the size grids as well as the species names and gear names are set up.
+#' Sets up a valid \linkS4class{MizerParams} object with all the slots
+#' initialised and given dimension names, but with some slots left empty. This
+#' function is to be used by other functions to set up full parameter objects.
 #' 
-#' This will produce a valid MizerParams object with all the slots initialised
-#' but mostly filled with meaningless placeholders values, except for the size
-#' grid slots. The dimension names of the array slots are correctly set using
-#' the weight grid and species and gear names. The linecolour and linetype slots
-#' used for plots is filled with values from a default palette.
+#' See \code{\link{set_multispecies_model}} for a function that fills the
+#' slots left empty by this function.
 #' 
 # Some code is commented out that would allow the user to 
 # specify a grid with a non-constant log spacing. But we comment this out
@@ -444,9 +442,11 @@ setClass(
 #' @param resource_dynamics A named list of functions that determine the
 #'   dynamics of the unstructured resources by calculating their biomasses at
 #'   the next time step from the current state. See
-#'   \code{\link{resource_dynamics}} for details. Ignored if \code{rho} is NULL.
+#'   \code{\link{resource_dynamics}} for details. An empty list if the model
+#'   does not have unstructured resources.
 #' @param resource_params A list of parameters needed by the
-#'   \code{resource_dynamics} functions. Ignored if \code{rho} is NULL.
+#'   \code{resource_dynamics} functions. An empty list if no parameters are
+#'   needed.
 #' @inheritParams setInteraction
 #' 
 #' @return An empty but valid MizerParams object

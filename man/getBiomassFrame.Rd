@@ -32,14 +32,14 @@ all species is plotted as well. Default is FALSE}
 \code{min_w} and \code{max_w}}
 }
 \value{
-A data frame that can be used in \code{\link{display_frames}}
+A data frame that can be used in \code{\link{displayFrames}}
 }
 \description{
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits 
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
 returns a dataframe that can be displayed with 
-\code{\link{display_frames}}.
+\code{\link{displayFrames}}.
 }
 \examples{
 # Set up example MizerParams and MizerSim objects
@@ -50,9 +50,9 @@ sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 
 # Display biomass from each simulation next to each other
-display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
+displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 }
 \seealso{
-\code{\link{getBiomass}}, \code{\link{display_frames}},
+\code{\link{getBiomass}}, \code{\link{displayFrames}},
   \code{\link{getSSBFrame}}
 }

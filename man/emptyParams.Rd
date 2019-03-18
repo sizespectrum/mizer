@@ -4,44 +4,52 @@
 \alias{emptyParams}
 \title{Create empty MizerParams object of the right size}
 \usage{
-emptyParams(no_sp, min_w = 0.001, max_w = 1000, no_w = 100,
-  min_w_pp = 1e-10, no_w_pp = NA, species_names = 1:no_sp,
-  gear_names = species_names, resource_names = list())
+emptyParams(species_params, interaction = matrix(1, nrow =
+  nrow(species_params), ncol = nrow(species_params)), no_w = 100,
+  min_w = 0.001, max_w = NA, min_w_pp = 1e-10, no_w_pp = NA,
+  resource_dynamics = list(), resource_params = list(),
+  srr = srrBevertonHolt)
 }
 \arguments{
-\item{no_sp}{Number of species}
+\item{species_params}{A data frame of species-specific parameter values.}
 
-\item{min_w}{Smallest weight. Default 0.001}
+\item{interaction}{Interaction matrix of the species (predator by prey). By
+default all interactions between species are set to 1.}
 
-\item{max_w}{Start of largest weight brackt. Default 1000.}
+\item{no_w}{The number of size bins in the consumer spectrum.}
 
-\item{no_w}{Number of fish weight brackets. Default 100.}
+\item{min_w}{Sets the size of the eggs of all species for which this is not
+given in the \code{w_min} column of the \code{species_params} dataframe.}
 
-\item{min_w_pp}{Smallest plankton weight. Default 1e-10. This determines how
-many size bins are created for the plankton spectrum.}
+\item{max_w}{The largest size of the consumer spectrum. By default this is
+set to the largest w_inf specified in the species_params data frame.}
+
+\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+is set to the smallest value at which any of the consumers can feed.}
 
 \item{no_w_pp}{No longer used}
 
-\item{species_names}{Names of species}
+\item{resource_dynamics}{A named list of functions that determine the
+dynamics of the unstructured resources by calculating their biomasses at
+the next time step from the current state. See
+\code{\link{resource_dynamics}} for details. An empty list if the model
+does not have unstructured resources.}
 
-\item{gear_names}{Names of gears}
-
-\item{resource_names}{Names of unstructured resources. Empty if the model
-does not contain unstructured resource components.}
+\item{resource_params}{A list of parameters needed by the
+\code{resource_dynamics} functions. An empty list if no parameters are
+needed.}
 }
 \value{
 An empty but valid MizerParams object
 }
 \description{
-Sets up a MizerParams object in which most slots are left empty. 
-Only the size grids as well as the species names and gear names are set up.
+Sets up a valid \linkS4class{MizerParams} object with all the slots
+initialised and given dimension names, but with some slots left empty. This
+function is to be used by other functions to set up full parameter objects.
 }
 \details{
-This will produce a valid MizerParams object with all the slots initialised
-but mostly filled with meaningless placeholders values, except for the size
-grid slots. The dimension names of the array slots are correctly set using
-the weight grid and species and gear names. The linecolour and linetype slots
-used for plots is filled with values from a default palette.
+See \code{\link{set_multispecies_model}} for a function that fills the
+slots left empty by this function.
 
 A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be

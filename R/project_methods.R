@@ -37,7 +37,7 @@ NULL
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 
-#' Get rates
+#' Get all rates
 #' 
 #' Calls all the other rate functions in sequence and collects the results in a
 #' list.
@@ -379,7 +379,7 @@ getPredRate <- function(object, n = object@initial_n,
 }
 
 
-#' get predation mortality rate
+#' Get total predation mortality rate
 #'
 #' Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
 #' prey species by prey size. This method is used by the \code{\link{project}}
@@ -752,7 +752,7 @@ getMort <- function(object, n = object@initial_n,
 getZ <- getMort
 
 
-#' Get energy after metabolism and movement
+#' Get energy rate available for reproduction and growth
 #'
 #' Calculates the energy rate available by species and size for reproduction and
 #' growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.

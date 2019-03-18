@@ -56,7 +56,7 @@
 #' 
 #' Sometimes one wants to show two plots side-by-side with the same axes and
 #' the same legend. This is made possible for some of the plots via the
-#' \code{\link{display_frames}} function.
+#' \code{\link{displayFrames}} function.
 #' 
 #' @seealso \code{\link{summary_functions}}
 #' @name plotting_functions
@@ -102,6 +102,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'
 #' @return A function that can be used as the break argument in calls to
 #'   scale_y_continuous() or scale_x_continuous()
+#' @noRd
 log_breaks <- function(n = 6){
     n <- max(1, n)  # Because n=0 could lead to R crash
     function(x) {
@@ -144,8 +145,8 @@ log_breaks <- function(n = 6){
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
 #' # Display biomass from each simulation next to each other
-#' display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
-display_frames <- function(f1, f2, params, 
+#' displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
+displayFrames <- function(f1, f2, params, 
                            xlab = NA, ylab = NA,
                            y_ticks = 6) {
     var_names <- names(f1)
@@ -198,7 +199,7 @@ display_frames <- function(f1, f2, params,
 #' @param total A boolean value that determines whether the total SSB from
 #'   all species is plotted as well. Default is FALSE
 #'   
-#' @return A data frame that can be used in \code{\link{display_frames}}
+#' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @export
 #' @seealso \code{\link{getSSB}}
 getSSBFrame <- function(sim,
@@ -240,7 +241,7 @@ getSSBFrame <- function(sim,
 #' against time. The biomass is calculated within user defined size limits 
 #' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
 #' returns a dataframe that can be displayed with 
-#' \code{\link{display_frames}}.
+#' \code{\link{displayFrames}}.
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
@@ -257,9 +258,9 @@ getSSBFrame <- function(sim,
 #' @param ... Other arguments to pass to \code{getBiomass} method, for example
 #'   \code{min_w} and \code{max_w}
 #'   
-#' @return A data frame that can be used in \code{\link{display_frames}}
+#' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @export
-#' @seealso \code{\link{getBiomass}}, \code{\link{display_frames}},
+#' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}},
 #'   \code{\link{getSSBFrame}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
@@ -270,7 +271,7 @@ getSSBFrame <- function(sim,
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
 #' # Display biomass from each simulation next to each other
-#' display_frames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
+#' displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),

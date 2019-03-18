@@ -51,7 +51,7 @@ the species parameter data frame.
 
 Sometimes one wants to show two plots side-by-side with the same axes and
 the same legend. This is made possible for some of the plots via the
-\code{\link{display_frames}} function.
+\code{\link{displayFrames}} function.
 }
 \examples{
 # Set up example MizerParams and MizerSim objects
