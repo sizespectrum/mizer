@@ -23,6 +23,8 @@ getMaxPPMR <- function(species_params) {
 #' Still need to document
 #' 
 #' @param params MizerParams
+#' @param pred_kernel_func A function giving the predation kernel as a function
+#'   of the predator/prey mass ratio
 #' @param store_kernel A boolean flag that determines whether the full
 #'   feeding kernel is stored. If FALSE, only its Fourier transforms are stored.
 #'   The default is TRUE if the number of size bins is no larger than 100 and
@@ -30,7 +32,9 @@ getMaxPPMR <- function(species_params) {
 #' 
 #' @return MizerParams
 #' @export
-defaultPredKernel <- function(params, store_kernel) {
+defaultPredKernel <- function(params, 
+                              pred_kernel_func = lognormal_pred_kernel,
+                              store_kernel = (length(params@w) <= 100)) {
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
@@ -44,28 +48,18 @@ defaultPredKernel <- function(params, store_kernel) {
                                   w_prey = signif(params@w_full, 3))
             )
     }
-    Beta <- log(params@species_params$beta)
-    sigma <- params@species_params$sigma
-    # w_full has the weights from the smallest relevant plankton, to the largest fish
-    x_full <- log(params@w_full)
-    # We choose the origin of the x axis to be at the smallest plankton size
-    x_full <- x_full - x_full[1]
-    dx <- x_full[2] - x_full[1]
-    # rr is the maximal log predator/prey mass ratio
-    rr <- Beta + 3 * sigma
-    ri <- floor(rr / dx)
+    # Vector of predator/prey mass ratios
+    # The smallest predator/prey mass ratio is 1
+    ppmr <- params@w_full / params@w_full[1]
     
-    params@ft_pred_kernel_e <- matrix(0, nrow = no_sp, ncol = no_w_full)
     for (i in 1:no_sp) {
-        # We compute the feeding kernel terms and their fft.
-        phi <- exp(-(x_full - Beta[i])^2 / (2 * sigma[i]^2))
-        phi[x_full > rr[i]] <- 0
-        phi[1] <- 0
+        phi <- pred_kernel_func(ppmr, i, params)
         # Fourier transform of feeding kernel for evaluating available energy
         params@ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
+        ri <- max(which(phi > 0))  # index of largest ppmr
         phi_p <- rep(0, no_w_full)
-        phi_p[(no_w_full - ri[i] + 1):no_w_full] <- phi[(ri[i] + 1):2]
+        phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
         params@ft_pred_kernel_p[i, ] <- fft(phi_p)
         # Full feeding kernel array
         if (store_kernel) {
@@ -79,7 +73,6 @@ defaultPredKernel <- function(params, store_kernel) {
     
     return(params)
 }
-
 
 #' Set default resource encounter rate
 #' 
