@@ -2,6 +2,8 @@
 
 export(MizerParams)
 export(addSpecies)
+export(box_max_ppmr)
+export(box_pred_kernel)
 export(carrion_dynamics)
 export(change_pred_kernel)
 export(defaultBMort)

@@ -41,7 +41,7 @@ lognormal_pred_kernel <- function(ppmr, sp, params) {
     return(phi)
 }
 
-#' Maximum predator/prey mass ratio for each species
+#' Maximum predator/prey mass ratio for lognormal kernel
 #' 
 #' Gives the maximum predator/prey mass ratio at which the predation kernel
 #' computed by \code{\link{lognormal_pred_kernel}} is non-zero.
@@ -61,4 +61,61 @@ lognormal_pred_kernel <- function(ppmr, sp, params) {
 lognormal_max_ppmr <- function(species_params) {
     #TODO: check validity of beta and sigma
     species_params$beta * exp(3 * species_params$sigma)
+}
+
+#' Box predation kernel
+#' 
+#' A predation kernel where the predator/prey mass ratio is uniformly
+#' distributed on an interval.
+#' 
+#' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
+#' feeding kernel is 1 if \eqn{w/w_p} is between \eqn{\max(1,
+#' \beta_i/\exp(\sigma_i))}{max(1, \beta_i / exp(\sigma_i))} and
+#' \eqn{\beta_i\exp(\sigma_i)}{\beta_i exp(\sigma_i)} and zero otherwise. The
+#' parameters need to be given in the species parameter dataframe in the
+#' colunns \code{beta} and \code{sigma}.
+#' 
+#' Associated to this function there is the function \code{\link{box_max_ppmr}}
+#' that returns the largest allowed predator/prey mass ratio, i.e.,
+#' \eqn{\beta_i\exp(\sigma_i)}{\beta_i exp(\sigma_i)}.
+#' 
+#' @param ppmr A vector of predator/prey size ratios
+#' @param sp The index of the predator species
+#' @param params A MizerParams object
+#' 
+#' @return A vector giving the value of the predation kernel at each of the
+#'   predator/prey mass ratios in the \code{ppmr} argument.
+#' @md
+#' @export
+box_pred_kernel <- function(ppmr, sp, params) {
+    beta <- params@species_params$beta[sp]
+    sigma <- params@species_params$sigma[sp]
+    phi <- rep(1, length(ppmr))
+    phi[ppmr > beta * exp(sigma)] <- 0
+    phi[ppmr < beta / exp(sigma)] <- 0
+    # Do not allow feeding at own size
+    phi[1] <- 0
+    return(phi)
+}
+
+#' Maximum predator/prey mass ratio for box kernel
+#' 
+#' Gives the maximum predator/prey mass ratio at which the predation kernel
+#' computed by \code{\link{box_pred_kernel}} is non-zero.
+#' This is used in \code{\link{set_multispecies_model}} to determine the 
+#' smallest relevant plankton size if the \code{min_w_pp} argument is not
+#' specified there.
+#' 
+#' Because of the extend of the box in \code{\link{box_pred_kernel}}, the
+#' maximum predator/prey mass ratio is 
+#' \eqn{\beta \exp(\sigma)}{\beta * exp(\sigma)}.
+#' 
+#' @param species_params A species parameter dataframe from which this function
+#'   uses the \code{beta} and \code{sigma} slots.
+#' 
+#' @return Vector with the maximum predator/prey ratio for each species
+#' @export
+box_max_ppmr <- function(species_params) {
+    #TODO: check validity of beta and sigma
+    species_params$beta * exp(species_params$sigma)
 }

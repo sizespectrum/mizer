@@ -13,7 +13,10 @@ getMaxPPMR <- function(species_params) {
 #' The default pred_kernel_type is "lognormal". This will call the function
 #' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
 #' function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
-#' mass ratio for each species. 
+#' mass ratio for each species.
+#' 
+#' An alternative pred_kernel type is "box", implemented by the functions
+#' \code{\link{lognormal_pred_kernel}} and \code{\link{box_max_ppmr}}.
 #' 
 #' You can use any other string as the type. If for example you choose "my" then
 #' you need to define a function \code{my_pred_kernel}. You also need to define
