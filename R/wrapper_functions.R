@@ -383,12 +383,27 @@ set_trait_model <- function(no_sp = 10,
 }
 
 
-#' Changes the predation kernel to allow size-dependent PPMR
+#' Set the predation kernel to allow size-dependent PPMR
+#' 
+#' Allows you to specify the full feeding kernel as a three-dimensional
+#' array (predator species x predator size x prey size), without the
+#' restriction that the kernel is a function of the ratio of predator size
+#' to prey size only that is imposed by the \code{\link{defaultPredKernel}}.
+#' 
+#' You should use this function only if a kernel dependent only on the
+#' predator/prey mass ratio is not appropriate. Otherwise you should use
+#' \code{\link{defaultPredKernel}} which is easier to use and, more importantly,
+#' will lead to much reduced runtimes for simulations because the efficient fast
+#' Fourier transform methods can be used.
 #' 
 #' One way to set up a model with size-dependent predator/prey mass ratio
 #' (PPMR) is to first use one of the standard set up functions to create
 #' a MizerParams object and then to call this function with that object 
 #' and an array holding the predation kernel.
+#' 
+#' The order of the predator species in the predation kernel should be the same
+#' as the order in the species params dataframe. If you supply a named array
+#' then the function will check the order and warn if it is different.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param pred_kernel An array (species x predator size x prey size) 
@@ -415,12 +430,21 @@ set_trait_model <- function(no_sp = 10,
 #' pk <- sweep(pk, c(2, 3), combn(w_full, 1, function(x, w) x < w, w = w), "*")
 #' 
 #' ## Create a new MizerParams object to use the new predation kernel
-#' params_new <- change_pred_kernel(params, pred_kernel = pk)
+#' params_new <- setPredKernel(params, pred_kernel = pk)
 #' }
-change_pred_kernel <- function(params, pred_kernel) {
+setPredKernel <- function(params, pred_kernel) {
     if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
         stop("The pred_kerel has the wrong dimensions")
     }
+    if (!is.null(dimnames(pred_kernel)) && 
+        !all(dimnames(pred_kernel)[[1]] == params@species_params$species)) {
+        stop(paste0("You need to use the same ordering of species as in the ",
+        "params object: ", toString(params@species_params$species)))
+    }
+    dimnames(pred_kernel) <- 
+        list(sp = params@species_params$species,
+             w_pred = signif(params@w, 3),
+             w_prey = signif(params@w_full, 3))
     params@pred_kernel <- pred_kernel
     # Empty the Fourier transforms of kernel, to ensure that the FFT is not
     # used by model

@@ -1,6 +1,8 @@
 
 # mizer 1.1
 
+* Users can now replace the lognormal function in the predation kernel by a
+  function of their choice
 * `project()` can now continue projection from last time step of a previous
   simulation provided in an optional `sim` argument
 * Added function to get diet of predators
@@ -8,7 +10,7 @@
 * Values for minimum plankton size, and minimum and maximum consumer sizes set
   automatically
 * Allowing feeding kernel to be kept even when using FFT methods
-* Function change_pred_kernel() for changing predation kernel
+* Function setPredKernel() for changing predation kernel
 * Set names on arrays returned by getEncounter and getPredRate
 * Replaced `getPhiPrey()` by `getEncounter()` which includes the search volume
   factor.

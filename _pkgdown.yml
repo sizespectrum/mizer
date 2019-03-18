@@ -63,7 +63,6 @@ reference:
   - starts_with("default")
   - starts_with("set")
   - steady
-  - change_pred_kernel
   - emptyParams
   - addSpecies
   - removeSpecies

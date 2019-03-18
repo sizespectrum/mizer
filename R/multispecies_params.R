@@ -16,13 +16,14 @@ getMaxPPMR <- function(species_params) {
 #' mass ratio for each species.
 #' 
 #' An alternative pred_kernel type is "box", implemented by the functions
-#' \code{\link{lognormal_pred_kernel}} and \code{\link{box_max_ppmr}}.
+#' \code{\link{box_pred_kernel}} and \code{\link{box_max_ppmr}}.
 #' 
 #' You can use any other string as the type. If for example you choose "my" then
-#' you need to define a function \code{my_pred_kernel}. You also need to define
-#' a function \code{my_max_ppmr} if you want the smallest plankton size to be
-#' calculated automatically by \code{\link{set_multispecies_model}}, otherwise
-#' you need to specify the \code{min_w_pp} argument explicitly.
+#' you need to define a function \code{my_pred_kernel} that you can model on
+#' the existing functions like \code{\link{lognormal_pred_kernel}}. You can
+#' also define a function \code{my_max_ppmr} if you want the smallest plankton
+#' size to be calculated automatically by \code{\link{set_multispecies_model}},
+#' otherwise you need to specify the \code{min_w_pp} argument explicitly.
 #' 
 #' If you want to work with a feeding kernel that depends on predator mass and
 #' prey mass independently, you can use the function 
