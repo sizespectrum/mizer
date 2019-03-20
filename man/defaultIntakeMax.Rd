@@ -13,5 +13,16 @@ defaultIntakeMax(params)
 MizerParams
 }
 \description{
-Still need to document
+Sets the maximum intake rate of an individual of species \eqn{i} and weight
+\eqn{w} to \deqn{h_i(w) = h_i w^n} The values of \eqn{h_i} are taken from the
+\code{h} column in the species parameter dataframe. The maximum intake rate
+determines the feeding level calculated with \code{\link{getFeedingLevel}}.
+}
+\details{
+If the \code{h} column is not supplied in the species parameter dataframe, it
+is calculated from \code{f0} and the \code{k_vb} column, if they are
+supplied.
+
+It is allowed to set \eqn{h_i} to \code{Inf}, in which case there is no 
+limit to the rate at which the fish can take in encountered food.
 }

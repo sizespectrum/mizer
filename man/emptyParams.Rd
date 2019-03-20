@@ -38,6 +38,9 @@ does not have unstructured resources.}
 \item{resource_params}{A list of parameters needed by the
 \code{resource_dynamics} functions. An empty list if no parameters are
 needed.}
+
+\item{srr}{The stock recruitment function. Default is
+\code{\link{srrBevertonHolt}}.}
 }
 \value{
 An empty but valid MizerParams object

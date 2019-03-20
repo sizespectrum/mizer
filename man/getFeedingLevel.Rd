@@ -34,8 +34,12 @@ simplifying the output. Defaults to FALSE.}
 \description{
 Calculates the feeding level \eqn{f_i(w)} by predator size based on food
 availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed. This method is
-used by the \code{\link{project}} method for performing simulations.
+proportion of the encountered food that is actually consumed. It is 
+defined in terms of the encounter rate \eqn{E_i} and the maximum intake 
+rate \eqn{h_i(w)} as
+\deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}}{E_i(w)/(E_i(w)+h_i(w))}
+The feeding rate is used in \code{\link{getEReproAndGrowth}} and in
+\code{\link{getPredRate}}.
 }
 \note{
 If a \code{MizerParams} object is passed in, the method returns a two

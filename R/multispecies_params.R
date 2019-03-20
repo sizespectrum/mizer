@@ -167,7 +167,7 @@ setResourceEncounter <- function(params, rho) {
     if (length(params@resource_dynamics) != no_res) {
         stop("The second dimension of the rho argument should equal the number of resource.")
     }
-    if (nlength(params@w) != dim(rho)[3]) {
+    if (length(params@w) != dim(rho)[3]) {
         stop("The third dimension of the rho array should have one entry for every consumer size.")
     }
     if (is.character(dimnames(rho)["res"])) {
@@ -320,17 +320,26 @@ defaultReproProp <- function(params) {
 }
 
 #' Set default maximum intake rate
+#'
+#' Sets the maximum intake rate of an individual of species \eqn{i} and weight
+#' \eqn{w} to \deqn{h_i(w) = h_i w^n} The values of \eqn{h_i} are taken from the
+#' \code{h} column in the species parameter dataframe. The maximum intake rate
+#' determines the feeding level calculated with \code{\link{getFeedingLevel}}.
+#'
+#' If the \code{h} column is not supplied in the species parameter dataframe, it
+#' is calculated from \code{f0} and the \code{k_vb} column, if they are
+#' supplied.
 #' 
-#' Still need to document
-#' 
+#' It is allowed to set \eqn{h_i} to \code{Inf}, in which case there is no 
+#' limit to the rate at which the fish can take in encountered food.
+#'
 #' @param params MizerParams
-#' 
+#'
 #' @return MizerParams
 #' @export
 defaultIntakeMax <- function(params) {
     species_params <- params@species_params
-    # If h column is not supplied, it is calculated from f0 and k_vb if they 
-    # are supplied
+    # 
     if (!("h" %in% colnames(species_params))) {
         species_params$h <- rep(NA, nrow(species_params))
     }

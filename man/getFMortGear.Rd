@@ -27,7 +27,7 @@ An array. If the effort argument has a time dimension, or a
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
 size at each time step in the \code{effort} argument. 
-Used by the \code{project} method to perform simulations.
+Used by the \code{project} function to perform simulations.
 }
 \note{
 Here: fishing mortality = catchability x selectivity x effort.

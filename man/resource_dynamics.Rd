@@ -24,7 +24,6 @@ the \code{\link[=set_multispecies_model]{set_multispecies_model()}} function. Th
 relate to the resources are:
 \itemize{
 \item \code{rho} The encounter rate, see "Feeding on Resources" section below.
-\item \code{resource_names} Your chosen names for the resource components.
 \item \code{resource_dynamics} Functions to update resource biomass during
 simulations, see "Resource Dynamics" section below.
 \item \code{resource_params} Model parameters for the resource dynamics, see
@@ -56,11 +55,10 @@ A sensible assumption for the size dependence of the encounter rate is that
 it scales allometrically with the same exponent as the maximum intake rate,
 so that
 \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-This is the choice made for you when you set up the model with the
-\code{\link[=set_multispecies_model]{set_multispecies_model()}} function, but you can always overwrite it with your own
-choice by assigning your values of \eqn{\rho_{id}(w)} to the \code{rho} slot of the
-\code{MizerParams} object, which is a 3-dim array (predator species x resource x
-predator size). See examples section.
+This is the default set by \code{\link[=defaultResourceEncounter]{defaultResourceEncounter()}} which is called
+automatically when you set up the model with the \code{\link[=set_multispecies_model]{set_multispecies_model()}}
+function. However you can always overwrite it with your own choice using the
+\code{\link[=setResourceEncounter]{setResourceEncounter()}} function.
 }
 
 \section{Resource Dynamics}{

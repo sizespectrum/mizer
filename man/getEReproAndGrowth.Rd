@@ -6,7 +6,9 @@
 \usage{
 getEReproAndGrowth(object, n = object@initial_n,
   n_pp = object@initial_n_pp, B = object@initial_B,
-  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B))
+  encounter = getEncounter(object, n = n, n_pp = n_pp, B = B),
+  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B,
+  encounter = encounter))
 }
 \arguments{
 \item{object}{An \linkS4class{MizerParams} object}
@@ -17,9 +19,13 @@ getEReproAndGrowth(object, n = object@initial_n,
 
 \item{B}{A vector of biomasses of unstructured resource components}
 
+\item{encounter}{The encounter rate matrix (optional) of dimension no.
+species x no. size bins. If not passed in, it is calculated internally
+using the \code{\link{getEncounter}} function.}
+
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the \code{getFeedingLevel()} method.}
+using the \code{\link{getFeedingLevel}} function.}
 }
 \value{
 A two dimensional array (species x size)
@@ -27,7 +33,7 @@ A two dimensional array (species x size)
 \description{
 Calculates the energy rate available by species and size for reproduction and
 growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
-Used by the \code{project} method for performing simulations.
+Used by the \code{project} function for performing simulations.
 }
 \examples{
 \dontrun{

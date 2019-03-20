@@ -19,7 +19,7 @@ getERepro(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using the \code{getEReproAndGrowth()} method.}
+internally using \code{\link{getEReproAndGrowth}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -27,7 +27,7 @@ A two dimensional array (prey species x prey size)
 \description{
 Calculates the energy rate available by species and size for reproduction
 after metabolism and movement have been accounted for:
-\eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} method for performing
+\eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} function for performing
 simulations.
 }
 \examples{

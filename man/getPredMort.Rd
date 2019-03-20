@@ -20,7 +20,7 @@ getPredMort(object, n, n_pp, B = 0, pred_rate, time_range, drop = TRUE)
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{getPredRate()} method.}
+it is calculated by the \code{\link{getPredRate}} function.}
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time
 range is either a vector of values, a vector of min and max time, or a
@@ -32,16 +32,16 @@ dimensions of length 1 in the output be dropped, simplifying the output.
 Defaults to TRUE}
 }
 \value{
-If a \code{MizerParams} object is passed in, the method returns a two
+If a \code{MizerParams} object is passed in, the function returns a two
   dimensional array (prey species x prey size) based on the abundances also
-  passed in. If a \code{MizerSim} object is passed in, the method returns a
+  passed in. If a \code{MizerSim} object is passed in, the function returns a
   three dimensional array (time step x prey species x prey size) with the
   predation mortality calculated at every time step in the simulation.
 }
 \description{
 Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
-prey species by prey size. This method is used by the \code{\link{project}}
-method for performing simulations.
+prey species by prey size. This function is used by the \code{\link{project}}
+function for performing simulations.
 }
 \examples{
 \dontrun{

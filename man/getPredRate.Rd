@@ -19,7 +19,7 @@ getPredRate(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the \code{getFeedingLevel()} method.}
+using the \code{\link{getFeedingLevel}} function.}
 }
 \value{
 A two dimensional array (predator species x prey size), 
@@ -28,7 +28,7 @@ A two dimensional array (predator species x prey size),
 \description{
 Calculates the potential rate at which a prey individual of a given size 
 \eqn{w} is killed by predators from species \eqn{i}. In formulas 
-\deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
+\deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i(w) N_i(w) dw}
 This potential rate is used in the function \code{\link{getPredMort}} to
 calculate the realised predation mortality rate on the prey individual.
 }

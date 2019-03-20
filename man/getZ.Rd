@@ -22,7 +22,7 @@ effort value which is used for all gears.}
 
 \item{m2}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the \code{getPredMort()} method.}
+calculated using the \code{\link{getPredMort}} function.}
 }
 \value{
 A two dimensional array (prey species x prey size).

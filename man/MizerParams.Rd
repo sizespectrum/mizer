@@ -85,12 +85,7 @@ default is a vector of 1s.}
 
 \item{rho}{An array (species x resource) that gives the
 rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
-encounters biomass of resource \eqn{d}. The rate is assumed to scale
-allometrically with size with exponent \code{n}. So the total contribution
-of the resources to the rate at which the individual encounters biomass is
-\deqn{\sum_d\rho_{id} w^n B_d,}
-where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-See \code{\link{resource_dynamics}} help for more details.}
+encounters biomass of resource \eqn{d}.}
 
 \item{resource_dynamics}{A named list of functions that determine the
 dynamics of the unstructured resources by calculating their biomasses at
@@ -101,6 +96,9 @@ does not have unstructured resources.}
 \item{resource_params}{A list of parameters needed by the
 \code{resource_dynamics} functions. An empty list if no parameters are
 needed.}
+
+\item{srr}{The stock recruitment function. Default is
+\code{\link{srrBevertonHolt}}.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

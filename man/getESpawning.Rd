@@ -19,7 +19,7 @@ getESpawning(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using the \code{getEReproAndGrowth()} method.}
+internally using \code{\link{getEReproAndGrowth}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)

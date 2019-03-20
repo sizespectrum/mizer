@@ -1,6 +1,7 @@
 
 # mizer 1.1
 
+* Satiation can be switched off by setting the maximum intake rate to Inf
 * Users can now replace the lognormal function in the predation kernel by a
   function of their choice
 * `project()` can now continue projection from last time step of a previous

@@ -19,13 +19,13 @@ getEGrowth(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
-size bins. If not supplied, is calculated internally using the
-\code{\link{getERepro}} method.}
+size bins. If not supplied, is calculated internally using
+\code{\link{getERepro}}.}
 
 \item{e}{The energy available for reproduction and growth (optional, although
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
-the \code{\link{getEReproAndGrowth}} method.}
+\code{\link{getEReproAndGrowth}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -33,7 +33,7 @@ A two dimensional array (prey species x prey size)
 \description{
 Calculates the energy rate \eqn{g_i(w)} available by species and size for
 growth after metabolism, movement and reproduction have been accounted for.
-Used by the \code{\link{project}} method for performing simulations.
+Used by \code{\link{project}} for performing simulations.
 }
 \examples{
 \dontrun{

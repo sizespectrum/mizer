@@ -22,7 +22,7 @@ is 0.5.}
 
 \item{rdi}{A vector of density independent recruitment for each species. 
 If not specified rdi is calculated internally using
-the \code{\link{getRDI}} method.}
+\code{\link{getRDI}}.}
 }
 \value{
 A numeric vector the length of the number of species.

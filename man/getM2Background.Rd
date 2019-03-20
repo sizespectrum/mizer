@@ -20,7 +20,7 @@ getM2Background(object, n = object@initial_n,
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{getPredRate()} method.}
+it is calculated by the \code{\link{getPredRate}} function.}
 }
 \value{
 A vector of mortality rate by plankton size.
