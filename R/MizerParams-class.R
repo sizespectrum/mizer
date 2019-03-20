@@ -448,6 +448,8 @@ setClass(
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
 #' @inheritParams setInteraction
+#' @param srr The stock recruitment function. Default is
+#'   \code{\link{srrBevertonHolt}}.
 #' 
 #' @return An empty but valid MizerParams object
 #' 
