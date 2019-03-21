@@ -34,7 +34,7 @@ determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the colunns \code{beta} and \code{sigma}.
 
-This function is called from \code{\link{defaultPredKernel}} to set up the
+This function is called from \code{\link{setPredKernel}} to set up the
 predation kernel slots in a \code{MizerParams} object. Associated to this
 function there is the function \code{\link{lognormal_max_ppmr}} that
 returns the largest allowed predator/prey mass ratio, i.e.,

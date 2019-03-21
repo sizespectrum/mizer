@@ -88,7 +88,7 @@ NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
-                         "x", "y", "Year", "Yield"))
+                         "x", "y", "Year", "Yield", "Biomass"))
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'

@@ -66,13 +66,15 @@ Default value is 0.6.}
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
-\item{pred_kernel_type}{A string that determines which predation kernel
-function is used. Default is "lognormal".}
+\item{pred_kernel_type}{Only used if \code{pred_kernel} is not supplied. A
+string that determines which predation kernel function is used. Default is
+"lognormal". See Details section.}
 
-\item{store_kernel}{A boolean flag that determines whether the full
-predation kernel is stored. If FALSE, only its Fourier transforms are stored.
-The default is TRUE if the number of size bins is no larger than 100 and
-FALSE otherwise.}
+\item{store_kernel}{Only used if \code{pred_kernel} is not supplied. A
+boolean flag that determines whether the full three dimensional predation
+kernel array is calculated and stored, even though it is not needed by
+mizer. Only useful if you have your own code that relies on this array.
+Default is FALSE.}
 
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
@@ -83,9 +85,9 @@ plankton, similar to what the interaction matrix does for the interaction
 with other species. Entries should be numbers between 0 and 1. The 
 default is a vector of 1s.}
 
-\item{rho}{An array (species x resource) that gives the
-rate \eqn{\rho_{id}} that determines the rate at which species \eqn{i}
-encounters biomass of resource \eqn{d}.}
+\item{rho}{Either a 3-dim array (predator species x resource x predator size)
+or a 2-dim array (predator species x resource). In the latter case the
+size dependence is given by allometry.}
 
 \item{resource_dynamics}{A named list of functions that determine the
 dynamics of the unstructured resources by calculating their biomasses at
