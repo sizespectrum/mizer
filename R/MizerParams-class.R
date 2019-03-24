@@ -1397,8 +1397,8 @@ setResourceEncounter <- function(params, rho) {
 
 #' Beverton Holt stock-recruitment function
 #' 
-#' @param rdi
-#' @param species_params
+#' @param rdi x
+#' @param species_params x
 #' 
 #' @return rdd
 srrBevertonHolt <- function(rdi, species_params) {

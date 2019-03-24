@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>get predation mortality rate — getPredMort • mizer</title>
+<title>Get total predation mortality rate — getPredMort • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -36,11 +36,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="get predation mortality rate — getPredMort" />
+<meta property="og:title" content="Get total predation mortality rate — getPredMort" />
 
 <meta property="og:description" content="Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) on each
-prey species by prey size. This method is used by the project
-method for performing simulations." />
+prey species by prey size. This function is used by the project
+function for performing simulations." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,7 +125,7 @@ method for performing simulations." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>get predation mortality rate</h1>
+    <h1>Get total predation mortality rate</h1>
     <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
     <div class="hidden name"><code>getPredMort.Rd</code></div>
     </div>
@@ -133,8 +133,8 @@ method for performing simulations." />
     <div class="ref-description">
     
     <p>Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) on each
-prey species by prey size. This method is used by the <code><a href='project.html'>project</a></code>
-method for performing simulations.</p>
+prey species by prey size. This function is used by the <code><a href='project.html'>project</a></code>
+function for performing simulations.</p>
     
     </div>
 
@@ -166,7 +166,7 @@ method for performing simulations.</p>
       <td><p>An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the <code><a href='getPredRate.html'>getPredRate()</a></code> method.</p></td>
+it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> function.</p></td>
     </tr>
     <tr>
       <th>time_range</th>
@@ -185,9 +185,9 @@ Defaults to TRUE</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If a <code>MizerParams</code> object is passed in, the method returns a two
+    <p>If a <code>MizerParams</code> object is passed in, the function returns a two
   dimensional array (prey species x prey size) based on the abundances also
-  passed in. If a <code>MizerSim</code> object is passed in, the method returns a
+  passed in. If a <code>MizerSim</code> object is passed in, the function returns a
   three dimensional array (time step x prey species x prey size) with the
   predation mortality calculated at every time step in the simulation.</p>
     

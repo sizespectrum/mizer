@@ -135,7 +135,7 @@
       <tr>
         <th colspan="2">
           <h2 id="section-setting-model-parameters" class="hasAnchor"><a href="#section-setting-model-parameters" class="anchor"></a>Setting model parameters</h2>
-          <p class="section-desc"><p>Functions to create MizerParams parameter object describing your model</p></p>
+          <p class="section-desc"><p>Functions to create and modify a MizerParams parameter object describing your model</p></p>
         </th>
       </tr>
       <tr>
@@ -165,15 +165,75 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="steady.html">steady()</a></code> </p>
+          <p><code><a href="setBMort.html">setBMort()</a></code> </p>
         </td>
-        <td><p>Tune params object to be at steady state</p></td>
+        <td><p>Set background mortality rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="change_pred_kernel.html">change_pred_kernel()</a></code> </p>
+          <p><code><a href="setBackground.html">setBackground()</a></code> </p>
         </td>
-        <td><p>Changes the predation kernel to allow size-dependent PPMR</p></td>
+        <td><p>Designate species as background species</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setFishing.html">setFishing()</a></code> </p>
+        </td>
+        <td><p>Set fishing parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setIntakeMax.html">setIntakeMax()</a></code> </p>
+        </td>
+        <td><p>Set maximum intake rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setInteraction.html">setInteraction()</a></code> </p>
+        </td>
+        <td><p>Set species interation matrix</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setMetab.html">setMetab()</a></code> </p>
+        </td>
+        <td><p>Set metabolic rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setPlankton.html">setPlankton()</a></code> </p>
+        </td>
+        <td><p>Set up plankton</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setPredKernel.html">setPredKernel()</a></code> </p>
+        </td>
+        <td><p>Set predation kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setReproduction.html">setReproduction()</a></code> </p>
+        </td>
+        <td><p>Set proportion of energy that is invested into reproduction</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setResourceEncounter.html">setResourceEncounter()</a></code> </p>
+        </td>
+        <td><p>Set resource encounter rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> </p>
+        </td>
+        <td><p>Set search volume</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="steady.html">steady()</a></code> </p>
+        </td>
+        <td><p>Tune params object to be at steady state</p></td>
       </tr><tr>
         
         <td>
@@ -198,12 +258,6 @@
           <p><code><a href="retune_abundance.html">retune_abundance()</a></code> </p>
         </td>
         <td><p>Retunes abundance of background species.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setBackground.html">setBackground()</a></code> </p>
-        </td>
-        <td><p>Designate species as background species</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -231,7 +285,7 @@
         <td>
           <p><code><a href="summary_functions.html">summary_functions</a></code> </p>
         </td>
-        <td><p>Summary functions</p></td>
+        <td><p>Description of summary functions</p></td>
       </tr><tr>
         
         <td>
@@ -431,15 +485,9 @@ ready for ggplot2</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="display_frames.html">display_frames()</a></code> </p>
+          <p><code><a href="displayFrames.html">displayFrames()</a></code> </p>
         </td>
         <td><p>Display frames</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="log_breaks.html">log_breaks()</a></code> </p>
-        </td>
-        <td><p>Helper function to produce nice breaks on logarithmic axes</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -453,7 +501,7 @@ ready for ggplot2</p></td>
         <td>
           <p><code><a href="getRates.html">getRates()</a></code> </p>
         </td>
-        <td><p>Get rates</p></td>
+        <td><p>Get all rates</p></td>
       </tr><tr>
         
         <td>
@@ -477,7 +525,7 @@ ready for ggplot2</p></td>
         <td>
           <p><code><a href="getEReproAndGrowth.html">getEReproAndGrowth()</a></code> </p>
         </td>
-        <td><p>Get energy after metabolism and movement</p></td>
+        <td><p>Get energy rate available for reproduction and growth</p></td>
       </tr><tr>
         
         <td>
@@ -514,7 +562,7 @@ and size.</p></td>
         <td>
           <p><code><a href="getPredMort.html">getPredMort()</a></code> </p>
         </td>
-        <td><p>get predation mortality rate</p></td>
+        <td><p>Get total predation mortality rate</p></td>
       </tr><tr>
         
         <td>
@@ -546,7 +594,7 @@ and size.</p></td>
         <td>
           <p><code><a href="resource_dynamics.html">resource_dynamics</a></code> </p>
         </td>
-        <td><p>Unstructured resources</p></td>
+        <td><p>Description of the dynamics of unstructured resources</p></td>
       </tr><tr>
         
         <td>
@@ -568,6 +616,30 @@ and size.</p></td>
         </th>
       </tr>
       <tr>
+        
+        <td>
+          <p><code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code> </p>
+        </td>
+        <td><p>Lognormal predation kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="lognormal_max_ppmr.html">lognormal_max_ppmr()</a></code> </p>
+        </td>
+        <td><p>Maximum predator/prey mass ratio for lognormal kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="box_pred_kernel.html">box_pred_kernel()</a></code> </p>
+        </td>
+        <td><p>Box predation kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="box_max_ppmr.html">box_max_ppmr()</a></code> </p>
+        </td>
+        <td><p>Maximum predator/prey mass ratio for box kernel</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="knife_edge.html">knife_edge()</a></code> </p>
@@ -604,7 +676,7 @@ and size.</p></td>
         <td>
           <p><code><a href="MizerSim-class.html">MizerSim-class</a></code> </p>
         </td>
-        <td><p>MizerSim</p></td>
+        <td><p>A class to hold the results of a simulation</p></td>
       </tr><tr>
         
         <td>
@@ -649,26 +721,6 @@ and size.</p></td>
           <p><code><a href="inter.html">inter</a></code> </p>
         </td>
         <td><p>Example interaction matrix for the North Sea example</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-others" class="hasAnchor"><a href="#section-others" class="anchor"></a>Others</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="get_initial_n.html">get_initial_n()</a></code> </p>
-        </td>
-        <td><p>Calculate initial population abundances for the community populations</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="project_methods.html">project_methods</a></code> </p>
-        </td>
-        <td><p>Methods used for projecting</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -724,7 +776,6 @@ and size.</p></td>
       <li><a href="#section-functions-used-in-model">Functions used in model</a></li>
       <li><a href="#section-classes">Classes</a></li>
       <li><a href="#section-data-sets">Data sets</a></li>
-      <li><a href="#section-others">Others</a></li>
       <li><a href="#section-aliases">Aliases</a></li>
     </ul>
   </div>

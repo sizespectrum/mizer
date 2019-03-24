@@ -162,7 +162,7 @@
       <td><p>An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the <code><a href='getPredRate.html'>getPredRate()</a></code> method.</p></td>
+it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> function.</p></td>
     </tr>
     <tr>
       <th>time_range</th>
@@ -181,9 +181,9 @@ Defaults to TRUE</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If a <code>MizerParams</code> object is passed in, the method returns a two
+    <p>If a <code>MizerParams</code> object is passed in, the function returns a two
   dimensional array (prey species x prey size) based on the abundances also
-  passed in. If a <code>MizerSim</code> object is passed in, the method returns a
+  passed in. If a <code>MizerSim</code> object is passed in, the function returns a
   three dimensional array (time step x prey species x prey size) with the
   predation mortality calculated at every time step in the simulation.</p>
     

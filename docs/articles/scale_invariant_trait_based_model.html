@@ -262,10 +262,16 @@ c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kapp
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">params_bg_m &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addSpecies.html">addSpecies</a></span>(params_bg, species_params, <span class="dt">SSB =</span> <span class="dv">2800</span>, <span class="dt">effort=</span><span class="fl">0.4</span>, </a>
 <a class="sourceLine" id="cb12-2" data-line-number="2">                <span class="dt">rfac =</span> <span class="fl">1.01</span>)</a></code></pre></div>
 <pre><code>## Note: The following species have feeding kernels that extend below the smallest plankton size specified by min_w_pp: Mullet</code></pre>
+<pre><code>## Warning in linetype[!is.na(species_params$linetype)] &lt;-
+## species_params$linetype[!is.na(species_params$linetype)]: number of items
+## to replace is not a multiple of replacement length</code></pre>
+<pre><code>## Warning in linecolour[!is.na(species_params$linecolour)] &lt;-
+## species_params$linecolour[!is.na(species_params$linecolour)]: number of
+## items to replace is not a multiple of replacement length</code></pre>
 <p>This code creates a new <code>MizerParams</code> object containing the original background species and the new foreground species, mullet. The <code><a href="../reference/addSpecies.html">addSpecies()</a></code> command attempts to construct a new approximate steady state (<code>params_out@initial_n</code>) including the new species.</p>
 <p>The stock recruitment relationship can be controlled by setting the value of <code>r_fac</code>, as described in <a href="scale_invariant_trait_based_model.html#subsec:bullets">the section about changes to the trait-based model.</a></p>
 <p>We can perform a simulation with our new system, including the mullet, in the usual way:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_bg_m, <span class="dt">t_max =</span> <span class="dv">25</span>, <span class="dt">effort =</span> <span class="fl">0.4</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_bg_m, <span class="dt">t_max =</span> <span class="dv">25</span>, <span class="dt">effort =</span> <span class="fl">0.4</span>)</a></code></pre></div>
 <p>We can see from the resulting plot of time vs biomass that the system is initiated close to a steady state:</p>
 <div class="figure">
 <img src="scale_invariant_trait_based_model_files/figure-html/plot_mullet_sim-1.png" alt="Example plot of time vs biomass for the scale invariant trait-based model plus mullet." width="700"><p class="caption">
@@ -283,33 +289,39 @@ Example plot of weight vs abundance for the scale invariant trait-based model pl
 <h2 class="hasAnchor">
 <a href="#adding-another-species" class="anchor"></a>Adding another species</h2>
 <p>In practical fisheries science one will have several species that one wishes to model explicitly. Further foreground species can be added into our system by repeated use of the <code><a href="../reference/addSpecies.html">addSpecies()</a></code> command. Let us demonstrate this by adding hake into our system with background and mullet. We start by specifying the data for the hake:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">species_params &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">  <span class="dt">species =</span> <span class="st">"Hake"</span>,</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">  <span class="dt">w_min =</span> <span class="fl">0.001</span>, </a>
-<a class="sourceLine" id="cb15-4" data-line-number="4">  <span class="dt">w_inf =</span> <span class="fl">4174.194</span>, </a>
-<a class="sourceLine" id="cb15-5" data-line-number="5">  <span class="dt">w_mat =</span> <span class="fl">183.5169</span>, </a>
-<a class="sourceLine" id="cb15-6" data-line-number="6">  <span class="dt">beta =</span> <span class="fl">11.02318</span>, </a>
-<a class="sourceLine" id="cb15-7" data-line-number="7">  <span class="dt">sigma =</span> <span class="fl">1.1</span>, </a>
-<a class="sourceLine" id="cb15-8" data-line-number="8">  <span class="dt">z0 =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb15-9" data-line-number="9">  <span class="dt">alpha =</span> <span class="fl">0.6</span>, </a>
-<a class="sourceLine" id="cb15-10" data-line-number="10">  <span class="dt">erepro =</span> <span class="fl">0.1</span>, </a>
-<a class="sourceLine" id="cb15-11" data-line-number="11">  <span class="dt">sel_func =</span> <span class="st">"sigmoid_length"</span>, </a>
-<a class="sourceLine" id="cb15-12" data-line-number="12">  <span class="dt">gear =</span> <span class="st">"sigmoid_gear"</span>,</a>
-<a class="sourceLine" id="cb15-13" data-line-number="13">  <span class="dt">l25 =</span> <span class="fl">16.09244</span>,</a>
-<a class="sourceLine" id="cb15-14" data-line-number="14">  <span class="dt">l50 =</span> <span class="fl">16.6</span>,</a>
-<a class="sourceLine" id="cb15-15" data-line-number="15">  <span class="dt">k =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb15-16" data-line-number="16">  <span class="dt">k_vb =</span> <span class="fl">0.1</span>, </a>
-<a class="sourceLine" id="cb15-17" data-line-number="17">  <span class="dt">a =</span> <span class="fl">0.0046</span>,</a>
-<a class="sourceLine" id="cb15-18" data-line-number="18">  <span class="dt">b =</span> <span class="fl">3.12</span>,</a>
-<a class="sourceLine" id="cb15-19" data-line-number="19">  <span class="dt">gamma =</span> <span class="fl">0.003</span>,</a>
-<a class="sourceLine" id="cb15-20" data-line-number="20">  <span class="dt">h =</span> <span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb15-21" data-line-number="21">  <span class="dt">linecolour =</span> <span class="st">"blue"</span>,</a>
-<a class="sourceLine" id="cb15-22" data-line-number="22">  <span class="dt">linetype =</span> <span class="st">"solid"</span></a>
-<a class="sourceLine" id="cb15-23" data-line-number="23">)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">species_params &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">  <span class="dt">species =</span> <span class="st">"Hake"</span>,</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">  <span class="dt">w_min =</span> <span class="fl">0.001</span>, </a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">  <span class="dt">w_inf =</span> <span class="fl">4174.194</span>, </a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">  <span class="dt">w_mat =</span> <span class="fl">183.5169</span>, </a>
+<a class="sourceLine" id="cb17-6" data-line-number="6">  <span class="dt">beta =</span> <span class="fl">11.02318</span>, </a>
+<a class="sourceLine" id="cb17-7" data-line-number="7">  <span class="dt">sigma =</span> <span class="fl">1.1</span>, </a>
+<a class="sourceLine" id="cb17-8" data-line-number="8">  <span class="dt">z0 =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb17-9" data-line-number="9">  <span class="dt">alpha =</span> <span class="fl">0.6</span>, </a>
+<a class="sourceLine" id="cb17-10" data-line-number="10">  <span class="dt">erepro =</span> <span class="fl">0.1</span>, </a>
+<a class="sourceLine" id="cb17-11" data-line-number="11">  <span class="dt">sel_func =</span> <span class="st">"sigmoid_length"</span>, </a>
+<a class="sourceLine" id="cb17-12" data-line-number="12">  <span class="dt">gear =</span> <span class="st">"sigmoid_gear"</span>,</a>
+<a class="sourceLine" id="cb17-13" data-line-number="13">  <span class="dt">l25 =</span> <span class="fl">16.09244</span>,</a>
+<a class="sourceLine" id="cb17-14" data-line-number="14">  <span class="dt">l50 =</span> <span class="fl">16.6</span>,</a>
+<a class="sourceLine" id="cb17-15" data-line-number="15">  <span class="dt">k =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb17-16" data-line-number="16">  <span class="dt">k_vb =</span> <span class="fl">0.1</span>, </a>
+<a class="sourceLine" id="cb17-17" data-line-number="17">  <span class="dt">a =</span> <span class="fl">0.0046</span>,</a>
+<a class="sourceLine" id="cb17-18" data-line-number="18">  <span class="dt">b =</span> <span class="fl">3.12</span>,</a>
+<a class="sourceLine" id="cb17-19" data-line-number="19">  <span class="dt">gamma =</span> <span class="fl">0.003</span>,</a>
+<a class="sourceLine" id="cb17-20" data-line-number="20">  <span class="dt">h =</span> <span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb17-21" data-line-number="21">  <span class="dt">linecolour =</span> <span class="st">"blue"</span>,</a>
+<a class="sourceLine" id="cb17-22" data-line-number="22">  <span class="dt">linetype =</span> <span class="st">"solid"</span></a>
+<a class="sourceLine" id="cb17-23" data-line-number="23">)</a></code></pre></div>
 <p>Now we add the hake into our system:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">params_bg_m_h &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addSpecies.html">addSpecies</a></span>(params_bg_m, species_params, <span class="dt">SSB =</span> <span class="dv">1200</span>,</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2">                            <span class="dt">effort=</span><span class="fl">0.4</span>, <span class="dt">rfac =</span> <span class="fl">1.01</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">params_bg_m_h &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addSpecies.html">addSpecies</a></span>(params_bg_m, species_params, <span class="dt">SSB =</span> <span class="dv">1200</span>,</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">                            <span class="dt">effort=</span><span class="fl">0.4</span>, <span class="dt">rfac =</span> <span class="fl">1.01</span>)</a></code></pre></div>
 <pre><code>## Note: The following species have feeding kernels that extend below the smallest plankton size specified by min_w_pp: Mullet</code></pre>
+<pre><code>## Warning in linetype[!is.na(species_params$linetype)] &lt;-
+## species_params$linetype[!is.na(species_params$linetype)]: number of items
+## to replace is not a multiple of replacement length</code></pre>
+<pre><code>## Warning in linecolour[!is.na(species_params$linecolour)] &lt;-
+## species_params$linecolour[!is.na(species_params$linecolour)]: number of
+## items to replace is not a multiple of replacement length</code></pre>
 <p>We visualize the initial condition, close to steady state using the following command:</p>
 <div class="figure">
 <img src="scale_invariant_trait_based_model_files/figure-html/plot_mullet_hake_spectra-1.png" alt="A plot of weight vs biomass density for the near steady state created by adding mullet and hake to a scale-invariant background." width="700"><p class="caption">
@@ -323,7 +335,7 @@ A plot of time vs biomass showing our system with background species, mullet and
 </p>
 </div>
 <p>The <code><a href="../reference/steady.html">steady()</a></code> command can be used to fine tune the initial condition to be very close to a steady state:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">params_bg_m_h2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/steady.html">steady</a></span>(params_bg_m_h, <span class="dt">effort =</span> <span class="fl">0.4</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">params_bg_m_h2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/steady.html">steady</a></span>(params_bg_m_h, <span class="dt">effort =</span> <span class="fl">0.4</span>)</a></code></pre></div>
 <pre><code>## Steady state was reached after  12 years.</code></pre>
 <p>This results in a a configuration very close to a steady state, as we can see by evolving the system and plotting how biomass changes over time:</p>
 <div class="figure">
