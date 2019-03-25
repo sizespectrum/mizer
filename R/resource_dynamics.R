@@ -43,7 +43,7 @@
 #' it scales allometrically with the same exponent as the maximum intake rate,
 #' so that
 #' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' This is the default set by [defaultResourceEncounter()] which is called
+#' This is the default set by [setResourceEncounter()] which is called
 #' automatically when you set up the model with the [set_multispecies_model()]
 #' function. However you can always overwrite it with your own choice using the
 #' [setResourceEncounter()] function.

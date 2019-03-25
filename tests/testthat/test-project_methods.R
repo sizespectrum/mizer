@@ -237,7 +237,7 @@ test_that("getPlanktonMort", {
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_identical(m22, m2)
+    expect_equal(m22, m2)
     # Passing in pred_rate gives the same
     pr <- getPredRate(params, n, n_full)
     m2b1 <- getPlanktonMort(params, n, n_full)

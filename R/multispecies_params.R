@@ -4,6 +4,7 @@
 #' \linkS4class{MizerParams} object based on user-provided species parameters.
 #' 
 #' @inheritParams emptyParams
+#' @inheritParams setInteraction
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
@@ -68,6 +69,7 @@ set_multispecies_model <- function(species_params,
                                    interaction = matrix(1,
                                                         nrow = nrow(species_params),
                                                         ncol = nrow(species_params)),
+                                   interaction_p = rep(1, nrow(species_params)),
                                    no_w = 100,
                                    min_w = 0.001,
                                    max_w = NA,
@@ -86,7 +88,6 @@ set_multispecies_model <- function(species_params,
                                    pred_kernel_type = "lognormal",
                                    store_kernel = (no_w <= 100),
                                    plankton_dynamics = plankton_semichemostat,
-                                   interaction_p = rep(1, nrow(species_params)),
                                    rho = NULL,
                                    resource_dynamics = list(),
                                    resource_params = list(),
@@ -129,7 +130,6 @@ set_multispecies_model <- function(species_params,
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
-                          interaction = interaction,
                           no_w = no_w, 
                           min_w = min_w,  
                           max_w = max_w, 
@@ -147,10 +147,10 @@ set_multispecies_model <- function(species_params,
     params@f0 <- f0
     params@kappa <- kappa
     
+    params <- setInteraction(params, interaction, interaction_p)
     params <- setPredKernel(params, store_kernel = store_kernel)
     params <- setPlankton(params, r_pp = r_pp, w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics,
-                          interaction_p = interaction_p)
+                          plankton_dynamics = plankton_dynamics)
     params <- setReproduction(params)
     params <- setIntakeMax(params)
     params <- setSearchVolume(params)

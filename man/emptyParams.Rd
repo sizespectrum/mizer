@@ -4,17 +4,12 @@
 \alias{emptyParams}
 \title{Create empty MizerParams object of the right size}
 \usage{
-emptyParams(species_params, interaction = matrix(1, nrow =
-  nrow(species_params), ncol = nrow(species_params)), no_w = 100,
-  min_w = 0.001, max_w = NA, min_w_pp = 1e-10, no_w_pp = NA,
-  resource_dynamics = list(), resource_params = list(),
-  srr = srrBevertonHolt)
+emptyParams(species_params, no_w = 100, min_w = 0.001, max_w = NA,
+  min_w_pp = 1e-10, no_w_pp = NA, resource_dynamics = list(),
+  resource_params = list(), srr = srrBevertonHolt)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
-
-\item{interaction}{Interaction matrix of the species (predator by prey). By
-default all interactions between species are set to 1.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
