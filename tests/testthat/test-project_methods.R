@@ -31,20 +31,21 @@ lm2 <- p@lambda - 2
 
 # getEncounter --------------------------------------------------------------
 
-test_that("getEncounter approximates analytic result", {
+test_that("getEncounter approximates analytic result when feeding on plankton only", {
     skip("This is still too imprecise.")
-    ea <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
+    e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
     # Check that this is constant
-    expect_equivalent(ea, rep(ea[1], length(ea)), tolerance = 1e-14)
+    expect_equivalent(e, rep(e[1], length(e)), tolerance = 1e-10)
     # Check that it agrees with analytic result
     Dx <- p@w[2] / p@w[1] - 1
     dx <- log(p@w[2] / p@w[1])
-    avail_energy_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
-        beta^lm2 * sqrt(2 * pi) * sigma * 
+    encounter_analytic <- p@kappa * exp(lm2^2 * sigma^2 / 2) *
+        beta^lm2 * sqrt(2 * pi) * sigma * gamma *
         # The following factor takes into account the cutoff in the integral
         (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1) *
+        # The following factor takes into account the discretisation scheme
         Dx / dx
-    expect_equivalent(ea[1], avail_energy_analytic, tolerance = 1e-6)
+    expect_equivalent(e[1], encounter_analytic, tolerance = 1e-6)
     
     # Check that it agrees with left Riemann sum from w-Beta-3*sigma to w 
     Beta <- log(beta)
@@ -60,7 +61,7 @@ test_that("getEncounter approximates analytic result", {
         ear <- ear + p@w_full[j]^(2 - p@lambda) * 
             exp(-(x_full[i] - x_full[j] - Beta)^2 / (2 * sigma^2))
     }
-    ear <- ear * p@kappa * p@w_full[i]^(p@lambda - 2) * dx
+    ear <- ear * p@kappa * p@w_full[i]^(p@lambda - 2) * dx * gamma
     expect_equivalent(ea[1], ear * Dx / dx, tolerance = 1e-14)
 })
 
@@ -468,9 +469,16 @@ test_that("Test that fft based integrator gives similar result as old code", {
     fish <- outer(1:no_sp, 1:no_w, function(i, a) a >= params@w_min_idx[i])
     expect_equivalent(efft[fish], e[fish], tolerance = 3e-14)
     # Test available energy integral
-    pfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
-    p <- getPredRate(params2, params@initial_n, params@initial_n_pp)
-    expect_equivalent(pfft, p, tolerance = 1e-15)
+    prfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
+    pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
+    expect_equivalent(prfft, pr, tolerance = 1e-15)
+    
+    ## Feeding on plankton only
+    p2 <- p
+    p2@ft_pred_kernel_e <- array()
+    efft <- getEncounter(p, p@initial_n, p@initial_n_pp)
+    e <- getEncounter(p2, p@initial_n, p@initial_n_pp)
+    expect_equivalent(efft[fish], e[fish], tolerance = 1e-13)
 })
 
 test_that("project methods return objects of correct dimension when community only has one species",{
