@@ -87,7 +87,8 @@ getRates <- function(object, n = object@initial_n,
     r$plankton_mort <- getPlanktonMort(object, n = n, n_pp = n_pp, B = B,
                                        pred_rate = r$pred_rate)
     # Calculate the energy available for reproduction and growth
-    r$e <- getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B, 
+    r$e <- getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B,
+                              encounter = r$encounter,
                               feeding_level = r$feeding_level)
     # Calculate the energy for reproduction
     r$e_repro <- getERepro(object, n = n, n_pp = n_pp, B = B, e = r$e)
@@ -105,10 +106,27 @@ getRates <- function(object, n = object@initial_n,
 
 #' Get encounter rate
 #' 
-#' Calculates the amount \eqn{E_i(w)} of food encountered by each predator
-#' as a function of predator size.
+#' Calculates the rate \eqn{E_i(w)} at which a predator of species $i$ and
+#' weight $w$ encounters food (mass per time).
 #' 
-#' This function is used by the \code{\link{project}} method for
+#' The encounter rate has contributions from the encounter of fish prey, of
+#' plankton, and of other resoruces. The contribution from fish and plankton
+#' is determined by summing over all prey species and the resource spectrum and
+#' then integrating over all prey sizes $w_p$, weighted by predation kernel 
+#' \eqn{\phi(w,w_p)}:
+#' \deqn{
+#' E_{i}(w) = \gamma_i(w) \int 
+#' \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+#' \phi_i(w,w_p) w_p \, dw_p.
+#' }
+#' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
+#' predator. It could be interpreted as a search volume and is set with the
+#' \code{\link{setSearchVolume}} function. The predation kernel
+#' \eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
+#' species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
+#' vector \eqn{\theta{ip}} are set with \code{\link{setInteraction}}.
+#' 
+#' The encounter rate is used by the \code{\link{project}} method for
 #' performing simulations.
 #' 
 #' The function returns values also for sizes outside the size-range of the
@@ -120,18 +138,17 @@ getRates <- function(object, n = object@initial_n,
 #' @param B A vector of biomasses of unstructured resource components
 #'   
 #' @return A two dimensional array (predator species x predator size)
-#' @seealso \code{\link{project}}
 #' @export
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
-#' # With constant fishing effort for all gears for 20 time steps
+#' # Run simulation with constant fishing effort for all gears for 20 years
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' n <- sim@@n[21,,]
-#' n_pp <- sim@@n_pp[21,]
-#' getEncounter(params,n,n_pp)
+#' n <- sim@@n[21, , ]
+#' n_pp <- sim@@n_pp[21, ]
+#' getEncounter(params, n, n_pp)
 #' }
 getEncounter <- function(object, n = object@initial_n, 
                          n_pp = object@initial_n_pp,
@@ -162,8 +179,7 @@ getEncounter <- function(object, n = object@initial_n,
             c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
         # Eating the background
         # This line is a bottle neck
-        # TODO: extend this to use interaction_p
-        phi_prey_background <- rowSums(sweep(
+        phi_prey_background <- object@interaction_p * rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- object@search_vol * (phi_prey_species + phi_prey_background)
@@ -174,15 +190,11 @@ getEncounter <- function(object, n = object@initial_n,
         return(encounter)
     }
 
-    prey <- matrix(0, nrow = dim(n)[1], ncol = length(object@w_full))
-    # Looking at Equation (3.4), for available energy in the mizer vignette,
-    # we have, for our predator species i, that prey[k] equals
-    # the sum over all species j of fish, of theta_{i,j}*N_j(wFull[k])
-    prey[, idx_sp] <- object@interaction %*% n
+    prey <- outer(object@interaction_p, n_pp)
+    prey[, idx_sp] <- prey[, idx_sp] + object@interaction %*% n
     # The vector prey equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
-    prey <- sweep(sweep(prey, 2, n_pp, "+"), 2, 
-                object@w_full * object@dw_full, "*")
+    prey <- sweep(prey, 2, object@w_full * object@dw_full, "*")
     # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
     # We approximate the integral by the trapezoidal method. Using the
     # convolution theorem we can evaluate the resulting sum via fast fourier
@@ -510,7 +522,7 @@ getPlanktonMort <-
              ") x no. size bins in community + plankton (",
              length(object@w_full), ")")
     }
-    return(colSums(pred_rate))
+    return(as.vector(object@interaction_p %*% pred_rate))
 }
 
 #' Alias for getPlanktonMort

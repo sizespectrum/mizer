@@ -5,8 +5,7 @@
 \title{Set up plankton}
 \usage{
 setPlankton(params, r_pp = 10, w_pp_cutoff = 10,
-  plankton_dynamics = plankton_semichemostat, interaction_p = rep(1,
-  nrow(params@species_params)))
+  plankton_dynamics = plankton_semichemostat)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,11 +18,6 @@ Default is 10 g.}
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
 state. The default is \code{"\link{plankton_semichemostat}"}.}
-
-\item{interaction_p}{Vector specifying for each species its interaction with
-plankton, similar to what the interaction matrix does for the interaction
-with other species. Entries should be numbers between 0 and 1. The 
-default is a vector of 1s.}
 }
 \value{
 A MizerParams object

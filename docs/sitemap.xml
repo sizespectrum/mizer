@@ -25,16 +25,19 @@
     <loc>https://gustavdelius.github.io/mizer//reference/addSpecies.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/carrion_dynamics.html</loc>
+    <loc>https://gustavdelius.github.io/mizer//reference/box_max_ppmr.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/change_pred_kernel.html</loc>
+    <loc>https://gustavdelius.github.io/mizer//reference/box_pred_kernel.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/carrion_dynamics.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/detritus_dynamics.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/display_frames.html</loc>
+    <loc>https://gustavdelius.github.io/mizer//reference/displayFrames.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/emptyParams.html</loc>
@@ -142,7 +145,10 @@
     <loc>https://gustavdelius.github.io/mizer//reference/knife_edge.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/log_breaks.html</loc>
+    <loc>https://gustavdelius.github.io/mizer//reference/lognormal_max_ppmr.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/lognormal_pred_kernel.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/mizer.html</loc>
@@ -220,7 +226,37 @@
     <loc>https://gustavdelius.github.io/mizer//reference/retune_abundance.html</loc>
   </url>
   <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setBMort.html</loc>
+  </url>
+  <url>
     <loc>https://gustavdelius.github.io/mizer//reference/setBackground.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setFishing.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setIntakeMax.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setInteraction.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setMetab.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setPlankton.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setPredKernel.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setReproduction.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setResourceEncounter.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setSearchVolume.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/set_community_model.html</loc>
@@ -236,6 +272,9 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/sigmoid_length.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/srrBevertonHolt.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/steady.html</loc>
@@ -290,9 +329,6 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//articles/scale_invariant_trait_based_model.html</loc>
-  </url>
-  <url>
-    <loc>https://gustavdelius.github.io/mizer//articles/test.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//articles/trait_model.html</loc>

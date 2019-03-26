@@ -179,7 +179,7 @@ specified as a vector in the `species` argument to the plot function.</p>
 the species parameter data frame.</p>
 <p>Sometimes one wants to show two plots side-by-side with the same axes and
 the same legend. This is made possible for some of the plots via the
-<code><a href='display_frames.html'>display_frames</a></code> function.</p>
+<code><a href='displayFrames.html'>displayFrames</a></code> function.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -204,8 +204,8 @@ the same legend. This is made possible for some of the plots via the
 <span class='co'># Manipulating the plot</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ggplot2</span>)
 <span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='plotFeedingLevel.html'>plotFeedingLevel</a></span>(<span class='no'>sim</span>)
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_hline</a></span>(<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(<span class='kw'>yintercept</span> <span class='kw'>=</span> <span class='fl'>0.7</span>))
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span>()
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/geom_abline'>geom_hline</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>yintercept</span> <span class='kw'>=</span> <span class='fl'>0.7</span>))
+<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='no'>p</span> + <span class='fu'><a href='https://www.rdocumentation.org/packages/ggplot2/topics/ggtheme'>theme_bw</a></span>()
 <span class='no'>p</span></div><div class='img'><img src='plotting_functions-4.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

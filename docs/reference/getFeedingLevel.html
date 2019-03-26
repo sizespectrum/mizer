@@ -40,8 +40,12 @@
 
 <meta property="og:description" content="Calculates the feeding level \(f_i(w)\) by predator size based on food
 availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed. This method is
-used by the project method for performing simulations." />
+proportion of the encountered food that is actually consumed. It is 
+defined in terms of the encounter rate \(E_i\) and the maximum intake 
+rate \(h_i(w)\) as
+$$f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}$$
+The feeding rate is used in getEReproAndGrowth and in
+getPredRate." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -135,8 +139,12 @@ used by the project method for performing simulations." />
     
     <p>Calculates the feeding level \(f_i(w)\) by predator size based on food
 availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed. This method is
-used by the <code><a href='project.html'>project</a></code> method for performing simulations.</p>
+proportion of the encountered food that is actually consumed. It is 
+defined in terms of the encounter rate \(E_i\) and the maximum intake 
+rate \(h_i(w)\) as
+$$f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}$$
+The feeding rate is used in <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code> and in
+<code><a href='getPredRate.html'>getPredRate</a></code>.</p>
     
     </div>
 

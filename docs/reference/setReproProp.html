@@ -125,7 +125,7 @@ is invested into reproduction as a function of the size of the individual." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set reproduction proportion</h1>
-    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/multispecies_params.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/multispecies_params.R'><code>R/multispecies_params.R</code></a></small>
     <div class="hidden name"><code>setReproProp.Rd</code></div>
     </div>
 
@@ -150,7 +150,10 @@ is invested into reproduction as a function of the size of the individual.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A MizerParams object</p>
-<p>The proportion is set to the product of a sigmoidal maturity ogive that 
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The proportion is set to the product of a sigmoidal maturity ogive that 
 gives the proportion of individuals of a given species and size that are
 mature, and a factor that describes how investment into reproduction by mature
 individuals scales with size. In formulas:
@@ -178,6 +181,8 @@ of the params object and this object is returned.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

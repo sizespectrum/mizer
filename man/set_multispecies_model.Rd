@@ -5,21 +5,25 @@
 \title{Construct MizerParams object for multispecies model}
 \usage{
 set_multispecies_model(species_params, interaction = matrix(1, nrow =
-  nrow(species_params), ncol = nrow(species_params)), no_w = 100,
+  nrow(species_params), ncol = nrow(species_params)),
+  interaction_p = rep(1, nrow(species_params)), no_w = 100,
   min_w = 0.001, max_w = NA, min_w_pp = NA, no_w_pp = NA,
   n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11,
   lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6,
   z0exp = n - 1, pred_kernel_type = "lognormal", store_kernel = (no_w
-  <= 100), plankton_dynamics = plankton_semichemostat,
-  interaction_p = rep(1, nrow(species_params)), rho = NULL,
+  <= 100), plankton_dynamics = plankton_semichemostat, rho = NULL,
   resource_dynamics = list(), resource_params = list(),
   srr = srrBevertonHolt)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
 
-\item{interaction}{Interaction matrix of the species (predator by prey). By
-default all interactions between species are set to 1.}
+\item{interaction}{Interaction matrix of the species (predator by prey). 
+Entries should be numbers between 0 and 1.}
+
+\item{interaction_p}{Vector specifying for each species its interaction with
+plankton, similar to what the interaction matrix does for the interaction
+with other species.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
@@ -79,11 +83,6 @@ Default is FALSE.}
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
 state. The default is \code{"\link{plankton_semichemostat}"}.}
-
-\item{interaction_p}{Vector specifying for each species its interaction with
-plankton, similar to what the interaction matrix does for the interaction
-with other species. Entries should be numbers between 0 and 1. The 
-default is a vector of 1s.}
 
 \item{rho}{Either a 3-dim array (predator species x resource x predator size)
 or a 2-dim array (predator species x resource). In the latter case the

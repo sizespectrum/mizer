@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get energy after metabolism and movement — getEReproAndGrowth • mizer</title>
+<title>Get energy rate available for reproduction and growth — getEReproAndGrowth • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -36,11 +36,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Get energy after metabolism and movement — getEReproAndGrowth" />
+<meta property="og:title" content="Get energy rate available for reproduction and growth — getEReproAndGrowth" />
 
 <meta property="og:description" content="Calculates the energy rate available by species and size for reproduction and
 growth after metabolism and movement have been accounted for: \(E_{r.i}(w)\).
-Used by the project method for performing simulations." />
+Used by the project function for performing simulations." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,7 +125,7 @@ Used by the project method for performing simulations." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get energy after metabolism and movement</h1>
+    <h1>Get energy rate available for reproduction and growth</h1>
     <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
     <div class="hidden name"><code>getEReproAndGrowth.Rd</code></div>
     </div>
@@ -134,13 +134,15 @@ Used by the project method for performing simulations." />
     
     <p>Calculates the energy rate available by species and size for reproduction and
 growth after metabolism and movement have been accounted for: \(E_{r.i}(w)\).
-Used by the <code>project</code> method for performing simulations.</p>
+Used by the <code>project</code> function for performing simulations.</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>getEReproAndGrowth</span>(<span class='no'>object</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>feeding_level</span> <span class='kw'>=</span> <span class='fu'><a href='getFeedingLevel.html'>getFeedingLevel</a></span>(<span class='no'>object</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>))</pre>
+  <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='fu'><a href='getEncounter.html'>getEncounter</a></span>(<span class='no'>object</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>),
+  <span class='kw'>feeding_level</span> <span class='kw'>=</span> <span class='fu'><a href='getFeedingLevel.html'>getFeedingLevel</a></span>(<span class='no'>object</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>,
+  <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='no'>encounter</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,10 +164,16 @@ Used by the <code>project</code> method for performing simulations.</p>
       <td><p>A vector of biomasses of unstructured resource components</p></td>
     </tr>
     <tr>
+      <th>encounter</th>
+      <td><p>The encounter rate matrix (optional) of dimension no.
+species x no. size bins. If not passed in, it is calculated internally
+using the <code><a href='getEncounter.html'>getEncounter</a></code> function.</p></td>
+    </tr>
+    <tr>
       <th>feeding_level</th>
       <td><p>The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code> method.</p></td>
+using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> function.</p></td>
     </tr>
     </table>
     
