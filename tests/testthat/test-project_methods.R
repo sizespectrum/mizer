@@ -374,6 +374,14 @@ test_that("getEReproAndGrowth", {
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
     expect_identical(erg, erg2)
+    # Adding encounter gives the same result
+    e <- getEncounter(params, n = n, n_pp = n_full)
+    erg3 <- getEReproAndGrowth(params, n, n_full, encounter = e)
+    expect_identical(erg, erg3)
+    # Can be used with infinite intake_max
+    params@intake_max[] <- Inf
+    expect_true(!anyNA(getEReproAndGrowth(params, n = n, n_pp = n_full)))
+    
     expect_known_value(erg, "values/getEReproAndGrowth")
 })
 
