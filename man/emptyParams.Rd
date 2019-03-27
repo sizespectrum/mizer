@@ -19,20 +19,9 @@ given in the \code{w_min} column of the \code{species_params} dataframe.}
 \item{max_w}{The largest size of the consumer spectrum. By default this is
 set to the largest w_inf specified in the species_params data frame.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
-is set to the smallest value at which any of the consumers can feed.}
+\item{min_w_pp}{The smallest size of the plankton spectrum.}
 
 \item{no_w_pp}{No longer used}
-
-\item{resource_dynamics}{A named list of functions that determine the
-dynamics of the unstructured resources by calculating their biomasses at
-the next time step from the current state. See
-\code{\link{resource_dynamics}} for details. An empty list if the model
-does not have unstructured resources.}
-
-\item{resource_params}{A list of parameters needed by the
-\code{resource_dynamics} functions. An empty list if no parameters are
-needed.}
 
 \item{srr}{The stock recruitment function. Default is
 \code{\link{srrBevertonHolt}}.}

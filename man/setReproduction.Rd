@@ -19,7 +19,7 @@ The MizerParams object with the updated \code{psi} slot.
 \description{
 Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
-individual.
+individual and sets the reproductive efficiency.
 }
 \details{
 If the \code{psi} argument is not supplied,

@@ -4,6 +4,8 @@
 #' \linkS4class{MizerParams} object based on user-provided species parameters.
 #' 
 #' @inheritParams emptyParams
+#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#'   is set to the smallest value at which any of the consumers can feed.
 #' @inheritParams setInteraction
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
@@ -19,10 +21,15 @@
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
 #'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
 #'   ignored. Default is 0.6.
+#' @inheritParams setFishing
 #' @inheritParams setPredKernel
-#' @inheritParams setResourceEncounter
-#' @inheritParams setPlankton
+#' @inheritParams setSearchVolume
+#' @inheritParams setIntakeMax
+#' @inheritParams setMetab
 #' @inheritParams setBMort
+#' @inheritParams setReproduction
+#' @inheritParams setPlankton
+#' @inheritParams setResourceEncounter
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -77,19 +84,33 @@ set_multispecies_model <- function(species_params,
                                    n = 2 / 3,
                                    p = 0.7,
                                    q = 0.8,
-                                   r_pp = 10,
                                    kappa = 1e11,
                                    lambda = (2 + q - n),
-                                   w_pp_cutoff = 10,
                                    f0 = 0.6,
+                                   # setPredKernel()
+                                   pred_kernel = NULL,
+                                   pred_kernel_type = "lognormal",
+                                   store_kernel = FALSE,
+                                   # setSearchVolume()
+                                   gamma = NULL,
+                                   # setIntakeMax()
+                                   h = NULL,
+                                   # setMetab()
+                                   metab = NULL,
+                                   # setBMort
                                    z0pre = 0.6,
                                    z0exp = n - 1,
-                                   pred_kernel_type = "lognormal",
-                                   store_kernel = (no_w <= 100),
+                                   # setReproduction
+                                   psi = NULL,
+                                   # setPlankton
+                                   r_pp = 10,
+                                   w_pp_cutoff = 10,
                                    plankton_dynamics = plankton_semichemostat,
-                                   rho = NULL,
+                                   # setResources
                                    resource_dynamics = list(),
                                    resource_params = list(),
+                                   # setResourceEncounter
+                                   rho = NULL,
                                    srr = srrBevertonHolt) {
     assert_that(is.data.frame(species_params))
     no_sp <- nrow(species_params)
@@ -146,18 +167,34 @@ set_multispecies_model <- function(species_params,
     params@f0 <- f0
     params@kappa <- kappa
     
-    params <- setInteraction(params, interaction, interaction_p)
-    params <- setPredKernel(params, store_kernel = store_kernel)
-    params <- setPlankton(params, r_pp = r_pp, w_pp_cutoff = w_pp_cutoff,
+    params <- setInteraction(params, 
+                             interaction = interaction, 
+                             interaction_p = interaction_p)
+    params <- setFishing(params)
+    params <- setPredKernel(params, 
+                            pred_kernel = pred_kernel,
+                            pred_kernel_type = pred_kernel_type,
+                            store_kernel = store_kernel)
+    params <- setIntakeMax(params, 
+                           h = h)
+    params <- setMetab(params, 
+                       metab = metab)
+    params <- setBMort(params, 
+                       z0pre = z0pre, 
+                       z0exp = z0exp)
+    params <- setSearchVolume(params, 
+                              gamma = gamma)
+    params <- setReproduction(params, 
+                              psi = psi)
+    params <- setPlankton(params, 
+                          r_pp = r_pp, 
+                          w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
-    params <- setReproduction(params)
-    params <- setIntakeMax(params)
-    params <- setSearchVolume(params)
-    params <- setMetab(params)
-    params <- setBMort(params, z0pre = z0pre, z0exp = z0exp)
-    if (!is.null(rho)) {
-        params <- setResourceEncounter(params, rho)
-    }
+    params <- setResources(params,
+                           resource_dynamics = resource_dynamics,
+                           resource_params = resource_params)
+    params <- setResourceEncounter(params, 
+                                   rho = rho)
     
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp

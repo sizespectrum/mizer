@@ -986,7 +986,7 @@ removeSpecies <- function(params, species) {
 addSpecies <- function(params, species_params, SSB = NA,
                        rfac=10, effort = 0) {
     # The code adds a new species into the system, and sets its abundance to the
-    # steady state in the system where the new species does not self interact. Then
+    # steady state in the system where the new species does not self-interact. Then
     # the abundance multipliers of the background species are retuned to retain the
     # old aggregate abundance curve, using retune_abundance(). Then the values of
     # erepro are altered so that the resulting configuration satisfies the steady
@@ -994,7 +994,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     # is at steady state, and if the death rates of pre-existing species are close
     # to what they where before the new species were added, and if the newly added
     # species is at a low enough abundance (i.e., if mult is low enough) that the
-    # assumption of it being none self interacting is approximately valid, then the
+    # assumption of it not self-interacting is approximately valid, then the
     # abundance curves attached to the params object returned by addSpecies() will
     # be a steady state,
     #

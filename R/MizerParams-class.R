@@ -435,18 +435,9 @@ setClass(
 # #'   the Details.
 #' @param max_w The largest size of the consumer spectrum. By default this is
 #'   set to the largest w_inf specified in the species_params data frame.
-#' @param min_w_pp The smallest size of the plankton spectrum. By default this
-#'   is set to the smallest value at which any of the consumers can feed.
+#' @param min_w_pp The smallest size of the plankton spectrum.
 # #'   Ignored if w_full is specified.
 #' @param no_w_pp  No longer used
-#' @param resource_dynamics A named list of functions that determine the
-#'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. See
-#'   \code{\link{resource_dynamics}} for details. An empty list if the model
-#'   does not have unstructured resources.
-#' @param resource_params A list of parameters needed by the
-#'   \code{resource_dynamics} functions. An empty list if no parameters are
-#'   needed.
 #' @param srr The stock recruitment function. Default is
 #'   \code{\link{srrBevertonHolt}}.
 #' 
@@ -595,24 +586,6 @@ emptyParams <- function(species_params,
                function(w_min, wx) max(which(wx <= w_min)), wx = w))
     names(w_min_idx) = species_names
     
-    ## Resources  set up----
-    assert_that(is.list(resource_dynamics))
-    assert_that(is.list(resource_params))
-    no_res <- length(resource_dynamics)
-    resource_names = names(resource_dynamics)
-    if (no_res == 0) {
-        rho <- array(0, dim = 0)
-        resource_dynamics <- list()
-        initial_B <- 0
-    } else {
-        rho <- array(NA, dim = c(no_sp, no_res, no_w), 
-                          dimnames = list(sp = species_names, 
-                                          res = resource_names,
-                                          w = signif(w,3)))
-        initial_B <- rep(0, no_res)
-        names(initial_B) <- resource_names
-    }
-    
     # Colour and linetype scales ----
     # for use in plots
     # Colour-blind-friendly palettes
@@ -654,7 +627,7 @@ emptyParams <- function(species_params,
         initial_n = mat1,
         intake_max = mat1,
         search_vol = mat1,
-        rho = rho,
+        rho = array(),
         metab = mat1,
         mu_b = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
@@ -670,26 +643,15 @@ emptyParams <- function(species_params,
         interaction = interaction,
         interaction_p = interaction_p,
         srr = srr,
-        resource_dynamics = resource_dynamics,
+        resource_dynamics = list(),
         plankton_dynamics = plankton_semichemostat,
-        resource_params = resource_params,
-        initial_B = initial_B,
+        resource_params = list(),
+        initial_B = 0,
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
         linetype = linetype
     )
     
-    params <- setFishing(params)
-    
-    # If no erepro (reproductive efficiency), then set to 1
-    if (!("erepro" %in% colnames(species_params))) {
-        species_params$erepro <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$erepro)
-    if (any(missing)) {
-        species_params$erepro[missing] <- 1
-        params@species_params$erepro <- species_params$erepro
-    }
     return(params)
 }
 
@@ -934,7 +896,7 @@ setFishing <- function(params) {
 setPredKernel <- function(params,
                           pred_kernel = NULL,
                           pred_kernel_type = "lognormal",
-                          store_kernel = (length(params@w) <= 100)) {
+                          store_kernel = FALSE) {
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
         if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
@@ -1040,7 +1002,7 @@ setSearchVolume <- function(params, gamma = NULL) {
         params@search_vol[] <- gamma
         return(params)
     }
-    # Sorting out gamma column
+    # Sorting out gamma column in species_params
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
     }
@@ -1054,13 +1016,14 @@ setSearchVolume <- function(params, gamma = NULL) {
             (pnorm(3 - lm2 * species_params$sigma) + 
                  pnorm(log(species_params$beta)/species_params$sigma + 
                            lm2 * species_params$sigma) - 1)
-        gamma <- (species_params$h / (params@kappa * ae)) * (params@f0 / (1 - params@f0))
+        gamma_default <- (species_params$h / (params@kappa * ae)) * 
+            (params@f0 / (1 - params@f0))
         # Only overwrite missing gammas with calculated values
         missing <- is.na(species_params$gamma)
-        if (any(is.na(gamma[missing]))) {
+        if (any(is.na(gamma_default[missing]))) {
             stop("Could not calculate gamma.")
         }
-        species_params$gamma[missing] <- gamma[missing]
+        species_params$gamma[missing] <- gamma_default[missing]
         params@species_params$gamma <- species_params$gamma
     }
     params@search_vol[] <- 
@@ -1226,7 +1189,7 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' 
 #' Sets the proportion of the total energy available for reproduction and growth
 #' that is invested into reproduction as a function of the size of the
-#' individual.
+#' individual and sets the reproductive efficiency.
 #' 
 #' If the \code{psi} argument is not supplied,
 #' the proportion is set to the product of a sigmoidal maturity ogive that 
@@ -1260,6 +1223,17 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' @export
 setReproduction <- function(params, psi = NULL) {
     species_params <- params@species_params
+    
+    # If no erepro (reproductive efficiency), then set to 1
+    if (!("erepro" %in% colnames(species_params))) {
+        species_params$erepro <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$erepro)
+    if (any(missing)) {
+        species_params$erepro[missing] <- 1
+        params@species_params$erepro <- species_params$erepro
+    }
+    
     if (!is.null(psi)) {
         if (!identical(dim(psi), dim(params@psi))) {
             stop("The psi array has the wrong dimensions.")
@@ -1371,6 +1345,48 @@ setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
     return(params)
 }
 
+#' Set resource dynamics
+#' 
+#' @param params A MizerParams object
+#' @param resource_dynamics A named list of functions that determine the
+#'   dynamics of the unstructured resources by calculating their biomasses at
+#'   the next time step from the current state. See
+#'   \code{\link{resource_dynamics}} for details. An empty list if the model
+#'   does not have unstructured resources.
+#' @param resource_params A list of parameters needed by the
+#'   \code{resource_dynamics} functions. An empty list if no parameters are
+#'   needed.
+setResources <- function(params,
+                         resource_dynamics,
+                         resource_params) {
+    if (!missing(resource_dynamics)) {
+        assert_that(is.list(resource_dynamics))
+        no_res <- length(resource_dynamics)
+        resource_names = names(resource_dynamics)
+        if (no_res == 0) {
+            params@rho <- array(0, dim = 0)
+            params@resource_dynamics <- list()
+            params@initial_B <- 0
+        } else {
+            if (is.null(resource_names)) {
+                stop("The resource_dynamics list must be a named list.")
+            }
+            params@rho <- 
+                array(NA,
+                      dim = c(nrow(params@species_params), no_res, no_w),
+                      dimnames = list(sp = params@species_params$species,
+                                      res = resource_names,
+                                      w = signif(params@w, 3)))
+            params@initial_B <- rep(0, no_res)
+            names(params@initial_B) <- resource_names
+        }
+    }
+    if (!missing(resource_params)) {
+        assert_that(is.list(resource_params))
+        params@resource_params <- resource_params
+    }
+    return(params)
+}
 
 #' Set resource encounter rate
 #' 
@@ -1410,7 +1426,7 @@ setResourceEncounter <- function(params, rho = NULL) {
     }
     no_res <- dim(rho)[2]
     if (length(params@resource_dynamics) != no_res) {
-        stop("The second dimension of the rho argument should equal the number of resource.")
+        stop("The second dimension of the rho argument should equal the number of resources.")
     }
     if (is.character(dimnames(rho)["res"])) {
         assert_that(are_equal(dimnames(rho)["res"],
@@ -1428,6 +1444,7 @@ setResourceEncounter <- function(params, rho = NULL) {
     
     return(params)
 }
+
 
 #' Beverton Holt stock-recruitment function
 #' 

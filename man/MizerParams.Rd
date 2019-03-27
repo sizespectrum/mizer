@@ -8,11 +8,12 @@ MizerParams(species_params, interaction = matrix(1, nrow =
   nrow(species_params), ncol = nrow(species_params)),
   interaction_p = rep(1, nrow(species_params)), no_w = 100,
   min_w = 0.001, max_w = NA, min_w_pp = NA, no_w_pp = NA,
-  n = 2/3, p = 0.7, q = 0.8, r_pp = 10, kappa = 1e+11,
-  lambda = (2 + q - n), w_pp_cutoff = 10, f0 = 0.6, z0pre = 0.6,
-  z0exp = n - 1, pred_kernel_type = "lognormal", store_kernel = (no_w
-  <= 100), plankton_dynamics = plankton_semichemostat, rho = NULL,
-  resource_dynamics = list(), resource_params = list(),
+  n = 2/3, p = 0.7, q = 0.8, kappa = 1e+11, lambda = (2 + q - n),
+  f0 = 0.6, pred_kernel = NULL, pred_kernel_type = "lognormal",
+  store_kernel = FALSE, gamma = NULL, h = NULL, metab = NULL,
+  z0pre = 0.6, z0exp = n - 1, psi = NULL, r_pp = 10,
+  w_pp_cutoff = 10, plankton_dynamics = plankton_semichemostat,
+  resource_dynamics = list(), resource_params = list(), rho = NULL,
   srr = srrBevertonHolt)
 }
 \arguments{
@@ -46,15 +47,10 @@ be logarithmically equally spaced.}
 
 \item{q}{Exponent of the search volume. Default value is 0.8.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
-
 \item{kappa}{Carrying capacity of the plankton spectrum. Default value is
 1e11.}
 
 \item{lambda}{Exponent of the plankton spectrum. Default value is (2+q-n).}
-
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
-Default is 10 g.}
 
 \item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
 if those are not columns in the species data frame. Also requires
@@ -62,13 +58,9 @@ if those are not columns in the species data frame. Also requires
 data frame. If \code{h} and \code{gamma} are supplied then this argument is
 ignored. Default is 0.6.}
 
-\item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.}
-
-\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-Default value is \code{n-1}.}
+\item{pred_kernel}{Optional. An array (species x predator size x prey size)
+that holds the predation coefficient of each predator at size on each prey
+size. The dimensions are thus no_sp, no_w, no_w_full.}
 
 \item{pred_kernel_type}{Only used if \code{pred_kernel} is not supplied. A
 string that determines which predation kernel function is used. Default is
@@ -80,6 +72,35 @@ kernel array is calculated and stored, even though it is not needed by
 mizer. Only useful if you have your own code that relies on this array.
 Default is FALSE.}
 
+\item{gamma}{Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the Details.}
+
+\item{h}{Optional. An array (species x size) holding the maximum intake rate
+for each species at size. If not supplied, a default is set as described in
+the Details.}
+
+\item{metab}{Optional. An array (species x size) holding the metabolic rate
+for each species at size. If not supplied, a default is set as described in
+the Details.}
+
+\item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.}
+
+\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+Default value is \code{n-1}.}
+
+\item{psi}{Optional. An array (species x size) that holds the allocation to
+reproduction for each species at size. If not supplied, a default is set
+as described in the Details.}
+
+\item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
+
+\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
+Default is 10 g.}
+
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
 state. The default is \code{"\link{plankton_semichemostat}"}.}
@@ -87,16 +108,6 @@ state. The default is \code{"\link{plankton_semichemostat}"}.}
 \item{rho}{Either a 3-dim array (predator species x resource x predator size)
 or a 2-dim array (predator species x resource). In the latter case the
 size dependence is given by allometry.}
-
-\item{resource_dynamics}{A named list of functions that determine the
-dynamics of the unstructured resources by calculating their biomasses at
-the next time step from the current state. See
-\code{\link{resource_dynamics}} for details. An empty list if the model
-does not have unstructured resources.}
-
-\item{resource_params}{A list of parameters needed by the
-\code{resource_dynamics} functions. An empty list if no parameters are
-needed.}
 
 \item{srr}{The stock recruitment function. Default is
 \code{\link{srrBevertonHolt}}.}

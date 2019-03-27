@@ -5,8 +5,7 @@
 \title{Set predation kernel}
 \usage{
 setPredKernel(params, pred_kernel = NULL,
-  pred_kernel_type = "lognormal", store_kernel = (length(params@w) <=
-  100))
+  pred_kernel_type = "lognormal", store_kernel = FALSE)
 }
 \arguments{
 \item{params}{A MizerParams object}
