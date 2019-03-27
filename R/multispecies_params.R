@@ -22,7 +22,6 @@
 #'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
 #'   ignored. Default is 0.6.
 #' @inheritParams setFishing
-#' @inheritParams setPredKernel
 #' @inheritParams setSearchVolume
 #' @inheritParams setIntakeMax
 #' @inheritParams setMetab
@@ -33,17 +32,18 @@
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
-#' @note The only essential argument is a data frame which contains the species
-#'   data. The data frame is arranged species by parameter, so each column of
-#'   the parameter data frame is a parameter and each row has the parameters for
-#'   one of the species in the model.
-#'   
-#'   There are some essential columns that must be included in the species parameter
-#'   data.frame and that do not have default values. Other columns do have
-#'   default values, so that if they are not included in the species parameter
-#'   data frame, they will be automatically added when the \code{MizerParams}
-#'   object is created. See the accompanying vignette for details of these
-#'   columns.
+#' @section Species parameters:
+#' The only essential argument is a data frame which contains the species data.
+#' The data frame is arranged species by parameter, so each column of the
+#' parameter data frame is a parameter and each row has the parameters for one
+#' of the species in the model.
+#'
+#' There are some essential columns that must be included in the species
+#' parameter data.frame and that do not have default values. Other columns do
+#' have default values, so that if they are not included in the species
+#' parameter data frame, they will be automatically added when the
+#' \code{MizerParams} object is created. See the accompanying vignette for
+#' details of these columns.
 #'   
 #' \if{html}{
 #' The following table gives different components of a species parameters data.frame.
@@ -64,6 +64,17 @@
 #'   erepro \tab Reproductive efficiency \tab 1 \cr
 #'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum
 #' }}
+#' 
+#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setPredKernel Setting predation kernel
+#' @inheritSection setSearchVolume Setting search volume
+#' @inheritSection setIntakeMax Setting maximum intake rate
+#' @inheritSection setMetab Setting metabolic rate
+#' @inheritSection setBMort Setting background mortality rate
+#' @inheritSection setReproduction Setting reproduction
+#' @inheritSection setPlankton Setting plankton dynamics
+#' @inheritSection setResources Setting resource dynamics
+#' @inheritSection setResourceEncounter Setting resource encounter rate
 #'   
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
 #' @export

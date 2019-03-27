@@ -658,6 +658,8 @@ emptyParams <- function(species_params,
 
 #' Set species interation matrix and plankton interaction vector
 #' 
+#' @section Setting interactions:
+#' 
 #' The species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
 #' vector \eqn{\theta_{ip}} are used when calculating the food encounter rate in
 #' \code{\link{getEncounter}} and the predation rate in
@@ -676,11 +678,12 @@ emptyParams <- function(species_params,
 #' \code{interaction_p} argument.
 #' 
 #' @param params MizerParams object
-#' @param interaction Interaction matrix of the species (predator by prey). 
-#'   Entries should be numbers between 0 and 1.
+#' @param interaction Interaction matrix of the species (predator by prey).
+#'   Entries should be numbers between 0 and 1. See "Setting interactions"
+#'   section below.
 #' @param interaction_p Vector specifying for each species its interaction with
 #'   plankton, similar to what the interaction matrix does for the interaction
-#'   with other species.
+#'   with other species. See "Setting interactions" section below.
 #' 
 #' @return MizerParams object
 #' @export
@@ -810,8 +813,8 @@ setFishing <- function(params) {
 #' the predator size and the prey size separately. Both types can be set up with
 #' this function.
 #' 
-#' @section Kernel dependent on predator to prey size ratio:
-#' 
+#' @section Setting predation kernel:
+#' \subsection{Kernel dependent on predator to prey size ratio}{
 #' If the \code{pred_kernel} argument is not supplied, then this function sets a
 #' predation kernel that depends only on the ratio of predator mass to prey
 #' mass, not on the two masses independently. The shape of that kernel is then
@@ -841,9 +844,9 @@ setFishing <- function(params) {
 #' gives you the option of storing the full three-dimensional array anyway by
 #' setting \code{store_kernel = TRUE}. This might be useful if you have code for
 #' analysing the results of a mizer simulation that relies on the full array.
+#' }
 #' 
-#' @section Kernel dependent on both predator and prey size:
-#' 
+#' \subsection{Kernel dependent on both predator and prey size}{
 #' If you want to work with a feeding kernel that depends on predator mass and
 #' prey mass independently, you can specify the full feeding kernel as a
 #' three-dimensional array (predator species x predator size x prey size).
@@ -856,7 +859,7 @@ setFishing <- function(params) {
 #' The order of the predator species in \code{pred_kernel} should be the same
 #' as the order in the species params dataframe. If you supply a named array
 #' then the function will check the order and warn if it is different.
-#' 
+#' }
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
@@ -971,12 +974,13 @@ setPredKernel <- function(params,
 
 #' Set search volume
 #' 
-#' Sets the search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
-#' and weight \eqn{w}. The search volume multiplies the predation kernel when
+#' @section Setting search volume:
+#' The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
+#' and weight \eqn{w} multiplies the predation kernel when
 #' calculating the encounter rate and the predation rate.
 #' 
 #' If the \code{gamma} argument is not supplied, then it is set to
-#' \deqn{\gamma_i(w) = \gamma_i w^q}. The values of \eqn{gamma_i} are taken from
+#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{gamma_i} are taken from
 #' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
 #' column is not supplied in the species parameter dataframe, it is calculated
 #' from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
@@ -1036,18 +1040,18 @@ setSearchVolume <- function(params, gamma = NULL) {
 
 #' Set maximum intake rate
 #'
-#' Sets the maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i}
-#' and weight \eqn{w}. The maximum intake rate determines the feeding level
-#' calculated with \code{\link{getFeedingLevel}}.
+#' @section Setting maximum intake rate:
+#' The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
+#' weight \eqn{w} determines the feeding level, calculated with
+#' \code{\link{getFeedingLevel}}.
 #'
 #' If the \code{h} argument is not supplied, then it is set to \deqn{h_i(w) =
-#' h_i w^n}. The values of \eqn{h_i} are taken from the \code{h} column in the
+#' h_i w^n.} The values of \eqn{h_i} are taken from the \code{h} column in the
 #' species parameter dataframe. If the \code{h} column is not supplied in the
 #' species parameter dataframe, it is calculated from \code{f0} and the
 #' \code{k_vb} column, if they are supplied.
 #' 
-#' It is allowed to set \eqn{h_i} to \code{Inf}, in which case there is no 
-#' limit to the rate at which the fish can take in encountered food.
+#' If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 #'
 #' @param params MizerParams
 #' @param h Optional. An array (species x size) holding the maximum intake rate
@@ -1099,7 +1103,7 @@ setIntakeMax <- function(params, h = NULL) {
 #' Set metabolic rate
 #' 
 #' Sets the rate at which energy is used for metabolism and activity
-#' 
+#' @section Setting metabolic rate:
 #' To be documented
 #' 
 #' @param params MizerParams
@@ -1154,6 +1158,7 @@ setMetab <- function(params, metab = NULL) {
 
 #' Set background mortality rate
 #' 
+#' @section Setting background mortality rate:
 #' Still need to document
 #' 
 #' @param params MizerParams
@@ -1191,6 +1196,7 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' that is invested into reproduction as a function of the size of the
 #' individual and sets the reproductive efficiency.
 #' 
+#' @section Setting reproduction:
 #' If the \code{psi} argument is not supplied,
 #' the proportion is set to the product of a sigmoidal maturity ogive that 
 #' gives the proportion of individuals of a given species and size that are
@@ -1322,6 +1328,9 @@ setReproduction <- function(params, psi = NULL) {
 
 #' Set up plankton
 #' 
+#' @section Setting plankton dynamics:
+#' Still need to document
+#' 
 #' @param params A MizerParams object
 #' @param r_pp Growth rate of the primary productivity. Default is 10 g/year.
 #' @param w_pp_cutoff The upper cut off size of the plankton spectrum. 
@@ -1346,6 +1355,9 @@ setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
 }
 
 #' Set resource dynamics
+#' 
+#' @section Setting resource dynamics:
+#' Still need to document
 #' 
 #' @param params A MizerParams object
 #' @param resource_dynamics A named list of functions that determine the
@@ -1390,8 +1402,9 @@ setResources <- function(params,
 
 #' Set resource encounter rate
 #' 
-#' This sets the rate \eqn{\rho_{id}(w)} that determines the rate at which an
-#' individual of species \eqn{i} encounters biomass of resource \eqn{d},
+#' @section Setting resource encounter rate:
+#' The resource encounter rate \eqn{\rho_{id}(w)} determines the rate at which
+#' an individual of species \eqn{i} encounters biomass of resource \eqn{d},
 #' \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the d-th
 #' unstructured resource component. 
 #' See \code{\link{resource_dynamics}} for more details.
