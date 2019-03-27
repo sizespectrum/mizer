@@ -23,7 +23,6 @@
 #' @inheritParams setResourceEncounter
 #' @inheritParams setPlankton
 #' @inheritParams setBMort
-#' @param ... Additional arguments.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 

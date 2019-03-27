@@ -100,8 +100,6 @@ needed.}
 
 \item{srr}{The stock recruitment function. Default is
 \code{\link{srrBevertonHolt}}.}
-
-\item{...}{Additional arguments.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

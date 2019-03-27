@@ -4,7 +4,7 @@
 \alias{setResourceEncounter}
 \title{Set resource encounter rate}
 \usage{
-setResourceEncounter(params, rho)
+setResourceEncounter(params, rho = NULL)
 }
 \arguments{
 \item{params}{A MizerParams object}

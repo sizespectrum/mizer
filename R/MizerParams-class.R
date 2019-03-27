@@ -1397,7 +1397,10 @@ setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho) {
+setResourceEncounter <- function(params, rho = NULL) {
+    if (is.null(rho)) {
+        return(params)
+    }
     # Check validity of arguments
     if (!length(dim(rho)) %in% c(2, 3)) {
         stop("The rho argument must be a two- or three-dimensional array.")
