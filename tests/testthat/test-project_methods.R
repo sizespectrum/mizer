@@ -465,7 +465,8 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$beta <- species_params$beta / 100
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- set_multispecies_model(species_params, inter, no_w = 30)
+    params <- set_multispecies_model(species_params, inter, no_w = 30,
+                                     store_kernel = TRUE)
     # create a second params object that does not use fft
     params2 <- params
     params2@ft_pred_kernel_e <- array()
@@ -480,13 +481,6 @@ test_that("Test that fft based integrator gives similar result as old code", {
     prfft <- getPredRate(params, params@initial_n, params@initial_n_pp)
     pr <- getPredRate(params2, params@initial_n, params@initial_n_pp)
     expect_equivalent(prfft, pr, tolerance = 1e-15)
-    
-    ## Feeding on plankton only
-    p2 <- p
-    p2@ft_pred_kernel_e <- array()
-    efft <- getEncounter(p, p@initial_n, p@initial_n_pp)
-    e <- getEncounter(p2, p@initial_n, p@initial_n_pp)
-    expect_equivalent(efft[fish], e[fish], tolerance = 1e-13)
 })
 
 test_that("project methods return objects of correct dimension when community only has one species",{

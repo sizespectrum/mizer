@@ -1,7 +1,9 @@
 context("MizerParams constructor dimension checks")
+data(NS_species_params_gears)
+data(NS_species_params)
+data(inter)
 
 test_that("basic constructor sets dimensions properly", {
-    data("NS_species_params")
     species_params <- NS_species_params[c(6, 10, 11), ]
     species_names <- species_params$species
     no_sp <- 3
@@ -57,10 +59,7 @@ test_that("basic constructor sets dimensions properly", {
 })
 
 test_that("constructor with species_params and interaction signature gives the right dimensions", {
-    data(NS_species_params_gears)
-    data(NS_species_params)
-    data(inter)
-    test_params <- set_multispecies_model(NS_species_params, inter) # seems fine
+    test_params <- set_multispecies_model(NS_species_params, inter)
     expect_that(test_params, is_a("MizerParams"))
     expect_equal(dim(test_params@psi)[1], nrow(NS_species_params))
     expect_equal(dimnames(test_params@psi)$sp, as.character(NS_species_params$species))
@@ -74,8 +73,6 @@ test_that("constructor with species_params and interaction signature gives the r
 })
 
 test_that("constructor with only species_params signature gives the right dimensions", {
-    data(NS_species_params_gears)
-    data(NS_species_params)
     test_params <- set_multispecies_model(NS_species_params)  
     expect_true(all(test_params@interaction == 1))
     expect_equal(dim(test_params@interaction), c(dim(test_params@psi)[1],
@@ -84,8 +81,6 @@ test_that("constructor with only species_params signature gives the right dimens
 
 
 test_that("w_min_idx is being set correctly", {
-    data(NS_species_params_gears)
-    data(inter)
     # default - no w_min in params data so set to first size
     params <- set_multispecies_model(NS_species_params_gears, inter)
     expect_true(all(params@species_params$w_min == params@w[1]))
