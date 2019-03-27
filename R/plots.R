@@ -254,9 +254,8 @@ getSSBFrame <- function(sim,
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
 #'   values below 1e-20 are always cut off.
 #' @param total A boolean value that determines whether the total biomass from
-#'   all species is plotted as well. Default is FALSE
-#' @param ... Other arguments to pass to \code{getBiomass} method, for example
-#'   \code{min_w} and \code{max_w}
+#'   all species is plotted as well. Default is FALSE.
+#' @inheritDotParams get_size_range_array -params
 #'   
 #' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @export
@@ -325,8 +324,7 @@ getBiomassFrame <- function(sim,
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
-#' @param ... Other arguments to pass to \code{getBiomass} method, for example
-#'   \code{min_w} and \code{max_w}
+#' @inheritDotParams get_size_range_array -params
 #'   
 #' @return A ggplot2 object
 #' @export

@@ -158,8 +158,7 @@ getSSB <- function(sim) {
 #' both min_l and min_w are supplied, only min_l will be used).
 #' 
 #' @param sim An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of fish to be used
-#'   in the calculation (min_w, max_w, min_l, max_l).
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
@@ -266,11 +265,24 @@ getYield <- function(sim) {
 }
 
 
-# Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
-# the size limits specified by the arguments
-# If min_l or max_l are supplied they take precendence over the min_w and max_w
-# But you can mix min_l and max_w etc
-# Not exported
+#' Get size range array
+#' 
+#' Helper function that returns an array (species x size) of boolean values
+#' indicating whether that size bin is within the size limits specified by the
+#' arguments.
+#' 
+#' @param params MizerParams object
+#' @param min_w Smallest weight in size range. Defaults to smallest weight in
+#'   the model.
+#' @param max_w Largest weight in size range. Defaults to largest weight in the
+#'   model.
+#' @param min_l Smallest length in size range. If supplied, this takes
+#'   precedence over \code{min_w}.
+#' @param max_l Largest length in size range. If supplied, this takes precedence
+#'   over \code{max_w}.
+#'   
+#' @return Boolean array (species x size)
+#'
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {

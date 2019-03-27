@@ -60,7 +60,6 @@ reference:
   - set_scaling_model
   - set_trait_model
   - set_multispecies_model
-  - starts_with("default")
   - starts_with("set")
   - steady
   - emptyParams

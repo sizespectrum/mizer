@@ -32,14 +32,23 @@ for the y axis. Use NA to refer to the existing minimum or maximum. Any
 values below 1e-20 are always cut off.}
 
 \item{total}{A boolean value that determines whether the total biomass from
-all species is plotted as well. Default is FALSE}
+all species is plotted as well. Default is FALSE.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
 Default is TRUE.}
 
-\item{...}{Other arguments to pass to \code{getBiomass} method, for example
-\code{min_w} and \code{max_w}}
+\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+\describe{
+  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 A ggplot2 object

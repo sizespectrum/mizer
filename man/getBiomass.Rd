@@ -10,8 +10,17 @@ getBiomass(sim, ...)
 \arguments{
 \item{sim}{An object of class \code{MizerSim}.}
 
-\item{...}{Other arguments to select the size range of fish to be used
-in the calculation (min_w, max_w, min_l, max_l).}
+\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+\describe{
+  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 An array containing the biomass (time x species)
