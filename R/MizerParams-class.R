@@ -1030,10 +1030,7 @@ setSearchVolume <- function(params, gamma = NULL) {
         species_params$gamma[missing] <- gamma_default[missing]
         params@species_params$gamma <- species_params$gamma
     }
-    params@search_vol[] <- 
-        unlist(tapply(params@w, 1:length(params@w),
-                      function(wx, gamma, q) gamma * wx^q,
-                      gamma = species_params$gamma, q = params@q))
+    params@search_vol[] <- outer(species_params$gamma, params@w^params@q)
     return(params)
 }
 
@@ -1092,10 +1089,7 @@ setIntakeMax <- function(params, h = NULL) {
         species_params$h[missing] <- h[missing]
         params@species_params$h <- species_params$h
     }
-    params@intake_max[] <- 
-        unlist(tapply(params@w, 1:length(params@w), 
-                      function(wx, h, n) h * wx^n,
-                      h = species_params$h, n = params@n))
+    params@intake_max[] <- outer(species_params$h, params@w^params@n)
     return(params)
 }
 
@@ -1148,10 +1142,9 @@ setMetab <- function(params, metab = NULL) {
         params@species_params$ks <- species_params$ks
     }
     
-    params@metab[] <-  
-        unlist(tapply(params@w, 1:length(params@w),
-                      function(wx, ks, k, p) ks * wx^p + k * wx,
-                      ks = species_params$ks, k = species_params$k, p = params@p))
+    params@metab[] <- 
+        outer(species_params$ks, params@w^params@p) +
+        outer(species_params$k, params@w)
     return(params)
 }
 
@@ -1203,7 +1196,8 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' mature, and a factor that describes how investment into reproduction by mature
 #' individuals scales with size. In formulas:
 #' \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{[1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
+#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
+#'   [1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
 #' Here \eqn{n} is the scaling exponent of the energy income rate.
 #' The exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be \eqn{m =
@@ -1216,9 +1210,6 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' column \code{w_mat25} in the species parameter dataframe that specifies the weight
 #' at which 25\% of individuals are mature, which sets 
 #' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
-#' 
-#' The result for \eqn{\psi(w)} for all species is stored in the \code{psi} slot
-#' of the params object and this object is returned.
 #' 
 #' @param params A MizerParams object
 #' @param psi Optional. An array (species x size) that holds the allocation to
@@ -1312,16 +1303,11 @@ setReproduction <- function(params, psi = NULL) {
                    w_mat25 = species_params$w_mat25
             )
         )
+    # For reasons of efficiency we next set all very small values to 0 
     # Set w < 10% of w_mat to 0
-    params@psi[unlist(
-        tapply(params@w, 1:length(params@w),
-               function(wx, w_mat) wx < (w_mat * 0.1),
-               w_mat = species_params$w_mat))] <- 0
+    params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
     # Set all w > w_inf to 1
-    params@psi[unlist(
-        tapply(params@w, 1:length(params@w),
-               function(wx, w_inf) (wx/w_inf) > 1,
-               w_inf = species_params$w_inf))] <- 1
+    params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
     return(params)
 }
 
