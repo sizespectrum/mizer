@@ -928,6 +928,10 @@ removeSpecies <- function(params, species) {
     p@catchability <- p@catchability[, keep, drop = FALSE]
     p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
+    p@linecolour <- p@linecolour[!(p@species_params$species %in% 
+                                       p@species_params$species[remove])]
+    p@linetype <- p@linetype[!(p@species_params$species %in% 
+                                       p@species_params$species[remove])]
     
     return(p)
 }
