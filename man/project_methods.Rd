@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{project_methods}
 \alias{project_methods}
-\title{Methods used for projecting}
+\title{Functions for calculating rates used for projecting}
 \description{
 The functions defined in the file project_methods calculate the various
 quantities needed to project the size-spectra forward in time, using the

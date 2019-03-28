@@ -22,7 +22,7 @@ is 0.5.}
 
 \item{rdi}{A vector of density independent recruitment for each species. 
 If not specified rdi is calculated internally using
-the \code{\link{getRDI}} method.}
+\code{\link{getRDI}}.}
 }
 \value{
 A numeric vector the length of the number of species.
@@ -38,7 +38,7 @@ stock-recruitment relationship function.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step

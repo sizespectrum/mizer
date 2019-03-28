@@ -53,9 +53,10 @@ NULL
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using 
 #' \code{project()} like any other \code{MizerParams} object. When projecting 
-#' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid 
-#' any instabilities with the solver. You can check this by plotting the biomass
-#' or abundance through time after the projection.
+#' the community model it may be necessary to keep a small time step size
+#' \code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+#' check for these numerical instabilities by plotting the biomass or abundance
+#' through time after the projection.
 #' 
 #' @param z0 The background mortality of the community. Default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. Default value 0.2
@@ -85,7 +86,7 @@ NULL
 #' @param knife_is_min Is the knife-edge selectivity function selecting above 
 #'   (TRUE) or below (FALSE) the edge. Default is TRUE.
 #' @param max_w The maximum size of the community. The \code{w_inf} of the 
-#'   species used to represent the community is set to 0.9 * this value. The 
+#'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
@@ -120,7 +121,7 @@ set_community_model <- function(max_w = 1e6,
                                 recruitment = kappa * min_w^-lambda,
                                 rec_mult = 1,
                                 ...) {
-    w_inf <- max_w * 0.9
+    w_inf <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
     p <- n # But not used as ks = 0
@@ -152,8 +153,8 @@ set_community_model <- function(max_w = 1e6,
     constant_recruitment <- function(rdi, species_params){
         return(species_params$constant_recruitment)
     }
-    com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
-                              kappa = kappa, min_w = min_w, max_w = max_w, 
+    com_params <- set_multispecies_model(com_params_df, p = p, n = n, q = q, lambda = lambda, 
+                              kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@srr <- constant_recruitment
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
@@ -169,10 +170,12 @@ set_community_model <- function(max_w = 1e6,
 #' This functions creates a \code{MizerParams} object so that trait-based-type 
 #' models can be easily set up and run. The trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
-#' \code{mizer}. All the species-specific parameters are the same, except for
+#' \code{mizer}. The species-specific parameters are the same for all species, 
+#' except for
 #' the asymptotic size, which is considered the most important trait
 #' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by w_inf * eta, where eta is
+#' size. For example, the size at maturity is given by \code{w_inf * eta}, 
+#' where \code{eta} is
 #' the same for all species. For the trait-based model the number of species is
 #' not important. For applications of the trait-based model see Andersen &
 #' Pedersen (2010). See the \code{mizer} vignette for more details and examples
@@ -199,10 +202,11 @@ set_community_model <- function(max_w = 1e6,
 #' that of the asymptotic size).
 #' 
 #' The resulting \code{MizerParams} object can be projected forward using
-#' \code{project()} like any other \code{MizerParams} object. When projecting
+#' \code{project} like any other \code{MizerParams} object. When projecting
 #' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
 #' any instabilities with the solver. You can check this by plotting the biomass
 #' or abundance through time after the projection.
+#' 
 #' @param no_sp The number of species in the model. The default value is 10. The
 #'   more species, the longer takes to run.
 #' @param min_w_inf The asymptotic size of the smallest species in the
@@ -210,14 +214,15 @@ set_community_model <- function(max_w = 1e6,
 #' @param max_w_inf The asymptotic size of the largest species in the community.
 #' @param no_w The number of size bins in the community spectrum.
 #' @param min_w The smallest size of the community spectrum.
-#' @param max_w The largest size of the community spectrum. Default value is the
-#'   largest w_inf in the community x 1.1.
-#' @param min_w_pp The smallest size of the plankton spectrum.
+#' @param max_w Obsolete argument because the maximum size of the consumer
+#'   spectrum is set to max_w_inf.
+#' @param min_w_pp Obsolete argument because the smallest plankton size is set
+#'   to the smallest size at which the consumers feed.
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
-#'   is 1.
+#'    is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.75.
@@ -279,8 +284,8 @@ set_trait_model <- function(no_sp = 10,
                             max_w_inf = 1e5,
                             no_w = 100,
                             min_w = 0.001,
-                            max_w = max_w_inf * 1.1,
-                            min_w_pp = 1e-10,
+                            max_w = NA,
+                            min_w_pp = NA,
                             no_w_pp = NA,
                             w_pp_cutoff = 1,
                             k0 = 50, # recruitment adjustment parameter
@@ -304,6 +309,8 @@ set_trait_model <- function(no_sp = 10,
                             ...){
     if (!is.na(no_w_pp))
         warning("New mizer code does not support the parameter no_w_pp")
+    if (!is.na(max_w))
+        warning("New mizer code does not support the parameter max_w")
     
     w_inf <- 10^seq(from = log10(min_w_inf), to = log10(max_w_inf), length = no_sp)
     w_mat <- w_inf * eta
@@ -339,12 +346,10 @@ set_trait_model <- function(no_sp = 10,
     )
     # Make the MizerParams
     trait_params <-
-        MizerParams(
+        set_multispecies_model(
             trait_params_df,
             min_w = min_w,
-            max_w = max_w,
             no_w = no_w,
-            min_w_pp = min_w_pp,
             w_pp_cutoff = w_pp_cutoff,
             n = n,
             p = p,
@@ -375,47 +380,6 @@ set_trait_model <- function(no_sp = 10,
     trait_params@species_params$r_max <- r_max
     
     return(trait_params)
-}
-
-
-#' Changes the predation kernel to allow size-dependent PPMR
-#' 
-#' One way to set up a model with size-dependent predator/prey mass ratio
-#' (PPMR) is to first use one of the standard set up functions to create
-#' a MizerParams object and then to call this function with that object 
-#' and an array holding the predation kernel.
-#' 
-#' @param params A \linkS4class{MizerParams} object
-#' @param pred_kernel An array (species x predator size x prey size) 
-#'   that holds the predation coefficient of each predator at size on 
-#'   each prey size. The dimensions are thus no_sp, no_w, no_w_full.
-#'   
-#' @return A \linkS4class{MizerParamsVariablePPMR} object
-#' @export
-#' @examples
-#' \dontrun{
-#' ## Set up a MizerParams object
-#' data(NS_species_params_gears)
-#' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
-#' 
-#' ## Create a predation kernel
-#' beta <- params@species_params$beta
-#' sigma <- params@species_params$sigma
-#' w <- params@w
-#' w_full <- params@w_full
-#' pk = array(beta, dim = c(no_sp, no_w, no_w_full))
-#' pk <- exp(-0.5*sweep(log(sweep(sweep(pk, 3, w_full,"*")^-1, 2, w, "*")),1,sigma,"/")^2)
-#' pk <- sweep(pk, c(2,3),combn(w_full,1,function(x,w)x<w,w=w),"*")
-#' 
-#' ## Create a new MizerParamsVariablePPMR object to use the new predation kernel
-#' params_old <- change_pred_kernel(params, pred_kernel = pk)
-#' }
-change_pred_kernel <- function(params, pred_kernel) {
-    if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
-        stop("The pred_kerel has the wrong dimensions")
-    }
-    return(new("MizerParamsVariablePPMR", params, pred_kernel = pred_kernel))
 }
 
 
@@ -495,8 +459,8 @@ change_pred_kernel <- function(params, pred_kernel) {
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
 #'   is such that there are 100 bins for each factor of 10 in weight.
-#' @param min_w_pp The smallest size of the plankton spectrum. Default value
-#'   is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+#' @param min_w_pp Obsolete argument because the smallest plankton size is now
+#'   set so that it covers the entire range of the
 #'   feeding kernel of even the smallest fish larva.
 #' @param w_pp_cutoff The largest size of the plankton spectrum. Default
 #'   value is max_w_inf unless \code{perfect = TRUE} when it is Inf.
@@ -545,7 +509,7 @@ set_scaling_model <- function(no_sp = 11,
                               min_egg = 10 ^ (-4),
                               min_w_mat = 10 ^ (0.4),
                               no_w = log10(max_w_inf / min_egg) * 100 + 1,
-                              min_w_pp = min_egg / (beta * exp(5 * sigma)),
+                              min_w_pp = NA,
                               w_pp_cutoff = min_w_inf,
                               n = 2 / 3,
                               q = 3 / 4,
@@ -664,7 +628,7 @@ set_scaling_model <- function(no_sp = 11,
         gear = gear_names
     )
     params <-
-        MizerParams(
+        set_multispecies_model(
             species_params,
             p = p,
             n = n,
@@ -673,9 +637,7 @@ set_scaling_model <- function(no_sp = 11,
             f0 = f0,
             kappa = kappa,
             min_w = min_w,
-            max_w = max_w,
             no_w = no_w,
-            min_w_pp = min_w_pp,
             w_pp_cutoff = max_w,
             r_pp = r_pp
         )
@@ -779,6 +741,7 @@ set_scaling_model <- function(no_sp = 11,
     
     ## Setup background death ----
     m2 <- getPredMort(params, initial_n, initial_n_pp)
+    flag <- FALSE
     for (i in 1:no_sp) {
         # The steplike psi was only needed when we wanted to use the analytic
         # expression for the steady-state solution
@@ -786,13 +749,13 @@ set_scaling_model <- function(no_sp = 11,
         # params@psi[i, w < (w_mat[i] - 1e-10)] <- 0
         # params@psi[i, w > (w_inf[i] - 1e-10)] <- 1
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
-        if (any(params@mu_b[i,] < 0)) {
-            message("Note: negative background mortality.")
-            if (!perfect) {
-                message("Note: Negative background mortality rates overwritten with zeros")
-                params@mu_b[i, params@mu_b[i,] < 0] <- 0
-            }
+        if (!perfect && any(params@mu_b[i,] < 0)) {
+            params@mu_b[i, params@mu_b[i,] < 0] <- 0
+            flag <- TRUE
         }
+    }
+    if (flag) {
+        message("Note: Negative background mortality rates overwritten with zeros")
     }
     
     ## Set erepro to meet boundary condition ----
@@ -1023,7 +986,7 @@ removeSpecies <- function(params, species) {
 addSpecies <- function(params, species_params, SSB = NA,
                        rfac=10, effort = 0) {
     # The code adds a new species into the system, and sets its abundance to the
-    # steady state in the system where the new species does not self interact. Then
+    # steady state in the system where the new species does not self-interact. Then
     # the abundance multipliers of the background species are retuned to retain the
     # old aggregate abundance curve, using retune_abundance(). Then the values of
     # erepro are altered so that the resulting configuration satisfies the steady
@@ -1031,7 +994,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     # is at steady state, and if the death rates of pre-existing species are close
     # to what they where before the new species were added, and if the newly added
     # species is at a low enough abundance (i.e., if mult is low enough) that the
-    # assumption of it being none self interacting is approximately valid, then the
+    # assumption of it not self-interacting is approximately valid, then the
     # abundance curves attached to the params object returned by addSpecies() will
     # be a steady state,
     #
@@ -1069,7 +1032,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     
     # use dataframe and global settings from params to make a new MizerParams 
     # object.
-    p <- MizerParams(
+    p <- set_multispecies_model(
         combi_species_params,
         p = params@p,
         n = params@n,
@@ -1079,8 +1042,8 @@ addSpecies <- function(params, species_params, SSB = NA,
         kappa = params@kappa,
         min_w = min(params@w),
         max_w = max(params@w),
-        no_w = length(params@w),
         min_w_pp = min(params@w_full),
+        no_w = length(params@w),
         w_pp_cutoff = max(params@w_full),
         r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
     )
@@ -1207,7 +1170,7 @@ addSpecies <- function(params, species_params, SSB = NA,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 #' sim <- setBackground(sim, species = c("Sprat", "Sandeel", 
 #'                                             "N.pout", "Dab", "Saithe"))
@@ -1235,15 +1198,16 @@ setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
 #'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
 #' @param dt The time step to use in `project()`
-#' @param shiny_progress A shiny progress object to implement progress bar
+#' @param progress_bar A shiny progress object to implement 
+#'   a progress bar in a shiny app. Default FALSE
 #' @export
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
-                   dt = 0.1, shiny_progress = NULL) {
+                   dt = 0.1, progress_bar = TRUE) {
     p <- params
     
-    if (hasArg(shiny_progress)) {
+    if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
-        shiny_progress$set(message = "Finding steady state", value = 0)
+        progress_bar$set(message = "Finding steady state", value = 0)
         proginc <- 1/ceiling(t_max/t_per)
     }
     
@@ -1265,8 +1229,8 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
                        effort = effort, 
                        initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
-        if (hasArg(shiny_progress)) {
-            shiny_progress$inc(amount = proginc)
+        if (is(progress_bar, "Progress")) {
+            progress_bar$inc(amount = proginc)
         }
         no_t <- dim(sim@n)[1]
         n <- sim@n[no_t, , ]
@@ -1301,7 +1265,7 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     r <- getRates(p, effort = effort)
     for (res in names(p@resource_dynamics)) {
         res_external <- paste0(res, "_external")
-        if (!res_external %in% names(resource_params)) {
+        if (!res_external %in% names(p@resource_params)) {
             stop(paste("The parameter", res_external, "is missing from resource_params."))
         }
         p@resource_params$res_external <- 

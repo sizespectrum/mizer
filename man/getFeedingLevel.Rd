@@ -29,13 +29,17 @@ single value. Default is the whole time range. Only used if the
 \code{object} argument is of type \code{MizerSim}.}
 
 \item{drop}{should extra dimensions of length 1 in the output be dropped,
-simplifying the output. Defaults to TRUE.}
+simplifying the output. Defaults to FALSE.}
 }
 \description{
-Calculates the feeding level \eqn{f_i(w)} as a by predator size based on food
+Calculates the feeding level \eqn{f_i(w)} by predator size based on food
 availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed. This method is
-used by the \code{\link{project}} method for performing simulations.
+proportion of the encountered food that is actually consumed. It is 
+defined in terms of the encounter rate \eqn{E_i} and the maximum intake 
+rate \eqn{h_i(w)} as
+\deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}}{E_i(w)/(E_i(w)+h_i(w))}
+The feeding rate is used in \code{\link{getEReproAndGrowth}} and in
+\code{\link{getPredRate}}.
 }
 \note{
 If a \code{MizerParams} object is passed in, the method returns a two
@@ -50,7 +54,7 @@ If a \code{MizerParams} object is passed in, the method returns a two
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step

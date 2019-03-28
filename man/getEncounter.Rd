@@ -20,25 +20,42 @@ getEncounter(object, n = object@initial_n, n_pp = object@initial_n_pp,
 A two dimensional array (predator species x predator size)
 }
 \description{
-Calculates the amount \eqn{E_{e,i}(w)} of food encountered by each predator
-as a function of predator size.
+Calculates the rate \eqn{E_i(w)} at which a predator of species $i$ and
+weight $w$ encounters food (mass per time).
 }
 \details{
-This function is used by the \code{\link{project}} method for
+The encounter rate has contributions from the encounter of fish prey, of
+plankton, and of other resoruces. The contribution from fish and plankton
+is determined by summing over all prey species and the resource spectrum and
+then integrating over all prey sizes $w_p$, weighted by predation kernel 
+\eqn{\phi(w,w_p)}:
+\deqn{
+E_{i}(w) = \gamma_i(w) \int 
+\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+\phi_i(w,w_p) w_p \, dw_p.
+}
+The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
+predator. It could be interpreted as a search volume and is set with the
+\code{\link{setSearchVolume}} function. The predation kernel
+\eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
+species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
+vector \eqn{\theta{ip}} are set with \code{\link{setInteraction}}.
+
+The encounter rate is used by the \code{\link{project}} method for
 performing simulations.
+
+The function returns values also for sizes outside the size-range of the
+species. These values should not be trusted, as they are meaningless.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-# With constant fishing effort for all gears for 20 time steps
+params <- set_multispecies_model(NS_species_params_gears, inter)
+# Run simulation with constant fishing effort for all gears for 20 years
 sim <- project(params, t_max = 20, effort = 0.5)
-n <- sim@n[21,,]
-n_pp <- sim@n_pp[21,]
-getEncounter(params,n,n_pp)
+n <- sim@n[21, , ]
+n_pp <- sim@n_pp[21, ]
+getEncounter(params, n, n_pp)
 }
-}
-\seealso{
-\code{\link{project}}
 }

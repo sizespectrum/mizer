@@ -35,7 +35,16 @@ navbar:
 articles:
 - title: User Guides
   contents:
+  - installation
   - model_description
+  - community_model
+  - trait_model
+  - multispecies_model
+  - running_a_simulation
+  - exploring_the_simulation_results
+  - a_multispecies_model_of_the_north_sea
+  - scale_invariant_trait_based_model
+  - test
 - title: Developer Guides
   contents:
   - developer_vignette
@@ -45,14 +54,14 @@ articles:
 
 reference:
 - title: Setting model parameters
-  desc:  Functions to create MizerParams parameter object describing your model
+  desc:  Functions to create and modify a MizerParams parameter object describing your model
   contents:
   - set_community_model
   - set_scaling_model
   - set_trait_model
-  - multispeciesParams
+  - set_multispecies_model
+  - starts_with("set")
   - steady
-  - change_pred_kernel
   - emptyParams
   - addSpecies
   - removeSpecies
@@ -63,6 +72,8 @@ reference:
   - project
 - title: Analysing results
   contents:
+  - summary_functions
+  - getDiet
   - getBiomass
   - getCommunitySlope
   - getMeanMaxWeight
@@ -72,13 +83,14 @@ reference:
   - getSSB
   - getYield
   - getYieldGear
+  - getGrowthCurves
 - title: Plotting results
   contents:
+  - plotting_functions
   - starts_with("plot")
   - getBiomassFrame
   - getSSBFrame
-  - display_frames
-  - log_breaks
+  - displayFrames
 - title: Calculating rates used in model
   contents:
   - getRates
@@ -95,17 +107,23 @@ reference:
   - getPredRate
   - getRDD
   - getRDI
-- title: Functions used in model
+- title: Dynamics of unstructured resources
   contents:
-  - knife_edge
-  - sigmoid_length
+  - resource_dynamics
   - carrion_dynamics
   - detritus_dynamics
+- title: Functions used in model
+  contents:
+  - lognormal_pred_kernel
+  - lognormal_max_ppmr
+  - box_pred_kernel
+  - box_max_ppmr
+  - knife_edge
+  - sigmoid_length
   - plankton_semichemostat
 - title: Classes
   contents:
   - MizerParams-class
-  - MizerParamsVariablePPMR-class
   - MizerSim-class
   - MizerSim
   - summary,MizerParams-method
@@ -115,9 +133,6 @@ reference:
   - NS_species_params
   - NS_species_params_gears
   - inter
-- title: Others
-  contents:
-  - get_initial_n
 - title: Aliases
   desc: These aliases are available for backwards compatibility with earlier
         versions of mizer

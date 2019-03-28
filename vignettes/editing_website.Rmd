@@ -1,6 +1,5 @@
 ---
 title: "Editing the mizer website"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Editing the mizer website}

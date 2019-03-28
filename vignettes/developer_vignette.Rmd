@@ -1,6 +1,5 @@
 ---
 title: "Developer Guide"
-date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -21,8 +20,9 @@ knitr::opts_chunk$set(
 
 This vignette is for you if you need to extend mizer 
 to meet the needs of your research project.
-You will already have read the [main mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf) and thus be
-familiar with what mizer can do out of the box.
+You will already have read the mizer model description in
+`vignette("model_description")`
+and thus be familiar with what mizer can do out of the box.
 You now want to implement the extension or modification of the
 model required for your research, and for that you need to dive into 
 the internal workings of mizer. This vignette is meant to make
@@ -51,7 +51,7 @@ This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
 to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
-frequently. This guide was written with version 1.2.1114.
+frequently. This guide was written with version 1.2.1268.
 
 To work with R packages as a developer, you will need to
 [install additional tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites). Once you have these in place, you should install the devtools package with
@@ -60,6 +60,8 @@ install.packages("devtools")
 ```
 You are now all set to develop R packages, and 
 [RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet for package development accessible from the Help menu in RStudio.
+
+
 
 ## Installing git
 In case git is not already installed on your system, you need to 
@@ -77,6 +79,26 @@ To work with the code you will create your own git repository with a copy of the
 
 Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
 Then create a version control new project in Rstudio, and indicate your depository url.
+
+Go the the Git tab and from "More" select "Shell..." to open up a Git shell.
+There issue the commands
+```
+git remote add upstream git@github.com:sizespectrum/mizer.git
+git fetch upstream
+```
+This will allow you to, from time to time, sync changes made in the 
+sizespectrum/mizer repository into your own fork (see [https://help.github.com/en/articles/syncing-a-fork]). 
+You do this with the command
+```
+git merge upstream/dev
+```
+
+
+You will want to set up RStudio so that it automatically builds the 
+documentation using roxygen.
+* Go to Build -> Configure Build Tools, tick the checkbox "Generate
+  documentation with roxygen".
+
 On the "Git" tab select the "dev" branch. This contains the latest development
 code for mizer. 
 
@@ -117,6 +139,8 @@ below we assume that the `MizerParams` object is called `params` and the
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
 
+<!--
+
 ## The project methods
 
 ## The MizerSim object
@@ -127,6 +151,8 @@ An object of class 'MizerParams' holds all the information needed for the
 
 ## Collaborating on Github
 
+-->
+
 ## Coding style
 [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
 [The tidyverse style guide](http://style.tidyverse.org/)
@@ -136,9 +162,41 @@ We use [testthat](http://testthat.r-lib.org/) and
 [shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
 The test are in the directory `tests/testthat`. 
 
-Some tests check that code produces the same numerical values as in the
-past with the `expect_known_value()` function. This is set up to store
-the correct values in files in `tests/testthat/values`.
+Some tests compare the results of calculations to the results the code gave in
+the past, using the `testthat::expect_known_value()` test. The past values are stored in
+tests/testthat/values. If one of the tests gives a value that is different from
+the stored value, then the test throws an error *and* overwrites the stored
+value with the new result. The second time the test is run, it then no longer
+fails. Luckily the original values will still be in the git repository. So after
+you think you have fixed the error that led to the wrong result, you should
+revert to the old stored values before re-running the test. Reverting to the old
+stored values is easy: Just go to the Git tab in RStudio, select the changed
+files in `tests/testthat/values` (select, not tick), then right-click and choose
+Revert.
+
+When a plot has changed, the error message from `testthat::expect_known_value()`
+is not particularly useful, because it compares two ggplot objects. In this 
+case you should carefully compare the plots by eye. To view the old plot you 
+have to first revert the file in `tests/testthat/values` and then load the plot
+from that file with `readRDS("tests/testthat/values/name_of_plot_function")`.
+
+It may be that the change in the result of a calculation is intended, perhaps
+because your new code is more accurate than the old code. If you are 100%
+certain of this, but only then, should you commit the changed files in
+tests/testthat/values, so that these new values form the basis of future
+comparison tests.
 
 
-[Edit this page](https://github.com/gustavdelius/mizer/edit/master/vignettes/developer_vignette.Rmd)
+## Rebuild package after altering code
+If you make a change to mizer's code you will have to rebuild the package after 
+you are done. In RStudio this can be done by clicking on the *Build* tab at the 
+top right and clicking *Install and Restart*. To be sure that the changes have 
+taken proper effect it may also help to clean the environment and/or restart 
+RStudio.
+
+To be sure that the package
+builds properly, make sure that the Roxygen2 package is properly installed, and 
+click the *More* dropdown, on the *Build* tab, and click *Configure Build Tools*
+and tick *Use devtools package functions if available* and
+*Generate documentation with Roxygen*, and click *Configure* and under
+*Automatically roxygenize when running:* tick *Build & Reload*.

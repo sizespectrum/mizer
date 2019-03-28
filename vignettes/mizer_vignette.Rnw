@@ -1092,10 +1092,10 @@ such as fishing effort or population abundance. These are stored in the \class{M
 we will come to later in Section~\ref{sec:projection}.
 
 Although the \class{MizerParams} class seems complicated, it is relatively straightforward to set up and use.
-Objects of class \class{MizerParams} are created using the constructor method \code{MizerParams()}.
+Objects of class \class{MizerParams} are created using the constructor method \code{set\_multispecies\_model()}.
 This constructor method can take many arguments. However, creation is simplified because many of the arguments have default values.
 
-In the rest of this section we look at the main arguments to the \code{MizerParams()} constructor method.
+In the rest of this section we look at the main arguments to the \code{set\_multispecies\_model()} constructor method.
 To help understand how the constructor is used and how the \class{MizerParams} class
 relates to the equations given in Section~\ref{sec:principles}, there is an example
 section where we create example parameter objects using data that comes with the
@@ -1117,7 +1117,7 @@ Essential columns that have default values are: \args{k}, the activity coefficie
 If any of these columns are not included in the species parameter data.frame, the default values are used.
 
 As mentioned above, there are some columns that are essential but if they are not provided, values for them are estimated using the values in the other columns. These columns are:
-\args{h}, the maximum food intake; \args{gamma}, the volumetric search rate; \args{ks}, the coefficient for standard metabolism; \args{z0}, the mortality from other sources ($\mu_{b,i}$ in Equation~\ref{eq:mu_b}). These parameters can be included as columns in the species parameters \class{data.frame} if they are available. If they are not provided then the \code{MizerParams()} construction method will try to calculate them.
+\args{h}, the maximum food intake; \args{gamma}, the volumetric search rate; \args{ks}, the coefficient for standard metabolism; \args{z0}, the mortality from other sources ($\mu_{b,i}$ in Equation~\ref{eq:mu_b}). These parameters can be included as columns in the species parameters \class{data.frame} if they are available. If they are not provided then the \code{set\_multispecies\_model()} construction method will try to calculate them.
 
 The \args{h} column is calculated as:
 
@@ -1126,12 +1126,12 @@ The \args{h} column is calculated as:
 \end{equation}
 
 where $k_{vb}$ is the von Bertalanffy $K$ parameter and $f_0$ is the feeding level of small individuals feeding mainly on the resource.
-This mean that if an \args{h} column is not included in the species parameter data.frame, a column for \args{k\_vb} is necessary. If it is not included then the \code{MizerParams()} method will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, \args{f0}, to the \code{MizerParams()} constructor and it has a default value of 0.6.
+This mean that if an \args{h} column is not included in the species parameter data.frame, a column for \args{k\_vb} is necessary. If it is not included then the \code{set\_multispecies\_model()} function will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, \args{f0}, to the \code{set\_multispecies\_model()} constructor and it has a default value of 0.6.
 
 The \args{gamma} column is calculated using Equation~\ref{eq:gamma}.
 This calculation requires that the \args{h} column is available, either included in the species parameter data.frame, or calculated internally using the \args{k\_vb} column as described above. This means that if you include a \args{k\_vb} column in the data.frame, \args{h} and \args{gamma} will be calculated from it.
 
-The \args{z0} column (mortality from other sources) is calculated using Equation~\ref{eq:mu_b}. \args{z0pre} (equivalent to $\mu_0$) and \args{z0exp} (the power that $W_\infty$ is raised to) can be passed as arguments to the \code{MizerParams()} constructor and have default values of 0.6 and \args{n}-1 (\args{n} has a default value of 2/3 - see below) respectively.
+The \args{z0} column (mortality from other sources) is calculated using Equation~\ref{eq:mu_b}. \args{z0pre} (equivalent to $\mu_0$) and \args{z0exp} (the power that $W_\infty$ is raised to) can be passed as arguments to the \code{set\_multispecies\_model()} constructor and have default values of 0.6 and \args{n}-1 (\args{n} has a default value of 2/3 - see below) respectively.
 
 The \args{ks} column is calculated as 20\% of \args{h}, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
 Standard metabolism is used in calculation of the growth of individuals as $ks * w_i^p$ (see Section~\ref{sec:growth}).
@@ -1297,9 +1297,9 @@ It should be noted that the order of species in the interaction matrix has to be
 Although you can specify the dimnames of the interaction matrix, these names are overwritten by the species names from the species parameters data.frame
 inside the \class{MizerParams} constructor.
 
-If an interaction matrix is not specified to the \code{MizerParams()} constructor the default iteration matrix is used. This has all values set to 1. 
+If an interaction matrix is not specified to the \code{set\_multispecies\_model()} constructor the default iteration matrix is used. This has all values set to 1. 
 
-\subsection{The other \code{MizerParams()} arguments}
+\subsection{The other arguments}
 \label{sec:other_mizerparams_arguments}
 
 As well as the essential species parameters data.frame and the interaction
@@ -1329,7 +1329,7 @@ The arguments can be seen in Table~\ref{tab:other_params}.
     z0pre & If \args{z0}, the mortality from other sources, is not a column in the species data.frame, it is calculated as $z0pre * w_\infty ^{z0exp}$. & 0.6 \\
     z0exp & See z0pre & n - 1\\
 	\end{tabularx}
-	\caption{Other parameters to the \code{MizerParams()} constructor}
+	\caption{Other parameters to the \code{set\_multispecies\_model()} constructor}
 	\label{tab:other_params}
     \end{center}
 \end{table}
@@ -1343,7 +1343,7 @@ The default value \args{kappa} is for the North Sea model.
 \subsection{Examples of making a \class{MizerParams} objects}
 \label{sec:params_example}
 
-As mentioned in the preceding sections, an object of \class{MizerParams} is created by using the \code{MizerParams()}
+As mentioned in the preceding sections, an object of \class{MizerParams} is created by using the \code{set\_multispecies\_model()}
 constructor method. You can see the help page for the constructor:
 
 <<label=help_MP_constructor, eval=FALSE>>=
@@ -1402,10 +1402,10 @@ Note that there are no columns describing the fishing selectivity. There is no \
 This means that the default selectivity function, \code{knife\_edge}, will be used. As mentioned in Section~\ref{sec:fishing_gear},
 this function also needs another argument, \args{knife\_edge\_size}. This is not present in the data.frame and so it will be set to the default value of \args{w\_mat}. Also, there is no \args{catchability} column so a default value for \args{catchability} of 1 will be used for all gears and species.
 
-This species parameter data.frame is the minimum we need to create a \class{MizerParams} object as it contains only essential columns. To create the \class{MizerParams} object we pass the data.frame into the \code{MizerParams()} constructor method:
+This species parameter data.frame is the minimum we need to create a \class{MizerParams} object as it contains only essential columns. To create the \class{MizerParams} object we pass the data.frame into the \code{set\_multispecies\_model()} constructor method:
 
 <<label=first_MP, results='hide'>>=
-params <- MizerParams(params_data)
+params <- set_multispecies_model(params_data)
 @
 
 We have just created a \class{MizerParams} object:
@@ -1439,7 +1439,7 @@ summary(params)
 As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are \Sexpr{length(params@w)} size classes in the community, ranging from \Sexpr{signif(min(params@w),3)} to \Sexpr{signif(max(params@w),3)}. These values are controlled by the arguments \args{no\_w}, \args{min\_w} and \args{max\_w} respectively. For example, if we wanted 200 size classes in the model we would use:
 
 <<label=MP_200, eval=FALSE>>=
-params200 <- MizerParams(params_data, no_w=200)
+params200 <- set_multispecies_model(params_data, no_w=200)
 summary(params200)
 @
 
@@ -1467,11 +1467,11 @@ inter <- as(inter, "matrix")
 
 We now have an interaction matrix that can be passed to the \class{MizerParams} constructor along with the species parameter data.frame.
 To make the \class{MizerClass} object you just call the constructor method and pass in the arguments.
-We will use default values for the remainder of the arguments to the \code{MizerParams()} method (see Section~\ref{sec:other_mizerparams_arguments} and Table~\ref{tab:other_params}).
+We will use default values for the remainder of the arguments to the \code{set\_multispecies\_model()} function (see Section~\ref{sec:other_mizerparams_arguments} and Table~\ref{tab:other_params}).
 This means that we only need to pass in two arguments to the constructor:
 
 <<results='hide'>>=
-params <- MizerParams(params_data, interaction = inter)
+params <- set_multispecies_model(params_data, interaction = inter)
 @
 
 Note that the first argument must be the species parameters data.frame.
@@ -1503,7 +1503,7 @@ If you inspect the \code{params\_data} object you will see a new column, \args{g
 We then make a new \class{MizerParams} object as before:
 
 <<label=set_params_gears, results='hide'>>=
-params_gears <- MizerParams(params_data_gears, interaction = inter)
+params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
 @
 
 You can see the result by calling \code{summary()} on the \args{params\_gears} object.
@@ -1623,7 +1623,7 @@ in which each species is caught by a separate gear.
 Here we make the object again:
 
 <<label = remaking_simple_ms_params, results='hide'>>=
-params <- MizerParams(params_data, interaction = inter)
+params <- set_multispecies_model(params_data, interaction = inter)
 @
 
 As described above, effort is associated with fishing gears.
@@ -2115,7 +2115,7 @@ This was estimated along with the values \args{r\_max} as part of the calibratio
 We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
 
 <<label=make_ns_params, results='hide'>>=
-params <- MizerParams(params_data, inter, kappa = 9.27e10)
+params <- set_multispecies_model(params_data, inter, kappa = 9.27e10)
 @
 
 \subsection{Setting up and running the simulation}
@@ -2420,7 +2420,7 @@ params <- set_scaling_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
 sim <- project(params, t_max=15, effort = 1)
 b_trait <- getBiomassFrame(sim_trait)
 b <- getBiomassFrame(sim)
-display_frames(b_trait, b, params)
+displayFrames(b_trait, b, params)
 @
 
 

@@ -3,17 +3,63 @@ context("Plotting methods")
 # Initialisation ----------------
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter, no_w = 30)
-sim <- project(params, effort = 1, t_max = 2, dt = 1, t_save = 1)
+params <- set_multispecies_model(NS_species_params_gears, inter, no_w = 30)
+sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
+species <- c("Cod", "Haddock")
 
-test_that("plotting function do not throw error", {
-    expect_error(plot(sim), NA)
-    expect_error(plotYield(sim), NA)
-    expect_error(plotYield(sim, sim), NA)
-    expect_error(plotYieldGear(sim), NA)
-    expect_error(plotSpectra(params), NA)
-    expect_error(plotFMort(sim), NA)
-    expect_error(plotGrowthCurves(sim), NA)
-    expect_error(plotGrowthCurves(params), NA)
+test_that("plots have not changed", {
+p <- plotBiomass(sim, species = species, total = TRUE,
+                 start_time = 0, end_time = 2.8,
+                 y_ticks = 4)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotBiomass")
+
+p <- plotYield(sim, species = species, total = TRUE)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotYield")
+
+p <- plotYieldGear(sim, species = species)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotYieldGear")
+
+p <- plotSpectra(sim, species = species, total = TRUE,
+                 time_range = 1:3, power = 2,
+                 ylim = c(1e6, NA))
+p$plot_env <- NULL
+expect_known_value(p, "values/plotSpectra")
+
+p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotFeedingLevel")
+
+p <- plotM2(sim, species = species, time_range = 1:3)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotM2")
+
+p <- plotFMort(sim, species = species, time_range = 1:3)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotFMort")
+
+p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
+                      max_age = 50)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotGrowthCurves")
+})
+
+test_that("plot function do not throw error", {
+    expect_error(plot(sim, species = species, wlim = c(10, 100), w_min = 10), NA)
+})
+
+test_that("plotly function do not throw error", {
+    expect_error(plotlyBiomass(sim, species = species), NA)
+    expect_error(plotlyFeedingLevel(sim, species = species), NA)
+    expect_error(plotlyYield(sim, species = species), NA)
+    expect_error(plotlyYield(sim, sim), NA)
+    expect_error(plotlyYieldGear(sim, species = species), NA)
+    expect_error(plotlySpectra(params, species = species), NA)
+    expect_error(plotlyM2(sim, species = species), NA)
+    expect_error(plotlyFMort(sim, species = species), NA)
+    expect_error(plotlyGrowthCurves(sim, species = species), NA)
+    expect_error(plotlyGrowthCurves(params, species = species), NA)
 })
 

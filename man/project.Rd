@@ -7,7 +7,7 @@
 project(params, sim = NULL, effort = 0, t_max = 100, dt = 0.1,
   t_save = 1, initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  shiny_progress = NULL, ...)
+  progress_bar = TRUE, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -44,18 +44,20 @@ same as the names of the list in the \code{resource_dynamics} slot of the
 \code{MizerParams}. By default is set to the \code{initial_B} slot of the
 \code{params} argument.}
 
-\item{shiny_progress}{A shiny progress object used to update shiny progress bar.
-Default NULL.}
+\item{progress_bar}{Either a boolean value to determine whether a progress
+bar should be shown in the console of a shiny progress object to implement 
+a progress bar in a shiny app}
 
 \item{...}{Currently unused.}
 }
 \value{
-An object of type \linkS4class{MizerSim}.
+An object of class \linkS4class{MizerSim}.
 }
 \description{
 Runs the size spectrum model simulation.
 The function returns an object of type
-\linkS4class{MizerSim} that can then be explored with a range of summary and
+\linkS4class{MizerSim} that can then be explored with a range of
+\code{\link{summary_functions}} and \code{\link{plotting_functions}}
 plotting methods.
 }
 \note{
@@ -80,13 +82,19 @@ used as the initial time for the simulation. Otherwise the initial time is
 set to 0. Also, if the effort is an array then the \code{t_max} argument is 
 ignored and the maximum simulation time is the largest time of the effort
 array.
+
+The \code{initial_n} argument is a matrix with dimensions species x size. 
+It specifies the abundances of the species at the initial time. The
+order of species must be the same as in the \code{MizerParams} argument. If
+the initial population is not specified, the argument is set by default by
+the \code{\link{get_initial_n}} function which is set up for a North Sea model.
 }
 \examples{
 \dontrun{
 # Data set with different fishing gears
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear
@@ -105,5 +113,6 @@ sim <- project(params, effort = effort_array)
 }
 }
 \seealso{
-\code{\link{MizerParams}}
+\code{\link{MizerParams}}, \code{\link{summary_functions}} and 
+  \code{\link{plotting_functions}}
 }

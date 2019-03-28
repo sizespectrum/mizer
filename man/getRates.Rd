@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getRates}
 \alias{getRates}
-\title{Get rates}
+\title{Get all rates}
 \usage{
 getRates(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, effort = 0, sex_ratio = 0.5)
@@ -38,6 +38,6 @@ A list with the following components:
   }
 }
 \description{
-Calls all the other functions in sequence and collects the results in a
+Calls all the other rate functions in sequence and collects the results in a
 list.
 }

@@ -1,5 +1,20 @@
-# mizer development version
 
+# mizer 1.1
+
+* Satiation can be switched off by setting the maximum intake rate to Inf
+* Users can now replace the lognormal function in the predation kernel by a
+  function of their choice
+* `project()` can now continue projection from last time step of a previous
+  simulation provided in an optional `sim` argument
+* Added function to get diet of predators
+* Removed discrepancies between FFT method and old method for calculating integrals
+* Values for minimum plankton size, and minimum and maximum consumer sizes set
+  automatically
+* Allowing feeding kernel to be kept even when using FFT methods
+* Function setPredKernel() for changing predation kernel
+* Set names on arrays returned by getEncounter and getPredRate
+* Replaced `getPhiPrey()` by `getEncounter()` which includes the search volume
+  factor.
 * Added numerical unit tests
 * Allow user-defined plankton dynamics
 * Introduced a new parameter slot `interact_p` that sets the strength of
@@ -7,10 +22,10 @@
 * Avoid duplicate graphs in rmarkdown documents by setting the default for
   the `print_it` argument in plot functions to `FALSE`.
 * Introduce unstructured resources into mizer model
+* Use a more general expression for the maturity ogive `psi` with two
+  additional species parameters `m` and `w25`.
 * Correctly deal with NAs in species parameters.
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
-* Predation integrals now agree better with the analytic
-  results rather than the old mizer results.
 * `cc_pp` is calculated in a way that reduces rounding errors.
 * `set_scaling_model()` now produces perfectly scale-invariant model when
   called with `perfect = TRUE`.
@@ -22,12 +37,11 @@
 * Changed naming convention: function names are now in camelCase.
 * Renamed some functions for consistency and to make them easier to understand,
   but kept old names as aliases for backwards compatibility:
-  + `getPhiPrey` -> `getAvailEnergy`
   + `getmM2` -> `getPredMort`
   + `getM2background` -> `getPlanktonMort`
   + `getZ` -> `getMort`
   + `getESpawning` -> `getERepro`
-  + `MizerParams` -> `emptyParams` or `multispeciesParams`
+  + `MizerParams` -> `emptyParams` or `set_multispecies_model`
 * Improvement to MizerParams class:
   + Merged `std_metab` and `activity` slots into a single `metab` slot.
   + Moved `w_min_idx` out of `species_params` into its own slot.

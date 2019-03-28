@@ -93,7 +93,7 @@ valid_MizerSim <- function(object){
 
 # Soundtrack: Yob - Quantum Mystic
 #### Class definition ####
-#' MizerSim
+#' A class to hold the results of a simulation
 #' 
 #' A class that holds the results of projecting a \linkS4class{MizerParams}
 #' object through time.

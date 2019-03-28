@@ -17,7 +17,8 @@ NULL
 #' 
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
-#' \linkS4class{MizerSim} that can then be explored with a range of summary and
+#' \linkS4class{MizerSim} that can then be explored with a range of
+#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}
 #' plotting methods.
 #' 
 #' @param params A \linkS4class{MizerParams} object
@@ -45,8 +46,9 @@ NULL
 #'   same as the names of the list in the \code{resource_dynamics} slot of the
 #'   \code{MizerParams}. By default is set to the \code{initial_B} slot of the
 #'   \code{params} argument.
-#' @param shiny_progress A shiny progress object used to update shiny progress bar.
-#'   Default NULL.
+#' @param progress_bar Either a boolean value to determine whether a progress
+#'   bar should be shown in the console of a shiny progress object to implement 
+#'   a progress bar in a shiny app
 #' @param ... Currently unused.
 #' 
 #' @note The \code{effort} argument specifies the level of fishing effort during
@@ -71,16 +73,23 @@ NULL
 #' ignored and the maximum simulation time is the largest time of the effort
 #' array.
 #' 
-#' @return An object of type \linkS4class{MizerSim}.
+#' The \code{initial_n} argument is a matrix with dimensions species x size. 
+#' It specifies the abundances of the species at the initial time. The
+#' order of species must be the same as in the \code{MizerParams} argument. If
+#' the initial population is not specified, the argument is set by default by
+#' the \code{\link{get_initial_n}} function which is set up for a North Sea model.
+#' 
+#' @return An object of class \linkS4class{MizerSim}.
 #' 
 #' @export
-#' @seealso \code{\link{MizerParams}}
+#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}} and 
+#'   \code{\link{plotting_functions}}
 #' @examples
 #' \dontrun{
 #' # Data set with different fishing gears
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # With constant fishing effort which is different for each gear
@@ -102,7 +111,7 @@ project <- function(params, sim = NULL, effort = 0,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,
                     initial_B = params@initial_B,
-                    shiny_progress = NULL, ...) {
+                    progress_bar = TRUE, ...) {
     validObject(params)
     if (hasArg(sim)) {
         assert_that(is(sim, "MizerSim"))
@@ -230,12 +239,14 @@ project <- function(params, sim = NULL, effort = 0,
     B <- initial_B
     
     # Set up progress bar
-    pb <- progress::progress_bar$new(
-        format = "[:bar] :percent ETA: :eta",
-        total = length(t_dimnames_index), width = 60)
-    if (hasArg(shiny_progress)) {
+    if (progress_bar == TRUE) {
+        pb <- progress::progress_bar$new(
+            format = "[:bar] :percent ETA: :eta",
+            total = length(t_dimnames_index), width = 60)
+    }
+    if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
-        shiny_progress$set(message = "Running simulation", value = 0)
+        progress_bar$set(message = "Running simulation", value = 0)
         proginc <- 1/length(t_dimnames_index)
     }
     
@@ -277,7 +288,7 @@ project <- function(params, sim = NULL, effort = 0,
                               sim@params@dw[idx], "/") +
                         r$mort[, idx, drop = FALSE] * dt
         # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[,idx,drop = FALSE]
+        S[,idx] <- n[, idx, drop = FALSE]
         # Boundary condition upstream end (recruitment)
         b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
                                         sim@params@dw[sim@params@w_min_idx] +
@@ -303,9 +314,11 @@ project <- function(params, sim = NULL, effort = 0,
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
             # Advance progress bar
-            pb$tick()
-            if (hasArg(shiny_progress)) {
-                shiny_progress$inc(amount = proginc)
+            if (is(progress_bar, "Progress")) {
+                progress_bar$inc(amount = proginc)
+            }
+            if (progress_bar == TRUE) {
+                pb$tick()
             }
             # Store result
             sim@n[which(store), , ] <- n
@@ -333,7 +346,7 @@ project <- function(params, sim = NULL, effort = 0,
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
-#' params <- MizerParams(NS_species_params_gears)
+#' params <- set_multispecies_model(NS_species_params_gears)
 #' init_n <- get_initial_n(params)
 #' }
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {

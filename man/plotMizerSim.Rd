@@ -27,13 +27,13 @@ species by size; and biomass of each species through time. This method just
 uses the other plotting methods and puts them all in one window.
 }
 \examples{
-\dontrun{
+
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=20, t_save = 2)
+params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plot(sim)
 plot(sim, time_range = 10:20) # change time period for size-based plots
 plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
-}
+
 }

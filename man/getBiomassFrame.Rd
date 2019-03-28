@@ -21,24 +21,47 @@ of the time series.}
 \item{end_time}{The last time to be plotted. Default is the end of the
 time series.}
 
-\item{ylim}{A numeric vector of length two providing limits of for the
-y axis. Use NA to refer to the existing minimum or maximum. Any values
-below 1e-20 are always cut off.}
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to refer to the existing minimum or maximum. Any
+values below 1e-20 are always cut off.}
 
 \item{total}{A boolean value that determines whether the total biomass from
-all species is plotted as well. Default is FALSE}
+all species is plotted as well. Default is FALSE.}
 
-\item{...}{Other arguments to pass to \code{getBiomass} method, for example
-\code{min_w} and \code{max_w}}
+\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+\describe{
+  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
-A data frame that can be used in \code{\link{display_frames}}
+A data frame that can be used in \code{\link{displayFrames}}
 }
 \description{
 After running a projection, the biomass of each species can be plotted
 against time. The biomass is calculated within user defined size limits 
-(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
+(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
+returns a dataframe that can be displayed with 
+\code{\link{displayFrames}}.
+}
+\examples{
+# Set up example MizerParams and MizerSim objects
+data(NS_species_params_gears)
+data(inter)
+params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
+sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
+
+# Display biomass from each simulation next to each other
+displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 }
 \seealso{
-\code{\link{getBiomass}}
+\code{\link{getBiomass}}, \code{\link{displayFrames}},
+  \code{\link{getSSBFrame}}
 }

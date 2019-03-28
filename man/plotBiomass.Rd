@@ -27,19 +27,28 @@ time series.}
 \item{print_it}{Display the plot, or just return the ggplot2 object. Default
 value is FALSE}
 
-\item{ylim}{A numeric vector of length two providing limits of for the
-y axis. Use NA to refer to the existing minimum or maximum. Any values
-below 1e-20 are always cut off.}
+\item{ylim}{A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to refer to the existing minimum or maximum. Any
+values below 1e-20 are always cut off.}
 
 \item{total}{A boolean value that determines whether the total biomass from
-all species is plotted as well. Default is FALSE}
+all species is plotted as well. Default is FALSE.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
 Default is TRUE.}
 
-\item{...}{Other arguments to pass to \code{getBiomass} method, for example
-\code{min_w} and \code{max_w}}
+\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+\describe{
+  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 A ggplot2 object
@@ -50,17 +59,18 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
 }
 \examples{
-\dontrun{
+# Set up example MizerParams and MizerSim objects
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
-sim <- project(params, effort=1, t_max=20, t_save = 0.2)
+params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+
 plotBiomass(sim)
-plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
+plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
 plotBiomass(sim, min_w = 10, max_w = 1000)
 plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
-}
+
 }
 \seealso{
 \code{\link{getBiomass}}

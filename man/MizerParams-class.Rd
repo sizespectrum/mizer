@@ -52,13 +52,20 @@ for each species at size.}
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
 \eqn{\mu_{b.i}(w)}}
 
+\item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
+the predation coefficient of each predator at size on each prey size. If
+this is NA then the following two slots will be used.}
+
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the encounter rate integral}
+appropriate for evaluating the encounter rate integral. If this is NA
+then the \code{pred_kernel} will be used to calculate the available 
+energy integral.}
 
 \item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the predation mortality integral}
+appropriate for evaluating the predation mortality integral. If this is NA
+then the \code{pred_kernel} will be used to calculate the integral.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
 growth rate of the plankton spectrum.}
@@ -125,7 +132,7 @@ resource components, see \code{\link{resource_dynamics}} for details.}
 to give consistent colours to species in plots.}
 
 \item{\code{linetype}}{A named vector of linetypes, named by species. Used 
-to give consistent colours to species in plots.}
+to give consistent line types to species in plots.}
 }}
 
 \note{
@@ -143,4 +150,7 @@ The \linkS4class{MizerParams} class is fairly complex with a large number of
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}
+  \code{\link{emptyParams}} \code{\link{set_multispecies_model}}
+  \code{\link{set_community_model}}
+  \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 }

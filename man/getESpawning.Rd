@@ -19,7 +19,7 @@ getESpawning(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using the \code{getEReproAndGrowth()} method.}
+internally using \code{\link{getEReproAndGrowth}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -31,7 +31,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step

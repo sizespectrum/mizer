@@ -9,7 +9,7 @@ getEGrowth(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = B), e = getEReproAndGrowth(object, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
-\item{object}{A \linkS4class{MizerParams} object.}
+\item{object}{A \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 
@@ -19,15 +19,13 @@ getEGrowth(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
-size bins. If not supplied, is calculated internally using the
-\code{\link{getERepro}} method.}
+size bins. If not supplied, is calculated internally using
+\code{\link{getERepro}}.}
 
 \item{e}{The energy available for reproduction and growth (optional, although
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
-the \code{\link{getEReproAndGrowth}} method.}
-
-\item{object}{An \linkS4class{MizerParams} object}
+\code{\link{getEReproAndGrowth}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -35,13 +33,13 @@ A two dimensional array (prey species x prey size)
 \description{
 Calculates the energy rate \eqn{g_i(w)} available by species and size for
 growth after metabolism, movement and reproduction have been accounted for.
-Used by the \code{\link{project}} method for performing simulations.
+Used by \code{\link{project}} for performing simulations.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step

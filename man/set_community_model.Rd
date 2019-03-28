@@ -12,7 +12,7 @@ set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 0.1,
 }
 \arguments{
 \item{max_w}{The maximum size of the community. The \code{w_inf} of the 
-species used to represent the community is set to 0.9 * this value. The 
+species used to represent the community is set to this value. The 
 default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
@@ -91,9 +91,10 @@ selected.
 
 The resulting \code{MizerParams} object can be projected forward using 
 \code{project()} like any other \code{MizerParams} object. When projecting 
-the community model it may be necessary to reduce \code{dt} to 0.1 to avoid 
-any instabilities with the solver. You can check this by plotting the biomass
-or abundance through time after the projection.
+the community model it may be necessary to keep a small time step size
+\code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+check for these numerical instabilities by plotting the biomass or abundance
+through time after the projection.
 }
 \examples{
 \dontrun{

@@ -15,7 +15,7 @@
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- multispeciesParams(NS_species_params_gears, inter,
+#' params <- set_multispecies_model(NS_species_params_gears, inter,
 #'                              plankton_dyn = plankton_semichemostat)
 #' }
 plankton_semichemostat <- function(params, n, n_pp, B, rates, dt, ...) {

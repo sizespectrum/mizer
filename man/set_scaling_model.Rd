@@ -6,12 +6,11 @@
 \usage{
 set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   min_egg = 10^(-4), min_w_mat = 10^(0.4),
-  no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = min_egg/(beta *
-  exp(5 * sigma)), w_pp_cutoff = min_w_inf, n = 2/3, q = 3/4,
-  lambda = 2 + q - n, r_pp = 0.1, kappa = 0.005, alpha = 0.4,
-  ks = 4, h = 30, beta = 100, sigma = 1.3, f0 = 0.6,
-  knife_edge_size = 100, gear_names = "knife_edge_gear", rfac = Inf,
-  perfect = FALSE, ...)
+  no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = NA,
+  w_pp_cutoff = min_w_inf, n = 2/3, q = 3/4, lambda = 2 + q - n,
+  r_pp = 0.1, kappa = 0.005, alpha = 0.4, ks = 4, h = 30,
+  beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
+  gear_names = "knife_edge_gear", rfac = Inf, perfect = FALSE, ...)
 }
 \arguments{
 \item{no_sp}{The number of species in the model. The default value is 11.}
@@ -31,8 +30,8 @@ is 10^(-4).}
 \item{no_w}{The number of size bins in the community spectrum. Default value
 is such that there are 100 bins for each factor of 10 in weight.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. Default value
-is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+\item{min_w_pp}{Obsolete argument because the smallest plankton size is now
+set so that it covers the entire range of the
 feeding kernel of even the smallest fish larva.}
 
 \item{w_pp_cutoff}{The largest size of the plankton spectrum. Default

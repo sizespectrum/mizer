@@ -22,7 +22,7 @@ effort value which is used for all gears.}
 
 \item{m2}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the \code{getPredMort()} method.}
+calculated using the \code{\link{getPredMort}} function.}
 }
 \value{
 A two dimensional array (prey species x prey size).
@@ -34,7 +34,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the total mortality at a particular time step

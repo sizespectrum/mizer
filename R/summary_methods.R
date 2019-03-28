@@ -9,6 +9,119 @@
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
 # Soundtrack: The Definitive Lead Belly
+
+#' Description of summary functions
+#' 
+#' Mizer provides a range of functions to extract information about a simulation
+#' from a MizerSim object.
+#'
+#' A list of available summary functions is given in the table below.
+#' \tabular{lll}{
+#'   Function \tab Returns \tab Description \cr
+#'   \code{\link{getDiet}} \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
+#'   \code{\link{getSSB}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
+#'   \code{\link{getBiomass}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
+#'   \code{\link{getN}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
+#'   \code{\link{getFeedingLevel}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
+#'   \code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
+#'   \code{\link{getFMort}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
+#'   \code{\link{getFMortGear}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
+#'   \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
+#'   \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+#' }
+#' 
+#' A list of available indicator functions for MizerSim objects is given in the table below
+#' \tabular{lll}{
+#'   Method \tab Returns \tab Description \cr
+#'   \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
+#'   \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
+#'   \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
+#'   \code{\link{getCommunitySlope}} \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
+#' }
+#'
+#' @seealso \code{\link{plotting_functions}}
+#' @name summary_functions
+NULL
+
+#' Get diet of predator at size, resolved by prey species
+#'
+#' Calculates the rate at which a predator of a particular species and size
+#' consumes biomass of a prey species, where for this purpose we treat the
+#' plankton like another prey species. 
+#' 
+#' This function performs the same integration as
+#' \code{\link{getEncounter}} but does not aggregate over prey species, and
+#' multiplies by (1-feeding_level) to get the consumed biomass rather than the
+#' available biomass. Outside the range of sizes for a predator species the
+#' returned rate is zero.
+#'
+#' @param params A MizerParams object
+#' @param n An array (species x size) with the abundance density of fish
+#' @param n_pp A vector with the abundance of plankton
+#' 
+#' @return An array (predator species  x predator size x (prey species + plankton) )
+#' @export
+getDiet <- function(params, n, n_pp) {
+    # The code is based on that for getEncounter()
+    no_sp <- dim(n)[1]
+    no_w <- dim(n)[2]
+    no_w_full <- length(n_pp)
+    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
+                  dimnames = list("predator" = dimnames(n)$sp,
+                                  "w" = dimnames(n)$w,
+                                  "prey" = c(dimnames(n)$sp, "plankton")))
+    # idx_sp are the index values of object@w_full such that
+    # object@w_full[idx_sp] = object@w
+    idx_sp <- (no_w_full - no_w + 1):no_w_full
+    
+    # If the feeding kernel does not have a fixed predator/prey mass ratio
+    # then the integral is not a convolution integral and we can not use fft.
+    if (length(params@ft_pred_kernel_e) == 1) {
+        # pred_kernel is predator species x predator size x prey size
+        # We want to multiply this by the prey abundance, which is
+        # prey species by prey size, sum over prey size. We use matrix
+        # multiplication for this. Then we multiply 1st and 3rd 
+        ae <- matrix(params@pred_kernel[, , idx_sp, drop = FALSE],
+                     ncol = no_w) %*%
+            t(sweep(n, 2, params@w * params@dw, "*"))
+        dim(ae) <- c(no_sp, no_w, no_sp)
+        # We multiply by interaction matrix, choosing the correct dimensions
+        diet[, , 1:no_sp] <- sweep(ae, c(1, 3), params@interaction, "*")
+        # Eating the plankton
+        diet[, , no_sp + 1] <- rowSums(sweep(
+            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
+            "*", check.margin = FALSE), dims = 2)
+    } else {
+        prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
+        prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
+        prey[no_sp + 1, ] <- n_pp * params@w_full * params@dw_full
+        ft <- array(rep(params@ft_pred_kernel_e, times = no_sp + 1) *
+                        rep(mvfft(t(prey)), each = no_sp),
+                    dim = c(no_sp, no_w_full, no_sp + 1))
+        # We now have an array predator x wave number x prey
+        # To Fourier transform back we need a matrix of wave number x everything
+        ft <- matrix(aperm(ft, c(2, 1, 3)), nrow = no_w_full)
+        ae <- array(Re(mvfft(ft, inverse = TRUE) / no_w_full), 
+                    dim = c(no_w_full, no_sp, no_sp + 1))
+        ae <- ae[idx_sp, , , drop = FALSE]
+        ae <- aperm(ae, c(2, 1, 3))
+        # Due to numerical errors we might get negative or very small entries that
+        # should be 0
+        ae[ae < 1e-18] <- 0
+        diet[] <- ae
+        # Multiply by interaction matrix
+        diet[, , 1:no_sp] <- sweep(diet[, , 1:no_sp], c(1, 3), 
+                                   params@interaction, "*")
+    }
+    
+    # Correct for satiation and keep only entries corresponding to fish sizes
+    f <- getFeedingLevel(params, n, n_pp)
+    fish_mask <- n > 0
+    diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
+    return(diet)
+}
+
+
 #' Calculate the SSB of species
 #' 
 #' Calculates the spawning stock biomass (SSB) through time of the species in
@@ -23,7 +136,7 @@
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
@@ -45,8 +158,7 @@ getSSB <- function(sim) {
 #' both min_l and min_w are supplied, only min_l will be used).
 #' 
 #' @param sim An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of fish to be used
-#'   in the calculation (min_w, max_w, min_l, max_l).
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
@@ -54,7 +166,7 @@ getSSB <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getBiomass(sim)
@@ -86,7 +198,7 @@ getBiomass <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getN(sim)
@@ -114,7 +226,7 @@ getN <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
@@ -142,7 +254,7 @@ getYieldGear <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
@@ -153,11 +265,24 @@ getYield <- function(sim) {
 }
 
 
-# Helper function that returns an array (no_sp x no_w) of boolean values indicating whether that size bin is within
-# the size limits specified by the arguments
-# If min_l or max_l are supplied they take precendence over the min_w and max_w
-# But you can mix min_l and max_w etc
-# Not exported
+#' Get size range array
+#' 
+#' Helper function that returns an array (species x size) of boolean values
+#' indicating whether that size bin is within the size limits specified by the
+#' arguments.
+#' 
+#' @param params MizerParams object
+#' @param min_w Smallest weight in size range. Defaults to smallest weight in
+#'   the model.
+#' @param max_w Largest weight in size range. Defaults to largest weight in the
+#'   model.
+#' @param min_l Smallest length in size range. If supplied, this takes
+#'   precedence over \code{min_w}.
+#' @param max_l Largest length in size range. If supplied, this takes precedence
+#'   over \code{max_w}.
+#'   
+#' @return Boolean array (species x size)
+#'
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
@@ -194,17 +319,17 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears,inter)
+#' params <- set_multispecies_model(NS_species_params_gears,inter)
 #' summary(params)
 #' }
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
-    cat("Community size spectrum:\n")
+    cat("Consumer size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w)), "\n", sep = "")
     cat("\tmaximum size:\t", signif(max(object@w)), "\n", sep = "")
     cat("\tno. size bins:\t", length(object@w), "\n", sep = "")
     # Length of background? 
-    cat("Background size spectrum:\n")
+    cat("Plankton size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
     cat("\tmaximum size:\t", signif(max(object@w_full)), "\n", sep = "")
     cat("\tno. size bins:\t", length(object@w_full), "\n", sep = "")
@@ -236,7 +361,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears,inter)
+#' params <- set_multispecies_model(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
 #' }
@@ -280,7 +405,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getProportionOfLargeFish(sim)
 #' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
@@ -331,7 +456,7 @@ getProportionOfLargeFish <- function(sim,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanWeight(sim)
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -372,7 +497,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanMaxWeight(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -422,7 +547,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- MizerParams(NS_species_params_gears, inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
 #' slope_biomass <- getCommunitySlope(sim)

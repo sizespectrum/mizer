@@ -43,7 +43,7 @@ Fish Index. The proportion is based on either abundance or biomass.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=10)
 getProportionOfLargeFish(sim)
 getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))

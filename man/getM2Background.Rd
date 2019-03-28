@@ -20,7 +20,7 @@ getM2Background(object, n = object@initial_n,
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{getPredRate()} method.}
+it is calculated by the \code{\link{getPredRate}} function.}
 }
 \value{
 A vector of mortality rate by plankton size.
@@ -32,7 +32,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get plankton mortality at one time step

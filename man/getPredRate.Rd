@@ -19,25 +19,24 @@ getPredRate(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the \code{getFeedingLevel()} method.}
+using the \code{\link{getFeedingLevel}} function.}
 }
 \value{
 A two dimensional array (predator species x prey size), 
   where the prey size runs over fish community plus plankton spectrum.
 }
 \description{
-Calculates the predation rate of each predator species on prey size. 
-In formulas \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw}
-This method is used by the \code{\link{project}} method for performing
-simulations. In the simulations, it is combined with the interaction matrix
-(see \code{\link{MizerParams}}) to calculate the realised predation mortality
-(see \code{\link{getPredMort}}).
+Calculates the potential rate at which a prey individual of a given size 
+\eqn{w} is killed by predators from species \eqn{i}. In formulas 
+\deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i(w) N_i(w) dw}
+This potential rate is used in the function \code{\link{getPredMort}} to
+calculate the realised predation mortality rate on the prey individual.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
@@ -47,6 +46,6 @@ getPredRate(params,n,n_pp)
 }
 }
 \seealso{
-\code{\link{project}}, \code{\link{getPredMort}}, 
-  \code{\link{getFeedingLevel}} and \code{\link{MizerParams}}
+\code{\link{getPredMort}} and
+  \code{\link{getFeedingLevel}}
 }

@@ -19,7 +19,7 @@ getRDI(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link{getERepro}} method.}
+using \code{\link{getERepro}}.}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}
@@ -29,14 +29,14 @@ A numeric vector the length of the number of species
 }
 \description{
 Calculates the density independent recruitment (total egg production)
-\eqn{R_{p.i}} before density dependence, by species. Used by the
-\code{project} method for performing simulations.
+\eqn{R_{p.i}} before density dependence, by species. Used by
+\code{project} for performing simulations.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the recruitment at a particular time step

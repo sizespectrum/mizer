@@ -2,7 +2,7 @@ context("project method")
 
 data(NS_species_params_gears)
 data(inter)
-params <- MizerParams(NS_species_params_gears, inter)
+params <- set_multispecies_model(NS_species_params_gears, inter)
 
 test_that("time dimension is dealt with properly", {
 
@@ -226,7 +226,7 @@ test_that("get_initial_n is working properly", {
 test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
-    params2 <- MizerParams(NS_species_params_gears, inter)
+    params2 <- set_multispecies_model(NS_species_params_gears, inter)
     sim <- project(params2, effort = 1, t_max = 5)
     expect_equivalent(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
                       rep(0, sim@params@w_min_idx[1] - 1))
@@ -365,7 +365,7 @@ test_that("Analytic steady-state solution is well approximated",{
     knife_edge_size = 1000
   )
   
-  params <- MizerParams(species_params, p = p, n = n, q = q, lambda = lambda,
+  params <- set_multispecies_model(species_params, p = p, n = n, q = q, lambda = lambda,
                         f0 = f0, kappa = kappa, min_w = w_min, max_w = w_inf,
                         no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
                         r_pp = r_pp)
@@ -409,7 +409,7 @@ test_that("Analytic steady-state solution is well approximated",{
 })
 
 test_that("Simulation gives same numerical results as previously",{
-  params <- MizerParams(NS_species_params_gears, inter)
+  params <- set_multispecies_model(NS_species_params_gears, inter)
   sim <- project(params, t_max = 1)
   expect_known_value(sim@n[2, 3, ], "values/projectn")
   expect_known_value(sim@n_pp[2, ], "values/projectp")

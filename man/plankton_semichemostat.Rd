@@ -31,7 +31,7 @@ Project plankton using semichemostat model
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- multispeciesParams(NS_species_params_gears, inter,
+params <- set_multispecies_model(NS_species_params_gears, inter,
                              plankton_dyn = plankton_semichemostat)
 }
 }
