@@ -865,8 +865,9 @@ setFishing <- function(params) {
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. The dimensions are thus no_sp, no_w, no_w_full.
 #' @param pred_kernel_type Only used if \code{pred_kernel} is not supplied. A
-#'   string that determines which predation kernel function is used. Default is
-#'   "lognormal". See Details section.
+#'   string or vector of strings that determines which predation kernel function
+#'   is used for each species. If not supplied, is taken from species parameter
+#'   dataframe if possible, or defaults to "lognormal".
 #' @param store_kernel Only used if \code{pred_kernel} is not supplied. A
 #'   boolean flag that determines whether the full three dimensional predation
 #'   kernel array is calculated and stored, even though it is not needed by
@@ -922,15 +923,20 @@ setPredKernel <- function(params,
         return(params)
     }
     
-    # Set a pred kernel dependent on predator/prey size ratio only
+    ## Set a pred kernel dependent on predator/prey size ratio only
+    # If pred_kernel_type is not supplied use the one from species_params
+    # if exists or "lognormal"
+    if (missing(pred_kernel_type) &
+        !"pred_kernel_type" %in% names(params@species_params)) {
+        params@species_params$pred_kernel_type <- "lognormal"
+    } else {
+        params@species_params$pred_kernel_type <- pred_kernel_type
+    }
     species_params <- params@species_params
+    pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    pred_kernel_func <- get0(paste0(pred_kernel_type, "_pred_kernel"))
-    assert_that(is.function(pred_kernel_func))
-    # TODO: check that the arguments of pred_kernel_func are contained in
-    # species params
     if (store_kernel) {
         params@pred_kernel <- 
             array(0,
@@ -945,6 +951,10 @@ setPredKernel <- function(params,
     ppmr <- params@w_full / params@w_full[1]
     
     for (i in 1:no_sp) {
+        pred_kernel_func <- get0(paste0(pred_kernel_type[i], "_pred_kernel"))
+        assert_that(is.function(pred_kernel_func))
+        # TODO: check that the arguments of pred_kernel_func are contained in
+        # species params
         phi <- pred_kernel_func(ppmr, i, params)
         if (anyNA(phi)) {
             stop(paste0("The function ", pred_kernel_func,
