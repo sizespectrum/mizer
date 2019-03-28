@@ -1383,9 +1383,12 @@ setResources <- function(params,
             if (is.null(resource_names)) {
                 stop("The resource_dynamics list must be a named list.")
             }
+            params@resource_dynamics <- resource_dynamics
             params@rho <- 
                 array(NA,
-                      dim = c(nrow(params@species_params), no_res, no_w),
+                      dim = c(nrow(params@species_params),
+                              no_res,
+                              length(params@w)),
                       dimnames = list(sp = params@species_params$species,
                                       res = resource_names,
                                       w = signif(params@w, 3)))

@@ -26,9 +26,9 @@ resource_params <- list("detritus_external" = 0,
                           "detritus_proportion" = 0.5, 
                           "carrion_external" = 0)
 
-params <- multispeciesParams(species_params, rho = rho,
-                             resource_dynamics = resource_dynamics,
-                             resource_params = resource_params)
+params <- MizerParams(species_params, rho = rho,
+                      resource_dynamics = resource_dynamics,
+                      resource_params = resource_params)
 
 # TODO: choose the initial_n to correspond somewhat to the actual abundances
 # observed in the ecosystem.
