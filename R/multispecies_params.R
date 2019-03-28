@@ -166,8 +166,6 @@ set_multispecies_model <- function(species_params,
                           max_w = max_w, 
                           min_w_pp = min_w_pp, 
                           no_w_pp = NA,
-                          resource_dynamics = resource_dynamics,
-                          resource_params = resource_params,
                           srr = srr)
     
     ## Fill the slots ----
