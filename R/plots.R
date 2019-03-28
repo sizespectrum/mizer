@@ -224,7 +224,7 @@ getSSBFrame <- function(sim,
     min_value <- 1e-20
     bm <- bm[bm$value >= min_value &
                  (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[1]), ]
+                 (is.na(ylim[2]) | bm$value <= ylim[2]), ]
     names(bm) <- c("Year", "Species", "SSB")
     # Force Species column to be a factor (otherwise if numeric labels are
     # used they may be interpreted as integer and hence continuous)
@@ -295,7 +295,7 @@ getBiomassFrame <- function(sim,
     min_value <- 1e-20
     bm <- bm[bm$value >= min_value &
                  (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[1]), ]
+                 (is.na(ylim[2]) | bm$value <= ylim[2]), ]
     names(bm) <- c("Year", "Species", "Biomass")
     
     # Force Species column to be a factor (otherwise if numeric labels are
@@ -371,7 +371,8 @@ plotBiomass <- function(sim,
         back_bm <- bm[bm$Species %in% back_sp, ]
         if (nrow(back_bm) > 0) {
             p <- p + geom_line(aes(group = Species), data = back_bm,
-                               colour = "lightgrey")
+                               colour = sim@params@linecolour["Background"],
+                               linetype = sim@params@linetype["Background"])
         }
     }
 
@@ -736,7 +737,7 @@ plot_spectra <- function(params, n, n_pp,
         y_label <- paste0("Number density * w^", power)
     }
     n <- sweep(n, 2, params@w^power, "*")
-    # Select only the desired species and background species
+    # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
     plot_dat <- data.frame(value = c(spec_n),
@@ -801,14 +802,16 @@ plot_spectra <- function(params, n, n_pp,
                                    (plot_back$w >= wlim[1]) &
                                    (plot_back$w <= wlim[2]), ]
         # Impose ylim
-        if (!is.na(ylim[1])) {
-            plot_back <- plot_back[plot_back$value < ylim[1], ]
+        if (!is.na(ylim[2])) {
+            plot_back <- plot_back[plot_back$value <= ylim[2], ]
         }
-        plot_back <- plot_back[plot_back$value > ylim[2], ]
+        plot_back <- plot_back[plot_back$value > ylim[1], ]
         if (nrow(plot_back) > 0) {
-            # Add background species in grey
+            # Add background species
             p <- p +
-                geom_line(aes(group = Species), colour = "grey",
+                geom_line(aes(group = Species),
+                          colour = params@linecolour["Background"],
+                          linetype = params@linetype["Background"],
                           data = plot_back)
         }
     }
