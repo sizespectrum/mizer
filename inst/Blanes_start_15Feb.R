@@ -1,4 +1,6 @@
 species_params <- read.csv("vignettes/Blanes_species_params_full.csv", sep = ";")
+species_params$h <- 10^30
+species_params$ks <- 0
 library(readr)
 theta <- read_csv("vignettes/Blanes_theta_full3.csv", 
                   col_names = FALSE)
@@ -27,8 +29,11 @@ resource_params <- list("detritus_external" = 0,
                           "carrion_external" = 0)
 
 params <- MizerParams(species_params, rho = rho,
+                      interaction = theta, 
+                      interaction_p = rep(0, no_sp),
                       resource_dynamics = resource_dynamics,
                       resource_params = resource_params)
+params@initial_B <- B
 
 # TODO: choose the initial_n to correspond somewhat to the actual abundances
 # observed in the ecosystem.

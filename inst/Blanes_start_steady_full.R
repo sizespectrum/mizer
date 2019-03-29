@@ -26,7 +26,7 @@ resource_dynamics <- list(detritus = detritus_dynamics,
 resource_params <- list("detritus_external" = 0, "detritus_proportion" = 0.5, 
                           "carrion_external" = 0)
 
-params <- multispeciesParams(species_params, rho = rho,
+params <- MizerParams(species_params, rho = rho,
                              resource_dynamics = resource_dynamics,
                              resource_params = resource_params, 
                              interaction = theta, interaction_p = rep(0,no_sp))
