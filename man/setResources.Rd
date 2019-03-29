@@ -22,3 +22,8 @@ needed.}
 \description{
 Set resource dynamics
 }
+\section{Setting resource dynamics}{
+
+Still need to document
+}
+

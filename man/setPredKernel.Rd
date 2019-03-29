@@ -15,8 +15,9 @@ that holds the predation coefficient of each predator at size on each prey
 size. The dimensions are thus no_sp, no_w, no_w_full.}
 
 \item{pred_kernel_type}{Only used if \code{pred_kernel} is not supplied. A
-string that determines which predation kernel function is used. Default is
-"lognormal". See Details section.}
+string or vector of strings that determines which predation kernel function
+is used for each species. If not supplied, is taken from species parameter
+dataframe if possible, or defaults to "lognormal".}
 
 \item{store_kernel}{Only used if \code{pred_kernel} is not supplied. A
 boolean flag that determines whether the full three dimensional predation
@@ -36,9 +37,9 @@ can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
 this function.
 }
-\section{Kernel dependent on predator to prey size ratio}{
+\section{Setting predation kernel}{
 
-
+\subsection{Kernel dependent on predator to prey size ratio}{
 If the \code{pred_kernel} argument is not supplied, then this function sets a
 predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
@@ -70,9 +71,7 @@ setting \code{store_kernel = TRUE}. This might be useful if you have code for
 analysing the results of a mizer simulation that relies on the full array.
 }
 
-\section{Kernel dependent on both predator and prey size}{
-
-
+\subsection{Kernel dependent on both predator and prey size}{
 If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
 three-dimensional array (predator species x predator size x prey size).
@@ -85,6 +84,7 @@ methods to significantly reduce the running time of simulations.
 The order of the predator species in \code{pred_kernel} should be the same
 as the order in the species params dataframe. If you supply a named array
 then the function will check the order and warn if it is different.
+}
 }
 
 \examples{

@@ -4,30 +4,35 @@
 \alias{setIntakeMax}
 \title{Set maximum intake rate}
 \usage{
-setIntakeMax(params, h = NULL)
+setIntakeMax(params, h = NULL, n)
 }
 \arguments{
 \item{params}{MizerParams}
 
 \item{h}{Optional. An array (species x size) holding the maximum intake rate
 for each species at size. If not supplied, a default is set as described in
-the Details.}
+the section "Setting maximum intake rate".}
+
+\item{n}{Scaling exponent of the intake rate.}
 }
 \value{
 MizerParams
 }
 \description{
-Sets the maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i}
-and weight \eqn{w}. The maximum intake rate determines the feeding level
-calculated with \code{\link{getFeedingLevel}}.
+Set maximum intake rate
 }
-\details{
+\section{Setting maximum intake rate}{
+
+The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
+weight \eqn{w} determines the feeding level, calculated with
+\code{\link{getFeedingLevel}}.
+
 If the \code{h} argument is not supplied, then it is set to \deqn{h_i(w) =
-h_i w^n}. The values of \eqn{h_i} are taken from the \code{h} column in the
+h_i w^n.} The values of \eqn{h_i} are taken from the \code{h} column in the
 species parameter dataframe. If the \code{h} column is not supplied in the
 species parameter dataframe, it is calculated from \code{f0} and the
 \code{k_vb} column, if they are supplied.
 
-It is allowed to set \eqn{h_i} to \code{Inf}, in which case there is no 
-limit to the rate at which the fish can take in encountered food.
+If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 }
+
