@@ -38,9 +38,7 @@
 
 <meta property="og:title" content="Set search volume — setSearchVolume" />
 
-<meta property="og:description" content="Sets the search volume \(\gamma_i(w)\) of an individual of species \(i\)
-and weight \(w\). The search volume multiplies the predation kernel when
-calculating the encounter rate and the predation rate." />
+<meta property="og:description" content="Set search volume" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -132,13 +130,11 @@ calculating the encounter rate and the predation rate." />
 
     <div class="ref-description">
     
-    <p>Sets the search volume \(\gamma_i(w)\) of an individual of species \(i\)
-and weight \(w\). The search volume multiplies the predation kernel when
-calculating the encounter rate and the predation rate.</p>
+    <p>Set search volume</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>q</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,8 +146,14 @@ calculating the encounter rate and the predation rate.</p>
     <tr>
       <th>gamma</th>
       <td><p>Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the Details.</p></td>
+for each species at size or a vector or number giving the coefficient in
+an allometric search volume. If not supplied, a default is set as described in
+the section "Setting search volume".</p></td>
+    </tr>
+    <tr>
+      <th>q</th>
+      <td><p>Exponent of the allometric search volume. Only needed if 
+<code>gamma</code> is not an array.</p></td>
     </tr>
     </table>
     
@@ -159,10 +161,14 @@ the Details.</p></td>
 
     <p>MizerParams</p>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
 
-    <p>If the <code>gamma</code> argument is not supplied, then it is set to
-$$\gamma_i(w) = \gamma_i w^q$$. The values of \(gamma_i\) are taken from
+    
+    <p>The search volume \(\gamma_i(w)\) of an individual of species \(i\)
+and weight \(w\) multiplies the predation kernel when
+calculating the encounter rate and the predation rate.</p>
+<p>If the <code>gamma</code> argument is not supplied, then it is set to
+$$\gamma_i(w) = \gamma_i w^q.$$ The values of \(gamma_i\) are taken from
 the <code>gamma</code> column in the species parameter dataframe. If the <code>gamma</code>
 column is not supplied in the species parameter dataframe, it is calculated
 from <code>f0, h, beta, sigma, lambda</code> and <code>kappa</code>.</p>
@@ -176,7 +182,7 @@ from <code>f0, h, beta, sigma, lambda</code> and <code>kappa</code>.</p>
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#details">Details</a></li>
+      <li><a href="#setting-search-volume">Setting search volume</a></li>
           </ul>
 
   </div>
@@ -188,7 +194,7 @@ from <code>f0, h, beta, sigma, lambda</code> and <code>kappa</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
 </div>
       </footer>
    </div>

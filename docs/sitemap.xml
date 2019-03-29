@@ -139,6 +139,9 @@
     <loc>https://gustavdelius.github.io/mizer//reference/get_initial_n.html</loc>
   </url>
   <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/get_size_range_array.html</loc>
+  </url>
+  <url>
     <loc>https://gustavdelius.github.io/mizer//reference/inter.html</loc>
   </url>
   <url>
@@ -256,6 +259,9 @@
     <loc>https://gustavdelius.github.io/mizer//reference/setResourceEncounter.html</loc>
   </url>
   <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setResources.html</loc>
+  </url>
+  <url>
     <loc>https://gustavdelius.github.io/mizer//reference/setSearchVolume.html</loc>
   </url>
   <url>
@@ -287,6 +293,9 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/summary_functions.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/upgradeParams.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/wrapper_functions.html</loc>

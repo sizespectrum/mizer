@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot total fishing mortality of each species by size with plotly — plotlyFMort • mizer</title>
+<title>Get size range array — get_size_range_array • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -36,11 +36,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Plot total fishing mortality of each species by size with plotly — plotlyFMort" />
+<meta property="og:title" content="Get size range array — get_size_range_array" />
 
-<meta property="og:description" content="After running a projection, plot the predation mortality rate of each species
-by size. The mortality rate is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step)." />
+<meta property="og:description" content="Helper function that returns an array (species x size) of boolean values
+indicating whether that size bin is within the size limits specified by the
+arguments." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,59 +125,54 @@ single value for the time range can be used to plot a single time step)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot total fishing mortality of each species by size with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyFMort.Rd</code></div>
+    <h1>Get size range array</h1>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/summary_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
+    <div class="hidden name"><code>get_size_range_array.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>After running a projection, plot the predation mortality rate of each species
-by size. The mortality rate is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step).</p>
+    <p>Helper function that returns an array (species x size) of boolean values
+indicating whether that size bin is within the size limits specified by the
+arguments.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyFMort</span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/dimnames'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>sp</span>,
-  <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/numeric'>as.numeric</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/dimnames'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>time</span>)), <span class='kw'>print_it</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>get_size_range_array</span>(<span class='no'>params</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>min</a></span>(<span class='no'>params</span>@<span class='kw'>w</span>),
+  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='no'>params</span>@<span class='kw'>w</span>), <span class='kw'>min_l</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>max_l</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sim</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a></p></td>
+      <th>params</th>
+      <td><p>MizerParams object</p></td>
     </tr>
     <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <th>min_w</th>
+      <td><p>Smallest weight in size range. Defaults to smallest weight in
+the model.</p></td>
     </tr>
     <tr>
-      <th>time_range</th>
-      <td><p>The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step.</p></td>
+      <th>max_w</th>
+      <td><p>Largest weight in size range. Defaults to largest weight in the
+model.</p></td>
     </tr>
     <tr>
-      <th>print_it</th>
-      <td><p>Display the plot, or just return the ggplot2 object.
-Defaults to FALSE</p></td>
+      <th>min_l</th>
+      <td><p>Smallest length in size range. If supplied, this takes
+precedence over <code>min_w</code>.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Other arguments to pass to <code>getM2</code> method.</p></td>
+      <th>max_l</th>
+      <td><p>Largest length in size range. If supplied, this takes precedence
+over <code>max_w</code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='getM2.html'>getM2</a></code></p></div>
+    <p>Boolean array (species x size)</p>
     
 
   </div>
@@ -187,8 +182,6 @@ Defaults to FALSE</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

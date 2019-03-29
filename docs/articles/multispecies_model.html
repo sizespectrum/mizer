@@ -283,9 +283,9 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
-<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <pre><code>## Note: No ks column in species data frame so using ks = h * 0.2.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
+<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <p>We have just created a <code>MizerParams</code> object:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(params)</a></code></pre></div>
 <pre><code>## [1] "MizerParams"
@@ -307,19 +307,32 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 ## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.001 Haddock
 ## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.001     Cod
 ## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.001  Saithe
-##         alpha erepro        h        gamma        ks         z0
-## Sprat     0.6      1 18.20276 3.196275e-11  3.640551 0.18705957
-## Sandeel   0.6      1 27.51606 1.508109e-11  5.503212 0.18171206
-## N.pout    0.6      1 32.83924 8.628720e-11  6.567848 0.12926608
-## Herring   0.6      1 35.03807 1.128905e-11  7.007614 0.08647736
-## Dab       0.6      1 30.67834 4.665199e-11  6.135668 0.08735805
-## Whiting   0.6      1 28.53952 7.498941e-11  5.707904 0.05658819
-## Sole      0.6      1 22.55847 3.125825e-11  4.511695 0.06294752
-## Gurnard   0.6      1 19.37727 2.958188e-11  3.875454 0.06863713
-## Plaice    0.6      1 14.62366 2.856298e-11  2.924733 0.04171321
-## Haddock   0.6      1 34.23910 4.052277e-11  6.847819 0.03957464
-## Cod       0.6      1 61.58170 1.601589e-10 12.316339 0.01753768
-## Saithe    0.6      1 37.39168 1.233520e-10  7.478336 0.02340093</code></pre>
+##         alpha pred_kernel_type        h        ks         z0        gamma
+## Sprat     0.6        lognormal 18.20276  3.640551 0.18705957 3.196275e-11
+## Sandeel   0.6        lognormal 27.51606  5.503212 0.18171206 1.508109e-11
+## N.pout    0.6        lognormal 32.83924  6.567848 0.12926608 8.628720e-11
+## Herring   0.6        lognormal 35.03807  7.007614 0.08647736 1.128905e-11
+## Dab       0.6        lognormal 30.67834  6.135668 0.08735805 4.665199e-11
+## Whiting   0.6        lognormal 28.53952  5.707904 0.05658819 7.498941e-11
+## Sole      0.6        lognormal 22.55847  4.511695 0.06294752 3.125825e-11
+## Gurnard   0.6        lognormal 19.37727  3.875454 0.06863713 2.958188e-11
+## Plaice    0.6        lognormal 14.62366  2.924733 0.04171321 2.856298e-11
+## Haddock   0.6        lognormal 34.23910  6.847819 0.03957464 4.052277e-11
+## Cod       0.6        lognormal 61.58170 12.316339 0.01753768 1.601589e-10
+## Saithe    0.6        lognormal 37.39168  7.478336 0.02340093 1.233520e-10
+##         erepro
+## Sprat        1
+## Sandeel      1
+## N.pout       1
+## Herring      1
+## Dab          1
+## Whiting      1
+## Sole         1
+## Gurnard      1
+## Plaice       1
+## Haddock      1
+## Cod          1
+## Saithe       1</code></pre>
 <p>We can see that this contains the original species data.frame (with <code>w_inf</code> and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are no columns for <code>alpha</code> and <code>h</code> and <code>gamma</code> etc.</p>
 <p>Also note how the default fishing gears have been set up. Because we did not specify gear names in the original species parameter data.frame, each species is fished by a unique gear named after the species. This can be seen in the new <code>gear</code> column which holds the names of the fishing gears. Also, the selectivity function for each fishing gear has been set in the <code>sel_func</code> column to the default function, <code><a href="../reference/knife_edge.html">knife_edge()</a></code>. A <code>catchability</code> column has been added with a default value of 1 for each of the species that the gear catches. An example of setting the catchability by hand can be seen in <a href="a_multispecies_model_of_the_north_sea.html">the section on the North Sea.</a></p>
 <p>There is a <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
@@ -343,9 +356,9 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
-<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <pre><code>## Note: No ks column in species data frame so using ks = h * 0.2.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
+<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <p>Note that the first argument must be the species parameters data.frame. The remaining arguments can be in any order but should be named. If we didn’t want to use default values for the other arguments we would pass them in to the constructor by name.</p>
 <p>We now have all we need to start running projections. Before we get to that though, we’ll take a quick look at how different fishing gears can be set up.</p>
 </div>
@@ -365,9 +378,9 @@ We then make a new <code>MizerParams</code> object as before:</p>
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
-<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <pre><code>## Note: No ks column in species data frame so using ks = h * 0.2.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
+<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
 <p>You can see the result by calling <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> on the <code>params_gears</code> object.</p>
 <p>In this example the same gear now catches multiple stocks. For example, the <em>Industrial</em> gear catches Sprat, Sandeel and Norway Pout. Why would we want to set up the gears like this? In the next section we will see that to project the model through time you can specify the fishing effort for each gear through time. By setting the gears up in this way you can run different management scenarios of changing the efforts of the fishing gears rather than on individual species. It also means that after a simulation has been run you can examine the catches by gear.</p>
 </div>
@@ -410,7 +423,7 @@ We then make a new <code>MizerParams</code> object as before:</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
 </div>
       </footer>
 </div>

@@ -147,8 +147,7 @@ this function.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>pred_kernel_type</span> <span class='kw'>=</span> <span class='st'>"lognormal"</span>, <span class='kw'>store_kernel</span> <span class='kw'>=</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>params</span>@<span class='kw'>w</span>) <span class='kw'>&lt;=</span>
-  <span class='fl'>100</span>))</pre>
+  <span class='kw'>pred_kernel_type</span> <span class='kw'>=</span> <span class='st'>"lognormal"</span>, <span class='kw'>store_kernel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -166,8 +165,9 @@ size. The dimensions are thus no_sp, no_w, no_w_full.</p></td>
     <tr>
       <th>pred_kernel_type</th>
       <td><p>Only used if <code>pred_kernel</code> is not supplied. A
-string that determines which predation kernel function is used. Default is
-"lognormal". See Details section.</p></td>
+string or vector of strings that determines which predation kernel function
+is used for each species. If not supplied, is taken from species parameter
+dataframe if possible, or defaults to "lognormal".</p></td>
     </tr>
     <tr>
       <th>store_kernel</th>
@@ -183,26 +183,27 @@ Default is FALSE.</p></td>
 
     <p>A MizerParams object</p>
     
-    <h2 class="hasAnchor" id="kernel-dependent-on-predator-to-prey-size-ratio"><a class="anchor" href="#kernel-dependent-on-predator-to-prey-size-ratio"></a>Kernel dependent on predator to prey size ratio</h2>
+    <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
     
-    <p>If the <code>pred_kernel</code> argument is not supplied, then this function sets a
+    <h3>Kernel dependent on predator to prey size ratio</h3>
+    If the <code>pred_kernel</code> argument is not supplied, then this function sets a
 predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
-determined by the <code>pred_kernel_type</code> argument.</p>
-<p>The default pred_kernel_type is "lognormal". This will call the function
+determined by the <code>pred_kernel_type</code> argument.
+    The default pred_kernel_type is "lognormal". This will call the function
 <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code> to calculate the predation kernel and the
 function <code><a href='lognormal_max_ppmr.html'>lognormal_max_ppmr</a></code> to return the maximal predator/prey
-mass ratio for each species.</p>
-<p>An alternative pred_kernel type is "box", implemented by the functions
-<code><a href='box_pred_kernel.html'>box_pred_kernel</a></code> and <code><a href='box_max_ppmr.html'>box_max_ppmr</a></code>.</p>
-<p>You can use any other string as the type. If for example you choose "my" then
+mass ratio for each species.
+    An alternative pred_kernel type is "box", implemented by the functions
+<code><a href='box_pred_kernel.html'>box_pred_kernel</a></code> and <code><a href='box_max_ppmr.html'>box_max_ppmr</a></code>.
+    You can use any other string as the type. If for example you choose "my" then
 you need to define a function <code>my_pred_kernel</code> that you can model on the
 existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code>. You can also
 define a function <code>my_max_ppmr</code> if you want the smallest plankton size
 to be calculated automatically by <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code>,
-otherwise you need to specify the <code>min_w_pp</code> argument explicitly.</p>
-<p>When using a kernel dependent on the predator/prey size ratio only, mizer
+otherwise you need to specify the <code>min_w_pp</code> argument explicitly.
+    When using a kernel dependent on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
 object. Such an array can be very big when there is a large number of size
 bins. Instead mizer only needs to store two two-dimensional arrays that hold
@@ -210,21 +211,18 @@ Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However mizer
 gives you the option of storing the full three-dimensional array anyway by
 setting <code>store_kernel = TRUE</code>. This might be useful if you have code for
-analysing the results of a mizer simulation that relies on the full array.</p>
-    
-    <h2 class="hasAnchor" id="kernel-dependent-on-both-predator-and-prey-size"><a class="anchor" href="#kernel-dependent-on-both-predator-and-prey-size"></a>Kernel dependent on both predator and prey size</h2>
-
-    
-    <p>If you want to work with a feeding kernel that depends on predator mass and
+analysing the results of a mizer simulation that relies on the full array.
+    <h3>Kernel dependent on both predator and prey size</h3>
+    If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
-three-dimensional array (predator species x predator size x prey size).</p>
-<p>You should use this option only if a kernel dependent only on the
+three-dimensional array (predator species x predator size x prey size).
+    You should use this option only if a kernel dependent only on the
 predator/prey mass ratio is not appropriate. Using a kernel dependent on
 predator/prey mass ratio only allows mizer to use fast Fourier transform
-methods to significantly reduce the running time of simulations.</p>
-<p>The order of the predator species in <code>pred_kernel</code> should be the same
+methods to significantly reduce the running time of simulations.
+    The order of the predator species in <code>pred_kernel</code> should be the same
 as the order in the species params dataframe. If you supply a named array
-then the function will check the order and warn if it is different.</p>
+then the function will check the order and warn if it is different.
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -250,9 +248,7 @@ then the function will check the order and warn if it is different.</p>
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#kernel-dependent-on-predator-to-prey-size-ratio">Kernel dependent on predator to prey size ratio</a></li>
-
-      <li><a href="#kernel-dependent-on-both-predator-and-prey-size">Kernel dependent on both predator and prey size</a></li>
+      <li><a href="#setting-predation-kernel">Setting predation kernel</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -266,7 +262,7 @@ then the function will check the order and warn if it is different.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
 </div>
       </footer>
    </div>

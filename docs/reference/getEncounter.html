@@ -38,8 +38,8 @@
 
 <meta property="og:title" content="Get encounter rate — getEncounter" />
 
-<meta property="og:description" content="Calculates the amount \(E_i(w)\) of food encountered by each predator
-as a function of predator size." />
+<meta property="og:description" content="Calculates the rate \(E_i(w)\) at which a predator of species $i$ and
+weight $w$ encounters food (mass per time)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -131,8 +131,8 @@ as a function of predator size." />
 
     <div class="ref-description">
     
-    <p>Calculates the amount \(E_i(w)\) of food encountered by each predator
-as a function of predator size.</p>
+    <p>Calculates the rate \(E_i(w)\) at which a predator of species $i$ and
+weight $w$ encounters food (mass per time).</p>
     
     </div>
 
@@ -166,14 +166,26 @@ as a function of predator size.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is used by the <code><a href='project.html'>project</a></code> method for
+    <p>The encounter rate has contributions from the encounter of fish prey, of
+plankton, and of other resoruces. The contribution from fish and plankton
+is determined by summing over all prey species and the resource spectrum and
+then integrating over all prey sizes $w_p$, weighted by predation kernel 
+\(\phi(w,w_p)\):
+$$
+E_{i}(w) = \gamma_i(w) \int 
+\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
+\phi_i(w,w_p) w_p \, dw_p.
+$$
+The overall prefactor \(\gamma_i(w)\) determines the predation power of the
+predator. It could be interpreted as a search volume and is set with the
+<code><a href='setSearchVolume.html'>setSearchVolume</a></code> function. The predation kernel
+\(\phi(w,w_p)\) is set with the <code><a href='setPredKernel.html'>setPredKernel</a></code> function. The
+species interaction matrix \(\theta_{ij}\) and the plankton interaction
+vector \(\theta{ip}\) are set with <code><a href='setInteraction.html'>setInteraction</a></code>.</p>
+<p>The encounter rate is used by the <code><a href='project.html'>project</a></code> method for
 performing simulations.</p>
 <p>The function returns values also for sizes outside the size-range of the
 species. These values should not be trusted, as they are meaningless.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='project.html'>project</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -181,11 +193,11 @@ species. These values should not be trusted, as they are meaningless.</p>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># With constant fishing effort for all gears for 20 time steps</span>
+<span class='co'># Run simulation with constant fishing effort for all gears for 20 years</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,]
-<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,]
-<span class='fu'>getEncounter</span>(<span class='no'>params</span>,<span class='no'>n</span>,<span class='no'>n_pp</span>)
+<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>, , ]
+<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>, ]
+<span class='fu'>getEncounter</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -196,8 +208,6 @@ species. These values should not be trusted, as they are meaningless.</p>
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -211,7 +221,7 @@ species. These values should not be trusted, as they are meaningless.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
 </div>
       </footer>
    </div>

@@ -4,11 +4,15 @@
 \alias{setPlankton}
 \title{Set up plankton}
 \usage{
-setPlankton(params, r_pp = 10, w_pp_cutoff = 10,
+setPlankton(params, kappa, lambda, r_pp = 10, w_pp_cutoff = 10,
   plankton_dynamics = plankton_semichemostat)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{kappa}{Carrying capacity of the plankton spectrum.}
+
+\item{lambda}{Exponent of the plankton spectrum.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
 
@@ -25,3 +29,8 @@ A MizerParams object
 \description{
 Set up plankton
 }
+\section{Setting plankton dynamics}{
+
+Still need to document
+}
+

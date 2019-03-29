@@ -21,5 +21,10 @@ Default value is \code{n-1}.}
 MizerParams
 }
 \description{
+Set background mortality rate
+}
+\section{Setting background mortality rate}{
+
 Still need to document
 }
+

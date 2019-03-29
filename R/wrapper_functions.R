@@ -1162,7 +1162,7 @@ addSpecies <- function(params, species_params, SSB = NA,
 #' abundance is automatically adjusted in addSpecies() to keep the community
 #' close to the Sheldon spectrum.
 #' 
-#' @param params An object of class \linkS4class{MizerParams} or 
+#' @param object An object of class \linkS4class{MizerParams} or 
 #'   \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be designated as
 #'   background species. By default this is set to all species.
@@ -1180,10 +1180,19 @@ addSpecies <- function(params, species_params, SSB = NA,
 #'                                             "N.pout", "Dab", "Saithe"))
 #' plotSpectra(sim)
 #' }
-setBackground <- function(params, species = dimnames(params@initial_n)$sp) {
-    params@A[dimnames(params@initial_n)$sp %in% species] <- NA
-    params@linecolour[species] <- "grey"
-    return(params)
+setBackground <- function(object, species) {
+    if (is(object, "MizerSim")) {
+        if (missing(species)) {
+            species <- dimnames(object@params@initial_n)$sp
+        }
+        object@params@A[dimnames(object@params@initial_n)$sp %in% species] <- NA
+    } else {
+        if (missing(species)) {
+            species <- dimnames(object@initial_n)$sp
+        }
+        object@A[dimnames(object@initial_n)$sp %in% species] <- NA
+    }
+    return(object)
 }
 
 #' Tune params object to be at steady state

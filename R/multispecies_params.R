@@ -1,7 +1,23 @@
 #' Construct MizerParams object for multispecies model
 #'
-#' Provides default functional forms for all slots in the
-#' \linkS4class{MizerParams} object based on user-provided species parameters.
+#' Sets up a multi-species size spectrum model by filling all slots in the
+#' \linkS4class{MizerParams} object based on user-provided or default
+#' parameters. It does this by creating an empty MizerParams object with
+#' \code{\link{emptyParams}} and then filling the slots by passing its arguments
+#' to the the setup functions
+#' \itemize{
+#' \item \code{\link{setPredKernel}}
+#' \item \code{\link{setSearchVolume}}
+#' \item \code{\link{setInteraction}}
+#' \item \code{\link{setIntakeMax}}
+#' \item \code{\link{setMetab}}
+#' \item \code{\link{setBMort}}
+#' \item \code{\link{setReproduction}}
+#' \item \code{\link{setPlankton}}
+#' \item \code{\link{setResources}}
+#' \item \code{\link{setResourceEncounter}}
+#' \item \code{\link{setFishing}}
+#' }
 #' 
 #' @inheritParams emptyParams
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
@@ -10,25 +26,21 @@
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
-#' @param n Scaling of the intake. Default value is 2/3.
-#' @param p Scaling of the standard metabolism. Default value is 0.7. 
-#' @param q Exponent of the search volume. Default value is 0.8. 
-#' @param kappa Carrying capacity of the plankton spectrum. Default value is
-#'   1e11.
-#' @param lambda Exponent of the plankton spectrum. Default value is (2+q-n).
 #' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
 #'   if those are not columns in the species data frame. Also requires
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
 #'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
 #'   ignored. Default is 0.6.
-#' @inheritParams setFishing
+#' @inheritParams setPredKernel
 #' @inheritParams setSearchVolume
 #' @inheritParams setIntakeMax
 #' @inheritParams setMetab
 #' @inheritParams setBMort
 #' @inheritParams setReproduction
 #' @inheritParams setPlankton
+#' @inheritParams setResources
 #' @inheritParams setResourceEncounter
+#' @inheritParams setFishing
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -42,21 +54,20 @@
 #' parameter data.frame and that do not have default values. Other columns do
 #' have default values, so that if they are not included in the species
 #' parameter data frame, they will be automatically added when the
-#' \code{MizerParams} object is created. See the accompanying vignette for
-#' details of these columns.
+#' \code{MizerParams} object is created. 
 #'   
 #' \if{html}{
 #' The following table gives different components of a species parameters data.frame.
 #' \tabular{lll}{
-#'   Column name \tab Description \tab Default value \cr
+#'   Column name \tab Description \tab  \cr
 #'   species \tab Name of the species \tab Compulsory (no default) \cr
-#'   w_inf \tab The asymptotic mass of the species \tab Compulsory (no default) \cr
-#'   w_mat \tab The maturation mass of the species \tab Compulsory (no default) \cr
-#'   beta \tab Preferred predator prey mass ratio \tab Compulsory (no default) \cr
-#'   sigma \tab Width of prey size preference \tab Compulsory (no default) \cr
-#'   h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional (no default) \cr
-#'   k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional (no default) \cr
-#'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional (no default) \cr
+#'   w_inf \tab The asymptotic mass of the species \tab Compulsory\cr
+#'   w_mat \tab The maturation mass of the species \tab Compulsory\cr
+#'   beta \tab Preferred predator prey mass ratio \tab Compulsory\cr
+#'   sigma \tab Width of prey size preference \tab Compulsory\cr
+#'   h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional\cr
+#'   k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional  \cr
+#'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional  \cr
 #'   ks \tab Standard metabolism coefficient \tab h*0.2 \cr
 #'   z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
 #'   k \tab Activity coefficient \tab 0 \cr
@@ -75,6 +86,7 @@
 #' @inheritSection setPlankton Setting plankton dynamics
 #' @inheritSection setResources Setting resource dynamics
 #' @inheritSection setResourceEncounter Setting resource encounter rate
+#' @inheritSection setFishing Setting fishing
 #'   
 #' @seealso \code{\link{project}} \linkS4class{MizerSim}
 #' @export
@@ -170,9 +182,7 @@ set_multispecies_model <- function(species_params,
     
     ## Fill the slots ----
     params@n <- n
-    params@p <- p
     params@lambda <- lambda
-    params@q <- q
     params@f0 <- f0
     params@kappa <- kappa
     
@@ -185,17 +195,22 @@ set_multispecies_model <- function(species_params,
                             pred_kernel_type = pred_kernel_type,
                             store_kernel = store_kernel)
     params <- setIntakeMax(params, 
-                           h = h)
+                           h = h,
+                           n = n)
     params <- setMetab(params, 
-                       metab = metab)
+                       metab = metab,
+                       p = p)
     params <- setBMort(params, 
                        z0pre = z0pre, 
                        z0exp = z0exp)
     params <- setSearchVolume(params, 
-                              gamma = gamma)
+                              gamma = gamma,
+                              q = q)
     params <- setReproduction(params, 
                               psi = psi)
-    params <- setPlankton(params, 
+    params <- setPlankton(params,
+                          kappa = kappa,
+                          lambda = lambda,
                           r_pp = r_pp, 
                           w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
@@ -203,7 +218,8 @@ set_multispecies_model <- function(species_params,
                            resource_dynamics = resource_dynamics,
                            resource_params = resource_params)
     params <- setResourceEncounter(params, 
-                                   rho = rho)
+                                   rho = rho,
+                                   n = n)
     
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp
