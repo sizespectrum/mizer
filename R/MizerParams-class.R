@@ -451,8 +451,6 @@ emptyParams <- function(species_params,
                         max_w = NA,
                         min_w_pp = 1e-10,
                         no_w_pp = NA,
-                        resource_dynamics = list(),
-                        resource_params = list(),
                         srr = srrBevertonHolt) {
     if (!is.na(no_w_pp)) {
         warning("New mizer code does not support the parameter no_w_pp")
@@ -737,72 +735,6 @@ setInteraction <- function(params,
 }
 
 
-#' Set fishing parameters
-#' 
-#' Needs to be documented
-#' 
-#' @param params A MizerParams object
-#' 
-#' @return MizerParams object
-#' @export
-setFishing <- function(params) {
-    species_params <- params@species_params
-    no_sp <- nrow(species_params)
-    
-    # If no gear_name column in species_params, then named after species
-    if (!("gear" %in% colnames(species_params))) {
-        species_params$gear <- species_params$species
-    }
-    
-    # If no sel_func column in species_params, set to 'knife_edge'
-    if (!("sel_func" %in% colnames(species_params))) {
-        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
-        species_params$sel_func <- 'knife_edge'
-        # Set default selectivity size
-        if (!("knife_edge_size" %in% colnames(species_params))) {
-            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
-            species_params$knife_edge_size <- species_params$w_mat
-        }
-    }
-    
-    # If no catchability column in species_params, set to 1
-    if (!("catchability" %in% colnames(species_params))) {
-        species_params$catchability <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$catchability)
-    if (any(missing)) {
-        species_params$catchability[missing] <- 1
-    }
-    
-    # At the moment, each species is only caught by 1 gear so in species_params
-    # there are the columns: gear_name and sel_func.
-    # BEWARE! This routine assumes that each species has only one gear operating on it
-    # So we can just go row by row through the species parameters
-    # However, I really hope we can do something better soon
-    for (g in 1:nrow(species_params)) {
-        # Do selectivity first
-        # get args
-        # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(species_params[g, 'sel_func'])))
-        # lop off w as that is always the first argument of the selectivity functions
-        arg <- arg[!(arg %in% "w")]
-        if (!all(arg %in% colnames(species_params))) {
-            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
-        }
-        # Check that there is only one column in species_params with the same name
-        # Check that column of arguments exists
-        par <- c(w = list(params@w), as.list(species_params[g, arg]))
-        sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
-        # Dump Sel in the right place
-        params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
-        # Now do catchability
-        params@catchability[as.character(species_params[g,'gear']), g] <- 
-            species_params[g, "catchability"]
-    }
-    
-    return(params)
-}
-
 #' Set predation kernel
 #' 
 #' The predation kernel determines the distribution of prey sizes that a
@@ -997,14 +929,20 @@ setPredKernel <- function(params,
 #' 
 #' @param params MizerParams
 #' @param gamma Optional. An array (species x size) holding the search volume
-#'   for each species at size. If not supplied, a default is set as described in
-#'   the Details.
+#'   for each species at size or a vector or number giving the coefficient in
+#'   an allometric search volume. If not supplied, a default is set as described in
+#'   the section "Setting search volume". 
+#' @param q Exponent of the allometric search volume. Only needed if 
+#'   \code{gamma} is not an array.
 #' 
 #' @return MizerParams
 #' @export
-setSearchVolume <- function(params, gamma = NULL) {
+setSearchVolume <- function(params, 
+                            gamma = NULL,
+                            q) {
     species_params <- params@species_params
-    if (!is.null(gamma)) {
+    params@q <- q
+    if (!is.null(dim(gamma))) {
         if (!identical(dim(gamma), dim(params@search_vol))) {
             stop("The gamma array has the wrong dimensions.")
         }
@@ -1016,11 +954,19 @@ setSearchVolume <- function(params, gamma = NULL) {
         params@search_vol[] <- gamma
         return(params)
     }
+    if (!is.null(gamma)) {
+        if (length(gamma) == nrow(params@species_params) || length(gamma) == 1) {
+            species_params$gamma <- gamma
+        } else {
+            stop("The gamma argument has the wrong length")
+        }
+    }
     # Sorting out gamma column in species_params
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
     }
-    if (any(is.na(species_params$gamma))) {
+    missing <- is.na(species_params$gamma)
+    if (any(missing)) {
         message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         lm2 <- params@lambda - 2
         ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
@@ -1033,14 +979,13 @@ setSearchVolume <- function(params, gamma = NULL) {
         gamma_default <- (species_params$h / (params@kappa * ae)) * 
             (params@f0 / (1 - params@f0))
         # Only overwrite missing gammas with calculated values
-        missing <- is.na(species_params$gamma)
         if (any(is.na(gamma_default[missing]))) {
             stop("Could not calculate gamma.")
         }
         species_params$gamma[missing] <- gamma_default[missing]
-        params@species_params$gamma <- species_params$gamma
     }
-    params@search_vol[] <- outer(species_params$gamma, params@w^params@q)
+    params@species_params$gamma <- species_params$gamma
+    params@search_vol[] <- outer(species_params$gamma, params@w^q)
     return(params)
 }
 
@@ -1063,11 +1008,13 @@ setSearchVolume <- function(params, gamma = NULL) {
 #' @param params MizerParams
 #' @param h Optional. An array (species x size) holding the maximum intake rate
 #'   for each species at size. If not supplied, a default is set as described in
-#'   the Details.
+#'   the section "Setting maximum intake rate".
+#' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params, h = NULL) {
+setIntakeMax <- function(params, h = NULL, n) {
     species_params <- params@species_params
+    params@n <- n
     if (!is.null(h)) {
         if (!identical(dim(h), dim(params@intake_max))) {
             stop("The h array has the wrong dimensions.")
@@ -1113,12 +1060,14 @@ setIntakeMax <- function(params, h = NULL) {
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
-#'   the Details.
+#'   the section "Setting metabolic rate".
+#' @param p Scaling exponent of the standard metabolic rate.
 #' 
 #' @return MizerParams
 #' @export
-setMetab <- function(params, metab = NULL) {
+setMetab <- function(params, metab = NULL, p) {
     species_params <- params@species_params
+    params@p <- p
     if (!is.null(metab)) {
         if (!identical(dim(metab), dim(params@metab))) {
             stop("The metab array has the wrong dimensions.")
@@ -1153,7 +1102,7 @@ setMetab <- function(params, metab = NULL) {
     }
     
     params@metab[] <- 
-        outer(species_params$ks, params@w^params@p) +
+        outer(species_params$ks, params@w^p) +
         outer(species_params$k, params@w)
     return(params)
 }
@@ -1224,7 +1173,7 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' @param params A MizerParams object
 #' @param psi Optional. An array (species x size) that holds the allocation to
 #'   reproduction for each species at size. If not supplied, a default is set
-#'   as described in the Details.
+#'   as described in the section "Setting reproduction".
 #' 
 #' @return The MizerParams object with the updated \code{psi} slot.
 #' @export
@@ -1328,6 +1277,8 @@ setReproduction <- function(params, psi = NULL) {
 #' Still need to document
 #' 
 #' @param params A MizerParams object
+#' @param kappa Carrying capacity of the plankton spectrum.
+#' @param lambda Exponent of the plankton spectrum.
 #' @param r_pp Growth rate of the primary productivity. Default is 10 g/year.
 #' @param w_pp_cutoff The upper cut off size of the plankton spectrum. 
 #'   Default is 10 g.
@@ -1337,13 +1288,19 @@ setReproduction <- function(params, psi = NULL) {
 #' 
 #' @return A MizerParams object
 #' @export
-setPlankton <- function(params, r_pp = 10, w_pp_cutoff = 10,
+setPlankton <- function(params,
+                        kappa,
+                        lambda,
+                        r_pp = 10, 
+                        w_pp_cutoff = 10,
                         plankton_dynamics = plankton_semichemostat) {
     # TODO: check arguments
+    params@kappa <- kappa
+    params@lambda <- lambda
     # weight specific plankton growth rate
     params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
     # the plankton carrying capacity
-    params@cc_pp[] <- params@kappa*params@w_full^(-params@lambda)
+    params@cc_pp[] <- kappa*params@w_full^(-lambda)
     params@cc_pp[params@w_full > w_pp_cutoff] <- 0
     params@plankton_dynamics <- plankton_dynamics
     
@@ -1419,10 +1376,12 @@ setResources <- function(params,
 #' @param rho Either a 3-dim array (predator species x resource x predator size)
 #'   or a 2-dim array (predator species x resource). In the latter case the
 #'   size dependence is given by allometry.
+#' @param n Scaling exponent of the intake rate.
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho = NULL) {
+setResourceEncounter <- function(params, rho = NULL, n) {
+    params@n <- n
     if (is.null(rho)) {
         return(params)
     }
@@ -1442,7 +1401,7 @@ setResourceEncounter <- function(params, rho = NULL) {
                               names(params@resource_dynamics)))
     }
     if (length(dim(rho)) == 2) {
-        rho <- outer(rho, params@w^params@n)
+        rho <- outer(rho, params@w^n)
     } else {
         if (length(params@w) != dim(rho)[3]) {
             stop("The third dimension of the rho array should have one entry for every consumer size.")
@@ -1450,6 +1409,74 @@ setResourceEncounter <- function(params, rho = NULL) {
     }
     params@rho[] <- rho
     params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
+    
+    return(params)
+}
+
+
+#' Set fishing parameters
+#' 
+#' @section Setting fishing:
+#' Needs to be documented
+#' 
+#' @param params A MizerParams object
+#' 
+#' @return MizerParams object
+#' @export
+setFishing <- function(params) {
+    species_params <- params@species_params
+    no_sp <- nrow(species_params)
+    
+    # If no gear_name column in species_params, then named after species
+    if (!("gear" %in% colnames(species_params))) {
+        species_params$gear <- species_params$species
+    }
+    
+    # If no sel_func column in species_params, set to 'knife_edge'
+    if (!("sel_func" %in% colnames(species_params))) {
+        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
+        species_params$sel_func <- 'knife_edge'
+        # Set default selectivity size
+        if (!("knife_edge_size" %in% colnames(species_params))) {
+            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
+            species_params$knife_edge_size <- species_params$w_mat
+        }
+    }
+    
+    # If no catchability column in species_params, set to 1
+    if (!("catchability" %in% colnames(species_params))) {
+        species_params$catchability <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$catchability)
+    if (any(missing)) {
+        species_params$catchability[missing] <- 1
+    }
+    
+    # At the moment, each species is only caught by 1 gear so in species_params
+    # there are the columns: gear_name and sel_func.
+    # BEWARE! This routine assumes that each species has only one gear operating on it
+    # So we can just go row by row through the species parameters
+    # However, I really hope we can do something better soon
+    for (g in 1:nrow(species_params)) {
+        # Do selectivity first
+        # get args
+        # These as.characters are annoying - but factors everywhere
+        arg <- names(formals(as.character(species_params[g, 'sel_func'])))
+        # lop off w as that is always the first argument of the selectivity functions
+        arg <- arg[!(arg %in% "w")]
+        if (!all(arg %in% colnames(species_params))) {
+            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
+        }
+        # Check that there is only one column in species_params with the same name
+        # Check that column of arguments exists
+        par <- c(w = list(params@w), as.list(species_params[g, arg]))
+        sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
+        # Dump Sel in the right place
+        params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+        # Now do catchability
+        params@catchability[as.character(species_params[g,'gear']), g] <- 
+            species_params[g, "catchability"]
+    }
     
     return(params)
 }

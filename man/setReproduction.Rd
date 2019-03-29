@@ -11,7 +11,7 @@ setReproduction(params, psi = NULL)
 
 \item{psi}{Optional. An array (species x size) that holds the allocation to
 reproduction for each species at size. If not supplied, a default is set
-as described in the Details.}
+as described in the section "Setting reproduction".}
 }
 \value{
 The MizerParams object with the updated \code{psi} slot.
@@ -21,14 +21,16 @@ Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
 individual and sets the reproductive efficiency.
 }
-\details{
+\section{Setting reproduction}{
+
 If the \code{psi} argument is not supplied,
 the proportion is set to the product of a sigmoidal maturity ogive that 
 gives the proportion of individuals of a given species and size that are
 mature, and a factor that describes how investment into reproduction by mature
 individuals scales with size. In formulas:
 \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-  \left(\frac{w}{w_{inf}}\right)^{m-n}.}{[1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
+  \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
+  [1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
 Here \eqn{n} is the scaling exponent of the energy income rate.
 The exponent \eqn{m} determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be \eqn{m =
@@ -41,7 +43,5 @@ chosen as \eqn{U = 10}, however this can be overridden by including a
 column \code{w_mat25} in the species parameter dataframe that specifies the weight
 at which 25\% of individuals are mature, which sets 
 \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
-
-The result for \eqn{\psi(w)} for all species is stored in the \code{psi} slot
-of the params object and this object is returned.
 }
+

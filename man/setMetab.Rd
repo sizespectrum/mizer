@@ -4,14 +4,16 @@
 \alias{setMetab}
 \title{Set metabolic rate}
 \usage{
-setMetab(params, metab = NULL)
+setMetab(params, metab = NULL, p)
 }
 \arguments{
 \item{params}{MizerParams}
 
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
-the Details.}
+the section "Setting metabolic rate".}
+
+\item{p}{Scaling exponent of the standard metabolic rate.}
 }
 \value{
 MizerParams
@@ -19,6 +21,8 @@ MizerParams
 \description{
 Sets the rate at which energy is used for metabolism and activity
 }
-\details{
+\section{Setting metabolic rate}{
+
 To be documented
 }
+

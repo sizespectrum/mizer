@@ -13,5 +13,10 @@ setFishing(params)
 MizerParams object
 }
 \description{
+Set fishing parameters
+}
+\section{Setting fishing}{
+
 Needs to be documented
 }
+

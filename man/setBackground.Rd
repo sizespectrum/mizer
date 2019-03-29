@@ -4,10 +4,10 @@
 \alias{setBackground}
 \title{Designate species as background species}
 \usage{
-setBackground(params, species = dimnames(params@initial_n)$sp)
+setBackground(object, species)
 }
 \arguments{
-\item{params}{An object of class \linkS4class{MizerParams} or 
+\item{object}{An object of class \linkS4class{MizerParams} or 
 \linkS4class{MizerSim}.}
 
 \item{species}{Name or vector of names of the species to be designated as
