@@ -1,0 +1,21 @@
+Species,w_min,w_inf,w_mat,beta,sigma,r_max,k_vb
+Sparus aurata,0.001,1722,297,242,1.8,,0.26
+spondyliosoma cantharus,0.000654,640,122,242,1.8,,0.3
+Dicentrarchus punctatus,0.0013,15116,1598,160.5,1.5,,0.07
+Halobatrachus didactylus,0.00629,2863,455,160.5,1.5,,0.13
+Anguilla anguilla,0.0008822,1642.8,220,160.5,1.5,,0.09
+Dentex dentex,0.000958,8056.9,1164,160.5,1.5,,0.1
+Belone belone,0.002269,190.6,31.5,160.5,1.5,,0.34
+Dicentrarchus labrax,0.0013,4623,716,160.5,1.5,,0.2
+Solea senegalensis,0.001,1700.6,274,242,1.8,,0.18
+Diplodus annullaris,0.0006,60.9,14.5,242,1.8,,0.47
+Diplodus vulgaris,0.0006,3074.3,498,242,1.8,,0.08
+Atherina cf. boyeri,0.001,33,7.9,242,1.8,,0.16
+Mullus barbatus,0.00075,89.2,19.5,242,1.8,,0.44
+Diplodus sargus,0.00085,3502.5,565,242,1.8,,0.1
+Sarpa salpa,0.0006,1330.1,230,242,1.8,,0.23
+labrus sp,0.000725,178.2,36.7,242,1.8,,0.34
+gobidae sp,0.0008,5.5,1.4,242,1.8,,0.94
+Engraulis encrasicholus,0.00135,57.3,11.8,243488,1.966666667,,0.4
+Sardina pilchardus,0.0015,37.7,8.9,243488,1.966666667,,0.48
+Chelon labrosus ,0.00135,3368.4,568,243488,1.966666667,,0.22
