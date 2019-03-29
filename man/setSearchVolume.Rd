@@ -4,27 +4,35 @@
 \alias{setSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, gamma = NULL)
+setSearchVolume(params, gamma = NULL, q)
 }
 \arguments{
 \item{params}{MizerParams}
 
 \item{gamma}{Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the Details.}
+for each species at size or a vector or number giving the coefficient in
+an allometric search volume. If not supplied, a default is set as described in
+the section "Setting search volume".}
+
+\item{q}{Exponent of the allometric search volume. Only needed if 
+\code{gamma} is not an array.}
 }
 \value{
 MizerParams
 }
 \description{
-Sets the search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
-and weight \eqn{w}. The search volume multiplies the predation kernel when
-calculating the encounter rate and the predation rate.
+Set search volume
 }
-\details{
+\section{Setting search volume}{
+
+The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
+and weight \eqn{w} multiplies the predation kernel when
+calculating the encounter rate and the predation rate.
+
 If the \code{gamma} argument is not supplied, then it is set to
-\deqn{\gamma_i(w) = \gamma_i w^q}. The values of \eqn{gamma_i} are taken from
+\deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{gamma_i} are taken from
 the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
 column is not supplied in the species parameter dataframe, it is calculated
 from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
 }
+

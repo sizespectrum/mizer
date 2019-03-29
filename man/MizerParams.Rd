@@ -19,12 +19,13 @@ MizerParams(species_params, interaction = matrix(1, nrow =
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
 
-\item{interaction}{Interaction matrix of the species (predator by prey). 
-Entries should be numbers between 0 and 1.}
+\item{interaction}{Interaction matrix of the species (predator by prey).
+Entries should be numbers between 0 and 1. See "Setting interactions"
+section below.}
 
 \item{interaction_p}{Vector specifying for each species its interaction with
 plankton, similar to what the interaction matrix does for the interaction
-with other species.}
+with other species. See "Setting interactions" section below.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
@@ -41,16 +42,16 @@ is set to the smallest value at which any of the consumers can feed.}
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
 
-\item{n}{Scaling of the intake. Default value is 2/3.}
+\item{n}{Scaling exponent of the intake rate.}
 
-\item{p}{Scaling of the standard metabolism. Default value is 0.7.}
+\item{p}{Scaling exponent of the standard metabolic rate.}
 
-\item{q}{Exponent of the search volume. Default value is 0.8.}
+\item{q}{Exponent of the allometric search volume. Only needed if 
+\code{gamma} is not an array.}
 
-\item{kappa}{Carrying capacity of the plankton spectrum. Default value is
-1e11.}
+\item{kappa}{Carrying capacity of the plankton spectrum.}
 
-\item{lambda}{Exponent of the plankton spectrum. Default value is (2+q-n).}
+\item{lambda}{Exponent of the plankton spectrum.}
 
 \item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
 if those are not columns in the species data frame. Also requires
@@ -63,8 +64,9 @@ that holds the predation coefficient of each predator at size on each prey
 size. The dimensions are thus no_sp, no_w, no_w_full.}
 
 \item{pred_kernel_type}{Only used if \code{pred_kernel} is not supplied. A
-string that determines which predation kernel function is used. Default is
-"lognormal". See Details section.}
+string or vector of strings that determines which predation kernel function
+is used for each species. If not supplied, is taken from species parameter
+dataframe if possible, or defaults to "lognormal".}
 
 \item{store_kernel}{Only used if \code{pred_kernel} is not supplied. A
 boolean flag that determines whether the full three dimensional predation
@@ -73,16 +75,17 @@ mizer. Only useful if you have your own code that relies on this array.
 Default is FALSE.}
 
 \item{gamma}{Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the Details.}
+for each species at size or a vector or number giving the coefficient in
+an allometric search volume. If not supplied, a default is set as described in
+the section "Setting search volume".}
 
 \item{h}{Optional. An array (species x size) holding the maximum intake rate
 for each species at size. If not supplied, a default is set as described in
-the Details.}
+the section "Setting maximum intake rate".}
 
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
-the Details.}
+the section "Setting metabolic rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
@@ -94,7 +97,7 @@ Default value is \code{n-1}.}
 
 \item{psi}{Optional. An array (species x size) that holds the allocation to
 reproduction for each species at size. If not supplied, a default is set
-as described in the Details.}
+as described in the section "Setting reproduction".}
 
 \item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
 
@@ -104,6 +107,16 @@ Default is 10 g.}
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
 state. The default is \code{"\link{plankton_semichemostat}"}.}
+
+\item{resource_dynamics}{A named list of functions that determine the
+dynamics of the unstructured resources by calculating their biomasses at
+the next time step from the current state. See
+\code{\link{resource_dynamics}} for details. An empty list if the model
+does not have unstructured resources.}
+
+\item{resource_params}{A list of parameters needed by the
+\code{resource_dynamics} functions. An empty list if no parameters are
+needed.}
 
 \item{rho}{Either a 3-dim array (predator species x resource x predator size)
 or a 2-dim array (predator species x resource). In the latter case the
@@ -118,6 +131,207 @@ An object of type \linkS4class{MizerParams}
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
+\section{Species parameters}{
+
+The only essential argument is a data frame which contains the species data.
+The data frame is arranged species by parameter, so each column of the
+parameter data frame is a parameter and each row has the parameters for one
+of the species in the model.
+
+There are some essential columns that must be included in the species
+parameter data.frame and that do not have default values. Other columns do
+have default values, so that if they are not included in the species
+parameter data frame, they will be automatically added when the
+\code{MizerParams} object is created. 
+  
+\if{html}{
+The following table gives different components of a species parameters data.frame.
+\tabular{lll}{
+  Column name \tab Description \tab  \cr
+  species \tab Name of the species \tab Compulsory (no default) \cr
+  w_inf \tab The asymptotic mass of the species \tab Compulsory\cr
+  w_mat \tab The maturation mass of the species \tab Compulsory\cr
+  beta \tab Preferred predator prey mass ratio \tab Compulsory\cr
+  sigma \tab Width of prey size preference \tab Compulsory\cr
+  h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional\cr
+  k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional  \cr
+  gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional  \cr
+  ks \tab Standard metabolism coefficient \tab h*0.2 \cr
+  z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
+  k \tab Activity coefficient \tab 0 \cr
+  alpha \tab Assimilation efficiency \tab 0.6 \cr
+  erepro \tab Reproductive efficiency \tab 1 \cr
+  w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum
+}}
+}
+
+\section{Setting interactions}{
+
+
+The species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
+vector \eqn{\theta_{ip}} are used when calculating the food encounter rate in
+\code{\link{getEncounter}} and the predation rate in
+\code{\link{getPredRate}}. This function checks that the supplied arguments
+are valid and then stores them in the \code{interaction} and
+\code{interaction_p} slot of the params object before returning that object.
+Arguments that are not supplied or NULL will not change the corresponding
+slot.
+
+Any dimnames of the interaction matrix argument are ignored by the
+constructor. The dimnames of the interaction matrix in the returned
+\code{MizerParams} object are taken from the species names in the
+\code{species_params} slot. This means that the order of the columns and rows
+of the interaction matrix argument should be the same as the species name in
+the \code{species_params} slot. The same applies to the names of the
+\code{interaction_p} argument.
+}
+
+\section{Setting predation kernel}{
+
+\subsection{Kernel dependent on predator to prey size ratio}{
+If the \code{pred_kernel} argument is not supplied, then this function sets a
+predation kernel that depends only on the ratio of predator mass to prey
+mass, not on the two masses independently. The shape of that kernel is then
+determined by the \code{pred_kernel_type} argument.
+
+The default pred_kernel_type is "lognormal". This will call the function
+\code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
+function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
+mass ratio for each species.
+
+An alternative pred_kernel type is "box", implemented by the functions
+\code{\link{box_pred_kernel}} and \code{\link{box_max_ppmr}}.
+
+You can use any other string as the type. If for example you choose "my" then
+you need to define a function \code{my_pred_kernel} that you can model on the
+existing functions like \code{\link{lognormal_pred_kernel}}. You can also
+define a function \code{my_max_ppmr} if you want the smallest plankton size
+to be calculated automatically by \code{\link{set_multispecies_model}},
+otherwise you need to specify the \code{min_w_pp} argument explicitly.
+
+When using a kernel dependent on the predator/prey size ratio only, mizer
+does not need to store the entire three dimensional array in the MizerParams
+object. Such an array can be very big when there is a large number of size
+bins. Instead mizer only needs to store two two-dimensional arrays that hold
+Fourier transforms of the feeding kernel function that allow the encounter
+rate and the predation rate to be calculated very efficiently. However mizer
+gives you the option of storing the full three-dimensional array anyway by
+setting \code{store_kernel = TRUE}. This might be useful if you have code for
+analysing the results of a mizer simulation that relies on the full array.
+}
+
+\subsection{Kernel dependent on both predator and prey size}{
+If you want to work with a feeding kernel that depends on predator mass and
+prey mass independently, you can specify the full feeding kernel as a
+three-dimensional array (predator species x predator size x prey size).
+
+You should use this option only if a kernel dependent only on the
+predator/prey mass ratio is not appropriate. Using a kernel dependent on
+predator/prey mass ratio only allows mizer to use fast Fourier transform
+methods to significantly reduce the running time of simulations.
+
+The order of the predator species in \code{pred_kernel} should be the same
+as the order in the species params dataframe. If you supply a named array
+then the function will check the order and warn if it is different.
+}
+}
+
+\section{Setting search volume}{
+
+The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
+and weight \eqn{w} multiplies the predation kernel when
+calculating the encounter rate and the predation rate.
+
+If the \code{gamma} argument is not supplied, then it is set to
+\deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{gamma_i} are taken from
+the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
+column is not supplied in the species parameter dataframe, it is calculated
+from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
+}
+
+\section{Setting maximum intake rate}{
+
+The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
+weight \eqn{w} determines the feeding level, calculated with
+\code{\link{getFeedingLevel}}.
+
+If the \code{h} argument is not supplied, then it is set to \deqn{h_i(w) =
+h_i w^n.} The values of \eqn{h_i} are taken from the \code{h} column in the
+species parameter dataframe. If the \code{h} column is not supplied in the
+species parameter dataframe, it is calculated from \code{f0} and the
+\code{k_vb} column, if they are supplied.
+
+If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
+}
+
+\section{Setting metabolic rate}{
+
+To be documented
+}
+
+\section{Setting background mortality rate}{
+
+Still need to document
+}
+
+\section{Setting reproduction}{
+
+If the \code{psi} argument is not supplied,
+the proportion is set to the product of a sigmoidal maturity ogive that 
+gives the proportion of individuals of a given species and size that are
+mature, and a factor that describes how investment into reproduction by mature
+individuals scales with size. In formulas:
+\deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
+  \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
+  [1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
+Here \eqn{n} is the scaling exponent of the energy income rate.
+The exponent \eqn{m} determines the scaling of the investment into
+reproduction for mature individuals. By default it is chosen to be \eqn{m =
+1} so that the rate at which energy is invested into reproduction scales
+linearly with the size. This default can be overridden by including a column
+\code{m} in the species parameter dataframe.
+
+The exponent \eqn{U} determines the steepness of the maturity ogive. By default it is
+chosen as \eqn{U = 10}, however this can be overridden by including a 
+column \code{w_mat25} in the species parameter dataframe that specifies the weight
+at which 25\% of individuals are mature, which sets 
+\deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
+}
+
+\section{Setting plankton dynamics}{
+
+Still need to document
+}
+
+\section{Setting resource dynamics}{
+
+Still need to document
+}
+
+\section{Setting resource encounter rate}{
+
+The resource encounter rate \eqn{\rho_{id}(w)} determines the rate at which
+an individual of species \eqn{i} encounters biomass of resource \eqn{d},
+\deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the d-th
+unstructured resource component. 
+See \code{\link{resource_dynamics}} for more details.
+
+If only a two-dimensional array (species x resource) is given for the
+\code{rho} argument, then the size dependence is set to a power-law:
+\deqn{\rho_{id}(w) = \rho_{id} w^n.}
+
+The ordering of the entries in the array \code{rho} is important. The order
+of the species in the first array dimension needs to be the same as that in
+the species parameter dataframe. The order of the resources in the second
+array dimension must be the same as in the list of resource dynamics. The
+third dimension, if given, is the size dimension.
+}
+
+\section{Setting fishing}{
+
+Needs to be documented
+}
+
 \examples{
 data(NS_species_params_gears)
 data(inter)

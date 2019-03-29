@@ -4,7 +4,7 @@
 \alias{setResourceEncounter}
 \title{Set resource encounter rate}
 \usage{
-setResourceEncounter(params, rho = NULL)
+setResourceEncounter(params, rho = NULL, n)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -12,18 +12,23 @@ setResourceEncounter(params, rho = NULL)
 \item{rho}{Either a 3-dim array (predator species x resource x predator size)
 or a 2-dim array (predator species x resource). In the latter case the
 size dependence is given by allometry.}
+
+\item{n}{Scaling exponent of the intake rate.}
 }
 \value{
 A MizerParams object
 }
 \description{
-This sets the rate \eqn{\rho_{id}(w)} that determines the rate at which an
-individual of species \eqn{i} encounters biomass of resource \eqn{d},
+Set resource encounter rate
+}
+\section{Setting resource encounter rate}{
+
+The resource encounter rate \eqn{\rho_{id}(w)} determines the rate at which
+an individual of species \eqn{i} encounters biomass of resource \eqn{d},
 \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the d-th
 unstructured resource component. 
 See \code{\link{resource_dynamics}} for more details.
-}
-\details{
+
 If only a two-dimensional array (species x resource) is given for the
 \code{rho} argument, then the size dependence is set to a power-law:
 \deqn{\rho_{id}(w) = \rho_{id} w^n.}
@@ -34,3 +39,4 @@ the species parameter dataframe. The order of the resources in the second
 array dimension must be the same as in the list of resource dynamics. The
 third dimension, if given, is the size dimension.
 }
+

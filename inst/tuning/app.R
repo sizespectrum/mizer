@@ -444,7 +444,7 @@ server <- function(input, output, session) {
       
       # Run to steady state
       p <- steady(p, effort = 1, t_max = 100, tol = 1e-2,
-                  shiny_progress = progress)
+                  progress_bar = progress)
       
       if (input$log_steady) {
         # Save new params object to disk
@@ -508,7 +508,7 @@ server <- function(input, output, session) {
       # Run to steady state
       p <- steady(p, effort = 1, 
                   t_max = 100, tol = 1e-2,
-                  shiny_progress = progress)
+                  progress_bar = progress)
       
       # Update the reactive params object
       params(p)
