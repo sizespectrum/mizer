@@ -1,10 +1,9 @@
-species_params <- read.csv("vignettes/Blanes_species_params_full.csv", sep = ";")
-species_params$h <- 10^30
-species_params$ks <- 0
-library(readr)
-theta <- read_csv("vignettes/Blanes_theta_full3.csv", 
-                  col_names = FALSE)
+species_params <- read.csv("inst/blanes/species_params.csv", sep = ";")
+theta <- read.csv("inst/blanes/theta.csv", header = FALSE)
 theta <- t(as.matrix(theta))
+species_params$alpha <- 0.1
+species_params$h <- 10^30
+species_params$ks <- 0.2*h
 
 ## Choose B ----
 
