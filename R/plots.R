@@ -747,14 +747,8 @@ plot_spectra <- function(params, n, n_pp,
                            w = rep(params@w,
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
-        # Decide where to cut off plankton
-        max_w <- min(params@species_params$w_mat)
-        if (is.na(max_w)) {
-            max_w <- Inf
-        }
         plankton_sel <- (params@w_full >= wlim[1]) & 
-                        (params@w_full <= wlim[2]) &
-                        (params@w_full <= max_w)
+                        (params@w_full <= wlim[2])
         # Do we have any plankton to plot?
         if (sum(plankton_sel) > 0) {
             w_plankton <- params@w_full[plankton_sel]
