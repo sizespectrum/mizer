@@ -376,7 +376,7 @@ plotBiomass <- function(sim,
         }
     }
 
-    if ( (length(species) + total) > 12) {
+    if ( (length(species) + total) > 120) {
         p <- p + geom_line(aes(group = Species))
     } else {
         p <- p +
@@ -511,7 +511,7 @@ plotYield <- function(sim, sim2,
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym$Simulation <- as.factor(ym$Simulation)
         ym <- subset(ym, ym$Yield > 0)
-        if (nlevels(ym$Species) > 12) {
+        if (nlevels(ym$Species) > 120) {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, group = Species))
         } else {
@@ -592,7 +592,7 @@ plotYieldGear <- function(sim,
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(ym) + geom_line(aes(x = time, y = value, group = Species))
     } else {
         p <- ggplot(ym) +
@@ -815,7 +815,7 @@ plot_spectra <- function(params, n, n_pp,
                           data = plot_back)
         }
     }
-    if ( (length(species) + plankton + total) > 13) {
+    if ( (length(species) + plankton + total) > 130) {
         p <- p + geom_line(aes(group = Species))
     } else {
         p <- p + geom_line(aes(colour = Species, linetype = Species))
@@ -882,7 +882,7 @@ plotFeedingLevel <- function(sim,
                            Species = factor(dimnames(feed)$sp, 
                                             levels = dimnames(feed)$sp),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, group = Species))
     } else {
@@ -955,7 +955,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                            Species = factor(dimnames(m2)[[1]],
                                             levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, group = Species))
     } else {
@@ -1026,7 +1026,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                            Species = factor(dimnames(f)[[1]],
                                             levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, group = Species))
     } else {
         p <- ggplot(plot_dat) +
