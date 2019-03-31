@@ -65,7 +65,7 @@ reference:
   - emptyParams
   - addSpecies
   - removeSpecies
-  - retune_abundance
+  - retuneAbundance
   - setBackground
 - title: Running simulation
   contents:

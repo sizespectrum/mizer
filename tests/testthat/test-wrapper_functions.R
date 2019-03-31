@@ -61,8 +61,8 @@ test_that("Scaling model is set up correctly", {
     expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
 })
 
-# retune_abundance() reproduces scaling model ----
-test_that("retune_abundance() reproduces scaling model", {
+# retuneAbundance() reproduces scaling model ----
+test_that("retuneAbundance() reproduces scaling model", {
     # This numeric test failed on Solaris and without long doubles. So for now
     # skipping it on CRAN
     skip_on_cran()
@@ -70,7 +70,7 @@ test_that("retune_abundance() reproduces scaling model", {
     initial_n <- p@initial_n
     p@initial_n[5, ] <- 5 * p@initial_n[5, ]
     retune <- rep(TRUE, length(p@A))
-    pr <- retune_abundance(p, retune)
+    pr <- retuneAbundance(p, retune)
     expect_lt(max(abs(initial_n - pr@initial_n)), 2e-11)
 })
 
