@@ -4,7 +4,8 @@
 \alias{retuneAbundance}
 \title{Retunes abundance of background species.}
 \usage{
-retuneAbundance(params, retune, cutoff = 0.001)
+retuneAbundance(params, retune = rep(TRUE, nrow(params@species_params)),
+  cutoff = 0.001)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

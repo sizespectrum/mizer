@@ -810,7 +810,9 @@ set_scaling_model <- function(no_sp = 11,
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
 #' @export
-retuneAbundance <- function(params, retune, cutoff = 1e-3) {
+retuneAbundance <- function(params,
+                            retune = rep(TRUE, nrow(params@species_params)), 
+                            cutoff = 1e-3) {
     no_sp <- nrow(params@species_params)  # Number of species
     if (length(retune) != no_sp) {
         stop("retune argument has the wrong length")
