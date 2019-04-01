@@ -73,7 +73,7 @@ server <- function(input, output, session) {
     skip_update <<- TRUE
     skip_update_n0 <<- TRUE
     
-    list(
+    l1 <- list(
       tags$h3("Predation"),
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
@@ -144,6 +144,19 @@ server <- function(input, output, session) {
                   max = 1,
                   step = 0.01)
     )
+    if (length(p@resource_dynamics) > 0) {
+      for (res in names(p@resource_dynamics)) {
+        res_var <- paste0("rho_", res)
+        l1 <- c(l1, list(
+                sliderInput(res_var, 
+                            paste(res, "feeding rate"),
+                            value = sp[[res_var]],
+                            min = signif(sp[[res_var]] / 2, 2),
+                            max = signif((sp[[res_var]] + 0.1) * 1.5, 2),
+                            step = 0.01)))
+      }
+    }
+    l1
   })
   
   ## UI for general parameters ####
@@ -351,6 +364,13 @@ server <- function(input, output, session) {
     species_params[sp, "w_mat25"]   <- input$w_mat * input$wfrac
     species_params[sp, "w_mat"]   <- input$w_mat
     species_params[sp, "m"]     <- input$m
+    if (length(p@resource_dynamics) > 0) {
+      for (res in names(p@resource_dynamics)) {
+        res_var <- paste0("rho_", res)
+        species_params[sp, res_var] <- input[[res_var]]
+      }
+    }
+    
     
     if (skip_update) {
       skip_update <<- FALSE
@@ -380,6 +400,14 @@ server <- function(input, output, session) {
                         min = signif(input$w_mat / 2, 2),
                         max = signif(input$w_mat * 1.5, 2))
       
+      if (length(p@resource_dynamics) > 0) {
+        for (res in names(p@resource_dynamics)) {
+          res_var <- paste0("rho_", res)
+          updateSliderInput(session, res_var,
+                            min = signif(input[[res_var]] / 2, 2),
+                            max = signif((input[[res_var]] + 0.1) * 1.5, 2))
+        }
+      }
       update_species(sp, p, species_params)
     }
   })
