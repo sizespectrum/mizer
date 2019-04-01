@@ -1404,6 +1404,16 @@ setResources <- function(params,
 setResourceEncounter <- function(params, rho = NULL, n) {
     params@n <- n
     if (is.null(rho)) {
+        # Use columns in species_params
+        for (res in names(params@resource_dynamics)) {
+            rho_var <- paste0("rho_", res)
+            if (!rho_var %in% names(params@species_params)) {
+                stop(paste("The species_params data frame needs a column ",
+                           rho_var))
+            }
+            params@rho[, res, ] <- 
+                outer(params@species_params[[rho_var]], params@w^n)
+        }
         return(params)
     }
     # Check validity of arguments

@@ -256,7 +256,6 @@ server <- function(input, output, session) {
         min_w_pp = min(p@w_full),
         w_pp_cutoff = max(p@w_full),
         r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1],
-        rho = p@rho,
         resource_dynamics = p@resource_dynamics,
         resource_params = p@resource_params
       )
