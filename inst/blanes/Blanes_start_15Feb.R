@@ -49,7 +49,6 @@ params@initial_B <- B
 params@initial_n <- params@initial_n * 100
 params@initial_n_pp[] <- 0
 params@cc_pp[] <- 0
-params@srr <- srrBevertonHolt
 
 ## Construct initial size spectra ----
 
@@ -97,7 +96,7 @@ params@srr <- function(rdi, species_params) {rdd}
 ## Run to steady state ----
 sim <- project(params, t_max = 200)
 #plotlyBiomass(sim)
-#plotlySpectra(sim, plankton = FALSE, total = TRUE)
+plotlySpectra(sim, plankton = FALSE, total = TRUE)
 
 no_t <- dim(sim@n)[1]
 n <- sim@n[no_t, , ]
@@ -117,17 +116,19 @@ r <- getRates(params, n, n_pp, B)
 p <- params
 # p@resource_dynamics <- list("detritus" = detritus_dynamics,
 #                             "carrion" = carrion_dynamics)
-# p@resource_params <- list("detritus_external" = detritus_cons,
-#                           "detritus_proportion" = 0, 
-#                         "carrion_external" = carrion_cons)
+p@resource_params <- list("detritus_external" = 0, #detritus_cons,
+                          "detritus_proportion" = 0,
+                        "carrion_external" = 0) #carrion_cons)
 p@initial_n <- n
 p@initial_n_pp <- n_pp
+
+p@srr <- srrBevertonHolt
 
 # Retune the values of erepro so that we get the correct level of
 # recruitment
 p@species_params$erepro <- r$rdd / r$rdi
 
-saveRDS(p, file = "inst/blanes/params.rds")
+saveRDS(p, file = "inst/tuning/params.rds")
 
 # Recompute all species
 mumu <- getMort(p, effort = 0)
@@ -145,6 +146,8 @@ for (sp in 1:length(p@species_params$species)) {
         n0
 }
 
+plotlySpectra(p, plankton = FALSE, total = TRUE)
+
 # Retune the values of erepro so that we get the correct level of
 # recruitment
 mumu <- getMort(p, effort = 0)
@@ -161,7 +164,7 @@ for (i in (1:length(p@species_params$species))) {
 }
 
 sim2 <- project(p, dt = 0.1, t_max = 100)
-plotBiomass(sim2)
+plotlyBiomass(sim2)
 plot(sim2)
 
 plot(sim2@B[, "carrion"], type = "l")

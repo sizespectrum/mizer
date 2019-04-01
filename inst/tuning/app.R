@@ -3,6 +3,7 @@ library(ggplot2)
 library(plotly)
 library(reshape2)
 library(tidyr)
+library(tibble)
 # # Uncomment the following 2 lines before publishing the app
 # library(devtools)
 # install_github("gustavdelius/mizer", ref="humboldt")
@@ -132,7 +133,7 @@ server <- function(input, output, session) {
       sliderInput("ks", "Coefficient of standard metabolism ks",
                   value = sp$ks,
                   min = signif(sp$ks / 2, 2),
-                  max = signif(sp$ks * 1.5, 2),
+                  max = signif(sp$ks + 0.1 * 1.5, 2),
                   step = 0.05),
       sliderInput("k", "Coefficient of activity k",
                   value = sp$k,
@@ -269,7 +270,7 @@ server <- function(input, output, session) {
       # The spectrum for the changed species is calculated with new
       # parameters but in the context of the original community
       # Compute death rate for changed species
-      mumu <- getMort(pc, effort = 1)[sp, ]
+      mumu <- getMort(pc, effort = 0)[sp, ]
       # compute growth rate for changed species
       gg <- getEGrowth(pc)[sp, ]
       # Compute solution for changed species
@@ -391,7 +392,7 @@ server <- function(input, output, session) {
       plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
       p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
       # Recompute all species
-      mumu <- getMort(p, effort = 1)
+      mumu <- getMort(p, effort = 0)
       gg <- getEGrowth(p)
       for (sp in 1:length(p@species_params$species)) {
         w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
@@ -409,7 +410,7 @@ server <- function(input, output, session) {
       
       # Retune the values of erepro so that we get the correct level of
       # recruitment
-      mumu <- getMort(p, effort = 1)
+      mumu <- getMort(p, effort = 0)
       gg <- getEGrowth(p)
       rdd <- getRDD(p)
       # TODO: vectorise this
@@ -448,7 +449,7 @@ server <- function(input, output, session) {
       on.exit(progress$close())
       
       # Run to steady state
-      p <- steady(p, effort = 1, t_max = 100, tol = 1e-2,
+      p <- steady(p, effort = 0, t_max = 100, tol = 1e-2,
                   progress_bar = progress)
       
       if (input$log_steady) {
@@ -507,11 +508,11 @@ server <- function(input, output, session) {
         }
         gears <- union(gears, gear)
         p <- addSpecies(p, p_old@species_params[sp, ],
-                        effort = 1, rfac = Inf)    
+                        effort = 0, rfac = Inf)    
       }
       
       # Run to steady state
-      p <- steady(p, effort = 1, 
+      p <- steady(p, effort = 0, 
                   t_max = 100, tol = 1e-2,
                   progress_bar = progress)
       
@@ -557,7 +558,7 @@ server <- function(input, output, session) {
   })
   
   ## erepro plot ####
-  output$plot_erepro <- renderPlot({
+  output$plot_erepro <- renderPlotly({
     p <- params()
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red") +
@@ -581,10 +582,12 @@ server <- function(input, output, session) {
     sp <- input$sp
     p <- isolate(params())
     species_params <- p@species_params[sp, ]
-    if (is.na(species_params$biomass_observed)) {
+    if (is.null(species_params$biomass_observed) ||
+        is.na(species_params$biomass_observed)) {
       species_params$biomass_observed <- 0
     }
-    if (is.na(species_params$biomass_cutoff)) {
+    if (is.null(species_params$biomass_cutoff) ||
+        is.na(species_params$biomass_cutoff)) {
       species_params$biomass_cutoff <- 0
     }
     list(
@@ -688,7 +691,7 @@ server <- function(input, output, session) {
     w <- p@w[w_sel]
     l = (p@w[w_sel] / a) ^ (1 / b)
     
-    catch_w <- getFMort(p, effort = 1)[sp, w_sel] * 
+    catch_w <- getFMort(p, effort = 0)[sp, w_sel] * 
       p@initial_n[sp, w_sel]
     # We just want the distribution, so we rescale the density so its area is 1
     catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
@@ -744,7 +747,7 @@ server <- function(input, output, session) {
   output$plotTotalCatch <- renderPlotly({
     p <- params()
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
-    catch <- rowSums(biomass * getFMort(p, effort = 1))
+    catch <- rowSums(biomass * getFMort(p, effort = 0))
     df <- rbind(
       data.frame(Species = p@species_params$species,
                  Type = "Observed",
@@ -771,7 +774,7 @@ server <- function(input, output, session) {
   })
   
   ## Plot rates ####  
-  output$plotGrowth <- renderPlot({
+  output$plotGrowth <- renderPlotly({
   req(input$sp)
   sp <- input$sp
   p <- params()
@@ -818,7 +821,7 @@ server <- function(input, output, session) {
   }
   pl
 })
-  output$plotDeath <- renderPlot({
+  output$plotDeath <- renderPlotly({
     req(input$sp)
     sp <- input$sp
     p <- params()
@@ -838,9 +841,9 @@ server <- function(input, output, session) {
                rep("Fishing", len),
                rep("Background", len)),
       value = c(getMort(p, p@initial_n, p@initial_n_pp,
-                        effort = 1)[sp,sel],
+                        effort = 0)[sp,sel],
                 getPredMort(p, p@initial_n, p@initial_n_pp)[sp, sel],
-                getFMort(p, effort = 1)[sp, sel],
+                getFMort(p, effort = 0)[sp, sel],
                 p@mu_b[sp,sel])
     )
     pl <- ggplot(df, aes(x = w, y = value, color = Type)) + 
@@ -1031,7 +1034,7 @@ ui <- fluidPage(
                  plotOutput("plotGrowthCurve"),
                  uiOutput("k_vb_sel")),
         tabPanel("Repro",
-                 plotOutput("plot_erepro")),
+                 plotlyOutput("plot_erepro")),
         tabPanel("Catch",
                  plotlyOutput("plotTotalCatch"),
                  uiOutput("catch_sel"),
@@ -1043,8 +1046,8 @@ ui <- fluidPage(
                  radioButtons("axis", "x-axis scale:",
                               choices = c("Logarithmic", "Normal"), 
                               selected = "Logarithmic", inline = TRUE),
-                 plotOutput("plotGrowth"),
-                 plotOutput("plotDeath")),
+                 plotlyOutput("plotGrowth"),
+                 plotlyOutput("plotDeath")),
         tabPanel("f",
                  plotlyOutput("plot_feeding_level")),
         tabPanel("Prey",
