@@ -11,6 +11,8 @@ library(mizer)
 library(progress)
 
 server <- function(input, output, session) {
+  # Size of plot labels
+  base_size <- 12
   
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
@@ -111,13 +113,14 @@ server <- function(input, output, session) {
       sliderInput("w_mat", "w_mat", value = sp$w_mat,
                   min = signif(sp$w_mat / 2, 2),
                   max = signif(sp$w_mat * 1.5, 2)),
-      sliderInput("wfrac", "w25/w_mat", value = sp$w25/sp$w_mat,
+      sliderInput("wfrac", "w_mat25/w_mat", value = sp$w_mat25/sp$w_mat,
                   min = 0.5,
                   max = 1,
                   step = 0.01),
       sliderInput("m", "m", value = sp$m,
-                  min = 0.5,
-                  max = 1.5),
+                  min = 0,
+                  max = 2,
+                  step = 0.01),
       tags$h3("Others"),
       sliderInput("kappa", "kappa", value = p@kappa,
                   min = signif(p@kappa / 2, 2),
@@ -346,7 +349,7 @@ server <- function(input, output, session) {
     species_params[sp, "alpha"] <- input$alpha
     species_params[sp, "ks"]    <- input$ks
     species_params[sp, "k"]     <- input$k
-    species_params[sp, "w25"]   <- input$w_mat * input$wfrac
+    species_params[sp, "w_mat25"]   <- input$w_mat * input$wfrac
     species_params[sp, "w_mat"]   <- input$w_mat
     species_params[sp, "m"]     <- input$m
     
@@ -542,9 +545,9 @@ server <- function(input, output, session) {
           numericInput("t0", "t_0", value = t0))
     )
   })
-  output$plotGrowthCurve <- renderPlot({
+  output$plotGrowthCurve <- renderPlotly({
     plotGrowthCurves(params(), species = input$sp) +
-      theme_grey(base_size = 18)
+      theme_grey(base_size = base_size)
   })
   
   ## Spectra ####
@@ -554,7 +557,7 @@ server <- function(input, output, session) {
     } else {
       power <- 1
     }
-    plotSpectra(params(), power = power) + theme_grey(base_size = 18)
+    plotSpectra(params(), power = power) + theme_grey(base_size = base_size)
   })
   
   ## erepro plot ####
@@ -563,7 +566,7 @@ server <- function(input, output, session) {
     ggplot(p@species_params, aes(x = species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red") +
       scale_y_log10() +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
   })
   
@@ -600,7 +603,7 @@ server <- function(input, output, session) {
                        value = species_params$biomass_cutoff))
     )
   })
-  output$plotBiomassDist <- renderPlot({
+  output$plotBiomassDist <- renderPlotly({
     req(input$sp, input$biomass_cutoff, input$biomass_observed)
     sp <- input$sp
     p <- params()
@@ -614,7 +617,7 @@ server <- function(input, output, session) {
       geom_line(color = "blue") + scale_x_log10() +
       geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                  linetype = "dotted") +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")  +
       geom_text(aes(x = p@species_params[sp, "w_mat"], 
                     y = max(Biomass * 0.2),
@@ -630,7 +633,7 @@ server <- function(input, output, session) {
     }
     pl
   })
-  output$plotTotalBiomass <- renderPlot({
+  output$plotTotalBiomass <- renderPlotly({
     p <- params()
     no_sp <- length(p@species_params$species)
     cutoff <- p@species_params$biomass_cutoff
@@ -655,7 +658,7 @@ server <- function(input, output, session) {
     ggplot(df) +
       geom_col(aes(x = Species, y = Biomass, fill = Type),
                position = "dodge") +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       labs(x = "", y = "Biomass [megatonnes]")
   })
@@ -663,7 +666,7 @@ server <- function(input, output, session) {
   ## Plot catch ####
   
   # Catch density for selected species
-  output$plotCatchDist <- renderPlot({
+  output$plotCatchDist <- renderPlotly({
     req(input$sp)
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
@@ -740,7 +743,7 @@ server <- function(input, output, session) {
     pl +
       scale_x_log10() +
       geom_vline(xintercept = mat, linetype = "dotted")  +
-      theme_grey(base_size = 18)
+      theme_grey(base_size = base_size)
   })
   
   # Total catch by species
@@ -759,7 +762,7 @@ server <- function(input, output, session) {
     ggplot(df) +
       geom_col(aes(x = Species, y = Catch, fill = Type),
                position = "dodge") +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       labs(x = "", y = "Catch [megatonnes]")
   })
@@ -806,7 +809,7 @@ server <- function(input, output, session) {
                linetype = "dotted") +
     geom_vline(xintercept = p@species_params[sp, "w_inf"], 
                linetype = "dotted") +
-    theme_grey(base_size = 18) +
+    theme_grey(base_size = base_size) +
     labs(x = "Size [g]", y = "Rate")  +
     geom_text(aes(x = p@species_params[sp, "w_mat"], 
                   y = max(value * 0.2),
@@ -852,7 +855,7 @@ server <- function(input, output, session) {
                  linetype = "dotted") +
       geom_vline(xintercept = p@species_params[sp, "w_inf"], 
                  linetype = "dotted") +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       labs(x = "Size [g]", y = "Rate")  +
       geom_text(aes(x = p@species_params[sp, "w_mat"], 
                     y = max(value * 0.2),
@@ -880,7 +883,7 @@ server <- function(input, output, session) {
                 width = "80%",
                 animate = animationOptions(loop = TRUE))
   })
-  output$plot_prey <- renderPlot({
+  output$plot_prey <- renderPlotly({
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
     phi <- function(x, xp) {
@@ -948,7 +951,7 @@ server <- function(input, output, session) {
   })
   
   ## Plot psi ####
-  output$plot_psi <- renderPlot({
+  output$plot_psi <- renderPlotly({
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
     w_min <- p@species_params$w_inf[sp] / 50
@@ -958,7 +961,7 @@ server <- function(input, output, session) {
       geom_line(color = "blue") +
       geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                  linetype = "dotted") +
-      theme_grey(base_size = 18) +
+      theme_grey(base_size = base_size) +
       labs(x = "Size [g]", y = "Proportion of energy for reproduction")  +
       geom_text(aes(x = p@species_params[sp, "w_mat"], 
                     y = max(psi * 0.8),
@@ -1027,18 +1030,18 @@ ui <- fluidPage(
                               selected = "Logarithmic", inline = TRUE)
         ),
         tabPanel("Biomass",
-                 plotOutput("plotTotalBiomass"),
+                 plotlyOutput("plotTotalBiomass"),
                  uiOutput("biomass_sel"),
-                 plotOutput("plotBiomassDist")),
+                 plotlyOutput("plotBiomassDist")),
         tabPanel("Growth",
-                 plotOutput("plotGrowthCurve"),
+                 plotlyOutput("plotGrowthCurve"),
                  uiOutput("k_vb_sel")),
         tabPanel("Repro",
                  plotlyOutput("plot_erepro")),
         tabPanel("Catch",
                  plotlyOutput("plotTotalCatch"),
                  uiOutput("catch_sel"),
-                 plotOutput("plotCatchDist"),
+                 plotlyOutput("plotCatchDist"),
                  radioButtons("catch_x", "Show size in:",
                               choices = c("Weight", "Length"), 
                               selected = "Length", inline = TRUE)),
@@ -1052,11 +1055,11 @@ ui <- fluidPage(
                  plotlyOutput("plot_feeding_level")),
         tabPanel("Prey",
                  uiOutput("pred_size_slider"),
-                 plotOutput("plot_prey")),
+                 plotlyOutput("plot_prey")),
         tabPanel("Predators",
                  plotlyOutput("plot_pred")),
         tabPanel("psi",
-                 plotOutput("plot_psi"))
+                 plotlyOutput("plot_psi"))
       )
     )  # end mainpanel
   )  # end sidebarlayout
