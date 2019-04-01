@@ -953,7 +953,7 @@ server <- function(input, output, session) {
     fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     pred_rate <- p@interaction[, sp] * 
       getPredRate(p, p@initial_n, p@initial_n_pp)[, fish_idx]
-    fishing <- getFMort(p, 1)[sp, ]
+    fishing <- getFMort(p, effort = 0)[sp, ]
     total <- colSums(pred_rate) + p@mu_b[sp, ] + fishing
     pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
     background <- p@mu_b[sp, ] / total
