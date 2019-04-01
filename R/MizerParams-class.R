@@ -1498,6 +1498,7 @@ setFishing <- function(params) {
 #' @param species_params x
 #' 
 #' @return rdd
+#' @export
 srrBevertonHolt <- function(rdi, species_params) {
     return(rdi / (1 + rdi/species_params$r_max))
 }
