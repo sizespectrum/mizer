@@ -1502,6 +1502,12 @@ setFishing <- function(params) {
     return(params)
 }
 
+#' Launch app for tuning model parameters
+#' @export
+tuneParams <- function() {
+    shiny::runApp("inst/tuning")
+}
+
 
 #' Beverton Holt stock-recruitment function
 #' 
