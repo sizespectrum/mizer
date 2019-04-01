@@ -1208,6 +1208,7 @@ setReproduction <- function(params, psi = NULL) {
         params@psi[] <- psi
         return(params)
     }
+    
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
         stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
@@ -1220,6 +1221,12 @@ setReproduction <- function(params, psi = NULL) {
     if (any(species_params$w_inf <= species_params$w_min)) {
         stop("Some of the asymptotic sizes are smaller than the egg sizes.")
     }
+    # # Round maximum sizes to nearest grid point
+    # for (i in seq_along(species_params$w_inf)) {
+    #     idx <- which.min(abs(species_params$w_inf[i] - params@w))
+    #     params@species_params$w_inf[i] < params@w[idx]
+    # }
+    
     # Check maturity sizes
     if (!("w_mat" %in% colnames(species_params))) {
         stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
@@ -1242,29 +1249,33 @@ setReproduction <- function(params, psi = NULL) {
     # Check w_mat25
     assert_that(all(species_params$w_mat25 > species_params$w_min))
     assert_that(all(species_params$w_mat25 < species_params$w_mat))
+    params@species_params$w_mat25 <- species_params$w_mat25
     
     # Set defaults for m
     if (!("m" %in% colnames(species_params))) {
-        species_params$m <- 1 - params@n
+        species_params$m <- 1
     }
     missing <- is.na(species_params$m)
     if (any(missing)) {
-        species_params$m[missing] <- 1 - params@n
+        species_params$m[missing] <- 1
     }
     # Check m
     assert_that(is.numeric(species_params$m), 
                 all(species_params$m > 0 & species_params$m < 2))
+    params@species_params$m <- species_params$m
     
     params@psi[] <- 
         unlist(
             tapply(params@w, 1:length(params@w),
-                   function(wx, w_inf, w_mat, m, w_mat25) {
+                   function(wx, w_inf, w_mat, mn, w_mat25) {
                        U <- log(3) / log(w_mat / w_mat25)
-                       return((1 + (wx / w_mat)^-U)^-1 * (wx / w_inf)^m)
+                       return((1 + (wx / w_mat)^-U)^-1 *
+                                  # (1 + (w_inf / w_mat)^-U) * 
+                                  (wx / w_inf)^(mn))
                    },
                    w_inf = species_params$w_inf, 
                    w_mat = species_params$w_mat, 
-                   m = species_params$m,
+                   mn = species_params$m - params@n,
                    w_mat25 = species_params$w_mat25
             )
         )
