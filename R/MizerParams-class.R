@@ -593,24 +593,25 @@ emptyParams <- function(species_params,
     # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
     cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
                     "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-    linecolour <- rep(cbbPalette, length.out = no_sp)
+    
+    if ("linecolour" %in% names(species_params)) {
+        linecolour <- species_params$linecolour
+    } else {
+        linecolour <- rep(cbbPalette, length.out = no_sp)
+    }
     names(linecolour) <- as.character(species_names)
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
                     "Background" = "grey")
-    linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
-                      "twodash"), length.out = no_sp)
+    
+    if ("linetype" %in% names(species_params)) {
+        linetype <- species_params$linetype
+    } else {
+        linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
+                          "twodash"), length.out = no_sp)
+    }
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
                   "Background" = "solid")
-    # Override default if colours or linetypes are contained in species parameters
-    if ("linetype" %in% names(species_params)) {
-        linetype[!is.na(species_params$linetype)] <- 
-            species_params$linetype[!is.na(species_params$linetype)]
-    }
-    if ("linecolour" %in% names(species_params)) {
-        linecolour[!is.na(species_params$linecolour)] <- 
-            species_params$linecolour[!is.na(species_params$linecolour)]
-    }
     
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
@@ -942,6 +943,7 @@ setSearchVolume <- function(params,
                             q) {
     species_params <- params@species_params
     params@q <- q
+    # If gamma array is supplied, check it, store it and return
     if (!is.null(dim(gamma))) {
         if (!identical(dim(gamma), dim(params@search_vol))) {
             stop("The gamma array has the wrong dimensions.")
@@ -954,6 +956,7 @@ setSearchVolume <- function(params,
         params@search_vol[] <- gamma
         return(params)
     }
+    # If gamma vector is supplied, check it and put it into species params
     if (!is.null(gamma)) {
         if (length(gamma) == nrow(params@species_params) || length(gamma) == 1) {
             species_params$gamma <- gamma
@@ -961,7 +964,7 @@ setSearchVolume <- function(params,
             stop("The gamma argument has the wrong length")
         }
     }
-    # Sorting out gamma column in species_params
+    # Calculate default for any missing gammas
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
     }
@@ -1015,6 +1018,8 @@ setSearchVolume <- function(params,
 setIntakeMax <- function(params, h = NULL, n) {
     species_params <- params@species_params
     params@n <- n
+    
+    # If h array is supplied, check it, store it and return
     if (!is.null(h)) {
         if (!identical(dim(h), dim(params@intake_max))) {
             stop("The h array has the wrong dimensions.")
@@ -1027,7 +1032,8 @@ setIntakeMax <- function(params, h = NULL, n) {
         params@intake_max[] <- h
         return(params)
     }
-    # 
+    
+    # If gamma vector is supplied, check it and put it into species params
     if (!("h" %in% colnames(species_params))) {
         species_params$h <- rep(NA, nrow(species_params))
     }
@@ -1295,6 +1301,7 @@ setPlankton <- function(params,
                         w_pp_cutoff = 10,
                         plankton_dynamics = plankton_semichemostat) {
     # TODO: check arguments
+    assert_that(r_pp > 0)
     params@kappa <- kappa
     params@lambda <- lambda
     # weight specific plankton growth rate

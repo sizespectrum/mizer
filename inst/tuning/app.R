@@ -13,7 +13,7 @@ server <- function(input, output, session) {
   
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
-  filename <- "humboldt_params.rds"
+  filename <- "params.rds"
   params(readRDS(filename))
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
@@ -115,8 +115,8 @@ server <- function(input, output, session) {
                   max = 1,
                   step = 0.01),
       sliderInput("m", "m", value = sp$m,
-                  min = 0,
-                  max = 1),
+                  min = 0.5,
+                  max = 1.5),
       tags$h3("Others"),
       sliderInput("kappa", "kappa", value = p@kappa,
                   min = signif(p@kappa / 2, 2),
@@ -238,6 +238,8 @@ server <- function(input, output, session) {
       # species params
       pc <- MizerParams(
         species_params,
+        interaction = p@interaction,
+        interaction_p = p@interaction_p,
         p = p@p,
         n = p@n,
         q = p@q,
@@ -249,7 +251,10 @@ server <- function(input, output, session) {
         no_w = length(p@w),
         min_w_pp = min(p@w_full),
         w_pp_cutoff = max(p@w_full),
-        r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1]
+        r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1],
+        rho = p@rho,
+        resource_dynamics = p@resource_dynamics,
+        resource_params = p@resource_params
       )
       pc@linetype <- p@linetype
       pc@linecolour <- p@linecolour
@@ -259,14 +264,14 @@ server <- function(input, output, session) {
       pc@mu_b <- p@mu_b
       pc@initial_n <- p@initial_n
       pc@initial_n_pp <- p@initial_n_pp
+      pc@initial_B <- p@initial_B
       
       # The spectrum for the changed species is calculated with new
       # parameters but in the context of the original community
       # Compute death rate for changed species
-      mumu <- getMort(pc, p@initial_n, p@initial_n_pp, 
-                      effort = 1)[sp, ]
+      mumu <- getMort(pc, effort = 1)[sp, ]
       # compute growth rate for changed species
-      gg <- getEGrowth(pc, p@initial_n, p@initial_n_pp)[sp, ]
+      gg <- getEGrowth(pc)[sp, ]
       # Compute solution for changed species
       w_inf_idx <- sum(pc@w < pc@species_params[sp, "w_inf"])
       idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
@@ -386,8 +391,8 @@ server <- function(input, output, session) {
       plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
       p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
       # Recompute all species
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 1)
-      gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
+      mumu <- getMort(p, effort = 1)
+      gg <- getEGrowth(p)
       for (sp in 1:length(p@species_params$species)) {
         w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
         idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
@@ -404,9 +409,9 @@ server <- function(input, output, session) {
       
       # Retune the values of erepro so that we get the correct level of
       # recruitment
-      mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 1)
-      gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
-      rdd <- getRDD(p, p@initial_n, p@initial_n_pp)
+      mumu <- getMort(p, effort = 1)
+      gg <- getEGrowth(p)
+      rdd <- getRDD(p)
       # TODO: vectorise this
       for (i in (1:length(p@species_params$species))) {
         gg0 <- gg[i, p@w_min_idx[i]]
@@ -542,7 +547,7 @@ server <- function(input, output, session) {
   })
   
   ## Spectra ####
-  output$plotSpectra <- renderPlot({
+  output$plotSpectra <- renderPlotly({
     if (input$binning == "Logarithmic") {
       power <- 2
     } else {
@@ -1013,7 +1018,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(id = "mainTabs",
         type = "tabs",
-        tabPanel("Spectra", plotOutput("plotSpectra"),
+        tabPanel("Spectra", plotlyOutput("plotSpectra"),
                  radioButtons("binning", "Binning:",
                               choices = c("Logarithmic", "Constant"), 
                               selected = "Logarithmic", inline = TRUE)

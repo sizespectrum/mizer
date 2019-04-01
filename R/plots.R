@@ -729,6 +729,13 @@ plot_spectra <- function(params, n, n_pp,
     if (is.null(species)) {
         species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
     }
+    species <- as.character(species)
+    invalid_species <- 
+        !(species %in% as.character(dimnames(params@initial_n)[[1]]))
+    if (any(invalid_species)) {
+        warning(paste("The following species do not exist in the model and are ignored:",
+                      species[invalid_species]))
+    }
     # Deal with power argument
     if (power %in% c(0, 1, 2)) {
         y_label <- c("Number density [1/g]", "Biomass density",

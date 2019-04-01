@@ -917,13 +917,21 @@ removeSpecies <- function(params, species) {
     p@intake_max <- p@intake_max[keep, , drop = FALSE]
     p@search_vol <- p@search_vol[keep, , drop = FALSE]
     p@metab <- p@metab[keep, , drop = FALSE]
-    p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop = FALSE]
-    p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop = FALSE]
+    if (length(dim(p@ft_pred_kernel_e)) == 2) {
+        p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop = FALSE]
+    }
+    if (length(dim(p@ft_pred_kernel_p)) == 2) {
+        p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop = FALSE]
+    }
     p@mu_b <- p@mu_b[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
     p@interaction <- p@interaction[keep, keep, drop = FALSE]
     p@selectivity <- p@selectivity[, keep, , drop = FALSE]
     p@catchability <- p@catchability[, keep, drop = FALSE]
+    if (length(dim(p@rho)) == 3) {
+        p@rho <- p@rho[keep, , , drop = FALSE]
+    }
+    p@interaction_p <- p@interaction_p[keep]
     p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
     
