@@ -462,7 +462,7 @@ plotYield <- function(sim, sim2,
                              value.name = "Yield")
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym <- subset(ym, ym$Yield > 0)
-        if (length(species) > 12) {
+        if (length(species) > 120) {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, group = Species))
         } else {
@@ -1174,7 +1174,7 @@ plotGrowthCurves <- function(object, species,
     plot_dat <- reshape2::melt(ws)
     # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, dimnames(n)$sp)
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value, group = Species))
     } else {
@@ -1192,6 +1192,9 @@ plotGrowthCurves <- function(object, species,
     # Extra stuff for single-species case
     if (length(species) == 1 && !percentage) {
         w_inf <- params@species_params$w_inf[idx[1]]
+        # set w_inf to w at next grid point, because that is when growth rate
+        # becomes zero
+        w_inf <- params@w[sum(w_inf > params@w) + 1]
         p <- p + geom_hline(yintercept = w_inf) +
             annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
         w_mat <- params@species_params$w_mat[idx[1]]
