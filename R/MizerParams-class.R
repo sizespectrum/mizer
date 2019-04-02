@@ -713,11 +713,11 @@ setParams <- function(params,
                       pred_kernel_type = params@pred_kernel_type,
                       store_kernel = FALSE,
                       # setSearchVolume()
-                      gamma = NULL,
+                      search_vol = NULL,
                       q = params@q,
                       f0 = params@f0,
                       # setIntakeMax()
-                      h = NULL,
+                      intake_max = NULL,
                       n = params@n,
                       # setMetab()
                       metab = NULL,
@@ -747,7 +747,7 @@ setParams <- function(params,
                             pred_kernel_type = pred_kernel_type,
                             store_kernel = store_kernel)
     params <- setIntakeMax(params, 
-                           h = h,
+                           intake_max = intake_max,
                            n = n)
     params <- setMetab(params, 
                        metab = metab,
@@ -756,7 +756,7 @@ setParams <- function(params,
                        z0pre = z0pre, 
                        z0exp = z0exp)
     params <- setSearchVolume(params, 
-                              gamma = gamma,
+                              search_vol = search_vol,
                               q = q)
     params <- setReproduction(params, 
                               psi = psi)
@@ -1060,30 +1060,22 @@ setPredKernel <- function(params,
 #' @return MizerParams
 #' @export
 setSearchVolume <- function(params, 
-                            gamma = NULL,
+                            search_vol = NULL,
                             q) {
     species_params <- params@species_params
     params@q <- q
     # If gamma array is supplied, check it, store it and return
-    if (!is.null(dim(gamma))) {
-        if (!identical(dim(gamma), dim(params@search_vol))) {
-            stop("The gamma array has the wrong dimensions.")
+    if (!is.null(search_vol)) {
+        if (!identical(dim(search_vol), dim(params@search_vol))) {
+            stop("The search_vol array has the wrong dimensions.")
         }
-        if (!is.null(dimnames(gamma)) && 
-            !all(dimnames(gamma)[[1]] == species_params$species)) {
-            stop(paste0("You need to use the same ordering of species as in the ",
+        if (!is.null(dimnames(search_vol)) && 
+            !all(dimnames(search_vol)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species in the search_vol array as in the ",
                         "params object: ", toString(species_params$species)))
         }
-        params@search_vol[] <- gamma
+        params@search_vol[] <- search_vol
         return(params)
-    }
-    # If gamma vector is supplied, check it and put it into species params
-    if (!is.null(gamma)) {
-        if (length(gamma) == nrow(params@species_params) || length(gamma) == 1) {
-            species_params$gamma <- gamma
-        } else {
-            stop("The gamma argument has the wrong length")
-        }
     }
     # Calculate default for any missing gammas
     if (!("gamma" %in% colnames(species_params))) {
@@ -1136,21 +1128,21 @@ setSearchVolume <- function(params,
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params, h = NULL, n) {
+setIntakeMax <- function(params, intake_max = NULL, n) {
     species_params <- params@species_params
     params@n <- n
     
     # If h array is supplied, check it, store it and return
-    if (!is.null(h)) {
-        if (!identical(dim(h), dim(params@intake_max))) {
-            stop("The h array has the wrong dimensions.")
+    if (!is.null(intake_max)) {
+        if (!identical(dim(intake_max), dim(params@intake_max))) {
+            stop("The intake_max array has the wrong dimensions.")
         }
-        if (!is.null(dimnames(h)) && 
-            !all(dimnames(h)[[1]] == species_params$species)) {
-            stop(paste0("You need to use the same ordering of species as in the ",
+        if (!is.null(dimnames(intake_max)) && 
+            !all(dimnames(intake_max)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species in the intake_max array as in the ",
                         "params object: ", toString(species_params$species)))
         }
-        params@intake_max[] <- h
+        params@intake_max[] <- intake_max
         return(params)
     }
     

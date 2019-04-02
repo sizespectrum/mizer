@@ -87,9 +87,9 @@ set_multispecies_model <- function(species_params,
                                    pred_kernel_type = "lognormal",
                                    store_kernel = FALSE,
                                    # setSearchVolume()
-                                   gamma = NULL,
+                                   search_vol = NULL,
                                    # setIntakeMax()
-                                   h = NULL,
+                                   intake_max = NULL,
                                    # setMetab()
                                    metab = NULL,
                                    # setBMort
@@ -167,11 +167,11 @@ set_multispecies_model <- function(species_params,
                         pred_kernel_type = pred_kernel_type,
                         store_kernel = store_kernel,
                         # setSearchVolume()
-                        gamma = gamma,
+                        search_vol = search_vol,
                         q = q,
                         f0 <- f0,
                         # setIntakeMax()
-                        h = h,
+                        intake_max = intake_max,
                         n = n,
                         # setMetab()
                         metab = metab,
