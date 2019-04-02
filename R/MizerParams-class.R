@@ -268,8 +268,6 @@ validMizerParams <- function(object) {
 #' @slot species_params A data.frame to hold the species specific parameters
 #'   (see the mizer vignette, Table 2, for details)
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
-#' @slot interaction_p The species specific interaction with plankton,
-#'   \eqn{\theta_{ip}}
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
@@ -338,7 +336,6 @@ setClass(
         initial_B = "numeric",
         species_params = "data.frame",
         interaction = "array",
-        interaction_p = "numeric",
         srr  = "function",
         selectivity = "array",
         catchability = "array",
@@ -390,7 +387,6 @@ setClass(
         interaction = array(
             NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
         ),
-        interaction_p = NA_real_,
         selectivity = array(
             NA, dim = c(1,1,1), dimnames = list(gear = NULL, sp = NULL, w = NULL)
         ),
@@ -573,8 +569,6 @@ emptyParams <- function(species_params,
     interaction <- array(1, dim = c(no_sp, no_sp),
                          dimnames = list(predator = species_names,
                                          prey = species_names))
-    interaction_p <- rep(1, no_sp)
-    names(interaction_p) <- species_names
     
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
@@ -640,7 +634,6 @@ emptyParams <- function(species_params,
         initial_n_pp = vec1,
         species_params = species_params,
         interaction = interaction,
-        interaction_p = interaction_p,
         srr = srr,
         resource_dynamics = list(),
         plankton_dynamics = plankton_semichemostat,
@@ -707,7 +700,6 @@ emptyParams <- function(species_params,
 setParams <- function(params,
                       # setInteraction()
                       interaction = NULL,
-                      interaction_p = NULL,
                       # setPredKernel()
                       pred_kernel = NULL,
                       pred_kernel_type = params@pred_kernel_type,
@@ -738,9 +730,8 @@ setParams <- function(params,
                       resource_params = params@resource_params,
                       # setResourceEncounter
                       rho = NULL) {
-    params <- setInteraction(params, 
-                             interaction = interaction, 
-                             interaction_p = interaction_p)
+    params <- setInteraction(params,
+                             interaction = interaction)
     params <- setFishing(params)
     params <- setPredKernel(params, 
                             pred_kernel = pred_kernel,
@@ -780,36 +771,28 @@ setParams <- function(params,
 #' 
 #' @section Setting interactions:
 #' 
-#' The species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-#' vector \eqn{\theta_{ip}} are used when calculating the food encounter rate in
+#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the food encounter rate in
 #' \code{\link{getEncounter}} and the predation rate in
-#' \code{\link{getPredRate}}. This function checks that the supplied arguments
-#' are valid and then stores them in the \code{interaction} and
-#' \code{interaction_p} slot of the params object before returning that object.
-#' Arguments that are not supplied or NULL will not change the corresponding
-#' slot.
+#' \code{\link{getPredRate}}. This function checks that the supplied interaction
+#' matrix is valid and then stores it in the \code{interaction} slot of the params
+#' object before returning that object.
 #' 
 #' Any dimnames of the interaction matrix argument are ignored by the
 #' constructor. The dimnames of the interaction matrix in the returned
 #' \code{MizerParams} object are taken from the species names in the
 #' \code{species_params} slot. This means that the order of the columns and rows
 #' of the interaction matrix argument should be the same as the species name in
-#' the \code{species_params} slot. The same applies to the names of the
-#' \code{interaction_p} argument.
+#' the \code{species_params} slot. 
 #' 
 #' @param params MizerParams object
 #' @param interaction Interaction matrix of the species (predator by prey).
 #'   Entries should be numbers between 0 and 1. See "Setting interactions"
 #'   section below.
-#' @param interaction_p Vector specifying for each species its interaction with
-#'   plankton, similar to what the interaction matrix does for the interaction
-#'   with other species. See "Setting interactions" section below.
 #' 
 #' @return MizerParams object
 #' @export
 setInteraction <- function(params,
-                           interaction = NULL,
-                           interaction_p = NULL) {
+                           interaction = NULL) {
     if (!is.null(interaction)) {
         # Check dims of interaction argument
         if (!identical(dim(params@interaction), dim(interaction))) {
@@ -837,22 +820,24 @@ setInteraction <- function(params,
         }
         params@interaction[] <- interaction
     }
-    if (!is.null(interaction_p)) {
-        # Check dims of interaction_p argument
-        if (!identical(length(params@interaction_p), length(interaction_p))) {
-            stop("Plankton interaction vector has wrong length. Must be equal to number of species.")
-        }
-        # Check that all values of interaction vector are 0 - 1.
-        if (!all((interaction_p >= 0) & (interaction_p <= 1))) {
-            warning("Values in the plantkon interaction vector should be between 0 and 1")
-        }
-        # In case user has supplied names to interaction vector, check them.
-        if (!is.null(names(interaction_p)) &
-            (!identical(names(params@interaction_p), names(interaction_p)))) {
-            warning("Names in the plankton interaction vector do not match the order of species names in the species data.frame. I am now ignoring your names so your interaction vector may be in the wrong order.")
-        }
-        params@interaction_p[] <- interaction_p
+    
+    # Check the interaction_p column in species_params
+    species_params <- params@species_params
+    if (!("interaction_p" %in% colnames(species_params))) {
+        message("Note: No interaction_p column in species data frame so assuming all species feed on plankton.")
+        species_params$interaction_p <- rep(1, nrow(species_params))
     }
+    missing <- is.na(species_params$interaction_p)
+    if (any(missing)) {
+        species_params$interaction_p[missing] <- 1
+    }
+    # Check that all values of interaction vector are 0 - 1.
+    if (!all((species_params$interaction_p >= 0) & 
+             (species_params$interaction_p <= 1))) {
+        warning("Values in the plantkon interaction vector should be between 0 and 1")
+    }
+    params@species_params$interaction_p <- species_params$interaction_p
+    
     return(params)
 }
 

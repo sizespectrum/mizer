@@ -256,7 +256,6 @@ server <- function(input, output, session) {
       pc <- MizerParams(
         species_params,
         interaction = p@interaction,
-        interaction_p = p@interaction_p,
         p = p@p,
         n = p@n,
         q = p@q,

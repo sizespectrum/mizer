@@ -199,7 +199,8 @@ getEncounter <- function(object, n = object@initial_n,
             c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
         # Eating the background
         # This line is a bottle neck
-        phi_prey_background <- object@interaction_p * rowSums(sweep(
+        phi_prey_background <- object@species_params$interaction_p *
+            rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- object@search_vol * (phi_prey_species + phi_prey_background)
@@ -210,7 +211,7 @@ getEncounter <- function(object, n = object@initial_n,
         return(encounter)
     }
 
-    prey <- outer(object@interaction_p, n_pp)
+    prey <- outer(object@species_params$interaction_p, n_pp)
     prey[, idx_sp] <- prey[, idx_sp] + object@interaction %*% n
     # The vector prey equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
@@ -547,7 +548,7 @@ getPlanktonMort <-
              ") x no. size bins in community + plankton (",
              length(object@w_full), ")")
     }
-    return(as.vector(object@interaction_p %*% pred_rate))
+    return(as.vector(object@species_params$interaction_p %*% pred_rate))
 }
 
 #' Alias for getPlanktonMort

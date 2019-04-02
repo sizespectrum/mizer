@@ -2,6 +2,8 @@ sp <- read.csv("inst/blanes/species_params.csv", sep = ";")
 sp$k_vb[1:2] <- sp$k_vb[1:2] * 5
 sp$k_vb[c(8, 10)] <- sp$k_vb[c(8, 10)] * 4
 
+sp$interaction_p = rep(0, no_sp),
+
 theta <- read.csv("inst/blanes/theta.csv", header = FALSE)
 theta <- t(as.matrix(theta))
 
@@ -40,8 +42,7 @@ resource_dynamics <-
          "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
 
 params <- MizerParams(sp, rho = rho,
-                      interaction = theta, 
-                      interaction_p = rep(0, no_sp),
+                      interaction = theta,
                       resource_dynamics = resource_dynamics,
                       q = q, p = p, n = n, lambda = lambda, kappa = kappa,
                       f0 = f0, z0pre = 2)

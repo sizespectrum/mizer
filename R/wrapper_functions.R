@@ -931,7 +931,6 @@ removeSpecies <- function(params, species) {
     if (length(dim(p@rho)) == 3) {
         p@rho <- p@rho[keep, , , drop = FALSE]
     }
-    p@interaction_p <- p@interaction_p[keep]
     p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
     
