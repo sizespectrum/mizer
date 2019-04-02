@@ -1,5 +1,5 @@
 ---
-title: "Community Model"
+title: "The Community Model"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -149,7 +149,7 @@ To quickly look at the results of the projection you can call the generic
 mortality and abundance by size in the last time step of the simulation, and the
 biomass through time. Each of the plots can be show individually if desired.
 
-```{r label=print_plot_comm_sim, fig.cap="Example plot of the community model."}
+```{r}
 plot(sim)
 ```
 
@@ -207,7 +207,7 @@ m2[51,]
 If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
-```{r label=print_plot_comm_m2, warning=FALSE, fig.cap="Predation mortality without fishing in the community model (note the log scales for both axes)."}
+```{r}
 plot(x = sim@params@w, y = m2[51,], log = "xy", type = "l", 
      xlab = "Size", ylab = "Predation mortality")
 ```
@@ -250,7 +250,7 @@ sim1 <- project(params_knife, effort = 1, t_max = 50)
 
 You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
-```{r label=print_plot_comm_fmort, fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
+```{r}
 plot(sim1)
 ```
  
@@ -270,7 +270,7 @@ This can then be plotted using basic R plotting commands.
 The sizes are stored in the `params@w` slot (a slot of a slot!).
 
 
-```{r label=plot_relative_comm_abund, fig.cap="Relative abundances from the unfished (dashed line) and fished (solid line) community model."}
+```{r}
 plot(x = sim0@params@w, y = relative_abundance, log = "x", type = "n",
     xlab = "Size (g)", ylab = "Relative abundance")
 lines(x = sim0@params@w, y = relative_abundance)
@@ -305,7 +305,7 @@ sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
 
 Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` method:
 
-```{r label=plot_comm_biomass_sigma1, fig.keep='last', fig.cap="Biomass of the community model when sigma is reduced to a value of 1.0."}
+```{r}
 plotBiomass(sim_sigma1)
 ```
 

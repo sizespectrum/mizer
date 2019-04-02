@@ -1,5 +1,5 @@
 ---
-title: "Installing mizer"
+title: "Installing Mizer"
 output: html_document
 vignette: >
   %\VignetteIndexEntry{Mizer Developer Vignette}
@@ -11,19 +11,11 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-mizer is a package for the R open-source statistical programming language. 
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/GsdE14HMQGE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
 ## Installing R and RStudio
 
-Mizer is compatible with R versions 3.1 and later.
-You can install R on your computer by following the instructions
-
-If you need to [install R](https://cran.r-project.org/). Simply install 
-the latest version. This vignette was prepared with
-`r R.version.string`.
+Mizer is compatible with R versions 3.1 and later. You can install R on your
+computer by following the instructions at [https://cran.r-project.org/] for your
+particular platform.
 
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.

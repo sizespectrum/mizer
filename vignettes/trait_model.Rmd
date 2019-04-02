@@ -1,5 +1,5 @@
 ---
-title: "Trait-Based Model"
+title: "The Trait-Based Model"
 output: html_document
 fig_width: 5
 fig_height: 5
@@ -52,7 +52,7 @@ the community model, recruitment is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
 model, the egg production is modeled using a *Beverton-Holt* type function (the
 default in `mizer`, see [the section on stock-recruitment
-relationships](model_description.html#sec:recruitment)) where the recruitment
+relationships](model_description.html#recruitment)) where the recruitment
 flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg
 production increases. The maximum recruitment flux is calculated using
 equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as

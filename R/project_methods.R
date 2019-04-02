@@ -42,11 +42,11 @@ NULL
 #' Calls all the other rate functions in sequence and collects the results in a
 #' list.
 #' 
-#' @param object An \linkS4class{MizerParams} object
+#' @param object A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
-#' @param effort The effort of each fishing gear
+#' @param effort The effort for each fishing gear
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' 

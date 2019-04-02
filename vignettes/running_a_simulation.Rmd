@@ -1,5 +1,5 @@
 ---
-title: "Running A Simulation"
+title: "Running a Simulation"
 output: html_document
 fig_width: 5
 fig_height: 5

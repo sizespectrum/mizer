@@ -12,7 +12,7 @@ vignette: >
 ## Overview
 The mizer package implements multi-species size-spectrum models in R. It has 
 been designed for modelling marine ecosystems.
-The general model is described in the section [Size spectrum models].
+The general model is described in the section [Size-spectrum models].
 
 Using mizer is relatively simple.  There are four main stages, each
 described in more detail in sections below.
@@ -72,15 +72,16 @@ mizer choose all the parameters for you.
 params <- set_community_model()
 ```
 For a more complicated multi-species model you need to provide a data frame
-with some species parameters. An example of a North Sea model is provided
-with the package
+with some species parameters and an interaction matrix specifying which species
+how species predate on each other. An example of a North Sea model is provided
+with the package.
 ```{r}
 data(NS_species_params)
 data(inter)
 params <- set_multispecies_model(NS_species_params, inter)
 ```
 The notes printed out by the function show us that mizer calculated
-default values for parameters that were not provided.
+default values for many parameters that were not provided.
 
 
 
@@ -89,7 +90,7 @@ This is done by calling the `project()` method on the model parameters.
 ```{r}
 sim <- project(params, t_max = 10, effort = 0)
 ```
-This produces an object of MizerSim} which contains the
+This produces an object of class `MizerSim` which contains the
 results of the simulation. In this example we chose to set some parameters
 of the `project()` function to specify that we want to project 10 years into
 the future, under the assumption of zero fishing effort. 
@@ -103,9 +104,10 @@ The `plot()` function combines several of these plots into one:
 ```{r}
 plot(sim)
 ```
-We might be interested in how the proportion of large fish varies over time. 
-For example we can get the proportion of Herrings in terms of biomass that have 
-a weight above 50g in each of the 50 years:
+
+Just as an example: we might be interested in how the proportion of large fish
+varies over time. We can get the proportion of Herrings in terms of biomass that
+have a weight above 50g in each of the 50 years:
 ```{r}
 getProportionOfLargeFish(sim, species = "Herring", threshold_w = 50, biomass_proportion = TRUE)
 ```
@@ -147,17 +149,14 @@ related to individual weight which makes it possible to formulate the model with
 a small set of general parameters, which has prompted the label ``charmingly
 simple'' to the model framework [@pope_modelling_2006}.
 
-The model framework builds on two central assumption and a number of lesser
-standard assumption.
-
-The first central assumption is that an individual can be characterized by its
-weight $w$ and its species number $i$ only. The aim of the model is to calculate
-the size- and trait-spectrum ${\cal N}_i(w)$ which is the density of individuals
-such that ${\cal N}_i(w)dw$ is the number of individuals in the interval
-$[w:w+dw]$. Scaling from individual-level processes of growth and mortality to the
-size spectrum of each trait group is achieved by means of the McKendrik-von
-Foerster equation, which is simply a continuity equation that describes the
-flow of biomass up the size spectrum,
+The model framework builds on the central assumption that an individual can be
+characterized by its weight $w$ and its species number $i$ only. The aim of the
+model is to calculate the size- and trait-spectrum ${\cal N}_i(w)$ which is the
+density of individuals such that ${\cal N}_i(w)dw$ is the number of individuals
+in the interval $[w:w+dw]$. Scaling from individual-level processes of growth
+and mortality to the size spectrum of each trait group is achieved by means of
+the McKendrik-von Foerster equation, which is simply a continuity equation that
+describes the flow of biomass up the size spectrum,
 \begin{equation}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
 \end{equation}
@@ -173,14 +172,13 @@ offspring by mature individuals in the population $R_i$:
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}
 
-The second central assumption is that the rate at which a predator feeds on a
-prey is determined by the sizes and abundances
-
 The rest of the formulation of the model rests on a number of ``standard''
 assumptions from ecology and fisheries science about how encounters between
 predators and prey leads to growth $g_i(w)$ and recruitment $R_i$ of the
 predators, and mortality of the prey $\mu_i(w)$.
 
+For a more detailed exposition of the model see the vignette 
+[The mizer size-spectrum model](model_description.html).
 
 It is easiest to learn the basics of mizer through examples. We do this by
 looking at three set-ups of the framework, of increasing complexity. For
@@ -191,7 +189,7 @@ recommend that you explore these in the following order:
 ### Community model
 In the [community model](community_model.html), individuals are only 
 characterized by their size and are
-represented by a single group representing an across species average. Community
+represented by a single group representing an across-species average. Community
 size spectrum models have been used to investigate how abundance size spectra
 emerge solely from the individual-level process of size-based predation and how
 fishing impacts metrics of community-level size spectra. Since few parameters
@@ -202,13 +200,13 @@ tractable.
 ### Trait-based model
 The [trait-based model](trait_model.html) resolves a continuum of species with
 varying asymptotic sizes. The asymptotic size is considered to be the most
-important trait that characterizes the species life history. The continuum is
+important trait that characterizes a species' life history. The continuum is
 represented by a discrete number of species spread evenly over the range of
 asymptotic sizes. The number of species is not important and does not affect the
 general dynamics of the model. Many of the parameters, such as the preferred
-predator-prey mass ratio  are the same for all species. Other model parameters
+predator-prey mass ratio, are the same for all species. Other model parameters
 are determined by the asymptotic size. For example, the weight at maturation of
-each species is a set fraction of the asymptotic size. In the trait-based model
+each species is a set fraction of the asymptotic size. In the trait-based model,
 species-level complexity is captured through different life histories, and both
 intra- and inter-specific size spectra emerge. This approach is powerful for
 examining the generic population and whole community level responses to both

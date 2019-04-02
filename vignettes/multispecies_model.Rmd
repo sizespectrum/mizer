@@ -1,5 +1,5 @@
 ---
-title: "MultiSpecies Model"
+title: "The Multi Species Model"
 output: html_document
 fig_width: 5
 fig_height: 5

@@ -35,6 +35,7 @@ navbar:
 articles:
 - title: User Guides
   contents:
+  - mizer
   - installation
   - model_description
   - community_model
@@ -67,7 +68,7 @@ reference:
   - removeSpecies
   - retuneAbundance
   - setBackground
-- title: Running simulation
+- title: Running simulations
   contents:
   - project
 - title: Analysing results
@@ -121,6 +122,9 @@ reference:
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat
+- title: Helper functions
+  contents:
+  - get_size_range_array
 - title: Classes
   contents:
   - MizerParams-class

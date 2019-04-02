@@ -1,5 +1,5 @@
 ---
-title: "A MultiSpecies Model Of The North Sea"
+title: "A Multi-Species Model Of The North Sea"
 output: html_document
 fig_width: 5
 fig_height: 5
@@ -30,69 +30,86 @@ effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
-
-## A multispecies model of the North Sea {#sec:north_sea_example}
-
-In this section we try to pull everything together with an extended example of a multispecies model for the North Sea.
-First we will set up the model, project it through time using historical levels of fishing effort, and then examine the results.
-We then run two different future projection scenarios.
+In this section we try to pull everything together with an extended example of a
+multispecies model for the North Sea. First we will set up the model, project it
+through time using historical levels of fishing effort, and then examine the
+results. We then run two different future projection scenarios.
 
 
 ## Setting up the North Sea model
 
 The first job is to set up the `MizerParams` object for the North Sea model.
-In the previous multispecies examples we have already been using the life-history parameters and the interaction matrix for the North Sea model.
-We will use them again here but will make some changes. In particular we set up the fishing gears differently.
+In the previous multispecies examples we have already been using the
+life-history parameters and the interaction matrix for the North Sea model. We
+will use them again here but will make some changes. In particular we set up the
+fishing gears differently.
 
-The parameters and the interaction matrix are stored as *.csv files that need to be read in. We can use the `system.file()` function to tell us the location of the files.
-Remember that we need to convert the interaction file into a matrix, hence the use of the `as()` function.
+The parameters and the interaction matrix are stored as *.csv files that need to
+be read in. We can use the `system.file()` function to tell us the location of
+the files. Remember that we need to convert the interaction file into a matrix,
+hence the use of the `as()` function.
 
 ```{r label = show_load_ns_species_params, eval=FALSE}
-params_location <- system.file("doc/NS_species_params.csv",package="mizer")
+params_location <- system.file("doc/NS_species_params.csv", package = "mizer")
 params_data <- read.csv(params_location)
-inter_location <- system.file("doc/inter.csv",package="mizer")
-inter <- as(read.csv(inter_location, row.names=1),"matrix")
+inter_location <- system.file("doc/inter.csv", package = "mizer")
+inter <- as(read.csv(inter_location, row.names = 1), "matrix")
 ```
 
 ```{r label = load_ns_species_params, echo=FALSE}
 params_data <- read.csv("NS_species_params.csv")
-inter <- as(read.csv("inter.csv", row.names=1),"matrix")
+inter <- as(read.csv("inter.csv", row.names = 1), "matrix")
 ```
 
-The species in the model are `r paste(params_data[,"species"], collapse=", ")` which account for about 90\% of the total biomass of all species sampled by research trawl surveys in the North Sea. 
-The `params_data` object is a data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`, `r_max` and `k_vb`. 
+The species in the model are: `r paste(params_data[,"species"], collapse=", ")`,
+which account for about 90\% of the total biomass of all species sampled by
+research trawl surveys in the North Sea. The `params_data` object is a
+data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
+`r_max` and `k_vb`.
 
-We have seen before that only having these columns in the species data.frame is sufficient to make a `MizerParams` object. Any missing columns will be added by the default values and relationships in the `MizerParams` constructor.
-For example, the data.frame does not include columns for `h` or `gamma`. This means that they will be estimated using the `k_vb` column (see [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)).
+We have seen before that only having these columns in the species data.frame is
+sufficient to make a `MizerParams` object. Any missing columns will be added and
+filled with default values by the `MizerParams` constructor. For example, the
+data.frame does not include columns for `h` or `gamma`. This means that they
+will be estimated using the `k_vb` column (see [the section on species
+parameters](multispecies_model.html#sec:species_parameters_dataframe)).
 
+We will use the default stock-recruitment relationship, which is the
+Beverton-Holt shape. This requires a column `r_max` in the species data.frame
+which contains the maximum recruitment flux for each species. This column is
+already in the `params_data` data.frame. The values were found through a
+calibration process which is not covered here but will be added to a later
+version of this manual.
 
-
-
-
-We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. This requires a column `r_max` in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the `params_data` data.frame. 
-The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
-
-At the moment, the species data.frame does not contain any information on the selectivity of the species.
-By default, the selectivity function is a knife-edge which only takes a single argument, `knife_edge_size`.
-In this model we want the selectivity pattern to be a sigmoid shape which more accurately reflects the selectivity pattern of trawlers in the North Sea.
-The sigmoid selectivity function is expressed in terms of length rather than weight and uses the parameters `l25` and `l50`, which are the lengths at which 25\% and 50\% of the stock is selected. The length based sigmoid selectivity looks like:
+At the moment, the species data.frame does not contain any information on the
+selectivity of the gears for the species. By default, the selectivity function
+is a knife-edge which only takes a single argument, `knife_edge_size`. In this
+model we want the selectivity pattern to be a sigmoid shape which more
+accurately reflects the selectivity pattern of trawlers in the North Sea. The
+sigmoid selectivity function is expressed in terms of length rather than weight
+and uses the parameters `l25` and `l50`, which are the lengths at which 25\% and
+50\% of the stock is selected. The length based sigmoid selectivity looks like:
 
 \begin{equation}
 %     {#eq:trawl_sel}
     S_l = \frac{1}{1 + \exp(S1 - S2\ l)}
 \end{equation}
 
-where $l$ is the length of an individual, $S_l$ is the selectivity at length, $S2 = \log(3) / (l50 - l25)$ and $S1$ = $l50 \cdot S2$.
+where $l$ is the length of an individual, $S_l$ is the selectivity at length,
+$S2 = \log(3) / (l50 - l25)$ and $S1$ = $l50 \cdot S2$.
 
-
-
-This selectivity function is included in `mizer` as `sigmoid_length()`. You can see the help page for more details.
-As well as the arguments `l25` and `l50`, this function has the arguments `a` and `b` to convert between length and weight: $w = a l^b$.
-This is because the sigmoid selectivity function is defined in terms of length, and the size spectrum model works in terms of weight.
-As explained in [the section on fishing gears and selectivity](multispecies_model.html#sec:fishing_gear), all arguments of the selectivity function need to be in the species parameter data.frame.
-Therefore, columns for `l25`, `l50`, `a` and `b` need to be added to `params_data`.
-We also add a column specifying the name of the selectivity function we wish to use.
-Note it would probably be easier to add this data directly to the *.csv file and then read it in rather than type it in by hand like we do here:
+This selectivity function is included in mizer as `sigmoid_length()`. You can
+see the help page for more details. As well as the arguments `l25` and `l50`,
+this function has the arguments `a` and `b` to convert between length and
+weight: $w = a l^b$. This is because the sigmoid selectivity function is defined
+in terms of length, and the size spectrum model works in terms of weight. As
+explained in [the section on fishing gears and
+selectivity](multispecies_model.html#sec:fishing_gear), all arguments of the
+selectivity function need to be in the species parameter data.frame. Therefore,
+columns for `l25`, `l50`, `a` and `b` need to be added to `params_data`. We also
+add a column specifying the name of the selectivity function we wish to use.
+Note it would probably be easier to add this data directly to the *.csv file and
+then read it in rather than type it in by hand like we do here:
 
 ```{r label=adding_sel_params}
 params_data$sel_func <- "sigmoid_length"
@@ -106,20 +123,23 @@ params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
     3.101, 3.160, 3.173, 3.075)
 ```
 
-Note that we do not set up a `gear` column to give specific gear names. This means that each species will be caught by a separate gear named after the species.
+Note that we do not set up a `gear` column to give specific gear names. This
+means that each species will be caught by a separate gear named after the
+species.
 
-In this model we are interested in projecting forward using historical fishing mortalities.
-The historical fishing mortality from 1967 to 2010 for each species is stored in the csv file `NS_f_history.csv` included in the package.
-As before, we can use `read.csv()` to read in the data. This reads the data in as a `data.frame`.
-We want this to be a `matrix` so we use the `as()` function:
+In this model we are interested in projecting forward using historical fishing
+mortalities. The historical fishing mortality from 1967 to 2010 for each species
+is stored in the csv file `NS_f_history.csv` included in the package. As before,
+we can use `read.csv()` to read in the data. This reads the data in as a
+`data.frame`. We want this to be a `matrix` so we use the `as()` function:
 
 ```{r label=show_load_f_history, eval = FALSE}
-f_location <- system.file("doc/NS_f_history.csv",package="mizer")
-f_history <- as(read.csv(f_location, row.names=1), "matrix")
+f_location <- system.file("doc/NS_f_history.csv", package = "mizer")
+f_history <- as(read.csv(f_location, row.names = 1), "matrix")
 ```
 
 ```{r label=load_f_history, echo = FALSE}
-f_history <- as(read.csv("NS_f_history.csv", row.names=1), "matrix")
+f_history <- as(read.csv("NS_f_history.csv", row.names = 1), "matrix")
 ```
 
 We can take a look at the first years of the data:
@@ -194,7 +214,7 @@ sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 Plotting the results, we can see how the biomasses of the stocks change over time.
 You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
-```{r label = plot_ns_biomass, fig.keep='last', fig.cap="Simulated biomasses of stocks in the North Sea with 100 years of transients."}
+```{r}
 plotBiomass(sim)
 ```
 
