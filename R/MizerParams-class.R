@@ -654,6 +654,127 @@ emptyParams <- function(species_params,
     return(params)
 }
 
+#' Set or change model parameters
+#' 
+#' Passes its arguments to the the setup functions
+#' \itemize{
+#' \item \code{\link{setPredKernel}}
+#' \item \code{\link{setSearchVolume}}
+#' \item \code{\link{setInteraction}}
+#' \item \code{\link{setIntakeMax}}
+#' \item \code{\link{setMetab}}
+#' \item \code{\link{setBMort}}
+#' \item \code{\link{setReproduction}}
+#' \item \code{\link{setPlankton}}
+#' \item \code{\link{setResources}}
+#' \item \code{\link{setResourceEncounter}}
+#' \item \code{\link{setFishing}}
+#' }
+#' 
+#' @param params A \linkS4class{MizerParams} object
+#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
+#'   if those are not columns in the species data frame. Also requires
+#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
+#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
+#'   ignored. Default is 0.6.
+#' @inheritParams setInteraction
+#' @inheritParams setPredKernel
+#' @inheritParams setSearchVolume
+#' @inheritParams setIntakeMax
+#' @inheritParams setMetab
+#' @inheritParams setBMort
+#' @inheritParams setReproduction
+#' @inheritParams setPlankton
+#' @inheritParams setResources
+#' @inheritParams setResourceEncounter
+#' @inheritParams setFishing
+#' 
+#' @return A \linkS4class{MizerParams} object
+#' 
+#' @inheritSection setInteraction Setting interactions
+#' @inheritSection setPredKernel Setting predation kernel
+#' @inheritSection setSearchVolume Setting search volume
+#' @inheritSection setIntakeMax Setting maximum intake rate
+#' @inheritSection setMetab Setting metabolic rate
+#' @inheritSection setBMort Setting background mortality rate
+#' @inheritSection setReproduction Setting reproduction
+#' @inheritSection setPlankton Setting plankton dynamics
+#' @inheritSection setResources Setting resource dynamics
+#' @inheritSection setResourceEncounter Setting resource encounter rate
+#' @inheritSection setFishing Setting fishing
+#' 
+#' @export
+setParams <- function(params,
+                      # setInteraction()
+                      interaction = NULL,
+                      interaction_p = NULL,
+                      # setPredKernel()
+                      pred_kernel = NULL,
+                      pred_kernel_type = params@pred_kernel_type,
+                      store_kernel = FALSE,
+                      # setSearchVolume()
+                      gamma = NULL,
+                      q = params@q,
+                      f0 = params@f0,
+                      # setIntakeMax()
+                      h = NULL,
+                      n = params@n,
+                      # setMetab()
+                      metab = NULL,
+                      p = params@p,
+                      # setBMort
+                      z0pre = 0.6,
+                      z0exp = n - 1,
+                      # setReproduction
+                      psi = NULL,
+                      # setPlankton
+                      kappa = params@kappa,
+                      lambda = params@lambda,
+                      r_pp = 10,
+                      w_pp_cutoff = 10,
+                      plankton_dynamics = params@plankton_dynamics,
+                      # setResources
+                      resource_dynamics = params@resource_dynamics,
+                      resource_params = params@resource_params,
+                      # setResourceEncounter
+                      rho = NULL) {
+    params <- setInteraction(params, 
+                             interaction = interaction, 
+                             interaction_p = interaction_p)
+    params <- setFishing(params)
+    params <- setPredKernel(params, 
+                            pred_kernel = pred_kernel,
+                            pred_kernel_type = pred_kernel_type,
+                            store_kernel = store_kernel)
+    params <- setIntakeMax(params, 
+                           h = h,
+                           n = n)
+    params <- setMetab(params, 
+                       metab = metab,
+                       p = p)
+    params <- setBMort(params, 
+                       z0pre = z0pre, 
+                       z0exp = z0exp)
+    params <- setSearchVolume(params, 
+                              gamma = gamma,
+                              q = q)
+    params <- setReproduction(params, 
+                              psi = psi)
+    params <- setPlankton(params,
+                          kappa = kappa,
+                          lambda = lambda,
+                          r_pp = r_pp, 
+                          w_pp_cutoff = w_pp_cutoff,
+                          plankton_dynamics = plankton_dynamics)
+    params <- setResources(params,
+                           resource_dynamics = resource_dynamics,
+                           resource_params = resource_params)
+    params <- setResourceEncounter(params, 
+                                   rho = rho,
+                                   n = params@n)
+    return(params)
+}
+
 
 #' Set species interation matrix and plankton interaction vector
 #' 
