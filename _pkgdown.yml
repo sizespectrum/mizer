@@ -25,7 +25,7 @@ navbar:
       href: reference/index.html
     - text: "Publications"
       href: articles/publications.html
-    - text: "Changelog"
+    - text: "News"
       href: news/index.html
   right:
     - icon: fa-github fa-lg
@@ -44,7 +44,6 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - scale_invariant_trait_based_model
-  - test
 - title: Developer Guides
   contents:
   - developer_vignette
@@ -61,6 +60,7 @@ reference:
   - set_trait_model
   - set_multispecies_model
   - starts_with("set")
+  - tuneParams
   - steady
   - emptyParams
   - addSpecies
