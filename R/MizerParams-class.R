@@ -653,7 +653,8 @@ emptyParams <- function(species_params,
 #' \linkS4class{MizerParams} object based on user-provided or default
 #' parameters. It does this by creating an empty MizerParams object with
 #' \code{\link{emptyParams}} and then filling the slots by passing its arguments
-#' to \code{\link{setParams}}.
+#' to \code{\link{setParams}}. All arguments are described in more details
+#' in the sections below the list of parameters.
 #' 
 #' @inheritParams emptyParams
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
@@ -675,19 +676,24 @@ emptyParams <- function(species_params,
 #' parameter data.frame and that do not have default values. Other columns do
 #' have default values, so that if they are not included in the species
 #' parameter data frame, they will be automatically added when the
-#' \code{MizerParams} object is created. 
+#' \code{MizerParams} object is created. For these parameters that have default
+#' values, you can also specify values only for some species and leave the
+#' other entries as NA and the missing values will be set to the defaults.
 #'   
 #' \if{html}{
-#' The following table gives different components of a species parameters data.frame.
+#' The following table lists the species parameters that can be contained in
+#' the species parameters data frame. For each parameter it gives its name,
+#' a brief description, its default value or the function that sets its default
+#' value, and links to functions that use the parameter and in
+#' whose help pages you can find more details about the parameter.
 #' \tabular{lll}{
-#'   Column name \tab Description \tab  \cr
-#'   species \tab Name of the species \tab Compulsory (no default) \cr
-#'   w_inf \tab The asymptotic mass of the species \tab Compulsory\cr
-#'   w_mat \tab The maturation mass of the species \tab Compulsory\cr
-#'   beta \tab Preferred predator prey mass ratio \tab Compulsory\cr
-#'   sigma \tab Width of prey size preference \tab Compulsory\cr
-#'   h \tab Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided. \tab Optional\cr
-#'   k_vb \tab The von Bertalanffy K parameter. Only used to calculate h if that column is not provided \tab Optional  \cr
+#'   Parameter \tab Description \tab Default \tab Used in \cr
+#'   species \tab Name of the species \tab None \tab \code{\link{emptyParams}} \cr
+#'   w_inf \tab The asymptotic mass of the species \tab None \tab \code{\link{setReproduction}} \cr
+#'   w_mat \tab The maturation mass of the species \tab None \tab \code{\link{setReproduction}} \cr
+#'   beta, sigma \tab Parameters for the lognormal predation kernel is used. Other parameters may be needed for other kernels \tab None\cr \code{\link{lognormal_pred_kernel}}
+#'   h \tab Maximum food intake rate coefficient. \tab \code{\link{setIntakeMax}} \tab \code{\link{setIntakeMax}}\cr
+#'   k_vb \tab The von Bertalanffy K parameter. \tab Optional \tab  \cr
 #'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional  \cr
 #'   ks \tab Standard metabolism coefficient \tab h*0.2 \cr
 #'   z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
@@ -1183,11 +1189,26 @@ setPredKernel <- function(params,
     ppmr <- params@w_full / params@w_full[1]
     
     for (i in 1:no_sp) {
-        pred_kernel_func <- get0(paste0(pred_kernel_type[i], "_pred_kernel"))
+        pred_kernel_func_name <- paste0(pred_kernel_type[i], "_pred_kernel")
+        pred_kernel_func <- get0(pred_kernel_func_name)
         assert_that(is.function(pred_kernel_func))
-        # TODO: check that the arguments of pred_kernel_func are contained in
-        # species params
-        phi <- pred_kernel_func(ppmr, i, params)
+        args <- names(formals(pred_kernel_func))
+        if (!("ppmr" %in% args)) {
+            stop(paste("The predation kernel function",
+                       pred_kernel_func_name,
+                       "needs the argument 'ppmr'."))
+        }
+        # lop off the compulsory arg
+        args <- args[!(args %in% "ppmr")]
+        missing <- !(args %in% colnames(species_params))
+        if (any(missing)) {
+            stop(paste("The following arguments for the predation kernel function",
+                       pred_kernel_func_name,
+                       "are missing from the parameter dataframe:",
+                       toString(args[missing])))
+        }
+        pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
+        phi <- do.call(pred_kernel_func_name, args = pars)
         if (anyNA(phi)) {
             stop(paste0("The function ", pred_kernel_func,
                         "returned NA. Did you correctly specify all required",

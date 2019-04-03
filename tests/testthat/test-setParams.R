@@ -35,6 +35,17 @@ test_that("set_species_param_default sets default correctly", {
                  "parname is not a string")
 })
 
+## setPredKernel ----
+test_that("setPredKernel works", {
+    expect_identical(setPredKernel(params), params)
+    params@species_params$pred_kernel_type <- "box"
+    params@species_params$ppmr_min <- 2
+    expect_error(setPredKernel(params), 
+                 "missing from the parameter dataframe: ppmr_max")
+    params@species_params$ppmr_max <- 4
+    p2 <- setPredKernel(params)
+})
+
 ## setResourceEncounter ----
 test_that("setResourceEncounter works", {
     species_params <- NS_species_params
