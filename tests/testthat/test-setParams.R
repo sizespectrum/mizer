@@ -35,6 +35,18 @@ test_that("set_species_param_default sets default correctly", {
                  "parname is not a string")
 })
 
+## get_phi ----
+test_that("get_phi works", {
+    NS_species_params$pred_kernel_type <- "box"
+    NS_species_params$ppmr_min <- 2
+    NS_species_params$ppmr_max <- 4
+    phi <- get_phi(NS_species_params, 1:5)
+    expect_identical(phi[1, ], phi[2, ])
+    expect_identical(phi[1, 1], 0)
+    expect_identical(phi[1, 2], 1)
+    expect_identical(phi[1, 5], 0)
+})
+
 ## setPredKernel ----
 test_that("setPredKernel works", {
     expect_identical(setPredKernel(params), params)

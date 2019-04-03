@@ -465,12 +465,9 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$beta <- species_params$beta / 100
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- set_multispecies_model(species_params, inter, no_w = 30,
-                                     store_kernel = TRUE)
+    params <- set_multispecies_model(species_params, inter, no_w = 30)
     # create a second params object that does not use fft
-    params2 <- params
-    params2@ft_pred_kernel_e <- array()
-    params2@ft_pred_kernel_p <- array()
+    params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral
     efft <- getEncounter(params, params@initial_n, params@initial_n_pp)
     e <- getEncounter(params2, params@initial_n, params@initial_n_pp)

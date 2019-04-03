@@ -738,7 +738,6 @@ set_multispecies_model <- function(species_params,
                                    f0 = 0.6,
                                    # setPredKernel()
                                    pred_kernel = NULL,
-                                   store_kernel = FALSE,
                                    # setSearchVolume()
                                    search_vol = NULL,
                                    # setIntakeMax()
@@ -819,7 +818,6 @@ set_multispecies_model <- function(species_params,
                         interaction = interaction,
                         # setPredKernel()
                         pred_kernel = pred_kernel,
-                        store_kernel = store_kernel,
                         # setSearchVolume()
                         search_vol = search_vol,
                         q = q,
@@ -916,7 +914,6 @@ setParams <- function(params,
                       interaction = NULL,
                       # setPredKernel()
                       pred_kernel = NULL,
-                      store_kernel = FALSE,
                       # setSearchVolume()
                       search_vol = NULL,
                       q = params@q,
@@ -947,8 +944,7 @@ setParams <- function(params,
                              interaction = interaction)
     params <- setFishing(params)
     params <- setPredKernel(params, 
-                            pred_kernel = pred_kernel,
-                            store_kernel = store_kernel)
+                            pred_kernel = pred_kernel)
     params <- setIntakeMax(params, 
                            intake_max = intake_max,
                            n = n)
@@ -1086,10 +1082,9 @@ setInteraction <- function(params,
 #' object. Such an array can be very big when there is a large number of size
 #' bins. Instead mizer only needs to store two two-dimensional arrays that hold
 #' Fourier transforms of the feeding kernel function that allow the encounter
-#' rate and the predation rate to be calculated very efficiently. However mizer
-#' gives you the option of storing the full three-dimensional array anyway by
-#' setting \code{store_kernel = TRUE}. This might be useful if you have code for
-#' analysing the results of a mizer simulation that relies on the full array.
+#' rate and the predation rate to be calculated very efficiently. However, if
+#' you need the full three-dimensional array you can calculat it with the
+#' \code{\link{getPredKernel}} function.
 #' }
 #' 
 #' \subsection{Kernel dependent on both predator and prey size}{
@@ -1110,11 +1105,6 @@ setInteraction <- function(params,
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. The dimensions are thus no_sp, no_w, no_w_full.
-#' @param store_kernel Only used if \code{pred_kernel} is not supplied. A
-#'   boolean flag that determines whether the full three dimensional predation
-#'   kernel array is calculated and stored, even though it is not needed by
-#'   mizer. Only useful if you have your own code that relies on this array.
-#'   Default is FALSE.
 #' 
 #' @return A MizerParams object
 #' @export
@@ -1141,8 +1131,7 @@ setInteraction <- function(params,
 # params<- setPredKernel(params, pred_kernel = pred_kernel)
 #' }
 setPredKernel <- function(params,
-                          pred_kernel = NULL,
-                          store_kernel = FALSE) {
+                          pred_kernel = NULL) {
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
         if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
@@ -1175,45 +1164,12 @@ setPredKernel <- function(params,
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    if (store_kernel) {
-        params@pred_kernel <- 
-            array(0,
-                  dim = c(no_sp, no_w, no_w_full),
-                  dimnames = list(sp = species_params$species,
-                                  w_pred = signif(params@w, 3),
-                                  w_prey = signif(params@w_full, 3))
-            )
-    }
     # Vector of predator/prey mass ratios
     # The smallest predator/prey mass ratio is 1
     ppmr <- params@w_full / params@w_full[1]
-    
+    phis <- get_phi(species_params, ppmr)
     for (i in 1:no_sp) {
-        pred_kernel_func_name <- paste0(pred_kernel_type[i], "_pred_kernel")
-        pred_kernel_func <- get0(pred_kernel_func_name)
-        assert_that(is.function(pred_kernel_func))
-        args <- names(formals(pred_kernel_func))
-        if (!("ppmr" %in% args)) {
-            stop(paste("The predation kernel function",
-                       pred_kernel_func_name,
-                       "needs the argument 'ppmr'."))
-        }
-        # lop off the compulsory arg
-        args <- args[!(args %in% "ppmr")]
-        missing <- !(args %in% colnames(species_params))
-        if (any(missing)) {
-            stop(paste("The following arguments for the predation kernel function",
-                       pred_kernel_func_name,
-                       "are missing from the parameter dataframe:",
-                       toString(args[missing])))
-        }
-        pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
-        phi <- do.call(pred_kernel_func_name, args = pars)
-        if (anyNA(phi)) {
-            stop(paste0("The function ", pred_kernel_func,
-                        "returned NA. Did you correctly specify all required",
-                        "parameters in the species parameter dataframe?"))
-        }
+        phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
         params@ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
@@ -1221,17 +1177,51 @@ setPredKernel <- function(params,
         phi_p <- rep(0, no_w_full)
         phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
         params@ft_pred_kernel_p[i, ] <- fft(phi_p)
-        # Full feeding kernel array
-        if (store_kernel) {
-            min_w_idx <- no_w_full - no_w + 1
-            for (k in seq_len(no_w)) {
-                params@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
-                    phi[1:(min_w_idx - 1 + k)]
-            }
-        }
     }
     
     return(params)
+}
+
+
+#' Get predation kernel
+#' 
+#' If no explicit predation kernel is stored in the params object, then this
+#' function calculates it from the information in the species parameter data
+#' frame in the params object.
+#' 
+#' @param params A MizerParams object
+#' @return An array (predator x predator_size x prey_size)
+#' @export
+getPredKernel <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    if (!is.na(params@pred_kernel)) {
+        return(params@pred_kernel)
+    }
+    species_params <- set_species_param_default(params@species_params,
+                                                "pred_kernel_type",
+                                                "lognormal")
+    pred_kernel_type <- species_params$pred_kernel_type
+    no_sp <- nrow(species_params)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    # Vector of predator/prey mass ratios
+    # The smallest predator/prey mass ratio is 1
+    ppmr <- params@w_full / params@w_full[1]
+    phis <- get_phi(species_params, ppmr)
+    pred_kernel <- 
+        array(0,
+              dim = c(no_sp, no_w, no_w_full),
+              dimnames = list(sp = species_params$species,
+                              w_pred = signif(params@w, 3),
+                              w_prey = signif(params@w_full, 3)))
+    for (i in 1:no_sp) {
+        min_w_idx <- no_w_full - no_w + 1
+        for (k in seq_len(no_w)) {
+            pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
+                phis[i, 1:(min_w_idx - 1 + k)]
+        }
+    }
+    return(pred_kernel)
 }
 
 
@@ -1843,6 +1833,7 @@ srrBevertonHolt <- function(rdi, species_params) {
 #' @param message A string with a message to be issued when the parameter did
 #'   not already exist
 #' @export
+#' @keywords internal
 set_species_param_default <- function(object, parname, default,
                                       message = NULL) {
     if (is(object, "MizerParams")) {
@@ -1875,4 +1866,58 @@ set_species_param_default <- function(object, parname, default,
     } else {
         return(species_params)
     }
+}
+
+
+#' Get values from feeding kernel function
+#' 
+#' This involves finding the feeding kernel function for each species, using the
+#' pred_kernel_type parameter in the species_params data frame, checking that it
+#' is valid and all its arguments are contained in the species_params data
+#' frame, and then calling this function with the ppmr vector.
+#' 
+#' @param species_params A species parameter data frame
+#' @param ppmr Values of the predator/prey mass ratio at which to evaluate the
+#'   predation kernel function
+#' @return An array (species x ppmr) with the values of the predation kernel
+#'   function
+#' @export
+#' @keywords internal
+get_phi <- function(species_params, ppmr) {
+    assert_that(is.data.frame(species_params))
+    no_sp <- nrow(species_params)
+    species_params <- set_species_param_default(species_params, 
+                                                "pred_kernel_type",
+                                                "lognormal")
+    phis <- array(dim = c(no_sp, length(ppmr)))
+    for (i in 1:no_sp) {
+        pred_kernel_func_name <- paste0(species_params$pred_kernel_type[i],
+                                        "_pred_kernel")
+        pred_kernel_func <- get0(pred_kernel_func_name)
+        assert_that(is.function(pred_kernel_func))
+        args <- names(formals(pred_kernel_func))
+        if (!("ppmr" %in% args)) {
+            stop(paste("The predation kernel function",
+                       pred_kernel_func_name,
+                       "needs the argument 'ppmr'."))
+        }
+        # lop off the compulsory arg
+        args <- args[!(args %in% "ppmr")]
+        missing <- !(args %in% colnames(species_params))
+        if (any(missing)) {
+            stop(paste("The following arguments for the predation kernel function",
+                       pred_kernel_func_name,
+                       "are missing from the parameter dataframe:",
+                       toString(args[missing])))
+        }
+        pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
+        phi <- do.call(pred_kernel_func_name, args = pars)
+        if (anyNA(phi)) {
+            stop(paste0("The function ", pred_kernel_func,
+                        "returned NA. Did you correctly specify all required",
+                        "parameters in the species parameter dataframe?"))
+        }
+        phis[i, ] <- phi
+    }
+    return(phis)
 }

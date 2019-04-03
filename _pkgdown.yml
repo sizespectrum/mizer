@@ -19,10 +19,10 @@ navbar:
       href: index.html
     - text: "Get Started"
       href: articles/mizer.html
-    - text: "Articles"
-      href: articles/index.html
     - text: "Reference"
       href: reference/index.html
+    - text: "Articles"
+      href: articles/index.html
     - text: "Publications"
       href: articles/publications.html
     - text: "News"
