@@ -83,7 +83,6 @@ set_multispecies_model <- function(species_params,
                                    f0 = 0.6,
                                    # setPredKernel()
                                    pred_kernel = NULL,
-                                   pred_kernel_type = "lognormal",
                                    store_kernel = FALSE,
                                    # setSearchVolume()
                                    search_vol = NULL,
@@ -110,9 +109,12 @@ set_multispecies_model <- function(species_params,
     no_sp <- nrow(species_params)
     
     ## Determine min_w_pp ----
-    # If not provided, set min_w_pp so that all fish have their full feeding 
+    # If not provided, set min_w_pp so that all fish have their full feeding
     # kernel inside plankton spectrum
-    getMaxPPMR <- get0(paste0(pred_kernel_type, "_max_ppmr"))
+    species_params <- set_species_param_default(species_params, 
+                                                "pred_kernel_type",
+                                                "lognormal")
+    getMaxPPMR <- get0(paste0(species_params$pred_kernel_type, "_max_ppmr"))
     if (is.function(getMaxPPMR)) {
         # First we need to set w_min if missing because we use it below
         if (!("w_min" %in% colnames(species_params))) {
@@ -162,7 +164,6 @@ set_multispecies_model <- function(species_params,
                         interaction = interaction,
                         # setPredKernel()
                         pred_kernel = pred_kernel,
-                        pred_kernel_type = pred_kernel_type,
                         store_kernel = store_kernel,
                         # setSearchVolume()
                         search_vol = search_vol,

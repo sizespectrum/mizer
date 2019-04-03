@@ -702,7 +702,6 @@ setParams <- function(params,
                       interaction = NULL,
                       # setPredKernel()
                       pred_kernel = NULL,
-                      pred_kernel_type = params@pred_kernel_type,
                       store_kernel = FALSE,
                       # setSearchVolume()
                       search_vol = NULL,
@@ -735,7 +734,6 @@ setParams <- function(params,
     params <- setFishing(params)
     params <- setPredKernel(params, 
                             pred_kernel = pred_kernel,
-                            pred_kernel_type = pred_kernel_type,
                             store_kernel = store_kernel)
     params <- setIntakeMax(params, 
                            intake_max = intake_max,
@@ -822,15 +820,10 @@ setInteraction <- function(params,
     }
     
     # Check the interaction_p column in species_params
-    species_params <- params@species_params
-    if (!("interaction_p" %in% colnames(species_params))) {
-        message("Note: No interaction_p column in species data frame so assuming all species feed on plankton.")
-        species_params$interaction_p <- rep(1, nrow(species_params))
-    }
-    missing <- is.na(species_params$interaction_p)
-    if (any(missing)) {
-        species_params$interaction_p[missing] <- 1
-    }
+    message <- "Note: No interaction_p column in species data frame so assuming all species feed on plankton."
+    species_params <- set_species_param_default(params@species_params,
+                                                "interaction_p", 1,
+                                                message = message)
     # Check that all values of interaction vector are 0 - 1.
     if (!all((species_params$interaction_p >= 0) & 
              (species_params$interaction_p <= 1))) {
@@ -857,7 +850,7 @@ setInteraction <- function(params,
 #' If the \code{pred_kernel} argument is not supplied, then this function sets a
 #' predation kernel that depends only on the ratio of predator mass to prey
 #' mass, not on the two masses independently. The shape of that kernel is then
-#' determined by the \code{pred_kernel_type} argument.
+#' determined by the \code{pred_kernel_type} column in species_params.
 #'
 #' The default pred_kernel_type is "lognormal". This will call the function
 #' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
@@ -903,10 +896,6 @@ setInteraction <- function(params,
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. The dimensions are thus no_sp, no_w, no_w_full.
-#' @param pred_kernel_type Only used if \code{pred_kernel} is not supplied. A
-#'   string or vector of strings that determines which predation kernel function
-#'   is used for each species. If not supplied, is taken from species parameter
-#'   dataframe if possible, or defaults to "lognormal".
 #' @param store_kernel Only used if \code{pred_kernel} is not supplied. A
 #'   boolean flag that determines whether the full three dimensional predation
 #'   kernel array is calculated and stored, even though it is not needed by
@@ -928,7 +917,8 @@ setInteraction <- function(params,
 #' params <- setPredKernel(params)
 #' 
 #' ## You can change to a different predation kernel type
-#' params <- setPredKernel(params, pred_kernel_type = "box")
+#' params@species_params$pred_kernel_type <- "box"
+#' params <- setPredKernel(params)
 #
 # ## If only some species need a kernel that depends on predator and prey
 # # size separately, you can modify the default kernel.
@@ -938,7 +928,6 @@ setInteraction <- function(params,
 #' }
 setPredKernel <- function(params,
                           pred_kernel = NULL,
-                          pred_kernel_type = "lognormal",
                           store_kernel = FALSE) {
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
@@ -963,14 +952,10 @@ setPredKernel <- function(params,
     }
     
     ## Set a pred kernel dependent on predator/prey size ratio only
-    # If pred_kernel_type is not supplied use the one from species_params
-    # if exists or "lognormal"
-    if (missing(pred_kernel_type) &
-        !"pred_kernel_type" %in% names(params@species_params)) {
-        params@species_params$pred_kernel_type <- "lognormal"
-    } else {
-        params@species_params$pred_kernel_type <- pred_kernel_type
-    }
+    # If pred_kernel_type is not supplied use "lognormal"
+    params@species_params <- set_species_param_default(params@species_params,
+                                                       "pred_kernel_type",
+                                                       "lognormal")
     species_params <- params@species_params
     pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
@@ -1285,14 +1270,7 @@ setReproduction <- function(params, psi = NULL) {
     species_params <- params@species_params
     
     # If no erepro (reproductive efficiency), then set to 1
-    if (!("erepro" %in% colnames(species_params))) {
-        species_params$erepro <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$erepro)
-    if (any(missing)) {
-        species_params$erepro[missing] <- 1
-        params@species_params$erepro <- species_params$erepro
-    }
+    params <- set_species_param_default(params, "erepro", 1)
     
     if (!is.null(psi)) {
         if (!identical(dim(psi), dim(params@psi))) {
@@ -1573,13 +1551,8 @@ setFishing <- function(params) {
     }
     
     # If no catchability column in species_params, set to 1
-    if (!("catchability" %in% colnames(species_params))) {
-        species_params$catchability <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$catchability)
-    if (any(missing)) {
-        species_params$catchability[missing] <- 1
-    }
+    species_params <- set_species_param_default(species_params,
+                                                "catchability", 1)
     
     # At the moment, each species is only caught by 1 gear so in species_params
     # there are the columns: gear_name and sel_func.
@@ -1626,4 +1599,51 @@ tuneParams <- function() {
 #' @export
 srrBevertonHolt <- function(rdi, species_params) {
     return(rdi / (1 + rdi/species_params$r_max))
+}
+
+#' Set a species parameter to a default value
+#'
+#' If the species parameter does not yet exist in the species parameter data
+#' frame, then create it and fill it with the default. Otherwise use the default
+#' only to fill in any NAs. Optionally gives a warning message if the parameter
+#' did not already exist.
+#' @param object Either a MizerParams object or a species parameter data frame
+#' @param parname A string with the name of the species parameter to set
+#' @param default A single defaul value or a vector with one default value for
+#'   each species
+#' @param message A string with a message to be issued when the parameter did
+#'   not already exist
+#' @export
+set_species_param_default <- function(object, parname, default,
+                                      message = NULL) {
+    if (is(object, "MizerParams")) {
+        species_params <- object@species_params
+    } else {
+        species_params <- object
+    }
+    assert_that(is.data.frame(species_params))
+    assert_that(is.string(parname))
+    no_sp <- nrow(species_params)
+    if (length(default) == 1) {
+        default <- rep(default, no_sp)
+    }
+    assert_that(length(default) == no_sp)
+    if (!(parname %in% colnames(species_params))) {
+        if (!missing(message)) {
+            message(message)
+        }
+        species_params <- cbind(species_params, default)
+        colnames(species_params)[[ncol(species_params)]] <- parname
+    } else {
+        missing <- is.na(species_params[[parname]])
+        if (any(missing)) {
+            species_params[missing, parname] <- default[missing]
+        }
+    }
+    if  (is(object, "MizerParams")) {
+        object@species_params <- species_params
+        return(object)
+    } else {
+        return(species_params)
+    }
 }
