@@ -515,6 +515,23 @@ emptyParams <- function(species_params,
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
         dw <- (10^dx - 1) * w
         
+        # If not provided, set min_w_pp so that all fish have their full feeding
+        # kernel inside plankton spectrum
+        ppmr <- 10^(seq(from = 0, by = dx, length.out = 3 * no_w))
+        phis <- get_phi(species_params, ppmr)
+        max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
+        min_w_feeding <- species_params$w_min / max_ppmr
+        if (is.na(min_w_pp)) {
+            min_w_pp <- min(min_w_feeding)
+        } else {
+            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
+            if (length(hungry_sp) > 0) {
+                message(paste(
+                    "Note: The following species have feeding kernels that extend",
+                    "below the smallest plankton size specified by min_w_pp:",
+                    toString(hungry_sp)))
+            }
+        }
         # For fft methods we need a constant log bin size throughout. 
         # Therefore we use as many steps as are necessary so that the first size
         # class includes min_w_pp.
@@ -759,44 +776,6 @@ set_multispecies_model <- function(species_params,
                                    # setResourceEncounter
                                    rho = NULL,
                                    srr = srrBevertonHolt) {
-    assert_that(is.data.frame(species_params))
-    no_sp <- nrow(species_params)
-    
-    ## Determine min_w_pp ----
-    # If not provided, set min_w_pp so that all fish have their full feeding
-    # kernel inside plankton spectrum
-    species_params <- set_species_param_default(species_params, 
-                                                "pred_kernel_type",
-                                                "lognormal")
-    getMaxPPMR <- get0(paste0(species_params$pred_kernel_type, "_max_ppmr"))
-    if (is.function(getMaxPPMR)) {
-        # First we need to set w_min if missing because we use it below
-        if (!("w_min" %in% colnames(species_params))) {
-            species_params$w_min <- rep(NA, no_sp)
-        }
-        missing <- is.na(species_params$w_min)
-        if (any(missing)) {
-            species_params$w_min[missing] <- min_w
-        }
-        min_w_feeding <- species_params$w_min / getMaxPPMR(species_params)
-        if (is.na(min_w_pp)) {
-            min_w_pp <- min(min_w_feeding)
-        } else {
-            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
-            if (length(hungry_sp) > 0) {
-                message(paste(
-                    "Note: The following species have feeding kernels that extend",
-                    "below the smallest plankton size specified by min_w_pp:",
-                    toString(hungry_sp)))
-            }
-        }
-    } else {
-        if (is.na(min_w_pp)) {
-            stop(paste0("You need to explicitly specify the minimum plankton ",
-                        "size via the min_w_pp argument or you need to define a function ",
-                        getMaxPPMR))
-        }
-    }
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
