@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r label=lib, include=FALSE}
+```{r include=FALSE}
 library(mizer)
 params_data <- read.csv("NS_species_params.csv")
 inter <- read.csv("inter.csv", row.names=1)
@@ -332,7 +332,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  recruitment $R_i$ at our steady state. By default the stock-recruitment 
  relationship is turned off, by setting `r_fac` 
  to go to infinity. This has the effect of also making 
- $R_{max.i}\rightarrow \infty$, and so the typically assumed Beverton-Holt stock-recruitment equation $ R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}}$ is effectively 
+ $R_{max.i}\rightarrow \infty$, and so the typically assumed Beverton-Holt stock-recruitment equation $R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}}$ is effectively 
  replaced with the simple equation $R_i = R_{p.i}.$ 
 
 
@@ -347,7 +347,7 @@ get assemblages that are close to scale invariance.  The changes are as follows.
  induced by predators beyond the upper limit of body sizes explicitly modelled, 
  under the assumption that the abundance of such predators continue the scale 
  invariant pattern. 
-mortality, given by $ \mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw$, where the abundance $N$ is the abundance at our steady state.  This is done to ensure that the total mortality rate on explicitly modeled species is $\mu_0 w^{n-1}$ which scales with weight in the way required for scale invariance.
+mortality, given by $\mu_{p.i}(w_p) = \sum_j \theta_{ji} \int \phi_j(w_p/w) (1-f_j(w)) \gamma_j w^q N_j(w) \, dw$, where the abundance $N$ is the abundance at our steady state.  This is done to ensure that the total mortality rate on explicitly modeled species is $\mu_0 w^{n-1}$ which scales with weight in the way required for scale invariance.
 
 * The plankton spectrum extends from the smallest weight at which an explicitly 
 modeled fish may eat. We define the carrying capacity $c_p(w)$ of the 
@@ -575,7 +575,7 @@ This is achieved choosing the carrying capacity of the plankton to be
 % {#eq:cp}
 c_{p} (w)= \min \left\{ \left(1+\frac{\mu_p(w)}{r_0 w^{p-1}} \right)\left( \kappa w^{-\lambda} - \sum_i N_i(w) \right),0\right\}
 \end{equation}
-Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda} $ within the appropriate size range (i.e., for $w\leq\min\{w_{m.i}\}$), 
+Note that, much like in the background mortality term, we require that the aggregate abundance $\sum_i N_i(w)$ is less than or equal to the power law $\kappa w^{-\lambda}$ within the appropriate size range (i.e., for $w\leq\min\{w_{m.i}\}$), 
 so that we do not have to use our $\min\{ *, 0\}$ operation to rewrite negative entries. 
 
 

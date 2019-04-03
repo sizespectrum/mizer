@@ -203,7 +203,7 @@ the width of the predation kernel.
 The integral in the expression for the encounter rate is approximated by a 
 Riemann sum over all weight brackets:
 \[
-\text{encounter}[i,a] = \text{search_vol}[i,a]\sum_{k}
+{\tt encounter}[i,a] = {\tt search\_vol}[i,a]\sum_{k}
 \left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
   \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 \]
@@ -233,16 +233,16 @@ The feeding level is calculated with the function `getFeedingLevel()`.
 
 The rate at which food is consumed is then 
 \begin{equation}
-(1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w)$.
+(1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
 \end{equation}
 
 ## Metabolic losses
 
 Some of the consumed food is used to fuel the needs for metabolism and 
-activity and movement, at a rate $\text{metab}_i(w)$. By default 
+activity and movement, at a rate ${\tt metab}_i(w)$. By default 
 this is made up out of standard metabolism, scaling with exponent $p$, and
 loss due to activity and movement, scaling with exponent $1$:
-\[\text{metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
+\[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
 See the help page for `setMetab()`. 
 
 The remaining rate, if any, is assimilated with an efficiency $\alpha_i$ and 
@@ -250,7 +250,7 @@ is then available for growth and reproduction. So the rate at which energy
 becomes available for growth and reproduction is
 \begin{equation}
   \label{eq:Er}
-  E_{r.i}(w) = \max(0, \alpha_i f_i(w)\, h_i(w) - \text{metab}_i(w))
+  E_{r.i}(w) = \max(0, \alpha_i f_i(w)\, h_i(w) - {\tt metab}_i(w))
 \end{equation}
 This is calculated with the `getEReproAndGrowth()` function.
 
@@ -316,7 +316,7 @@ predator of species $j$ and weight $w$ that is actually consumed, the
 rate at which all predators of species $j$ consume prey of size $w_p$ is
 \begin{equation}
   \label{eq:pred_rated}
-  \text{pred_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
+  {\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
   \gamma_j(w) N_j(w) \, dw.
 \end{equation}
 This predation rate is calculated by the function `getPredRate()`.
@@ -324,8 +324,8 @@ This predation rate is calculated by the function `getPredRate()`.
 <details>
 The integral is approximated by a Riemann sum over all fish weight brackets.
 \[
-\text{pred_rate}[j,c] = \sum_{a}
-  \text{pred_kernel}[j,a,c]\,(1-\text{feeding_level}[j,a])\,
+{\tt pred\_rate}[j,c] = \sum_{a}
+  {\tt pred_kernel}[j,a,c]\,(1-{\tt feeding_level}[j,a])\,
   \gamma[j,a]\,n[j,a]\,dw[a].
 \]
 
@@ -334,7 +334,7 @@ The integral is approximated by a Riemann sum over all fish weight brackets.
 The mortality rate due to predation is then obtained as
 \begin{equation}
   \label{eq:mup}
-  \mu_{p.i}(w_p) = \sum_j \text{pred_rate}_j(w_p)\, \theta_{ji}.
+  \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`.
 
@@ -356,7 +356,7 @@ The predation mortality rate on plankton is given by a similar expression
 as the predation mortality on fish:
 \begin{equation}
   \label{eq:mupp}
-  \mu_{p}(w_p) = \sum_j \text{pred_rate}_j(w_p)\, \theta_{jp}.
+  \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
 \end{equation}
 This is the only mortality on plankton currently implemented in mizer.
 It is calculated with the function `getPlanktonMort()`.

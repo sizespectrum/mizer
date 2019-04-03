@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r label=lib, include=FALSE}
+```{r include=FALSE}
 library(mizer)
 ```
 The simplest version of the size spectrum model is the community model. In the
@@ -107,9 +107,9 @@ In the summary you can see that the size range of the community spectrum has
 been set from $`r min(params@w)`$ to $`r max(params@w)`$ and these are spread
 over $`r length(params@w)`$ size bins. Similar information is available for the
 plankton spectrum. Additionally, the community is made up of only one species,
-called *Community*, which has an asymptotic size of $`r
-params@species_params$w_inf[1]`$ and a preferred predator prey mass ratio of $`r
-params@species_params$beta[1]`$. The `w_mat` parameter has been set to `NA` as
+called *Community*, which has an asymptotic size of 
+$`r params@species_params$w_inf[1]`$ and a preferred predator prey mass ratio of 
+$`r params@species_params$beta[1]`$. The `w_mat` parameter has been set to `NA` as
 it is not used when running a community model. These values have all been set by
 default using the `set_community_model()` function. If you want to set different
 values for these, you will need to call the `set_community_model()` function and
@@ -183,9 +183,8 @@ We can see this more clearly by extracting the predation mortality information
 from the `MizerSim` object, `sim`, that we created above. This is easily done by
 using the `getPredMort()` function (see the help page for more details). There are
 several methods that can be used for extracting information from a `MizerSim`
-object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see [the
-section on exploring the simulation
-results](exploring_the_simulation_results.html). Here we just call
+object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see 
+[the section on exploring the simulation results](exploring_the_simulation_results.html). Here we just call
 `getPredMort()` using the `sim` object:
 
 ```{r label=get_m2_comm}
