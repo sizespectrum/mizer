@@ -116,9 +116,7 @@ reference:
 - title: Functions used in model
   contents:
   - lognormal_pred_kernel
-  - lognormal_max_ppmr
   - box_pred_kernel
-  - box_max_ppmr
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat

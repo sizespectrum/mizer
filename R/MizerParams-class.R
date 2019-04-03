@@ -462,13 +462,7 @@ emptyParams <- function(species_params,
     no_sp <- nrow(species_params)
     
     ## Set defaults ----
-    if (!("w_min" %in% colnames(species_params))) {
-        species_params$w_min <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$w_min)
-    if (any(missing)) {
-        species_params$w_min[missing] <- min_w
-    }
+    species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
     if (!("w_inf" %in% colnames(species_params))) {
@@ -495,13 +489,8 @@ emptyParams <- function(species_params,
     gear_names <- unique(species_params$gear)
     
     # If no alpha (conversion efficiency), then set to 0.6
-    if (!("alpha" %in% colnames(species_params))) {
-        species_params$alpha <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$alpha)
-    if (any(missing)) {
-        species_params$alpha[missing] <- 0.6
-    }
+    species_params <- set_species_param_default(species_params,
+                                                "alpha", 0.6)
     
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
@@ -684,41 +673,24 @@ emptyParams <- function(species_params,
 #' @return An object of type \linkS4class{MizerParams}
 #' 
 #' @section Species parameters:
-#' The only essential argument is a data frame which contains the species data.
-#' The data frame is arranged species by parameter, so each column of the
-#' parameter data frame is a parameter and each row has the parameters for one
-#' of the species in the model.
+#' The only essential argument is a data frame that contains the species
+#' parameters. The data frame is arranged species by parameter, so each column
+#' of the parameter data frame is a parameter and each row has the values of the
+#' parameters for one of the species in the model.
 #'
-#' There are some essential columns that must be included in the species
-#' parameter data.frame and that do not have default values. Other columns do
-#' have default values, so that if they are not included in the species
-#' parameter data frame, they will be automatically added when the
-#' \code{MizerParams} object is created. For these parameters that have default
-#' values, you can also specify values only for some species and leave the
+#' There are two essential columns that must be included in the species
+#' parameter data.frame and that do not have default values: the 
+#' \code{species} column that should hold strings with the names of the
+#' species and the \code{w_inf} column with the asymptotic sizes of the species. 
+#' 
+#' For all other species parameters, mizer will calculate
+#' default values if they are not included in the species
+#' parameter data frame. They will be automatically added when the
+#' \code{MizerParams} object is created. For these parameters
+#' you can also specify values for only some species and leave the
 #' other entries as NA and the missing values will be set to the defaults.
-#'   
-#' \if{html}{
-#' The following table lists the species parameters that can be contained in
-#' the species parameters data frame. For each parameter it gives its name,
-#' a brief description, its default value or the function that sets its default
-#' value, and links to functions that use the parameter and in
-#' whose help pages you can find more details about the parameter.
-#' \tabular{lll}{
-#'   Parameter \tab Description \tab Default \tab Used in \cr
-#'   species \tab Name of the species \tab None \tab \code{\link{emptyParams}} \cr
-#'   w_inf \tab The asymptotic mass of the species \tab None \tab \code{\link{setReproduction}} \cr
-#'   w_mat \tab The maturation mass of the species \tab None \tab \code{\link{setReproduction}} \cr
-#'   beta, sigma \tab Parameters for the lognormal predation kernel is used. Other parameters may be needed for other kernels \tab None\cr \code{\link{lognormal_pred_kernel}}
-#'   h \tab Maximum food intake rate coefficient. \tab \code{\link{setIntakeMax}} \tab \code{\link{setIntakeMax}}\cr
-#'   k_vb \tab The von Bertalanffy K parameter. \tab Optional \tab  \cr
-#'   gamma \tab Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters. \tab Optional  \cr
-#'   ks \tab Standard metabolism coefficient \tab h*0.2 \cr
-#'   z0 \tab Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively. \tab Optional (no default) \cr
-#'   k \tab Activity coefficient \tab 0 \cr
-#'   alpha \tab Assimilation efficiency \tab 0.6 \cr
-#'   erepro \tab Reproductive efficiency \tab 1 \cr
-#'   w_min \tab The size class that recruits are placed in. \tab smallest size class of the species size spectrum
-#' }}
+#' 
+#' All the parameters will be mentioned in the following sections.
 #' 
 #' @inheritSection setInteraction Setting interactions
 #' @inheritSection setPredKernel Setting predation kernel
@@ -859,8 +831,7 @@ MizerParams <- set_multispecies_model
 #' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
 #'   if those are not columns in the species data frame. Also requires
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
-#'   ignored. Default is 0.6.
+#'   data frame. 
 #' @inheritParams setInteraction
 #' @inheritParams setPredKernel
 #' @inheritParams setSearchVolume
@@ -1035,28 +1006,23 @@ setInteraction <- function(params,
 #' this function.
 #' 
 #' @section Setting predation kernel:
-#' \subsection{Kernel dependent on predator to prey size ratio}{
+#' \strong{Kernel dependent on predator to prey size ratio}
+#' 
 #' If the \code{pred_kernel} argument is not supplied, then this function sets a
 #' predation kernel that depends only on the ratio of predator mass to prey
 #' mass, not on the two masses independently. The shape of that kernel is then
 #' determined by the \code{pred_kernel_type} column in species_params.
 #'
 #' The default pred_kernel_type is "lognormal". This will call the function
-#' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
-#' function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
-#' mass ratio for each species.
-#'
+#' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the functions
-#' \code{\link{box_pred_kernel}} and \code{\link{box_max_ppmr}}.
+#' \code{\link{box_pred_kernel}}.
 #'
 #' You can use any other string as the type. If for example you choose "my" then
 #' you need to define a function \code{my_pred_kernel} that you can model on the
-#' existing functions like \code{\link{lognormal_pred_kernel}}. You can also
-#' define a function \code{my_max_ppmr} if you want the smallest plankton size
-#' to be calculated automatically by \code{\link{set_multispecies_model}},
-#' otherwise you need to specify the \code{min_w_pp} argument explicitly.
+#' existing functions like \code{\link{lognormal_pred_kernel}}.
 #' 
-#' When using a kernel dependent on the predator/prey size ratio only, mizer
+#' When using a kernel that depends on the predator/prey size ratio only, mizer
 #' does not need to store the entire three dimensional array in the MizerParams
 #' object. Such an array can be very big when there is a large number of size
 #' bins. Instead mizer only needs to store two two-dimensional arrays that hold
@@ -1064,9 +1030,9 @@ setInteraction <- function(params,
 #' rate and the predation rate to be calculated very efficiently. However, if
 #' you need the full three-dimensional array you can calculat it with the
 #' \code{\link{getPredKernel}} function.
-#' }
 #' 
-#' \subsection{Kernel dependent on both predator and prey size}{
+#' \strong{Kernel dependent on both predator and prey size}
+#' 
 #' If you want to work with a feeding kernel that depends on predator mass and
 #' prey mass independently, you can specify the full feeding kernel as a
 #' three-dimensional array (predator species x predator size x prey size).
@@ -1079,11 +1045,12 @@ setInteraction <- function(params,
 #' The order of the predator species in \code{pred_kernel} should be the same
 #' as the order in the species params dataframe. If you supply a named array
 #' then the function will check the order and warn if it is different.
-#' }
+#' 
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
-#'   size. The dimensions are thus no_sp, no_w, no_w_full.
+#'   size. The dimensions are thus (no_sp, no_w, no_w_full). If not supplied,
+#'   a default is set as described in section "Setting predation kernel".
 #' 
 #' @return A MizerParams object
 #' @export
@@ -1096,18 +1063,21 @@ setInteraction <- function(params,
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
 #' # need to call setPredKernel
-#' params@species_params$beta["Cod"] <- 200
+#' params@species_params["Cod", "beta"] <- 200
 #' params <- setPredKernel(params)
 #' 
 #' ## You can change to a different predation kernel type
 #' params@species_params$pred_kernel_type <- "box"
+#' params@species_params$ppmr_min <- 2
+#' params@species_params$ppmr_max <- 4
 #' params <- setPredKernel(params)
-#
-# ## If only some species need a kernel that depends on predator and prey
-# # size separately, you can modify the default kernel.
-# pred_kernel <- getPredKernel(params)
-# pred_kernel["Herring"] <-
-# params<- setPredKernel(params, pred_kernel = pred_kernel)
+#' 
+#' ## If you need a kernel that depends also on prey size you need to define
+#' # it yourself.
+#' pred_kernel <- getPredKernel(params)
+#' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
+#'                                     params@w_full, "*")
+#' params<- setPredKernel(params, pred_kernel = pred_kernel)
 #' }
 setPredKernel <- function(params,
                           pred_kernel = NULL) {
@@ -1209,21 +1179,21 @@ getPredKernel <- function(params) {
 #' @section Setting search volume:
 #' The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
 #' and weight \eqn{w} multiplies the predation kernel when
-#' calculating the encounter rate and the predation rate.
+#' calculating the encounter rate in \code{\link{getEncounter}} and the 
+#' predation rate in \code{\link{getPredRate}}.
 #' 
-#' If the \code{gamma} argument is not supplied, then it is set to
-#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{gamma_i} are taken from
+#' If the \code{search_vol} argument is not supplied, then the search volume is set to
+#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
 #' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
 #' column is not supplied in the species parameter dataframe, it is calculated
 #' from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
 #' 
 #' @param params MizerParams
-#' @param gamma Optional. An array (species x size) holding the search volume
-#'   for each species at size or a vector or number giving the coefficient in
-#'   an allometric search volume. If not supplied, a default is set as described in
+#' @param search_vol Optional. An array (species x size) holding the search volume
+#'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume". 
-#' @param q Exponent of the allometric search volume. Only needed if 
-#'   \code{gamma} is not an array.
+#' @param q Exponent of the allometric search volume. Not needed if a
+#'   \code{search_vol} array is specified.
 #' 
 #' @return MizerParams
 #' @export
@@ -1281,8 +1251,9 @@ setSearchVolume <- function(params,
 #' weight \eqn{w} determines the feeding level, calculated with
 #' \code{\link{getFeedingLevel}}.
 #'
-#' If the \code{h} argument is not supplied, then it is set to \deqn{h_i(w) =
-#' h_i w^n.} The values of \eqn{h_i} are taken from the \code{h} column in the
+#' If the \code{intake_max} argument is not supplied, then the maximum intake
+#' rate is set to \deqn{h_i(w) = h_i w^n.} 
+#' The values of \eqn{h_i} are taken from the \code{h} column in the
 #' species parameter dataframe. If the \code{h} column is not supplied in the
 #' species parameter dataframe, it is calculated from \code{f0} and the
 #' \code{k_vb} column, if they are supplied.
@@ -1290,9 +1261,9 @@ setSearchVolume <- function(params,
 #' If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 #'
 #' @param params MizerParams
-#' @param h Optional. An array (species x size) holding the maximum intake rate
-#'   for each species at size. If not supplied, a default is set as described in
-#'   the section "Setting maximum intake rate".
+#' @param intake_max Optional. An array (species x size) holding the maximum
+#'   intake rate for each species at size. If not supplied, a default is set as
+#'   described in the section "Setting maximum intake rate".
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
@@ -1657,20 +1628,24 @@ setResources <- function(params,
 #' unstructured resource component. 
 #' See \code{\link{resource_dynamics}} for more details.
 #' 
-#' If only a two-dimensional array (species x resource) is given for the
-#' \code{rho} argument, then the size dependence is set to a power-law:
-#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' 
 #' The ordering of the entries in the array \code{rho} is important. The order
 #' of the species in the first array dimension needs to be the same as that in
 #' the species parameter dataframe. The order of the resources in the second
 #' array dimension must be the same as in the list of resource dynamics. The
 #' third dimension, if given, is the size dimension.
 #' 
+#' If the \code{rho} array is not supplied, then the resource encounter rate is
+#' set to a power law
+#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
+#' The coefficients \eqn{\rho_{id}} are parameters in the species_params dataframe.
+#' For example if there is a resource called "detritus" then the species_params
+#' data frame needs to have a column called \code{rho_detritus} and similarly
+#' for each other resource.
+#' 
 #' @param params A MizerParams object
-#' @param rho Either a 3-dim array (predator species x resource x predator size)
-#'   or a 2-dim array (predator species x resource). In the latter case the
-#'   size dependence is given by allometry.
+#' @param rho Optional. An array (species x resource x size)
+#'   holding the rate at which a consumer of a particular size feeds on each
+#'   resource. Described in the section "Setting resource encounter rate".
 #' @param n Scaling exponent of the intake rate.
 #' 
 #' @return A MizerParams object
