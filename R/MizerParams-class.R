@@ -1372,6 +1372,8 @@ setMetab <- function(params, metab = NULL, p) {
 #' Still need to document
 #' 
 #' @param params MizerParams
+#' @param mu_b Optional. An array (species x size) holding the background
+#'   mortality rate.
 #' @param z0pre If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
@@ -1381,7 +1383,13 @@ setMetab <- function(params, metab = NULL, p) {
 #' 
 #' @return MizerParams
 #' @export
-setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
+setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
+    if (!is.null(mu_b)) {
+        assert_that(is.array(mu_b))
+        assert_that(dim(mu_b) == dim(params@mu_b))
+        params@mu_b <- mu_b
+        return(params)
+    }
     species_params <- params@species_params
     
     # Sort out z0 (background mortality)
