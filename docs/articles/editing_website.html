@@ -105,7 +105,7 @@
 <li><p>All .Rmd files in the <code>vignettes</code> subdirectory (and its subdirectories, if any) will produce html files of the same name in <code>docs/articles</code>.</p></li>
 <li><p>All .Rd documentation files in <code>man</code> will produce html files of the same name in <code>docs/reference</code>.</p></li>
 <li><p>The <code>NEWS</code> file will be converted to <code>docs/news/index.html</code></p></li>
-<li><p>The index.md file will be converted to <code>docs/index.html</code>.</p></li>
+<li><p>The README.md file will be converted to <code>docs/index.html</code>.</p></li>
 </ol>
 <p>Then the package will use the information in the <code>_pkgdown.yml</code> file to create a navbar and index pages. The navbar is configured with</p>
 <pre><code>navbar:
@@ -121,7 +121,7 @@
       href: reference/index.html
     - text: "Publications"
       href: articles/publications.html
-    - text: "Changelog"
+    - text: "News"
       href: news/index.html
   right:
     - icon: fa-github fa-lg
@@ -136,7 +136,7 @@
   contents:
   - developer_vignette
   - mathematical_details</code></pre>
-<p>By now it will have more entries to link to more vignettes. But of course it is not necessary to use this index file. The menu entry could just as well point to a more elaborate file created from an .Rmd file in the vignette subdirecty.</p>
+<p>By now it has more entries to link to more vignettes. It is not necessary to use this index file. The menu entry could just as well point to a more elaborate file created from an .Rmd file in the vignette subdirecty, which might become useful in the future.</p>
 <p>The file <code>docs/reference/index.html</code> is created according to the reference: section in the <code>_pkgdown_yml</code> file, with a similar syntax as the article: section.</p>
 </div>
 <div id="changing-page-content" class="section level2">
@@ -149,13 +149,11 @@
 <p>To change the homepage you edit index.md. This file is very similar to README.md that is used on the mizer homepage on github, but can contain extra content like embedded videos that the github homepage does not support. After changes to index.md you can update your local copy of the website with</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">pkgdown<span class="op">::</span><span class="kw"><a href="https://pkgdown.r-lib.org/reference/build_home.html">build_home</a></span>()</a></code></pre></div>
 <p>Of course these changes will affect only your local copy of the website. To get those changes reflected on the online site you will need to make a pull request for your changed files against the master branch of the upstream repository.</p>
-<p>Note that you should <strong>not</strong> commit the files from the <code>docs</code> directory. You should only commit the changes to the source files. Once your pull request is accepted, the html files in the <code>docs</code> directory are automatically recreated, as we will explain next. You may therefore want to add the <code>docs</code> directory to your <code>.gitignore</code> file.</p>
 </div>
 <div id="github-pages" class="section level2">
 <h2 class="hasAnchor">
 <a href="#github-pages" class="anchor"></a>Github pages</h2>
-<p>The website is hosted with <a href="https://pages.github.com/">GitHubPages</a>. In the settings pages of the mizer repository on github the source is set to “gh-pages branch”. This branch contains all the website pages, as you can see at [<a href="https://github.com/gustavdelius/mizer/tree/gh-pages" class="uri">https://github.com/gustavdelius/mizer/tree/gh-pages</a>], and nothing else.</p>
-<p>You should never push anything to this gh-pages branch directly. Instead these files are created automatically by Travis-CI each time it has completed a successful test-build of the package. Such a test build is automatically created whenever something is pushed to the master branch or a github pull request is merged into the master branch. This is set up in the <code>.travis.yml</code> configuration file. This is described on this [r-bloggers page]<a href="https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/" class="uri">https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/</a>).</p>
+<p>The website is hosted with <a href="https://pages.github.com/">GitHubPages</a>. In the settings pages of the mizer repository on github the source is set to “master branch/docs folder”. This means that only the master branch controls the website.</p>
 </div>
 <div id="search-bar" class="section level2">
 <h2 class="hasAnchor">
@@ -170,7 +168,7 @@
 <p>into the source of this page produced the following embedded video:</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
-<p>Note that the github site itself (as opposed to GitHub Pages) does not support embedded videos. That is why we have the website homepage in index.md and the github homepage in README.md.</p>
+<p>The github site itself (as opposed to GitHub Pages) does not support embedded videos.</p>
 </div>
   </div>
 
