@@ -4,43 +4,15 @@
 #' \linkS4class{MizerParams} object based on user-provided or default
 #' parameters. It does this by creating an empty MizerParams object with
 #' \code{\link{emptyParams}} and then filling the slots by passing its arguments
-#' to the the setup functions
-#' \itemize{
-#' \item \code{\link{setPredKernel}}
-#' \item \code{\link{setSearchVolume}}
-#' \item \code{\link{setInteraction}}
-#' \item \code{\link{setIntakeMax}}
-#' \item \code{\link{setMetab}}
-#' \item \code{\link{setBMort}}
-#' \item \code{\link{setReproduction}}
-#' \item \code{\link{setPlankton}}
-#' \item \code{\link{setResources}}
-#' \item \code{\link{setResourceEncounter}}
-#' \item \code{\link{setFishing}}
-#' }
+#' to \code{\link{setParams}}.
 #' 
 #' @inheritParams emptyParams
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
-#' @inheritParams setInteraction
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
-#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
-#'   if those are not columns in the species data frame. Also requires
-#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
-#'   ignored. Default is 0.6.
-#' @inheritParams setPredKernel
-#' @inheritParams setSearchVolume
-#' @inheritParams setIntakeMax
-#' @inheritParams setMetab
-#' @inheritParams setBMort
-#' @inheritParams setReproduction
-#' @inheritParams setPlankton
-#' @inheritParams setResources
-#' @inheritParams setResourceEncounter
-#' @inheritParams setFishing
+#' @inheritParams setParams
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -98,7 +70,6 @@ set_multispecies_model <- function(species_params,
                                    interaction = matrix(1,
                                                         nrow = nrow(species_params),
                                                         ncol = nrow(species_params)),
-                                   interaction_p = rep(1, nrow(species_params)),
                                    no_w = 100,
                                    min_w = 0.001,
                                    max_w = NA,
@@ -115,9 +86,9 @@ set_multispecies_model <- function(species_params,
                                    pred_kernel_type = "lognormal",
                                    store_kernel = FALSE,
                                    # setSearchVolume()
-                                   gamma = NULL,
+                                   search_vol = NULL,
                                    # setIntakeMax()
-                                   h = NULL,
+                                   intake_max = NULL,
                                    # setMetab()
                                    metab = NULL,
                                    # setBMort
@@ -186,40 +157,39 @@ set_multispecies_model <- function(species_params,
     params@f0 <- f0
     params@kappa <- kappa
     
-    params <- setInteraction(params, 
-                             interaction = interaction, 
-                             interaction_p = interaction_p)
-    params <- setFishing(params)
-    params <- setPredKernel(params, 
-                            pred_kernel = pred_kernel,
-                            pred_kernel_type = pred_kernel_type,
-                            store_kernel = store_kernel)
-    params <- setIntakeMax(params, 
-                           h = h,
-                           n = n)
-    params <- setMetab(params, 
-                       metab = metab,
-                       p = p)
-    params <- setBMort(params, 
-                       z0pre = z0pre, 
-                       z0exp = z0exp)
-    params <- setSearchVolume(params, 
-                              gamma = gamma,
-                              q = q)
-    params <- setReproduction(params, 
-                              psi = psi)
-    params <- setPlankton(params,
-                          kappa = kappa,
-                          lambda = lambda,
-                          r_pp = r_pp, 
-                          w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics)
-    params <- setResources(params,
-                           resource_dynamics = resource_dynamics,
-                           resource_params = resource_params)
-    params <- setResourceEncounter(params, 
-                                   rho = rho,
-                                   n = n)
+    params <- setParams(params,
+                        # setInteraction
+                        interaction = interaction,
+                        # setPredKernel()
+                        pred_kernel = pred_kernel,
+                        pred_kernel_type = pred_kernel_type,
+                        store_kernel = store_kernel,
+                        # setSearchVolume()
+                        search_vol = search_vol,
+                        q = q,
+                        f0 <- f0,
+                        # setIntakeMax()
+                        intake_max = intake_max,
+                        n = n,
+                        # setMetab()
+                        metab = metab,
+                        p = p,
+                        # setBMort
+                        z0pre = z0pre,
+                        z0exp = z0exp,
+                        # setReproduction
+                        psi = psi,
+                        # setPlankton
+                        kappa = kappa,
+                        lambda = lambda,
+                        r_pp = r_pp,
+                        w_pp_cutoff = w_pp_cutoff,
+                        plankton_dynamics = plankton_dynamics,
+                        # setResources
+                        resource_dynamics = resource_dynamics,
+                        resource_params = resource_params,
+                        # setResourceEncounter
+                        rho = rho)
     
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp

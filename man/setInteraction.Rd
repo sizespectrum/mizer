@@ -4,7 +4,7 @@
 \alias{setInteraction}
 \title{Set species interation matrix and plankton interaction vector}
 \usage{
-setInteraction(params, interaction = NULL, interaction_p = NULL)
+setInteraction(params, interaction = NULL)
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -12,10 +12,6 @@ setInteraction(params, interaction = NULL, interaction_p = NULL)
 \item{interaction}{Interaction matrix of the species (predator by prey).
 Entries should be numbers between 0 and 1. See "Setting interactions"
 section below.}
-
-\item{interaction_p}{Vector specifying for each species its interaction with
-plankton, similar to what the interaction matrix does for the interaction
-with other species. See "Setting interactions" section below.}
 }
 \value{
 MizerParams object
@@ -26,21 +22,17 @@ Set species interation matrix and plankton interaction vector
 \section{Setting interactions}{
 
 
-The species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-vector \eqn{\theta_{ip}} are used when calculating the food encounter rate in
+The species interaction matrix \eqn{\theta_{ij}} is used when calculating the food encounter rate in
 \code{\link{getEncounter}} and the predation rate in
-\code{\link{getPredRate}}. This function checks that the supplied arguments
-are valid and then stores them in the \code{interaction} and
-\code{interaction_p} slot of the params object before returning that object.
-Arguments that are not supplied or NULL will not change the corresponding
-slot.
+\code{\link{getPredRate}}. This function checks that the supplied interaction
+matrix is valid and then stores it in the \code{interaction} slot of the params
+object before returning that object.
 
 Any dimnames of the interaction matrix argument are ignored by the
 constructor. The dimnames of the interaction matrix in the returned
 \code{MizerParams} object are taken from the species names in the
 \code{species_params} slot. This means that the order of the columns and rows
 of the interaction matrix argument should be the same as the species name in
-the \code{species_params} slot. The same applies to the names of the
-\code{interaction_p} argument.
+the \code{species_params} slot.
 }
 

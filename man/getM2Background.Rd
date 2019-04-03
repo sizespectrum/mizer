@@ -28,6 +28,9 @@ A vector of mortality rate by plankton size.
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
+\details{
+Used by the \code{project} function for running size based simulations.
+}
 \examples{
 \dontrun{
 data(NS_species_params_gears)

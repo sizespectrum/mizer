@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getRDI}
 \alias{getRDI}
-\title{Get density independent recruitment}
+\title{Get density independent rate of egg production}
 \usage{
 getRDI(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
@@ -28,9 +28,9 @@ is 0.5.}
 A numeric vector the length of the number of species
 }
 \description{
-Calculates the density independent recruitment (total egg production)
-\eqn{R_{p.i}} before density dependence, by species. Used by
-\code{project} for performing simulations.
+Calculates the density independent rate of egg production \eqn{R_{p.i}}
+(units 1/year) before density dependence, by species. Used by
+\code{\link{getRDD}} to calculate the actual density dependent rate.
 }
 \examples{
 \dontrun{

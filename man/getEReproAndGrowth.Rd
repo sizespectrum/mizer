@@ -31,9 +31,10 @@ using the \code{\link{getFeedingLevel}} function.}
 A two dimensional array (species x size)
 }
 \description{
-Calculates the energy rate available by species and size for reproduction and
-growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
-Used by the \code{project} function for performing simulations.
+Calculates the energy rate (grams/year) available by species and size for
+reproduction and growth after metabolism and movement have been accounted
+for: \eqn{E_{r.i}(w)}. Used by the \code{project} function for performing
+simulations.
 }
 \examples{
 \dontrun{

@@ -180,17 +180,16 @@ getBiomass <- function(sim, ...) {
 }
 
 
-#' Calculate the total abundance in terms of numbers of species within a size range
+#' Calculate the number of individuals within a size range
 #'
-#' Calculates the total numbers through time of the species in the
-#' \code{MizerSim} class within user defined size limits. The default option is
-#' to use the whole size range You can specify minimum and maximum weight or
+#' Calculates the number of individuals within user-defined size limits, for
+#' each time and each species in the \code{MizerSim} object. The default option
+#' is to use the whole size range. You can specify minimum and maximum weight or
 #' lengths for the species. Lengths take precedence over weights (i.e. if both
 #' min_l and min_w are supplied, only min_l will be used)
 #' 
 #' @param sim An object of class \code{MizerSim}.
-#' @param ... Other arguments to select the size range of the species to be used
-#'   in the calculation (min_w, max_w, min_l, max_l).
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
@@ -282,7 +281,20 @@ getYield <- function(sim) {
 #'   over \code{max_w}.
 #'   
 #' @return Boolean array (species x size)
-#'
+#' 
+#' @section Length to weight conversion:
+#' If `min_l` is specified there is no need to specify `min_w` and so on.
+#' However, if a length is specified (minimum or maximum) then it is necessary
+#' for the species parameter data.frame to include the parameters `a` and `b`
+#' that determine the relation between length \eqn{l} and weight \eqn{w} by
+#' \deqn{w = a l^b.}
+#' 
+#' It is possible to mix length and weight constraints, e.g. by supplying a
+#' minimum weight and a maximum length. The default values are the minimum and
+#' maximum weights of the spectrum, i.e. the full range of the size spectrum is
+#' used.
+#' 
+#' @export
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
@@ -387,17 +399,14 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' be used in the calculation. This method can be used to calculate the Large
 #' Fish Index. The proportion is based on either abundance or biomass.
 #' 
-#' @param sim An object of class \code{MizerSim}.
-#' @param species numeric or character vector of species to include in the
-#'   calculation.
+#' @inheritParams getMeanWeight
 #' @param threshold_w the size used as the cutoff between large and small fish.
 #'   Default value is 100.
 #' @param threshold_l the size used as the cutoff between large and small fish.
 #' @param biomass_proportion a boolean value. If TRUE the proportion calculated
 #'   is based on biomass, if FALSE it is based on numbers of individuals.
 #'   Default is TRUE.
-#' @param ... Other arguments to select the size range of the species to be used
-#'   in the calculation (min_w, max_w, min_l, max_l).
+#' @inheritDotParams get_size_range_array -params
 #'   
 #' @return An array containing the proportion of large fish through time
 #' @export
@@ -439,16 +448,17 @@ getProportionOfLargeFish <- function(sim,
 
 #' Calculate the mean weight of the community
 #'
-#' Calculates the mean weight of the community through time.
-#' This is simply the total biomass of the community divided by the abundance in numbers.
-#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-#' You can also specify the species to be used in the calculation.
+#' Calculates the mean weight of the community through time. This is simply the
+#' total biomass of the community divided by the abundance in numbers. You can
+#' specify minimum and maximum weight or length range for the species. Lengths
+#' take precedence over weights (i.e. if both min_l and min_w are supplied, only
+#' min_l will be used). You can also specify the species to be used in the
+#' calculation.
 #'
-#' @param sim An object of class `MizerSim`
-#' @param species numeric or character vector of species to include in the calculation
-#' @param ... Other arguments for the \code{\link{getN}} and
-#'   \code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
-#'   \code{min_l} and \code{max_l}.
+#' @param sim A \linkS4class{MizerSim} object
+#' @param species Numeric or character vector of species to include in the
+#'   calculation.
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
@@ -482,13 +492,9 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
-#' @param sim An object of class \code{MizerSim}.
-#' @param species numeric or character vector of species to include in the
-#'   calculation.
+#' @inheritParams getMeanWeight
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
-#' @param ... Other arguments for the \code{\link{getN}} and
-#'   \code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
-#'   \code{min_l} and \code{max_l}.
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return A matrix or vector containing the mean maximum weight of the
 #'   community through time
@@ -530,16 +536,10 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 #' You can also specify the species to be used in the calculation.
 #'
-#' @param sim An object of class \code{MizerSim}.
-#' @param species Numeric or character vector of species to include in the calculation.
-#' @param biomass Boolean. If TRUE (default), the abundance is based on biomass, if FALSE the abundance is based on numbers. 
-#' @param ... Optional parameters include
-#'   \itemize{
-#'     \item min_w Minimum weight of species to be used in the calculation.
-#'     \item max_w Maximum weight of species to be used in the calculation.
-#'     \item min_l Minimum length of species to be used in the calculation.
-#'     \item max_l Maximum length of species to be used in the calculation.
-#'   }
+#' @inheritParams getMeanWeight
+#' @param biomass Boolean. If TRUE (default), the abundance is based on biomass,
+#'   if FALSE the abundance is based on numbers.
+#' @inheritDotParams get_size_range_array -params
 #'
 #' @return A data frame with slope, intercept and R2 values.
 #' @export

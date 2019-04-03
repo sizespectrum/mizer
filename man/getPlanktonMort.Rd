@@ -27,8 +27,10 @@ A vector of mortality rate by plankton size.
 }
 \description{
 Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
-spectrum by plankton size. Used by the \code{project} function for running size
-based simulations.
+spectrum by plankton size (in units 1/year).
+}
+\details{
+Used by the \code{project} function for running size based simulations.
 }
 \examples{
 \dontrun{

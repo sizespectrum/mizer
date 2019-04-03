@@ -38,9 +38,8 @@
 
 <meta property="og:title" content="Get total predation mortality rate — getPredMort" />
 
-<meta property="og:description" content="Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) on each
-prey species by prey size. This function is used by the project
-function for performing simulations." />
+<meta property="og:description" content="Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) (in units
+of 1/year) on each prey species by prey size." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -96,7 +95,7 @@ function for performing simulations." />
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
@@ -132,9 +131,8 @@ function for performing simulations." />
 
     <div class="ref-description">
     
-    <p>Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) on each
-prey species by prey size. This function is used by the <code><a href='project.html'>project</a></code>
-function for performing simulations.</p>
+    <p>Calculates the total predation mortality rate \(\mu_{p,i}(w_p)\) (in units
+of 1/year) on each prey species by prey size.</p>
     
     </div>
 
@@ -191,6 +189,11 @@ Defaults to TRUE</p></td>
   three dimensional array (time step x prey species x prey size) with the
   predation mortality calculated at every time step in the simulation.</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function is used by the
+<code><a href='project.html'>project</a></code> function for performing simulations.</p>
+    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getPredRate.html'>getPredRate</a></code> and <code><a href='project.html'>project</a></code>.</p></div>
@@ -220,6 +223,8 @@ Defaults to TRUE</p></td>
       
       <li><a href="#value">Value</a></li>
 
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
@@ -234,7 +239,7 @@ Defaults to TRUE</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
 </div>
       </footer>
    </div>

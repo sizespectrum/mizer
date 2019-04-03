@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community Model • mizer</title>
+<title>The Community Model • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
 <link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Community Model">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="The Community Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -57,7 +57,7 @@
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -85,7 +85,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Community Model</h1>
+      <h1>The Community Model</h1>
             
       
       <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/community_model.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/community_model.Rmd"><code>vignettes/community_model.Rmd</code></a></small>
@@ -123,11 +123,11 @@
 ## [16] "rr_pp"             "cc_pp"             "resource_dynamics"
 ## [19] "plankton_dynamics" "resource_params"   "sc"               
 ## [22] "initial_n_pp"      "initial_B"         "species_params"   
-## [25] "interaction"       "interaction_p"     "srr"              
-## [28] "selectivity"       "catchability"      "n"                
-## [31] "p"                 "lambda"            "q"                
-## [34] "f0"                "kappa"             "A"                
-## [37] "linecolour"        "linetype"</code></pre>
+## [25] "interaction"       "srr"               "selectivity"      
+## [28] "catchability"      "n"                 "p"                
+## [31] "lambda"            "q"                 "f0"               
+## [34] "kappa"             "A"                 "linecolour"       
+## [37] "linetype"</code></pre>
 <p>As you can see, the <code>params</code> object is made up of lots of slots. A quick description can be found in the <a href="../reference/MizerParams-class.html"><code>MizerParams</code> help page</a> (run <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. The slots of an object are accessed by using the <code>@</code> operator. For example, to access the <code>w</code> slot (which contains a vector of the size bins in the model) you would use</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">params<span class="op">@</span>w</a></code></pre></div>
 <p>Rather than picking through the slots to find out what is in a particular <code>MizerParams</code> object, a summary of the object can be seen by calling the <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> method on it:</p>
@@ -147,7 +147,7 @@
 ## Fishing gear details:
 ##  Gear            Target species
 ##   Community       Community</code></pre>
-<p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and these are spread over <span class="math inline">\(100\)</span> size bins. Similar information is available for the plankton spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(`r params@species_params\)</span>w_inf[1]<code>$ and a preferred predator prey mass ratio of $</code>r <a href="mailto:params@species_params%24beta" class="email">params@species_params$beta</a>[1]<code>$. The</code>w_mat<code>parameter has been set to</code>NA<code>as it is not used when running a community model. These values have all been set by default using the</code>set_community_model()<code>function. If you want to set different values for these, you will need to call the</code>set_community_model()` function and pass in the desired argument values.</p>
+<p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and these are spread over <span class="math inline">\(100\)</span> size bins. Similar information is available for the plankton spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(10^{6}\)</span> and a preferred predator prey mass ratio of <span class="math inline">\(100\)</span>. The <code>w_mat</code> parameter has been set to <code>NA</code> as it is not used when running a community model. These values have all been set by default using the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function. If you want to set different values for these, you will need to call the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function and pass in the desired argument values.</p>
 </div>
 <div id="sec:running_comm_model" class="section level2">
 <h2 class="hasAnchor">
@@ -257,7 +257,7 @@ Biomass of the community model when sigma is reduced to a value of 1.0.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
 </div>
       </footer>
 </div>

@@ -8,16 +8,24 @@ getMeanMaxWeight(sim, species = 1:nrow(sim@params@species_params),
   measure = "both", ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{numeric or character vector of species to include in the
+\item{species}{Numeric or character vector of species to include in the
 calculation.}
 
 \item{measure}{The measure to return. Can be 'numbers', 'biomass' or 'both'}
 
-\item{...}{Other arguments for the \code{\link{getN}} and
-\code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
-\code{min_l} and \code{max_l}.}
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 A matrix or vector containing the mean maximum weight of the

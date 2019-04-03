@@ -8,18 +8,24 @@ getCommunitySlope(sim, species = 1:nrow(sim@params@species_params),
   biomass = TRUE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{Numeric or character vector of species to include in the calculation.}
+\item{species}{Numeric or character vector of species to include in the
+calculation.}
 
-\item{biomass}{Boolean. If TRUE (default), the abundance is based on biomass, if FALSE the abundance is based on numbers.}
+\item{biomass}{Boolean. If TRUE (default), the abundance is based on biomass,
+if FALSE the abundance is based on numbers.}
 
-\item{...}{Optional parameters include
-\itemize{
-  \item min_w Minimum weight of species to be used in the calculation.
-  \item max_w Maximum weight of species to be used in the calculation.
-  \item min_l Minimum length of species to be used in the calculation.
-  \item max_l Maximum length of species to be used in the calculation.
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
 }}
 }
 \value{

@@ -93,9 +93,6 @@ details.}
 
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}}
 
-\item{\code{interaction_p}}{The species specific interaction with plankton,
-\eqn{\theta_{ip}}}
-
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
 

@@ -2,6 +2,7 @@ context("MizerParams constructor dimension checks")
 data(NS_species_params_gears)
 data(NS_species_params)
 data(inter)
+no_sp <- nrow(NS_species_params)
 
 test_that("basic constructor sets dimensions properly", {
     species_params <- NS_species_params[c(6, 10, 11), ]

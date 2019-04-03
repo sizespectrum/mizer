@@ -21,32 +21,57 @@ A two dimensional array (predator species x predator size)
 }
 \description{
 Calculates the rate \eqn{E_i(w)} at which a predator of species $i$ and
-weight $w$ encounters food (mass per time).
+weight $w$ encounters food (grams/year).
 }
-\details{
+\section{Predation encounter}{
+
 The encounter rate has contributions from the encounter of fish prey, of
 plankton, and of other resoruces. The contribution from fish and plankton
 is determined by summing over all prey species and the resource spectrum and
 then integrating over all prey sizes $w_p$, weighted by predation kernel 
 \eqn{\phi(w,w_p)}:
 \deqn{
-E_{i}(w) = \gamma_i(w) \int 
+E_{e.i}(w) = \gamma_i(w) \int 
 \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 \phi_i(w,w_p) w_p \, dw_p.
-}
+}{\gamma_i(w) \int 
+( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) ) 
+\phi_i(w,w_p) w_p dw_p.}
+Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
+\eqn{N_R(w)} is the abundance density of plankton.
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
 \code{\link{setSearchVolume}} function. The predation kernel
 \eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
 species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
 vector \eqn{\theta{ip}} are set with \code{\link{setInteraction}}.
+}
 
+\section{Resource encounter}{
+
+In addition to the contribution from predation on fish prey and plankton,
+the food encounter rate may have a contribution from unstructured resource
+components. This takes the form
+\deqn{E_{u.i} = \sum_d \rho_{id}(w) B_d.}
+where \eqn{B_d} is the biomass of the d-th unstructured resource component
+and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
+which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
+the d-th unstructured resource component. This is set with
+\code{\link{setResourceEncounter}}.
+}
+
+\section{Details}{
+
+The total encounter rate is the sum of the contribution from fish and
+plankton and the contribution from unstructured resources, if any:
+\deqn{E_i(w)=E_{e.i}(w)+E_{u.i}(w).}
 The encounter rate is used by the \code{\link{project}} method for
 performing simulations.
 
 The function returns values also for sizes outside the size-range of the
 species. These values should not be trusted, as they are meaningless.
 }
+
 \examples{
 \dontrun{
 data(NS_species_params_gears)

@@ -376,7 +376,7 @@ plotBiomass <- function(sim,
         }
     }
 
-    if ( (length(species) + total) > 12) {
+    if ( (length(species) + total) > 120) {
         p <- p + geom_line(aes(group = Species))
     } else {
         p <- p +
@@ -462,7 +462,7 @@ plotYield <- function(sim, sim2,
                              value.name = "Yield")
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym <- subset(ym, ym$Yield > 0)
-        if (length(species) > 12) {
+        if (length(species) > 120) {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, group = Species))
         } else {
@@ -511,7 +511,7 @@ plotYield <- function(sim, sim2,
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym$Simulation <- as.factor(ym$Simulation)
         ym <- subset(ym, ym$Yield > 0)
-        if (nlevels(ym$Species) > 12) {
+        if (nlevels(ym$Species) > 120) {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, group = Species))
         } else {
@@ -592,7 +592,7 @@ plotYieldGear <- function(sim,
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(ym) + geom_line(aes(x = time, y = value, group = Species))
     } else {
         p <- ggplot(ym) +
@@ -729,6 +729,13 @@ plot_spectra <- function(params, n, n_pp,
     if (is.null(species)) {
         species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
     }
+    species <- as.character(species)
+    invalid_species <- 
+        !(species %in% as.character(dimnames(params@initial_n)[[1]]))
+    if (any(invalid_species)) {
+        warning(paste("The following species do not exist in the model and are ignored:",
+                      species[invalid_species]))
+    }
     # Deal with power argument
     if (power %in% c(0, 1, 2)) {
         y_label <- c("Number density [1/g]", "Biomass density",
@@ -747,14 +754,8 @@ plot_spectra <- function(params, n, n_pp,
                            w = rep(params@w,
                                    each = dim(spec_n)[[1]]))
     if (plankton) {
-        # Decide where to cut off plankton
-        max_w <- min(params@species_params$w_mat)
-        if (is.na(max_w)) {
-            max_w <- Inf
-        }
         plankton_sel <- (params@w_full >= wlim[1]) & 
-                        (params@w_full <= wlim[2]) &
-                        (params@w_full <= max_w)
+                        (params@w_full <= wlim[2])
         # Do we have any plankton to plot?
         if (sum(plankton_sel) > 0) {
             w_plankton <- params@w_full[plankton_sel]
@@ -815,7 +816,7 @@ plot_spectra <- function(params, n, n_pp,
                           data = plot_back)
         }
     }
-    if ( (length(species) + plankton + total) > 13) {
+    if ( (length(species) + plankton + total) > 130) {
         p <- p + geom_line(aes(group = Species))
     } else {
         p <- p + geom_line(aes(colour = Species, linetype = Species))
@@ -882,7 +883,7 @@ plotFeedingLevel <- function(sim,
                            Species = factor(dimnames(feed)$sp, 
                                             levels = dimnames(feed)$sp),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, group = Species))
     } else {
@@ -955,7 +956,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                            Species = factor(dimnames(m2)[[1]],
                                             levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, group = Species))
     } else {
@@ -1026,7 +1027,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                            Species = factor(dimnames(f)[[1]],
                                             levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, group = Species))
     } else {
         p <- ggplot(plot_dat) +
@@ -1173,7 +1174,7 @@ plotGrowthCurves <- function(object, species,
     plot_dat <- reshape2::melt(ws)
     # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, dimnames(n)$sp)
-    if (length(species) > 12) {
+    if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value, group = Species))
     } else {
@@ -1191,6 +1192,9 @@ plotGrowthCurves <- function(object, species,
     # Extra stuff for single-species case
     if (length(species) == 1 && !percentage) {
         w_inf <- params@species_params$w_inf[idx[1]]
+        # set w_inf to w at next grid point, because that is when growth rate
+        # becomes zero
+        w_inf <- params@w[sum(w_inf > params@w) + 1]
         p <- p + geom_hline(yintercept = w_inf) +
             annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
         w_mat <- params@species_params$w_mat[idx[1]]

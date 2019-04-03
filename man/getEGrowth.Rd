@@ -31,9 +31,9 @@ species x no. size bins. If not supplied, is calculated internally using
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy rate \eqn{g_i(w)} available by species and size for
-growth after metabolism, movement and reproduction have been accounted for.
-Used by \code{\link{project}} for performing simulations.
+Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
+size for growth after metabolism, movement and reproduction have been
+accounted for. Used by \code{\link{project}} for performing simulations.
 }
 \examples{
 \dontrun{

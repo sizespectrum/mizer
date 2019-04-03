@@ -39,9 +39,12 @@ If a \code{MizerParams} object is passed in, the function returns a two
   predation mortality calculated at every time step in the simulation.
 }
 \description{
-Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
-prey species by prey size. This function is used by the \code{\link{project}}
-function for performing simulations.
+Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units
+of 1/year) on each prey species by prey size.
+}
+\details{
+This function is used by the
+\code{\link{project}} function for performing simulations.
 }
 \examples{
 \dontrun{

@@ -91,7 +91,7 @@
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
@@ -201,6 +201,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="setParams.html">setParams()</a></code> </p>
+        </td>
+        <td><p>Set or change model parameters</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="setPlankton.html">setPlankton()</a></code> </p>
         </td>
         <td><p>Set up plankton</p></td>
@@ -237,6 +243,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="tuneParams.html">tuneParams()</a></code> </p>
+        </td>
+        <td><p>Launch app for tuning model parameters</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="steady.html">steady()</a></code> </p>
         </td>
         <td><p>Tune params object to be at steady state</p></td>
@@ -261,7 +273,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="retune_abundance.html">retune_abundance()</a></code> </p>
+          <p><code><a href="retuneAbundance.html">retuneAbundance()</a></code> </p>
         </td>
         <td><p>Retunes abundance of background species.</p></td>
       </tr><tr>
@@ -274,7 +286,7 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-running-simulation" class="hasAnchor"><a href="#section-running-simulation" class="anchor"></a>Running simulation</h2>
+          <h2 id="section-running-simulations" class="hasAnchor"><a href="#section-running-simulations" class="anchor"></a>Running simulations</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -334,7 +346,7 @@ step.</p></td>
         <td>
           <p><code><a href="getN.html">getN()</a></code> </p>
         </td>
-        <td><p>Calculate the total abundance in terms of numbers of species within a size range</p></td>
+        <td><p>Calculate the number of individuals within a size range</p></td>
       </tr><tr>
         
         <td>
@@ -592,7 +604,7 @@ and size.</p></td>
         <td>
           <p><code><a href="getRDI.html">getRDI()</a></code> </p>
         </td>
-        <td><p>Get density independent recruitment</p></td>
+        <td><p>Get density independent rate of egg production</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -669,6 +681,20 @@ and size.</p></td>
           <p><code><a href="plankton_semichemostat.html">plankton_semichemostat()</a></code> </p>
         </td>
         <td><p>Project plankton using semichemostat model</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-helper-functions" class="hasAnchor"><a href="#section-helper-functions" class="anchor"></a>Helper functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="get_size_range_array.html">get_size_range_array()</a></code> </p>
+        </td>
+        <td><p>Get size range array</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -780,12 +806,13 @@ and size.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-setting-model-parameters">Setting model parameters</a></li>
-      <li><a href="#section-running-simulation">Running simulation</a></li>
+      <li><a href="#section-running-simulations">Running simulations</a></li>
       <li><a href="#section-analysing-results">Analysing results</a></li>
       <li><a href="#section-plotting-results">Plotting results</a></li>
       <li><a href="#section-calculating-rates-used-in-model">Calculating rates used in model</a></li>
       <li><a href="#section-dynamics-of-unstructured-resources">Dynamics of unstructured resources</a></li>
       <li><a href="#section-functions-used-in-model">Functions used in model</a></li>
+      <li><a href="#section-helper-functions">Helper functions</a></li>
       <li><a href="#section-classes">Classes</a></li>
       <li><a href="#section-data-sets">Data sets</a></li>
       <li><a href="#section-aliases">Aliases</a></li>
@@ -799,7 +826,7 @@ and size.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
 </div>
       </footer>
    </div>

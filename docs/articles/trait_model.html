@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trait-Based Model • mizer</title>
+<title>The Trait-Based Model • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
 <link href="../docsearch.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="Trait-Based Model">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><meta property="og:title" content="The Trait-Based Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -57,7 +57,7 @@
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">Changelog</a>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -85,7 +85,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Trait-Based Model</h1>
+      <h1>The Trait-Based Model</h1>
             
       
       <small class="dont-index"><a href="https://github.com/gustavdelius/mizer/edit/master/vignettes/trait_model.Rmd">Edit this page.  </a> Source: <a href="https://github.com/gustavdelius/mizer/blob/master/vignettes/trait_model.Rmd"><code>vignettes/trait_model.Rmd</code></a></small>
@@ -106,7 +106,7 @@
 <p>To help set up a trait-based model, there is a wrapper function, <code><a href="../reference/set_trait_model.html">set_trait_model()</a></code>. Like the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function described in the section on the <a href="community_model.html">community model</a>, this function can take many arguments. Most of them have default values so you don’t need to worry about them for the moment. See the help page for more details.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">?set_trait_model</a></code></pre></div>
 <p>The main parameters of interest are the number of the species in the model (<code>no_sp</code>) and the minimum and maximum asymptotic sizes (<code>min_w_inf</code> and <code>max_w_inf</code> respectively); the asymptotic sizes are spread evenly on a logarithmic scale between these values.</p>
-<p>One of the key differences between the community type model and the trait-based model is that reproduction and egg production are considered. In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production. In the trait-based model, the egg production is modeled using a <em>Beverton-Holt</em> type function (the default in <code>mizer</code>, see <a href="model_description.html#sec:recruitment">the section on stock-recruitment relationships</a>) where the recruitment flux <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum recruitment as the egg production increases. The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier <span class="math inline">\(k_0\)</span>, which can be passed in as an argument (<code>k0</code>) to the <code><a href="../reference/set_trait_model.html">set_trait_model()</a></code> function. <code>k0</code> has a default value of 50.</p>
+<p>One of the key differences between the community type model and the trait-based model is that reproduction and egg production are considered. In the community model, recruitment is constant and there is no relationship between the abundance in the community and egg production. In the trait-based model, the egg production is modeled using a <em>Beverton-Holt</em> type function (the default in <code>mizer</code>, see <a href="model_description.html#recruitment">the section on stock-recruitment relationships</a>) where the recruitment flux <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum recruitment as the egg production increases. The maximum recruitment flux is calculated using equilibrium theory and a recruitment multiplier <span class="math inline">\(k_0\)</span>, which can be passed in as an argument (<code>k0</code>) to the <code><a href="../reference/set_trait_model.html">set_trait_model()</a></code> function. <code>k0</code> has a default value of 50.</p>
 <p>Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_trait_model.html">set_trait_model</a></span>(<span class="dt">no_sp =</span> <span class="dv">10</span>, <span class="dt">min_w_inf =</span> <span class="dv">10</span>, <span class="dt">max_w_inf =</span> <span class="fl">1e5</span>)</a></code></pre></div>
 <pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
@@ -305,7 +305,7 @@ Relative abundances from the unfished (dashed line) and fished (solid line) trai
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
 </div>
       </footer>
 </div>

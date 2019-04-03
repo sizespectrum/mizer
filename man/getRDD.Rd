@@ -28,9 +28,9 @@ If not specified rdi is calculated internally using
 A numeric vector the length of the number of species.
 }
 \description{
-Calculates the density dependent recruitment (total egg production) \eqn{R_i}
-for each species. This is the flux entering the smallest size class of each
-species. The density dependent recruitment is the density independent
+Calculates the density dependent rate of egg production \eqn{R_i} (units
+1/year) for each species. This is the flux entering the smallest size class
+of each species. The density dependent recruitment is the density independent
 recruitment after it has been put through the density dependent
 stock-recruitment relationship function.
 }

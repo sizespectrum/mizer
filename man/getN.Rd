@@ -2,23 +2,32 @@
 % Please edit documentation in R/summary_methods.R
 \name{getN}
 \alias{getN}
-\title{Calculate the total abundance in terms of numbers of species within a size range}
+\title{Calculate the number of individuals within a size range}
 \usage{
 getN(sim, ...)
 }
 \arguments{
 \item{sim}{An object of class \code{MizerSim}.}
 
-\item{...}{Other arguments to select the size range of the species to be used
-in the calculation (min_w, max_w, min_l, max_l).}
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 An array containing the total numbers (time x species)
 }
 \description{
-Calculates the total numbers through time of the species in the
-\code{MizerSim} class within user defined size limits. The default option is
-to use the whole size range You can specify minimum and maximum weight or
+Calculates the number of individuals within user-defined size limits, for
+each time and each species in the \code{MizerSim} object. The default option
+is to use the whole size range. You can specify minimum and maximum weight or
 lengths for the species. Lengths take precedence over weights (i.e. if both
 min_l and min_w are supplied, only min_l will be used)
 }

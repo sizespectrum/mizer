@@ -1,5 +1,5 @@
 ---
-title: "Editing the mizer website"
+title: "Editing the Mizer Website"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Editing the mizer website}

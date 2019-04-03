@@ -5,14 +5,14 @@
 \title{Construct MizerParams object for multispecies model}
 \usage{
 set_multispecies_model(species_params, interaction = matrix(1, nrow =
-  nrow(species_params), ncol = nrow(species_params)),
-  interaction_p = rep(1, nrow(species_params)), no_w = 100,
+  nrow(species_params), ncol = nrow(species_params)), no_w = 100,
   min_w = 0.001, max_w = NA, min_w_pp = NA, no_w_pp = NA,
   n = 2/3, p = 0.7, q = 0.8, kappa = 1e+11, lambda = (2 + q - n),
   f0 = 0.6, pred_kernel = NULL, pred_kernel_type = "lognormal",
-  store_kernel = FALSE, gamma = NULL, h = NULL, metab = NULL,
-  z0pre = 0.6, z0exp = n - 1, psi = NULL, r_pp = 10,
-  w_pp_cutoff = 10, plankton_dynamics = plankton_semichemostat,
+  store_kernel = FALSE, search_vol = NULL, intake_max = NULL,
+  metab = NULL, z0pre = 0.6, z0exp = n - 1, psi = NULL,
+  r_pp = 10, w_pp_cutoff = 10,
+  plankton_dynamics = plankton_semichemostat,
   resource_dynamics = list(), resource_params = list(), rho = NULL,
   srr = srrBevertonHolt)
 }
@@ -22,10 +22,6 @@ set_multispecies_model(species_params, interaction = matrix(1, nrow =
 \item{interaction}{Interaction matrix of the species (predator by prey).
 Entries should be numbers between 0 and 1. See "Setting interactions"
 section below.}
-
-\item{interaction_p}{Vector specifying for each species its interaction with
-plankton, similar to what the interaction matrix does for the interaction
-with other species. See "Setting interactions" section below.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
@@ -73,15 +69,6 @@ boolean flag that determines whether the full three dimensional predation
 kernel array is calculated and stored, even though it is not needed by
 mizer. Only useful if you have your own code that relies on this array.
 Default is FALSE.}
-
-\item{gamma}{Optional. An array (species x size) holding the search volume
-for each species at size or a vector or number giving the coefficient in
-an allometric search volume. If not supplied, a default is set as described in
-the section "Setting search volume".}
-
-\item{h}{Optional. An array (species x size) holding the maximum intake rate
-for each species at size. If not supplied, a default is set as described in
-the section "Setting maximum intake rate".}
 
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
@@ -133,20 +120,7 @@ Sets up a multi-species size spectrum model by filling all slots in the
 \linkS4class{MizerParams} object based on user-provided or default
 parameters. It does this by creating an empty MizerParams object with
 \code{\link{emptyParams}} and then filling the slots by passing its arguments
-to the the setup functions
-\itemize{
-\item \code{\link{setPredKernel}}
-\item \code{\link{setSearchVolume}}
-\item \code{\link{setInteraction}}
-\item \code{\link{setIntakeMax}}
-\item \code{\link{setMetab}}
-\item \code{\link{setBMort}}
-\item \code{\link{setReproduction}}
-\item \code{\link{setPlankton}}
-\item \code{\link{setResources}}
-\item \code{\link{setResourceEncounter}}
-\item \code{\link{setFishing}}
-}
+to \code{\link{setParams}}.
 }
 \section{Species parameters}{
 
@@ -185,22 +159,18 @@ The following table gives different components of a species parameters data.fram
 \section{Setting interactions}{
 
 
-The species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-vector \eqn{\theta_{ip}} are used when calculating the food encounter rate in
+The species interaction matrix \eqn{\theta_{ij}} is used when calculating the food encounter rate in
 \code{\link{getEncounter}} and the predation rate in
-\code{\link{getPredRate}}. This function checks that the supplied arguments
-are valid and then stores them in the \code{interaction} and
-\code{interaction_p} slot of the params object before returning that object.
-Arguments that are not supplied or NULL will not change the corresponding
-slot.
+\code{\link{getPredRate}}. This function checks that the supplied interaction
+matrix is valid and then stores it in the \code{interaction} slot of the params
+object before returning that object.
 
 Any dimnames of the interaction matrix argument are ignored by the
 constructor. The dimnames of the interaction matrix in the returned
 \code{MizerParams} object are taken from the species names in the
 \code{species_params} slot. This means that the order of the columns and rows
 of the interaction matrix argument should be the same as the species name in
-the \code{species_params} slot. The same applies to the names of the
-\code{interaction_p} argument.
+the \code{species_params} slot.
 }
 
 \section{Setting predation kernel}{

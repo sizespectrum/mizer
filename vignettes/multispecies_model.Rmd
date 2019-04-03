@@ -1,5 +1,5 @@
 ---
-title: "MultiSpecies Model"
+title: "The Multi Species Model"
 output: html_document
 fig_width: 5
 fig_height: 5
@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r label=lib, include=FALSE}
+```{r include=FALSE}
 library(mizer)
 ```
 
@@ -489,7 +489,7 @@ It also means that after a simulation has been run you can examine the catches b
 
 ## Reaching steady state
 
-Once the `MizerParams` object has been properly setup, it may be the case that one wishes put the system in steady state. Sometimes this can be done simply by running the model using `project' until it reaches steady state. However, this method is 
+Once the `MizerParams` object has been properly setup, it may be the case that one wishes put the system in steady state. Sometimes this can be done simply by running the model using `project` until it reaches steady state. However, this method is 
 not sure to work, and there is a function called `steady()` that is more reliable. The function `steady()` must be supplied with a MizerParams object. It takes that MizerParams object, looks at the initial system state, computes the levels of reproduction of the different species, hold them fixed, and evolves the system until a steady state is reached (or more precisely, until the amount that the population abundances change during a time-step is below some small tolerance level). After this, the reproductive efficiency of each species is altered so that when the reproduction dynamics are turned back on (i.e., when we stop holding recruitment levels fixed), the values of the reproduction levels which we held the system fixed at will be realized. The steady function is not sure to converge, and the way it re-tunes the reproductive efficiency values may not be realistic, but the idea is to alter the other parameters in the system until `steady()` does arrive at a steady state with sensible reproductive efficiency values.
 
 Now that we know how to create a multispecies model we shall discuss how to [run a multispecies model.](running_a_simulation.html)

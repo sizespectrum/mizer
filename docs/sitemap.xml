@@ -226,7 +226,7 @@
     <loc>https://gustavdelius.github.io/mizer//reference/resource_dynamics.html</loc>
   </url>
   <url>
-    <loc>https://gustavdelius.github.io/mizer//reference/retune_abundance.html</loc>
+    <loc>https://gustavdelius.github.io/mizer//reference/retuneAbundance.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/setBMort.html</loc>
@@ -245,6 +245,9 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/setMetab.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/setParams.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/setPlankton.html</loc>
@@ -293,6 +296,9 @@
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/summary_functions.html</loc>
+  </url>
+  <url>
+    <loc>https://gustavdelius.github.io/mizer//reference/tuneParams.html</loc>
   </url>
   <url>
     <loc>https://gustavdelius.github.io/mizer//reference/upgradeParams.html</loc>

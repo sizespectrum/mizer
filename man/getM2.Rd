@@ -41,6 +41,10 @@ If a \code{MizerParams} object is passed in, the function returns a two
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
 }
+\details{
+This function is used by the
+\code{\link{project}} function for performing simulations.
+}
 \examples{
 \dontrun{
 data(NS_species_params_gears)

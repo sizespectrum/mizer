@@ -14,7 +14,7 @@
 #'       \tab 7 \cr
 #' }
 #'
-#'The file also contains a helper function \code{\link{retune_abundance}}.
+#'The file also contains a helper function \code{\link{retuneAbundance}}.
 #'
 #' @name wrapper_functions
 NULL
@@ -144,6 +144,7 @@ set_community_model <- function(max_w = 1e6,
         z0 = z0, # background mortality
         alpha = alpha,
         erepro = 1, # not used
+        interaction_p = 1,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
         knife_is_min = knife_is_min,
@@ -338,6 +339,7 @@ set_trait_model <- function(no_sp = 10,
         sigma = sigma,
         z0 = z0pre * w_inf^(n - 1), # background mortality
         alpha = alpha,
+        interaction_p = rep(1, no_sp),
         #r_max = r_max,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
@@ -802,15 +804,18 @@ set_scaling_model <- function(no_sp = 11,
 #' the original community abundance, stored in \code{params@sc}.
 #'
 #' @param params A \linkS4class{MizerParams} object
-#' @param retune A boolean vector that determines whether a species can be 
-#'   retuned or not.
+#' @param retune A boolean vector that determines which species can be 
+#'   retuned
 #' @param cutoff Species with an abundance at maturity size that is less than 
 #'               cutoff times community abundance will be removed. Default 1e-3.
 #'   
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
-retune_abundance <- function(params, retune, cutoff = 1e-3) {
-    no_sp <- length(params@species_params$species)  # Number of species
+#' @export
+retuneAbundance <- function(params,
+                            retune = rep(TRUE, nrow(params@species_params)), 
+                            cutoff = 1e-3) {
+    no_sp <- nrow(params@species_params)  # Number of species
     if (length(retune) != no_sp) {
         stop("retune argument has the wrong length")
     }
@@ -818,12 +823,7 @@ retune_abundance <- function(params, retune, cutoff = 1e-3) {
         # nothing to retune
         return(params)
     }
-    # We try to match the original abundance between the maturity size
-    # of the smallest species and the maximum size of the largest species.
-    # Determine the indices of these limits
-    idx_start <- sum(params@w <= min(params@species_params$w_mat))
-    idx_stop <- sum(params@w < max(params@species_params$w_inf))
-    # More precisely, we find the abundance multipliers A_i so
+    # We find the abundance multipliers A_i so
     # that the integral of the square of the relative distance 
     # (sum_{i not in L} A_i*N_i(w) + sum_{i not in L} N_i(w) - sc(w))/sc(w) 
     # over w, between our limits, is minimized, where  L is the set of all
@@ -856,9 +856,9 @@ retune_abundance <- function(params, retune, cutoff = 1e-3) {
         # and try again retuning the remaining retunable species
         retune <- retune[A2 > 0]
         if (any(retune)) {
-            params <- retune_abundance(params, retune)
+            params <- retuneAbundance(params, retune)
         } else {
-            message("All background species have been removed.")
+            message("All retuneable species have been removed.")
         }
     } else {
         # Use these abundance multipliers to rescale the abundance curves
@@ -919,13 +919,20 @@ removeSpecies <- function(params, species) {
     p@intake_max <- p@intake_max[keep, , drop = FALSE]
     p@search_vol <- p@search_vol[keep, , drop = FALSE]
     p@metab <- p@metab[keep, , drop = FALSE]
-    p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop = FALSE]
-    p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop = FALSE]
+    if (length(dim(p@ft_pred_kernel_e)) == 2) {
+        p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop = FALSE]
+    }
+    if (length(dim(p@ft_pred_kernel_p)) == 2) {
+        p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop = FALSE]
+    }
     p@mu_b <- p@mu_b[keep, , drop = FALSE]
     p@species_params <- p@species_params[keep, , drop = FALSE]
     p@interaction <- p@interaction[keep, keep, drop = FALSE]
     p@selectivity <- p@selectivity[, keep, , drop = FALSE]
     p@catchability <- p@catchability[, keep, drop = FALSE]
+    if (length(dim(p@rho)) == 3) {
+        p@rho <- p@rho[keep, , , drop = FALSE]
+    }
     p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
     p@linecolour <- p@linecolour[!(p@species_params$species %in% 
@@ -992,7 +999,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     # The code adds a new species into the system, and sets its abundance to the
     # steady state in the system where the new species does not self-interact. Then
     # the abundance multipliers of the background species are retuned to retain the
-    # old aggregate abundance curve, using retune_abundance(). Then the values of
+    # old aggregate abundance curve, using retuneAbundance(). Then the values of
     # erepro are altered so that the resulting configuration satisfies the steady
     # state reproduction boundary condition. The idea is that if the params system
     # is at steady state, and if the death rates of pre-existing species are close
@@ -1118,7 +1125,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     # First identify the retunable species. These are all background
     # species except the largest one
     retune <- is.na(p@A)
-    p <- retune_abundance(p, retune)
+    p <- retuneAbundance(p, retune)
     no_sp <- length(p@species_params$species)
     
     

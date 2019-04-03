@@ -28,9 +28,9 @@ calculated using the \code{\link{getPredMort}} function.}
 A two dimensional array (prey species x prey size).
 }
 \description{
-Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
-from predation mortality, background mortality and fishing mortality
-for a single time step.
+Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each
+species by size from predation mortality, background mortality and fishing
+mortality for a single time step.
 }
 \examples{
 \dontrun{

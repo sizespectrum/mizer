@@ -4,18 +4,18 @@
 \alias{setSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, gamma = NULL, q)
+setSearchVolume(params, search_vol = NULL, q)
 }
 \arguments{
 \item{params}{MizerParams}
+
+\item{q}{Exponent of the allometric search volume. Only needed if 
+\code{gamma} is not an array.}
 
 \item{gamma}{Optional. An array (species x size) holding the search volume
 for each species at size or a vector or number giving the coefficient in
 an allometric search volume. If not supplied, a default is set as described in
 the section "Setting search volume".}
-
-\item{q}{Exponent of the allometric search volume. Only needed if 
-\code{gamma} is not an array.}
 }
 \value{
 MizerParams

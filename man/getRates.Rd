@@ -8,7 +8,7 @@ getRates(object, n = object@initial_n, n_pp = object@initial_n_pp,
   B = object@initial_B, effort = 0, sex_ratio = 0.5)
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{object}{A \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 
@@ -16,7 +16,7 @@ getRates(object, n = object@initial_n, n_pp = object@initial_n_pp,
 
 \item{B}{A vector of biomasses of unstructured resource components}
 
-\item{effort}{The effort of each fishing gear}
+\item{effort}{The effort for each fishing gear}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}

@@ -25,8 +25,8 @@ internally using \code{\link{getEReproAndGrowth}}.}
 A two dimensional array (prey species x prey size)
 }
 \description{
-Calculates the energy rate available by species and size for reproduction
-after metabolism and movement have been accounted for:
+Calculates the energy rate (grams/year) available by species and size for
+reproduction after metabolism and movement have been accounted for:
 \eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} function for performing
 simulations.
 }

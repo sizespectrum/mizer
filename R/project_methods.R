@@ -42,11 +42,11 @@ NULL
 #' Calls all the other rate functions in sequence and collects the results in a
 #' list.
 #' 
-#' @param object An \linkS4class{MizerParams} object
+#' @param object A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
-#' @param effort The effort of each fishing gear
+#' @param effort The effort for each fishing gear
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' 
@@ -107,18 +107,23 @@ getRates <- function(object, n = object@initial_n,
 #' Get encounter rate
 #' 
 #' Calculates the rate \eqn{E_i(w)} at which a predator of species $i$ and
-#' weight $w$ encounters food (mass per time).
+#' weight $w$ encounters food (grams/year).
 #' 
+#' @section Predation encounter:
 #' The encounter rate has contributions from the encounter of fish prey, of
 #' plankton, and of other resoruces. The contribution from fish and plankton
 #' is determined by summing over all prey species and the resource spectrum and
 #' then integrating over all prey sizes $w_p$, weighted by predation kernel 
 #' \eqn{\phi(w,w_p)}:
 #' \deqn{
-#' E_{i}(w) = \gamma_i(w) \int 
+#' E_{e.i}(w) = \gamma_i(w) \int 
 #' \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 #' \phi_i(w,w_p) w_p \, dw_p.
-#' }
+#' }{\gamma_i(w) \int 
+#' ( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) ) 
+#' \phi_i(w,w_p) w_p dw_p.}
+#' Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
+#' \eqn{N_R(w)} is the abundance density of plankton.
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 #' predator. It could be interpreted as a search volume and is set with the
 #' \code{\link{setSearchVolume}} function. The predation kernel
@@ -126,6 +131,21 @@ getRates <- function(object, n = object@initial_n,
 #' species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
 #' vector \eqn{\theta{ip}} are set with \code{\link{setInteraction}}.
 #' 
+#' @section Resource encounter:
+#' In addition to the contribution from predation on fish prey and plankton,
+#' the food encounter rate may have a contribution from unstructured resource
+#' components. This takes the form
+#' \deqn{E_{u.i} = \sum_d \rho_{id}(w) B_d.}
+#' where \eqn{B_d} is the biomass of the d-th unstructured resource component
+#' and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
+#' which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
+#' the d-th unstructured resource component. This is set with
+#' \code{\link{setResourceEncounter}}.
+#' 
+#' @section Details:
+#' The total encounter rate is the sum of the contribution from fish and
+#' plankton and the contribution from unstructured resources, if any:
+#' \deqn{E_i(w)=E_{e.i}(w)+E_{u.i}(w).}
 #' The encounter rate is used by the \code{\link{project}} method for
 #' performing simulations.
 #' 
@@ -179,7 +199,8 @@ getEncounter <- function(object, n = object@initial_n,
             c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
         # Eating the background
         # This line is a bottle neck
-        phi_prey_background <- object@interaction_p * rowSums(sweep(
+        phi_prey_background <- object@species_params$interaction_p *
+            rowSums(sweep(
             object@pred_kernel, 3, object@dw_full * object@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- object@search_vol * (phi_prey_species + phi_prey_background)
@@ -190,7 +211,7 @@ getEncounter <- function(object, n = object@initial_n,
         return(encounter)
     }
 
-    prey <- outer(object@interaction_p, n_pp)
+    prey <- outer(object@species_params$interaction_p, n_pp)
     prey[, idx_sp] <- prey[, idx_sp] + object@interaction %*% n
     # The vector prey equals everything inside integral (3.4) except the feeding
     # kernel phi_i(w_p/w).
@@ -311,9 +332,9 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
 
 #' Get predation rate
 #' 
-#' Calculates the potential rate at which a prey individual of a given size 
-#' \eqn{w} is killed by predators from species \eqn{i}. In formulas 
-#' \deqn{\int\phi_i(w_p/w) (1-f_i(w)) \gamma_i(w) N_i(w) dw}
+#' Calculates the potential rate (in units 1/year) at which a prey individual of
+#' a given size \eqn{w} is killed by predators from species \eqn{i}. In formulas
+#' \deqn{\int\phi_i(w,w_p) (1-f_i(w)) \gamma_i(w) N_i(w) dw.}
 #' This potential rate is used in the function \code{\link{getPredMort}} to
 #' calculate the realised predation mortality rate on the prey individual.
 #'
@@ -398,9 +419,12 @@ getPredRate <- function(object, n = object@initial_n,
 
 #' Get total predation mortality rate
 #'
-#' Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} on each
-#' prey species by prey size. This function is used by the \code{\link{project}}
-#' function for performing simulations.
+#' Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units
+#' of 1/year) on each prey species by prey size.
+#' 
+#' This function is used by the
+#' \code{\link{project}} function for performing simulations.
+#' 
 #' @param object A \code{MizerParams} or \code{MizerSim} object.
 #' @param n A matrix of species abundance (species x size). Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
@@ -482,8 +506,10 @@ getM2 <- getPredMort
 #' Get predation mortality rate for plankton
 #' 
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
-#' spectrum by plankton size. Used by the \code{project} function for running size
-#' based simulations.
+#' spectrum by plankton size (in units 1/year).
+#' 
+#' Used by the \code{project} function for running size based simulations.
+#' 
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -522,7 +548,7 @@ getPlanktonMort <-
              ") x no. size bins in community + plankton (",
              length(object@w_full), ")")
     }
-    return(as.vector(object@interaction_p %*% pred_rate))
+    return(as.vector(object@species_params$interaction_p %*% pred_rate))
 }
 
 #' Alias for getPlanktonMort
@@ -535,7 +561,7 @@ getM2Background <- getPlanktonMort
 #' Get the fishing mortality by time, gear, species and size
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the \code{effort} argument. 
+#' size at each time step in the \code{effort} argument (in units 1/year).
 #' Used by the \code{project} function to perform simulations.
 #' 
 #' @param object A \code{MizerParams} object or a \code{MizerSim} object.
@@ -636,8 +662,8 @@ getFMortGear <- function(object, effort, time_range) {
 #' Get the total fishing mortality rate from all fishing gears by time, species
 #' and size.
 #' 
-#' Calculates the total fishing mortality from all gears by species and size at 
-#' each time step in the \code{effort} argument.
+#' Calculates the total fishing mortality  (in units 1/year) from all gears by
+#' species and size at each time step in the \code{effort} argument.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' 
@@ -721,9 +747,9 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 
 #' Get total mortality rate
 #'
-#' Calculates the total mortality rate \eqn{\mu_i(w)} on each species by size
-#' from predation mortality, background mortality and fishing mortality
-#' for a single time step.
+#' Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each
+#' species by size from predation mortality, background mortality and fishing
+#' mortality for a single time step.
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -771,9 +797,10 @@ getZ <- getMort
 
 #' Get energy rate available for reproduction and growth
 #'
-#' Calculates the energy rate available by species and size for reproduction and
-#' growth after metabolism and movement have been accounted for: \eqn{E_{r.i}(w)}.
-#' Used by the \code{project} function for performing simulations.
+#' Calculates the energy rate (grams/year) available by species and size for
+#' reproduction and growth after metabolism and movement have been accounted
+#' for: \eqn{E_{r.i}(w)}. Used by the \code{project} function for performing
+#' simulations.
 #' 
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -824,8 +851,8 @@ getEReproAndGrowth <- function(object, n = object@initial_n,
 
 #' Get energy rate available for reproduction
 #'
-#' Calculates the energy rate available by species and size for reproduction
-#' after metabolism and movement have been accounted for:
+#' Calculates the energy rate (grams/year) available by species and size for
+#' reproduction after metabolism and movement have been accounted for:
 #' \eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} function for performing
 #' simulations.
 #' 
@@ -873,9 +900,9 @@ getESpawning <- getERepro
 
 #' Get energy rate available for growth
 #'
-#' Calculates the energy rate \eqn{g_i(w)} available by species and size for
-#' growth after metabolism, movement and reproduction have been accounted for.
-#' Used by \code{\link{project}} for performing simulations.
+#' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
+#' size for growth after metabolism, movement and reproduction have been
+#' accounted for. Used by \code{\link{project}} for performing simulations.
 #' @param object A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -924,11 +951,11 @@ getEGrowth <- function(object, n = object@initial_n,
 }
 
 
-#' Get density independent recruitment
+#' Get density independent rate of egg production
 #'
-#' Calculates the density independent recruitment (total egg production)
-#' \eqn{R_{p.i}} before density dependence, by species. Used by
-#' \code{project} for performing simulations.
+#' Calculates the density independent rate of egg production \eqn{R_{p.i}}
+#' (units 1/year) before density dependence, by species. Used by
+#' \code{\link{getRDD}} to calculate the actual density dependent rate.
 #' 
 #' @param object An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -972,9 +999,9 @@ getRDI <- function(object, n = object@initial_n,
 
 #' Get density dependent recruitment
 #'
-#' Calculates the density dependent recruitment (total egg production) \eqn{R_i}
-#' for each species. This is the flux entering the smallest size class of each
-#' species. The density dependent recruitment is the density independent
+#' Calculates the density dependent rate of egg production \eqn{R_i} (units
+#' 1/year) for each species. This is the flux entering the smallest size class
+#' of each species. The density dependent recruitment is the density independent
 #' recruitment after it has been put through the density dependent
 #' stock-recruitment relationship function.
 #' 

@@ -30,3 +30,17 @@ Helper function that returns an array (species x size) of boolean values
 indicating whether that size bin is within the size limits specified by the
 arguments.
 }
+\section{Length to weight conversion}{
+
+If `min_l` is specified there is no need to specify `min_w` and so on.
+However, if a length is specified (minimum or maximum) then it is necessary
+for the species parameter data.frame to include the parameters `a` and `b`
+that determine the relation between length \eqn{l} and weight \eqn{w} by
+\deqn{w = a l^b.}
+
+It is possible to mix length and weight constraints, e.g. by supplying a
+minimum weight and a maximum length. The default values are the minimum and
+maximum weights of the spectrum, i.e. the full range of the size spectrum is
+used.
+}
+

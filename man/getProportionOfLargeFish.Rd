@@ -9,9 +9,9 @@ getProportionOfLargeFish(sim,
   threshold_l = NULL, biomass_proportion = TRUE, ...)
 }
 \arguments{
-\item{sim}{An object of class \code{MizerSim}.}
+\item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{numeric or character vector of species to include in the
+\item{species}{Numeric or character vector of species to include in the
 calculation.}
 
 \item{threshold_w}{the size used as the cutoff between large and small fish.
@@ -23,8 +23,17 @@ Default value is 100.}
 is based on biomass, if FALSE it is based on numbers of individuals.
 Default is TRUE.}
 
-\item{...}{Other arguments to select the size range of the species to be used
-in the calculation (min_w, max_w, min_l, max_l).}
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 An array containing the proportion of large fish through time

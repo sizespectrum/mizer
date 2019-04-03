@@ -7,22 +7,33 @@
 getMeanWeight(sim, species = 1:nrow(sim@params@species_params), ...)
 }
 \arguments{
-\item{sim}{An object of class `MizerSim`}
+\item{sim}{A \linkS4class{MizerSim} object}
 
-\item{species}{numeric or character vector of species to include in the calculation}
+\item{species}{Numeric or character vector of species to include in the
+calculation.}
 
-\item{...}{Other arguments for the \code{\link{getN}} and
-\code{\link{getBiomass}} methods such as \code{min_w}, \code{max_w}
-\code{min_l} and \code{max_l}.}
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 A vector containing the mean weight of the community through time
 }
 \description{
-Calculates the mean weight of the community through time.
-This is simply the total biomass of the community divided by the abundance in numbers.
-You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation.
+Calculates the mean weight of the community through time. This is simply the
+total biomass of the community divided by the abundance in numbers. You can
+specify minimum and maximum weight or length range for the species. Lengths
+take precedence over weights (i.e. if both min_l and min_w are supplied, only
+min_l will be used). You can also specify the species to be used in the
+calculation.
 }
 \examples{
 \dontrun{
