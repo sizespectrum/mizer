@@ -36,7 +36,7 @@ into the `docs` subdirectory of your mizer directory. In detail:
    
 4. The `NEWS` file will be converted to `docs/news/index.html`
 
-5. The index.md file will be converted to `docs/index.html`.
+5. The README.md file will be converted to `docs/index.html`.
 
 Then the package will use the information in the `_pkgdown.yml` file to
 create a navbar and index pages. The navbar is configured with
@@ -54,7 +54,7 @@ navbar:
       href: reference/index.html
     - text: "Publications"
       href: articles/publications.html
-    - text: "Changelog"
+    - text: "News"
       href: news/index.html
   right:
     - icon: fa-github fa-lg
@@ -79,10 +79,10 @@ articles:
   - developer_vignette
   - mathematical_details
 ```
-By now it will have more entries to link to more vignettes. But of course it
+By now it has more entries to link to more vignettes. It
 is not necessary to use this index file. The menu entry could just as well
 point to a more elaborate file created from an .Rmd file in the vignette
-subdirecty.
+subdirecty, which might become useful in the future.
 
 The file `docs/reference/index.html` is created according to the reference:
 section in the `_pkgdown_yml` file, with a similar syntax as the article:
@@ -118,32 +118,20 @@ To get those changes reflected on the online site you will need to make
 a pull request for your changed files against the master branch of the upstream 
 repository. 
 
-Note that you should **not** commit the files from the `docs`
-directory. You should only commit the changes to the source files. Once
-your pull request is accepted, the html files in the `docs` directory are
-automatically recreated, as we will explain next. You may therefore want
-to add the `docs` directory to your `.gitignore` file.
 
 ## Github pages
 The website is hosted with [GitHubPages](https://pages.github.com/). In the
 settings pages of the mizer repository on github the source is set to
-"gh-pages branch". This branch contains all the website pages, as you can
-see at [https://github.com/gustavdelius/mizer/tree/gh-pages], and nothing 
-else. 
+"master branch/docs folder". This means that only the master branch controls
+the website.
 
-You should never push anything to this gh-pages branch directly. Instead
-these files are created automatically by Travis-CI each time it has
-completed a successful test-build of the package. Such a test build is
-automatically created whenever something is pushed to the master branch
-or a github pull request is merged into the master branch. This is set
-up in the `.travis.yml` configuration file. This is described on this
-[r-bloggers page]https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/).
 
 ## Search bar
 The search bar on the website is powered by Docsearch from Algolia.
 This is a free service for open-source projects. The set-up is
 explained in the 
 [pkgdown documentation](https://pkgdown.r-lib.org/articles/pkgdown.html#search).
+
 
 ## Embedding videos
 It is easy to embed videos into a webpage by putting an iframe into the
@@ -155,6 +143,5 @@ into the source of this page produced the following embedded video:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-Note that the github site itself (as opposed to GitHub Pages) does not support
-embedded videos. That is why we have the website homepage in index.md and
-the github homepage in README.md.
+The github site itself (as opposed to GitHub Pages) does not support
+embedded videos. 
