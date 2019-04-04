@@ -445,7 +445,7 @@ emptyParams <- function(species_params,
                         min_w = 0.001,
                         # w_full = NA,
                         max_w = NA,
-                        min_w_pp = 1e-10,
+                        min_w_pp = NA,
                         no_w_pp = NA,
                         srr = srrBevertonHolt) {
     if (!is.na(no_w_pp)) {
@@ -503,6 +503,8 @@ emptyParams <- function(species_params,
         w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
         dw <- (10^dx - 1) * w
+        # To avoid issues due to numerical imprecission
+        min_w <- w[1]
         
         # If not provided, set min_w_pp so that all fish have their full feeding
         # kernel inside plankton spectrum
@@ -510,9 +512,17 @@ emptyParams <- function(species_params,
         phis <- get_phi(species_params, ppmr)
         max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
         min_w_feeding <- species_params$w_min / max_ppmr
+        species_params <- set_species_param_default(species_params,
+                                                    "interaction_p", 1)
+        if (any(species_params$interaction_p > 0)) {
+            min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
+        } else {
+            min_w_feeding <- min_w
+        }
         if (is.na(min_w_pp)) {
             min_w_pp <- min(min_w_feeding)
         } else {
+            assert_that(min_w_pp <= min_w)
             hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
             if (length(hungry_sp) > 0) {
                 message(paste(
@@ -527,12 +537,12 @@ emptyParams <- function(species_params,
         x_pp <- rev(seq(from = log10(min_w),
                         to = log10(min_w_pp),
                         by = -dx)) - dx
-        # If min_w_pp happened to lie exactly on a grid point, we now added
-        # one grid point to much which we need to remove again
-        if (x_pp[2] == log10(min_w_pp)) {
-            x_pp <- x_pp[2:length(x_pp)]
-        }
         w_full <- c(10^x_pp, w)
+        # If min_w_pp happened to lie exactly on a grid point, we now added
+        # one grid point too much which we need to remove again
+        if (w_full[2] == min_w_pp) {
+            w_full <- w_full[2:length(w_full)]
+        }
         no_w_full <- length(w_full)
         dw_full <- (10^dx - 1) * w_full	
     # } else {
@@ -579,9 +589,11 @@ emptyParams <- function(species_params,
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
     
-    w_min_idx <- as.vector(
+    w_min_idx <- as.vector(suppressWarnings(
         tapply(species_params$w_min, 1:no_sp,
-               function(w_min, wx) max(which(wx <= w_min)), wx = w))
+               function(w_min, wx) max(which(wx <= w_min)), wx = w)))
+    # Due to rounding errors this might happen:
+    w_min_idx[w_min_idx == -Inf] <- 1
     names(w_min_idx) = species_names
     
     # Colour and linetype scales ----
@@ -954,18 +966,18 @@ setInteraction <- function(params,
     if (!is.null(interaction)) {
         # Check dims of interaction argument
         if (!identical(dim(params@interaction), dim(interaction))) {
-            stop( "interaction matrix is not of the right dimensions. Must be number of species x number of species.")
+            stop("interaction matrix is not of the right dimensions. Must be number of species x number of species.")
         }
         # Check that all values of interaction matrix are 0 - 1.
         if (!all((interaction >= 0) & (interaction <= 1))) {
-            warning("Values in the interaction matrix should be between 0 and 1")
+            stop("Values in the interaction matrix should be between 0 and 1")
         }
         # In case user has supplied names to interaction matrix, check them.
         if (!is.null(dimnames(interaction))) {
             if (!is.null(names(dimnames(interaction)))) {
                 if (!identical(names(dimnames(interaction)),
                                names(dimnames(params@interaction)))) {
-                    warning(paste0("Your interaction matrix has dimensions called: ",
+                    message(paste0("Note: Your interaction matrix has dimensions called: ",
                                    toString(names(dimnames(interaction))),
                                    ". I expected 'predator, prey'. I will now ignore your names."))
                 }
@@ -973,7 +985,7 @@ setInteraction <- function(params,
             names(dimnames(interaction)) <- names(dimnames(params@interaction))
             if (!identical(dimnames(params@interaction),
                            dimnames(interaction))) {
-                warning("Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
+                message("Note: Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
             }
         }
         params@interaction[] <- interaction
@@ -987,7 +999,7 @@ setInteraction <- function(params,
     # Check that all values of interaction vector are 0 - 1.
     if (!all((species_params$interaction_p >= 0) & 
              (species_params$interaction_p <= 1))) {
-        warning("Values in the plantkon interaction vector should be between 0 and 1")
+        stop("Values in the plantkon interaction vector should be between 0 and 1")
     }
     params@species_params$interaction_p <- species_params$interaction_p
     
@@ -1788,7 +1800,7 @@ srrBevertonHolt <- function(rdi, species_params) {
 #'
 #' If the species parameter does not yet exist in the species parameter data
 #' frame, then create it and fill it with the default. Otherwise use the default
-#' only to fill in any NAs. Optionally gives a warning message if the parameter
+#' only to fill in any NAs. Optionally gives a message if the parameter
 #' did not already exist.
 #' @param object Either a MizerParams object or a species parameter data frame
 #' @param parname A string with the name of the species parameter to set

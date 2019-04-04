@@ -4,6 +4,7 @@ data(NS_species_params)
 data(inter)
 no_sp <- nrow(NS_species_params)
 
+# test dimensions ----
 test_that("basic constructor sets dimensions properly", {
     species_params <- NS_species_params[c(6, 10, 11), ]
     species_names <- species_params$species
@@ -80,7 +81,7 @@ test_that("constructor with only species_params signature gives the right dimens
                                                  dim(test_params@psi)[1]))
 })
 
-
+# w_min_idx is correct ----
 test_that("w_min_idx is being set correctly", {
     # default - no w_min in params data so set to first size
     params <- set_multispecies_model(NS_species_params_gears, inter)
@@ -97,4 +98,37 @@ test_that("w_min_idx is being set correctly", {
     expect_true(all(params@w_min_idx[c(1:6, 8:12)] == 1))
     expect_equal(params@w_min_idx[7], max(which(params@w <= 10)), 
                  check.names = FALSE)
+})
+
+# min_w_pp is correct ----
+test_that("min_w_pp is being set correctly", {
+    sp <- NS_species_params
+    sp$pred_kernel_type = "box"
+    sp$ppmr_min <- 2
+    sp$ppmr_max <- 4
+    params <- set_multispecies_model(sp)
+    min_w_feeding <- min(params@species_params$w_min / 4)
+    expect_gte(min_w_feeding, params@w_full[1])
+    expect_lte(min_w_feeding, params@w_full[3])
+    # A single species can make a difference
+    sp$ppmr_max[1] <- 100
+    params <- set_multispecies_model(sp)
+    expect_gte(params@species_params$w_min[1] / 100, params@w_full[1])
+    expect_lte(params@species_params$w_min[1] / 100, params@w_full[2])
+    # but only if it feeds on plankton
+    sp$interaction_p <- 1
+    sp$interaction_p[1] <- 0
+    params <- set_multispecies_model(sp)
+    expect_lte(min_w_feeding, params@w_full[3])
+    # respect explicitly set min_w_pp
+    expect_error(set_multispecies_model(sp, min_w_pp = 1),
+                 "min_w_pp not less than or equal to min_w")
+    expect_message(set_multispecies_model(sp, min_w_pp = 0.001),
+                   "feeding kernels that extend below")
+    params <- set_multispecies_model(sp, min_w_pp = 0.001)
+    expect_identical(params@w_full[1], 0.001)
+    # if none of the species feed on plankton, min_w_pp = min_w
+    sp$interaction_p <- 0
+    params <- set_multispecies_model(sp)
+    expect_identical(params@w[1], params@w_full[1])
 })
