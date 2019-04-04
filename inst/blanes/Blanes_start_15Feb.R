@@ -1,15 +1,17 @@
 sp <- read.csv("inst/blanes/species_params.csv", sep = ";")
+no_sp <- nrow(sp)
 sp$k_vb[1:2] <- sp$k_vb[1:2] * 5
-sp$k_vb[c(8, 10)] <- sp$k_vb[c(8, 10)] * 4
+sp$k_vb[c(8, 10, 13)] <- sp$k_vb[c(8, 10, 13)] * 4
+sp$k_vb[13] <- sp$k_vb[13] * 6
 
-sp$interaction_p = rep(0, no_sp),
+sp$interaction_p = rep(0, no_sp)
 
 theta <- read.csv("inst/blanes/theta.csv", header = FALSE)
 theta <- t(as.matrix(theta))
 
 B <- c(detritus = 1, carrion = 1)
 
-q <- 0.8
+q <- 0.88
 n <- 0.7
 p <- 0.7
 lambda <- 2 + q - n
@@ -22,9 +24,8 @@ sp$h <- 3 * sp$k_vb / (sp$alpha * f0) * sp$w_inf^(1/3)
 sp$ks <- 0 # 0.2 * sp$h * sp$alpha * f0
 # default for rho
 no_sp <- nrow(sp)
-rho <- array(0, dim = c(no_sp, 2))
-rho[, 1] <- sp$h * f0 / (1 - f0) * sp$detQ
-rho[, 2] <- sp$h * f0 / (1 - f0) * sp$scavQ
+sp$rho_detritus <- sp$h * f0 / (1 - f0) * sp$detQ
+sp$rho_carrion <- sp$h * f0 / (1 - f0) * sp$scavQ
 # default for gamma
 lm2 <- lambda - 2
 ae <- sqrt(2 * pi) * sp$sigma * sp$beta^lm2 *
@@ -41,7 +42,7 @@ resource_dynamics <-
     list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
          "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
 
-params <- MizerParams(sp, rho = rho,
+params <- MizerParams(sp,
                       interaction = theta,
                       resource_dynamics = resource_dynamics,
                       q = q, p = p, n = n, lambda = lambda, kappa = kappa,
@@ -95,7 +96,7 @@ rdd <- getRDD(params)
 params@srr <- function(rdi, species_params) {rdd}
 
 ## Run to steady state ----
-sim <- project(params, t_max = 200)
+sim <- project(params, t_max = 100)
 #plotlyBiomass(sim)
 plotlySpectra(sim, plankton = FALSE, total = TRUE)
 
@@ -129,8 +130,6 @@ p@srr <- srrBevertonHolt
 # recruitment
 p@species_params$erepro <- r$rdd / r$rdi
 
-saveRDS(p, file = "inst/tuning/params.rds")
-
 # Recompute all species
 mumu <- getMort(p, effort = 0)
 gg <- getEGrowth(p)
@@ -163,6 +162,10 @@ for (i in (1:length(p@species_params$species))) {
         p@initial_n[i, p@w_min_idx[i]] *
         (gg0 + DW * mumu0) / rdd[i]
 }
+plotGrowthCurves(p, species = "Merluccius merluccius")
+plotGrowthCurves(p, species = "Mullus barbatus")
+
+saveRDS(p, file = "inst/tuning/params.rds")
 
 sim2 <- project(p, dt = 0.1, t_max = 100)
 plotlyBiomass(sim2)
