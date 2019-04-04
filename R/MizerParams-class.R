@@ -1616,8 +1616,10 @@ setResources <- function(params,
                       dimnames = list(sp = params@species_params$species,
                                       res = resource_names,
                                       w = signif(params@w, 3)))
-            params@initial_B <- rep(0, no_res)
-            names(params@initial_B) <- resource_names
+            if (length(params@initial_B) != no_res) {
+                params@initial_B <- rep(0, no_res)
+                names(params@initial_B) <- resource_names
+            }
         }
     }
     if (!missing(resource_params)) {
