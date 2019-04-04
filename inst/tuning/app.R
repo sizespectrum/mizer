@@ -17,7 +17,7 @@ server <- function(input, output, session) {
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
   filename <- "params.rds"
-  params(readRDS(filename))
+  params(setParams(readRDS(filename)))
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
   # Define some globals to skip certain observers
@@ -136,7 +136,7 @@ server <- function(input, output, session) {
       sliderInput("ks", "Coefficient of standard metabolism ks",
                   value = sp$ks,
                   min = signif(sp$ks / 2, 2),
-                  max = signif(sp$ks + 0.1 * 1.5, 2),
+                  max = signif((sp$ks + 0.1) * 1.5, 2),
                   step = 0.05),
       sliderInput("k", "Coefficient of activity k",
                   value = sp$k,
@@ -151,7 +151,7 @@ server <- function(input, output, session) {
                 sliderInput(res_var, 
                             paste(res, "feeding rate"),
                             value = sp[[res_var]],
-                            min = signif(sp[[res_var]] / 2, 2),
+                            min = signif(max(0, sp[[res_var]] - 0.1) / 2, 2),
                             max = signif((sp[[res_var]] + 0.1) * 1.5, 2),
                             step = 0.01)))
       }
@@ -394,7 +394,7 @@ server <- function(input, output, session) {
                         max = signif(input$l50 / 10, 2))
       updateSliderInput(session, "ks",
                         min = signif(input$ks / 2, 2),
-                        max = signif(input$ks * 1.5, 2))
+                        max = signif((input$ks + 0.1) * 1.5, 2))
       updateSliderInput(session, "w_mat",
                         min = signif(input$w_mat / 2, 2),
                         max = signif(input$w_mat * 1.5, 2))
@@ -403,7 +403,7 @@ server <- function(input, output, session) {
         for (res in names(p@resource_dynamics)) {
           res_var <- paste0("rho_", res)
           updateSliderInput(session, res_var,
-                            min = signif(input[[res_var]] / 2, 2),
+                            min = signif(max(0, input[[res_var]] - 0.1) / 2, 2),
                             max = signif((input[[res_var]] + 0.1) * 1.5, 2))
         }
       }
@@ -951,7 +951,7 @@ server <- function(input, output, session) {
     p <- params()
     fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     pred_rate <- p@interaction[, sp] * 
-      getPredRate(p, p@initial_n, p@initial_n_pp)[, fish_idx]
+      getPredRate(p, p@initial_n, p@initial_n_pp, p@initial_B)[, fish_idx]
     fishing <- getFMort(p, effort = 0)[sp, ]
     total <- colSums(pred_rate) + p@mu_b[sp, ] + fishing
     pred_rate <- pred_rate / rep(total, each = dim(pred_rate)[[1]])
