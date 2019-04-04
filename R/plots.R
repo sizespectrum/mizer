@@ -391,6 +391,7 @@ plotBiomass <- function(sim,
 #' Plot the biomass of species against time with plotly
 #' 
 #' @inherit plotBiomass params return description details seealso
+#' @inheritDotParams get_size_range_array -params
 #' @export
 plotlyBiomass <- function(sim,
              species = dimnames(sim@n)$sp[!is.na(sim@params@A)],

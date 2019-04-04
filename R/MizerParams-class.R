@@ -937,7 +937,7 @@ setParams <- function(params,
 }
 
 
-#' Set species interation matrix and plankton interaction vector
+#' Set species interation matrix
 #' 
 #' @section Setting interactions:
 #' 
@@ -963,33 +963,35 @@ setParams <- function(params,
 #' @export
 setInteraction <- function(params,
                            interaction = NULL) {
-    if (!is.null(interaction)) {
-        # Check dims of interaction argument
-        if (!identical(dim(params@interaction), dim(interaction))) {
-            stop("interaction matrix is not of the right dimensions. Must be number of species x number of species.")
-        }
-        # Check that all values of interaction matrix are 0 - 1.
-        if (!all((interaction >= 0) & (interaction <= 1))) {
-            stop("Values in the interaction matrix should be between 0 and 1")
-        }
-        # In case user has supplied names to interaction matrix, check them.
-        if (!is.null(dimnames(interaction))) {
-            if (!is.null(names(dimnames(interaction)))) {
-                if (!identical(names(dimnames(interaction)),
-                               names(dimnames(params@interaction)))) {
-                    message(paste0("Note: Your interaction matrix has dimensions called: ",
-                                   toString(names(dimnames(interaction))),
-                                   ". I expected 'predator, prey'. I will now ignore your names."))
-                }
-            }
-            names(dimnames(interaction)) <- names(dimnames(params@interaction))
-            if (!identical(dimnames(params@interaction),
-                           dimnames(interaction))) {
-                message("Note: Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
-            }
-        }
-        params@interaction[] <- interaction
+    assert_that(is(params, "MizerParams"))
+    if (is.null(interaction)) {
+        interaction <- params@interaction
     }
+    # Check dims of interaction argument
+    if (!identical(dim(params@interaction), dim(interaction))) {
+        stop("interaction matrix is not of the right dimensions. Must be number of species x number of species.")
+    }
+    # Check that all values of interaction matrix are 0 - 1.
+    if (!all((interaction >= 0) & (interaction <= 1))) {
+        stop("Values in the interaction matrix must be between 0 and 1")
+    }
+    # In case user has supplied names to interaction matrix, check them.
+    if (!is.null(dimnames(interaction))) {
+        if (!is.null(names(dimnames(interaction)))) {
+            if (!identical(names(dimnames(interaction)),
+                           names(dimnames(params@interaction)))) {
+                message(paste0("Note: Your interaction matrix has dimensions called: `",
+                               toString(names(dimnames(interaction))),
+                               "`. I expected 'predator, prey'. I will now ignore your names."))
+            }
+        }
+        names(dimnames(interaction)) <- names(dimnames(params@interaction))
+        if (!identical(dimnames(params@interaction),
+                       dimnames(interaction))) {
+            message("Note: Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
+        }
+    }
+    params@interaction[] <- interaction
     
     # Check the interaction_p column in species_params
     message <- "Note: No interaction_p column in species data frame so assuming all species feed on plankton."
@@ -1040,7 +1042,7 @@ setInteraction <- function(params,
 #' bins. Instead mizer only needs to store two two-dimensional arrays that hold
 #' Fourier transforms of the feeding kernel function that allow the encounter
 #' rate and the predation rate to be calculated very efficiently. However, if
-#' you need the full three-dimensional array you can calculat it with the
+#' you need the full three-dimensional array you can calculate it with the
 #' \code{\link{getPredKernel}} function.
 #' 
 #' \strong{Kernel dependent on both predator and prey size}
@@ -1048,6 +1050,7 @@ setInteraction <- function(params,
 #' If you want to work with a feeding kernel that depends on predator mass and
 #' prey mass independently, you can specify the full feeding kernel as a
 #' three-dimensional array (predator species x predator size x prey size).
+#' The dimensions are thus (no_sp, no_w, no_w_full). 
 #'
 #' You should use this option only if a kernel dependent only on the
 #' predator/prey mass ratio is not appropriate. Using a kernel dependent on
@@ -1061,8 +1064,8 @@ setInteraction <- function(params,
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
-#'   size. The dimensions are thus (no_sp, no_w, no_w_full). If not supplied,
-#'   a default is set as described in section "Setting predation kernel".
+#'   size. If not supplied, a default is set as described in section "Setting
+#'   predation kernel".
 #' 
 #' @return A MizerParams object
 #' @export
@@ -1093,16 +1096,18 @@ setInteraction <- function(params,
 #' }
 setPredKernel <- function(params,
                           pred_kernel = NULL) {
+    assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
-        if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
-            stop("The pred_kerel has the wrong dimensions")
-        }
+        assert_that(is.array(pred_kernel))
+        assert_that(identical(dim(pred_kernel), 
+                              c(dim(params@psi), length(params@w_full))))
         if (!is.null(dimnames(pred_kernel)) && 
             !all(dimnames(pred_kernel)[[1]] == params@species_params$species)) {
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(params@species_params$species)))
         }
+        assert_that(all(pred_kernel >= 0))
         dimnames(pred_kernel) <- 
             list(sp = params@species_params$species,
                  w_pred = signif(params@w, 3),
@@ -1155,7 +1160,7 @@ setPredKernel <- function(params,
 #' @export
 getPredKernel <- function(params) {
     assert_that(is(params, "MizerParams"))
-    if (!is.na(params@pred_kernel)) {
+    if (length(dim(params@pred_kernel)) > 1) {
         return(params@pred_kernel)
     }
     species_params <- set_species_param_default(params@species_params,
@@ -1212,46 +1217,27 @@ getPredKernel <- function(params) {
 setSearchVolume <- function(params, 
                             search_vol = NULL,
                             q) {
+    assert_that(is(params, "MizerParams"))
+    assert_that(is.number(q))
     species_params <- params@species_params
     params@q <- q
     # If gamma array is supplied, check it, store it and return
     if (!is.null(search_vol)) {
-        if (!identical(dim(search_vol), dim(params@search_vol))) {
-            stop("The search_vol array has the wrong dimensions.")
-        }
+        assert_that(is.array(search_vol))
+        assert_that(identical(dim(search_vol), dim(params@search_vol)))
         if (!is.null(dimnames(search_vol)) && 
             !all(dimnames(search_vol)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species in the search_vol array as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(search_vol > 0))
         params@search_vol[] <- search_vol
         return(params)
     }
     # Calculate default for any missing gammas
-    if (!("gamma" %in% colnames(species_params))) {
-        species_params$gamma <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$gamma)
-    if (any(missing)) {
-        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        lm2 <- params@lambda - 2
-        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
-            exp(lm2^2 * species_params$sigma^2 / 2) *
-            # The factor on the following lines takes into account the cutoff
-            # of the integral at 0 and at beta + 3 sigma
-            (pnorm(3 - lm2 * species_params$sigma) + 
-                 pnorm(log(species_params$beta)/species_params$sigma + 
-                           lm2 * species_params$sigma) - 1)
-        gamma_default <- (species_params$h / (params@kappa * ae)) * 
-            (params@f0 / (1 - params@f0))
-        # Only overwrite missing gammas with calculated values
-        if (any(is.na(gamma_default[missing]))) {
-            stop("Could not calculate gamma.")
-        }
-        species_params$gamma[missing] <- gamma_default[missing]
-    }
-    params@species_params$gamma <- species_params$gamma
-    params@search_vol[] <- outer(species_params$gamma, params@w^q)
+    params@species_params$gamma <- get_gamma_default(params)
+    
+    params@search_vol[] <- outer(params@species_params$gamma, params@w^q)
     return(params)
 }
 
@@ -1280,43 +1266,28 @@ setSearchVolume <- function(params,
 #' @return MizerParams
 #' @export
 setIntakeMax <- function(params, intake_max = NULL, n) {
+    assert_that(is(params, "MizerParams"))
+    assert_that(is.number(n))
     species_params <- params@species_params
     params@n <- n
     
-    # If h array is supplied, check it, store it and return
+    # If intake_max array is supplied, check it, store it and return
     if (!is.null(intake_max)) {
-        if (!identical(dim(intake_max), dim(params@intake_max))) {
-            stop("The intake_max array has the wrong dimensions.")
-        }
+        assert_that(is.array(intake_max),
+                    identical(dim(intake_max), dim(params@intake_max)))
         if (!is.null(dimnames(intake_max)) && 
             !all(dimnames(intake_max)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species in the intake_max array as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(intake_max > 0))
         params@intake_max[] <- intake_max
         return(params)
     }
     
-    # If gamma vector is supplied, check it and put it into species params
-    if (!("h" %in% colnames(species_params))) {
-        species_params$h <- rep(NA, nrow(species_params))
-    }
-    if (any(is.na(species_params$h))) {
-        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
-        if (!("k_vb" %in% colnames(species_params))) {
-            stop("\tExcept I can't because there is no k_vb column in the species data frame")
-        }
-        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
-            (species_params$w_inf ^ (1/3))
-        # Only overwrite missing h with calculated values
-        missing <- is.na(species_params$h)
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
-        }
-        species_params$h[missing] <- h[missing]
-        params@species_params$h <- species_params$h
-    }
-    params@intake_max[] <- outer(species_params$h, params@w^params@n)
+    params@species_params$h <- get_h_default(params)
+    
+    params@intake_max[] <- outer(params@species_params$h, params@w^params@n)
     return(params)
 }
 
@@ -1336,44 +1307,34 @@ setIntakeMax <- function(params, intake_max = NULL, n) {
 #' @return MizerParams
 #' @export
 setMetab <- function(params, metab = NULL, p) {
+    assert_that(is(params, "MizerParams"),
+                is.number(p))
     species_params <- params@species_params
     params@p <- p
     if (!is.null(metab)) {
-        if (!identical(dim(metab), dim(params@metab))) {
-            stop("The metab array has the wrong dimensions.")
-        }
+        assert_that(is.array(metab),
+                    identical(dim(metab), dim(params@metab)))
         if (!is.null(dimnames(metab)) && 
             !all(dimnames(metab)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(metab > 0))
         params@metab[] <- metab
         return(params)
     }
     
-    # If no k (activity coefficient), then set to 0
-    if (!("k" %in% colnames(species_params))) {
-        species_params$k <- rep(NA, nrow(species_params))
+    if (anyNA(params@species_params$h)) {
+        params@species_params$h <- get_h_default(params)
     }
-    missing <- is.na(species_params$k)
-    if (any(missing)) {
-        species_params$k[missing] <- 0
-    }
-    
-    # Sort out ks column
-    if (!("ks" %in% colnames(species_params))) {
-        message("Note: No ks column in species data frame so using ks = h * 0.2.")
-        species_params$ks <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$ks)
-    if (any(missing)) {
-        species_params$ks[missing] <- species_params$h[missing] * 0.2
-        params@species_params$ks <- species_params$ks
-    }
-    
+    params <- set_species_param_default(params, "k", 0)
+    message <- ("Note: No ks column in species data frame so using ks = h * 0.2.")
+    params <- set_species_param_default(params, "ks",
+                                        params@species_params$h * 0.2,
+                                        message)
     params@metab[] <- 
-        outer(species_params$ks, params@w^p) +
-        outer(species_params$k, params@w)
+        outer(params@species_params$ks, params@w^p) +
+        outer(params@species_params$k, params@w)
     return(params)
 }
 
@@ -1396,25 +1357,22 @@ setMetab <- function(params, metab = NULL, p) {
 #' @return MizerParams
 #' @export
 setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
+    assert_that(is(params, "MizerParams"))
     if (!is.null(mu_b)) {
-        assert_that(is.array(mu_b))
-        assert_that(dim(mu_b) == dim(params@mu_b))
-        params@mu_b <- mu_b
+        assert_that(is.array(mu_b),
+                    identical(dim(mu_b), dim(params@mu_b)))
+        params@mu_b[] <- mu_b
         return(params)
     }
+    assert_that(is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
     species_params <- params@species_params
-    
+    assert_that(noNA(species_params$w_inf))
     # Sort out z0 (background mortality)
-    if (!("z0" %in% colnames(species_params))) {
-        species_params$z0 <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$z0)
-    if (any(missing)) {
-        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
-        species_params$z0[missing] <- z0pre * species_params$w_inf[missing]^z0exp
-        params@species_params$z0 <- species_params$z0
-    }
-    
+    message <- ("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+    params <- set_species_param_default(params, "z0",
+                                        z0pre * species_params$w_inf^z0exp,
+                                        message)
     params@mu_b[] <- params@species_params$z0
     return(params)
 }
@@ -1456,20 +1414,22 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' @return The MizerParams object with the updated \code{psi} slot.
 #' @export
 setReproduction <- function(params, psi = NULL) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     
     # If no erepro (reproductive efficiency), then set to 1
     params <- set_species_param_default(params, "erepro", 1)
+    assert_that(all(params@species_params$erepro > 0))
     
     if (!is.null(psi)) {
-        if (!identical(dim(psi), dim(params@psi))) {
-            stop("The psi array has the wrong dimensions.")
-        }
+        assert_that(is.array(psi),
+                    identical(dim(psi), dim(params@psi)))
         if (!is.null(dimnames(psi)) && 
             !all(dimnames(psi)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(psi >= 0 && psi <= 1))
         params@psi[] <- psi
         return(params)
     }
@@ -1576,8 +1536,13 @@ setPlankton <- function(params,
                         r_pp = 10, 
                         w_pp_cutoff = 10,
                         plankton_dynamics = plankton_semichemostat) {
-    # TODO: check arguments
-    assert_that(r_pp > 0)
+    assert_that(is(params, "MizerParams"),
+                is.number(kappa), kappa > 0,
+                is.number(lambda),
+                is.number(r_pp), r_pp > 0,
+                is.number(w_pp_cutoff),
+                is.function(plankton_dynamics),
+                is.number(params@n))
     params@kappa <- kappa
     params@lambda <- lambda
     # weight specific plankton growth rate
@@ -1607,6 +1572,7 @@ setPlankton <- function(params,
 setResources <- function(params,
                          resource_dynamics,
                          resource_params) {
+    assert_that(is(params, "MizerParams"))
     if (!missing(resource_dynamics)) {
         assert_that(is.list(resource_dynamics))
         no_res <- length(resource_dynamics)
@@ -1673,6 +1639,8 @@ setResources <- function(params,
 #' @return A MizerParams object
 #' @export
 setResourceEncounter <- function(params, rho = NULL, n) {
+    assert_that(is(params, "MizerParams"),
+                is.number(n))
     params@n <- n
     if (is.null(rho)) {
         # Use columns in species_params
@@ -1688,9 +1656,8 @@ setResourceEncounter <- function(params, rho = NULL, n) {
         return(params)
     }
     # Check validity of arguments
-    if (!length(dim(rho)) %in% c(2, 3)) {
-        stop("The rho argument must be a two- or three-dimensional array.")
-    }
+    assert_that(is.array(rho),
+                length(dim(rho)) == 3)
     if (nrow(params@species_params) != dim(rho)[1]) {
         stop("The first dimension of the rho argument should equal the number of species.")
     }
@@ -1702,13 +1669,10 @@ setResourceEncounter <- function(params, rho = NULL, n) {
         assert_that(are_equal(dimnames(rho)["res"],
                               names(params@resource_dynamics)))
     }
-    if (length(dim(rho)) == 2) {
-        rho <- outer(rho, params@w^n)
-    } else {
-        if (length(params@w) != dim(rho)[3]) {
+    if (length(params@w) != dim(rho)[3]) {
             stop("The third dimension of the rho array should have one entry for every consumer size.")
-        }
     }
+    assert_that(all(rho > 0))
     params@rho[] <- rho
     params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
     
@@ -1726,6 +1690,7 @@ setResourceEncounter <- function(params, rho = NULL, n) {
 #' @return MizerParams object
 #' @export
 setFishing <- function(params) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     
@@ -1896,4 +1861,86 @@ get_phi <- function(species_params, ppmr) {
         phis[i, ] <- phi
     }
     return(phis)
+}
+
+#' Get default value for h
+#' 
+#' Fills in any missing values for h according to the formula
+#' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
+#' @param params A MizerParams object
+#' @return A vector with the values of h for all species
+#' @export
+#' @keywords internal
+get_h_default <- function(params) {
+    species_params <- params@species_params
+    if (!("h" %in% colnames(species_params))) {
+        species_params$h <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$h)
+    if (any(missing)) {
+        assert_that(is.number(params@f0),
+                    noNA(species_params$alpha))
+        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
+        if (!("k_vb" %in% colnames(species_params))) {
+            stop("\tExcept I can't because there is no k_vb column in the species data frame")
+        }
+        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
+            (species_params$w_inf ^ (1/3))
+        if (any(is.na(h[missing]))) {
+            stop("Could not calculate h, perhaps k_vb is missing?")
+        }
+        species_params$h[missing] <- h[missing]
+    }
+    return(species_params$h)
+}
+
+
+#' Get default value for gamma
+#' 
+#' Fills in any missing values for gamma so that if the prey abundance was
+#' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
+#' would lead to the feeding level \eqn{f_0}. Only for internal use.
+#' 
+#' Currently this is implemented only for the lognormal predation kernel and uses
+#' an analytic expression for the encounter rate, but in future we can do this
+#' numerically for any predation kernel. Also currently feeding on unstructured
+#' resources is not taken into account.
+#' @param params A MizerParams object
+#' @return A vector with the values of gamma for all species
+#' @export
+#' @keywords internal
+get_gamma_default <- function(params) {
+    species_params <- params@species_params
+    if (!("gamma" %in% colnames(species_params))) {
+        species_params$gamma <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$gamma)
+    if (any(missing)) {
+        if (!all(params@species_params$pred_kernel_type == "lognormal")) {
+            stop("Calculation of a default for gamma has not yet been implemented for kernels that are not lognormal, so you will have to supply a gamma column in the species_params data frame.")
+        }
+        assert_that(is.number(params@lambda),
+                    is.number(params@kappa),
+                    is.number(params@f0))
+        message("Note: Using f0, h, beta, sigma, lambda and kappa to calculate gamma.")
+        lm2 <- params@lambda - 2
+        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
+            exp(lm2^2 * species_params$sigma^2 / 2) *
+            # The factor on the following lines takes into account the cutoff
+            # of the integral at 0 and at beta + 3 sigma
+            (pnorm(3 - lm2 * species_params$sigma) + 
+                 pnorm(log(species_params$beta)/species_params$sigma + 
+                           lm2 * species_params$sigma) - 1)
+        if (anyNA(species_params$h)) {
+            species_params$h <- get_h_default(params)
+        }
+        gamma_default <- (species_params$h / (params@kappa * ae)) * 
+            (params@f0 / (1 - params@f0))
+        # Only overwrite missing gammas with calculated values
+        if (any(is.na(gamma_default[missing]))) {
+            stop("Could not calculate gamma.")
+        }
+        species_params$gamma[missing] <- gamma_default[missing]
+    }
+    return(species_params$gamma)
 }

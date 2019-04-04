@@ -279,6 +279,7 @@ getYield <- function(sim) {
 #'   precedence over \code{min_w}.
 #' @param max_l Largest length in size range. If supplied, this takes precedence
 #'   over \code{max_w}.
+#' @param ... Unused
 #'   
 #' @return Boolean array (species x size)
 #' 

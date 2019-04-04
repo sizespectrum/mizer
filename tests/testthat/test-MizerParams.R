@@ -3,6 +3,7 @@ data(NS_species_params_gears)
 data(NS_species_params)
 data(inter)
 no_sp <- nrow(NS_species_params)
+params <- set_multispecies_model(NS_species_params, inter)
 
 # test dimensions ----
 test_that("basic constructor sets dimensions properly", {
@@ -61,24 +62,23 @@ test_that("basic constructor sets dimensions properly", {
 })
 
 test_that("constructor with species_params and interaction signature gives the right dimensions", {
-    test_params <- set_multispecies_model(NS_species_params, inter)
-    expect_that(test_params, is_a("MizerParams"))
-    expect_equal(dim(test_params@psi)[1], nrow(NS_species_params))
-    expect_equal(dimnames(test_params@psi)$sp, as.character(NS_species_params$species))
-    expect_equal(dimnames(test_params@selectivity)$gear, dimnames(test_params@selectivity)$sp)
-    test_params_gears <- set_multispecies_model(NS_species_params_gears, inter)  
-    expect_equal(unique(dimnames(test_params_gears@selectivity)$gear), 
-                as.character(unique(test_params_gears@species_params$gear)))
+    expect_that(params, is_a("MizerParams"))
+    expect_equal(dim(params@psi)[1], nrow(NS_species_params))
+    expect_equal(dimnames(params@psi)$sp, as.character(NS_species_params$species))
+    expect_equal(dimnames(params@selectivity)$gear, dimnames(params@selectivity)$sp)
+    params_gears <- set_multispecies_model(NS_species_params_gears, inter)  
+    expect_equal(unique(dimnames(params_gears@selectivity)$gear), 
+                as.character(unique(params_gears@species_params$gear)))
     # pass in other arguments
-    test_params_gears <- set_multispecies_model(NS_species_params_gears, inter, no_w = 50)  
-    expect_length(test_params_gears@w, 50)
+    params_gears <- set_multispecies_model(NS_species_params_gears, inter, no_w = 50)  
+    expect_length(params_gears@w, 50)
 })
 
 test_that("constructor with only species_params signature gives the right dimensions", {
-    test_params <- set_multispecies_model(NS_species_params)  
-    expect_true(all(test_params@interaction == 1))
-    expect_equal(dim(test_params@interaction), c(dim(test_params@psi)[1],
-                                                 dim(test_params@psi)[1]))
+    params <- set_multispecies_model(NS_species_params)  
+    expect_true(all(params@interaction == 1))
+    expect_equal(dim(params@interaction), c(dim(params@psi)[1],
+                                                 dim(params@psi)[1]))
 })
 
 # w_min_idx is correct ----
@@ -102,7 +102,7 @@ test_that("w_min_idx is being set correctly", {
 
 # min_w_pp is correct ----
 test_that("min_w_pp is being set correctly", {
-    sp <- NS_species_params
+    sp <- params@species_params
     sp$pred_kernel_type = "box"
     sp$ppmr_min <- 2
     sp$ppmr_max <- 4

@@ -47,16 +47,56 @@ test_that("get_phi works", {
     expect_identical(phi[1, 5], 0)
 })
 
+
+## setInteraction ----
+test_that("setInteraction works", {
+    expect_identical(setInteraction(params, interaction = params@interaction),
+                     params)
+    inter <- matrix(1/2, nrow = no_sp, ncol = no_sp)
+    p2 <- setInteraction(params, inter)
+    expect_equivalent(p2@interaction, inter)
+    inter[1, 1] <- 2
+    expect_error(setInteraction(params, inter),
+                 "Values in the interaction matrix must be between 0 and 1")
+    expect_error(setInteraction(params, inter[1:(no_sp - 1), ]),
+                 "interaction matrix is not of the right dimensions")
+    inter[1, 1] <- 0
+    dimnames(inter) <- list(sp = params@species_params$species,
+                            sp = params@species_params$species)
+    expect_message(setInteraction(params, inter),
+                 "Your interaction matrix has dimensions called: `sp, sp`. I expected 'predator, prey'")
+    dimnames(inter) <- list(predator = rev(params@species_params$species),
+                            prey = params@species_params$species)
+    expect_message(setInteraction(params, inter),
+                   "Dimnames of interaction matrix do not match")
+    params@species_params$interaction_p <- -1
+    expect_error(setInteraction(params),
+                 "Values in the plantkon interaction vector should be between 0 and 1")
+})
+
 ## setPredKernel ----
 test_that("setPredKernel works", {
     expect_identical(setPredKernel(params), params)
+    expect_identical(setPredKernel(params, pred_kernel = NULL), 
+                     params)
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 2
     expect_error(setPredKernel(params), 
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
     p2 <- setPredKernel(params)
+    pred_kernel <- getPredKernel(params)
+    expect_error(setPredKernel(params, pred_kernel[1:2, ]),
+                 "incorrect number of dimensions")
+    expect_error(setPredKernel(params, pred_kernel - 1),
+                 "pred_kernel >= 0 are not true")
+    p2 <- setPredKernel(params, pred_kernel)
+    expect_equal(p2@ft_pred_kernel_e, array())
+    expect_equal(p2@ft_pred_kernel_p, array())
+    expect_equivalent(p2@pred_kernel, pred_kernel)
+    expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
+
 
 ## setResourceEncounter ----
 test_that("setResourceEncounter works", {
