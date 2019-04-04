@@ -1,4 +1,5 @@
 sp <- read.csv("inst/blanes/species_params.csv", sep = ";")
+
 no_sp <- nrow(sp)
 sp$k_vb[1:2] <- sp$k_vb[1:2] * 5
 sp$k_vb[c(8, 10, 13)] <- sp$k_vb[c(8, 10, 13)] * 4
@@ -21,7 +22,7 @@ sp$alpha <- 0.1
 # default for h and ks
 f0 <- 0.6
 sp$h <- 3 * sp$k_vb / (sp$alpha * f0) * sp$w_inf^(1/3)
-sp$ks <- 0 # 0.2 * sp$h * sp$alpha * f0
+sp$ks <- 0# 0.2 * sp$h * sp$alpha * f0
 # default for rho
 no_sp <- nrow(sp)
 sp$rho_detritus <- sp$h * f0 / (1 - f0) * sp$detQ
@@ -164,6 +165,12 @@ for (i in (1:length(p@species_params$species))) {
 }
 plotGrowthCurves(p, species = "Merluccius merluccius")
 plotGrowthCurves(p, species = "Mullus barbatus")
+
+cum_biomass <- cumsum(p@initial_n["Mullus barbatus", ] * p@w * p@dw)
+cutoff_idx <- which.max(p@w >= 3)
+biomass_model <- max(cum_biomass) - cum_biomass[cutoff_idx]
+p@initial_n <- p@initial_n * 1.84 / biomass_model
+
 
 saveRDS(p, file = "inst/tuning/params.rds")
 
