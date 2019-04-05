@@ -4,7 +4,15 @@ data(NS_species_params_gears)
 data(inter)
 params <- set_multispecies_model(NS_species_params_gears, inter)
 sim <- project(params, effort = 1, t_max = 10)
+no_sp <- nrow(NS_species_params)
+no_w <- length(params@w)
 
+# Random abundances
+set.seed(0)
+n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
+n_pp <- abs(rnorm(length(params@w_full)))
+
+## get_size_range_array ----
 test_that("get_size_range_array",{
     NS_species_params_gears$a <- 0.01
     NS_species_params_gears$b <- 3
@@ -68,6 +76,7 @@ test_that("get_size_range_array",{
     expect_that(get_size_range_array(no_ab_params, min_l = 1, max_w = 100), throws_error())
 })
 
+# get_time_elements ----
 test_that("get_time_elements",{
     sim <- project(params, effort=1, t_max=10, dt = 0.5, t_save = 0.5)
     expect_equal(length(get_time_elements(sim, as.character(3:4))),
@@ -87,6 +96,7 @@ test_that("get_time_elements",{
 })
 
 
+# getProportionOfLargeFish ----
 test_that("getProportionOfLargeFish works",{
     sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
     # noddy test - using full range of sizes
@@ -108,6 +118,7 @@ test_that("getProportionOfLargeFish works",{
 })
 
 
+# check_species ----
 test_that("check_species works",{
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     expect_that(check_species(sim,c("Cod","Haddock")), is_true())
@@ -117,6 +128,8 @@ test_that("check_species works",{
 
 })
 
+
+# getMeanWeight ----
 test_that("getMeanWeight works",{
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
     # all species, all size range
@@ -153,7 +166,16 @@ test_that("getMeanWeight works",{
     expect_known_value(mw, "values/getMeanWeight")
 })
 
+# getMeanMaxWeight ----
+test_that("getMeanMaxWeight works", {
+    expect_error(getMeanMaxWeight(sim, measure = NA),
+                 "measure must be one of")
+    expect_known_value(getMeanMaxWeight(sim, measure = "both"),
+                       "values/getMeanMaxWeight")
+})
 
+
+# getYieldGear ----
 test_that("getYieldGear works",{
     y <- getYieldGear(sim)
     # check dims
@@ -166,6 +188,8 @@ test_that("getYieldGear works",{
     expect_known_value(y, "values/getYieldGear")
 })
 
+
+# getYield ----
 test_that("getYield works",{
     y <- getYield(sim)
     # check dims
@@ -178,6 +202,8 @@ test_that("getYield works",{
     expect_known_value(y, "values/getYield")
 })
 
+
+# getCommunitySlope ----
 test_that("getCommunitySlope works",{
     slope_b <- getCommunitySlope(sim)
     # dims
@@ -219,4 +245,32 @@ test_that("getCommunitySlope works",{
     expect_that(slope_b3[dim(sim@n)[1],"intercept"],equals(summary(lm_res)$coefficients[1,1]))
     # numeric test
     expect_known_value(slope_b3, "values/getCommunitySlope")
+})
+
+
+# getDiet ----
+test_that("getDiet works", {
+    diet <- getDiet(sim@params, n, n_pp)
+    expect_known_value(diet, "values/getDiet")
+    params <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    expect_equal(diet, getDiet(params, n, n_pp))
+})
+
+
+# getSSB ----
+test_that("getSSB works", {
+    ssb <- getSSB(sim)
+    expect_known_value(ssb, "values/getSSB")
+})
+
+# getBiomass ----
+test_that("getBiomass works", {
+    biomass <- getBiomass(sim)
+    expect_known_value(biomass, "values/getBiomass")
+})
+
+# getN ----
+test_that("getN works", {
+    N <- getN(sim)
+    expect_known_value(N, "values/getN")
 })

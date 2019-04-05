@@ -64,13 +64,19 @@ NULL
 #' @concept summary_function
 getDiet <- function(params, n, n_pp) {
     # The code is based on that for getEncounter()
-    no_sp <- dim(n)[1]
-    no_w <- dim(n)[2]
-    no_w_full <- length(n_pp)
+    assert_that(is(params, "MizerParams"),
+                is.array(n),
+                is.vector(n_pp))
+    species <- params@species_params$species
+    no_sp <- length(species)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    assert_that(identical(dim(n), c(no_sp, no_w)),
+                length(n_pp) == no_w_full)
     diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
-                  dimnames = list("predator" = dimnames(n)$sp,
+                  dimnames = list("predator" = species,
                                   "w" = dimnames(n)$w,
-                                  "prey" = c(dimnames(n)$sp, "plankton")))
+                                  "prey" = c(species, "plankton")))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -144,7 +150,8 @@ getDiet <- function(params, n, n_pp) {
 #' getSSB(sim)
 #' }
 getSSB <- function(sim) {
-    ssb <- apply(sweep(sweep(sim@n, c(2,3), sim@params@psi,"*"), 3, 
+    assert_that(is(sim, "MizerSim"))
+    ssb <- apply(sweep(sweep(sim@n, c(2,3), sim@params@maturity,"*"), 3, 
                        sim@params@w * sim@params@dw, "*"), c(1, 2), sum) 
     return(ssb)
 }
@@ -176,6 +183,7 @@ getSSB <- function(sim) {
 #' getBiomass(sim, min_w = 10, max_w = 1000)
 #' }
 getBiomass <- function(sim, ...) {
+    assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
     biomass <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                            sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
@@ -208,6 +216,7 @@ getBiomass <- function(sim, ...) {
 #' getN(sim, min_w = 10, max_w = 1000)
 #' }
 getN <- function(sim, ...) {
+    assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
     n <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                      sim@params@dw, "*"), c(1, 2), sum)
