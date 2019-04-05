@@ -775,7 +775,8 @@ set_multispecies_model <- function(species_params,
                                    z0pre = 0.6,
                                    z0exp = n - 1,
                                    # setReproduction
-                                   psi = NULL,
+                                   maturity = NULL,
+                                   repro_prop = NULL,
                                    # setPlankton
                                    r_pp = 10,
                                    w_pp_cutoff = 10,
@@ -821,7 +822,8 @@ set_multispecies_model <- function(species_params,
                         z0pre = z0pre,
                         z0exp = z0exp,
                         # setReproduction
-                        psi = psi,
+                        maturity = maturity,
+                        repro_prop = repro_prop,
                         # setPlankton
                         kappa = kappa,
                         lambda = lambda,
@@ -916,7 +918,8 @@ setParams <- function(params,
                       z0pre = 0.6,
                       z0exp = n - 1,
                       # setReproduction
-                      psi = NULL,
+                      maturity = NULL,
+                      repro_prop = NULL,
                       # setPlankton
                       kappa = params@kappa,
                       lambda = params@lambda,
@@ -946,7 +949,8 @@ setParams <- function(params,
                               search_vol = search_vol,
                               q = q)
     params <- setReproduction(params, 
-                              psi = psi)
+                              maturity = maturity,
+                              repro_prop = repro_prop)
     params <- setPlankton(params,
                           kappa = kappa,
                           lambda = lambda,
@@ -1137,6 +1141,7 @@ setPredKernel <- function(params,
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
         assert_that(is.array(pred_kernel))
+        # psi is used in the next line just because it has the right dimension
         assert_that(identical(dim(pred_kernel), 
                               c(dim(params@psi), length(params@w_full))))
         if (!is.null(dimnames(pred_kernel)) && 
@@ -1439,56 +1444,57 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' individual and sets the reproductive efficiency.
 #' 
 #' @section Setting reproduction:
-#' If the \code{psi} argument is not supplied,
-#' the proportion is set to the product of a sigmoidal maturity ogive that 
-#' gives the proportion of individuals of a given species and size that are
-#' mature, and a factor that describes how investment into reproduction by mature
-#' individuals scales with size. In formulas:
-#' \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-#'   [1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
-#' Here \eqn{n} is the scaling exponent of the energy income rate.
-#' The exponent \eqn{m} determines the scaling of the investment into
-#' reproduction for mature individuals. By default it is chosen to be \eqn{m =
-#' 1} so that the rate at which energy is invested into reproduction scales
-#' linearly with the size. This default can be overridden by including a column
-#' \code{m} in the species parameter dataframe.
+#' For each species and at each size, the proportion of the available energy 
+#' that is invested into reproduction is the product of two factors: the
+#' proportion `maturity` of individuals that are mature and the proportion
+#' `repro_prop` of the energy available to a mature individual that is 
+#' invested into reproduction.
 #' 
-#' The exponent \eqn{U} determines the steepness of the maturity ogive. By default it is
-#' chosen as \eqn{U = 10}, however this can be overridden by including a 
-#' column \code{w_mat25} in the species parameter dataframe that specifies the weight
-#' at which 25\% of individuals are mature, which sets 
+#' If the \code{maturity} argument is not supplied, it is set to a sigmoidal 
+#' maturity ogive
+#' \deqn{{\tt maturity}_i(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
+#'   maturity_i(w) = [1+(w/w_mat)^(-U)]^(-1)}
+#' The exponent \eqn{U} determines the steepness of the maturity ogive. By
+#' default it is chosen as \eqn{U = 10}, however this can be overridden by
+#' including a column \code{w_mat25} in the species parameter dataframe that
+#' specifies the weight at which 25\% of individuals are mature, which sets
 #' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
 #' 
-#' @param params A MizerParams object
-#' @param psi Optional. An array (species x size) that holds the allocation to
-#'   reproduction for each species at size. If not supplied, a default is set
-#'   as described in the section "Setting reproduction".
+#' If the \code{repro_prop} argument is not supplied, it is set to the
+#' allometric form
+#' \deqn{{\tt repro_prop}_i(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}/
+#'   {\tt maturity}_i(w_{inf}).}{
+#'   repro_prop_i = (w/w_inf)^(m - n) / maturity_i(w_inf)}
+#' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
+#' the exponent \eqn{m} determines the scaling of the investment into
+#' reproduction for mature individuals. By default it is chosen to be 
+#' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
+#' scales linearly with the size. This default can be overridden by including a 
+#' column \code{m} in the species parameter dataframe.
 #' 
-#' @return The MizerParams object with the updated \code{psi} slot.
+#' The reproductive efficiency, i.e., the proportion of energy allocated to
+#' reproduction that results in offspring biomass, is set from the 
+#' \code{erepro} column in the species_params data frame. If that is not
+#' provided the default is set to 1 (which you will want to override).
+#' 
+#' @param params A MizerParams object
+#' @param maturity Optional. An array (species x size) that holds the proportion
+#'   of individuals of each species at size that are mature. If not supplied, a
+#'   default is set as described in the section "Setting reproduction".
+#' @param repro_prop Optional. An array (species x size) that holds the
+#'   proportion of consumed energy that a mature individual allocates to
+#'   reproduction for each species at size. If not supplied, a default is set as
+#'   described in the section "Setting reproduction".
+#' 
+#' @return The MizerParams object.
 #' @export
-setReproduction <- function(params, psi = NULL) {
+setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
-    # This is where I will set the new maturity slot
     
     # If no erepro (reproductive efficiency), then set to 1
     params <- set_species_param_default(params, "erepro", 1)
     assert_that(all(params@species_params$erepro > 0))
-    
-    if (!is.null(psi)) {
-        assert_that(is.array(psi),
-                    identical(dim(psi), dim(params@psi)))
-        if (!is.null(dimnames(psi)) && 
-            !all(dimnames(psi)[[1]] == species_params$species)) {
-            stop(paste0("You need to use the same ordering of species as in the ",
-                        "params object: ", toString(species_params$species)))
-        }
-        assert_that(all(psi >= 0 && psi <= 1))
-        params@psi[] <- psi
-        return(params)
-    }
-    
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
         stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
@@ -1507,63 +1513,85 @@ setReproduction <- function(params, psi = NULL) {
     #     params@species_params$w_inf[i] < params@w[idx]
     # }
     
-    # Check maturity sizes
-    if (!("w_mat" %in% colnames(species_params))) {
-        stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
-    }
-    missing <- is.na(species_params$w_mat)
-    if (any(missing)) {
-        stop(paste("The following species are missing data for their maturity size w_mat:"),
-             toString(species_params$species[missing]))
-    }
-    assert_that(all(species_params$w_mat > species_params$w_min))
-    
-    # Set defaults for w_mat25
-    if (!("w_mat25" %in% colnames(species_params))) {
-        species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
-    }
-    missing <- is.na(species_params$w_mat25)
-    if (any(missing)) {
-        species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
-    }
-    # Check w_mat25
-    assert_that(all(species_params$w_mat25 > species_params$w_min))
-    assert_that(all(species_params$w_mat25 < species_params$w_mat))
-    params@species_params$w_mat25 <- species_params$w_mat25
-    
-    # Set defaults for m
-    if (!("m" %in% colnames(species_params))) {
-        species_params$m <- 1
-    }
-    missing <- is.na(species_params$m)
-    if (any(missing)) {
-        species_params$m[missing] <- 1
-    }
-    # Check m
-    assert_that(is.numeric(species_params$m), 
-                all(species_params$m > 0 & species_params$m < 2))
-    params@species_params$m <- species_params$m
-    
-    params@psi[] <- 
-        unlist(
-            tapply(params@w, 1:length(params@w),
-                   function(wx, w_inf, w_mat, mn, w_mat25) {
-                       U <- log(3) / log(w_mat / w_mat25)
-                       return((1 + (wx / w_mat)^-U)^-1 *
-                                  # (1 + (w_inf / w_mat)^-U) * 
-                                  (wx / w_inf)^(mn))
-                   },
-                   w_inf = species_params$w_inf, 
-                   w_mat = species_params$w_mat, 
-                   mn = species_params$m - params@n,
-                   w_mat25 = species_params$w_mat25
+    if (!is.null(maturity)) {
+        assert_that(is.array(maturity),
+                    identical(dim(maturity), dim(params@psi)))
+        if (!is.null(dimnames(maturity)) && 
+            !all(dimnames(maturity)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species as in the ",
+                        "params object: ", toString(species_params$species)))
+        }
+    } else {
+        # Check maturity sizes
+        if (!("w_mat" %in% colnames(species_params))) {
+            stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
+        }
+        missing <- is.na(species_params$w_mat)
+        if (any(missing)) {
+            stop(paste("The following species are missing data for their maturity size w_mat:"),
+                 toString(species_params$species[missing]))
+        }
+        assert_that(all(species_params$w_mat > species_params$w_min))
+        
+        # Set defaults for w_mat25
+        if (!("w_mat25" %in% colnames(species_params))) {
+            species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
+        }
+        missing <- is.na(species_params$w_mat25)
+        if (any(missing)) {
+            species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
+        }
+        # Check w_mat25
+        assert_that(all(species_params$w_mat25 > species_params$w_min))
+        assert_that(all(species_params$w_mat25 < species_params$w_mat))
+        params@species_params$w_mat25 <- species_params$w_mat25
+        
+        maturity <- 
+            unlist(
+                tapply(params@w, 1:length(params@w),
+                       function(wx, w_inf, w_mat, w_mat25) {
+                           U <- log(3) / log(w_mat / w_mat25)
+                           return((1 + (wx / w_mat)^-U)^-1)
+                       },
+                       w_inf = species_params$w_inf,
+                       w_mat = species_params$w_mat,
+                       w_mat25 = species_params$w_mat25
+                )
             )
-        )
-    # For reasons of efficiency we next set all very small values to 0 
-    # Set w < 10% of w_mat to 0
-    params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
-    # Set all w > w_inf to 1
-    params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
+    }
+    assert_that(all(maturity >= 0 && maturity <= 1))
+    params@maturity[] <- maturity
+    
+    if (!is.null(repro_prop)) {
+        assert_that(is.array(repro_prop),
+                    identical(dim(repro_prop), dim(params@psi)))
+        if (!is.null(dimnames(repro_prop)) && 
+            !all(dimnames(repro_prop)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species as in the ",
+                        "params object: ", toString(species_params$species)))
+        }
+    } else {
+        # Set defaults for m
+        params <- set_species_param_default(params, "m", 1)
+        
+        repro_prop <- 
+            unlist(
+                tapply(params@w, 1:length(params@w),
+                       function(wx, w_inf, mn) (wx / w_inf)^(mn),
+                       w_inf = species_params$w_inf,
+                       mn = species_params$m - params@n
+                )
+            )
+
+        # For reasons of efficiency we next set all very small values to 0 
+        # Set w < 10% of w_mat to 0
+        repro_prop[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
+        # Set all w > w_inf to 1
+        repro_prop[outer(species_params$w_inf, params@w, "<")] <- 1
+    }
+    assert_that(all(repro_prop >= 0 && repro_prop <= 1))
+    
+    params@psi[] <- maturity * repro_prop
     return(params)
 }
 
