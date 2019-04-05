@@ -2,6 +2,14 @@
 
 url: https://gustavdelius.github.io/mizer/
 
+authors:
+  Julia Blanchard:
+    href: http://www.utas.edu.au/profiles/staff/imas/julia-blanchard
+  Ken Andersen:
+    href: https://ken.haste.dk/
+  Gustav Delius:
+    href: https://www.york.ac.uk/maths/staff/gustav-delius/
+
 template:
   params:
     bootswatch: cerulean
