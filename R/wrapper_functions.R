@@ -963,7 +963,7 @@ removeSpecies <- function(params, species) {
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
-#' params <- setBackground(params)
+#' params <- markBackground(params)
 #' a_m <- 0.0085
 #' b_m <- 3.11
 #' L_inf_m <- 24.3
@@ -1179,11 +1179,11 @@ addSpecies <- function(params, species_params, SSB = NA,
 #' data(inter)
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
-#' sim <- setBackground(sim, species = c("Sprat", "Sandeel", 
-#'                                             "N.pout", "Dab", "Saithe"))
+#' sim <- markBackground(sim, species = c("Sprat", "Sandeel", 
+#'                                        "N.pout", "Dab", "Saithe"))
 #' plotSpectra(sim)
 #' }
-setBackground <- function(object, species) {
+markBackground <- function(object, species) {
     if (is(object, "MizerSim")) {
         if (missing(species)) {
             species <- dimnames(object@params@initial_n)$sp

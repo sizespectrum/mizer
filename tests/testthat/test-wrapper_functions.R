@@ -78,7 +78,7 @@ test_that("retuneAbundance() reproduces scaling model", {
 test_that("addSpecies works when adding a second identical species", {
     p <- set_scaling_model()
     no_sp <- length(p@A)
-    p <- setBackground(p)
+    p <- markBackground(p)
     species_params <- p@species_params[5,]
     species_params$species = "new"
     SSB <- sum(p@initial_n[5, ] * p@w * p@dw * p@psi[5, ])

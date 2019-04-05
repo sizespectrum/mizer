@@ -22,7 +22,7 @@ server <- function(input, output, session) {
     sim_old <- readRDS(file="hake_mullet.RDS")
     # Therefore we do not need the following:
     # p_bg  <- reactive({
-    #     setBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
+    #     markBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
     #                     min_w_inf = 10, max_w_inf = 1e5,
     #                     min_egg = 1e-4, min_w_mat = 10^(0.4),
     #                     knife_edge_size = Inf, kappa = 10000,

@@ -513,7 +513,7 @@ server <- function(input, output, session) {
       
       p_old <- params()
       
-      p <- setBackground(
+      p <- markBackground(
         set_scaling_model(
           min_w_pp = input$min_w_pp, 
           no_sp = input$no_bg_sp, no_w = input$no_w,

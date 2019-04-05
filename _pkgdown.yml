@@ -67,7 +67,7 @@ reference:
   - addSpecies
   - removeSpecies
   - retuneAbundance
-  - setBackground
+  - markBackground
 - title: Running simulations
   contents:
   - project
