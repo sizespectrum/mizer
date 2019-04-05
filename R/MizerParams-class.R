@@ -1574,24 +1574,24 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
         # Set defaults for m
         params <- set_species_param_default(params, "m", 1)
         
-        repro_prop <- 
+        repro_prop <- array(
             unlist(
                 tapply(params@w, 1:length(params@w),
                        function(wx, w_inf, mn) (wx / w_inf)^(mn),
-                       w_inf = species_params$w_inf,
-                       mn = species_params$m - params@n
+                       w_inf = params@species_params$w_inf,
+                       mn = params@species_params$m - params@n
                 )
-            )
-
-        # For reasons of efficiency we next set all very small values to 0 
-        # Set w < 10% of w_mat to 0
-        repro_prop[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
-        # Set all w > w_inf to 1
-        repro_prop[outer(species_params$w_inf, params@w, "<")] <- 1
+            ), dim = c(nrow(species_params), length(params@w)))
     }
-    assert_that(all(repro_prop >= 0 && repro_prop <= 1))
     
-    params@psi[] <- maturity * repro_prop
+    params@psi[] <- params@maturity * repro_prop
+    
+    # For reasons of efficiency we next set all very small values to 0 
+    # Set w < 10% of w_mat to 0
+    params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
+    # Set all w > w_inf to 1
+    params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
+    assert_that(all(params@psi >= 0 && params@psi <= 1))
     return(params)
 }
 

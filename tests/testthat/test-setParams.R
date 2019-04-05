@@ -97,6 +97,18 @@ test_that("setPredKernel works", {
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
 
+## setReproduction ----
+test_that("setReproduction works", {
+    expect_equal(setReproduction(params), params)
+    maturity <- array(1, dim = c(no_sp, length(params@w)))
+    p2 <- setReproduction(params, maturity = maturity)
+    expect_equal(p2, setReproduction(p2, maturity = maturity,
+                                     repro_prop = p2@psi))
+    expect_equal(params, setReproduction(params, repro_prop = p2@psi))
+    params@species_params$erepro[1] <- NA
+    p2 <- setReproduction(params)
+    expect_equal(p2@species_params$erepro[1], 1)
+})
 
 ## setResourceEncounter ----
 test_that("setResourceEncounter works", {
