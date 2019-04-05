@@ -103,6 +103,8 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @return A function that can be used as the break argument in calls to
 #'   scale_y_continuous() or scale_x_continuous()
 #' @noRd
+#' @export
+#' @keywords internal
 log_breaks <- function(n = 6){
     n <- max(1, n)  # Because n=0 could lead to R crash
     function(x) {
