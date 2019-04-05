@@ -226,6 +226,10 @@ validMizerParams <- function(object) {
 #'   equal to the content of the dw slot.
 #' @slot w_min_idx A vector holding the index of the weight of the egg size
 #'   of each species
+#' @slot maturity An array (species x size) that holds the proportion of
+#'   individuals of each species at size that are mature. This enters in the
+#'   calculation of the spawning stock biomass with \code{\link{getSSB}}. Set 
+#'   with \code{\link{setReproduction}}.
 #' @slot psi An array (species x size) that holds the allocation to reproduction
 #'   for each species at size, \eqn{\psi_i(w)}. Set with 
 #'   \code{\link{setReproduction}}.
@@ -328,6 +332,7 @@ setClass(
         w_full = "numeric",
         dw_full = "numeric",
         w_min_idx = "numeric",
+        maturity = "array",
         psi = "array",
         initial_n = "array",
         intake_max = "array",
@@ -373,6 +378,7 @@ setClass(
         q = NA_real_,
         f0 = NA_real_,
         kappa = NA_real_,
+        maturity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -646,6 +652,7 @@ emptyParams <- function(species_params,
         w_full = w_full,
         dw_full = dw_full,
         w_min_idx = w_min_idx,
+        maturity = mat1,
         psi = mat1,
         initial_n = mat1,
         intake_max = mat1,
@@ -1463,6 +1470,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 setReproduction <- function(params, psi = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
+    # This is where I will set the new maturity slot
     
     # If no erepro (reproductive efficiency), then set to 1
     params <- set_species_param_default(params, "erepro", 1)
