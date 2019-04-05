@@ -74,5 +74,5 @@ plot(sim)
 ```
 
 See the accompanying
-[Get started](http://gustavdelius.github.io/mizer/docs/articles/mizer.html) page
+[Get started](http://gustavdelius.github.io/mizer/articles/mizer.html) page
 for more details on how the package works, including detailed examples.
