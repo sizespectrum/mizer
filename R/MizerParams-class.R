@@ -1324,7 +1324,8 @@ setMetab <- function(params, metab = NULL, p) {
         return(params)
     }
     
-    if (anyNA(params@species_params$h)) {
+    if (!"h" %in% names(params@species_params) ||
+        any(is.na(params@species_params$h))) {
         params@species_params$h <- get_h_default(params)
     }
     params <- set_species_param_default(params, "k", 0)
@@ -1853,7 +1854,7 @@ get_phi <- function(species_params, ppmr) {
         }
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
-        if (anyNA(phi)) {
+        if (any(is.na(phi))) {
             stop(paste0("The function ", pred_kernel_func,
                         "returned NA. Did you correctly specify all required",
                         "parameters in the species parameter dataframe?"))
@@ -1931,7 +1932,8 @@ get_gamma_default <- function(params) {
             (pnorm(3 - lm2 * species_params$sigma) + 
                  pnorm(log(species_params$beta)/species_params$sigma + 
                            lm2 * species_params$sigma) - 1)
-        if (anyNA(species_params$h)) {
+        if (!"h" %in% names(params@species_params) || 
+            any(is.na(species_params$h))) {
             species_params$h <- get_h_default(params)
         }
         gamma_default <- (species_params$h / (params@kappa * ae)) * 
