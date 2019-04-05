@@ -135,9 +135,30 @@ below we assume that the `MizerParams` object is called `params` and the
 `MixerSim` object is called `sim`.
 
 
-## The MizerParams object
+## The MizerParams class
 An object of class 'MizerParams' holds all the information needed for the
 'project()' method to simulate a model. 
+
+### Adding a new slot
+If you need to add a new slot to the MizerParams class, you need to make the following additions in the file `MizerParams-class.R`:
+
+1. Go to the section "Class definition" and add a
+  description of you new slot with @slot.
+2. Add an entry in the `representation` list inside `setClass`.
+3. Add an entry in the `prototype` list inside `setClass`. This gives a default
+  value for the slot when a new oject of the class is created with `new()`.
+  This is optional. If you do not provide a default then you must do the next
+  step.
+4. In the function `emptyParams()` go to the section "Make object" and inside
+  the call to `new()` provide a default value for your slot. If your slot holds
+  an array, then it is conventional in mizer to already give it the correct
+  dimensions and dimnames here, if possible. 
+
+What exactly to put into these places is usually clear in analogy to what is
+already there for other similar slots. You can see a good example in commit
+[https://github.com/gustavdelius/mizer/commit/c7236b7e1c320c4d6e65e48775bf1aac9f71a677].
+Next you will probably want to provide code to fill the slot with what you want
+it to hold and write the code that actually uses the slot.
 
 <!--
 
