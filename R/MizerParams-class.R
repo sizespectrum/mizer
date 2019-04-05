@@ -227,65 +227,77 @@ validMizerParams <- function(object) {
 #' @slot w_min_idx A vector holding the index of the weight of the egg size
 #'   of each species
 #' @slot psi An array (species x size) that holds the allocation to reproduction
-#'   for each species at size, \eqn{\psi_i(w)}
+#'   for each species at size, \eqn{\psi_i(w)}. Set with 
+#'   \code{\link{setReproduction}}.
 #' @slot intake_max An array (species x size) that holds the maximum intake for
-#'   each species at size.
+#'   each species at size. Set with \code{\link{setIntakeMax}}.
 #' @slot search_vol An array (species x size) that holds the search volume for
-#'   each species at size.
+#'   each species at size. Set with \code{\link{setSearchVolume}}.
 #' @slot rho A 3-dim array (species x resource x size) holding the encounter
-#'   rates for unstructured resources. See [resource_dynamics] for details.
+#'   rates for unstructured resources. Set with 
+#'   \code{\link{setResourceEncounter}} .See \code{\link{resource_dynamics}} for
+#'    details.
 #' @slot metab An array (species x size) that holds the metabolism
-#'   for each species at size.
+#'   for each species at size. Set with \code{\link{setMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
-#'   \eqn{\mu_{b.i}(w)}
+#'   \eqn{\mu_{b.i}(w)}. Set with \code{\link{setBMort}}.
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
-#'   this is NA then the following two slots will be used.
+#'   this is NA then the following two slots will be used. Set with 
+#'   \code{\link{setPredKernel}}.
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the encounter rate integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the available 
-#'   energy integral.
+#'   energy integral. Set with \code{\link{setPredKernel}}.
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the integral.
+#'   Set with \code{\link{setPredKernel}}.
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum.
+#'   growth rate of the plankton spectrum. Set with \code{\link{setPlankton}}.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum.
-#' @slot resource_dynamics A named list of functions for projecting the
-#'   biomasses in the unstructured resource components by one timestep. The
-#'   names of the list entries are the resource names. See
-#'   \code{\link{resource_dynamics}} for details.
+#'   carrying capacity of the plankton spectrum. Set with 
+#'   \code{\link{setPlankton}}.
 #' @slot plankton_dynamics A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
-#'   an example.
+#'   an example. Set with \code{\link{setPlankton}}.
+#' @slot resource_dynamics A named list of functions for projecting the
+#'   biomasses in the unstructured resource components by one timestep. The
+#'   names of the list entries are the resource names. Set with 
+#'   \code{\link{setResources}}. See \code{\link{resource_dynamics}} for 
+#'   details.
 #' @slot resource_params A list containing the parameters needed by the
-#'   `resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+#'   \code{resource_dynamics} functions.  Set with 
+#'   \code{\link{setResources}}. See \code{\link{resource_dynamics}} for 
 #'   details.
 #' @slot sc The community abundance of the scaling community
-#' @slot species_params A data.frame to hold the species specific parameters
-#'   (see the mizer vignette, Table 2, for details)
-#' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
+#' @slot species_params A data.frame to hold the species specific parameters.
+#'   See \code{\link{set_multispecies_params}} for details.
+#' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
+#'   Set with \code{\link{setInteraction}}.
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
-#'   each gear for species and size, \eqn{S_{g,i,w}}
+#'   each gear for species and size, \eqn{S_{g,i,w}}. Set with 
+#'   \code{\link{setFishing}}.
 #' @slot catchability An array (gear x species) that holds the catchability of
-#'   each species by each gear, \eqn{Q_{g,i}}
+#'   each species by each gear, \eqn{Q_{g,i}}. Set with 
+#'   \code{\link{setFishing}}.
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
 #'   the plankton abundance at each weight.
 #' @slot initial_B A vector containing the biomasses of the unstructured
 #'   resource components, see \code{\link{resource_dynamics}} for details.
-#' @slot n Exponent of maximum intake rate.
-#' @slot p Exponent of metabolic cost.
-#' @slot lambda Exponent of plankton spectrum.
-#' @slot q Exponent for volumetric search rate.
+#' @slot n Exponent of maximum intake rate. Set with \code{\link{setIntakeMax}}.
+#' @slot p Exponent of metabolic cost. Set with \code{\link{setMetab}}.
+#' @slot lambda Exponent of plankton spectrum. Set with \code{\link{setPlankton}}.
+#' @slot kappa Magnitude of plankton spectrum. Set with \code{\link{setPlankton}}.
+#' @slot q Exponent for volumetric search rate. 
+#'   Set with \code{\link{setSearchVolume}}.
 #' @slot f0 Initial feeding level.
-#' @slot kappa Magnitude of plankton spectrum.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species. Used 
 #'   to give consistent colours to species in plots.
@@ -665,7 +677,7 @@ emptyParams <- function(species_params,
     return(params)
 }
 
-#' Construct MizerParams object for multispecies model
+#' Construct MizerParams object for general multispecies model
 #'
 #' Sets up a multi-species size spectrum model by filling all slots in the
 #' \linkS4class{MizerParams} object based on user-provided or default
@@ -690,16 +702,20 @@ emptyParams <- function(species_params,
 #' of the parameter data frame is a parameter and each row has the values of the
 #' parameters for one of the species in the model.
 #'
-#' There are two essential columns that must be included in the species
+#' There are three essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' \code{species} column that should hold strings with the names of the
-#' species and the \code{w_inf} column with the asymptotic sizes of the species. 
+#' species and the \code{w_mat} and \code{w_inf} columns with the maturity
+#' and asymptotic sizes of the species. 
 #' 
-#' For all other species parameters, mizer will calculate
-#' default values if they are not included in the species
-#' parameter data frame. They will be automatically added when the
-#' \code{MizerParams} object is created. For these parameters
-#' you can also specify values for only some species and leave the
+#' The species_params dataframe also needs to contain the parameters needed
+#' by any predation kernel function or size selectivity function. This will
+#' be mentioned in the appropriate sections below.
+#' 
+#' For all other species parameters, mizer will calculate default values if they
+#' are not included in the species parameter data frame. They will be
+#' automatically added when the \code{MizerParams} object is created. For these
+#' parameters you can also specify values for only some species and leave the
 #' other entries as NA and the missing values will be set to the defaults.
 #' 
 #' All the parameters will be mentioned in the following sections.
@@ -716,12 +732,15 @@ emptyParams <- function(species_params,
 #' @inheritSection setResourceEncounter Setting resource encounter rate
 #' @inheritSection setFishing Setting fishing
 #'   
-#' @seealso \code{\link{project}} \linkS4class{MizerSim}
+#' @seealso \code{\link{project}}, \linkS4class{MizerSim},
+#'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
 #' @export
 #' @examples
+#' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' }
 set_multispecies_model <- function(species_params,
                                    interaction = matrix(1,
                                                         nrow = nrow(species_params),
@@ -822,7 +841,7 @@ set_multispecies_model <- function(species_params,
 #' @export
 MizerParams <- set_multispecies_model
 
-#' Set or change model parameters
+#' Set or change any model parameters
 #' 
 #' Passes its arguments to the the setup functions
 #' \itemize{
@@ -941,11 +960,11 @@ setParams <- function(params,
 #' 
 #' @section Setting interactions:
 #' 
-#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the food encounter rate in
-#' \code{\link{getEncounter}} and the predation rate in
+#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the
+#' food encounter rate in \code{\link{getEncounter}} and the predation rate in
 #' \code{\link{getPredRate}}. This function checks that the supplied interaction
-#' matrix is valid and then stores it in the \code{interaction} slot of the params
-#' object before returning that object.
+#' matrix is valid and then stores it in the \code{interaction} slot of the
+#' params object before returning that object.
 #' 
 #' Any dimnames of the interaction matrix argument are ignored by the
 #' constructor. The dimnames of the interaction matrix in the returned
@@ -953,6 +972,11 @@ setParams <- function(params,
 #' \code{species_params} slot. This means that the order of the columns and rows
 #' of the interaction matrix argument should be the same as the species name in
 #' the \code{species_params} slot. 
+#' 
+#' The interaction of the species with the plankton are set via a colun
+#' \code{interaction_p} in the species_params data frame. Again the entries
+#' have to be numbers between 0 and 1. By default this column is set to all
+#' 1s.
 #' 
 #' @param params MizerParams object
 #' @param interaction Interaction matrix of the species (predator by prey).
@@ -1030,7 +1054,13 @@ setInteraction <- function(params,
 #' The default pred_kernel_type is "lognormal". This will call the function
 #' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the functions
-#' \code{\link{box_pred_kernel}}.
+#' \code{\link{box_pred_kernel}}. These functions require certain species
+#' parameters in the species_params data frame. For the lognormal kernel these
+#' are \code{beta} and \code{sigma}, for the box kernely they are
+#' \code{ppmr_min} and \code{ppmr_max}. They are explained in the help pages
+#' for the kernel functions. No defaults are set for these parameters. If they
+#' are missing from the species_params data frame then mizer will issue an
+#' error message.
 #'
 #' You can use any other string as the type. If for example you choose "my" then
 #' you need to define a function \code{my_pred_kernel} that you can model on the
@@ -1202,8 +1232,8 @@ getPredKernel <- function(params) {
 #' If the \code{search_vol} argument is not supplied, then the search volume is set to
 #' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
 #' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
-#' column is not supplied in the species parameter dataframe, it is calculated
-#' from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
+#' column is not supplied in the species parameter dataframe, a default is
+#' calculated by the \code{\link{get_gamma_default}} function.
 #' 
 #' @param params MizerParams
 #' @param search_vol Optional. An array (species x size) holding the search volume
@@ -1253,8 +1283,9 @@ setSearchVolume <- function(params,
 #' rate is set to \deqn{h_i(w) = h_i w^n.} 
 #' The values of \eqn{h_i} are taken from the \code{h} column in the
 #' species parameter dataframe. If the \code{h} column is not supplied in the
-#' species parameter dataframe, it is calculated from \code{f0} and the
-#' \code{k_vb} column, if they are supplied.
+#' species parameter dataframe, it is calculated by the 
+#' \code{\link{get_h_default}} function, using \code{f0} and the \code{k_vb}
+#' column, if they are supplied.
 #' 
 #' If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 #'
@@ -1295,8 +1326,22 @@ setIntakeMax <- function(params, intake_max = NULL, n) {
 #' Set metabolic rate
 #' 
 #' Sets the rate at which energy is used for metabolism and activity
+#' 
 #' @section Setting metabolic rate:
-#' To be documented
+#' The metabolic rate is subtracted from the energy income rate to calculate
+#' the rate at which energy is available for growth and reproduction, see
+#' \code{\link{getEReproAndGrowth}}.
+#' 
+#' If the \code{metab} argument is not supplied, then the metabolic
+#' rate \eqn{k_i(w)} for and individual of species \eqn{i} and size \eqn{w}
+#' is set to \deqn{k_i(w) = ks_i\, w^p + k_i\, w,}{k_i(w) = ks_i w^p + k_i w}
+#' where \eqn{ks_i w^p} represents the rate of standard metabolism and 
+#' \eqn{k_i w} is the rate at which energy is expended on activity and movement.
+#' The values of \eqn{ks_i} and \eqn{k_i} are taken from the \code{ks} and
+#' \code{k} columns in the
+#' species parameter dataframe. If these parameters are not supplied, the
+#' defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0} where \eqn{h_i} is the
+#' coefficient of the maximum intake rate.
 #' 
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
@@ -1324,15 +1369,8 @@ setMetab <- function(params, metab = NULL, p) {
         return(params)
     }
     
-    if (!"h" %in% names(params@species_params) ||
-        any(is.na(params@species_params$h))) {
-        params@species_params$h <- get_h_default(params)
-    }
     params <- set_species_param_default(params, "k", 0)
-    message <- ("Note: No ks column in species data frame so using ks = h * 0.2.")
-    params <- set_species_param_default(params, "ks",
-                                        params@species_params$h * 0.2,
-                                        message)
+    params@species_params$ks <- get_ks_default(params)
     params@metab[] <- 
         outer(params@species_params$ks, params@w^p) +
         outer(params@species_params$k, params@w)
@@ -1343,7 +1381,15 @@ setMetab <- function(params, metab = NULL, p) {
 #' Set background mortality rate
 #' 
 #' @section Setting background mortality rate:
-#' Still need to document
+#' The background mortality is all the mortality that is not due to either
+#' predation or fishing. 
+#' 
+#' If the \code{mu_b} argument is not supplied, then the background mortality
+#' is assumed to depend only on the asymptotic size of the species, not on the
+#' size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+#' constant \eqn{z_0} for each species is taken from the \code{z0} column of the
+#' species_params data frame, if that column exists. Otherwise it is calculated
+#' as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 #' 
 #' @param params MizerParams
 #' @param mu_b Optional. An array (species x size) holding the background
@@ -1949,4 +1995,32 @@ get_gamma_default <- function(params) {
         species_params$gamma[missing] <- gamma_default[missing]
     }
     return(species_params$gamma)
+}
+
+#' Get default value for ks
+#' 
+#' Fills in any missing values for ks according to the formula
+#' \eqn{ks_i = 0.2 h_i}.
+#' 
+#' @param params A MizerParams object
+#' @return A vector with the values of ks for all species
+#' @export
+#' @keywords internal
+#' @concept helper
+get_ks_default <- function(params) {
+    species_params <- params@species_params
+    if (!"h" %in% names(params@species_params) ||
+        any(is.na(params@species_params$h))) {
+        params@species_params$h <- get_h_default(params)
+    }
+    message <- ("Note: No ks column in species data frame so using ks = h * 0.2.")
+    params <- set_species_param_default(params, "ks",
+                                        params@species_params$h * 0.2,
+                                        message)
+    if (any(is.na(params@species_params$ks) | 
+            is.infinite(params@species_params$ks))) {
+        stop(paste("Could not calculate default values for the missing species",
+             "parameter ks. Got:", params@species_params$ks))
+    }
+    return(params@species_params$ks)
 }

@@ -102,7 +102,6 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'
 #' @return A function that can be used as the break argument in calls to
 #'   scale_y_continuous() or scale_x_continuous()
-#' @noRd
 #' @export
 #' @keywords internal
 #' @concept helper

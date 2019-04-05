@@ -61,7 +61,18 @@ reference:
   - set_trait_model
 - title: Changing model parameters
   contents:
-  - starts_with("set")
+  - setParams
+  - setBMort
+  - setFishing
+  - setIntakeMax
+  - setInteraction
+  - setMetab
+  - setPlankton
+  - setPredKernel
+  - setReproduction
+  - setResourceEncounter
+  - setResources
+  - setSearchVolume
   - tuneParams
   - steady
   - emptyParams
@@ -69,7 +80,6 @@ reference:
   - removeSpecies
   - retuneAbundance
   - markBackground
-  - getPredKernel
 - title: Running simulations
   contents:
   - project
@@ -110,6 +120,7 @@ reference:
   - getPredRate
   - getRDD
   - getRDI
+  - getPredKernel
 - title: Dynamics of unstructured resources
   contents:
   - resource_dynamics
@@ -122,6 +133,7 @@ reference:
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat
+  - srrBevertonHolt
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper
@@ -130,8 +142,10 @@ reference:
   - set_species_param_default
   - get_h_default
   - get_gamma_default
+  - get_ks_default
   - get_phi
   - log_breaks
+  - get_initial_n
 - title: Classes
   contents:
   - MizerParams-class
