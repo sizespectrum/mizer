@@ -1,11 +1,11 @@
-sp <- read.csv("inst/blanes/species_params.csv", sep = ";")
+sp <- read.csv("inst/blanes/species_params.csv")
 
 no_sp <- nrow(sp)
 sp$k_vb[1:2] <- sp$k_vb[1:2] * 5
-sp$k_vb[c(8, 10, 13)] <- sp$k_vb[c(8, 10, 13)] * 4
-sp$k_vb[13] <- sp$k_vb[13] * 6
+sp$k_vb[c(7, 9)] <- sp$k_vb[c(7, 9)] * 4
+sp$k_vb[12] <- sp$k_vb[12] * 6
 
-sp$interaction_p = rep(0, no_sp)
+sp$cutoff_size <- sp$a * sp$cutoff_length^sp$b
 
 theta <- read.csv("inst/blanes/theta.csv", header = FALSE)
 theta <- t(as.matrix(theta))
@@ -18,11 +18,10 @@ p <- 0.7
 lambda <- 2 + q - n
 kappa <- 1
 
-sp$alpha <- 0.1
 # default for h and ks
 f0 <- 0.6
 sp$h <- 3 * sp$k_vb / (sp$alpha * f0) * sp$w_inf^(1/3)
-sp$ks <- 0# 0.2 * sp$h * sp$alpha * f0
+sp$ks <- 0.2 * sp$h * sp$alpha * f0
 # default for rho
 no_sp <- nrow(sp)
 sp$rho_detritus <- sp$h * f0 / (1 - f0) * sp$detQ
@@ -163,13 +162,13 @@ for (i in (1:length(p@species_params$species))) {
         p@initial_n[i, p@w_min_idx[i]] *
         (gg0 + DW * mumu0) / rdd[i]
 }
-plotGrowthCurves(p, species = "Merluccius merluccius")
-plotGrowthCurves(p, species = "Mullus barbatus")
+plotGrowthCurves(p, species = "Red mullet")
+plotGrowthCurves(p, species = "Hake")
 
-cum_biomass <- cumsum(p@initial_n["Mullus barbatus", ] * p@w * p@dw)
+cum_biomass <- cumsum(p@initial_n["Red mullet", ] * p@w * p@dw)
 cutoff_idx <- which.max(p@w >= 3)
 biomass_model <- max(cum_biomass) - cum_biomass[cutoff_idx]
-p@initial_n <- p@initial_n * 1.84 / biomass_model
+p@initial_n <- p@initial_n * 1840 / biomass_model
 
 
 saveRDS(p, file = "inst/tuning/params.rds")

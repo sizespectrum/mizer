@@ -207,8 +207,8 @@ server <- function(input, output, session) {
     p <- isolate(params())
     p@species_params[isolate(input$sp), "biomass_observed"] <- 
       req(input$biomass_observed)
-    p@species_params[isolate(input$sp), "biomass_cutoff"] <- 
-      req(input$biomass_cutoff)
+    p@species_params[isolate(input$sp), "cutoff_size"] <- 
+      req(input$cutoff_size)
     params(p)
   })  
   
@@ -589,7 +589,10 @@ server <- function(input, output, session) {
   ## erepro plot ####
   output$plot_erepro <- renderPlotly({
     p <- params()
-    ggplot(p@species_params, aes(x = species, y = erepro)) + 
+    df <- data.frame(Species = factor(p@species_params$species,
+                                      levels = p@species_params$species),
+                     erepro = p@species_params$erepro)
+    ggplot(df, aes(x = Species, y = erepro)) + 
       geom_col() + geom_hline(yintercept = 1, color = "red") +
       scale_y_log10() +
       theme_grey(base_size = base_size) +
@@ -615,22 +618,22 @@ server <- function(input, output, session) {
         is.na(species_params$biomass_observed)) {
       species_params$biomass_observed <- 0
     }
-    if (is.null(species_params$biomass_cutoff) ||
-        is.na(species_params$biomass_cutoff)) {
-      species_params$biomass_cutoff <- 0
+    if (is.null(species_params$cutoff_size) ||
+        is.na(species_params$cutoff_size)) {
+      species_params$cutoff_size <- 0
     }
     list(
       div(style = "display:inline-block",
           numericInput("biomass_observed", 
-                       paste0("Observed biomass for ", sp, " (megatonnes)"),
+                       paste0("Observed biomass for ", sp),
                        value = species_params$biomass_observed)),
       div(style = "display:inline-block",
-          numericInput("biomass_cutoff", "Lower cutoff (grams)",
-                       value = species_params$biomass_cutoff))
+          numericInput("cutoff_size", "Lower cutoff",
+                       value = species_params$cutoff_size))
     )
   })
   output$plotBiomassDist <- renderPlotly({
-    req(input$sp, input$biomass_cutoff, input$biomass_observed)
+    req(input$sp, input$cutoff_size, input$biomass_observed)
     sp <- input$sp
     p <- params()
     biomass <- cumsum(p@initial_n[sp, ] * p@w * p@dw)
@@ -644,17 +647,17 @@ server <- function(input, output, session) {
       geom_vline(xintercept = p@species_params[sp, "w_mat"], 
                  linetype = "dotted") +
       theme_grey(base_size = base_size) +
-      labs(x = "Size [g]", y = "Cummulative biomass [megatonnes]")  +
+      labs(x = "Size [g]", y = "Cummulative biomass")  +
       geom_text(aes(x = p@species_params[sp, "w_mat"], 
                     y = max(Biomass * 0.2),
                     label = "\nMaturity"), 
                 angle = 90)
     if (input$biomass_observed) {
-      cutoff_idx <- which.max(p@w >= input$biomass_cutoff)
+      cutoff_idx <- which.max(p@w >= input$cutoff_size)
       target <- input$biomass_observed + biomass[cutoff_idx]
       pl <- pl +
         geom_hline(yintercept = biomass[cutoff_idx]) +
-        geom_vline(xintercept = input$biomass_cutoff) +
+        geom_vline(xintercept = input$cutoff_size) +
         geom_hline(yintercept = target, color = "green")
     }
     pl
@@ -662,7 +665,7 @@ server <- function(input, output, session) {
   output$plotTotalBiomass <- renderPlotly({
     p <- params()
     no_sp <- length(p@species_params$species)
-    cutoff <- p@species_params$biomass_cutoff
+    cutoff <- p@species_params$cutoff_size
     observed <- p@species_params$biomass_observed
     # When no cutoff known, set it to maturity weight / 20
     cutoff[is.na(cutoff)] <- p@species_params$w_mat[is.na(cutoff)] / 20
@@ -673,20 +676,23 @@ server <- function(input, output, session) {
       cutoff_idx <- which.max(p@w >= cutoff[sp])
       biomass_model[sp] <- max(cum_biomass) - cum_biomass[cutoff_idx]
     }
+    species <- factor(p@species_params$species,
+                      levels = p@species_params$species)
     df <- rbind(
-      data.frame(Species = p@species_params$species,
+      data.frame(Species = species,
                  Type = "Observed",
                  Biomass = observed),
-      data.frame(Species = p@species_params$species,
+      data.frame(Species = species,
                  Type = "Model",
                  Biomass = biomass_model)
     )
     ggplot(df) +
       geom_col(aes(x = Species, y = Biomass, fill = Type),
                position = "dodge") +
+      scale_y_continuous(name = "Biomass", trans = "log10",
+                         breaks = log_breaks()) +
       theme_grey(base_size = base_size) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-      labs(x = "", y = "Biomass [megatonnes]")
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
   })
   
   ## Plot catch ####
@@ -949,6 +955,8 @@ server <- function(input, output, session) {
     req(input$sp)
     sp <- input$sp
     p <- params()
+    species <- factor(p@species_params$species,
+                      levels = p@species_params$species)
     fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     pred_rate <- p@interaction[, sp] * 
       getPredRate(p, p@initial_n, p@initial_n_pp, p@initial_B)[, fish_idx]
@@ -961,8 +969,8 @@ server <- function(input, output, session) {
     plot_dat <- 
       rbind(
         data.frame(value = c(pred_rate),
-                           Cause = as.factor(dimnames(pred_rate)[[1]]),
-                           w = rep(p@w, each = dim(pred_rate)[[1]])),
+                   Cause = species,
+                   w = rep(p@w, each = dim(pred_rate)[[1]])),
         data.frame(value = background,
                    Cause = "Background",
                    w = p@w),
