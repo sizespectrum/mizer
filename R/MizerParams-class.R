@@ -690,8 +690,9 @@ emptyParams <- function(species_params,
 #' \linkS4class{MizerParams} object based on user-provided or default
 #' parameters. It does this by creating an empty MizerParams object with
 #' \code{\link{emptyParams}} and then filling the slots by passing its arguments
-#' to \code{\link{setParams}}. All arguments are described in more details
-#' in the sections below the list of parameters.
+#' to \code{\link{setParams}}. There is a long list of arguments, but almost
+#' all of them have sensible default values. All arguments are described in more
+#' details in the sections below the list.
 #' 
 #' @inheritParams emptyParams
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
@@ -709,11 +710,10 @@ emptyParams <- function(species_params,
 #' of the parameter data frame is a parameter and each row has the values of the
 #' parameters for one of the species in the model.
 #'
-#' There are three essential columns that must be included in the species
+#' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the 
 #' \code{species} column that should hold strings with the names of the
-#' species and the \code{w_mat} and \code{w_inf} columns with the maturity
-#' and asymptotic sizes of the species. 
+#' species and the \code{w_inf} column with the asymptotic sizes of the species. 
 #' 
 #' The species_params dataframe also needs to contain the parameters needed
 #' by any predation kernel function or size selectivity function. This will
@@ -1446,14 +1446,18 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' @section Setting reproduction:
 #' For each species and at each size, the proportion of the available energy 
 #' that is invested into reproduction is the product of two factors: the
-#' proportion `maturity` of individuals that are mature and the proportion
-#' `repro_prop` of the energy available to a mature individual that is 
+#' proportion \code{maturity} of individuals that are mature and the proportion
+#' \code{repro_prop} of the energy available to a mature individual that is 
 #' invested into reproduction.
 #' 
-#' If the \code{maturity} argument is not supplied, it is set to a sigmoidal 
+#' If the \code{maturity} argument is not supplied, then it is set to a sigmoidal 
 #' maturity ogive
-#' \deqn{{\tt maturity}_i(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
-#'   maturity_i(w) = [1+(w/w_mat)^(-U)]^(-1)}
+#' \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
+#'   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
+#' (To avoid clutter, we are not showing the species index in the equations.)
+#' The maturity weights are taken from the \code{w_mat} column of the 
+#' species_params data frame. Any missing maturity weights are set to 1/4 of the
+#' asymptotic weight in the \code{w_inf} column.
 #' The exponent \eqn{U} determines the steepness of the maturity ogive. By
 #' default it is chosen as \eqn{U = 10}, however this can be overridden by
 #' including a column \code{w_mat25} in the species parameter dataframe that
@@ -1462,15 +1466,17 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' 
 #' If the \code{repro_prop} argument is not supplied, it is set to the
 #' allometric form
-#' \deqn{{\tt repro_prop}_i(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}/
-#'   {\tt maturity}_i(w_{inf}).}{
-#'   repro_prop_i = (w/w_inf)^(m - n) / maturity_i(w_inf)}
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}
+#'   \frac{1}{{\tt maturity}(w_{inf})}.}{
+#'   repro_prop = (w/w_inf)^(m - n) / maturity(w_inf)}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be 
 #' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
 #' scales linearly with the size. This default can be overridden by including a 
-#' column \code{m} in the species parameter dataframe.
+#' column \code{m} in the species parameter dataframe. The asymptotic sizes
+#' are taken from the compulsory \code{w_inf} column in the species_params
+#' data frame.
 #' 
 #' The reproductive efficiency, i.e., the proportion of energy allocated to
 #' reproduction that results in offspring biomass, is set from the 
@@ -1524,12 +1530,13 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     } else {
         # Check maturity sizes
         if (!("w_mat" %in% colnames(species_params))) {
-            stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
+            species_params$w_mat <- rep(NA, nrow(species_params))
         }
         missing <- is.na(species_params$w_mat)
         if (any(missing)) {
-            stop(paste("The following species are missing data for their maturity size w_mat:"),
-                 toString(species_params$species[missing]))
+            stop(paste0("Note The following species were missing data for their maturity size w_mat: "),
+                 toString(species_params$species[missing]),
+                 ". These have been set to 1/4 w_inf.")
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
         

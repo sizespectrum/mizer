@@ -21,24 +21,13 @@ toc:
   depth: 3
 
 navbar:
-  title: "mizer"
-  left:
-    - icon: fa-home fa-lg
-      href: index.html
-    - text: "Get Started"
-      href: articles/mizer.html
-    - text: "Reference"
-      href: reference/index.html
-    - text: "Articles"
-      href: articles/index.html
-    - text: "Publications"
+  structure:
+    left: [home, intro, reference, articles, publications, news]
+    right: [github]
+  components:
+    publications:
+      text: Publications
       href: articles/publications.html
-    - text: "News"
-      href: news/index.html
-  right:
-    - icon: fa-github fa-lg
-      href: https://github.com/gustavdelius/mizer
-
 
 articles:
 - title: User Guides
