@@ -53,13 +53,14 @@ articles:
 
 
 reference:
-- title: Setting model parameters
-  desc:  Functions to create and modify a MizerParams parameter object describing your model
+- title: Creating new model
   contents:
+  - set_multispecies_model
   - set_community_model
   - set_scaling_model
   - set_trait_model
-  - set_multispecies_model
+- title: Changing model parameters
+  contents:
   - starts_with("set")
   - tuneParams
   - steady
@@ -68,6 +69,7 @@ reference:
   - removeSpecies
   - retuneAbundance
   - markBackground
+  - getPredKernel
 - title: Running simulations
   contents:
   - project
@@ -120,9 +122,16 @@ reference:
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat
-- title: Helper functions
+- title: Internal helper functions
   contents:
-  - get_size_range_array
+# The following should list all functions with @concept helper
+# but instead lists all functions. A bug in pkgdown?
+#  - has_concept("helper")
+  - set_species_param_default
+  - get_h_default
+  - get_gamma_default
+  - get_phi
+  - log_breaks
 - title: Classes
   contents:
   - MizerParams-class

@@ -1776,6 +1776,7 @@ srrBevertonHolt <- function(rdi, species_params) {
 #'   not already exist
 #' @export
 #' @keywords internal
+#' @concept helper
 set_species_param_default <- function(object, parname, default,
                                       message = NULL) {
     if (is(object, "MizerParams")) {
@@ -1825,6 +1826,7 @@ set_species_param_default <- function(object, parname, default,
 #'   function
 #' @export
 #' @keywords internal
+#' @concept helper
 get_phi <- function(species_params, ppmr) {
     assert_that(is.data.frame(species_params))
     no_sp <- nrow(species_params)
@@ -1872,6 +1874,7 @@ get_phi <- function(species_params, ppmr) {
 #' @return A vector with the values of h for all species
 #' @export
 #' @keywords internal
+#' @concept helper
 get_h_default <- function(params) {
     species_params <- params@species_params
     if (!("h" %in% colnames(species_params))) {
@@ -1910,6 +1913,7 @@ get_h_default <- function(params) {
 #' @return A vector with the values of gamma for all species
 #' @export
 #' @keywords internal
+#' @concept helper
 get_gamma_default <- function(params) {
     species_params <- params@species_params
     if (!("gamma" %in% colnames(species_params))) {

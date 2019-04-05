@@ -105,6 +105,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @noRd
 #' @export
 #' @keywords internal
+#' @concept helper
 log_breaks <- function(n = 6){
     n <- max(1, n)  # Because n=0 could lead to R crash
     function(x) {

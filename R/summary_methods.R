@@ -61,6 +61,7 @@ NULL
 #' 
 #' @return An array (predator species  x predator size x (prey species + plankton) )
 #' @export
+#' @concept summary_function
 getDiet <- function(params, n, n_pp) {
     # The code is based on that for getEncounter()
     no_sp <- dim(n)[1]
@@ -132,6 +133,7 @@ getDiet <- function(params, n, n_pp) {
 #'   
 #' @return An array containing the SSB (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -162,6 +164,7 @@ getSSB <- function(sim) {
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -193,6 +196,7 @@ getBiomass <- function(sim, ...) {
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -220,6 +224,7 @@ getN <- function(sim, ...) {
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
+#' @concept summary_function
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -248,6 +253,7 @@ getYieldGear <- function(sim) {
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
+#' @concept summary_function
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -294,8 +300,9 @@ getYield <- function(sim) {
 #' minimum weight and a maximum length. The default values are the minimum and
 #' maximum weights of the spectrum, i.e. the full range of the size spectrum is
 #' used.
-#' 
 #' @export
+#' @keywords internal
+#' @concept helper
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
@@ -328,6 +335,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @param ... Other arguments (currently not used).
 #'
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -369,7 +377,8 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' Outputs a general summary of the structure and content of the object
 #' @param object A \code{MizerSim} object.
 #' @param ... Other arguments (currently not used).
-#'
+#' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -411,6 +420,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #'   
 #' @return An array containing the proportion of large fish through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -463,6 +473,7 @@ getProportionOfLargeFish <- function(sim,
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -500,6 +511,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @return A matrix or vector containing the mean maximum weight of the
 #'   community through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -544,6 +556,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #'
 #' @return A data frame with slope, intercept and R2 values.
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
