@@ -455,9 +455,23 @@ test_that("getEGrowth is working", {
     expect_known_value(eg1, "values/getEGrowth")
 })
 
+# getRates with resources ----
+test_that("getRates works with resources", {
+    data("NS_species_params")
+    sp_res <- NS_species_params
+    resource_dynamics <-
+        list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
+             "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
+    sp_res$rho_detritus <- no_sp:1
+    sp_res$rho_carrion <- 1:no_sp
+    params_res <- MizerParams(sp_res, inter,
+                              resource_dynamics = resource_dynamics)
+    params_res@initial_B[] <- c(1, 1)
+    rates <- getRates(params_res)
+})
 
-# general -----------------------------------------------------------------
 
+# fft ----
 test_that("Test that fft based integrator gives similar result as old code", {
     # Make it harder by working with kernels that need a lot of cutoff
     species_params <- NS_species_params_gears
@@ -480,6 +494,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
     expect_equivalent(prfft, pr, tolerance = 1e-15)
 })
 
+# One species only ----
 test_that("project methods return objects of correct dimension when community only has one species",{
     params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
     t_max <- 50

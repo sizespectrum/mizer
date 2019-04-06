@@ -18,34 +18,37 @@ NULL
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
 #' \linkS4class{MizerSim} that can then be explored with a range of
-#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}
-#' plotting methods.
+#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}.
 #' 
-#' @param params A \linkS4class{MizerParams} object
-#' @param sim Optional \linkS4class{MizerSim} object. If supplied, then the
-#'   initial values for the abundances of species and of plankton and the
-#'   resource biomasses are taken from the final time of that simulation.
+#' @param object Either a \linkS4class{MizerParams} object or a 
+#'   \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).
 #' @param effort The effort of each fishing gear through time. See notes below.
-#' @param t_max The maximum time the projection runs for. The default value is
-#'   100. However, this argument is not needed if an array is used for the
-#'   \code{effort} argument, in which case this argument is ignored. See notes
-#'   below.
+#' @param t_max The number of years the projection runs for. The default value is
+#'   100. However, this argument is ignored if an array is used for the
+#'   \code{effort} argument. See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
-#' @param initial_n The initial abundances of species. Ignored if a \code{sim}
-#'   argument is supplied. A matrix with dimensions species x size. The order of
-#'   species must be the same as in the \code{MizerParams} argument. By default
-#'   is set to the \code{initial_n} slot of the \code{params} argument.
-#' @param initial_n_pp The initial abundances of plankton. Ignored if a
-#'   \code{sim} argument is supplied. A numeric vector of the same length as the
-#'   \code{w_full} slot of the \code{MizerParams} argument. By default is set to
-#'   the \code{initial_n_pp} slot of the \code{params} argument.
+#' @param t_start The the year of the start of the simulation. The simulation
+#'   will cover the period from \code{t_start} to \code{t_start + t_max}.
+#'   Defaults to 0. Ignored if an array is used for the \code{effort}
+#'   argument or a \code{MizerSim} for the \code{object} argument.
+#' @param initial_n The initial abundances of species. A matrix with dimensions 
+#'   species x size. The order of species must be the same as in the 
+#'   \code{MizerParams} argument. Ignored if the \code{object} argument is a 
+#'   MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
+#'   is a \code{MizerParams} object.
+#' @param initial_n_pp The initial abundances of plankton. A numeric vector.
+#'   Ignored if the \code{object} argument is a MizerSim object, but overrules
+#'   the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
+#'   object.
 #' @param initial_B The initial biomasses of the unstructured resources. It
-#'   should be a vector with one entry for each resource, with the names the
-#'   same as the names of the list in the \code{resource_dynamics} slot of the
-#'   \code{MizerParams}. By default is set to the \code{initial_B} slot of the
-#'   \code{params} argument.
+#'   should be a named vector with one entry for each resource. Ignored if the
+#'   \code{object} argument is a MizerSim object, but overrules the
+#'   \code{initial_B} slot if \code{object} is a \code{MizerParams} object.
+#' @param append A boolean that determines whether the new simulation results
+#'   are appended to the previous ones. Only relevant if \code{object} is a
+#'   \code{MizerSim} object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console of a shiny progress object to implement 
 #'   a progress bar in a shiny app
@@ -60,7 +63,7 @@ NULL
 #' names in the \code{MizerParams} object. The values in the vector specify the
 #' constant fishing effort of each of the fishing gears, i.e. the effort is
 #' constant through time but each gear may have a different fishing effort. 
-#' \item A numerical array with dimensions time step x gear. This specifies the
+#' \item A numerical array with dimensions time x gear. This specifies the
 #' fishing effort of each gear at each time step.  The first dimension, time,
 #' must be named numerically and contiguously. The second dimension of the array
 #' must be named and the names must correspond to the gear names in the
@@ -69,15 +72,15 @@ NULL
 #' 
 #' If effort is specified as an array then the smallest time in the array is 
 #' used as the initial time for the simulation. Otherwise the initial time is
-#' set to 0. Also, if the effort is an array then the \code{t_max} argument is 
-#' ignored and the maximum simulation time is the largest time of the effort
-#' array.
+#' set to the final time of the previous simulation if \code{object} is a 
+#' \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
+#' an array then the \code{t_max} argument is ignored and the maximum simulation
+#' time is the largest time of the effort array.
 #' 
-#' The \code{initial_n} argument is a matrix with dimensions species x size. 
-#' It specifies the abundances of the species at the initial time. The
-#' order of species must be the same as in the \code{MizerParams} argument. If
-#' the initial population is not specified, the argument is set by default by
-#' the \code{\link{get_initial_n}} function which is set up for a North Sea model.
+#' If the \code{object} argument is of class \code{MizerSim} then the initial
+#' values for the simulation are taken from the final values in the 
+#' \code{MizerSim} object and the corresponding argumens to this function will
+#' be ignored.
 #' 
 #' @return An object of class \linkS4class{MizerSim}.
 #' 
@@ -106,19 +109,27 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(params, sim = NULL, effort = 0,
-                    t_max = 100, dt = 0.1, t_save = 1,
+project <- function(object, effort = 0,
+                    t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,
                     initial_B = params@initial_B,
+                    append = TRUE,
                     progress_bar = TRUE, ...) {
-    validObject(params)
-    if (hasArg(sim)) {
-        assert_that(is(sim, "MizerSim"))
-        no_t <- dim(sim@B)[1]
-        initial_n <- sim@n[no_t, , ]
-        initial_n_pp <- sim@n_pp[no_t, ]
-        initial_B <- sim@B[no_t, ]
+    validObject(object)
+    if (is(object, "MizerSim")) {
+        params <- object@params
+        no_t <- dim(object@B)[1]
+        initial_n <- object@n[no_t, , ]
+        initial_n_pp <- object@n_pp[no_t, ]
+        initial_B <- object@B[no_t, ]
+        t_start <- as.numeric(dimnames(object@n)[[1]][no_t])
+    } else {
+        params <- object
+        if (missing(initial_n))       initial_n <- params@initial_n
+        if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
+        if (missing(initial_B))       initial_B <- params@initial_B
+        t_start <- 0
     }
     no_sp <- length(params@w_min_idx)
     assert_that(is.array(initial_n),
@@ -148,44 +159,53 @@ project <- function(params, sim = NULL, effort = 0,
             effort_gear_names <- gear_names
         }
         if (!all(gear_names %in% effort_gear_names)) {
-            gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse=", "), ") do not match those in the effort vector.", sep="")
-            stop(gear_names_error_message)
+            stop(paste0("Gear names in the MizerParams object (", 
+                        paste(gear_names, collapse = ", "), 
+                        ") do not match those in the effort vector."))
         }
         # Set up the effort array transposed so we can use the recycling rules
-        time_dimnames <- signif(seq(from = 0, to = t_max, by = dt), 3)
+        time_dimnames <- signif(seq(from = t_start, 
+                                    to = t_start + t_max, 
+                                    by = dt), 3)
         effort <- t(array(effort, dim = c(no_gears, length(time_dimnames)), 
-                          dimnames = list(gear = effort_gear_names, time = time_dimnames)))
+                          dimnames = list(gear = effort_gear_names, 
+                                          time = time_dimnames)))
     }
     
-    # Check that number and names of gears in effort array is same as in MizerParams object
+    # Check that number and names of gears in effort array is same as in 
+    # MizerParams object
     no_gears <- dim(params@catchability)[1]
     if (dim(effort)[2] != no_gears) {
-        no_gears_error_message <- paste("The number of gears in the effort array (length of the second dimension = ", dim(effort)[2], ") does not equal the number of gears in the MizerParams object (", no_gears, ").", sep = "")
-        stop(no_gears_error_message)
+        stop(paste0("The number of gears in the effort array (length of the second dimension = ", 
+                   dim(effort)[2], 
+                   ") does not equal the number of gears in the MizerParams object (", 
+                   no_gears, ")."))
     }
     gear_names <- dimnames(params@catchability)[[1]]
     if (!all(gear_names %in% dimnames(effort)[[2]])) {
-        gear_names_error_message <- paste("Gear names in the MizerParams object (", paste(gear_names, collapse = ", "), ") do not match those in the effort array.", sep = "")
-        stop(gear_names_error_message)
+        stop(paste0("Gear names in the MizerParams object (", 
+                    paste(gear_names, collapse = ", "), 
+                    ") do not match those in the effort array."))
     }
     # Sort effort array to match order in MizerParams
-    effort <- effort[,gear_names, drop = FALSE]
+    effort <- effort[, gear_names, drop = FALSE]
     
     # Blow up time dimension of effort array
-    # i.e. effort might have been passed in using time steps of 1, but actual dt = 0.1, so need to blow up
+    # i.e. effort might have been passed in using time steps of 1, but actual 
+    # dt = 0.1, so need to blow up
     if (is.null(dimnames(effort)[[1]])) {
         stop("The time dimname of the effort argument must be numeric.")
     }
-    if (any(is.na(as.numeric(dimnames(effort)[[1]])))) {
+    time_effort <- as.numeric(dimnames(effort)[[1]])
+    if (any(is.na(time_effort))) {
         stop("The time dimname of the effort argument must be numeric.")
     }
-    time_effort <- as.numeric(dimnames(effort)[[1]])
     if (is.unsorted(time_effort)) {
         stop("The time dimname of the effort argument should be increasing.")
     }
-    t_max <- time_effort[length(time_effort)]
+    t_end <- time_effort[length(time_effort)]
     # Blow up effort so that rows are dt spaced
-    time_effort_dt <- seq(from = time_effort[1], to = t_max, by = dt)
+    time_effort_dt <- seq(from = time_effort[1], to = t_end, by = dt)
     effort_dt <- t(array(NA, dim = c(length(time_effort_dt), dim(effort)[2]), 
                          dimnames = list(time = time_effort_dt,
                                          dimnames(effort)[[2]])))
@@ -209,9 +229,9 @@ project <- function(params, sim = NULL, effort = 0,
     
     ## Initialise ----
     # Set initial population
-    sim@n[1,,] <- initial_n 
-    sim@n_pp[1,] <- initial_n_pp
-    sim@B[1,] <- initial_B
+    sim@n[1, , ] <- initial_n 
+    sim@n_pp[1, ] <- initial_n_pp
+    sim@B[1, ] <- initial_B
     
     # Handy things
     no_sp <- nrow(sim@params@species_params) # number of species
@@ -325,6 +345,25 @@ project <- function(params, sim = NULL, effort = 0,
             sim@n_pp[which(store), ] <- n_pp
             sim@B[which(store), ] <- B
         }
+    }
+    if (is(object, "MizerSim") && append) {
+        # append to previous simulation ----
+        no_t_old <- dim(object@n)[1]
+        no_t <- length(t_dimnames)
+        new_t_dimnames <- c(as.numeric(dimnames(object@n)[[1]]),
+                            t_dimnames[2:length(t_dimnames)])
+        new_sim <- MizerSim(params, t_dimnames = new_t_dimnames)
+        old_indices <- 1:no_t_old
+        new_indices <- seq(from = no_t_old + 1, length.out = no_t - 1)
+        new_sim@n[old_indices, , ]  <- object@n
+        new_sim@n[new_indices, , ]  <- sim@n[2:no_t, , ]
+        new_sim@n_pp[old_indices, ] <- object@n_pp
+        new_sim@n_pp[new_indices, ] <- sim@n_pp[2:no_t, ]
+        new_sim@B[old_indices, ]    <- object@B
+        new_sim@B[new_indices, ]    <- sim@B[2:no_t, ]
+        new_sim@effort[old_indices, ] <- object@effort
+        new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
+        return(new_sim)
     }
     return(sim)
 }
