@@ -1094,52 +1094,6 @@ plotDistribution <- function(params, sp) {
     pl
 }
 
-#' Get growth curves giving weight as a function of age
-#' 
-#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-#' time of a simulation to calculate the size at age. If given a
-#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
-#' 
-#' @param object MizerSim or MizerParams object
-#' @param max_age The age up to which the weight is to be plotted. Default is 20
-#'
-#' @return An array (species x age) containing the weight in grams.
-#' @export
-#' @examples
-#' 
-#' data(NS_species_params_gears)
-#' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
-#' getGrowthCurves(params)
-#' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
-#' getGrowthCurves(sim, max_age = 24)
-#' 
-getGrowthCurves <- function(object, max_age = 24) {
-    if (is(object, "MizerSim")) {
-        params <- object@params
-        t <- dim(object@n)[1]
-        n <- object@n[t, , ]
-        n_pp <- object@n_pp[t, ]
-    } else if (is(object, "MizerParams")) {
-        params <- object
-        n <- object@initial_n
-        n_pp <- object@initial_n_pp
-    }
-    species <- dimnames(n)$sp
-    age <- seq(0, max_age, length.out = 50)
-    ws <- array(dim = c(length(species), length(age)),
-                dimnames = list(Species = species, Age = age))
-    g <- getEGrowth(params, n, n_pp)
-    for (i in 1:length(species)) {
-        g_fn <- stats::approxfun(params@w, g[i, ])
-        myodefun <- function(t, state, parameters){
-            return(list(g_fn(state)))
-        }
-        ws[i, ] <- deSolve::ode(y = params@species_params$w_min[i], 
-                                times = age, func = myodefun)[, 2]
-    }
-    return(ws)
-}
 
 #' Plot growth curves giving weight as a function of age
 #' 
@@ -1153,12 +1107,7 @@ getGrowthCurves <- function(object, max_age = 24) {
 #' a and b for length to weight conversion and the von Bertalanffy parameter
 #' k_vb, then the von Bertalanffy growth curve is superimposed in black.
 #' 
-#' @param object MizerSim or MizerParams object
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param max_age The age up to which the weight is to be plotted. Default is 20
-#' @param percentage Boolean value. If TRUE, the size is shown as a percentage
-#'   of the maximal size.
+#' @inheritParams getGrowthCurves
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to FALSE
 #' @param ... Other arguments (unused)
@@ -1174,45 +1123,23 @@ getGrowthCurves <- function(object, max_age = 24) {
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
 #' 
-plotGrowthCurves <- function(object, species,
+plotGrowthCurves <- function(object, 
+                             species,
                              max_age = 20,
                              percentage = FALSE,
                              print_it = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
-        n <- object@n[t, , ]
-        n_pp <- object@n_pp[t, ]
+        params@initial_n <- object@n[t, , ]
+        params@initial_n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
         params <- object
-        n <- object@initial_n
-        n_pp <- object@initial_n_pp
     }
-    if (missing(species)) {
-        species <- dimnames(n)$sp
-    }
-    # reorder list of species to coincide with order in params
-    idx <- which(dimnames(n)$sp %in% species)
-    species <- dimnames(n)$sp[idx]
-    age <- seq(0, max_age, length.out = 50)
-    ws <- array(dim = c(length(species), length(age)),
-                dimnames = list(Species = species, Age = age))
-    g <- getEGrowth(params, n, n_pp)
-    for (j in 1:length(species)) {
-        i <- idx[j]
-        g_fn <- stats::approxfun(params@w, g[i, ])
-        myodefun <- function(t, state, parameters){
-            return(list(g_fn(state)))
-        }
-        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
-                                times = age, func = myodefun)[, 2]
-        if (percentage) {
-            ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
-        }
-    }
+    ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
     # Need to keep species in order for legend
-    plot_dat$Species <- factor(plot_dat$Species, dimnames(n)$sp)
+    plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value, group = Species))

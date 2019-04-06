@@ -279,6 +279,69 @@ getYield <- function(sim) {
 }
 
 
+#' Get growth curves giving weight as a function of age
+#' 
+#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+#' time of a simulation to calculate the size at age. If given a
+#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
+#' 
+#' @param object MizerSim or MizerParams object
+#' @param species Name or vector of names of the species to be included. By
+#'   default all species are included.
+#' @param max_age The age up to which to run the growth curve. Default is 20.
+#' @param percentage Boolean value. If TRUE, the size is given as a percentage
+#'   of the maximal size.
+#'
+#' @return An array (species x age) containing the weight in grams.
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' getGrowthCurves(params)
+#' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
+#' getGrowthCurves(sim, max_age = 24)
+#' }
+getGrowthCurves <- function(object, 
+                            species,
+                            max_age = 20,
+                            percentage = FALSE) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+        t <- dim(object@n)[1]
+        n <- object@n[t, , ]
+        n_pp <- object@n_pp[t, ]
+    } else if (is(object, "MizerParams")) {
+        params <- object
+        n <- object@initial_n
+        n_pp <- object@initial_n_pp
+    }
+    if (missing(species)) {
+        species <- dimnames(n)$sp
+    }
+    # reorder list of species to coincide with order in params
+    idx <- which(dimnames(n)$sp %in% species)
+    species <- dimnames(n)$sp[idx]
+    age <- seq(0, max_age, length.out = 50)
+    ws <- array(dim = c(length(species), length(age)),
+                dimnames = list(Species = species, Age = age))
+    g <- getEGrowth(params, n, n_pp)
+    for (j in 1:length(species)) {
+        i <- idx[j]
+        g_fn <- stats::approxfun(params@w, g[i, ])
+        myodefun <- function(t, state, parameters){
+            return(list(g_fn(state)))
+        }
+        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                times = age, func = myodefun)[, 2]
+        if (percentage) {
+            ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
+        }
+    }
+    return(ws)
+}
+
 #' Get size range array
 #' 
 #' Helper function that returns an array (species x size) of boolean values
