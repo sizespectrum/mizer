@@ -97,6 +97,38 @@ test_that("setPredKernel works", {
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
 
+## setSearchVolume ----
+test_that("setSearchVolume works", {
+    expect_identical(setSearchVolume(params, params@search_vol), params)
+    params@species_params$gamma <- 2 * params@species_params$gamma
+    p2 <- setSearchVolume(params)
+    expect_identical(2 * params@search_vol, p2@search_vol)
+})
+
+## setIntakeMax ----
+test_that("setIntakeMax works", {
+    expect_identical(setIntakeMax(params, params@intake_max), params)
+    params@species_params$h <- 2 * params@species_params$h
+    p2 <- setIntakeMax(params)
+    expect_identical(2 * params@intake_max, p2@intake_max)
+})
+
+## setMetab ----
+test_that("setMetab works", {
+    expect_identical(setMetab(params, params@metab), params)
+    params@species_params$ks <- 2 * params@species_params$ks
+    p2 <- setMetab(params)
+    expect_identical(2 * params@metab, p2@metab)
+})
+
+## setBMort ----
+test_that("setBMort works", {
+    expect_identical(setBMort(params, params@mu_b), params)
+    params@species_params$z0 <- 2 * params@species_params$z0
+    p2 <- setBMort(params)
+    expect_identical(2 * params@mu_b, p2@mu_b)
+})
+
 ## setReproduction ----
 test_that("setReproduction works", {
     expect_equal(setReproduction(params), params)
@@ -118,6 +150,7 @@ test_that("setResourceEncounter works", {
     params <- MizerParams(species_params, resource_dynamics = resource_dynamics)
     expect_equal(params@rho[2, 1, 1], 2 * params@w[1]^params@n)
     expect_equal(params@rho[2, 2, 1], (no_sp - 1) * params@w[1]^params@n)
+    expect_identical(setResourceEncounter(params, params@rho), params)
 })
 
 ## setParams ----

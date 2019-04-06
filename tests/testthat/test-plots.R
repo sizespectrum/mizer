@@ -47,6 +47,12 @@ p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
 p$plot_env <- NULL
 expect_known_value(p, "values/plotGrowthCurves")
 
+sim@params@species_params$a <- 0.0058
+sim@params@species_params$b <- 3.13
+p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
+p$plot_env <- NULL
+expect_known_value(p, "values/plotGrowthCurvesSingle")
+
 p <- displayFrames(getBiomassFrame(sim0, 
                                    species = species,
                                    start_time = 1,
@@ -57,6 +63,9 @@ p <- displayFrames(getBiomassFrame(sim0,
                    params)
 p$plot_env <- NULL
 expect_known_value(p, "values/displayFrames")
+
+expect_known_value(getSSBFrame(sim, species = "Cod", total = TRUE),
+                   "values/getSSBFrame")
 })
 
 test_that("plot function do not throw error", {
