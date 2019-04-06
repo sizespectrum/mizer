@@ -415,6 +415,9 @@ setClass(
     validity = validMizerParams
 )
 
+setValidity("MizerParams", validMizerParams)
+remove(validMizerParams)
+
 
 #' Create empty MizerParams object of the right size
 #' 
@@ -1768,7 +1771,6 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
     }
     assert_that(all(rho > 0))
     params@rho[] <- rho
-    params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
     
     return(params)
 }

@@ -1157,21 +1157,23 @@ plotGrowthCurves <- function(object,
     
     # Extra stuff for single-species case
     if (length(species) == 1 && !percentage) {
-        w_inf <- params@species_params$w_inf[idx[1]]
+        idx <- which(params@species_params$species == species)
+        w_inf <- params@species_params$w_inf[idx]
         # set w_inf to w at next grid point, because that is when growth rate
         # becomes zero
         w_inf <- params@w[min(sum(w_inf > params@w) + 1, length(params@w))]
         p <- p + geom_hline(yintercept = w_inf) +
             annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
-        w_mat <- params@species_params$w_mat[idx[1]]
+        w_mat <- params@species_params$w_mat[idx]
         p <- p + geom_hline(yintercept = w_mat) +
             annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
         if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
-            a <- params@species_params$a[idx[1]]
-            b <- params@species_params$b[idx[1]]
-            k_vb <- params@species_params$k_vb[idx[1]]
-            t0 <- params@species_params$t0[idx[1]]
-            if (is.null(t0)) t0 <- 0
+            age <- as.numeric(dimnames(ws)$Age)
+            a <- params@species_params$a[idx]
+            b <- params@species_params$b[idx]
+            k_vb <- params@species_params$k_vb[idx]
+            t0 <- params@species_params$t0[idx]
+            if (is.null(t0)) {t0 <- 0}
             L_inf <- (w_inf/a)^(1/b)
             vb <- a * (L_inf * (1 - exp(-k_vb * (age - t0))))^b
             dat <- data.frame(x = age, y = vb)
