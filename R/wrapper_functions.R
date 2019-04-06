@@ -1219,6 +1219,13 @@ markBackground <- function(object, species) {
 #' @param progress_bar A shiny progress object to implement 
 #'   a progress bar in a shiny app. Default FALSE
 #' @export
+#' @examples
+#' \dontrun{
+#' params <- set_scaling_model()
+#' params@species_params$gamma[5] <- 3000
+#' params <- setSearchVolume(params)
+#' params <- steady(params)
+#' }
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
                    dt = 0.1, progress_bar = TRUE) {
     p <- params

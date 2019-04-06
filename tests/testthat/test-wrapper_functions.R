@@ -118,3 +118,13 @@ test_that("Multiple gears work correctly in trait-based model", {
     expect_that(all(fmg[10,4,4,params@w >= knife_edges[4]] == 1), is_true())
     
 })
+
+# steady ----
+test_that("steady works", {
+    expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
+                   "Increased no_w to 36")
+    params@species_params$gamma[2] <- 2000
+    params <- setSearchVolume(params)
+    params <- steady(params)
+    expect_known_value(getRDI(params), "values/steady")
+})
