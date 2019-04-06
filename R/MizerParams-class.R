@@ -1258,9 +1258,9 @@ getPredKernel <- function(params) {
 #' @export
 setSearchVolume <- function(params, 
                             search_vol = NULL,
-                            q) {
-    assert_that(is(params, "MizerParams"))
-    assert_that(is.number(q))
+                            q = params@q) {
+    assert_that(is(params, "MizerParams"),
+                is.number(q))
     species_params <- params@species_params
     params@q <- q
     # If gamma array is supplied, check it, store it and return
@@ -1308,9 +1308,11 @@ setSearchVolume <- function(params,
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params, intake_max = NULL, n) {
-    assert_that(is(params, "MizerParams"))
-    assert_that(is.number(n))
+setIntakeMax <- function(params, 
+                         intake_max = NULL, 
+                         n = params@n) {
+    assert_that(is(params, "MizerParams"),
+                is.number(n))
     species_params <- params@species_params
     params@n <- n
     
@@ -1363,7 +1365,9 @@ setIntakeMax <- function(params, intake_max = NULL, n) {
 #' 
 #' @return MizerParams
 #' @export
-setMetab <- function(params, metab = NULL, p) {
+setMetab <- function(params, 
+                     metab = NULL, 
+                     p = params@p) {
     assert_that(is(params, "MizerParams"),
                 is.number(p))
     species_params <- params@species_params
@@ -1621,8 +1625,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
 #' @return A MizerParams object
 #' @export
 setPlankton <- function(params,
-                        kappa,
-                        lambda,
+                        kappa = params@kappa,
+                        lambda = params@lambda,
                         r_pp = 10, 
                         w_pp_cutoff = 10,
                         plankton_dynamics = plankton_semichemostat) {
@@ -1728,7 +1732,7 @@ setResources <- function(params,
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho = NULL, n) {
+setResourceEncounter <- function(params, rho = NULL, n = params@n) {
     assert_that(is(params, "MizerParams"),
                 is.number(n))
     params@n <- n
