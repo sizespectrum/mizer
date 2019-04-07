@@ -855,7 +855,8 @@ MizerParams <- set_multispecies_model
 
 #' Set or change any model parameters
 #' 
-#' Passes its arguments to the the setup functions
+#' This is a convenient wrapper function calling each of the following
+#' functions
 #' \itemize{
 #' \item \code{\link{changePredKernel}}
 #' \item \code{\link{changeSearchVolume}}
@@ -869,6 +870,7 @@ MizerParams <- set_multispecies_model
 #' \item \code{\link{changeResourceEncounter}}
 #' \item \code{\link{changeFishing}}
 #' }
+#' See the Details section below for a discussion of how to use this function.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
@@ -889,6 +891,34 @@ MizerParams <- set_multispecies_model
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
+#' @details 
+#' Usually, if you are happy with the way mizer calculates its model functions
+#' from the species parameters and only want to change the values of some
+#' species parameters, you would make those changes in the `species_params`
+#' data frame contained in the `params` object and then call the
+#' `changeParams()` function to effect the change. Note that just changing
+#' the species parameters by themselves is not changing the model until you
+#' call `changeParams()` or the appropriate one of its sub-functions.
+#' 
+#' Because of the way the R language works, `changeParams` does not make the
+#' changes to the `params` object that you pass to it but instead returns a new
+#' params object. So to affect the change you call the function in the form
+#' ```params <- changeParams(params, ...)```. See the examples section for an
+#' example of how to change a species parameter and then change the model.
+#' 
+#' If you are not happy with the assumptions that mizer makes by default about
+#' the shape of the model functions, for example if you want to change one of
+#' the allometric scaling assumptions, you can do this by providing your
+#' choice as an array in the appropriate argument to `changeParams()`. The
+#' sections below discuss all the model functions that you can change this way.
+#' 
+#' This function will use the species parameters from the `species_params` data
+#' frame from the `params` object to reset the values of all the model functions
+#' that you do not specify explictly when calling this function.
+#' If you have changed any of the model functions previously and now want to
+#' make changes to a different slot, you will want to call the appropriate
+#' change function individually.
+#' 
 #' @inheritSection changeInteraction Setting interactions
 #' @inheritSection changePredKernel Setting predation kernel
 #' @inheritSection changeSearchVolume Setting search volume
@@ -900,8 +930,14 @@ MizerParams <- set_multispecies_model
 #' @inheritSection changeResources Setting resource dynamics
 #' @inheritSection changeResourceEncounter Setting resource encounter rate
 #' @inheritSection changeFishing Setting fishing
-#' 
+#' @md
 #' @export
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' params@species_params$gamma[3] <- 1000
+#' params <- changeParams(params)
+#' }
 changeParams <- function(params,
                       # changeInteraction()
                       interaction = NULL,
@@ -999,6 +1035,13 @@ changeParams <- function(params,
 #' 
 #' @return MizerParams object
 #' @export
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' interaction <- params@interaction
+#' interaction[1, 3] <- 0
+#' params <- changeInteraction(params, interaction)
+#' }
 changeInteraction <- function(params,
                            interaction = NULL) {
     assert_that(is(params, "MizerParams"))
@@ -1259,6 +1302,12 @@ getPredKernel <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' params@species_params$gamma[3] <- 1000
+#' params <- changeSearchVolume(params)
+#' }
 changeSearchVolume <- function(params, 
                             search_vol = NULL,
                             q = params@q) {
@@ -1458,7 +1507,7 @@ changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) 
 #' invested into reproduction.
 #' 
 #' If the \code{maturity} argument is not supplied, then it is set to a sigmoidal 
-#' maturity ogive
+#' maturity ogive that changes from 0 to 1 at around the maturity size:
 #' \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
 #'   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
 #' (To avoid clutter, we are not showing the species index in the equations.)
@@ -1469,13 +1518,17 @@ changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) 
 #' default it is chosen as \eqn{U = 10}, however this can be overridden by
 #' including a column \code{w_mat25} in the species parameter dataframe that
 #' specifies the weight at which 25\% of individuals are mature, which sets
-#' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
+#' \eqn{U = \log(3) / \log(w_{mat} / w_{25}).}{U = log(3) / log(w_mat / w_25).}
+#' 
+#' The sigmoidal function given above would strictly reach 1 only asymptotically.
+#' Mizer instead sets the function equal to 1 already at the species' 
+#' maximum size, taken from the compulsory \code{w_inf} column in the
+#' \code{species_params} data frame.
 #' 
 #' If the \code{repro_prop} argument is not supplied, it is set to the
 #' allometric form
-#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}
-#'   \frac{1}{{\tt maturity}(w_{inf})}.}{
-#'   repro_prop = (w/w_inf)^(m - n) / maturity(w_inf)}
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
+#'   repro_prop = (w/w_inf)^(m - n).}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be 
