@@ -84,19 +84,64 @@ MizerParams object, uses the initial growth rates instead." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -150,16 +195,16 @@ time of a simulation to calculate the size at age. If given a
     </tr>
     <tr>
       <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <td><p>Name or vector of names of the species to be included. By
+default all species are included.</p></td>
     </tr>
     <tr>
       <th>max_age</th>
-      <td><p>The age up to which the weight is to be plotted. Default is 20</p></td>
+      <td><p>The age up to which to run the growth curve. Default is 20.</p></td>
     </tr>
     <tr>
       <th>percentage</th>
-      <td><p>Boolean value. If TRUE, the size is shown as a percentage
+      <td><p>Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.</p></td>
     </tr>
     <tr>
@@ -192,7 +237,7 @@ k_vb, then the von Bertalanffy growth curve is superimposed in black.</p>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'>plotGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>percentage</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"Cod"</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>24</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 1 rows containing missing values (geom_hline).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 1 rows containing missing values (geom_text).</span></div><div class='img'><img src='plotGrowthCurves-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>plotGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>percentage</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='error'>Error in plotGrowthCurves(sim, percentage = TRUE): argument "species" is missing, with no default</span></div><div class='input'><span class='fu'>plotGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='st'>"Cod"</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>24</span>)</div><div class='img'><img src='plotGrowthCurves-1.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -212,7 +257,7 @@ k_vb, then the von Bertalanffy growth curve is superimposed in black.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -28,3 +28,4 @@ y <- getYield(sim)
 \seealso{
 \code{\link{getYieldGear}}
 }
+\concept{summary_function}

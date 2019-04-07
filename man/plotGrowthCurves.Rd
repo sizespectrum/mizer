@@ -10,12 +10,12 @@ plotGrowthCurves(object, species, max_age = 20, percentage = FALSE,
 \arguments{
 \item{object}{MizerSim or MizerParams object}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{Name or vector of names of the species to be included. By
+default all species are included.}
 
-\item{max_age}{The age up to which the weight is to be plotted. Default is 20}
+\item{max_age}{The age up to which to run the growth curve. Default is 20.}
 
-\item{percentage}{Boolean value. If TRUE, the size is shown as a percentage
+\item{percentage}{Boolean value. If TRUE, the size is given as a percentage
 of the maximal size.}
 
 \item{print_it}{Display the plot, or just return the ggplot2 object.

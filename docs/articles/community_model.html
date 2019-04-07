@@ -45,19 +45,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -116,18 +161,18 @@
 <p>If you are going through this vignette for the first time, it is likely that you have no idea what a <code>MizerParams</code> object actually is. In R-speak it is an <em>S4</em> object, which means it is an object made up of <em>slots</em>. Slots are essentially containers that store the object data. The names of these slots can be seen by calling the <code>slotNames()</code> method on the object:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">slotNames</span>(params)</a></code></pre></div>
 <pre><code>##  [1] "w"                 "dw"                "w_full"           
-##  [4] "dw_full"           "w_min_idx"         "psi"              
-##  [7] "initial_n"         "intake_max"        "search_vol"       
-## [10] "rho"               "metab"             "pred_kernel"      
-## [13] "ft_pred_kernel_e"  "ft_pred_kernel_p"  "mu_b"             
-## [16] "rr_pp"             "cc_pp"             "resource_dynamics"
-## [19] "plankton_dynamics" "resource_params"   "sc"               
-## [22] "initial_n_pp"      "initial_B"         "species_params"   
-## [25] "interaction"       "srr"               "selectivity"      
-## [28] "catchability"      "n"                 "p"                
-## [31] "lambda"            "q"                 "f0"               
-## [34] "kappa"             "A"                 "linecolour"       
-## [37] "linetype"</code></pre>
+##  [4] "dw_full"           "w_min_idx"         "maturity"         
+##  [7] "psi"               "initial_n"         "intake_max"       
+## [10] "search_vol"        "rho"               "metab"            
+## [13] "pred_kernel"       "ft_pred_kernel_e"  "ft_pred_kernel_p" 
+## [16] "mu_b"              "rr_pp"             "cc_pp"            
+## [19] "resource_dynamics" "plankton_dynamics" "resource_params"  
+## [22] "sc"                "initial_n_pp"      "initial_B"        
+## [25] "species_params"    "interaction"       "srr"              
+## [28] "selectivity"       "catchability"      "n"                
+## [31] "p"                 "lambda"            "q"                
+## [34] "f0"                "kappa"             "A"                
+## [37] "linecolour"        "linetype"</code></pre>
 <p>As you can see, the <code>params</code> object is made up of lots of slots. A quick description can be found in the <a href="../reference/MizerParams-class.html"><code>MizerParams</code> help page</a> (run <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. The slots of an object are accessed by using the <code>@</code> operator. For example, to access the <code>w</code> slot (which contains a vector of the size bins in the model) you would use</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">params<span class="op">@</span>w</a></code></pre></div>
 <p>Rather than picking through the slots to find out what is in a particular <code>MizerParams</code> object, a summary of the object can be seen by calling the <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> method on it:</p>
@@ -138,9 +183,9 @@
 ##  maximum size:   1e+06
 ##  no. size bins:  100
 ## Plankton size spectrum:
-##  minimum size:   2.31013e-08
+##  minimum size:   1.87382e-08
 ##  maximum size:   1e+06
-##  no. size bins:  151
+##  no. size bins:  152
 ## Species details:
 ##             species w_inf w_mat beta sigma
 ## Community Community 1e+06    NA  100     2
@@ -164,7 +209,7 @@
 Example plot of the community model.
 </p>
 </div>
-<p>In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium. Fishing mortality is 0 because we set the <code>effort</code> argument to 0 when running the simulation. The predation mortality rate is clearly a function of size, with the smallest sizes experiencing the highest levels of predation. The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the <code>f0</code> and <code>alpha</code> arguments passed to the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function. The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to <span class="math inline">\(2.31\times 10^{-8}\)</span> g). You can see that the community spectrum forms a continuum with the plankton spectrum. This is strongly affected by the level of fixed recruitment (the <code>recruitment</code> argument passed to <code><a href="../reference/set_community_model.html">set_community_model()</a></code>).</p>
+<p>In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium. Fishing mortality is 0 because we set the <code>effort</code> argument to 0 when running the simulation. The predation mortality rate is clearly a function of size, with the smallest sizes experiencing the highest levels of predation. The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the <code>f0</code> and <code>alpha</code> arguments passed to the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function. The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to <span class="math inline">\(1.87\times 10^{-8}\)</span> g). You can see that the community spectrum forms a continuum with the plankton spectrum. This is strongly affected by the level of fixed recruitment (the <code>recruitment</code> argument passed to <code><a href="../reference/set_community_model.html">set_community_model()</a></code>).</p>
 <p>Note the hump in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as ‘big things eating little things’. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the background mortality (determined by the <code>z0</code> argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the predation mortality being so high for the smaller individuals.</p>
 <p>We can see this more clearly by extracting the predation mortality information from the <code>MizerSim</code> object, <code>sim</code>, that we created above. This is easily done by using the <code><a href="../reference/getPredMort.html">getPredMort()</a></code> function (see the help page for more details). There are several methods that can be used for extracting information from a <code>MizerSim</code> object, e.g. <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code> and <code><a href="../reference/getFMort.html">getFMort()</a></code>. For more information see <a href="exploring_the_simulation_results.html">the section on exploring the simulation results</a>. Here we just call <code><a href="../reference/getPredMort.html">getPredMort()</a></code> using the <code>sim</code> object:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">m2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getPredMort.html">getPredMort</a></span>(sim)</a></code></pre></div>
@@ -253,7 +298,7 @@ Biomass of the community model when sigma is reduced to a value of 1.0.
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

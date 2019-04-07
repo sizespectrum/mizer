@@ -226,66 +226,82 @@ validMizerParams <- function(object) {
 #'   equal to the content of the dw slot.
 #' @slot w_min_idx A vector holding the index of the weight of the egg size
 #'   of each species
+#' @slot maturity An array (species x size) that holds the proportion of
+#'   individuals of each species at size that are mature. This enters in the
+#'   calculation of the spawning stock biomass with \code{\link{getSSB}}. Set 
+#'   with \code{\link{changeReproduction}}.
 #' @slot psi An array (species x size) that holds the allocation to reproduction
-#'   for each species at size, \eqn{\psi_i(w)}
+#'   for each species at size, \eqn{\psi_i(w)}. Changed with 
+#'   \code{\link{changeReproduction}}.
 #' @slot intake_max An array (species x size) that holds the maximum intake for
-#'   each species at size.
+#'   each species at size. Changed with \code{\link{changeIntakeMax}}.
 #' @slot search_vol An array (species x size) that holds the search volume for
-#'   each species at size.
+#'   each species at size. Changed with \code{\link{changeSearchVolume}}.
 #' @slot rho A 3-dim array (species x resource x size) holding the encounter
-#'   rates for unstructured resources. See [resource_dynamics] for details.
+#'   rates for unstructured resources. Changed with 
+#'   \code{\link{changeResourceEncounter}} .See \code{\link{resource_dynamics}} for
+#'    details.
 #' @slot metab An array (species x size) that holds the metabolism
-#'   for each species at size.
+#'   for each species at size. Changed with \code{\link{changeMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
-#'   \eqn{\mu_{b.i}(w)}
+#'   \eqn{\mu_{b.i}(w)}. Changed with \code{\link{changeBMort}}.
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
-#'   this is NA then the following two slots will be used.
+#'   this is NA then the following two slots will be used. Changed with 
+#'   \code{\link{changePredKernel}}.
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the encounter rate integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the available 
-#'   energy integral.
+#'   energy integral. Changed with \code{\link{changePredKernel}}.
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the integral.
+#'   Changed with \code{\link{changePredKernel}}.
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum.
+#'   growth rate of the plankton spectrum. Changed with \code{\link{changePlankton}}.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum.
-#' @slot resource_dynamics A named list of functions for projecting the
-#'   biomasses in the unstructured resource components by one timestep. The
-#'   names of the list entries are the resource names. See
-#'   \code{\link{resource_dynamics}} for details.
+#'   carrying capacity of the plankton spectrum. Changed with 
+#'   \code{\link{changePlankton}}.
 #' @slot plankton_dynamics A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
-#'   an example.
+#'   an example. Changed with \code{\link{changePlankton}}.
+#' @slot resource_dynamics A named list of functions for projecting the
+#'   biomasses in the unstructured resource components by one timestep. The
+#'   names of the list entries are the resource names. Changed with 
+#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
+#'   details.
 #' @slot resource_params A list containing the parameters needed by the
-#'   `resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+#'   \code{resource_dynamics} functions.  Changed with 
+#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
 #'   details.
 #' @slot sc The community abundance of the scaling community
-#' @slot species_params A data.frame to hold the species specific parameters
-#'   (see the mizer vignette, Table 2, for details)
-#' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}
+#' @slot species_params A data.frame to hold the species specific parameters.
+#'   See \code{\link{set_multispecies_params}} for details.
+#' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
+#'   Changed with \code{\link{changeInteraction}}.
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
-#'   each gear for species and size, \eqn{S_{g,i,w}}
+#'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
+#'   \code{\link{changeFishing}}.
 #' @slot catchability An array (gear x species) that holds the catchability of
-#'   each species by each gear, \eqn{Q_{g,i}}
+#'   each species by each gear, \eqn{Q_{g,i}}. Changed with 
+#'   \code{\link{changeFishing}}.
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
 #'   the plankton abundance at each weight.
 #' @slot initial_B A vector containing the biomasses of the unstructured
 #'   resource components, see \code{\link{resource_dynamics}} for details.
-#' @slot n Exponent of maximum intake rate.
-#' @slot p Exponent of metabolic cost.
-#' @slot lambda Exponent of plankton spectrum.
-#' @slot q Exponent for volumetric search rate.
+#' @slot n Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.
+#' @slot p Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.
+#' @slot lambda Exponent of plankton spectrum. Changed with \code{\link{changePlankton}}.
+#' @slot kappa Magnitude of plankton spectrum. Changed with \code{\link{changePlankton}}.
+#' @slot q Exponent for volumetric search rate. 
+#'   Changed with \code{\link{changeSearchVolume}}.
 #' @slot f0 Initial feeding level.
-#' @slot kappa Magnitude of plankton spectrum.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species. Used 
 #'   to give consistent colours to species in plots.
@@ -316,6 +332,7 @@ setClass(
         w_full = "numeric",
         dw_full = "numeric",
         w_min_idx = "numeric",
+        maturity = "array",
         psi = "array",
         initial_n = "array",
         intake_max = "array",
@@ -361,6 +378,7 @@ setClass(
         q = NA_real_,
         f0 = NA_real_,
         kappa = NA_real_,
+        maturity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -392,6 +410,9 @@ setClass(
     ),
     validity = validMizerParams
 )
+
+setValidity("MizerParams", validMizerParams)
+remove(validMizerParams)
 
 
 #' Create empty MizerParams object of the right size
@@ -441,7 +462,7 @@ emptyParams <- function(species_params,
                         min_w = 0.001,
                         # w_full = NA,
                         max_w = NA,
-                        min_w_pp = 1e-10,
+                        min_w_pp = NA,
                         no_w_pp = NA,
                         srr = srrBevertonHolt) {
     if (!is.na(no_w_pp)) {
@@ -458,13 +479,7 @@ emptyParams <- function(species_params,
     no_sp <- nrow(species_params)
     
     ## Set defaults ----
-    if (!("w_min" %in% colnames(species_params))) {
-        species_params$w_min <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$w_min)
-    if (any(missing)) {
-        species_params$w_min[missing] <- min_w
-    }
+    species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
     if (!("w_inf" %in% colnames(species_params))) {
@@ -477,8 +492,8 @@ emptyParams <- function(species_params,
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
     } else {
-        if (max(species_params$w_inf) < max_w) {
-            too_large <- species_params$species[max_w > species_params$w_inf]
+        if (max(species_params$w_inf) > max_w) {
+            too_large <- species_params$species[max_w < species_params$w_inf]
             stop(paste0("Some of your species have an maximum size larger than max_w: ",
                         toString(too_large)))
         }
@@ -491,13 +506,8 @@ emptyParams <- function(species_params,
     gear_names <- unique(species_params$gear)
     
     # If no alpha (conversion efficiency), then set to 0.6
-    if (!("alpha" %in% colnames(species_params))) {
-        species_params$alpha <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$alpha)
-    if (any(missing)) {
-        species_params$alpha[missing] <- 0.6
-    }
+    species_params <- set_species_param_default(species_params,
+                                                "alpha", 0.6)
     
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
@@ -510,19 +520,46 @@ emptyParams <- function(species_params,
         w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
         dw <- (10^dx - 1) * w
+        # To avoid issues due to numerical imprecission
+        min_w <- w[1]
         
+        # If not provided, set min_w_pp so that all fish have their full feeding
+        # kernel inside plankton spectrum
+        ppmr <- 10^(seq(from = 0, by = dx, length.out = 3 * no_w))
+        phis <- get_phi(species_params, ppmr)
+        max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
+        min_w_feeding <- species_params$w_min / max_ppmr
+        species_params <- set_species_param_default(species_params,
+                                                    "interaction_p", 1)
+        if (any(species_params$interaction_p > 0)) {
+            min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
+        } else {
+            min_w_feeding <- min_w
+        }
+        if (is.na(min_w_pp)) {
+            min_w_pp <- min(min_w_feeding)
+        } else {
+            assert_that(min_w_pp <= min_w)
+            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
+            if (length(hungry_sp) > 0) {
+                message(paste(
+                    "Note: The following species have feeding kernels that extend",
+                    "below the smallest plankton size specified by min_w_pp:",
+                    toString(hungry_sp)))
+            }
+        }
         # For fft methods we need a constant log bin size throughout. 
         # Therefore we use as many steps as are necessary so that the first size
         # class includes min_w_pp.
         x_pp <- rev(seq(from = log10(min_w),
                         to = log10(min_w_pp),
                         by = -dx)) - dx
-        # If min_w_pp happened to lie exactly on a grid point, we now added
-        # one grid point to much which we need to remove again
-        if (x_pp[2] == log10(min_w_pp)) {
-            x_pp <- x_pp[2:length(x_pp)]
-        }
         w_full <- c(10^x_pp, w)
+        # If min_w_pp happened to lie exactly on a grid point, we now added
+        # one grid point too much which we need to remove again
+        if (w_full[2] == min_w_pp) {
+            w_full <- w_full[2:length(w_full)]
+        }
         no_w_full <- length(w_full)
         dw_full <- (10^dx - 1) * w_full	
     # } else {
@@ -569,9 +606,11 @@ emptyParams <- function(species_params,
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full,3)
     
-    w_min_idx <- as.vector(
+    w_min_idx <- as.vector(suppressWarnings(
         tapply(species_params$w_min, 1:no_sp,
-               function(w_min, wx) max(which(wx <= w_min)), wx = w))
+               function(w_min, wx) max(which(wx <= w_min)), wx = w)))
+    # Due to rounding errors this might happen:
+    w_min_idx[w_min_idx == -Inf] <- 1
     names(w_min_idx) = species_names
     
     # Colour and linetype scales ----
@@ -612,6 +651,7 @@ emptyParams <- function(species_params,
         w_full = w_full,
         dw_full = dw_full,
         w_min_idx = w_min_idx,
+        maturity = mat1,
         psi = mat1,
         initial_n = mat1,
         intake_max = mat1,
@@ -643,135 +683,334 @@ emptyParams <- function(species_params,
     return(params)
 }
 
-#' Set or change model parameters
+#' Construct MizerParams object for general multispecies model
+#'
+#' Sets up a multi-species size spectrum model by filling all slots in the
+#' \linkS4class{MizerParams} object based on user-provided or default
+#' parameters. It does this by creating an empty MizerParams object with
+#' \code{\link{emptyParams}} and then filling the slots by passing its arguments
+#' to \code{\link{changeParams}}. There is a long list of arguments, but almost
+#' all of them have sensible default values. All arguments are described in more
+#' details in the sections below the list.
 #' 
-#' Passes its arguments to the the setup functions
-#' \itemize{
-#' \item \code{\link{setPredKernel}}
-#' \item \code{\link{setSearchVolume}}
-#' \item \code{\link{setInteraction}}
-#' \item \code{\link{setIntakeMax}}
-#' \item \code{\link{setMetab}}
-#' \item \code{\link{setBMort}}
-#' \item \code{\link{setReproduction}}
-#' \item \code{\link{setPlankton}}
-#' \item \code{\link{setResources}}
-#' \item \code{\link{setResourceEncounter}}
-#' \item \code{\link{setFishing}}
+#' @inheritParams emptyParams
+#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#'   is set to the smallest value at which any of the consumers can feed.
+#' @param no_w_pp Obsolete argument that is no longer used because the number
+#'    of plankton size bins is determined because all size bins have to
+#'    be logarithmically equally spaced.
+#' @inheritParams changeParams
+#'
+#' @return An object of type \linkS4class{MizerParams}
+#' 
+#' @section Species parameters:
+#' The only essential argument is a data frame that contains the species
+#' parameters. The data frame is arranged species by parameter, so each column
+#' of the parameter data frame is a parameter and each row has the values of the
+#' parameters for one of the species in the model.
+#'
+#' There are two essential columns that must be included in the species
+#' parameter data.frame and that do not have default values: the 
+#' \code{species} column that should hold strings with the names of the
+#' species and the \code{w_inf} column with the asymptotic sizes of the species. 
+#' 
+#' The species_params dataframe also needs to contain the parameters needed
+#' by any predation kernel function or size selectivity function. This will
+#' be mentioned in the appropriate sections below.
+#' 
+#' For all other species parameters, mizer will calculate default values if they
+#' are not included in the species parameter data frame. They will be
+#' automatically added when the \code{MizerParams} object is created. For these
+#' parameters you can also specify values for only some species and leave the
+#' other entries as NA and the missing values will be set to the defaults.
+#' 
+#' All the parameters will be mentioned in the following sections.
+#' 
+#' @inheritSection changeInteraction Setting interactions
+#' @inheritSection changePredKernel Setting predation kernel
+#' @inheritSection changeSearchVolume Setting search volume
+#' @inheritSection changeIntakeMax Setting maximum intake rate
+#' @inheritSection changeMetab Setting metabolic rate
+#' @inheritSection changeBMort Setting background mortality rate
+#' @inheritSection changeReproduction Setting reproduction
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResources Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
+#' @inheritSection changeFishing Setting fishing
+#'   
+#' @seealso \code{\link{project}}, \linkS4class{MizerSim},
+#'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' }
+set_multispecies_model <- function(species_params,
+                                   interaction = matrix(1,
+                                                        nrow = nrow(species_params),
+                                                        ncol = nrow(species_params)),
+                                   no_w = 100,
+                                   min_w = 0.001,
+                                   max_w = NA,
+                                   min_w_pp = NA,
+                                   no_w_pp = NA,
+                                   n = 2 / 3,
+                                   p = 0.7,
+                                   q = 0.8,
+                                   kappa = 1e11,
+                                   lambda = (2 + q - n),
+                                   f0 = 0.6,
+                                   # changePredKernel()
+                                   pred_kernel = NULL,
+                                   # changeSearchVolume()
+                                   search_vol = NULL,
+                                   # changeIntakeMax()
+                                   intake_max = NULL,
+                                   # changeMetab()
+                                   metab = NULL,
+                                   # changeBMort
+                                   z0pre = 0.6,
+                                   z0exp = n - 1,
+                                   # changeReproduction
+                                   maturity = NULL,
+                                   repro_prop = NULL,
+                                   # changePlankton
+                                   r_pp = 10,
+                                   w_pp_cutoff = 10,
+                                   plankton_dynamics = plankton_semichemostat,
+                                   # changeResources
+                                   resource_dynamics = list(),
+                                   resource_params = list(),
+                                   # changeResourceEncounter
+                                   rho = NULL,
+                                   srr = srrBevertonHolt) {
+    
+    ## Create MizerParams object ----
+    params <- emptyParams(species_params,
+                          no_w = no_w, 
+                          min_w = min_w,  
+                          max_w = max_w, 
+                          min_w_pp = min_w_pp, 
+                          no_w_pp = NA,
+                          srr = srr)
+    
+    ## Fill the slots ----
+    params@n <- n
+    params@lambda <- lambda
+    params@f0 <- f0
+    params@kappa <- kappa
+    
+    params <- changeParams(params,
+                        # changeInteraction
+                        interaction = interaction,
+                        # changePredKernel()
+                        pred_kernel = pred_kernel,
+                        # changeSearchVolume()
+                        search_vol = search_vol,
+                        q = q,
+                        f0 <- f0,
+                        # changeIntakeMax()
+                        intake_max = intake_max,
+                        n = n,
+                        # changeMetab()
+                        metab = metab,
+                        p = p,
+                        # changeBMort
+                        z0pre = z0pre,
+                        z0exp = z0exp,
+                        # changeReproduction
+                        maturity = maturity,
+                        repro_prop = repro_prop,
+                        # changePlankton
+                        kappa = kappa,
+                        lambda = lambda,
+                        r_pp = r_pp,
+                        w_pp_cutoff = w_pp_cutoff,
+                        plankton_dynamics = plankton_dynamics,
+                        # changeResources
+                        resource_dynamics = resource_dynamics,
+                        resource_params = resource_params,
+                        # changeResourceEncounter
+                        rho = rho)
+    
+    params@initial_n <- get_initial_n(params)
+    params@initial_n_pp <- params@cc_pp
+    params@A <- rep(1, nrow(species_params))
+    
+    return(params)
+}
+
+#' Alias for set_multispecies_model
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit set_multispecies_model
+#' @export
+MizerParams <- set_multispecies_model
+
+#' Set or change any model parameters
+#' 
+#' This is a convenient wrapper function calling each of the following
+#' functions
+#' \itemize{
+#' \item \code{\link{changePredKernel}}
+#' \item \code{\link{changeSearchVolume}}
+#' \item \code{\link{changeInteraction}}
+#' \item \code{\link{changeIntakeMax}}
+#' \item \code{\link{changeMetab}}
+#' \item \code{\link{changeBMort}}
+#' \item \code{\link{changeReproduction}}
+#' \item \code{\link{changePlankton}}
+#' \item \code{\link{changeResources}}
+#' \item \code{\link{changeResourceEncounter}}
+#' \item \code{\link{changeFishing}}
+#' }
+#' See the Details section below for a discussion of how to use this function.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
 #'   if those are not columns in the species data frame. Also requires
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. If \code{h} and \code{gamma} are supplied then this argument is
-#'   ignored. Default is 0.6.
-#' @inheritParams setInteraction
-#' @inheritParams setPredKernel
-#' @inheritParams setSearchVolume
-#' @inheritParams setIntakeMax
-#' @inheritParams setMetab
-#' @inheritParams setBMort
-#' @inheritParams setReproduction
-#' @inheritParams setPlankton
-#' @inheritParams setResources
-#' @inheritParams setResourceEncounter
-#' @inheritParams setFishing
+#'   data frame. 
+#' @inheritParams changeInteraction
+#' @inheritParams changePredKernel
+#' @inheritParams changeSearchVolume
+#' @inheritParams changeIntakeMax
+#' @inheritParams changeMetab
+#' @inheritParams changeBMort
+#' @inheritParams changeReproduction
+#' @inheritParams changePlankton
+#' @inheritParams changeResources
+#' @inheritParams changeResourceEncounter
+#' @inheritParams changeFishing
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
-#' @inheritSection setInteraction Setting interactions
-#' @inheritSection setPredKernel Setting predation kernel
-#' @inheritSection setSearchVolume Setting search volume
-#' @inheritSection setIntakeMax Setting maximum intake rate
-#' @inheritSection setMetab Setting metabolic rate
-#' @inheritSection setBMort Setting background mortality rate
-#' @inheritSection setReproduction Setting reproduction
-#' @inheritSection setPlankton Setting plankton dynamics
-#' @inheritSection setResources Setting resource dynamics
-#' @inheritSection setResourceEncounter Setting resource encounter rate
-#' @inheritSection setFishing Setting fishing
+#' @details 
+#' Usually, if you are happy with the way mizer calculates its model functions
+#' from the species parameters and only want to change the values of some
+#' species parameters, you would make those changes in the `species_params`
+#' data frame contained in the `params` object and then call the
+#' `changeParams()` function to effect the change. Note that just changing
+#' the species parameters by themselves is not changing the model until you
+#' call `changeParams()` or the appropriate one of its sub-functions.
 #' 
+#' Because of the way the R language works, `changeParams` does not make the
+#' changes to the `params` object that you pass to it but instead returns a new
+#' params object. So to affect the change you call the function in the form
+#' ```params <- changeParams(params, ...)```. See the examples section for an
+#' example of how to change a species parameter and then change the model.
+#' 
+#' If you are not happy with the assumptions that mizer makes by default about
+#' the shape of the model functions, for example if you want to change one of
+#' the allometric scaling assumptions, you can do this by providing your
+#' choice as an array in the appropriate argument to `changeParams()`. The
+#' sections below discuss all the model functions that you can change this way.
+#' 
+#' This function will use the species parameters from the `species_params` data
+#' frame from the `params` object to reset the values of all the model functions
+#' that you do not specify explictly when calling this function.
+#' If you have changed any of the model functions previously and now want to
+#' make changes to a different slot, you will want to call the appropriate
+#' change function individually.
+#' 
+#' @inheritSection changeInteraction Setting interactions
+#' @inheritSection changePredKernel Setting predation kernel
+#' @inheritSection changeSearchVolume Setting search volume
+#' @inheritSection changeIntakeMax Setting maximum intake rate
+#' @inheritSection changeMetab Setting metabolic rate
+#' @inheritSection changeBMort Setting background mortality rate
+#' @inheritSection changeReproduction Setting reproduction
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResources Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
+#' @inheritSection changeFishing Setting fishing
+#' @md
 #' @export
-setParams <- function(params,
-                      # setInteraction()
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' params@species_params$gamma[3] <- 1000
+#' params <- changeParams(params)
+#' }
+changeParams <- function(params,
+                      # changeInteraction()
                       interaction = NULL,
-                      # setPredKernel()
+                      # changePredKernel()
                       pred_kernel = NULL,
-                      pred_kernel_type = params@pred_kernel_type,
-                      store_kernel = FALSE,
-                      # setSearchVolume()
+                      # changeSearchVolume()
                       search_vol = NULL,
                       q = params@q,
                       f0 = params@f0,
-                      # setIntakeMax()
+                      # changeIntakeMax()
                       intake_max = NULL,
                       n = params@n,
-                      # setMetab()
+                      # changeMetab()
                       metab = NULL,
                       p = params@p,
-                      # setBMort
+                      # changeBMort
                       z0pre = 0.6,
                       z0exp = n - 1,
-                      # setReproduction
-                      psi = NULL,
-                      # setPlankton
+                      # changeReproduction
+                      maturity = NULL,
+                      repro_prop = NULL,
+                      # changePlankton
                       kappa = params@kappa,
                       lambda = params@lambda,
                       r_pp = 10,
                       w_pp_cutoff = 10,
                       plankton_dynamics = params@plankton_dynamics,
-                      # setResources
+                      # changeResources
                       resource_dynamics = params@resource_dynamics,
                       resource_params = params@resource_params,
-                      # setResourceEncounter
+                      # changeResourceEncounter
                       rho = NULL) {
-    params <- setInteraction(params,
+    params <- changeInteraction(params,
                              interaction = interaction)
-    params <- setFishing(params)
-    params <- setPredKernel(params, 
-                            pred_kernel = pred_kernel,
-                            pred_kernel_type = pred_kernel_type,
-                            store_kernel = store_kernel)
-    params <- setIntakeMax(params, 
+    params <- changeFishing(params)
+    params <- changePredKernel(params, 
+                            pred_kernel = pred_kernel)
+    params <- changeIntakeMax(params, 
                            intake_max = intake_max,
                            n = n)
-    params <- setMetab(params, 
+    params <- changeMetab(params, 
                        metab = metab,
                        p = p)
-    params <- setBMort(params, 
+    params <- changeBMort(params, 
                        z0pre = z0pre, 
                        z0exp = z0exp)
-    params <- setSearchVolume(params, 
+    params <- changeSearchVolume(params, 
                               search_vol = search_vol,
                               q = q)
-    params <- setReproduction(params, 
-                              psi = psi)
-    params <- setPlankton(params,
+    params <- changeReproduction(params, 
+                              maturity = maturity,
+                              repro_prop = repro_prop)
+    params <- changePlankton(params,
                           kappa = kappa,
                           lambda = lambda,
                           r_pp = r_pp, 
                           w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
-    params <- setResources(params,
+    params <- changeResources(params,
                            resource_dynamics = resource_dynamics,
                            resource_params = resource_params)
-    params <- setResourceEncounter(params, 
+    params <- changeResourceEncounter(params, 
                                    rho = rho,
                                    n = params@n)
     return(params)
 }
 
 
-#' Set species interation matrix and plankton interaction vector
+#' Set species interation matrix
 #' 
 #' @section Setting interactions:
 #' 
-#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the food encounter rate in
-#' \code{\link{getEncounter}} and the predation rate in
+#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the
+#' food encounter rate in \code{\link{getEncounter}} and the predation rate in
 #' \code{\link{getPredRate}}. This function checks that the supplied interaction
-#' matrix is valid and then stores it in the \code{interaction} slot of the params
-#' object before returning that object.
+#' matrix is valid and then stores it in the \code{interaction} slot of the
+#' params object before returning that object.
 #' 
 #' Any dimnames of the interaction matrix argument are ignored by the
 #' constructor. The dimnames of the interaction matrix in the returned
@@ -780,6 +1019,11 @@ setParams <- function(params,
 #' of the interaction matrix argument should be the same as the species name in
 #' the \code{species_params} slot. 
 #' 
+#' The interaction of the species with the plankton are set via a colun
+#' \code{interaction_p} in the species_params data frame. Again the entries
+#' have to be numbers between 0 and 1. By default this column is set to all
+#' 1s.
+#' 
 #' @param params MizerParams object
 #' @param interaction Interaction matrix of the species (predator by prey).
 #'   Entries should be numbers between 0 and 1. See "Setting interactions"
@@ -787,50 +1031,54 @@ setParams <- function(params,
 #' 
 #' @return MizerParams object
 #' @export
-setInteraction <- function(params,
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' interaction <- params@interaction
+#' interaction[1, 3] <- 0
+#' params <- changeInteraction(params, interaction)
+#' }
+changeInteraction <- function(params,
                            interaction = NULL) {
-    if (!is.null(interaction)) {
-        # Check dims of interaction argument
-        if (!identical(dim(params@interaction), dim(interaction))) {
-            stop( "interaction matrix is not of the right dimensions. Must be number of species x number of species.")
-        }
-        # Check that all values of interaction matrix are 0 - 1.
-        if (!all((interaction >= 0) & (interaction <= 1))) {
-            warning("Values in the interaction matrix should be between 0 and 1")
-        }
-        # In case user has supplied names to interaction matrix, check them.
-        if (!is.null(dimnames(interaction))) {
-            if (!is.null(names(dimnames(interaction)))) {
-                if (!identical(names(dimnames(interaction)),
-                               names(dimnames(params@interaction)))) {
-                    warning(paste0("Your interaction matrix has dimensions called: ",
-                                   toString(names(dimnames(interaction))),
-                                   ". I expected 'predator, prey'. I will now ignore your names."))
-                }
-            }
-            names(dimnames(interaction)) <- names(dimnames(params@interaction))
-            if (!identical(dimnames(params@interaction),
-                           dimnames(interaction))) {
-                warning("Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
-            }
-        }
-        params@interaction[] <- interaction
+    assert_that(is(params, "MizerParams"))
+    if (is.null(interaction)) {
+        interaction <- params@interaction
     }
+    # Check dims of interaction argument
+    if (!identical(dim(params@interaction), dim(interaction))) {
+        stop("interaction matrix is not of the right dimensions. Must be number of species x number of species.")
+    }
+    # Check that all values of interaction matrix are 0 - 1.
+    if (!all((interaction >= 0) & (interaction <= 1))) {
+        stop("Values in the interaction matrix must be between 0 and 1")
+    }
+    # In case user has supplied names to interaction matrix, check them.
+    if (!is.null(dimnames(interaction))) {
+        if (!is.null(names(dimnames(interaction)))) {
+            if (!identical(names(dimnames(interaction)),
+                           names(dimnames(params@interaction)))) {
+                message(paste0("Note: Your interaction matrix has dimensions called: `",
+                               toString(names(dimnames(interaction))),
+                               "`. I expected 'predator, prey'. I will now ignore your names."))
+            }
+        }
+        names(dimnames(interaction)) <- names(dimnames(params@interaction))
+        if (!identical(dimnames(params@interaction),
+                       dimnames(interaction))) {
+            message("Note: Dimnames of interaction matrix do not match the order of species names in the species data.frame. I am now ignoring your dimnames so your interaction matrix may be in the wrong order.")
+        }
+    }
+    params@interaction[] <- interaction
     
     # Check the interaction_p column in species_params
-    species_params <- params@species_params
-    if (!("interaction_p" %in% colnames(species_params))) {
-        message("Note: No interaction_p column in species data frame so assuming all species feed on plankton.")
-        species_params$interaction_p <- rep(1, nrow(species_params))
-    }
-    missing <- is.na(species_params$interaction_p)
-    if (any(missing)) {
-        species_params$interaction_p[missing] <- 1
-    }
+    message <- "Note: No interaction_p column in species data frame so assuming all species feed on plankton."
+    species_params <- set_species_param_default(params@species_params,
+                                                "interaction_p", 1,
+                                                message = message)
     # Check that all values of interaction vector are 0 - 1.
     if (!all((species_params$interaction_p >= 0) & 
              (species_params$interaction_p <= 1))) {
-        warning("Values in the plantkon interaction vector should be between 0 and 1")
+        stop("Values in the plantkon interaction vector should be between 0 and 1")
     }
     params@species_params$interaction_p <- species_params$interaction_p
     
@@ -849,42 +1097,43 @@ setInteraction <- function(params,
 #' this function.
 #' 
 #' @section Setting predation kernel:
-#' \subsection{Kernel dependent on predator to prey size ratio}{
+#' \strong{Kernel dependent on predator to prey size ratio}
+#' 
 #' If the \code{pred_kernel} argument is not supplied, then this function sets a
 #' predation kernel that depends only on the ratio of predator mass to prey
 #' mass, not on the two masses independently. The shape of that kernel is then
-#' determined by the \code{pred_kernel_type} argument.
+#' determined by the \code{pred_kernel_type} column in species_params.
 #'
 #' The default pred_kernel_type is "lognormal". This will call the function
-#' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel and the
-#' function \code{\link{lognormal_max_ppmr}} to return the maximal predator/prey
-#' mass ratio for each species.
-#'
+#' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the functions
-#' \code{\link{box_pred_kernel}} and \code{\link{box_max_ppmr}}.
+#' \code{\link{box_pred_kernel}}. These functions require certain species
+#' parameters in the species_params data frame. For the lognormal kernel these
+#' are \code{beta} and \code{sigma}, for the box kernely they are
+#' \code{ppmr_min} and \code{ppmr_max}. They are explained in the help pages
+#' for the kernel functions. No defaults are set for these parameters. If they
+#' are missing from the species_params data frame then mizer will issue an
+#' error message.
 #'
 #' You can use any other string as the type. If for example you choose "my" then
 #' you need to define a function \code{my_pred_kernel} that you can model on the
-#' existing functions like \code{\link{lognormal_pred_kernel}}. You can also
-#' define a function \code{my_max_ppmr} if you want the smallest plankton size
-#' to be calculated automatically by \code{\link{set_multispecies_model}},
-#' otherwise you need to specify the \code{min_w_pp} argument explicitly.
+#' existing functions like \code{\link{lognormal_pred_kernel}}.
 #' 
-#' When using a kernel dependent on the predator/prey size ratio only, mizer
+#' When using a kernel that depends on the predator/prey size ratio only, mizer
 #' does not need to store the entire three dimensional array in the MizerParams
 #' object. Such an array can be very big when there is a large number of size
 #' bins. Instead mizer only needs to store two two-dimensional arrays that hold
 #' Fourier transforms of the feeding kernel function that allow the encounter
-#' rate and the predation rate to be calculated very efficiently. However mizer
-#' gives you the option of storing the full three-dimensional array anyway by
-#' setting \code{store_kernel = TRUE}. This might be useful if you have code for
-#' analysing the results of a mizer simulation that relies on the full array.
-#' }
+#' rate and the predation rate to be calculated very efficiently. However, if
+#' you need the full three-dimensional array you can calculate it with the
+#' \code{\link{getPredKernel}} function.
 #' 
-#' \subsection{Kernel dependent on both predator and prey size}{
+#' \strong{Kernel dependent on both predator and prey size}
+#' 
 #' If you want to work with a feeding kernel that depends on predator mass and
 #' prey mass independently, you can specify the full feeding kernel as a
 #' three-dimensional array (predator species x predator size x prey size).
+#' The dimensions are thus (no_sp, no_w, no_w_full). 
 #'
 #' You should use this option only if a kernel dependent only on the
 #' predator/prey mass ratio is not appropriate. Using a kernel dependent on
@@ -894,20 +1143,12 @@ setInteraction <- function(params,
 #' The order of the predator species in \code{pred_kernel} should be the same
 #' as the order in the species params dataframe. If you supply a named array
 #' then the function will check the order and warn if it is different.
-#' }
+#' 
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
 #'   that holds the predation coefficient of each predator at size on each prey
-#'   size. The dimensions are thus no_sp, no_w, no_w_full.
-#' @param pred_kernel_type Only used if \code{pred_kernel} is not supplied. A
-#'   string or vector of strings that determines which predation kernel function
-#'   is used for each species. If not supplied, is taken from species parameter
-#'   dataframe if possible, or defaults to "lognormal".
-#' @param store_kernel Only used if \code{pred_kernel} is not supplied. A
-#'   boolean flag that determines whether the full three dimensional predation
-#'   kernel array is calculated and stored, even though it is not needed by
-#'   mizer. Only useful if you have your own code that relies on this array.
-#'   Default is FALSE.
+#'   size. If not supplied, a default is set as described in section "Setting
+#'   predation kernel".
 #' 
 #' @return A MizerParams object
 #' @export
@@ -919,33 +1160,38 @@ setInteraction <- function(params,
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
-#' # need to call setPredKernel
-#' params@species_params$beta["Cod"] <- 200
-#' params <- setPredKernel(params)
+#' # need to call changePredKernel
+#' params@species_params["Cod", "beta"] <- 200
+#' params <- changePredKernel(params)
 #' 
 #' ## You can change to a different predation kernel type
-#' params <- setPredKernel(params, pred_kernel_type = "box")
-#
-# ## If only some species need a kernel that depends on predator and prey
-# # size separately, you can modify the default kernel.
-# pred_kernel <- getPredKernel(params)
-# pred_kernel["Herring"] <-
-# params<- setPredKernel(params, pred_kernel = pred_kernel)
+#' params@species_params$pred_kernel_type <- "box"
+#' params@species_params$ppmr_min <- 2
+#' params@species_params$ppmr_max <- 4
+#' params <- changePredKernel(params)
+#' 
+#' ## If you need a kernel that depends also on prey size you need to define
+#' # it yourself.
+#' pred_kernel <- getPredKernel(params)
+#' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
+#'                                     params@w_full, "*")
+#' params<- changePredKernel(params, pred_kernel = pred_kernel)
 #' }
-setPredKernel <- function(params,
-                          pred_kernel = NULL,
-                          pred_kernel_type = "lognormal",
-                          store_kernel = FALSE) {
+changePredKernel <- function(params,
+                          pred_kernel = NULL) {
+    assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
-        if (!identical(dim(pred_kernel), c(dim(params@psi), length(params@w_full)))) {
-            stop("The pred_kerel has the wrong dimensions")
-        }
+        assert_that(is.array(pred_kernel))
+        # psi is used in the next line just because it has the right dimension
+        assert_that(identical(dim(pred_kernel), 
+                              c(dim(params@psi), length(params@w_full))))
         if (!is.null(dimnames(pred_kernel)) && 
             !all(dimnames(pred_kernel)[[1]] == params@species_params$species)) {
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(params@species_params$species)))
         }
+        assert_that(all(pred_kernel >= 0))
         dimnames(pred_kernel) <- 
             list(sp = params@species_params$species,
                  w_pred = signif(params@w, 3),
@@ -959,43 +1205,21 @@ setPredKernel <- function(params,
     }
     
     ## Set a pred kernel dependent on predator/prey size ratio only
-    # If pred_kernel_type is not supplied use the one from species_params
-    # if exists or "lognormal"
-    if (missing(pred_kernel_type) &
-        !"pred_kernel_type" %in% names(params@species_params)) {
-        params@species_params$pred_kernel_type <- "lognormal"
-    } else {
-        params@species_params$pred_kernel_type <- pred_kernel_type
-    }
+    # If pred_kernel_type is not supplied use "lognormal"
+    params@species_params <- set_species_param_default(params@species_params,
+                                                       "pred_kernel_type",
+                                                       "lognormal")
     species_params <- params@species_params
     pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    if (store_kernel) {
-        params@pred_kernel <- 
-            array(0,
-                  dim = c(no_sp, no_w, no_w_full),
-                  dimnames = list(sp = species_params$species,
-                                  w_pred = signif(params@w, 3),
-                                  w_prey = signif(params@w_full, 3))
-            )
-    }
     # Vector of predator/prey mass ratios
     # The smallest predator/prey mass ratio is 1
     ppmr <- params@w_full / params@w_full[1]
-    
+    phis <- get_phi(species_params, ppmr)
     for (i in 1:no_sp) {
-        pred_kernel_func <- get0(paste0(pred_kernel_type[i], "_pred_kernel"))
-        assert_that(is.function(pred_kernel_func))
-        # TODO: check that the arguments of pred_kernel_func are contained in
-        # species params
-        phi <- pred_kernel_func(ppmr, i, params)
-        if (anyNA(phi)) {
-            stop(paste0("The function ", pred_kernel_func,
-                        "returned NA. Did you correctly specify all required",
-                        "parameters in the species parameter dataframe?"))
-        }
+        phi <- phis[i, ]
         # Fourier transform of feeding kernel for evaluating available energy
         params@ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
@@ -1003,17 +1227,51 @@ setPredKernel <- function(params,
         phi_p <- rep(0, no_w_full)
         phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
         params@ft_pred_kernel_p[i, ] <- fft(phi_p)
-        # Full feeding kernel array
-        if (store_kernel) {
-            min_w_idx <- no_w_full - no_w + 1
-            for (k in seq_len(no_w)) {
-                params@pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
-                    phi[1:(min_w_idx - 1 + k)]
-            }
-        }
     }
     
     return(params)
+}
+
+
+#' Get predation kernel
+#' 
+#' If no explicit predation kernel is stored in the params object, then this
+#' function calculates it from the information in the species parameter data
+#' frame in the params object.
+#' 
+#' @param params A MizerParams object
+#' @return An array (predator x predator_size x prey_size)
+#' @export
+getPredKernel <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    if (length(dim(params@pred_kernel)) > 1) {
+        return(params@pred_kernel)
+    }
+    species_params <- set_species_param_default(params@species_params,
+                                                "pred_kernel_type",
+                                                "lognormal")
+    pred_kernel_type <- species_params$pred_kernel_type
+    no_sp <- nrow(species_params)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    # Vector of predator/prey mass ratios
+    # The smallest predator/prey mass ratio is 1
+    ppmr <- params@w_full / params@w_full[1]
+    phis <- get_phi(species_params, ppmr)
+    pred_kernel <- 
+        array(0,
+              dim = c(no_sp, no_w, no_w_full),
+              dimnames = list(sp = species_params$species,
+                              w_pred = signif(params@w, 3),
+                              w_prey = signif(params@w_full, 3)))
+    for (i in 1:no_sp) {
+        min_w_idx <- no_w_full - no_w + 1
+        for (k in seq_len(no_w)) {
+            pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
+                phis[i, 1:(min_w_idx - 1 + k)]
+        }
+    }
+    return(pred_kernel)
 }
 
 
@@ -1022,67 +1280,54 @@ setPredKernel <- function(params,
 #' @section Setting search volume:
 #' The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
 #' and weight \eqn{w} multiplies the predation kernel when
-#' calculating the encounter rate and the predation rate.
+#' calculating the encounter rate in \code{\link{getEncounter}} and the 
+#' predation rate in \code{\link{getPredRate}}.
 #' 
-#' If the \code{gamma} argument is not supplied, then it is set to
-#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{gamma_i} are taken from
+#' If the \code{search_vol} argument is not supplied, then the search volume is set to
+#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
 #' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
-#' column is not supplied in the species parameter dataframe, it is calculated
-#' from \code{f0, h, beta, sigma, lambda} and \code{kappa}.
+#' column is not supplied in the species parameter dataframe, a default is
+#' calculated by the \code{\link{get_gamma_default}} function.
 #' 
 #' @param params MizerParams
-#' @param gamma Optional. An array (species x size) holding the search volume
-#'   for each species at size or a vector or number giving the coefficient in
-#'   an allometric search volume. If not supplied, a default is set as described in
+#' @param search_vol Optional. An array (species x size) holding the search volume
+#'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume". 
-#' @param q Exponent of the allometric search volume. Only needed if 
-#'   \code{gamma} is not an array.
+#' @param q Exponent of the allometric search volume. Not needed if a
+#'   \code{search_vol} array is specified.
 #' 
 #' @return MizerParams
 #' @export
-setSearchVolume <- function(params, 
+#' @examples
+#' \dontrun{
+#' params <- set_trait_model()
+#' params@species_params$gamma[3] <- 1000
+#' params <- changeSearchVolume(params)
+#' }
+changeSearchVolume <- function(params, 
                             search_vol = NULL,
-                            q) {
+                            q = params@q) {
+    assert_that(is(params, "MizerParams"),
+                is.number(q))
     species_params <- params@species_params
     params@q <- q
     # If gamma array is supplied, check it, store it and return
     if (!is.null(search_vol)) {
-        if (!identical(dim(search_vol), dim(params@search_vol))) {
-            stop("The search_vol array has the wrong dimensions.")
-        }
+        assert_that(is.array(search_vol))
+        assert_that(identical(dim(search_vol), dim(params@search_vol)))
         if (!is.null(dimnames(search_vol)) && 
             !all(dimnames(search_vol)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species in the search_vol array as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(search_vol > 0))
         params@search_vol[] <- search_vol
         return(params)
     }
     # Calculate default for any missing gammas
-    if (!("gamma" %in% colnames(species_params))) {
-        species_params$gamma <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$gamma)
-    if (any(missing)) {
-        message("Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.")
-        lm2 <- params@lambda - 2
-        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
-            exp(lm2^2 * species_params$sigma^2 / 2) *
-            # The factor on the following lines takes into account the cutoff
-            # of the integral at 0 and at beta + 3 sigma
-            (pnorm(3 - lm2 * species_params$sigma) + 
-                 pnorm(log(species_params$beta)/species_params$sigma + 
-                           lm2 * species_params$sigma) - 1)
-        gamma_default <- (species_params$h / (params@kappa * ae)) * 
-            (params@f0 / (1 - params@f0))
-        # Only overwrite missing gammas with calculated values
-        if (any(is.na(gamma_default[missing]))) {
-            stop("Could not calculate gamma.")
-        }
-        species_params$gamma[missing] <- gamma_default[missing]
-    }
-    params@species_params$gamma <- species_params$gamma
-    params@search_vol[] <- outer(species_params$gamma, params@w^q)
+    params@species_params$gamma <- get_gamma_default(params)
+    
+    params@search_vol[] <- outer(params@species_params$gamma, params@w^q)
     return(params)
 }
 
@@ -1094,59 +1339,48 @@ setSearchVolume <- function(params,
 #' weight \eqn{w} determines the feeding level, calculated with
 #' \code{\link{getFeedingLevel}}.
 #'
-#' If the \code{h} argument is not supplied, then it is set to \deqn{h_i(w) =
-#' h_i w^n.} The values of \eqn{h_i} are taken from the \code{h} column in the
+#' If the \code{intake_max} argument is not supplied, then the maximum intake
+#' rate is set to \deqn{h_i(w) = h_i w^n.} 
+#' The values of \eqn{h_i} are taken from the \code{h} column in the
 #' species parameter dataframe. If the \code{h} column is not supplied in the
-#' species parameter dataframe, it is calculated from \code{f0} and the
-#' \code{k_vb} column, if they are supplied.
+#' species parameter dataframe, it is calculated by the 
+#' \code{\link{get_h_default}} function, using \code{f0} and the \code{k_vb}
+#' column, if they are supplied.
 #' 
 #' If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 #'
 #' @param params MizerParams
-#' @param h Optional. An array (species x size) holding the maximum intake rate
-#'   for each species at size. If not supplied, a default is set as described in
-#'   the section "Setting maximum intake rate".
+#' @param intake_max Optional. An array (species x size) holding the maximum
+#'   intake rate for each species at size. If not supplied, a default is set as
+#'   described in the section "Setting maximum intake rate".
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params, intake_max = NULL, n) {
+changeIntakeMax <- function(params, 
+                         intake_max = NULL, 
+                         n = params@n) {
+    assert_that(is(params, "MizerParams"),
+                is.number(n))
     species_params <- params@species_params
     params@n <- n
     
-    # If h array is supplied, check it, store it and return
+    # If intake_max array is supplied, check it, store it and return
     if (!is.null(intake_max)) {
-        if (!identical(dim(intake_max), dim(params@intake_max))) {
-            stop("The intake_max array has the wrong dimensions.")
-        }
+        assert_that(is.array(intake_max),
+                    identical(dim(intake_max), dim(params@intake_max)))
         if (!is.null(dimnames(intake_max)) && 
             !all(dimnames(intake_max)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species in the intake_max array as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(intake_max > 0))
         params@intake_max[] <- intake_max
         return(params)
     }
     
-    # If gamma vector is supplied, check it and put it into species params
-    if (!("h" %in% colnames(species_params))) {
-        species_params$h <- rep(NA, nrow(species_params))
-    }
-    if (any(is.na(species_params$h))) {
-        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
-        if (!("k_vb" %in% colnames(species_params))) {
-            stop("\tExcept I can't because there is no k_vb column in the species data frame")
-        }
-        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
-            (species_params$w_inf ^ (1/3))
-        # Only overwrite missing h with calculated values
-        missing <- is.na(species_params$h)
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
-        }
-        species_params$h[missing] <- h[missing]
-        params@species_params$h <- species_params$h
-    }
-    params@intake_max[] <- outer(species_params$h, params@w^params@n)
+    params@species_params$h <- get_h_default(params)
+    
+    params@intake_max[] <- outer(params@species_params$h, params@w^params@n)
     return(params)
 }
 
@@ -1154,8 +1388,22 @@ setIntakeMax <- function(params, intake_max = NULL, n) {
 #' Set metabolic rate
 #' 
 #' Sets the rate at which energy is used for metabolism and activity
+#' 
 #' @section Setting metabolic rate:
-#' To be documented
+#' The metabolic rate is subtracted from the energy income rate to calculate
+#' the rate at which energy is available for growth and reproduction, see
+#' \code{\link{getEReproAndGrowth}}.
+#' 
+#' If the \code{metab} argument is not supplied, then the metabolic
+#' rate \eqn{k_i(w)} for and individual of species \eqn{i} and size \eqn{w}
+#' is set to \deqn{k_i(w) = ks_i\, w^p + k_i\, w,}{k_i(w) = ks_i w^p + k_i w}
+#' where \eqn{ks_i w^p} represents the rate of standard metabolism and 
+#' \eqn{k_i w} is the rate at which energy is expended on activity and movement.
+#' The values of \eqn{ks_i} and \eqn{k_i} are taken from the \code{ks} and
+#' \code{k} columns in the
+#' species parameter dataframe. If these parameters are not supplied, the
+#' defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0} where \eqn{h_i} is the
+#' coefficient of the maximum intake rate.
 #' 
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
@@ -1165,45 +1413,31 @@ setIntakeMax <- function(params, intake_max = NULL, n) {
 #' 
 #' @return MizerParams
 #' @export
-setMetab <- function(params, metab = NULL, p) {
+changeMetab <- function(params, 
+                     metab = NULL, 
+                     p = params@p) {
+    assert_that(is(params, "MizerParams"),
+                is.number(p))
     species_params <- params@species_params
     params@p <- p
     if (!is.null(metab)) {
-        if (!identical(dim(metab), dim(params@metab))) {
-            stop("The metab array has the wrong dimensions.")
-        }
+        assert_that(is.array(metab),
+                    identical(dim(metab), dim(params@metab)))
         if (!is.null(dimnames(metab)) && 
             !all(dimnames(metab)[[1]] == species_params$species)) {
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        assert_that(all(metab > 0))
         params@metab[] <- metab
         return(params)
     }
     
-    # If no k (activity coefficient), then set to 0
-    if (!("k" %in% colnames(species_params))) {
-        species_params$k <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$k)
-    if (any(missing)) {
-        species_params$k[missing] <- 0
-    }
-    
-    # Sort out ks column
-    if (!("ks" %in% colnames(species_params))) {
-        message("Note: No ks column in species data frame so using ks = h * 0.2.")
-        species_params$ks <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$ks)
-    if (any(missing)) {
-        species_params$ks[missing] <- species_params$h[missing] * 0.2
-        params@species_params$ks <- species_params$ks
-    }
-    
+    params <- set_species_param_default(params, "k", 0)
+    params@species_params$ks <- get_ks_default(params)
     params@metab[] <- 
-        outer(species_params$ks, params@w^p) +
-        outer(species_params$k, params@w)
+        outer(params@species_params$ks, params@w^p) +
+        outer(params@species_params$k, params@w)
     return(params)
 }
 
@@ -1211,9 +1445,19 @@ setMetab <- function(params, metab = NULL, p) {
 #' Set background mortality rate
 #' 
 #' @section Setting background mortality rate:
-#' Still need to document
+#' The background mortality is all the mortality that is not due to either
+#' predation or fishing. 
+#' 
+#' If the \code{mu_b} argument is not supplied, then the background mortality
+#' is assumed to depend only on the asymptotic size of the species, not on the
+#' size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
+#' constant \eqn{z_0} for each species is taken from the \code{z0} column of the
+#' species_params data frame, if that column exists. Otherwise it is calculated
+#' as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 #' 
 #' @param params MizerParams
+#' @param mu_b Optional. An array (species x size) holding the background
+#'   mortality rate.
 #' @param z0pre If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 #'   Default value is 0.6.
@@ -1223,20 +1467,23 @@ setMetab <- function(params, metab = NULL, p) {
 #' 
 #' @return MizerParams
 #' @export
-setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
+changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
+    assert_that(is(params, "MizerParams"))
+    if (!is.null(mu_b)) {
+        assert_that(is.array(mu_b),
+                    identical(dim(mu_b), dim(params@mu_b)))
+        params@mu_b[] <- mu_b
+        return(params)
+    }
+    assert_that(is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
     species_params <- params@species_params
-    
+    assert_that(noNA(species_params$w_inf))
     # Sort out z0 (background mortality)
-    if (!("z0" %in% colnames(species_params))) {
-        species_params$z0 <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$z0)
-    if (any(missing)) {
-        message("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
-        species_params$z0[missing] <- z0pre * species_params$w_inf[missing]^z0exp
-        params@species_params$z0 <- species_params$z0
-    }
-    
+    message <- ("Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
+    params <- set_species_param_default(params, "z0",
+                                        z0pre * species_params$w_inf^z0exp,
+                                        message)
     params@mu_b[] <- params@species_params$z0
     return(params)
 }
@@ -1249,60 +1496,67 @@ setBMort <- function(params, z0pre = 0.6, z0exp = params@n - 1) {
 #' individual and sets the reproductive efficiency.
 #' 
 #' @section Setting reproduction:
-#' If the \code{psi} argument is not supplied,
-#' the proportion is set to the product of a sigmoidal maturity ogive that 
-#' gives the proportion of individuals of a given species and size that are
-#' mature, and a factor that describes how investment into reproduction by mature
-#' individuals scales with size. In formulas:
-#' \deqn{\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-#'   \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
-#'   [1+(w/w_mat)^(-U)]^(-1) * (w/w_inf)^(m - n)}
-#' Here \eqn{n} is the scaling exponent of the energy income rate.
-#' The exponent \eqn{m} determines the scaling of the investment into
-#' reproduction for mature individuals. By default it is chosen to be \eqn{m =
-#' 1} so that the rate at which energy is invested into reproduction scales
-#' linearly with the size. This default can be overridden by including a column
-#' \code{m} in the species parameter dataframe.
+#' For each species and at each size, the proportion of the available energy 
+#' that is invested into reproduction is the product of two factors: the
+#' proportion \code{maturity} of individuals that are mature and the proportion
+#' \code{repro_prop} of the energy available to a mature individual that is 
+#' invested into reproduction.
 #' 
-#' The exponent \eqn{U} determines the steepness of the maturity ogive. By default it is
-#' chosen as \eqn{U = 10}, however this can be overridden by including a 
-#' column \code{w_mat25} in the species parameter dataframe that specifies the weight
-#' at which 25\% of individuals are mature, which sets 
-#' \deqn{U = \frac{\log(3)}{\log(w_{mat} / w_{25})}}{U = log(3)/ log(w_mat / w_25)}
+#' If the \code{maturity} argument is not supplied, then it is set to a sigmoidal 
+#' maturity ogive that changes from 0 to 1 at around the maturity size:
+#' \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
+#'   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
+#' (To avoid clutter, we are not showing the species index in the equations.)
+#' The maturity weights are taken from the \code{w_mat} column of the 
+#' species_params data frame. Any missing maturity weights are set to 1/4 of the
+#' asymptotic weight in the \code{w_inf} column.
+#' The exponent \eqn{U} determines the steepness of the maturity ogive. By
+#' default it is chosen as \eqn{U = 10}, however this can be overridden by
+#' including a column \code{w_mat25} in the species parameter dataframe that
+#' specifies the weight at which 25\% of individuals are mature, which sets
+#' \eqn{U = \log(3) / \log(w_{mat} / w_{25}).}{U = log(3) / log(w_mat / w_25).}
+#' 
+#' The sigmoidal function given above would strictly reach 1 only asymptotically.
+#' Mizer instead sets the function equal to 1 already at the species' 
+#' maximum size, taken from the compulsory \code{w_inf} column in the
+#' \code{species_params} data frame.
+#' 
+#' If the \code{repro_prop} argument is not supplied, it is set to the
+#' allometric form
+#' \deqn{{\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.}{
+#'   repro_prop = (w/w_inf)^(m - n).}
+#' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
+#' the exponent \eqn{m} determines the scaling of the investment into
+#' reproduction for mature individuals. By default it is chosen to be 
+#' \eqn{m = 1} so that the rate at which energy is invested into reproduction 
+#' scales linearly with the size. This default can be overridden by including a 
+#' column \code{m} in the species parameter dataframe. The asymptotic sizes
+#' are taken from the compulsory \code{w_inf} column in the species_params
+#' data frame.
+#' 
+#' The reproductive efficiency, i.e., the proportion of energy allocated to
+#' reproduction that results in offspring biomass, is set from the 
+#' \code{erepro} column in the species_params data frame. If that is not
+#' provided the default is set to 1 (which you will want to override).
 #' 
 #' @param params A MizerParams object
-#' @param psi Optional. An array (species x size) that holds the allocation to
-#'   reproduction for each species at size. If not supplied, a default is set
-#'   as described in the section "Setting reproduction".
+#' @param maturity Optional. An array (species x size) that holds the proportion
+#'   of individuals of each species at size that are mature. If not supplied, a
+#'   default is set as described in the section "Setting reproduction".
+#' @param repro_prop Optional. An array (species x size) that holds the
+#'   proportion of consumed energy that a mature individual allocates to
+#'   reproduction for each species at size. If not supplied, a default is set as
+#'   described in the section "Setting reproduction".
 #' 
-#' @return The MizerParams object with the updated \code{psi} slot.
+#' @return The MizerParams object.
 #' @export
-setReproduction <- function(params, psi = NULL) {
+changeReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     
     # If no erepro (reproductive efficiency), then set to 1
-    if (!("erepro" %in% colnames(species_params))) {
-        species_params$erepro <- rep(NA, nrow(species_params))
-    }
-    missing <- is.na(species_params$erepro)
-    if (any(missing)) {
-        species_params$erepro[missing] <- 1
-        params@species_params$erepro <- species_params$erepro
-    }
-    
-    if (!is.null(psi)) {
-        if (!identical(dim(psi), dim(params@psi))) {
-            stop("The psi array has the wrong dimensions.")
-        }
-        if (!is.null(dimnames(psi)) && 
-            !all(dimnames(psi)[[1]] == species_params$species)) {
-            stop(paste0("You need to use the same ordering of species as in the ",
-                        "params object: ", toString(species_params$species)))
-        }
-        params@psi[] <- psi
-        return(params)
-    }
-    
+    params <- set_species_param_default(params, "erepro", 1)
+    assert_that(all(params@species_params$erepro > 0))
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
         stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
@@ -1321,63 +1575,86 @@ setReproduction <- function(params, psi = NULL) {
     #     params@species_params$w_inf[i] < params@w[idx]
     # }
     
-    # Check maturity sizes
-    if (!("w_mat" %in% colnames(species_params))) {
-        stop("The maturity sizes of the species must be specified in the w_mat column of the species parameter data frame.")
-    }
-    missing <- is.na(species_params$w_mat)
-    if (any(missing)) {
-        stop(paste("The following species are missing data for their maturity size w_mat:"),
-             toString(species_params$species[missing]))
-    }
-    assert_that(all(species_params$w_mat > species_params$w_min))
-    
-    # Set defaults for w_mat25
-    if (!("w_mat25" %in% colnames(species_params))) {
-        species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
-    }
-    missing <- is.na(species_params$w_mat25)
-    if (any(missing)) {
-        species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
-    }
-    # Check w_mat25
-    assert_that(all(species_params$w_mat25 > species_params$w_min))
-    assert_that(all(species_params$w_mat25 < species_params$w_mat))
-    params@species_params$w_mat25 <- species_params$w_mat25
-    
-    # Set defaults for m
-    if (!("m" %in% colnames(species_params))) {
-        species_params$m <- 1
-    }
-    missing <- is.na(species_params$m)
-    if (any(missing)) {
-        species_params$m[missing] <- 1
-    }
-    # Check m
-    assert_that(is.numeric(species_params$m), 
-                all(species_params$m > 0 & species_params$m < 2))
-    params@species_params$m <- species_params$m
-    
-    params@psi[] <- 
-        unlist(
-            tapply(params@w, 1:length(params@w),
-                   function(wx, w_inf, w_mat, mn, w_mat25) {
-                       U <- log(3) / log(w_mat / w_mat25)
-                       return((1 + (wx / w_mat)^-U)^-1 *
-                                  # (1 + (w_inf / w_mat)^-U) * 
-                                  (wx / w_inf)^(mn))
-                   },
-                   w_inf = species_params$w_inf, 
-                   w_mat = species_params$w_mat, 
-                   mn = species_params$m - params@n,
-                   w_mat25 = species_params$w_mat25
+    if (!is.null(maturity)) {
+        assert_that(is.array(maturity),
+                    identical(dim(maturity), dim(params@psi)))
+        if (!is.null(dimnames(maturity)) && 
+            !all(dimnames(maturity)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species as in the ",
+                        "params object: ", toString(species_params$species)))
+        }
+    } else {
+        # Check maturity sizes
+        if (!("w_mat" %in% colnames(species_params))) {
+            species_params$w_mat <- rep(NA, nrow(species_params))
+        }
+        missing <- is.na(species_params$w_mat)
+        if (any(missing)) {
+            stop(paste0("Note The following species were missing data for their maturity size w_mat: "),
+                 toString(species_params$species[missing]),
+                 ". These have been set to 1/4 w_inf.")
+        }
+        assert_that(all(species_params$w_mat > species_params$w_min))
+        
+        # Set defaults for w_mat25
+        if (!("w_mat25" %in% colnames(species_params))) {
+            species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
+        }
+        missing <- is.na(species_params$w_mat25)
+        if (any(missing)) {
+            species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
+        }
+        # Check w_mat25
+        assert_that(all(species_params$w_mat25 > species_params$w_min))
+        assert_that(all(species_params$w_mat25 < species_params$w_mat))
+        params@species_params$w_mat25 <- species_params$w_mat25
+        
+        maturity <- 
+            unlist(
+                tapply(params@w, 1:length(params@w),
+                       function(wx, w_inf, w_mat, w_mat25) {
+                           U <- log(3) / log(w_mat / w_mat25)
+                           return((1 + (wx / w_mat)^-U)^-1)
+                       },
+                       w_inf = species_params$w_inf,
+                       w_mat = species_params$w_mat,
+                       w_mat25 = species_params$w_mat25
+                )
             )
-        )
+    }
+    assert_that(all(maturity >= 0 && maturity <= 1))
+    params@maturity[] <- maturity
+    
+    if (!is.null(repro_prop)) {
+        assert_that(is.array(repro_prop),
+                    identical(dim(repro_prop), dim(params@psi)))
+        if (!is.null(dimnames(repro_prop)) && 
+            !all(dimnames(repro_prop)[[1]] == species_params$species)) {
+            stop(paste0("You need to use the same ordering of species as in the ",
+                        "params object: ", toString(species_params$species)))
+        }
+    } else {
+        # Set defaults for m
+        params <- set_species_param_default(params, "m", 1)
+        
+        repro_prop <- array(
+            unlist(
+                tapply(params@w, 1:length(params@w),
+                       function(wx, w_inf, mn) (wx / w_inf)^(mn),
+                       w_inf = params@species_params$w_inf,
+                       mn = params@species_params$m - params@n
+                )
+            ), dim = c(nrow(species_params), length(params@w)))
+    }
+    
+    params@psi[] <- params@maturity * repro_prop
+    
     # For reasons of efficiency we next set all very small values to 0 
     # Set w < 10% of w_mat to 0
     params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
     # Set all w > w_inf to 1
     params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
+    assert_that(all(params@psi >= 0 && params@psi <= 1))
     return(params)
 }
 
@@ -1399,14 +1676,19 @@ setReproduction <- function(params, psi = NULL) {
 #' 
 #' @return A MizerParams object
 #' @export
-setPlankton <- function(params,
-                        kappa,
-                        lambda,
+changePlankton <- function(params,
+                        kappa = params@kappa,
+                        lambda = params@lambda,
                         r_pp = 10, 
                         w_pp_cutoff = 10,
                         plankton_dynamics = plankton_semichemostat) {
-    # TODO: check arguments
-    assert_that(r_pp > 0)
+    assert_that(is(params, "MizerParams"),
+                is.number(kappa), kappa > 0,
+                is.number(lambda),
+                is.number(r_pp), r_pp > 0,
+                is.number(w_pp_cutoff),
+                is.function(plankton_dynamics),
+                is.number(params@n))
     params@kappa <- kappa
     params@lambda <- lambda
     # weight specific plankton growth rate
@@ -1433,9 +1715,10 @@ setPlankton <- function(params,
 #' @param resource_params A list of parameters needed by the
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
-setResources <- function(params,
+changeResources <- function(params,
                          resource_dynamics,
                          resource_params) {
+    assert_that(is(params, "MizerParams"))
     if (!missing(resource_dynamics)) {
         assert_that(is.list(resource_dynamics))
         no_res <- length(resource_dynamics)
@@ -1457,8 +1740,10 @@ setResources <- function(params,
                       dimnames = list(sp = params@species_params$species,
                                       res = resource_names,
                                       w = signif(params@w, 3)))
-            params@initial_B <- rep(0, no_res)
-            names(params@initial_B) <- resource_names
+            if (length(params@initial_B) != no_res) {
+                params@initial_B <- rep(0, no_res)
+                names(params@initial_B) <- resource_names
+            }
         }
     }
     if (!missing(resource_params)) {
@@ -1477,25 +1762,31 @@ setResources <- function(params,
 #' unstructured resource component. 
 #' See \code{\link{resource_dynamics}} for more details.
 #' 
-#' If only a two-dimensional array (species x resource) is given for the
-#' \code{rho} argument, then the size dependence is set to a power-law:
-#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' 
 #' The ordering of the entries in the array \code{rho} is important. The order
 #' of the species in the first array dimension needs to be the same as that in
 #' the species parameter dataframe. The order of the resources in the second
 #' array dimension must be the same as in the list of resource dynamics. The
 #' third dimension, if given, is the size dimension.
 #' 
+#' If the \code{rho} array is not supplied, then the resource encounter rate is
+#' set to a power law
+#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
+#' The coefficients \eqn{\rho_{id}} are parameters in the species_params dataframe.
+#' For example if there is a resource called "detritus" then the species_params
+#' data frame needs to have a column called \code{rho_detritus} and similarly
+#' for each other resource.
+#' 
 #' @param params A MizerParams object
-#' @param rho Either a 3-dim array (predator species x resource x predator size)
-#'   or a 2-dim array (predator species x resource). In the latter case the
-#'   size dependence is given by allometry.
+#' @param rho Optional. An array (species x resource x size)
+#'   holding the rate at which a consumer of a particular size feeds on each
+#'   resource. Described in the section "Setting resource encounter rate".
 #' @param n Scaling exponent of the intake rate.
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho = NULL, n) {
+changeResourceEncounter <- function(params, rho = NULL, n = params@n) {
+    assert_that(is(params, "MizerParams"),
+                is.number(n))
     params@n <- n
     if (is.null(rho)) {
         # Use columns in species_params
@@ -1511,9 +1802,8 @@ setResourceEncounter <- function(params, rho = NULL, n) {
         return(params)
     }
     # Check validity of arguments
-    if (!length(dim(rho)) %in% c(2, 3)) {
-        stop("The rho argument must be a two- or three-dimensional array.")
-    }
+    assert_that(is.array(rho),
+                length(dim(rho)) == 3)
     if (nrow(params@species_params) != dim(rho)[1]) {
         stop("The first dimension of the rho argument should equal the number of species.")
     }
@@ -1525,15 +1815,11 @@ setResourceEncounter <- function(params, rho = NULL, n) {
         assert_that(are_equal(dimnames(rho)["res"],
                               names(params@resource_dynamics)))
     }
-    if (length(dim(rho)) == 2) {
-        rho <- outer(rho, params@w^n)
-    } else {
-        if (length(params@w) != dim(rho)[3]) {
+    if (length(params@w) != dim(rho)[3]) {
             stop("The third dimension of the rho array should have one entry for every consumer size.")
-        }
     }
+    assert_that(all(rho > 0))
     params@rho[] <- rho
-    params@initial_B[] <- rep(1, no_res)  # TODO: find better initial value
     
     return(params)
 }
@@ -1548,7 +1834,8 @@ setResourceEncounter <- function(params, rho = NULL, n) {
 #' 
 #' @return MizerParams object
 #' @export
-setFishing <- function(params) {
+changeFishing <- function(params) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     
@@ -1569,13 +1856,8 @@ setFishing <- function(params) {
     }
     
     # If no catchability column in species_params, set to 1
-    if (!("catchability" %in% colnames(species_params))) {
-        species_params$catchability <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$catchability)
-    if (any(missing)) {
-        species_params$catchability[missing] <- 1
-    }
+    species_params <- set_species_param_default(species_params,
+                                                "catchability", 1)
     
     # At the moment, each species is only caught by 1 gear so in species_params
     # there are the columns: gear_name and sel_func.
@@ -1661,4 +1943,221 @@ upgradeParams <- function(params) {
 #' @export
 srrBevertonHolt <- function(rdi, species_params) {
     return(rdi / (1 + rdi/species_params$r_max))
+}
+
+#' Set a species parameter to a default value
+#'
+#' If the species parameter does not yet exist in the species parameter data
+#' frame, then create it and fill it with the default. Otherwise use the default
+#' only to fill in any NAs. Optionally gives a message if the parameter
+#' did not already exist.
+#' @param object Either a MizerParams object or a species parameter data frame
+#' @param parname A string with the name of the species parameter to set
+#' @param default A single defaul value or a vector with one default value for
+#'   each species
+#' @param message A string with a message to be issued when the parameter did
+#'   not already exist
+#' @export
+#' @keywords internal
+#' @concept helper
+set_species_param_default <- function(object, parname, default,
+                                      message = NULL) {
+    if (is(object, "MizerParams")) {
+        species_params <- object@species_params
+    } else {
+        species_params <- object
+    }
+    assert_that(is.data.frame(species_params))
+    assert_that(is.string(parname))
+    no_sp <- nrow(species_params)
+    if (length(default) == 1) {
+        default <- rep(default, no_sp)
+    }
+    assert_that(length(default) == no_sp)
+    if (!(parname %in% colnames(species_params))) {
+        if (!missing(message)) {
+            message(message)
+        }
+        species_params <- cbind(species_params, default)
+        colnames(species_params)[[ncol(species_params)]] <- parname
+    } else {
+        missing <- is.na(species_params[[parname]])
+        if (any(missing)) {
+            species_params[missing, parname] <- default[missing]
+        }
+    }
+    if  (is(object, "MizerParams")) {
+        object@species_params <- species_params
+        return(object)
+    } else {
+        return(species_params)
+    }
+}
+
+
+#' Get values from feeding kernel function
+#' 
+#' This involves finding the feeding kernel function for each species, using the
+#' pred_kernel_type parameter in the species_params data frame, checking that it
+#' is valid and all its arguments are contained in the species_params data
+#' frame, and then calling this function with the ppmr vector.
+#' 
+#' @param species_params A species parameter data frame
+#' @param ppmr Values of the predator/prey mass ratio at which to evaluate the
+#'   predation kernel function
+#' @return An array (species x ppmr) with the values of the predation kernel
+#'   function
+#' @export
+#' @keywords internal
+#' @concept helper
+get_phi <- function(species_params, ppmr) {
+    assert_that(is.data.frame(species_params))
+    no_sp <- nrow(species_params)
+    species_params <- set_species_param_default(species_params, 
+                                                "pred_kernel_type",
+                                                "lognormal")
+    phis <- array(dim = c(no_sp, length(ppmr)))
+    for (i in 1:no_sp) {
+        pred_kernel_func_name <- paste0(species_params$pred_kernel_type[i],
+                                        "_pred_kernel")
+        pred_kernel_func <- get0(pred_kernel_func_name)
+        assert_that(is.function(pred_kernel_func))
+        args <- names(formals(pred_kernel_func))
+        if (!("ppmr" %in% args)) {
+            stop(paste("The predation kernel function",
+                       pred_kernel_func_name,
+                       "needs the argument 'ppmr'."))
+        }
+        # lop off the compulsory arg
+        args <- args[!(args %in% "ppmr")]
+        missing <- !(args %in% colnames(species_params))
+        if (any(missing)) {
+            stop(paste("The following arguments for the predation kernel function",
+                       pred_kernel_func_name,
+                       "are missing from the parameter dataframe:",
+                       toString(args[missing])))
+        }
+        pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
+        phi <- do.call(pred_kernel_func_name, args = pars)
+        if (any(is.na(phi))) {
+            stop(paste0("The function ", pred_kernel_func,
+                        "returned NA. Did you correctly specify all required",
+                        "parameters in the species parameter dataframe?"))
+        }
+        phis[i, ] <- phi
+    }
+    return(phis)
+}
+
+#' Get default value for h
+#' 
+#' Fills in any missing values for h according to the formula
+#' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
+#' @param params A MizerParams object
+#' @return A vector with the values of h for all species
+#' @export
+#' @keywords internal
+#' @concept helper
+get_h_default <- function(params) {
+    species_params <- params@species_params
+    if (!("h" %in% colnames(species_params))) {
+        species_params$h <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$h)
+    if (any(missing)) {
+        assert_that(is.number(params@f0),
+                    noNA(species_params$alpha))
+        message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
+        if (!("k_vb" %in% colnames(species_params))) {
+            stop("\tExcept I can't because there is no k_vb column in the species data frame")
+        }
+        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
+            (species_params$w_inf ^ (1/3))
+        if (any(is.na(h[missing]))) {
+            stop("Could not calculate h, perhaps k_vb is missing?")
+        }
+        species_params$h[missing] <- h[missing]
+    }
+    return(species_params$h)
+}
+
+
+#' Get default value for gamma
+#' 
+#' Fills in any missing values for gamma so that if the prey abundance was
+#' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
+#' would lead to the feeding level \eqn{f_0}. Only for internal use.
+#' 
+#' Currently this is implemented only for the lognormal predation kernel and uses
+#' an analytic expression for the encounter rate, but in future we can do this
+#' numerically for any predation kernel. Also currently feeding on unstructured
+#' resources is not taken into account.
+#' @param params A MizerParams object
+#' @return A vector with the values of gamma for all species
+#' @export
+#' @keywords internal
+#' @concept helper
+get_gamma_default <- function(params) {
+    species_params <- params@species_params
+    if (!("gamma" %in% colnames(species_params))) {
+        species_params$gamma <- rep(NA, nrow(species_params))
+    }
+    missing <- is.na(species_params$gamma)
+    if (any(missing)) {
+        if (!all(params@species_params$pred_kernel_type == "lognormal")) {
+            stop("Calculation of a default for gamma has not yet been implemented for kernels that are not lognormal, so you will have to supply a gamma column in the species_params data frame.")
+        }
+        assert_that(is.number(params@lambda),
+                    is.number(params@kappa),
+                    is.number(params@f0))
+        message("Note: Using f0, h, beta, sigma, lambda and kappa to calculate gamma.")
+        lm2 <- params@lambda - 2
+        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
+            exp(lm2^2 * species_params$sigma^2 / 2) *
+            # The factor on the following lines takes into account the cutoff
+            # of the integral at 0 and at beta + 3 sigma
+            (pnorm(3 - lm2 * species_params$sigma) + 
+                 pnorm(log(species_params$beta)/species_params$sigma + 
+                           lm2 * species_params$sigma) - 1)
+        if (!"h" %in% names(params@species_params) || 
+            any(is.na(species_params$h))) {
+            species_params$h <- get_h_default(params)
+        }
+        gamma_default <- (species_params$h / (params@kappa * ae)) * 
+            (params@f0 / (1 - params@f0))
+        # Only overwrite missing gammas with calculated values
+        if (any(is.na(gamma_default[missing]))) {
+            stop("Could not calculate gamma.")
+        }
+        species_params$gamma[missing] <- gamma_default[missing]
+    }
+    return(species_params$gamma)
+}
+
+#' Get default value for ks
+#' 
+#' Fills in any missing values for ks according to the formula
+#' \eqn{ks_i = 0.2 h_i}.
+#' 
+#' @param params A MizerParams object
+#' @return A vector with the values of ks for all species
+#' @export
+#' @keywords internal
+#' @concept helper
+get_ks_default <- function(params) {
+    species_params <- params@species_params
+    if (!"h" %in% names(params@species_params) ||
+        any(is.na(params@species_params$h))) {
+        params@species_params$h <- get_h_default(params)
+    }
+    message <- ("Note: No ks column in species data frame so using ks = h * 0.2.")
+    params <- set_species_param_default(params, "ks",
+                                        params@species_params$h * 0.2,
+                                        message)
+    if (any(is.na(params@species_params$ks) | 
+            is.infinite(params@species_params$ks))) {
+        stop(paste("Could not calculate default values for the missing species",
+             "parameter ks. Got:", params@species_params$ks))
+    }
+    return(params@species_params$ks)
 }

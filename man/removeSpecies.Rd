@@ -4,7 +4,7 @@
 \alias{removeSpecies}
 \title{Remove species from an ecosystem}
 \usage{
-removeSpecies(params, species)
+removeSpecies(params, remove)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}

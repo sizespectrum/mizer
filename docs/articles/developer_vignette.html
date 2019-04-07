@@ -45,19 +45,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -142,10 +187,21 @@ git fetch upstream</code></pre>
 <p>There are several different methods for setting up a <code>MizerParams</code> object for specifying various concrete models. These setup functions make various simplifying assumptions about the model parameters to reduce the amount of information that needs to be specified. This usually takes the form of assuming allometric scaling laws. Below we will first describe the most general size spectrum model handled by mizer before describing the specialisations for which mizer has special setup functions.</p>
 <p>There are many functions for analysing and plotting the results of a mizer simulation contained in a <code>MizerSim</code> object.</p>
 <p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MixerSim</code> object is called <code>sim</code>.</p>
-<div id="the-mizerparams-object" class="section level2">
+<div id="the-mizerparams-class" class="section level2">
 <h2 class="hasAnchor">
-<a href="#the-mizerparams-object" class="anchor"></a>The MizerParams object</h2>
+<a href="#the-mizerparams-class" class="anchor"></a>The MizerParams class</h2>
 <p>An object of class ‘MizerParams’ holds all the information needed for the ‘project()’ method to simulate a model.</p>
+<div id="adding-a-new-slot" class="section level3">
+<h3 class="hasAnchor">
+<a href="#adding-a-new-slot" class="anchor"></a>Adding a new slot</h3>
+<p>If you need to add a new slot to the MizerParams class, you need to make the following additions in the file <code>MizerParams-class.R</code>:</p>
+<ol style="list-style-type: decimal">
+<li>Go to the section “Class definition” and add a description of you new slot with <span class="citation">@slot</span>.</li>
+<li>Add an entry in the <code>representation</code> list inside <code>setClass</code>.</li>
+<li>Add an entry in the <code>prototype</code> list inside <code>setClass</code>. This gives a default value for the slot when a new oject of the class is created with <code>new()</code>. This is optional. If you do not provide a default then you must do the next step.</li>
+<li>In the function <code><a href="../reference/emptyParams.html">emptyParams()</a></code> go to the section “Make object” and inside the call to <code>new()</code> provide a default value for your slot. If your slot holds an array, then it is conventional in mizer to already give it the correct dimensions and dimnames here, if possible.</li>
+</ol>
+<p>What exactly to put into these places is usually clear in analogy to what is already there for other similar slots. You can see a good example in commit [<a href="https://github.com/gustavdelius/mizer/commit/c7236b7e1c320c4d6e65e48775bf1aac9f71a677" class="uri">https://github.com/gustavdelius/mizer/commit/c7236b7e1c320c4d6e65e48775bf1aac9f71a677</a>]. Next you will probably want to provide code to fill the slot with what you want it to hold and write the code that actually uses the slot.</p>
 <!--
 
 ## The project methods
@@ -159,6 +215,7 @@ git fetch upstream</code></pre>
 ## Collaborating on Github
 
 -->
+</div>
 </div>
 <div id="coding-style" class="section level2">
 <h2 class="hasAnchor">
@@ -197,7 +254,11 @@ git fetch upstream</code></pre>
 </li>
       <li>
 <a href="#finding-your-way-around-the-mizer-code">Finding your way around the mizer code</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#the-mizerparams-object">The MizerParams object</a></li>
+<li>
+<a href="#the-mizerparams-class">The MizerParams class</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#adding-a-new-slot">Adding a new slot</a></li>
+      </ul>
+</li>
       <li><a href="#coding-style">Coding style</a></li>
       <li><a href="#always-write-tests-for-your-code">Always write tests for your code</a></li>
       <li><a href="#rebuild-package-after-altering-code">Rebuild package after altering code</a></li>
@@ -211,7 +272,7 @@ git fetch upstream</code></pre>
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

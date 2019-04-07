@@ -37,6 +37,18 @@ all species is plotted as well. Default is FALSE.}
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
 Default is TRUE.}
+
+\item{...}{Arguments passed on to \code{get_size_range_array}
+\describe{
+  \item{min_w}{Smallest weight in size range. Defaults to smallest weight in
+the model.}
+  \item{max_w}{Largest weight in size range. Defaults to largest weight in the
+model.}
+  \item{min_l}{Smallest length in size range. If supplied, this takes
+precedence over \code{min_w}.}
+  \item{max_l}{Largest length in size range. If supplied, this takes precedence
+over \code{max_w}.}
+}}
 }
 \value{
 A ggplot2 object

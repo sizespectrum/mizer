@@ -55,10 +55,9 @@ A sensible assumption for the size dependence of the encounter rate is that
 it scales allometrically with the same exponent as the maximum intake rate,
 so that
 \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-This is the default set by \code{\link[=setResourceEncounter]{setResourceEncounter()}} which is called
-automatically when you set up the model with the \code{\link[=set_multispecies_model]{set_multispecies_model()}}
+This is the default set by the \code{\link[=set_multispecies_model]{set_multispecies_model()}}
 function. However you can always overwrite it with your own choice using the
-\code{\link[=setResourceEncounter]{setResourceEncounter()}} function.
+\code{\link[=changeResourceEncounter]{changeResourceEncounter()}} function.
 }
 
 \section{Resource Dynamics}{

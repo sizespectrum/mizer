@@ -5,7 +5,7 @@
 \title{Create empty MizerParams object of the right size}
 \usage{
 emptyParams(species_params, no_w = 100, min_w = 0.001, max_w = NA,
-  min_w_pp = 1e-10, no_w_pp = NA, srr = srrBevertonHolt)
+  min_w_pp = NA, no_w_pp = NA, srr = srrBevertonHolt)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}

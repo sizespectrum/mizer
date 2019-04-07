@@ -28,3 +28,4 @@ multiplies by (1-feeding_level) to get the consumed biomass rather than the
 available biomass. Outside the range of sizes for a predator species the
 returned rate is zero.
 }
+\concept{summary_function}

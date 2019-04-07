@@ -79,19 +79,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -134,8 +179,8 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-setting-model-parameters" class="hasAnchor"><a href="#section-setting-model-parameters" class="anchor"></a>Setting model parameters</h2>
-          <p class="section-desc"><p>Functions to create and modify a MizerParams parameter object describing your model</p></p>
+          <h2 id="section-creating-new-model" class="hasAnchor"><a href="#section-creating-new-model" class="anchor"></a>Creating new model</h2>
+          <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
@@ -144,6 +189,12 @@
           <p><code><a href="set_community_model.html">set_community_model()</a></code> </p>
         </td>
         <td><p>Sets up parameters for a community-type model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="set_multispecies_model.html">set_multispecies_model()</a></code> </p>
+        </td>
+        <td><p>Construct MizerParams object for general multispecies model</p></td>
       </tr><tr>
         
         <td>
@@ -156,88 +207,84 @@
           <p><code><a href="set_trait_model.html">set_trait_model()</a></code> </p>
         </td>
         <td><p>Sets up parameters for a trait-based model</p></td>
-      </tr><tr>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-changing-model-parameters" class="hasAnchor"><a href="#section-changing-model-parameters" class="anchor"></a>Changing model parameters</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
         
         <td>
-          <p><code><a href="set_multispecies_model.html">set_multispecies_model()</a></code> </p>
+          <p><code><a href="changeParams.html">changeParams()</a></code> </p>
         </td>
-        <td><p>Construct MizerParams object for multispecies model</p></td>
+        <td><p>Set or change any model parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setBMort.html">setBMort()</a></code> </p>
+          <p><code><a href="changeBMort.html">changeBMort()</a></code> </p>
         </td>
         <td><p>Set background mortality rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setBackground.html">setBackground()</a></code> </p>
-        </td>
-        <td><p>Designate species as background species</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> </p>
+          <p><code><a href="changeFishing.html">changeFishing()</a></code> </p>
         </td>
         <td><p>Set fishing parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setIntakeMax.html">setIntakeMax()</a></code> </p>
+          <p><code><a href="changeIntakeMax.html">changeIntakeMax()</a></code> </p>
         </td>
         <td><p>Set maximum intake rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setInteraction.html">setInteraction()</a></code> </p>
+          <p><code><a href="changeInteraction.html">changeInteraction()</a></code> </p>
         </td>
-        <td><p>Set species interation matrix and plankton interaction vector</p></td>
+        <td><p>Set species interation matrix</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setMetab.html">setMetab()</a></code> </p>
+          <p><code><a href="changeMetab.html">changeMetab()</a></code> </p>
         </td>
         <td><p>Set metabolic rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setParams.html">setParams()</a></code> </p>
-        </td>
-        <td><p>Set or change model parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setPlankton.html">setPlankton()</a></code> </p>
+          <p><code><a href="changePlankton.html">changePlankton()</a></code> </p>
         </td>
         <td><p>Set up plankton</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setPredKernel.html">setPredKernel()</a></code> </p>
+          <p><code><a href="changePredKernel.html">changePredKernel()</a></code> </p>
         </td>
         <td><p>Set predation kernel</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setReproduction.html">setReproduction()</a></code> </p>
+          <p><code><a href="changeReproduction.html">changeReproduction()</a></code> </p>
         </td>
         <td><p>Set proportion of energy that is invested into reproduction</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setResourceEncounter.html">setResourceEncounter()</a></code> </p>
+          <p><code><a href="changeResourceEncounter.html">changeResourceEncounter()</a></code> </p>
         </td>
         <td><p>Set resource encounter rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setResources.html">setResources()</a></code> </p>
+          <p><code><a href="changeResources.html">changeResources()</a></code> </p>
         </td>
         <td><p>Set resource dynamics</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> </p>
+          <p><code><a href="changeSearchVolume.html">changeSearchVolume()</a></code> </p>
         </td>
         <td><p>Set search volume</p></td>
       </tr><tr>
@@ -282,6 +329,12 @@
           <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
         </td>
         <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="markBackground.html">markBackground()</a></code> </p>
+        </td>
+        <td><p>Designate species as background species</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -397,6 +450,12 @@ step.</p></td>
           <p><code><a href="plotBiomass.html">plotBiomass()</a></code> </p>
         </td>
         <td><p>Plot the biomass of species through time</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plotDistribution.html">plotDistribution()</a></code> </p>
+        </td>
+        <td><p>Plot biomass or abundance distribution</p></td>
       </tr><tr>
         
         <td>
@@ -605,6 +664,12 @@ and size.</p></td>
           <p><code><a href="getRDI.html">getRDI()</a></code> </p>
         </td>
         <td><p>Get density independent rate of egg production</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getPredKernel.html">getPredKernel()</a></code> </p>
+        </td>
+        <td><p>Get predation kernel</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -648,21 +713,9 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="lognormal_max_ppmr.html">lognormal_max_ppmr()</a></code> </p>
-        </td>
-        <td><p>Maximum predator/prey mass ratio for lognormal kernel</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="box_pred_kernel.html">box_pred_kernel()</a></code> </p>
         </td>
         <td><p>Box predation kernel</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="box_max_ppmr.html">box_max_ppmr()</a></code> </p>
-        </td>
-        <td><p>Maximum predator/prey mass ratio for box kernel</p></td>
       </tr><tr>
         
         <td>
@@ -681,20 +734,62 @@ and size.</p></td>
           <p><code><a href="plankton_semichemostat.html">plankton_semichemostat()</a></code> </p>
         </td>
         <td><p>Project plankton using semichemostat model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="srrBevertonHolt.html">srrBevertonHolt()</a></code> </p>
+        </td>
+        <td><p>Beverton Holt stock-recruitment function</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-helper-functions" class="hasAnchor"><a href="#section-helper-functions" class="anchor"></a>Helper functions</h2>
+          <h2 id="section-internal-helper-functions" class="hasAnchor"><a href="#section-internal-helper-functions" class="anchor"></a>Internal helper functions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="get_size_range_array.html">get_size_range_array()</a></code> </p>
+          <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
         </td>
-        <td><p>Get size range array</p></td>
+        <td><p>Set a species parameter to a default value</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_h_default.html">get_h_default()</a></code> </p>
+        </td>
+        <td><p>Get default value for h</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_gamma_default.html">get_gamma_default()</a></code> </p>
+        </td>
+        <td><p>Get default value for gamma</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_ks_default.html">get_ks_default()</a></code> </p>
+        </td>
+        <td><p>Get default value for ks</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_phi.html">get_phi()</a></code> </p>
+        </td>
+        <td><p>Get values from feeding kernel function</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="log_breaks.html">log_breaks()</a></code> </p>
+        </td>
+        <td><p>Helper function to produce nice breaks on logarithmic axes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_initial_n.html">get_initial_n()</a></code> </p>
+        </td>
+        <td><p>Calculate initial population abundances for the community populations</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -805,14 +900,15 @@ and size.</p></td>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-setting-model-parameters">Setting model parameters</a></li>
+      <li><a href="#section-creating-new-model">Creating new model</a></li>
+      <li><a href="#section-changing-model-parameters">Changing model parameters</a></li>
       <li><a href="#section-running-simulations">Running simulations</a></li>
       <li><a href="#section-analysing-results">Analysing results</a></li>
       <li><a href="#section-plotting-results">Plotting results</a></li>
       <li><a href="#section-calculating-rates-used-in-model">Calculating rates used in model</a></li>
       <li><a href="#section-dynamics-of-unstructured-resources">Dynamics of unstructured resources</a></li>
       <li><a href="#section-functions-used-in-model">Functions used in model</a></li>
-      <li><a href="#section-helper-functions">Helper functions</a></li>
+      <li><a href="#section-internal-helper-functions">Internal helper functions</a></li>
       <li><a href="#section-classes">Classes</a></li>
       <li><a href="#section-data-sets">Data sets</a></li>
       <li><a href="#section-aliases">Aliases</a></li>
@@ -822,7 +918,7 @@ and size.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

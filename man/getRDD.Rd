@@ -4,12 +4,12 @@
 \alias{getRDD}
 \title{Get density dependent recruitment}
 \usage{
-getRDD(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B, sex_ratio = 0.5, rdi = getRDI(object, n = n,
+getRDD(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, sex_ratio = 0.5, rdi = getRDI(params, n = n,
   n_pp = n_pp, B = B, sex_ratio = sex_ratio))
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

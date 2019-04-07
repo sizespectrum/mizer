@@ -4,12 +4,12 @@
 \alias{getRDI}
 \title{Get density independent rate of egg production}
 \usage{
-getRDI(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B, e_repro = getERepro(object, n = n, n_pp = n_pp,
+getRDI(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, e_repro = getERepro(params, n = n, n_pp = n_pp,
   B = B), sex_ratio = 0.5)
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

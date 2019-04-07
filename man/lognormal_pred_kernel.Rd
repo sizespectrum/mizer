@@ -4,14 +4,14 @@
 \alias{lognormal_pred_kernel}
 \title{Lognormal predation kernel}
 \usage{
-lognormal_pred_kernel(ppmr, sp, params)
+lognormal_pred_kernel(ppmr, beta, sigma)
 }
 \arguments{
 \item{ppmr}{A vector of predator/prey size ratios}
 
-\item{sp}{The index of the predator species}
+\item{beta}{The preferred predator/prey size ratio}
 
-\item{params}{A MizerParams object}
+\item{sigma}{The width parameter of the log-normal kernel}
 }
 \value{
 A vector giving the value of the predation kernel at each of the
@@ -34,9 +34,6 @@ determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the colunns \code{beta} and \code{sigma}.
 
-This function is called from \code{\link{setPredKernel}} to set up the
-predation kernel slots in a \code{MizerParams} object. Associated to this
-function there is the function \code{\link{lognormal_max_ppmr}} that
-returns the largest allowed predator/prey mass ratio, i.e.,
-\eqn{\beta_i\exp(3\sigma_i)}{\beta_i exp(3\sigma_i)}.
+This function is called from \code{\link{changePredKernel}} to set up the
+predation kernel slots in a \code{MizerParams} object.
 }

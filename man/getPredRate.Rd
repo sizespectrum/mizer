@@ -4,12 +4,12 @@
 \alias{getPredRate}
 \title{Get predation rate}
 \usage{
-getPredRate(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B, feeding_level = getFeedingLevel(object, n = n,
+getPredRate(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, feeding_level = getFeedingLevel(params, n = n,
   n_pp = n_pp, B = B))
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

@@ -34,73 +34,89 @@ equal to the content of the dw slot.}
 \item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
 of each species}
 
+\item{\code{maturity}}{An array (species x size) that holds the proportion of
+individuals of each species at size that are mature. This enters in the
+calculation of the spawning stock biomass with \code{\link{getSSB}}. Set 
+with \code{\link{changeReproduction}}.}
+
 \item{\code{psi}}{An array (species x size) that holds the allocation to reproduction
-for each species at size, \eqn{\psi_i(w)}}
+for each species at size, \eqn{\psi_i(w)}. Changed with 
+\code{\link{changeReproduction}}.}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size.}
+each species at size. Changed with \code{\link{changeIntakeMax}}.}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
-each species at size.}
+each species at size. Changed with \code{\link{changeSearchVolume}}.}
 
 \item{\code{rho}}{A 3-dim array (species x resource x size) holding the encounter
-rates for unstructured resources. See [resource_dynamics] for details.}
+rates for unstructured resources. Changed with 
+\code{\link{changeResourceEncounter}} .See \code{\link{resource_dynamics}} for
+ details.}
 
 \item{\code{metab}}{An array (species x size) that holds the metabolism
-for each species at size.}
+for each species at size. Changed with \code{\link{changeMetab}}.}
 
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
-\eqn{\mu_{b.i}(w)}}
+\eqn{\mu_{b.i}(w)}. Changed with \code{\link{changeBMort}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
-this is NA then the following two slots will be used.}
+this is NA then the following two slots will be used. Changed with 
+\code{\link{changePredKernel}}.}
 
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
 then the \code{pred_kernel} will be used to calculate the available 
-energy integral.}
+energy integral. Changed with \code{\link{changePredKernel}}.}
 
 \item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
-then the \code{pred_kernel} will be used to calculate the integral.}
+then the \code{pred_kernel} will be used to calculate the integral.
+Changed with \code{\link{changePredKernel}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum.}
+growth rate of the plankton spectrum. Changed with \code{\link{changePlankton}}.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum.}
-
-\item{\code{resource_dynamics}}{A named list of functions for projecting the
-biomasses in the unstructured resource components by one timestep. The
-names of the list entries are the resource names. See
-\code{\link{resource_dynamics}} for details.}
+carrying capacity of the plankton spectrum. Changed with 
+\code{\link{changePlankton}}.}
 
 \item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
 density by one timestep. See \code{\link{plankton_semichemostat}} for 
-an example.}
+an example. Changed with \code{\link{changePlankton}}.}
+
+\item{\code{resource_dynamics}}{A named list of functions for projecting the
+biomasses in the unstructured resource components by one timestep. The
+names of the list entries are the resource names. Changed with 
+\code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
+details.}
 
 \item{\code{resource_params}}{A list containing the parameters needed by the
-`resource_dynamics` functions, see \code{\link{resource_dynamics}} for
+\code{resource_dynamics} functions.  Changed with 
+\code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
 details.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
-\item{\code{species_params}}{A data.frame to hold the species specific parameters
-(see the mizer vignette, Table 2, for details)}
+\item{\code{species_params}}{A data.frame to hold the species specific parameters.
+See \code{\link{set_multispecies_params}} for details.}
 
-\item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}}
+\item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
+Changed with \code{\link{changeInteraction}}.}
 
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
-each gear for species and size, \eqn{S_{g,i,w}}}
+each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
+\code{\link{changeFishing}}.}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
-each species by each gear, \eqn{Q_{g,i}}}
+each species by each gear, \eqn{Q_{g,i}}. Changed with 
+\code{\link{changeFishing}}.}
 
 \item{\code{initial_n}}{An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.}
@@ -111,17 +127,18 @@ the plankton abundance at each weight.}
 \item{\code{initial_B}}{A vector containing the biomasses of the unstructured
 resource components, see \code{\link{resource_dynamics}} for details.}
 
-\item{\code{n}}{Exponent of maximum intake rate.}
+\item{\code{n}}{Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.}
 
-\item{\code{p}}{Exponent of metabolic cost.}
+\item{\code{p}}{Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.}
 
-\item{\code{lambda}}{Exponent of plankton spectrum.}
+\item{\code{lambda}}{Exponent of plankton spectrum. Changed with \code{\link{changePlankton}}.}
 
-\item{\code{q}}{Exponent for volumetric search rate.}
+\item{\code{kappa}}{Magnitude of plankton spectrum. Changed with \code{\link{changePlankton}}.}
+
+\item{\code{q}}{Exponent for volumetric search rate. 
+Changed with \code{\link{changeSearchVolume}}.}
 
 \item{\code{f0}}{Initial feeding level.}
-
-\item{\code{kappa}}{Magnitude of plankton spectrum.}
 
 \item{\code{A}}{Abundance multipliers.}
 

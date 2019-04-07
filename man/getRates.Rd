@@ -4,11 +4,11 @@
 \alias{getRates}
 \title{Get all rates}
 \usage{
-getRates(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B, effort = 0, sex_ratio = 0.5)
+getRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, effort = 0, sex_ratio = 0.5)
 }
 \arguments{
-\item{object}{A \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

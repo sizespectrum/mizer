@@ -4,12 +4,12 @@
 \alias{getERepro}
 \title{Get energy rate available for reproduction}
 \usage{
-getERepro(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B, e = getEReproAndGrowth(object, n = n, n_pp =
+getERepro(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, e = getEReproAndGrowth(params, n = n, n_pp =
   n_pp, B = B))
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

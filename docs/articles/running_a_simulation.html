@@ -45,19 +45,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -151,18 +196,17 @@
 <p>When we use a single value for the <code>effort</code> argument, the value is used as a constant effort for all the gears. This method can be particularly useful for quickly projecting forward without fishing (you just set the <code>effort</code> argument to 0).</p>
 <p>We will use the <code>params</code> object that was created in <a href="multispecies_model.html#sec:params_example">the section with examples of making a MizerParams objects</a> in which each species is caught by a separate gear. Here we make the object again:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_multispecies_model.html">set_multispecies_model</a></span>(params_data, <span class="dt">interaction =</span> inter)</a></code></pre></div>
-<pre><code>## Note: No interaction_p column in species data frame so assuming all species feed on plankton.</code></pre>
 <pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
 <pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: No ks column in species data frame so using ks = h * 0.2.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
-<pre><code>## Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</code></pre>
+<pre><code>## Note: Using f0, h, beta, sigma, lambda and kappa to calculate gamma.</code></pre>
 <p>As described above, effort is associated with fishing gears. Because we haven’t specified any gears in the <code>params_data</code> species parameter data.frame, each species is caught by a separate gear, named after the species.</p>
 <p>As well as thinking about the <code>effort</code> argument we also need to consider the time parameters. We will project the populations forward until time equals 10 (<code>t_max</code> = 10), with a time step of 0.1 (<code>dt</code> = 0.1), saving the output every time step (<code>t_save</code> = 1). We use a constant effort value of 1.0.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a></code></pre></div>
 <p>The resulting <code>sim</code> object is of class <code>MizerSim</code>. At this point we won’t explore how the results can be investigated in detail. However, we will use the basic summary plot that you have seen before:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(sim)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(sim)</a></code></pre></div>
 <div class="figure">
 <img src="running_a_simulation_files/figure-html/plot_basic_ms_sim-1.png" alt="Plot of the North Sea multispecies model with no default fishing gears and constant effort of 1." width="700"><p class="caption">
 Plot of the North Sea multispecies model with no default fishing gears and constant effort of 1.
@@ -171,7 +215,7 @@ Plot of the North Sea multispecies model with no default fishing gears and const
 <p>Without fishing the community settles down to equilibrium at about t = 50. The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the <em>species</em> had the same M2 and feeding level patterns. Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.</p>
 <p>You can also see in the above figure that each species has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species <code>w_mat</code> parameter.</p>
 <p>The effort through time can be inspected by looking at the <code>effort</code> slot (we use the <code><a href="https://www.rdocumentation.org/packages/utils/topics/head">head()</a></code> function to just show the first few lines). The <code>effort</code> slot shows the effort by time and gear. You can see here that each species is caught by a separate gear, and the gear is named after the species. In this example, we specified the <code>effort</code> argument as a single numeric of value 1. As you can see this results in the same effort being used for all gears for all time steps:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
 <pre><code>##     gear
 ## time Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock
 ##    0     1       1      1       1   1       1    1       1      1       1
@@ -189,10 +233,10 @@ Plot of the North Sea multispecies model with no default fishing gears and const
 ##    4   1      1
 ##    5   1      1</code></pre>
 <p>A <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> method is also available for objects of type <code>MizerSim</code>. This is essentially the same as the summary for <code>MizerParams</code> objects, but includes information on the simulation time parameters.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(sim)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(sim)</a></code></pre></div>
 <p>If we decrease <code>t_save</code> but keep <code>t_max</code> the same then we can see that the time dimension of the <code>effort</code> slot changes accordingly. This will also be true of the <code>n</code> and <code>n_pp</code> slots. Here we reduce <code>t_save</code> to 0.5, meaning that the effort and abundance information is stored at t = 1.0, 1.5, 2.0 etc.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
 <pre><code>##      gear
 ## time  Industrial Pelagic Beam Otter
 ##   0            1       1    1     1
@@ -207,10 +251,10 @@ Plot of the North Sea multispecies model with no default fishing gears and const
 <a href="#sec:proj_diff_gears_constant_effort" class="anchor"></a>Setting constant effort for different gears</h3>
 <p>As mentioned above, we can also set the effort values for each gear separately using a vector of effort values. This still keeps the efforts constant through time but it means that each gear can have a different constant effort.</p>
 <p>Here we will use the <code>MizerParams</code> object with four gears, <code>params_gears</code>, that we created in <a href="multispecies_model.html#sec:setting_different_gears">the section on setting up different gears.</a> The names of the gears are Industrial, Pelagic, Beam, Otter. We need to create a named vector of effort, where the names match the gears. For example, here we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, set the effort of the beam trawl gears to 0.3 and the effort of the otter trawl gear to 0.7. We set the <code>effort</code> like this:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">effort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">Industrial =</span> <span class="dv">0</span>, <span class="dt">Pelagic =</span> <span class="dv">1</span>, <span class="dt">Beam =</span> <span class="fl">0.3</span>, <span class="dt">Otter =</span> <span class="fl">0.7</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">effort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">Industrial =</span> <span class="dv">0</span>, <span class="dt">Pelagic =</span> <span class="dv">1</span>, <span class="dt">Beam =</span> <span class="fl">0.3</span>, <span class="dt">Otter =</span> <span class="fl">0.7</span>)</a></code></pre></div>
 <p>We then call <code><a href="../reference/project.html">project()</a></code> with this effort and inspect the resulting <code>effort</code> slot (again we use the <code><a href="https://www.rdocumentation.org/packages/utils/topics/head">head()</a></code> function to just show the first few lines):</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears, <span class="dt">effort =</span> effort, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="dv">1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears, <span class="dt">effort =</span> effort, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="dv">1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
 <pre><code>##     gear
 ## time Industrial Pelagic Beam Otter
 ##    0          0       1  0.3   0.7
@@ -221,7 +265,7 @@ Plot of the North Sea multispecies model with no default fishing gears and const
 ##    5          0       1  0.3   0.7</code></pre>
 <p>You can see that the effort for each gear is constant but each gear has the effort that was specified in the <code>effort</code> argument.</p>
 <p>This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, <code><a href="../reference/plotFMort.html">plotFMort()</a></code>, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step). The fishing mortality on each of the species is determined by the effort of the gear that caught it.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="../reference/plotFMort.html">plotFMort</a></span>(sim)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="../reference/plotFMort.html">plotFMort</a></span>(sim)</a></code></pre></div>
 <div class="figure">
 <img src="running_a_simulation_files/figure-html/plotFMort-1.png" alt="An example of using the `plotFMort()` method to show how different efforts for different gears can be specified." width="700"><p class="caption">
 An example of using the <code><a href="../reference/plotFMort.html">plotFMort()</a></code> method to show how different efforts for different gears can be specified.
@@ -235,17 +279,17 @@ An example of using the <code><a href="../reference/plotFMort.html">plotFMort()<
 <p>Here, we will use the <code>params_gears</code> object we created in <a href="multispecies_model.html#sec:setting_different_gears">the section on setting up different fishing gears</a> which has four gears. The names of the gears are Industrial, Pelagic, Beam, Otter.</p>
 <p>In this example, we will project forward from time <span class="math inline">\(t=1\)</span> to time <span class="math inline">\(t=10\)</span>. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.</p>
 <p>First we create the empty <code>effort</code> array:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">gear_names &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>)</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">times &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">effort_array &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/array">array</a></span>(<span class="ot">NA</span>, <span class="dt">dim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(gear_names)),</a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">    <span class="dt">dimnames =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">time =</span> times, <span class="dt">gear =</span> gear_names))</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">gear_names &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>)</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">times &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">effort_array &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/array">array</a></span>(<span class="ot">NA</span>, <span class="dt">dim =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(gear_names)),</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">    <span class="dt">dimnames =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">time =</span> times, <span class="dt">gear =</span> gear_names))</a></code></pre></div>
 <p>Then we fill it up, one gear at a time, making heavy use of the <code><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq()</a></code> function to create a sequence:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">effort_array[,<span class="st">"Industrial"</span>] &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">effort_array[,<span class="st">"Pelagic"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">2</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">effort_array[,<span class="st">"Beam"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">0</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a>
-<a class="sourceLine" id="cb21-4" data-line-number="4">effort_array[,<span class="st">"Otter"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="fl">0.5</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">effort_array[,<span class="st">"Industrial"</span>] &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">effort_array[,<span class="st">"Pelagic"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">2</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3">effort_array[,<span class="st">"Beam"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="dv">0</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">effort_array[,<span class="st">"Otter"</span>] &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from =</span> <span class="dv">1</span>, <span class="dt">to =</span> <span class="fl">0.5</span>, <span class="dt">length =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(times))</a></code></pre></div>
 <p>The first few rows of the effort array are shown as an illustration:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(effort_array)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(effort_array)</a></code></pre></div>
 <pre><code>##     gear
 ## time Industrial  Pelagic      Beam     Otter
 ##    1        0.5 1.000000 1.0000000 1.0000000
@@ -255,8 +299,8 @@ An example of using the <code><a href="../reference/plotFMort.html">plotFMort()<
 ##    5        0.5 1.444444 0.5555556 0.7777778
 ##    6        0.5 1.555556 0.4444444 0.7222222</code></pre>
 <p>The first row gives the effort between times 1 and 2, the second between times 2 and 3, and so on. The time 10 row in the array is not actually used, except to set the final time for the simulation. Now we can use this effort array in the projection:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears,<span class="dt">effort=</span>effort_array, <span class="dt">dt=</span><span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_gears,<span class="dt">effort=</span>effort_array, <span class="dt">dt=</span><span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(sim<span class="op">@</span>effort)</a></code></pre></div>
 <pre><code>##     gear
 ## time Industrial  Pelagic      Beam     Otter
 ##    1        0.5 1.000000 1.0000000 1.0000000
@@ -297,7 +341,7 @@ An example of using the <code><a href="../reference/plotFMort.html">plotFMort()<
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -83,19 +83,64 @@ weight $w$ encounters food (grams/year)." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -136,14 +181,14 @@ weight $w$ encounters food (grams/year).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>getEncounter</span>(<span class='no'>object</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>object</span>@<span class='kw'>initial_B</span>)</pre>
+    <pre class="usage"><span class='fu'>getEncounter</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
+  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
+      <th>params</th>
       <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
@@ -180,11 +225,11 @@ $$
 Here \(N_j(w)\) is the abundance density of species \(j\) and
 \(N_R(w)\) is the abundance density of plankton.
 The overall prefactor \(\gamma_i(w)\) determines the predation power of the
-predator. It could be interpreted as a search volume and is set with the
-<code><a href='setSearchVolume.html'>setSearchVolume</a></code> function. The predation kernel
-\(\phi(w,w_p)\) is set with the <code><a href='setPredKernel.html'>setPredKernel</a></code> function. The
+predator. It could be interpreted as a search volume and is changed with the
+<code><a href='changeSearchVolume.html'>changeSearchVolume</a></code> function. The predation kernel
+\(\phi(w,w_p)\) is changed with the <code><a href='changePredKernel.html'>changePredKernel</a></code> function. The
 species interaction matrix \(\theta_{ij}\) and the plankton interaction
-vector \(\theta{ip}\) are set with <code><a href='setInteraction.html'>setInteraction</a></code>.</p>
+vector \(\theta{ip}\) are changed with <code><a href='changeInteraction.html'>changeInteraction</a></code>.</p>
     
     <h2 class="hasAnchor" id="resource-encounter"><a class="anchor" href="#resource-encounter"></a>Resource encounter</h2>
 
@@ -196,8 +241,8 @@ $$E_{u.i} = \sum_d \rho_{id}(w) B_d.$$
 where \(B_d\) is the biomass of the d-th unstructured resource component
 and \(\rho_{id}(w)\) is a parameter that therefore determines the rate at
 which a predator of species \(i\) and size \(w\) encounters biomass from
-the d-th unstructured resource component. This is set with
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>.</p>
+the d-th unstructured resource component. This is changed with
+<code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -244,7 +289,7 @@ species. These values should not be trusted, as they are meaningless.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

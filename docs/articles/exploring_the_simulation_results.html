@@ -45,19 +45,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -162,29 +207,29 @@
 <pre><code>## [1] 10 12</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(ssb)</a></code></pre></div>
 <pre><code>##     sp
-## time        Sprat      Sandeel       N.pout      Herring         Dab
-##    1     32316061 5.051661e+07     42441911 2.661090e+07    35035271
-##    2    160525659 2.333020e+10   5334977065 1.999206e+08   672366380
-##    3   9783610162 4.634498e+11 269132433132 2.528679e+10 13534638422
-##    4  78089499334 1.057359e+12 369865568769 2.151051e+11 40336849545
-##    5 318556494338 1.436547e+12 364606858354 7.864854e+11 57245274923
-##    6 406850566435 1.461254e+12 264550251688 1.449330e+12 53283454127
+## time        Sprat      Sandeel       N.pout      Herring          Dab
+##    1     37330627 6.286137e+07     49927009 3.175132e+07     45597686
+##    2    206965672 4.246722e+10   8145075886 2.896011e+08   1528879175
+##    3  12579512182 7.675782e+11 381333673527 3.617300e+10  29591351337
+##    4  99239450482 1.599242e+12 470697731930 3.017510e+11  80738328546
+##    5 399626550906 2.049793e+12 442738111310 1.096256e+12 103094212987
+##    6 498472552039 2.012244e+12 311937940883 1.992521e+12  86758214114
 ##     sp
-## time      Whiting        Sole    Gurnard    Plaice     Haddock         Cod
-##    1     34304574    33635029   31244848  29537331    29494315    17657453
-##    2     16348486    15295468   14922144  11410960    17168857     6711870
-##    3    651387405   145430016  221901997   5071645  1187887172     3360804
-##    4   5608759642  3379479565 1524732158   4364497 15525889517    31024101
-##    5  40554991993 19031857848 2467124817  43691311 41863001348  3915654172
-##    6 116122172016 44926739961 2379729275 203338957 75580629971 51375642122
+## time      Whiting        Sole    Gurnard    Plaice      Haddock
+##    1     43220315    42234166   41011462  38149738     37607179
+##    2     24535993    20639504   22049518  15029738     29402326
+##    3   1497056251   314016170  543114669   6968722   3110271434
+##    4  11925136922  7200529601 3583362616   8981840  38533087801
+##    5  84123483968 39133844188 5463593497 123841017  96195913444
+##    6 220682571714 89828858488 5077128713 563944272 168767351634
 ##     sp
-## time   Saithe
-##    1 24191511
-##    2  9155976
-##    3  3973947
-##    4  2791619
-##    5  4338964
-##    6 33953599</code></pre>
+## time          Cod   Saithe
+##    1     23626422 30434566
+##    2      9001580 11553292
+##    3      5363473  5378775
+##    4     81927859  4733804
+##    5  10128225554  8882776
+##    6 125308618098 77230282</code></pre>
 <p>As mentioned above, we can specify the size range for the <code><a href="../reference/getBiomass.html">getBiomass()</a></code> and <code><a href="../reference/getN.html">getN()</a></code> methods. For example, here we calculate the total biomass of each species but only include individuals that are larger than 10 g and smaller than 1000 g.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">biomass &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getBiomass.html">getBiomass</a></span>(sim, <span class="dt">min_w =</span> <span class="dv">10</span>, <span class="dt">max_w =</span> <span class="dv">1000</span>)</a>
 <a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(biomass)</a></code></pre></div>
@@ -360,7 +405,7 @@ Example output from using the summary plot() method.
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

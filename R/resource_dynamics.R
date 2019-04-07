@@ -43,10 +43,9 @@
 #' it scales allometrically with the same exponent as the maximum intake rate,
 #' so that
 #' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' This is the default set by [setResourceEncounter()] which is called
-#' automatically when you set up the model with the [set_multispecies_model()]
+#' This is the default set by the [set_multispecies_model()]
 #' function. However you can always overwrite it with your own choice using the
-#' [setResourceEncounter()] function.
+#' [changeResourceEncounter()] function.
 #' 
 #' @section Resource Dynamics:
 #' During a simulation using [project()], the biomasses of the resources is

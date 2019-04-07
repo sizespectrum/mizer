@@ -83,19 +83,64 @@ mass ratio is normally distributed." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -136,7 +181,7 @@ mass ratio is normally distributed.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>lognormal_pred_kernel</span>(<span class='no'>ppmr</span>, <span class='no'>sp</span>, <span class='no'>params</span>)</pre>
+    <pre class="usage"><span class='fu'>lognormal_pred_kernel</span>(<span class='no'>ppmr</span>, <span class='no'>beta</span>, <span class='no'>sigma</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,12 +191,12 @@ mass ratio is normally distributed.</p>
       <td><p>A vector of predator/prey size ratios</p></td>
     </tr>
     <tr>
-      <th>sp</th>
-      <td><p>The index of the predator species</p></td>
+      <th>beta</th>
+      <td><p>The preferred predator/prey size ratio</p></td>
     </tr>
     <tr>
-      <th>params</th>
-      <td><p>A MizerParams object</p></td>
+      <th>sigma</th>
+      <td><p>The width parameter of the log-normal kernel</p></td>
     </tr>
     </table>
     
@@ -173,11 +218,8 @@ Here \(\beta_i\) is the preferred predator-prey mass ratio and \(\sigma_i\)
 determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the colunns <code>beta</code> and <code>sigma</code>.</p>
-<p>This function is called from <code><a href='setPredKernel.html'>setPredKernel</a></code> to set up the
-predation kernel slots in a <code>MizerParams</code> object. Associated to this
-function there is the function <code><a href='lognormal_max_ppmr.html'>lognormal_max_ppmr</a></code> that
-returns the largest allowed predator/prey mass ratio, i.e.,
-\(\beta_i\exp(3\sigma_i)\).</p>
+<p>This function is called from <code><a href='changePredKernel.html'>changePredKernel</a></code> to set up the
+predation kernel slots in a <code>MizerParams</code> object.</p>
     
 
   </div>
@@ -196,7 +238,7 @@ returns the largest allowed predator/prey mass ratio, i.e.,
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

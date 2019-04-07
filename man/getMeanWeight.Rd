@@ -46,3 +46,4 @@ getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 getMeanWeight(sim, min_w = 10, max_w = 5000)
 }
 }
+\concept{summary_function}

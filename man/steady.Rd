@@ -32,3 +32,11 @@ keeping recruitment and resources constant to reach steady state. Then the
 reproductive efficiencies and the external resource rates are retuned to
 achieve that level of recruitment.
 }
+\examples{
+\dontrun{
+params <- set_scaling_model()
+params@species_params$gamma[5] <- 3000
+params <- changeSearchVolume(params)
+params <- steady(params)
+}
+}

@@ -41,8 +41,7 @@
 <meta property="og:description" content="Runs the size spectrum model simulation.
 The function returns an object of type
 MizerSim that can then be explored with a range of
-summary_functions and plotting_functions
-plotting methods." />
+summary_functions and plotting_functions." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -86,19 +85,64 @@ plotting methods." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -137,28 +181,22 @@ plotting methods." />
     <p>Runs the size spectrum model simulation.
 The function returns an object of type
 <a href='MizerSim-class.html'>MizerSim</a> that can then be explored with a range of
-<code><a href='summary_functions.html'>summary_functions</a></code> and <code><a href='plotting_functions.html'>plotting_functions</a></code>
-plotting methods.</p>
+<code><a href='summary_functions.html'>summary_functions</a></code> and <code><a href='plotting_functions.html'>plotting_functions</a></code>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>project</span>(<span class='no'>params</span>, <span class='kw'>sim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
+    <pre class="usage"><span class='fu'>project</span>(<span class='no'>object</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>t_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>initial_n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>, <span class='kw'>initial_B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>append</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>sim</th>
-      <td><p>Optional <a href='MizerSim-class.html'>MizerSim</a> object. If supplied, then the
-initial values for the abundances of species and of plankton and the
-resource biomasses are taken from the final time of that simulation.</p></td>
+      <th>object</th>
+      <td><p>Either a <a href='MizerParams-class.html'>MizerParams</a> object or a 
+<a href='MizerSim-class.html'>MizerSim</a> object (which contains a <code>MizerParams</code> object).</p></td>
     </tr>
     <tr>
       <th>effort</th>
@@ -166,10 +204,9 @@ resource biomasses are taken from the final time of that simulation.</p></td>
     </tr>
     <tr>
       <th>t_max</th>
-      <td><p>The maximum time the projection runs for. The default value is
-100. However, this argument is not needed if an array is used for the
-<code>effort</code> argument, in which case this argument is ignored. See notes
-below.</p></td>
+      <td><p>The number of years the projection runs for. The default value is
+100. However, this argument is ignored if an array is used for the
+<code>effort</code> argument. See notes below.</p></td>
     </tr>
     <tr>
       <th>dt</th>
@@ -181,26 +218,39 @@ below.</p></td>
 value is 1. Must be an integer multiple of dt.</p></td>
     </tr>
     <tr>
+      <th>t_start</th>
+      <td><p>The the year of the start of the simulation. The simulation
+will cover the period from <code>t_start</code> to <code>t_start + t_max</code>.
+Defaults to 0. Ignored if an array is used for the <code>effort</code>
+argument or a <code>MizerSim</code> for the <code>object</code> argument.</p></td>
+    </tr>
+    <tr>
       <th>initial_n</th>
-      <td><p>The initial abundances of species. Ignored if a <code>sim</code>
-argument is supplied. A matrix with dimensions species x size. The order of
-species must be the same as in the <code>MizerParams</code> argument. By default
-is set to the <code>initial_n</code> slot of the <code>params</code> argument.</p></td>
+      <td><p>The initial abundances of species. A matrix with dimensions 
+species x size. The order of species must be the same as in the 
+<code>MizerParams</code> argument. Ignored if the <code>object</code> argument is a 
+MizerSim object, but overrules the <code>initial_n</code> slot if <code>object</code> 
+is a <code>MizerParams</code> object.</p></td>
     </tr>
     <tr>
       <th>initial_n_pp</th>
-      <td><p>The initial abundances of plankton. Ignored if a
-<code>sim</code> argument is supplied. A numeric vector of the same length as the
-<code>w_full</code> slot of the <code>MizerParams</code> argument. By default is set to
-the <code>initial_n_pp</code> slot of the <code>params</code> argument.</p></td>
+      <td><p>The initial abundances of plankton. A numeric vector.
+Ignored if the <code>object</code> argument is a MizerSim object, but overrules
+the <code>initial_n_pp</code> slot if <code>object</code> is a <code>MizerParams</code>
+object.</p></td>
     </tr>
     <tr>
       <th>initial_B</th>
       <td><p>The initial biomasses of the unstructured resources. It
-should be a vector with one entry for each resource, with the names the
-same as the names of the list in the <code>resource_dynamics</code> slot of the
-<code>MizerParams</code>. By default is set to the <code>initial_B</code> slot of the
-<code>params</code> argument.</p></td>
+should be a named vector with one entry for each resource. Ignored if the
+<code>object</code> argument is a MizerSim object, but overrules the
+<code>initial_B</code> slot if <code>object</code> is a <code>MizerParams</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>append</th>
+      <td><p>A boolean that determines whether the new simulation results
+are appended to the previous ones. Only relevant if <code>object</code> is a
+<code>MizerSim</code> object. Default = TRUE.</p></td>
     </tr>
     <tr>
       <th>progress_bar</th>
@@ -229,7 +279,7 @@ gears. The vector must be named and the names must correspond to the gear
 names in the <code>MizerParams</code> object. The values in the vector specify the
 constant fishing effort of each of the fishing gears, i.e. the effort is
 constant through time but each gear may have a different fishing effort.</p></li>
-<li><p>A numerical array with dimensions time step x gear. This specifies the
+<li><p>A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
 must be named numerically and contiguously. The second dimension of the array
 must be named and the names must correspond to the gear names in the
@@ -238,14 +288,14 @@ is used during the interval from that time to the next time in the array.</p></l
 </ul>
     <p>If effort is specified as an array then the smallest time in the array is 
 used as the initial time for the simulation. Otherwise the initial time is
-set to 0. Also, if the effort is an array then the <code>t_max</code> argument is 
-ignored and the maximum simulation time is the largest time of the effort
-array.</p>
-<p>The <code>initial_n</code> argument is a matrix with dimensions species x size. 
-It specifies the abundances of the species at the initial time. The
-order of species must be the same as in the <code>MizerParams</code> argument. If
-the initial population is not specified, the argument is set by default by
-the <code><a href='get_initial_n.html'>get_initial_n</a></code> function which is set up for a North Sea model.</p>
+set to the final time of the previous simulation if <code>object</code> is a 
+<code>MizerSim</code> object or to <code>t_start</code> otherwise. Also, if the effort is
+an array then the <code>t_max</code> argument is ignored and the maximum simulation
+time is the largest time of the effort array.</p>
+<p>If the <code>object</code> argument is of class <code>MizerSim</code> then the initial
+values for the simulation are taken from the final values in the 
+<code>MizerSim</code> object and the corresponding argumens to this function will
+be ignored.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -295,7 +345,7 @@ the <code><a href='get_initial_n.html'>get_initial_n</a></code> function which i
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

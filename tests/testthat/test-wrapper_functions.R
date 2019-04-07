@@ -78,7 +78,7 @@ test_that("retuneAbundance() reproduces scaling model", {
 test_that("addSpecies works when adding a second identical species", {
     p <- set_scaling_model()
     no_sp <- length(p@A)
-    p <- setBackground(p)
+    p <- markBackground(p)
     species_params <- p@species_params[5,]
     species_params$species = "new"
     SSB <- sum(p@initial_n[5, ] * p@w * p@dw * p@psi[5, ])
@@ -88,6 +88,21 @@ test_that("addSpecies works when adding a second identical species", {
     pa@initial_n[5, ] <- pa@initial_n[5, ] + pa@initial_n[no_sp+1, ]
     expect_lt(max(abs(p@initial_n - pa@initial_n[1:no_sp, ])), 1)
     expect_lt(max(abs(p@initial_n[5,] - pa@initial_n[5, ])), 0.7)
+})
+
+# removeSpecies ----
+test_that("removeSpecies works", {
+    data("NS_species_params")
+    remove <- NS_species_params$species[2:11]
+    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
+    params <- MizerParams(NS_species_params, no_w = 20, 
+                          max_w = 39900, min_w_pp = 9e-14)
+    p1 <- removeSpecies(params, remove = remove)
+    p2 <- MizerParams(reduced, no_w = 20, 
+                      max_w = 39900, min_w_pp = 9e-14)
+    sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
+    sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
+    expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
 })
 
 # Multiple gears work correctly in trait-based model ----
@@ -117,4 +132,14 @@ test_that("Multiple gears work correctly in trait-based model", {
     expect_that(all(fmg[10,4,4,params@w < knife_edges[4]] == 0), is_true())
     expect_that(all(fmg[10,4,4,params@w >= knife_edges[4]] == 1), is_true())
     
+})
+
+# steady ----
+test_that("steady works", {
+    expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
+                   "Increased no_w to 36")
+    params@species_params$gamma[2] <- 2000
+    params <- changeSearchVolume(params)
+    params <- steady(params)
+    expect_known_value(getRDI(params), "values/steady")
 })

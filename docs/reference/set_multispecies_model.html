@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Construct MizerParams object for multispecies model — set_multispecies_model • mizer</title>
+<title>Construct MizerParams object for general multispecies model — set_multispecies_model • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -36,13 +36,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
 
 
-<meta property="og:title" content="Construct MizerParams object for multispecies model — set_multispecies_model" />
+<meta property="og:title" content="Construct MizerParams object for general multispecies model — set_multispecies_model" />
 
 <meta property="og:description" content="Sets up a multi-species size spectrum model by filling all slots in the
 MizerParams object based on user-provided or default
 parameters. It does this by creating an empty MizerParams object with
 emptyParams and then filling the slots by passing its arguments
-to setParams." />
+to changeParams. There is a long list of arguments, but almost
+all of them have sensible default values. All arguments are described in more
+details in the sections below the list." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -86,19 +88,64 @@ to setParams." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -127,8 +174,8 @@ to setParams." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Construct MizerParams object for multispecies model</h1>
-    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/multispecies_params.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/multispecies_params.R'><code>R/multispecies_params.R</code></a></small>
+    <h1>Construct MizerParams object for general multispecies model</h1>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
     <div class="hidden name"><code>set_multispecies_model.Rd</code></div>
     </div>
 
@@ -138,7 +185,9 @@ to setParams." />
 <a href='MizerParams-class.html'>MizerParams</a> object based on user-provided or default
 parameters. It does this by creating an empty MizerParams object with
 <code><a href='emptyParams.html'>emptyParams</a></code> and then filling the slots by passing its arguments
-to <code><a href='setParams.html'>setParams</a></code>.</p>
+to <code><a href='changeParams.html'>changeParams</a></code>. There is a long list of arguments, but almost
+all of them have sensible default values. All arguments are described in more
+details in the sections below the list.</p>
     
     </div>
 
@@ -146,10 +195,9 @@ to <code><a href='setParams.html'>setParams</a></code>.</p>
   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>species_params</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>species_params</span>)), <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1e+11</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> (<span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>),
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pred_kernel_type</span> <span class='kw'>=</span> <span class='st'>"lognormal"</span>,
-  <span class='kw'>store_kernel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>, <span class='kw'>psi</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>,
+  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='no'>plankton_semichemostat</span>,
   <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='kw'>resource_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='kw'>rho</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>srr</span> <span class='kw'>=</span> <span class='no'>srrBevertonHolt</span>)</pre>
@@ -202,8 +250,8 @@ be logarithmically equally spaced.</p></td>
     </tr>
     <tr>
       <th>q</th>
-      <td><p>Exponent of the allometric search volume. Only needed if 
-<code>gamma</code> is not an array.</p></td>
+      <td><p>Exponent of the allometric search volume. Not needed if a
+<code>search_vol</code> array is specified.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
@@ -218,29 +266,26 @@ be logarithmically equally spaced.</p></td>
       <td><p>Average feeding level. Used to calculated <code>h</code> and <code>gamma</code>
 if those are not columns in the species data frame. Also requires
 <code>k_vb</code> (the von Bertalanffy K parameter) to be a column in the species
-data frame. If <code>h</code> and <code>gamma</code> are supplied then this argument is
-ignored. Default is 0.6.</p></td>
+data frame.</p></td>
     </tr>
     <tr>
       <th>pred_kernel</th>
       <td><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
-size. The dimensions are thus no_sp, no_w, no_w_full.</p></td>
+size. If not supplied, a default is set as described in section "Setting
+predation kernel".</p></td>
     </tr>
     <tr>
-      <th>pred_kernel_type</th>
-      <td><p>Only used if <code>pred_kernel</code> is not supplied. A
-string or vector of strings that determines which predation kernel function
-is used for each species. If not supplied, is taken from species parameter
-dataframe if possible, or defaults to "lognormal".</p></td>
+      <th>search_vol</th>
+      <td><p>Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the section "Setting search volume".</p></td>
     </tr>
     <tr>
-      <th>store_kernel</th>
-      <td><p>Only used if <code>pred_kernel</code> is not supplied. A
-boolean flag that determines whether the full three dimensional predation
-kernel array is calculated and stored, even though it is not needed by
-mizer. Only useful if you have your own code that relies on this array.
-Default is FALSE.</p></td>
+      <th>intake_max</th>
+      <td><p>Optional. An array (species x size) holding the maximum
+intake rate for each species at size. If not supplied, a default is set as
+described in the section "Setting maximum intake rate".</p></td>
     </tr>
     <tr>
       <th>metab</th>
@@ -261,10 +306,17 @@ in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code
 Default value is <code>n-1</code>.</p></td>
     </tr>
     <tr>
-      <th>psi</th>
-      <td><p>Optional. An array (species x size) that holds the allocation to
-reproduction for each species at size. If not supplied, a default is set
-as described in the section "Setting reproduction".</p></td>
+      <th>maturity</th>
+      <td><p>Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".</p></td>
+    </tr>
+    <tr>
+      <th>repro_prop</th>
+      <td><p>Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
@@ -297,9 +349,9 @@ needed.</p></td>
     </tr>
     <tr>
       <th>rho</th>
-      <td><p>Either a 3-dim array (predator species x resource x predator size)
-or a 2-dim array (predator species x resource). In the latter case the
-size dependence is given by allometry.</p></td>
+      <td><p>Optional. An array (species x resource x size)
+holding the rate at which a consumer of a particular size feeds on each
+resource. Described in the section "Setting resource encounter rate".</p></td>
     </tr>
     <tr>
       <th>srr</th>
@@ -315,101 +367,97 @@ size dependence is given by allometry.</p></td>
     <h2 class="hasAnchor" id="species-parameters"><a class="anchor" href="#species-parameters"></a>Species parameters</h2>
 
     
-    <p>The only essential argument is a data frame which contains the species data.
-The data frame is arranged species by parameter, so each column of the
-parameter data frame is a parameter and each row has the parameters for one
-of the species in the model.</p>
-<p>There are some essential columns that must be included in the species
-parameter data.frame and that do not have default values. Other columns do
-have default values, so that if they are not included in the species
-parameter data frame, they will be automatically added when the
-<code>MizerParams</code> object is created.</p>  
-<p>The following table gives different components of a species parameters data.frame.
-<table class='table'>
-<tr><td>Column name</td><td>Description</td><td></td></tr>
-<tr><td>species</td><td>Name of the species</td><td>Compulsory (no default)</td></tr>
-<tr><td>w_inf</td><td>The asymptotic mass of the species</td><td>Compulsory</td></tr>
-<tr><td>w_mat</td><td>The maturation mass of the species</td><td>Compulsory</td></tr>
-<tr><td>beta</td><td>Preferred predator prey mass ratio</td><td>Compulsory</td></tr>
-<tr><td>sigma</td><td>Width of prey size preference</td><td>Compulsory</td></tr>
-<tr><td>h</td><td>Maximum food intake rate. If this is not provided, it is calculated using the k_vb column. Therefore, either h or k_vb must be provided.</td><td>Optional</td></tr>
-<tr><td>k_vb</td><td>The von Bertalanffy K parameter. Only used to calculate h if that column is not provided</td><td>Optional</td></tr>
-<tr><td>gamma</td><td>Volumetric search rate. If this is not provided, it is calculated using the h column and other parameters.</td><td>Optional</td></tr>
-<tr><td>ks</td><td>Standard metabolism coefficient</td><td>h*0.2</td></tr>
-<tr><td>z0</td><td>Background mortality (constant for all sizes). If this is not provided then z0 is calculated as z0pre ∗ w_inf^z0exp. Also z0pre and z0exp have default values of 0.6 and -1/3 respectively.</td><td>Optional (no default)</td></tr>
-<tr><td>k</td><td>Activity coefficient</td><td>0</td></tr>
-<tr><td>alpha</td><td>Assimilation efficiency</td><td>0.6</td></tr>
-<tr><td>erepro</td><td>Reproductive efficiency</td><td>1</td></tr>
-<tr><td>w_min</td><td>The size class that recruits are placed in.</td><td>smallest size class of the species size spectrum</td></tr>
-</table></p>
+    <p>The only essential argument is a data frame that contains the species
+parameters. The data frame is arranged species by parameter, so each column
+of the parameter data frame is a parameter and each row has the values of the
+parameters for one of the species in the model.</p>
+<p>There are two essential columns that must be included in the species
+parameter data.frame and that do not have default values: the 
+<code>species</code> column that should hold strings with the names of the
+species and the <code>w_inf</code> column with the asymptotic sizes of the species.</p>
+<p>The species_params dataframe also needs to contain the parameters needed
+by any predation kernel function or size selectivity function. This will
+be mentioned in the appropriate sections below.</p>
+<p>For all other species parameters, mizer will calculate default values if they
+are not included in the species parameter data frame. They will be
+automatically added when the <code>MizerParams</code> object is created. For these
+parameters you can also specify values for only some species and leave the
+other entries as NA and the missing values will be set to the defaults.</p>
+<p>All the parameters will be mentioned in the following sections.</p>
     
     <h2 class="hasAnchor" id="setting-interactions"><a class="anchor" href="#setting-interactions"></a>Setting interactions</h2>
 
     
-    <p>The species interaction matrix \(\theta_{ij}\) is used when calculating the food encounter rate in
-<code><a href='getEncounter.html'>getEncounter</a></code> and the predation rate in
+    <p>The species interaction matrix \(\theta_{ij}\) is used when calculating the
+food encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the predation rate in
 <code><a href='getPredRate.html'>getPredRate</a></code>. This function checks that the supplied interaction
-matrix is valid and then stores it in the <code>interaction</code> slot of the params
-object before returning that object.</p>
+matrix is valid and then stores it in the <code>interaction</code> slot of the
+params object before returning that object.</p>
 <p>Any dimnames of the interaction matrix argument are ignored by the
 constructor. The dimnames of the interaction matrix in the returned
 <code>MizerParams</code> object are taken from the species names in the
 <code>species_params</code> slot. This means that the order of the columns and rows
 of the interaction matrix argument should be the same as the species name in
 the <code>species_params</code> slot.</p>
+<p>The interaction of the species with the plankton are set via a colun
+<code>interaction_p</code> in the species_params data frame. Again the entries
+have to be numbers between 0 and 1. By default this column is set to all
+1s.</p>
     
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
     
-    <h3>Kernel dependent on predator to prey size ratio</h3>
-    If the <code>pred_kernel</code> argument is not supplied, then this function sets a
+    <p><strong>Kernel dependent on predator to prey size ratio</strong></p>
+<p>If the <code>pred_kernel</code> argument is not supplied, then this function sets a
 predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
-determined by the <code>pred_kernel_type</code> argument.
-    The default pred_kernel_type is "lognormal". This will call the function
-<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code> to calculate the predation kernel and the
-function <code><a href='lognormal_max_ppmr.html'>lognormal_max_ppmr</a></code> to return the maximal predator/prey
-mass ratio for each species.
-    An alternative pred_kernel type is "box", implemented by the functions
-<code><a href='box_pred_kernel.html'>box_pred_kernel</a></code> and <code><a href='box_max_ppmr.html'>box_max_ppmr</a></code>.
-    You can use any other string as the type. If for example you choose "my" then
+determined by the <code>pred_kernel_type</code> column in species_params.</p>
+<p>The default pred_kernel_type is "lognormal". This will call the function
+<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code> to calculate the predation kernel.
+An alternative pred_kernel type is "box", implemented by the functions
+<code><a href='box_pred_kernel.html'>box_pred_kernel</a></code>. These functions require certain species
+parameters in the species_params data frame. For the lognormal kernel these
+are <code>beta</code> and <code>sigma</code>, for the box kernely they are
+<code>ppmr_min</code> and <code>ppmr_max</code>. They are explained in the help pages
+for the kernel functions. No defaults are set for these parameters. If they
+are missing from the species_params data frame then mizer will issue an
+error message.</p>
+<p>You can use any other string as the type. If for example you choose "my" then
 you need to define a function <code>my_pred_kernel</code> that you can model on the
-existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code>. You can also
-define a function <code>my_max_ppmr</code> if you want the smallest plankton size
-to be calculated automatically by <code>set_multispecies_model</code>,
-otherwise you need to specify the <code>min_w_pp</code> argument explicitly.
-    When using a kernel dependent on the predator/prey size ratio only, mizer
+existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code>.</p>
+<p>When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
 object. Such an array can be very big when there is a large number of size
 bins. Instead mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
-rate and the predation rate to be calculated very efficiently. However mizer
-gives you the option of storing the full three-dimensional array anyway by
-setting <code>store_kernel = TRUE</code>. This might be useful if you have code for
-analysing the results of a mizer simulation that relies on the full array.
-    <h3>Kernel dependent on both predator and prey size</h3>
-    If you want to work with a feeding kernel that depends on predator mass and
+rate and the predation rate to be calculated very efficiently. However, if
+you need the full three-dimensional array you can calculate it with the
+<code><a href='getPredKernel.html'>getPredKernel</a></code> function.</p>
+<p><strong>Kernel dependent on both predator and prey size</strong></p>
+<p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
 three-dimensional array (predator species x predator size x prey size).
-    You should use this option only if a kernel dependent only on the
+The dimensions are thus (no_sp, no_w, no_w_full).</p>
+<p>You should use this option only if a kernel dependent only on the
 predator/prey mass ratio is not appropriate. Using a kernel dependent on
 predator/prey mass ratio only allows mizer to use fast Fourier transform
-methods to significantly reduce the running time of simulations.
-    The order of the predator species in <code>pred_kernel</code> should be the same
+methods to significantly reduce the running time of simulations.</p>
+<p>The order of the predator species in <code>pred_kernel</code> should be the same
 as the order in the species params dataframe. If you supply a named array
-then the function will check the order and warn if it is different.
+then the function will check the order and warn if it is different.</p>
     
     <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
 
     
     <p>The search volume \(\gamma_i(w)\) of an individual of species \(i\)
 and weight \(w\) multiplies the predation kernel when
-calculating the encounter rate and the predation rate.</p>
-<p>If the <code>gamma</code> argument is not supplied, then it is set to
-$$\gamma_i(w) = \gamma_i w^q.$$ The values of \(gamma_i\) are taken from
+calculating the encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the 
+predation rate in <code><a href='getPredRate.html'>getPredRate</a></code>.</p>
+<p>If the <code>search_vol</code> argument is not supplied, then the search volume is set to
+$$\gamma_i(w) = \gamma_i w^q.$$ The values of \(\gamma_i\) are taken from
 the <code>gamma</code> column in the species parameter dataframe. If the <code>gamma</code>
-column is not supplied in the species parameter dataframe, it is calculated
-from <code>f0, h, beta, sigma, lambda</code> and <code>kappa</code>.</p>
+column is not supplied in the species parameter dataframe, a default is
+calculated by the <code><a href='get_gamma_default.html'>get_gamma_default</a></code> function.</p>
     
     <h2 class="hasAnchor" id="setting-maximum-intake-rate"><a class="anchor" href="#setting-maximum-intake-rate"></a>Setting maximum intake rate</h2>
 
@@ -417,44 +465,83 @@ from <code>f0, h, beta, sigma, lambda</code> and <code>kappa</code>.</p>
     <p>The maximum intake rate \(h_i(w)\) of an individual of species \(i\) and
 weight \(w\) determines the feeding level, calculated with
 <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>.</p>
-<p>If the <code>h</code> argument is not supplied, then it is set to $$h_i(w) =
-h_i w^n.$$ The values of \(h_i\) are taken from the <code>h</code> column in the
+<p>If the <code>intake_max</code> argument is not supplied, then the maximum intake
+rate is set to $$h_i(w) = h_i w^n.$$ 
+The values of \(h_i\) are taken from the <code>h</code> column in the
 species parameter dataframe. If the <code>h</code> column is not supplied in the
-species parameter dataframe, it is calculated from <code>f0</code> and the
-<code>k_vb</code> column, if they are supplied.</p>
+species parameter dataframe, it is calculated by the 
+<code><a href='get_h_default.html'>get_h_default</a></code> function, using <code>f0</code> and the <code>k_vb</code>
+column, if they are supplied.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish will consume all encountered food.</p>
     
     <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
 
     
-    <p>To be documented</p>
+    <p>The metabolic rate is subtracted from the energy income rate to calculate
+the rate at which energy is available for growth and reproduction, see
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>.</p>
+<p>If the <code>metab</code> argument is not supplied, then the metabolic
+rate \(k_i(w)\) for and individual of species \(i\) and size \(w\)
+is set to $$k_i(w) = ks_i\, w^p + k_i\, w,$$
+where \(ks_i w^p\) represents the rate of standard metabolism and 
+\(k_i w\) is the rate at which energy is expended on activity and movement.
+The values of \(ks_i\) and \(k_i\) are taken from the <code>ks</code> and
+<code>k</code> columns in the
+species parameter dataframe. If these parameters are not supplied, the
+defaults are \(ks_i = 0.2 h_i\) and \(k_i = 0\) where \(h_i\) is the
+coefficient of the maximum intake rate.</p>
     
     <h2 class="hasAnchor" id="setting-background-mortality-rate"><a class="anchor" href="#setting-background-mortality-rate"></a>Setting background mortality rate</h2>
 
     
-    <p>Still need to document</p>
+    <p>The background mortality is all the mortality that is not due to either
+predation or fishing.</p>
+<p>If the <code>mu_b</code> argument is not supplied, then the background mortality
+is assumed to depend only on the asymptotic size of the species, not on the
+size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
+constant \(z_0\) for each species is taken from the <code>z0</code> column of the
+species_params data frame, if that column exists. Otherwise it is calculated
+as $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     
     <h2 class="hasAnchor" id="setting-reproduction"><a class="anchor" href="#setting-reproduction"></a>Setting reproduction</h2>
 
     
-    <p>If the <code>psi</code> argument is not supplied,
-the proportion is set to the product of a sigmoidal maturity ogive that 
-gives the proportion of individuals of a given species and size that are
-mature, and a factor that describes how investment into reproduction by mature
-individuals scales with size. In formulas:
-$$\psi(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}
-  \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
-Here \(n\) is the scaling exponent of the energy income rate.
-The exponent \(m\) determines the scaling of the investment into
-reproduction for mature individuals. By default it is chosen to be \(m =
-1\) so that the rate at which energy is invested into reproduction scales
-linearly with the size. This default can be overridden by including a column
-<code>m</code> in the species parameter dataframe.</p>
-<p>The exponent \(U\) determines the steepness of the maturity ogive. By default it is
-chosen as \(U = 10\), however this can be overridden by including a 
-column <code>w_mat25</code> in the species parameter dataframe that specifies the weight
-at which 25% of individuals are mature, which sets 
-$$U = \frac{\log(3)}{\log(w_{mat} / w_{25})}$$</p>
+    <p>For each species and at each size, the proportion of the available energy 
+that is invested into reproduction is the product of two factors: the
+proportion <code>maturity</code> of individuals that are mature and the proportion
+<code>repro_prop</code> of the energy available to a mature individual that is 
+invested into reproduction.</p>
+<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal 
+maturity ogive that changes from 0 to 1 at around the maturity size:
+$${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
+(To avoid clutter, we are not showing the species index in the equations.)
+The maturity weights are taken from the <code>w_mat</code> column of the 
+species_params data frame. Any missing maturity weights are set to 1/4 of the
+asymptotic weight in the <code>w_inf</code> column.
+The exponent \(U\) determines the steepness of the maturity ogive. By
+default it is chosen as \(U = 10\), however this can be overridden by
+including a column <code>w_mat25</code> in the species parameter dataframe that
+specifies the weight at which 25% of individuals are mature, which sets
+\(U = \log(3) / \log(w_{mat} / w_{25}).\)</p>
+<p>The sigmoidal function given above would strictly reach 1 only asymptotically.
+Mizer instead sets the function equal to 1 already at the species' 
+maximum size, taken from the compulsory <code>w_inf</code> column in the
+<code>species_params</code> data frame.</p>
+<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
+allometric form
+$${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
+Here \(n\) is the scaling exponent of the energy income rate. Hence
+the exponent \(m\) determines the scaling of the investment into
+reproduction for mature individuals. By default it is chosen to be 
+\(m = 1\) so that the rate at which energy is invested into reproduction 
+scales linearly with the size. This default can be overridden by including a 
+column <code>m</code> in the species parameter dataframe. The asymptotic sizes
+are taken from the compulsory <code>w_inf</code> column in the species_params
+data frame.</p>
+<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+reproduction that results in offspring biomass, is set from the 
+<code>erepro</code> column in the species_params data frame. If that is not
+provided the default is set to 1 (which you will want to override).</p>
     
     <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
 
@@ -474,14 +561,18 @@ an individual of species \(i\) encounters biomass of resource \(d\),
 $$\sum_d\rho_{id}(w) B_d,$$ where \(B_d\) is the biomass of the d-th
 unstructured resource component. 
 See <code><a href='resource_dynamics.html'>resource_dynamics</a></code> for more details.</p>
-<p>If only a two-dimensional array (species x resource) is given for the
-<code>rho</code> argument, then the size dependence is set to a power-law:
-$$\rho_{id}(w) = \rho_{id} w^n.$$</p>
 <p>The ordering of the entries in the array <code>rho</code> is important. The order
 of the species in the first array dimension needs to be the same as that in
 the species parameter dataframe. The order of the resources in the second
 array dimension must be the same as in the list of resource dynamics. The
 third dimension, if given, is the size dimension.</p>
+<p>If the <code>rho</code> array is not supplied, then the resource encounter rate is
+set to a power law
+$$\rho_{id}(w) = \rho_{id} w^n.$$
+The coefficients \(\rho_{id}\) are parameters in the species_params dataframe.
+For example if there is a resource called "detritus" then the species_params
+data frame needs to have a column called <code>rho_detritus</code> and similarly
+for each other resource.</p>
     
     <h2 class="hasAnchor" id="setting-fishing"><a class="anchor" href="#setting-fishing"></a>Setting fishing</h2>
 
@@ -490,13 +581,16 @@ third dimension, if given, is the size dimension.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='project.html'>project</a></code> <a href='MizerSim-class.html'>MizerSim</a></p></div>
+    <div class='dont-index'><p><code><a href='project.html'>project</a></code>, <a href='MizerSim-class.html'>MizerSim</a>,
+  <code><a href='set_community_model.html'>set_community_model</a></code>, <code><a href='set_trait_model.html'>set_trait_model</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>set_multispecies_model</span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)</div><div class='output co'>#&gt; <span class='message'>Note: No interaction_p column in species data frame so assuming all species feed on plankton.</span></div><div class='output co'>#&gt; <span class='message'>Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</span></div><div class='output co'>#&gt; <span class='message'>Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</span></div><div class='output co'>#&gt; <span class='message'>Note: No h provided for some species, so using f0 and k_vb to calculate it.</span></div><div class='output co'>#&gt; <span class='message'>Note: No ks column in species data frame so using ks = h * 0.2.</span></div><div class='output co'>#&gt; <span class='message'>Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></div><div class='output co'>#&gt; <span class='message'>Note: No gamma provided for some species, so using f0, h, beta, sigma, lambda and kappa to calculate it.</span></div></pre>
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>set_multispecies_model</span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -539,7 +633,7 @@ third dimension, if given, is the size dimension.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

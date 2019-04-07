@@ -4,45 +4,50 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(params, sim = NULL, effort = 0, t_max = 100, dt = 0.1,
-  t_save = 1, initial_n = params@initial_n,
+project(object, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
+  t_start = 0, initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  progress_bar = TRUE, ...)
+  append = TRUE, progress_bar = TRUE, ...)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object}
-
-\item{sim}{Optional \linkS4class{MizerSim} object. If supplied, then the
-initial values for the abundances of species and of plankton and the
-resource biomasses are taken from the final time of that simulation.}
+\item{object}{Either a \linkS4class{MizerParams} object or a 
+\linkS4class{MizerSim} object (which contains a \code{MizerParams} object).}
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
 
-\item{t_max}{The maximum time the projection runs for. The default value is
-100. However, this argument is not needed if an array is used for the
-\code{effort} argument, in which case this argument is ignored. See notes
-below.}
+\item{t_max}{The number of years the projection runs for. The default value is
+100. However, this argument is ignored if an array is used for the
+\code{effort} argument. See notes below.}
 
 \item{dt}{Time step of the solver. The default value is 0.1.}
 
 \item{t_save}{The frequency with which the output is stored. The default
 value is 1. Must be an integer multiple of dt.}
 
-\item{initial_n}{The initial abundances of species. Ignored if a \code{sim}
-argument is supplied. A matrix with dimensions species x size. The order of
-species must be the same as in the \code{MizerParams} argument. By default
-is set to the \code{initial_n} slot of the \code{params} argument.}
+\item{t_start}{The the year of the start of the simulation. The simulation
+will cover the period from \code{t_start} to \code{t_start + t_max}.
+Defaults to 0. Ignored if an array is used for the \code{effort}
+argument or a \code{MizerSim} for the \code{object} argument.}
 
-\item{initial_n_pp}{The initial abundances of plankton. Ignored if a
-\code{sim} argument is supplied. A numeric vector of the same length as the
-\code{w_full} slot of the \code{MizerParams} argument. By default is set to
-the \code{initial_n_pp} slot of the \code{params} argument.}
+\item{initial_n}{The initial abundances of species. A matrix with dimensions 
+species x size. The order of species must be the same as in the 
+\code{MizerParams} argument. Ignored if the \code{object} argument is a 
+MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
+is a \code{MizerParams} object.}
+
+\item{initial_n_pp}{The initial abundances of plankton. A numeric vector.
+Ignored if the \code{object} argument is a MizerSim object, but overrules
+the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
+object.}
 
 \item{initial_B}{The initial biomasses of the unstructured resources. It
-should be a vector with one entry for each resource, with the names the
-same as the names of the list in the \code{resource_dynamics} slot of the
-\code{MizerParams}. By default is set to the \code{initial_B} slot of the
-\code{params} argument.}
+should be a named vector with one entry for each resource. Ignored if the
+\code{object} argument is a MizerSim object, but overrules the
+\code{initial_B} slot if \code{object} is a \code{MizerParams} object.}
+
+\item{append}{A boolean that determines whether the new simulation results
+are appended to the previous ones. Only relevant if \code{object} is a
+\code{MizerSim} object. Default = TRUE.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
 bar should be shown in the console of a shiny progress object to implement 
@@ -57,8 +62,7 @@ An object of class \linkS4class{MizerSim}.
 Runs the size spectrum model simulation.
 The function returns an object of type
 \linkS4class{MizerSim} that can then be explored with a range of
-\code{\link{summary_functions}} and \code{\link{plotting_functions}}
-plotting methods.
+\code{\link{summary_functions}} and \code{\link{plotting_functions}}.
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during
@@ -70,7 +74,7 @@ gears. The vector must be named and the names must correspond to the gear
 names in the \code{MizerParams} object. The values in the vector specify the
 constant fishing effort of each of the fishing gears, i.e. the effort is
 constant through time but each gear may have a different fishing effort. 
-\item A numerical array with dimensions time step x gear. This specifies the
+\item A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
 must be named numerically and contiguously. The second dimension of the array
 must be named and the names must correspond to the gear names in the
@@ -79,15 +83,15 @@ is used during the interval from that time to the next time in the array.}
 
 If effort is specified as an array then the smallest time in the array is 
 used as the initial time for the simulation. Otherwise the initial time is
-set to 0. Also, if the effort is an array then the \code{t_max} argument is 
-ignored and the maximum simulation time is the largest time of the effort
-array.
+set to the final time of the previous simulation if \code{object} is a 
+\code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
+an array then the \code{t_max} argument is ignored and the maximum simulation
+time is the largest time of the effort array.
 
-The \code{initial_n} argument is a matrix with dimensions species x size. 
-It specifies the abundances of the species at the initial time. The
-order of species must be the same as in the \code{MizerParams} argument. If
-the initial population is not specified, the argument is set by default by
-the \code{\link{get_initial_n}} function which is set up for a North Sea model.
+If the \code{object} argument is of class \code{MizerSim} then the initial
+values for the simulation are taken from the final values in the 
+\code{MizerSim} object and the corresponding argumens to this function will
+be ignored.
 }
 \examples{
 \dontrun{

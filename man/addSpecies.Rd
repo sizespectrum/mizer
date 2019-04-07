@@ -21,7 +21,7 @@ the Beverton-Holt stock-recruitment relationship. The maximal recruitment
 will be set to rfac times the normal steady-state recruitment.
 Default value is 10.}
 
-\item{effort}{Default value is 0.}
+\item{effort}{Fishing effort. Default value is 0.}
 
 \item{...}{Other arguments (unused)}
 }
@@ -35,7 +35,7 @@ given parameters to the ecosystem.
 \examples{
 \dontrun{
 params <- set_scaling_model(max_w_inf = 5000)
-params <- setBackground(params)
+params <- markBackground(params)
 a_m <- 0.0085
 b_m <- 3.11
 L_inf_m <- 24.3
@@ -62,4 +62,7 @@ plotSpectra(params)
 sim <- project(params, t_max=50)
 plotBiomass(sim)
 }
+}
+\seealso{
+\code{\link{removeSpecies}}
 }

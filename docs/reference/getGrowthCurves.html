@@ -84,19 +84,64 @@ MizerParams object, uses the initial growth rates instead." />
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -126,7 +171,7 @@ MizerParams object, uses the initial growth rates instead." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get growth curves giving weight as a function of age</h1>
-    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/gustavdelius/mizer/edit/master/R/summary_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/gustavdelius/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
     <div class="hidden name"><code>getGrowthCurves.Rd</code></div>
     </div>
 
@@ -138,7 +183,7 @@ time of a simulation to calculate the size at age. If given a
     
     </div>
 
-    <pre class="usage"><span class='fu'>getGrowthCurves</span>(<span class='no'>object</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>24</span>)</pre>
+    <pre class="usage"><span class='fu'>getGrowthCurves</span>(<span class='no'>object</span>, <span class='no'>species</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>percentage</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,8 +193,18 @@ time of a simulation to calculate the size at age. If given a
       <td><p>MizerSim or MizerParams object</p></td>
     </tr>
     <tr>
+      <th>species</th>
+      <td><p>Name or vector of names of the species to be included. By
+default all species are included.</p></td>
+    </tr>
+    <tr>
       <th>max_age</th>
-      <td><p>The age up to which the weight is to be plotted. Default is 20</p></td>
+      <td><p>The age up to which to run the growth curve. Default is 20.</p></td>
+    </tr>
+    <tr>
+      <th>percentage</th>
+      <td><p>Boolean value. If TRUE, the size is given as a percentage
+of the maximal size.</p></td>
     </tr>
     </table>
     
@@ -159,375 +214,14 @@ time of a simulation to calculate the size at age. If given a
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/message'>suppressMessages</a></span>(<span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='fu'>getGrowthCurves</span>(<span class='no'>params</span>)</div><div class='output co'>#&gt;          Age
-#&gt; Species       0 0.489795918367347 0.979591836734694 1.46938775510204
-#&gt;   Sprat   0.001         0.3022132         1.6802528         4.743035
-#&gt;   Sandeel 0.001         0.8322811         4.4587948         7.823354
-#&gt;   N.pout  0.001         1.2903992         7.6145909        21.162349
-#&gt;   Herring 0.001         1.5274228         9.0555478        25.983261
-#&gt;   Dab     0.001         1.0908586         6.4081541        18.174056
-#&gt;   Whiting 0.001         0.9071907         5.2972941        15.138424
-#&gt;   Sole    0.001         0.5087551         2.9051276         8.263291
-#&gt;   Gurnard 0.001         0.3517496         1.9720635         5.580511
-#&gt;   Plaice  0.001         0.1801163         0.9674818         2.702355
-#&gt;   Haddock 0.001         1.7255450        10.2594485        29.433381
-#&gt;   Cod     0.001         6.4458336        38.9488064       109.298971
-#&gt;   Saithe  0.001         3.7320080        22.4787134        63.925297
-#&gt;          Age
-#&gt; Species   1.95918367346939 2.44897959183673 2.93877551020408 3.42857142857143
-#&gt;   Sprat           9.932817         14.83905         17.48829         19.44856
-#&gt;   Sandeel        11.218248         14.53658         17.62694         20.41406
-#&gt;   N.pout         31.506472         38.86652         45.46705         51.47487
-#&gt;   Herring        54.941626         94.36491        122.24836        141.53462
-#&gt;   Dab            30.976362         43.57647         57.09078         71.16661
-#&gt;   Whiting        31.485263         54.09719         78.68002         98.85516
-#&gt;   Sole           17.441846         31.15996         50.00236         73.01013
-#&gt;   Gurnard        11.758428         21.00035         33.45092         46.09430
-#&gt;   Plaice          5.663479         10.09367         16.20762         24.19176
-#&gt;   Haddock        62.097973        110.32774        170.19997        226.30928
-#&gt;   Cod           216.359206        346.04973        479.90597        603.62332
-#&gt;   Saithe        129.338276        210.78100        295.20584        371.71767
-#&gt;          Age
-#&gt; Species   3.91836734693878 4.40816326530612 4.89795918367347 5.38775510204082
-#&gt;   Sprat           21.06527         22.48612         23.73947         24.84670
-#&gt;   Sandeel         22.86799         25.00027         26.81983         28.36918
-#&gt;   N.pout          56.90179         61.77835         66.13063         70.01297
-#&gt;   Herring        158.00553        173.01144        186.91004        199.82365
-#&gt;   Dab             85.46166         99.71009        113.70391        127.30740
-#&gt;   Whiting        117.08320        134.57160        151.43754        167.60914
-#&gt;   Sole            93.67704        111.83009        129.73861        147.94098
-#&gt;   Gurnard         57.55631         69.29325         81.57341         94.34721
-#&gt;   Plaice          34.20480         46.37699         60.80349         77.43791
-#&gt;   Haddock        282.94675        342.93013        406.02365        471.64532
-#&gt;   Cod            709.59646        795.64817        863.56260        915.25392
-#&gt;   Saithe         435.03221        484.30571        521.01003        547.61729
-#&gt;          Age
-#&gt; Species   5.87755102040816 6.36734693877551 6.85714285714286 7.3469387755102
-#&gt;   Sprat           25.82717         26.69528         27.46394        28.14454
-#&gt;   Sandeel         29.67405         30.76046         31.66498        32.41806
-#&gt;   N.pout          73.45843         76.51170         79.21738        81.61506
-#&gt;   Herring        211.77193        222.79681        232.96969       242.33674
-#&gt;   Dab            140.40535        152.92462        164.82795       176.09919
-#&gt;   Whiting        183.02398        197.65834        211.50784       224.56321
-#&gt;   Sole           166.44532        185.17017        204.03292       222.91504
-#&gt;   Gurnard        107.52509        121.01188        134.70988       148.56071
-#&gt;   Plaice          95.52966        113.29183        130.03474       146.43714
-#&gt;   Haddock        539.24919        608.33575        678.40353       749.11747
-#&gt;   Cod            954.51766        984.61347       1009.83473      1031.45888
-#&gt;   Saithe         566.90439        581.37749        593.89457       604.87620
-#&gt;          Age
-#&gt; Species   7.83673469387755 8.3265306122449 8.81632653061224 9.30612244897959
-#&gt;   Sprat           28.74837        29.28796         29.77047         30.20196
-#&gt;   Sandeel         33.04507        33.56709         34.00511         34.40581
-#&gt;   N.pout          83.73838        85.61609         87.27680         88.74554
-#&gt;   Herring        250.89065       258.69593        265.81807        272.31681
-#&gt;   Dab            186.70363       196.67997        206.03717        214.76417
-#&gt;   Whiting        236.87036       248.45046        259.32689        269.54280
-#&gt;   Sole           241.77026       260.49182        279.04057        297.37303
-#&gt;   Gurnard        162.47349       176.40957        190.28823        204.09628
-#&gt;   Plaice         163.03571       179.96645        197.28018        214.94508
-#&gt;   Haddock        820.12436       891.11762        961.85906       1032.18761
-#&gt;   Cod           1049.99927      1065.89495       1079.52347       1091.20816
-#&gt;   Saithe         614.51089       622.96345        630.37910        636.88503
-#&gt;          Age
-#&gt; Species   9.79591836734694 10.2857142857143 10.7755102040816 11.265306122449
-#&gt;   Sprat           30.58780         30.93283         31.24136        31.51726
-#&gt;   Sandeel         34.78134         35.13335         35.46329        35.77254
-#&gt;   N.pout          90.04449         91.19328         92.20927        93.10781
-#&gt;   Herring        278.24665        283.65653        288.57478       293.03934
-#&gt;   Dab            222.90240        230.49157        237.56834       244.13917
-#&gt;   Whiting        279.13816        288.15073        296.61583       304.56671
-#&gt;   Sole           315.40841        333.14861        350.56518       367.59215
-#&gt;   Gurnard        217.75794        231.25779        244.58196       257.66877
-#&gt;   Plaice         232.91522        251.15778        269.59853       288.23076
-#&gt;   Haddock       1101.81956       1170.75049       1238.76609      1305.74406
-#&gt;   Cod           1101.22609       1109.81521       1117.17937      1123.49319
-#&gt;   Saithe         642.59279        647.60034        651.99362       655.84795
-#&gt;          Age
-#&gt; Species   11.7551020408163 12.2448979591837 12.734693877551 13.2244897959184
-#&gt;   Sprat           31.76398         31.98461        32.18189         32.35831
-#&gt;   Sandeel         36.06240         36.33409        36.58873         36.82742
-#&gt;   N.pout          93.90248         94.60528        95.22683         95.77654
-#&gt;   Herring        297.09206        300.77096       304.11046        307.14191
-#&gt;   Dab            250.22424        255.85955       261.07832        265.91148
-#&gt;   Whiting        312.03460        319.04886       325.63703        331.82501
-#&gt;   Sole           384.23573        400.50458       416.37342        431.80345
-#&gt;   Gurnard        270.51569        283.12687       295.46805        307.51453
-#&gt;   Plaice         306.97565        325.80655       344.71488        363.62612
-#&gt;   Haddock       1371.70023       1436.56809      1500.19177       1562.58695
-#&gt;   Cod           1128.90648       1133.54770      1137.52696       1140.93866
-#&gt;   Saithe         659.22946        662.19614       664.79889        667.08234
-#&gt;          Age
-#&gt; Species   13.7142857142857 14.2040816326531 14.6938775510204 15.1836734693878
-#&gt;   Sprat           32.51607         32.65715         32.78330         32.89611
-#&gt;   Sandeel         37.05113         37.26081         37.45735         37.64157
-#&gt;   N.pout          96.26270         96.69265         97.07291         97.40921
-#&gt;   Herring        309.89371        312.39165        314.65917        316.71752
-#&gt;   Dab            270.38751        274.53268        278.37147        281.92654
-#&gt;   Whiting        337.63832        343.10838        348.26683        353.13022
-#&gt;   Sole           446.80666        461.39476        475.57922        489.35733
-#&gt;   Gurnard        319.27352        330.75183        341.95086        352.83923
-#&gt;   Plaice         382.52209        401.40268        420.22764        438.95121
-#&gt;   Haddock       1623.77830       1683.76274       1742.44595       1799.83051
-#&gt;   Cod           1143.86377       1146.37167       1148.52188       1150.36542
-#&gt;   Saithe         669.08568        670.84325        672.38522        673.73802
-#&gt;          Age
-#&gt; Species   15.6734693877551 16.1632653061224 16.6530612244898 17.1428571428571
-#&gt;   Sprat           32.99699         33.08719         33.16786         33.23999
-#&gt;   Sandeel         37.81423         37.97606         38.12775         38.26993
-#&gt;   N.pout          97.70686         97.97884         98.24604         98.50942
-#&gt;   Herring        318.58599        320.28210        321.82175        323.21937
-#&gt;   Dab            285.23711        288.34820        291.27188        294.01994
-#&gt;   Whiting        357.71534        362.03813        366.11357        369.95584
-#&gt;   Sole           502.69998        515.61775        528.12478        540.23390
-#&gt;   Gurnard        363.41783        373.69548        383.68076        393.38197
-#&gt;   Plaice         457.57354        476.09521        494.49446        512.72689
-#&gt;   Haddock       1855.94516       1910.81798       1964.47579       2016.92616
-#&gt;   Cod           1151.94601       1153.30117       1154.46305       1155.45922
-#&gt;   Saithe         674.92488        675.96613        676.87965        677.68110
-#&gt;          Age
-#&gt; Species   17.6326530612245 18.1224489795918 18.6122448979592 19.1020408163265
-#&gt;   Sprat           33.30450         33.36218         33.41376         33.45988
-#&gt;   Sandeel         38.40319         38.52809         38.64516         38.75489
-#&gt;   N.pout          98.76903         99.02494         99.27719         99.52583
-#&gt;   Herring        324.48807        325.63973        326.68515        327.63413
-#&gt;   Dab            296.60274        299.03026        301.31183        303.45619
-#&gt;   Whiting        373.57826        376.99341        380.21316        383.24869
-#&gt;   Sole           551.95780        563.30872        574.29732        584.91533
-#&gt;   Gurnard        402.80713        411.94503        420.78994        429.35133
-#&gt;   Plaice         530.79227        548.69213        566.42798        583.99050
-#&gt;   Haddock       2068.12279       2118.10573       2166.90166       2214.53912
-#&gt;   Cod           1156.31330       1157.04557       1157.67339       1158.21168
-#&gt;   Saithe         678.38424        679.00112        679.54232        680.01714
-#&gt;          Age
-#&gt; Species   19.5918367346939 20.0816326530612 20.5714285714286 21.0612244897959
-#&gt;   Sprat           33.50113         33.53801          33.5710         33.60049
-#&gt;   Sandeel         38.85774         38.95415          39.0445         39.12919
-#&gt;   N.pout          99.77091        100.01249         100.2506        100.48535
-#&gt;   Herring        328.49558        329.27756         329.9874        330.63176
-#&gt;   Dab            305.47161        307.36583         309.1462        310.81942
-#&gt;   Whiting        386.11053        388.80863         391.3524        393.75053
-#&gt;   Sole           595.16239        605.05147         614.5951        623.80529
-#&gt;   Gurnard        437.63845        445.66000         453.4245        460.94021
-#&gt;   Plaice         601.34506        618.49070         635.4300        652.16544
-#&gt;   Haddock       2261.04563       2306.44803        2350.7724       2394.03775
-#&gt;   Cod           1158.67318       1159.06887        1159.4081       1159.69898
-#&gt;   Saithe         680.43370        680.79916         681.1198        681.40109
-#&gt;          Age
-#&gt; Species   21.5510204081633 22.0408163265306 22.530612244898 23.0204081632653
-#&gt;   Sprat           33.62686         33.65045        33.67154         33.69040
-#&gt;   Sandeel         39.20857         39.28297        39.35271         39.41808
-#&gt;   N.pout         100.71672        100.94478       101.16958        101.39117
-#&gt;   Herring        331.21668        331.74765       332.22963        332.66715
-#&gt;   Dab            312.39207        313.87015       315.25935        316.56501
-#&gt;   Whiting        396.01150        398.14309       400.15273        402.04740
-#&gt;   Sole           632.69373        641.27166       649.54991        657.53897
-#&gt;   Gurnard        468.21505        475.25678       482.07193        488.65550
-#&gt;   Plaice         668.69945        685.03425       701.15364        717.04759
-#&gt;   Haddock       2436.26028       2477.46424      2517.67458       2556.91518
-#&gt;   Cod           1159.94836       1160.16217      1160.34549       1160.50266
-#&gt;   Saithe         681.64788        681.86439       682.05435        682.22100
-#&gt;          Age
-#&gt; Species   23.5102040816327         24
-#&gt;   Sprat           33.70726   33.72234
-#&gt;   Sandeel         39.47934   39.53676
-#&gt;   N.pout         101.60959  101.82489
-#&gt;   Herring        333.06432  333.42484
-#&gt;   Dab            317.79216  318.94553
-#&gt;   Whiting        403.86237  405.63501
-#&gt;   Sole           665.24893  672.68954
-#&gt;   Gurnard        495.01051  501.14556
-#&gt;   Plaice         732.71927  748.17185
-#&gt;   Haddock       2595.20946 2632.58025
-#&gt;   Cod           1160.63741 1160.75294
-#&gt;   Saithe         682.36720  682.49548</div><div class='input'><span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'>getGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>24</span>)</div><div class='output co'>#&gt;          Age
-#&gt; Species       0 0.489795918367347 0.979591836734694 1.46938775510204
-#&gt;   Sprat   0.001         0.2993893         1.6332965         4.515792
-#&gt;   Sandeel 0.001         0.8270020         4.4027066         7.706426
-#&gt;   N.pout  0.001         0.8669787         4.7089976        15.857009
-#&gt;   Herring 0.001         1.5045243         8.7433378        24.591701
-#&gt;   Dab     0.001         0.8857705         4.4159471        11.418070
-#&gt;   Whiting 0.001         0.6200264         3.0509787         9.215514
-#&gt;   Sole    0.001         0.4489029         2.2826839         5.838531
-#&gt;   Gurnard 0.001         0.3121939         1.5725175         4.041732
-#&gt;   Plaice  0.001         0.1588358         0.7626962         1.921199
-#&gt;   Haddock 0.001         1.4569440         7.6251975        20.268913
-#&gt;   Cod     0.001         3.8810467        23.1881165        99.051534
-#&gt;   Saithe  0.001         2.1297511         9.5580091        26.054034
-#&gt;          Age
-#&gt; Species   1.95918367346939 2.44897959183673 2.93877551020408 3.42857142857143
-#&gt;   Sprat           9.287000        14.238144        16.968269         18.90032
-#&gt;   Sandeel        11.016086        14.251343        17.271916         20.00614
-#&gt;   N.pout         31.024997        41.618740        51.471484         60.38942
-#&gt;   Herring        51.017054        87.736425       116.717390        135.84884
-#&gt;   Dab            22.188395        32.477285        43.738944         56.51395
-#&gt;   Whiting        24.467547        58.734770       104.175267        151.32085
-#&gt;   Sole           11.250204        18.671902        28.350018         40.64279
-#&gt;   Gurnard         7.859118        13.189341        20.272820         29.38406
-#&gt;   Plaice          3.691813         6.152248         9.428694         13.71200
-#&gt;   Haddock        41.681153        75.533931       127.039640        191.37526
-#&gt;   Cod           339.636846       888.803958      1782.798461       2684.96215
-#&gt;   Saithe         61.052641       131.321351       259.718206        471.97618
-#&gt;          Age
-#&gt; Species   3.91836734693878 4.40816326530612 4.89795918367347 5.38775510204082
-#&gt;   Sprat           20.48712         21.87369         23.10620         24.20218
-#&gt;   Sandeel         22.42790         24.54445         26.36416         27.92167
-#&gt;   N.pout          68.12599         74.64139         79.98383         84.33318
-#&gt;   Herring        151.60178        165.94647        179.18552        191.54104
-#&gt;   Dab             70.65319         85.88596        101.89409        118.33417
-#&gt;   Whiting        205.27745        264.20243        326.03303        388.95539
-#&gt;   Sole            55.95754         73.55296         89.96108        104.92887
-#&gt;   Gurnard         39.72877         49.38461         58.93359         69.05629
-#&gt;   Plaice          19.27312         26.48034         35.80904         47.86478
-#&gt;   Haddock        257.24129        332.73857        419.77289        518.09537
-#&gt;   Cod           3696.51408       4821.93650       6035.45949       7312.07166
-#&gt;   Saithe         794.57500       1201.39382       1616.37342       2077.83461
-#&gt;          Age
-#&gt; Species   5.87755102040816 6.36734693877551 6.85714285714286 7.3469387755102
-#&gt;   Sprat           25.18015         26.05361         26.83371        27.53045
-#&gt;   Sandeel         29.24867         30.36271         31.29699        32.08053
-#&gt;   N.pout          87.75897         90.44604         92.55355        94.20656
-#&gt;   Herring        203.06648        213.77401        223.71259       232.93748
-#&gt;   Dab            134.85937        151.18693        167.02739       182.15907
-#&gt;   Whiting        451.49297        512.52167        571.12528       626.76575
-#&gt;   Sole           119.89639        135.42278        151.67885       168.68390
-#&gt;   Gurnard         79.92848         91.57662        103.98164       117.09977
-#&gt;   Plaice          63.38802         83.05301        105.72901       128.60332
-#&gt;   Haddock        626.93059        745.14693        871.39439      1004.14896
-#&gt;   Cod           8629.76619       9969.33992      11314.09158     12652.16288
-#&gt;   Saithe        2596.22152       3168.35366       3789.08700      4452.84382
-#&gt;          Age
-#&gt; Species   7.83673469387755 8.3265306122449 8.81632653061224 9.30612244897959
-#&gt;   Sprat           28.15274        28.70970         29.21179         29.66483
-#&gt;   Sandeel         32.73761        33.28866         33.75079         34.15093
-#&gt;   N.pout          95.50303        96.51985         97.31745         97.94887
-#&gt;   Herring        241.48705       249.35624        256.59319        263.24873
-#&gt;   Dab            196.44220       209.79303        222.07049        233.35786
-#&gt;   Whiting        679.05410       727.83152        772.86010        814.42555
-#&gt;   Sole           186.37894       204.72395        223.60594        242.98621
-#&gt;   Gurnard        130.88098       145.27597        160.19208        175.58486
-#&gt;   Plaice         152.24409       177.87676        205.93081        236.48270
-#&gt;   Haddock       1141.76761      1282.84413       1425.90626       1569.33115
-#&gt;   Cod          13972.26537     15265.13811      16525.76018      17748.24865
-#&gt;   Saithe        5154.06474      5887.25281       6646.99017       7429.22335
-#&gt;          Age
-#&gt; Species   9.79591836734694 10.2857142857143 10.7755102040816 11.265306122449
-#&gt;   Sprat           30.07363         30.44249         30.77532        31.07564
-#&gt;   Sandeel         34.52578         34.87813         35.20932        35.52063
-#&gt;   N.pout          98.52951         99.09213         99.63731       100.16558
-#&gt;   Herring        269.36953        274.99857        280.17535       284.93394
-#&gt;   Dab            243.67169        252.92291        261.21037       268.63446
-#&gt;   Whiting        852.50176        887.07757        918.47405       946.98401
-#&gt;   Sole           262.72295        282.77179        303.01972       323.35570
-#&gt;   Gurnard        191.33618        207.40870        223.66366       240.08016
-#&gt;   Plaice         269.50703        304.93385        342.62697       382.43640
-#&gt;   Haddock       1712.33353       1853.28847       1991.82777      2126.76816
-#&gt;   Cod          18928.27640      20066.60377      21157.61456     22201.43471
-#&gt;   Saithe        8229.17992       9042.45612       9866.24266     10695.97252
-#&gt;          Age
-#&gt; Species   11.7551020408163 12.2448979591837 12.734693877551 13.2244897959184
-#&gt;   Sprat           31.34663         31.59114        31.81177         32.01085
-#&gt;   Sandeel         35.81326         36.08831        36.34686         36.58988
-#&gt;   N.pout         100.67747        101.17348       101.65411        102.11983
-#&gt;   Herring        289.29526        293.29090       296.95169        300.30568
-#&gt;   Dab            275.28513        281.24295       286.59511        291.43240
-#&gt;   Whiting        972.87245        996.21275      1017.09117       1035.76740
-#&gt;   Sole           343.76668        364.07938       384.24105        404.25129
-#&gt;   Gurnard        256.52534        272.93647       289.29444        305.45149
-#&gt;   Plaice         424.25543        467.84573       513.10739        559.78037
-#&gt;   Haddock       2257.46237       2383.99661      2505.34488       2621.22426
-#&gt;   Cod          23200.04651      24153.46005     25058.98375      25918.73986
-#&gt;   Saithe       11529.48626      12363.72712     13195.12656      14023.30521
-#&gt;          Age
-#&gt; Species   13.7142857142857 14.2040816326531 14.6938775510204 15.1836734693878
-#&gt;   Sprat           32.19048         32.35257         32.49882         32.63079
-#&gt;   Sandeel         36.81832         37.03304         37.23487         37.42458
-#&gt;   N.pout         102.57111        103.00840        103.43212        103.84270
-#&gt;   Herring        303.37858        306.19396        308.77339        311.13665
-#&gt;   Dab            295.80523        299.75819        303.33157        306.56183
-#&gt;   Whiting       1052.47378       1067.41784       1080.78558       1092.74327
-#&gt;   Sole           423.96963        443.30634        462.26898        480.86322
-#&gt;   Gurnard        321.37624        337.07193        352.44514        367.40952
-#&gt;   Plaice         607.76928        656.78592        706.78602        757.44662
-#&gt;   Haddock       2731.88121       2837.50600       2937.40174       3031.52336
-#&gt;   Cod          26735.04083      27510.08307      28245.63606      28940.39078
-#&gt;   Saithe       14844.18470      15656.02709      16458.93007      17250.11768
-#&gt;          Age
-#&gt; Species   15.6734693877551 16.1632653061224 16.6530612244898 17.1428571428571
-#&gt;   Sprat           32.74987         32.85731         32.95426         33.04174
-#&gt;   Sandeel         37.60291         37.77053         37.92809         38.07619
-#&gt;   N.pout         104.24054        104.62605        104.99960        105.36157
-#&gt;   Herring        313.30185        315.28560        317.10310        318.76828
-#&gt;   Dab            309.48191        312.12159        314.50780        316.66490
-#&gt;   Whiting       1103.43960       1113.00767       1121.56651       1129.22256
-#&gt;   Sole           498.97685        516.52457        533.52396        549.99215
-#&gt;   Gurnard        381.97606        396.15531        409.93006        423.18857
-#&gt;   Plaice         808.71050        860.41862        912.30546        964.36658
-#&gt;   Haddock       3120.20506       3203.76139       3282.48829       3356.63087
-#&gt;   Cod          29595.66687      30213.74455      30796.73876      31346.63355
-#&gt;   Saithe       18026.82602      18789.32067      19537.86058      20270.82481
-#&gt;          Age
-#&gt; Species   17.6326530612245 18.1224489795918 18.6122448979592 19.1020408163265
-#&gt;   Sprat           33.12068         33.19190         33.25617         33.31416
-#&gt;   Sandeel         38.21540         38.34625         38.46924         38.58486
-#&gt;   N.pout         105.71231        106.05217        106.38149        106.70060
-#&gt;   Herring        320.29391        321.69168        322.97231        324.14561
-#&gt;   Dab            318.61486        320.37759        321.97106        323.41152
-#&gt;   Whiting       1136.07104       1142.19714       1147.67706       1152.57895
-#&gt;   Sole           565.94574        581.37057        596.14934        610.29266
-#&gt;   Gurnard        435.93543        448.19040        459.97246        471.29988
-#&gt;   Plaice        1016.45941       1068.31832       1119.93824       1171.30958
-#&gt;   Haddock       3426.05615       3490.64861       3550.74125       3606.64756
-#&gt;   Cod          31865.31356      32354.54602      32816.00130      33251.25738
-#&gt;   Saithe       20985.27021      21681.62147      22360.33701      23021.86346
-#&gt;          Age
-#&gt; Species   19.5918367346939 20.0816326530612 20.5714285714286 21.0612244897959
-#&gt;   Sprat           33.36649         33.41370         33.45630         33.49474
-#&gt;   Sandeel         38.69353         38.79568         38.89169         38.98195
-#&gt;   N.pout         107.00981        107.30943        107.59976        107.88108
-#&gt;   Herring        325.22059        326.20547        327.10782        327.93455
-#&gt;   Dab            324.71367        325.89078        326.95487        327.91678
-#&gt;   Whiting       1156.96378       1160.88610       1164.51509       1168.08148
-#&gt;   Sole           623.82786        636.78107        649.17731        661.04053
-#&gt;   Gurnard        482.18662        492.56628        502.42374        511.78557
-#&gt;   Plaice        1222.19201       1272.46395       1322.13271       1371.20556
-#&gt;   Haddock       3658.65901       3707.04704       3752.06405       3793.94488
-#&gt;   Cod          33661.30057      34045.99318      34406.77809      34745.14156
-#&gt;   Saithe       23666.36780      24291.17835      24895.96440      25481.36797
-#&gt;          Age
-#&gt; Species   21.5510204081633 22.0408163265306 22.530612244898 23.0204081632653
-#&gt;   Sprat           33.52943         33.56073        33.58897         33.61445
-#&gt;   Sandeel         39.06678         39.14652        39.22148         39.29193
-#&gt;   N.pout         108.15368        108.41783       108.67378        108.92180
-#&gt;   Herring        328.69199        329.38595       330.02175        330.60427
-#&gt;   Dab            328.78632        329.57238       330.28295        330.92529
-#&gt;   Whiting       1171.59045       1175.04292      1178.43980       1181.78200
-#&gt;   Sole           672.39365        683.25396       693.59814        703.37440
-#&gt;   Gurnard        520.67668        529.12074       537.14030        544.75663
-#&gt;   Plaice        1419.60848       1467.11540      1513.72789       1559.46268
-#&gt;   Haddock       3832.90804       3869.15680      3902.88025       3934.25433
-#&gt;   Cod          35062.47702      35360.09040     35639.20785      35900.97884
-#&gt;   Saithe       26048.01037      26596.49258     27127.39674      27641.28619
-#&gt;          Age
-#&gt; Species   23.5102040816327          24
-#&gt;   Sprat           33.63744    33.65819
-#&gt;   Sandeel         39.35816    39.42041
-#&gt;   N.pout         109.16212   109.39499
-#&gt;   Herring        331.13797   331.62695
-#&gt;   Dab            331.50596   332.03087
-#&gt;   Whiting       1185.07039  1188.30583
-#&gt;   Sole           712.61617   721.35449
-#&gt;   Gurnard        551.98999   558.85966
-#&gt;   Plaice        1604.33633  1648.36504
-#&gt;   Haddock       3963.44271  3990.60089
-#&gt;   Cod          36146.48128 36376.72636
-#&gt;   Saithe       28138.36459 28617.35431</div><div class='input'>
-</div></pre>
+<span class='fu'>getGrowthCurves</span>(<span class='no'>params</span>)
+<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>getGrowthCurves</span>(<span class='no'>sim</span>, <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>24</span>)
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -544,7 +238,7 @@ time of a simulation to calculate the size at age. If given a
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

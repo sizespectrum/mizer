@@ -159,5 +159,6 @@ K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
   Society V, Biological Sciences, 1682, 795-802.
 }
 \seealso{
-\linkS4class{MizerParams}
+\linkS4class{MizerParams}, 
+  \code{\link{set_community_model}}, \code{\link{set_multispecies_model}}
 }

@@ -4,11 +4,11 @@
 \alias{getEncounter}
 \title{Get encounter rate}
 \usage{
-getEncounter(object, n = object@initial_n, n_pp = object@initial_n_pp,
-  B = object@initial_B)
+getEncounter(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B)
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 
@@ -40,11 +40,11 @@ E_{e.i}(w) = \gamma_i(w) \int
 Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 \eqn{N_R(w)} is the abundance density of plankton.
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
-predator. It could be interpreted as a search volume and is set with the
-\code{\link{setSearchVolume}} function. The predation kernel
-\eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
+predator. It could be interpreted as a search volume and is changed with the
+\code{\link{changeSearchVolume}} function. The predation kernel
+\eqn{\phi(w,w_p)} is changed with the \code{\link{changePredKernel}} function. The
 species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-vector \eqn{\theta{ip}} are set with \code{\link{setInteraction}}.
+vector \eqn{\theta{ip}} are changed with \code{\link{changeInteraction}}.
 }
 
 \section{Resource encounter}{
@@ -56,8 +56,8 @@ components. This takes the form
 where \eqn{B_d} is the biomass of the d-th unstructured resource component
 and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
 which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
-the d-th unstructured resource component. This is set with
-\code{\link{setResourceEncounter}}.
+the d-th unstructured resource component. This is changed with
+\code{\link{changeResourceEncounter}}.
 }
 
 \section{Details}{

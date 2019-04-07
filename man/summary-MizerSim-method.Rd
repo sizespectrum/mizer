@@ -24,3 +24,4 @@ sim <- project(params, effort=1, t_max=5)
 summary(sim)
 }
 }
+\concept{summary_function}

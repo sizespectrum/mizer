@@ -4,12 +4,13 @@ data(NS_species_params_gears)
 data(inter)
 params <- set_multispecies_model(NS_species_params_gears, inter)
 
+# time dimension ----
 test_that("time dimension is dealt with properly", {
 
     # Effort is a single numeric
     # If dt and t_save don't match
-    expect_error(project(params, effort = 1, t_save = 3, dt = 2, t_max = 10))
-
+    expect_error(project(params, effort = 1, t_save = 3, dt = 2, t_max = 10),
+                 "t_save must be a positive multiple of dt")
     t_max <- 5
     t_save <- 1
     dt <- 0.1
@@ -40,6 +41,15 @@ test_that("time dimension is dealt with properly", {
                      as.character(seq(from = 0, to = t_max, by = t_save)))
     expect_identical(dimnames(sim@n)[[1]],
                      as.character(seq(from = 0, to = t_max, by = t_save)))
+    # append
+    sim <- project(sim, t_max = t_max, t_save = t_save, dt = dt, effort = 1)
+    expect_equal(dim(sim@effort)[1], 2 * t_max/t_save + 1)
+    expect_equal(dim(sim@n)[1], 2 * t_max/t_save + 1)
+    expect_identical(dimnames(sim@effort)[[1]],
+                     as.character(seq(from = 0, to = 2 * t_max, by = t_save)))
+    expect_identical(dimnames(sim@n)[[1]],
+                     as.character(seq(from = 0, to = 2 * t_max, by = t_save)))
+    
 
     # Effort is an effort vector
     effort <- c(Industrial = 1, Pelagic = 0.5, Beam = 0.3, Otter = 0)
@@ -183,6 +193,8 @@ test_that("time dimension is dealt with properly", {
                      as.character(seq(from = start_year, to = end_year, by = t_save)))
 })
 
+
+# pass in initial species ----
 test_that("Can pass in initial species", {
     no_gear <- dim(params@catchability)[1]
     no_sp <- dim(params@catchability)[2]
@@ -205,6 +217,8 @@ test_that("Can pass in initial species", {
     expect_that(project(params, effort = effort), throws_error())
 })
 
+
+# get_initial_n ----
 test_that("get_initial_n is working properly", {
     n <- get_initial_n(params)
     no_sp <- nrow(params@species_params)
@@ -223,6 +237,8 @@ test_that("get_initial_n is working properly", {
     # Check that slopes = slope0
 })
 
+
+# w_min array reference ----
 test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
@@ -232,6 +248,8 @@ test_that("w_min array reference is working OK", {
                       rep(0, sim@params@w_min_idx[1] - 1))
 })
 
+
+# Gear checking and sorting ----
 test_that("Gear checking and sorting is OK",{
     # Set up trait based model for easy testing ground
     no_sp <- 10
@@ -323,6 +341,8 @@ test_that("Gear checking and sorting is OK",{
     expect_error(project(params_gear, effort = effort6))
 })
 
+
+# Analytic steady-state solution ----
 test_that("Analytic steady-state solution is well approximated",{
   # Choose some parameters
   f0 <- 0.6
@@ -408,9 +428,12 @@ test_that("Analytic steady-state solution is well approximated",{
   expect_lt(max(relative_error[1:(no_w - 1)]), 0.02)
 })
 
+
+# same numerical results as previously ----
 test_that("Simulation gives same numerical results as previously",{
   params <- set_multispecies_model(NS_species_params_gears, inter)
   sim <- project(params, t_max = 1)
   expect_known_value(sim@n[2, 3, ], "values/projectn")
   expect_known_value(sim@n_pp[2, ], "values/projectp")
 })
+

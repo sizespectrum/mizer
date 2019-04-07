@@ -53,3 +53,4 @@ dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Sai
 slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 }
 }
+\concept{summary_function}

@@ -2,6 +2,14 @@
 
 url: https://gustavdelius.github.io/mizer/
 
+authors:
+  Julia Blanchard:
+    href: http://www.utas.edu.au/profiles/staff/imas/julia-blanchard
+  Ken Andersen:
+    href: https://ken.haste.dk/
+  Gustav Delius:
+    href: https://www.york.ac.uk/maths/staff/gustav-delius/
+
 template:
   params:
     bootswatch: cerulean
@@ -13,24 +21,13 @@ toc:
   depth: 3
 
 navbar:
-  title: "mizer"
-  left:
-    - icon: fa-home fa-lg
-      href: index.html
-    - text: "Get Started"
-      href: articles/mizer.html
-    - text: "Reference"
-      href: reference/index.html
-    - text: "Articles"
-      href: articles/index.html
-    - text: "Publications"
+  structure:
+    left: [home, intro, reference, articles, publications, news]
+    right: [github]
+  components:
+    publications:
+      text: Publications
       href: articles/publications.html
-    - text: "News"
-      href: news/index.html
-  right:
-    - icon: fa-github fa-lg
-      href: https://github.com/gustavdelius/mizer
-
 
 articles:
 - title: User Guides
@@ -53,22 +50,21 @@ articles:
 
 
 reference:
-- title: Setting model parameters
-  desc:  Functions to create and modify a MizerParams parameter object describing your model
+- title: Creating new model
   contents:
-  - set_community_model
-  - set_scaling_model
-  - set_trait_model
-  - set_multispecies_model
   - starts_with("set")
+- title: Changing model parameters
+  contents:
+  - changeParams
+  - starts_with("change")
   - tuneParams
   - steady
   - emptyParams
   - addSpecies
   - removeSpecies
   - retuneAbundance
-  - setBackground
   - upgradeParams
+  - markBackground
 - title: Running simulations
   contents:
   - project
@@ -109,6 +105,7 @@ reference:
   - getPredRate
   - getRDD
   - getRDI
+  - getPredKernel
 - title: Dynamics of unstructured resources
   contents:
   - resource_dynamics
@@ -117,15 +114,23 @@ reference:
 - title: Functions used in model
   contents:
   - lognormal_pred_kernel
-  - lognormal_max_ppmr
   - box_pred_kernel
-  - box_max_ppmr
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat
-- title: Helper functions
+  - srrBevertonHolt
+- title: Internal helper functions
   contents:
-  - get_size_range_array
+# The following should list all functions with @concept helper
+# but instead lists all functions. A bug in pkgdown?
+#  - has_concept("helper")
+  - set_species_param_default
+  - get_h_default
+  - get_gamma_default
+  - get_ks_default
+  - get_phi
+  - log_breaks
+  - get_initial_n
 - title: Classes
   contents:
   - MizerParams-class

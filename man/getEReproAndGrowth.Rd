@@ -4,14 +4,14 @@
 \alias{getEReproAndGrowth}
 \title{Get energy rate available for reproduction and growth}
 \usage{
-getEReproAndGrowth(object, n = object@initial_n,
-  n_pp = object@initial_n_pp, B = object@initial_B,
-  encounter = getEncounter(object, n = n, n_pp = n_pp, B = B),
-  feeding_level = getFeedingLevel(object, n = n, n_pp = n_pp, B = B,
+getEReproAndGrowth(params, n = params@initial_n,
+  n_pp = params@initial_n_pp, B = params@initial_B,
+  encounter = getEncounter(params, n = n, n_pp = n_pp, B = B),
+  feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, B = B,
   encounter = encounter))
 }
 \arguments{
-\item{object}{An \linkS4class{MizerParams} object}
+\item{params}{An \linkS4class{MizerParams} object}
 
 \item{n}{A matrix of species abundances (species x size)}
 

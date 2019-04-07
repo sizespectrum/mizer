@@ -45,19 +45,64 @@
   </a>
 </li>
 <li>
-  <a href="../articles/mizer.html">Get Started</a>
-</li>
-<li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/mizer.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/installation.html">Installing Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/mathematical_details.html">Mathematical Details behind Mizer</a>
+    </li>
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/publications.html">Publications</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/scale_invariant_trait_based_model.html">The Scale-Invariant Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -95,7 +140,7 @@
 
     
     
-<p>On this page we will revisit the presentation of the mizer model given in chapter 3 of the main <a href="https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf">mizer vignette</a> but taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code><a href="../reference/getRates.html">getRates()</a></code>) because the help pages of these functions will provide useful additional details.</p>
+<p>On this page we will revisit the presentation of the mizer model given in chapter 3 of the main <a href="https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf">mizer vignette</a> but taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/changeParams.html">changeParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code><a href="../reference/getRates.html">getRates()</a></code>) because the help pages of these functions will provide useful additional details.</p>
 We will not go into detail of how this model is realised in code. Such detail will be provided in the <a href="developer_vignette.html">developer guide</a>. However some details are hidden on this page and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.
@@ -137,7 +182,7 @@ And clicking again will hide the details again.
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} 
   = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
-\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are set with <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
+\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/changePlankton.html">changePlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/changePlankton.html">changePlankton()</a></code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
 <details><p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The resource spectrum is then stored in a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 <p>The plankton regeneration rate is stored as a vector <code>params@rr_pp[c]</code><span class="math inline">\(=r_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>, and the carrying capacity is stored as a vector <code>params@cc_pp[c]</code><span class="math inline">\(=c_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
@@ -150,9 +195,9 @@ And clicking again will hide the details again.
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
    \theta_{ip} N_R(w_p) + \right) 
   \phi_i(w,w_p) w_p \, dw_p.
-\end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
-<p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and plankton. It is set with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>
-<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is set with <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code>.</p>
+\end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/changeSearchVolume.html">changeSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
+<p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and plankton. It is changed with <code><a href="../reference/changeInteraction.html">changeInteraction()</a></code>.</p>
+<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code><a href="../reference/changePredKernel.html">changePredKernel()</a></code>.</p>
 <details><p>An important simplification occurs when the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span> depends on the size of the prey <strong>only</strong> through the predator/prey size ratio <span class="math inline">\(w_p/w\)</span>, <span class="math display">\[\phi_i(w, w_p)=\tilde{\phi}_i(w/w_p).\]</span> This is assumed by default but can be overruled. The default for the predation kernel is the truncated log-normal function <span class="math display">\[
   \label{eq:4}
   \tilde{\phi}_i(x) = \begin{cases}
@@ -176,7 +221,7 @@ And clicking again will hide the details again.
   \label{eq:f}
   f_i(w) = \frac{E_{i}(w)}{E_{e.i}(w) + h_i(w)},
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(h_i(w)\)</span> is the maximum consumption rate. This is set with <code><a href="../reference/setIntakeMax.html">setIntakeMax()</a></code>. By default mizer assumes an allometric form <span class="math inline">\(h_i(w) = h_i\, w^n.\)</span> The feeding level is calculated with the function <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>.</p>
+<p>where <span class="math inline">\(h_i(w)\)</span> is the maximum consumption rate. This is changed with <code><a href="../reference/changeIntakeMax.html">changeIntakeMax()</a></code>. By default mizer assumes an allometric form <span class="math inline">\(h_i(w) = h_i\, w^n.\)</span> The feeding level is calculated with the function <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>.</p>
 <p>The rate at which food is consumed is then <span class="math display">\[\begin{equation}
 (1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
 \end{equation}\]</span></p>
@@ -184,7 +229,7 @@ And clicking again will hide the details again.
 <div id="metabolic-losses" class="section level2">
 <h2 class="hasAnchor">
 <a href="#metabolic-losses" class="anchor"></a>Metabolic losses</h2>
-<p>Some of the consumed food is used to fuel the needs for metabolism and activity and movement, at a rate <span class="math inline">\({\tt metab}_i(w)\)</span>. By default this is made up out of standard metabolism, scaling with exponent <span class="math inline">\(p\)</span>, and loss due to activity and movement, scaling with exponent <span class="math inline">\(1\)</span>: <span class="math display">\[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]</span> See the help page for <code><a href="../reference/setMetab.html">setMetab()</a></code>.</p>
+<p>Some of the consumed food is used to fuel the needs for metabolism and activity and movement, at a rate <span class="math inline">\({\tt metab}_i(w)\)</span>. By default this is made up out of standard metabolism, scaling with exponent <span class="math inline">\(p\)</span>, and loss due to activity and movement, scaling with exponent <span class="math inline">\(1\)</span>: <span class="math display">\[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]</span> See the help page for <code><a href="../reference/changeMetab.html">changeMetab()</a></code>.</p>
 <p>The remaining rate, if any, is assimilated with an efficiency <span class="math inline">\(\alpha_i\)</span> and is then available for growth and reproduction. So the rate at which energy becomes available for growth and reproduction is <span class="math display">\[\begin{equation}
   \label{eq:Er}
   E_{r.i}(w) = \max(0, \alpha_i f_i(w)\, h_i(w) - {\tt metab}_i(w))
@@ -193,7 +238,7 @@ And clicking again will hide the details again.
 <div id="sec:repro" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:repro" class="anchor"></a>Investment into reproduction</h2>
-<p>A proportion <span class="math inline">\(\psi_i(w)\)</span> of the energy available for growth and reproduction is used for reproduction. This proportion should change from zero below the weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the asymptotic weight <span class="math inline">\(w_{\infty.i}\)</span>, where all available energy is used for reproduction. This function is set with <code><a href="../reference/setReproduction.html">setReproduction()</a></code>. Mizer provides a default form for the function which you can however overrule.</p>
+<p>A proportion <span class="math inline">\(\psi_i(w)\)</span> of the energy available for growth and reproduction is used for reproduction. This proportion should change from zero below the weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the asymptotic weight <span class="math inline">\(w_{\infty.i}\)</span>, where all available energy is used for reproduction. This function is changed with <code><a href="../reference/changeReproduction.html">changeReproduction()</a></code>. Mizer provides a default form for the function which you can however overrule.</p>
 <p>The total production rate of egg production <span class="math inline">\(R_{p.i}\)</span> (numbers per year) is found by integrating the contribution from all individuals of species <span class="math inline">\(i\)</span>: <span class="math display">\[\begin{equation}
   \label{eq:Rp}
   R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
@@ -236,7 +281,7 @@ And clicking again will hide the details again.
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}\]</span> This predation mortality rate is calculated by the function <code><a href="../reference/getPredMort.html">getPredMort()</a></code>.</p>
-<p>Background mortality <span class="math inline">\(\mu_{b .i}(w)\)</span> is independent of the abundances and is set with <code><a href="../reference/setBMort.html">setBMort()</a></code>. By default mizer assumes an allometric form <span class="math display">\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
+<p>Background mortality <span class="math inline">\(\mu_{b .i}(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/changeBMort.html">changeBMort()</a></code>. By default mizer assumes an allometric form <span class="math display">\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
 <p>Fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span> will be discussed in section <a href="#fishing">Fishing</a>.</p>
 <p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
 </div>
@@ -279,7 +324,7 @@ And clicking again will hide the details again.
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, Julia Blanchard, Ken Andersen, Gustav Delius.</p>
+  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">

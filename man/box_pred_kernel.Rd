@@ -4,14 +4,14 @@
 \alias{box_pred_kernel}
 \title{Box predation kernel}
 \usage{
-box_pred_kernel(ppmr, sp, params)
+box_pred_kernel(ppmr, ppmr_min, ppmr_max)
 }
 \arguments{
 \item{ppmr}{A vector of predator/prey size ratios}
 
-\item{sp}{The index of the predator species}
+\item{ppmr_min}{Minimum predator/prey mass ratio}
 
-\item{params}{A MizerParams object}
+\item{ppmr_max}{Maximum predator/prey mass ratio}
 }
 \value{
 A vector giving the value of the predation kernel at each of the
@@ -23,13 +23,8 @@ distributed on an interval.
 }
 \details{
 Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
-feeding kernel is 1 if \eqn{w/w_p} is between \eqn{\max(1,
-\beta_i/\exp(\sigma_i))}{max(1, \beta_i / exp(\sigma_i))} and
-\eqn{\beta_i\exp(\sigma_i)}{\beta_i exp(\sigma_i)} and zero otherwise. The
-parameters need to be given in the species parameter dataframe in the
-colunns \code{beta} and \code{sigma}.
-
-Associated to this function there is the function \code{\link{box_max_ppmr}}
-that returns the largest allowed predator/prey mass ratio, i.e.,
-\eqn{\beta_i\exp(\sigma_i)}{\beta_i exp(\sigma_i)}.
+feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
+\code{ppmr_max} and zero otherwise. The parameters need to be given in the
+species parameter dataframe in the colunns \code{ppmr_min} and
+\code{ppmr_max}.
 }

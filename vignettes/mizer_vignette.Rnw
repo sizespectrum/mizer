@@ -2823,7 +2823,7 @@ We begin with only the scale-invariant background, which is setup close to a ste
 Initially, when we start with the scale-invariant trait-based model, these species are organized, so that their aggregate abundance follows a power-law. This can be done using the \code{set\_scaling\_model()} command (discussed in Section \ref{sec:scale_invariant_trait_based_model}) as follows:
 
 <<label=seed_scaling_model_params>>=
-params_bg  <- setBackground(
+params_bg  <- markBackground(
   set_scaling_model(no_sp = 10, no_w = 400,
                     min_w_inf = 10, max_w_inf = 1e5,
                     min_egg = 1e-4, min_w_mat = 10^(0.4),

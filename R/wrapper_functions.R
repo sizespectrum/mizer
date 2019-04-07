@@ -95,6 +95,7 @@ NULL
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
 #'   individual efficiencies of size-structured communities, Proceedings of the 
 #'   Royal Society, 276, 109-114
+#' @seealso \code{\link{set_trait_model}}, \code{\link{set_multispecies_model}}
 #' @examples
 #' \dontrun{
 #' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
@@ -252,7 +253,8 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
-#' @seealso \linkS4class{MizerParams}
+#' @seealso \linkS4class{MizerParams}, 
+#'   \code{\link{set_community_model}}, \code{\link{set_multispecies_model}}
 #' @references K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 #'   driven by fishing in model marine ecosystems. Proceedings of the Royal
 #'   Society V, Biological Sciences, 1682, 795-802.
@@ -852,7 +854,7 @@ retuneAbundance <- function(params,
     # We may have to repeat this if any of the multipliers is negative or zero
     if (any(A2 <= 0)) {
         # Remove those species
-        params <- removeSpecies(params, A2 <= 0)
+        params <- removeSpecies(params, remove = (A2 <= 0))
         # and try again retuning the remaining retunable species
         retune <- retune[A2 > 0]
         if (any(retune)) {
@@ -898,15 +900,14 @@ retuneAbundance <- function(params,
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
-removeSpecies <- function(params, species) {
+removeSpecies <- function(params, remove) {
     no_sp <- length(params@w_min_idx)
-    if (is.logical(species)) {
-        if (length(species) != no_sp) {
+    if (is.logical(remove)) {
+        if (length(remove) != no_sp) {
             stop("The boolean species argument has the wrong length")
         }
-        remove <- species
     } else {
-        remove <- dimnames(params@initial_n)$sp %in% species
+        remove <- dimnames(params@initial_n)$sp %in% remove
         if (length(remove) == 0) {
             warning("The species argument matches none of the species in the params object")
             return(params)
@@ -940,6 +941,7 @@ removeSpecies <- function(params, species) {
     p@linetype <- p@linetype[!(p@species_params$species %in% 
                                        p@species_params$species[remove])]
     
+    validObject(p)
     return(p)
 }
 
@@ -959,15 +961,16 @@ removeSpecies <- function(params, species) {
 #'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
-#' @param effort Default value is 0.
+#' @param effort Fishing effort. Default value is 0.
 #' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
+#' @seealso \code{\link{removeSpecies}}
 #' @export
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model(max_w_inf = 5000)
-#' params <- setBackground(params)
+#' params <- markBackground(params)
 #' a_m <- 0.0085
 #' b_m <- 3.11
 #' L_inf_m <- 24.3
@@ -1183,11 +1186,11 @@ addSpecies <- function(params, species_params, SSB = NA,
 #' data(inter)
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
-#' sim <- setBackground(sim, species = c("Sprat", "Sandeel", 
-#'                                             "N.pout", "Dab", "Saithe"))
+#' sim <- markBackground(sim, species = c("Sprat", "Sandeel", 
+#'                                        "N.pout", "Dab", "Saithe"))
 #' plotSpectra(sim)
 #' }
-setBackground <- function(object, species) {
+markBackground <- function(object, species) {
     if (is(object, "MizerSim")) {
         if (missing(species)) {
             species <- dimnames(object@params@initial_n)$sp
@@ -1221,6 +1224,13 @@ setBackground <- function(object, species) {
 #' @param progress_bar A shiny progress object to implement 
 #'   a progress bar in a shiny app. Default FALSE
 #' @export
+#' @examples
+#' \dontrun{
+#' params <- set_scaling_model()
+#' params@species_params$gamma[5] <- 3000
+#' params <- changeSearchVolume(params)
+#' params <- steady(params)
+#' }
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
                    dt = 0.1, progress_bar = TRUE) {
     p <- params

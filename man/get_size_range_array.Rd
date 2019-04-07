@@ -21,6 +21,8 @@ precedence over \code{min_w}.}
 
 \item{max_l}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
+
+\item{...}{Unused}
 }
 \value{
 Boolean array (species x size)
@@ -44,3 +46,5 @@ maximum weights of the spectrum, i.e. the full range of the size spectrum is
 used.
 }
 
+\concept{helper}
+\keyword{internal}

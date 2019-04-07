@@ -61,15 +61,22 @@ NULL
 #' 
 #' @return An array (predator species  x predator size x (prey species + plankton) )
 #' @export
+#' @concept summary_function
 getDiet <- function(params, n, n_pp) {
     # The code is based on that for getEncounter()
-    no_sp <- dim(n)[1]
-    no_w <- dim(n)[2]
-    no_w_full <- length(n_pp)
+    assert_that(is(params, "MizerParams"),
+                is.array(n),
+                is.vector(n_pp))
+    species <- params@species_params$species
+    no_sp <- length(species)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    assert_that(identical(dim(n), c(no_sp, no_w)),
+                length(n_pp) == no_w_full)
     diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
-                  dimnames = list("predator" = dimnames(n)$sp,
+                  dimnames = list("predator" = species,
                                   "w" = dimnames(n)$w,
-                                  "prey" = c(dimnames(n)$sp, "plankton")))
+                                  "prey" = c(species, "plankton")))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -132,6 +139,7 @@ getDiet <- function(params, n, n_pp) {
 #'   
 #' @return An array containing the SSB (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -142,7 +150,8 @@ getDiet <- function(params, n, n_pp) {
 #' getSSB(sim)
 #' }
 getSSB <- function(sim) {
-    ssb <- apply(sweep(sweep(sim@n, c(2,3), sim@params@psi,"*"), 3, 
+    assert_that(is(sim, "MizerSim"))
+    ssb <- apply(sweep(sweep(sim@n, c(2,3), sim@params@maturity,"*"), 3, 
                        sim@params@w * sim@params@dw, "*"), c(1, 2), sum) 
     return(ssb)
 }
@@ -162,6 +171,7 @@ getSSB <- function(sim) {
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -173,6 +183,7 @@ getSSB <- function(sim) {
 #' getBiomass(sim, min_w = 10, max_w = 1000)
 #' }
 getBiomass <- function(sim, ...) {
+    assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
     biomass <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                            sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
@@ -193,6 +204,7 @@ getBiomass <- function(sim, ...) {
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -204,6 +216,7 @@ getBiomass <- function(sim, ...) {
 #' getN(sim, min_w = 10, max_w = 1000)
 #' }
 getN <- function(sim, ...) {
+    assert_that(is(sim, "MizerSim"))
     size_range <- get_size_range_array(sim@params, ...)
     n <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
                      sim@params@dw, "*"), c(1, 2), sum)
@@ -220,6 +233,7 @@ getN <- function(sim, ...) {
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
+#' @concept summary_function
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
@@ -248,6 +262,7 @@ getYieldGear <- function(sim) {
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
+#' @concept summary_function
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
@@ -264,6 +279,69 @@ getYield <- function(sim) {
 }
 
 
+#' Get growth curves giving weight as a function of age
+#' 
+#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
+#' time of a simulation to calculate the size at age. If given a
+#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
+#' 
+#' @param object MizerSim or MizerParams object
+#' @param species Name or vector of names of the species to be included. By
+#'   default all species are included.
+#' @param max_age The age up to which to run the growth curve. Default is 20.
+#' @param percentage Boolean value. If TRUE, the size is given as a percentage
+#'   of the maximal size.
+#'
+#' @return An array (species x age) containing the weight in grams.
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' getGrowthCurves(params)
+#' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
+#' getGrowthCurves(sim, max_age = 24)
+#' }
+getGrowthCurves <- function(object, 
+                            species,
+                            max_age = 20,
+                            percentage = FALSE) {
+    if (is(object, "MizerSim")) {
+        params <- object@params
+        t <- dim(object@n)[1]
+        n <- object@n[t, , ]
+        n_pp <- object@n_pp[t, ]
+    } else if (is(object, "MizerParams")) {
+        params <- object
+        n <- object@initial_n
+        n_pp <- object@initial_n_pp
+    }
+    if (missing(species)) {
+        species <- dimnames(n)$sp
+    }
+    # reorder list of species to coincide with order in params
+    idx <- which(dimnames(n)$sp %in% species)
+    species <- dimnames(n)$sp[idx]
+    age <- seq(0, max_age, length.out = 50)
+    ws <- array(dim = c(length(species), length(age)),
+                dimnames = list(Species = species, Age = age))
+    g <- getEGrowth(params, n, n_pp)
+    for (j in 1:length(species)) {
+        i <- idx[j]
+        g_fn <- stats::approxfun(params@w, g[i, ])
+        myodefun <- function(t, state, parameters){
+            return(list(g_fn(state)))
+        }
+        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+                                times = age, func = myodefun)[, 2]
+        if (percentage) {
+            ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
+        }
+    }
+    return(ws)
+}
+
 #' Get size range array
 #' 
 #' Helper function that returns an array (species x size) of boolean values
@@ -279,6 +357,7 @@ getYield <- function(sim) {
 #'   precedence over \code{min_w}.
 #' @param max_l Largest length in size range. If supplied, this takes precedence
 #'   over \code{max_w}.
+#' @param ... Unused
 #'   
 #' @return Boolean array (species x size)
 #' 
@@ -293,8 +372,9 @@ getYield <- function(sim) {
 #' minimum weight and a maximum length. The default values are the minimum and
 #' maximum weights of the spectrum, i.e. the full range of the size spectrum is
 #' used.
-#' 
 #' @export
+#' @keywords internal
+#' @concept helper
 get_size_range_array <- function(params, min_w = min(params@w), 
                                  max_w = max(params@w), 
                                  min_l = NULL, max_l = NULL, ...) {
@@ -327,6 +407,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @param ... Other arguments (currently not used).
 #'
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -368,7 +449,8 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' Outputs a general summary of the structure and content of the object
 #' @param object A \code{MizerSim} object.
 #' @param ... Other arguments (currently not used).
-#'
+#' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -410,6 +492,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #'   
 #' @return An array containing the proportion of large fish through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -462,6 +545,7 @@ getProportionOfLargeFish <- function(sim,
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -499,6 +583,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @return A matrix or vector containing the mean maximum weight of the
 #'   community through time
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -543,6 +628,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #'
 #' @return A data frame with slope, intercept and R2 values.
 #' @export
+#' @concept summary_function
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)

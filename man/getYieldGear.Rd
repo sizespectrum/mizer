@@ -29,3 +29,4 @@ getYieldGear(sim)
 \seealso{
 \code{\link{getYield}}
 }
+\concept{summary_function}
