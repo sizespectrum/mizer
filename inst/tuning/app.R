@@ -17,7 +17,7 @@ server <- function(input, output, session) {
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
   filename <- "params.rds"
-  params(setParams(readRDS(filename)))
+  params(changeParams(readRDS(filename)))
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
   # Define some globals to skip certain observers
