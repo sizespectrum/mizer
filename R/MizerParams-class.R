@@ -496,8 +496,8 @@ emptyParams <- function(species_params,
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
     } else {
-        if (max(species_params$w_inf) < max_w) {
-            too_large <- species_params$species[max_w > species_params$w_inf]
+        if (max(species_params$w_inf) > max_w) {
+            too_large <- species_params$species[max_w < species_params$w_inf]
             stop(paste0("Some of your species have an maximum size larger than max_w: ",
                         toString(too_large)))
         }

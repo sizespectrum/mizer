@@ -854,7 +854,7 @@ retuneAbundance <- function(params,
     # We may have to repeat this if any of the multipliers is negative or zero
     if (any(A2 <= 0)) {
         # Remove those species
-        params <- removeSpecies(params, A2 <= 0)
+        params <- removeSpecies(params, remove = (A2 <= 0))
         # and try again retuning the remaining retunable species
         retune <- retune[A2 > 0]
         if (any(retune)) {
@@ -900,15 +900,14 @@ retuneAbundance <- function(params,
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
-removeSpecies <- function(params, species) {
+removeSpecies <- function(params, remove) {
     no_sp <- length(params@w_min_idx)
-    if (is.logical(species)) {
-        if (length(species) != no_sp) {
+    if (is.logical(remove)) {
+        if (length(remove) != no_sp) {
             stop("The boolean species argument has the wrong length")
         }
-        remove <- species
     } else {
-        remove <- dimnames(params@initial_n)$sp %in% species
+        remove <- dimnames(params@initial_n)$sp %in% remove
         if (length(remove) == 0) {
             warning("The species argument matches none of the species in the params object")
             return(params)
@@ -938,6 +937,7 @@ removeSpecies <- function(params, species) {
     p@w_min_idx <- p@w_min_idx[keep]
     p@A <- p@A[keep]
     
+    validObject(p)
     return(p)
 }
 
@@ -957,10 +957,11 @@ removeSpecies <- function(params, species) {
 #'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
-#' @param effort Default value is 0.
+#' @param effort Fishing effort. Default value is 0.
 #' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
+#' @seealso \code{\link{removeSpecies}}
 #' @export
 #' @examples
 #' \dontrun{

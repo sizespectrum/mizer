@@ -14,9 +14,13 @@ test_that("basic constructor sets dimensions properly", {
     max_w <- 5000
     no_w <- 200
     min_w_pp <- 1e-8
+    expect_error(emptyParams(species_params, min_w = min_w, max_w = max_w,
+                             no_w = no_w, min_w_pp = min_w_pp),
+                 "Some of your species have an maximum size larger than max_w: Cod")
+    max_w <- 40000
     test_params <- 
-        emptyParams(species_params, min_w = min_w, max_w = max_w, no_w = no_w, 
-                    min_w_pp = min_w_pp)
+        emptyParams(species_params, min_w = min_w, max_w = max_w,
+                    no_w = no_w, min_w_pp = min_w_pp)
     # Lengths of sizes OK?
     expect_length(test_params@w, no_w)
     expect_length(test_params@dw, no_w)

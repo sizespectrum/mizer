@@ -90,6 +90,21 @@ test_that("addSpecies works when adding a second identical species", {
     expect_lt(max(abs(p@initial_n[5,] - pa@initial_n[5, ])), 0.7)
 })
 
+# removeSpecies ----
+test_that("removeSpecies works", {
+    data("NS_species_params")
+    remove <- NS_species_params$species[2:11]
+    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
+    params <- MizerParams(NS_species_params, no_w = 20, 
+                          max_w = 39900, min_w_pp = 9e-14)
+    p1 <- removeSpecies(params, remove = remove)
+    p2 <- MizerParams(reduced, no_w = 20, 
+                      max_w = 39900, min_w_pp = 9e-14)
+    sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
+    sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
+    expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
+})
+
 # Multiple gears work correctly in trait-based model ----
 test_that("Multiple gears work correctly in trait-based model", {
     # Check multiple gears are working properly
