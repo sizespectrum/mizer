@@ -4,15 +4,19 @@ Type: Package
 Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine
     environment.
+    Finlay Scott, Julia L. Blanchard, Ken H. Andersen (2014) <doi: 10.1111/2041-210X.12256>
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
 Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
              person("Julia", "Blanchard", email="julia.blanchard@utas.edu.au",
-                    role=c("aut", "cph")),
+                    role=c("aut", "cph"),
+                    comment = c(ORCID = "0000-0003-0532-4824")),
              person("Ken", "Andersen", email="kha@aqua.dtu.dk",
-                    role=c("aut", "cph")),
+                    role=c("aut", "cph"),
+                    comment = c(ORCID = "0000-0002-8478-3430")),
              person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
-                    role=c("ctb", "cre")),
+                    role=c("ctb", "cre"),
+                    comment = c(ORCID = "0000-0003-4092-8228")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
 Version: 1.0.1
@@ -34,7 +38,10 @@ Suggests:
     roxygen2,
     knitr,
     shiny,
-    shinyBS
+    shinyBS,
+    rmarkdown,
+    pkgdown,
+    covr
 Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'
@@ -48,4 +55,8 @@ Collate:
     'data.R'
     'RcppExports.R'
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 6.1.1.9000
+Encoding: UTF-8
+LazyData: true
+URL: https://sizespectrum.github.io/mizer/, https://github.com/sizespectrum/mizer
+BugReports: https://github.com/sizespectrum/mizer/issues

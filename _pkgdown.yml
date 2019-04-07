@@ -1,0 +1,51 @@
+# This is the configuration for the mizer website using the pkgdown package.
+
+url: https://sizespectrum.github.io/mizer/
+
+authors:
+  Julia Blanchard:
+    href: http://www.utas.edu.au/profiles/staff/imas/julia-blanchard
+  Ken Andersen:
+    href: https://ken.haste.dk/
+  Gustav Delius:
+    href: https://www.york.ac.uk/maths/staff/gustav-delius/
+
+template:
+  params:
+    bootswatch: cerulean
+
+toc: 
+  depth: 3
+
+navbar:
+  structure:
+    left: [home, intro, reference, articles, publications, news]
+    right: [github]
+  components:
+    articles:
+      text: Articles
+      href: articles/index.html
+    publications:
+      text: Publications
+      href: articles/publications.html
+
+articles:
+- title: User Guides
+  contents:
+  - mizer
+  - installation
+  - model_description
+  - community_model
+  - trait_model
+  - multispecies_model
+  - running_a_simulation
+  - exploring_the_simulation_results
+  - a_multispecies_model_of_the_north_sea
+  - scale_invariant_trait_based_model
+- title: Developer Guides
+  contents:
+  - developer_vignette
+  - mathematical_details
+  - editing_website
+
+
