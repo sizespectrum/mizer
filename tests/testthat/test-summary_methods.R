@@ -252,7 +252,7 @@ test_that("getCommunitySlope works",{
 test_that("getDiet works", {
     diet <- getDiet(sim@params, n, n_pp)
     expect_known_value(diet, "values/getDiet")
-    params <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params <- changePredKernel(params, pred_kernel = getPredKernel(params))
     expect_equal(diet, getDiet(params, n, n_pp))
 })
 

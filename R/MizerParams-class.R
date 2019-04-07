@@ -229,78 +229,78 @@ validMizerParams <- function(object) {
 #' @slot maturity An array (species x size) that holds the proportion of
 #'   individuals of each species at size that are mature. This enters in the
 #'   calculation of the spawning stock biomass with \code{\link{getSSB}}. Set 
-#'   with \code{\link{setReproduction}}.
+#'   with \code{\link{changeReproduction}}.
 #' @slot psi An array (species x size) that holds the allocation to reproduction
-#'   for each species at size, \eqn{\psi_i(w)}. Set with 
-#'   \code{\link{setReproduction}}.
+#'   for each species at size, \eqn{\psi_i(w)}. Changed with 
+#'   \code{\link{changeReproduction}}.
 #' @slot intake_max An array (species x size) that holds the maximum intake for
-#'   each species at size. Set with \code{\link{setIntakeMax}}.
+#'   each species at size. Changed with \code{\link{changeIntakeMax}}.
 #' @slot search_vol An array (species x size) that holds the search volume for
-#'   each species at size. Set with \code{\link{setSearchVolume}}.
+#'   each species at size. Changed with \code{\link{changeSearchVolume}}.
 #' @slot rho A 3-dim array (species x resource x size) holding the encounter
-#'   rates for unstructured resources. Set with 
-#'   \code{\link{setResourceEncounter}} .See \code{\link{resource_dynamics}} for
+#'   rates for unstructured resources. Changed with 
+#'   \code{\link{changeResourceEncounter}} .See \code{\link{resource_dynamics}} for
 #'    details.
 #' @slot metab An array (species x size) that holds the metabolism
-#'   for each species at size. Set with \code{\link{setMetab}}.
+#'   for each species at size. Changed with \code{\link{changeMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
-#'   \eqn{\mu_{b.i}(w)}. Set with \code{\link{setBMort}}.
+#'   \eqn{\mu_{b.i}(w)}. Changed with \code{\link{changeBMort}}.
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
-#'   this is NA then the following two slots will be used. Set with 
-#'   \code{\link{setPredKernel}}.
+#'   this is NA then the following two slots will be used. Changed with 
+#'   \code{\link{changePredKernel}}.
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the encounter rate integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the available 
-#'   energy integral. Set with \code{\link{setPredKernel}}.
+#'   energy integral. Changed with \code{\link{changePredKernel}}.
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the integral.
-#'   Set with \code{\link{setPredKernel}}.
+#'   Changed with \code{\link{changePredKernel}}.
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum. Set with \code{\link{setPlankton}}.
+#'   growth rate of the plankton spectrum. Changed with \code{\link{changePlankton}}.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum. Set with 
-#'   \code{\link{setPlankton}}.
+#'   carrying capacity of the plankton spectrum. Changed with 
+#'   \code{\link{changePlankton}}.
 #' @slot plankton_dynamics A function for projecting the plankton abundance
 #'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
-#'   an example. Set with \code{\link{setPlankton}}.
+#'   an example. Changed with \code{\link{changePlankton}}.
 #' @slot resource_dynamics A named list of functions for projecting the
 #'   biomasses in the unstructured resource components by one timestep. The
-#'   names of the list entries are the resource names. Set with 
-#'   \code{\link{setResources}}. See \code{\link{resource_dynamics}} for 
+#'   names of the list entries are the resource names. Changed with 
+#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
 #'   details.
 #' @slot resource_params A list containing the parameters needed by the
-#'   \code{resource_dynamics} functions.  Set with 
-#'   \code{\link{setResources}}. See \code{\link{resource_dynamics}} for 
+#'   \code{resource_dynamics} functions.  Changed with 
+#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
 #'   details.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See \code{\link{set_multispecies_params}} for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
-#'   Set with \code{\link{setInteraction}}.
+#'   Changed with \code{\link{changeInteraction}}.
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
 #'   Has two arguments which are rdi and species_params
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
-#'   each gear for species and size, \eqn{S_{g,i,w}}. Set with 
-#'   \code{\link{setFishing}}.
+#'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
+#'   \code{\link{changeFishing}}.
 #' @slot catchability An array (gear x species) that holds the catchability of
-#'   each species by each gear, \eqn{Q_{g,i}}. Set with 
-#'   \code{\link{setFishing}}.
+#'   each species by each gear, \eqn{Q_{g,i}}. Changed with 
+#'   \code{\link{changeFishing}}.
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
 #'   the plankton abundance at each weight.
 #' @slot initial_B A vector containing the biomasses of the unstructured
 #'   resource components, see \code{\link{resource_dynamics}} for details.
-#' @slot n Exponent of maximum intake rate. Set with \code{\link{setIntakeMax}}.
-#' @slot p Exponent of metabolic cost. Set with \code{\link{setMetab}}.
-#' @slot lambda Exponent of plankton spectrum. Set with \code{\link{setPlankton}}.
-#' @slot kappa Magnitude of plankton spectrum. Set with \code{\link{setPlankton}}.
+#' @slot n Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.
+#' @slot p Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.
+#' @slot lambda Exponent of plankton spectrum. Changed with \code{\link{changePlankton}}.
+#' @slot kappa Magnitude of plankton spectrum. Changed with \code{\link{changePlankton}}.
 #' @slot q Exponent for volumetric search rate. 
-#'   Set with \code{\link{setSearchVolume}}.
+#'   Changed with \code{\link{changeSearchVolume}}.
 #' @slot f0 Initial feeding level.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species. Used 
@@ -693,7 +693,7 @@ emptyParams <- function(species_params,
 #' \linkS4class{MizerParams} object based on user-provided or default
 #' parameters. It does this by creating an empty MizerParams object with
 #' \code{\link{emptyParams}} and then filling the slots by passing its arguments
-#' to \code{\link{setParams}}. There is a long list of arguments, but almost
+#' to \code{\link{changeParams}}. There is a long list of arguments, but almost
 #' all of them have sensible default values. All arguments are described in more
 #' details in the sections below the list.
 #' 
@@ -703,7 +703,7 @@ emptyParams <- function(species_params,
 #' @param no_w_pp Obsolete argument that is no longer used because the number
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
-#' @inheritParams setParams
+#' @inheritParams changeParams
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -730,17 +730,17 @@ emptyParams <- function(species_params,
 #' 
 #' All the parameters will be mentioned in the following sections.
 #' 
-#' @inheritSection setInteraction Setting interactions
-#' @inheritSection setPredKernel Setting predation kernel
-#' @inheritSection setSearchVolume Setting search volume
-#' @inheritSection setIntakeMax Setting maximum intake rate
-#' @inheritSection setMetab Setting metabolic rate
-#' @inheritSection setBMort Setting background mortality rate
-#' @inheritSection setReproduction Setting reproduction
-#' @inheritSection setPlankton Setting plankton dynamics
-#' @inheritSection setResources Setting resource dynamics
-#' @inheritSection setResourceEncounter Setting resource encounter rate
-#' @inheritSection setFishing Setting fishing
+#' @inheritSection changeInteraction Setting interactions
+#' @inheritSection changePredKernel Setting predation kernel
+#' @inheritSection changeSearchVolume Setting search volume
+#' @inheritSection changeIntakeMax Setting maximum intake rate
+#' @inheritSection changeMetab Setting metabolic rate
+#' @inheritSection changeBMort Setting background mortality rate
+#' @inheritSection changeReproduction Setting reproduction
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResources Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
+#' @inheritSection changeFishing Setting fishing
 #'   
 #' @seealso \code{\link{project}}, \linkS4class{MizerSim},
 #'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
@@ -766,28 +766,28 @@ set_multispecies_model <- function(species_params,
                                    kappa = 1e11,
                                    lambda = (2 + q - n),
                                    f0 = 0.6,
-                                   # setPredKernel()
+                                   # changePredKernel()
                                    pred_kernel = NULL,
-                                   # setSearchVolume()
+                                   # changeSearchVolume()
                                    search_vol = NULL,
-                                   # setIntakeMax()
+                                   # changeIntakeMax()
                                    intake_max = NULL,
-                                   # setMetab()
+                                   # changeMetab()
                                    metab = NULL,
-                                   # setBMort
+                                   # changeBMort
                                    z0pre = 0.6,
                                    z0exp = n - 1,
-                                   # setReproduction
+                                   # changeReproduction
                                    maturity = NULL,
                                    repro_prop = NULL,
-                                   # setPlankton
+                                   # changePlankton
                                    r_pp = 10,
                                    w_pp_cutoff = 10,
                                    plankton_dynamics = plankton_semichemostat,
-                                   # setResources
+                                   # changeResources
                                    resource_dynamics = list(),
                                    resource_params = list(),
-                                   # setResourceEncounter
+                                   # changeResourceEncounter
                                    rho = NULL,
                                    srr = srrBevertonHolt) {
     
@@ -806,37 +806,37 @@ set_multispecies_model <- function(species_params,
     params@f0 <- f0
     params@kappa <- kappa
     
-    params <- setParams(params,
-                        # setInteraction
+    params <- changeParams(params,
+                        # changeInteraction
                         interaction = interaction,
-                        # setPredKernel()
+                        # changePredKernel()
                         pred_kernel = pred_kernel,
-                        # setSearchVolume()
+                        # changeSearchVolume()
                         search_vol = search_vol,
                         q = q,
                         f0 <- f0,
-                        # setIntakeMax()
+                        # changeIntakeMax()
                         intake_max = intake_max,
                         n = n,
-                        # setMetab()
+                        # changeMetab()
                         metab = metab,
                         p = p,
-                        # setBMort
+                        # changeBMort
                         z0pre = z0pre,
                         z0exp = z0exp,
-                        # setReproduction
+                        # changeReproduction
                         maturity = maturity,
                         repro_prop = repro_prop,
-                        # setPlankton
+                        # changePlankton
                         kappa = kappa,
                         lambda = lambda,
                         r_pp = r_pp,
                         w_pp_cutoff = w_pp_cutoff,
                         plankton_dynamics = plankton_dynamics,
-                        # setResources
+                        # changeResources
                         resource_dynamics = resource_dynamics,
                         resource_params = resource_params,
-                        # setResourceEncounter
+                        # changeResourceEncounter
                         rho = rho)
     
     params@initial_n <- get_initial_n(params)
@@ -857,17 +857,17 @@ MizerParams <- set_multispecies_model
 #' 
 #' Passes its arguments to the the setup functions
 #' \itemize{
-#' \item \code{\link{setPredKernel}}
-#' \item \code{\link{setSearchVolume}}
-#' \item \code{\link{setInteraction}}
-#' \item \code{\link{setIntakeMax}}
-#' \item \code{\link{setMetab}}
-#' \item \code{\link{setBMort}}
-#' \item \code{\link{setReproduction}}
-#' \item \code{\link{setPlankton}}
-#' \item \code{\link{setResources}}
-#' \item \code{\link{setResourceEncounter}}
-#' \item \code{\link{setFishing}}
+#' \item \code{\link{changePredKernel}}
+#' \item \code{\link{changeSearchVolume}}
+#' \item \code{\link{changeInteraction}}
+#' \item \code{\link{changeIntakeMax}}
+#' \item \code{\link{changeMetab}}
+#' \item \code{\link{changeBMort}}
+#' \item \code{\link{changeReproduction}}
+#' \item \code{\link{changePlankton}}
+#' \item \code{\link{changeResources}}
+#' \item \code{\link{changeResourceEncounter}}
+#' \item \code{\link{changeFishing}}
 #' }
 #' 
 #' @param params A \linkS4class{MizerParams} object
@@ -875,95 +875,95 @@ MizerParams <- set_multispecies_model
 #'   if those are not columns in the species data frame. Also requires
 #'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
 #'   data frame. 
-#' @inheritParams setInteraction
-#' @inheritParams setPredKernel
-#' @inheritParams setSearchVolume
-#' @inheritParams setIntakeMax
-#' @inheritParams setMetab
-#' @inheritParams setBMort
-#' @inheritParams setReproduction
-#' @inheritParams setPlankton
-#' @inheritParams setResources
-#' @inheritParams setResourceEncounter
-#' @inheritParams setFishing
+#' @inheritParams changeInteraction
+#' @inheritParams changePredKernel
+#' @inheritParams changeSearchVolume
+#' @inheritParams changeIntakeMax
+#' @inheritParams changeMetab
+#' @inheritParams changeBMort
+#' @inheritParams changeReproduction
+#' @inheritParams changePlankton
+#' @inheritParams changeResources
+#' @inheritParams changeResourceEncounter
+#' @inheritParams changeFishing
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
-#' @inheritSection setInteraction Setting interactions
-#' @inheritSection setPredKernel Setting predation kernel
-#' @inheritSection setSearchVolume Setting search volume
-#' @inheritSection setIntakeMax Setting maximum intake rate
-#' @inheritSection setMetab Setting metabolic rate
-#' @inheritSection setBMort Setting background mortality rate
-#' @inheritSection setReproduction Setting reproduction
-#' @inheritSection setPlankton Setting plankton dynamics
-#' @inheritSection setResources Setting resource dynamics
-#' @inheritSection setResourceEncounter Setting resource encounter rate
-#' @inheritSection setFishing Setting fishing
+#' @inheritSection changeInteraction Setting interactions
+#' @inheritSection changePredKernel Setting predation kernel
+#' @inheritSection changeSearchVolume Setting search volume
+#' @inheritSection changeIntakeMax Setting maximum intake rate
+#' @inheritSection changeMetab Setting metabolic rate
+#' @inheritSection changeBMort Setting background mortality rate
+#' @inheritSection changeReproduction Setting reproduction
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResources Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
+#' @inheritSection changeFishing Setting fishing
 #' 
 #' @export
-setParams <- function(params,
-                      # setInteraction()
+changeParams <- function(params,
+                      # changeInteraction()
                       interaction = NULL,
-                      # setPredKernel()
+                      # changePredKernel()
                       pred_kernel = NULL,
-                      # setSearchVolume()
+                      # changeSearchVolume()
                       search_vol = NULL,
                       q = params@q,
                       f0 = params@f0,
-                      # setIntakeMax()
+                      # changeIntakeMax()
                       intake_max = NULL,
                       n = params@n,
-                      # setMetab()
+                      # changeMetab()
                       metab = NULL,
                       p = params@p,
-                      # setBMort
+                      # changeBMort
                       z0pre = 0.6,
                       z0exp = n - 1,
-                      # setReproduction
+                      # changeReproduction
                       maturity = NULL,
                       repro_prop = NULL,
-                      # setPlankton
+                      # changePlankton
                       kappa = params@kappa,
                       lambda = params@lambda,
                       r_pp = 10,
                       w_pp_cutoff = 10,
                       plankton_dynamics = params@plankton_dynamics,
-                      # setResources
+                      # changeResources
                       resource_dynamics = params@resource_dynamics,
                       resource_params = params@resource_params,
-                      # setResourceEncounter
+                      # changeResourceEncounter
                       rho = NULL) {
-    params <- setInteraction(params,
+    params <- changeInteraction(params,
                              interaction = interaction)
-    params <- setFishing(params)
-    params <- setPredKernel(params, 
+    params <- changeFishing(params)
+    params <- changePredKernel(params, 
                             pred_kernel = pred_kernel)
-    params <- setIntakeMax(params, 
+    params <- changeIntakeMax(params, 
                            intake_max = intake_max,
                            n = n)
-    params <- setMetab(params, 
+    params <- changeMetab(params, 
                        metab = metab,
                        p = p)
-    params <- setBMort(params, 
+    params <- changeBMort(params, 
                        z0pre = z0pre, 
                        z0exp = z0exp)
-    params <- setSearchVolume(params, 
+    params <- changeSearchVolume(params, 
                               search_vol = search_vol,
                               q = q)
-    params <- setReproduction(params, 
+    params <- changeReproduction(params, 
                               maturity = maturity,
                               repro_prop = repro_prop)
-    params <- setPlankton(params,
+    params <- changePlankton(params,
                           kappa = kappa,
                           lambda = lambda,
                           r_pp = r_pp, 
                           w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
-    params <- setResources(params,
+    params <- changeResources(params,
                            resource_dynamics = resource_dynamics,
                            resource_params = resource_params)
-    params <- setResourceEncounter(params, 
+    params <- changeResourceEncounter(params, 
                                    rho = rho,
                                    n = params@n)
     return(params)
@@ -999,7 +999,7 @@ setParams <- function(params,
 #' 
 #' @return MizerParams object
 #' @export
-setInteraction <- function(params,
+changeInteraction <- function(params,
                            interaction = NULL) {
     assert_that(is(params, "MizerParams"))
     if (is.null(interaction)) {
@@ -1121,24 +1121,24 @@ setInteraction <- function(params,
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
-#' # need to call setPredKernel
+#' # need to call changePredKernel
 #' params@species_params["Cod", "beta"] <- 200
-#' params <- setPredKernel(params)
+#' params <- changePredKernel(params)
 #' 
 #' ## You can change to a different predation kernel type
 #' params@species_params$pred_kernel_type <- "box"
 #' params@species_params$ppmr_min <- 2
 #' params@species_params$ppmr_max <- 4
-#' params <- setPredKernel(params)
+#' params <- changePredKernel(params)
 #' 
 #' ## If you need a kernel that depends also on prey size you need to define
 #' # it yourself.
 #' pred_kernel <- getPredKernel(params)
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
 #'                                     params@w_full, "*")
-#' params<- setPredKernel(params, pred_kernel = pred_kernel)
+#' params<- changePredKernel(params, pred_kernel = pred_kernel)
 #' }
-setPredKernel <- function(params,
+changePredKernel <- function(params,
                           pred_kernel = NULL) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
@@ -1259,7 +1259,7 @@ getPredKernel <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
-setSearchVolume <- function(params, 
+changeSearchVolume <- function(params, 
                             search_vol = NULL,
                             q = params@q) {
     assert_that(is(params, "MizerParams"),
@@ -1311,7 +1311,7 @@ setSearchVolume <- function(params,
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
-setIntakeMax <- function(params, 
+changeIntakeMax <- function(params, 
                          intake_max = NULL, 
                          n = params@n) {
     assert_that(is(params, "MizerParams"),
@@ -1368,7 +1368,7 @@ setIntakeMax <- function(params,
 #' 
 #' @return MizerParams
 #' @export
-setMetab <- function(params, 
+changeMetab <- function(params, 
                      metab = NULL, 
                      p = params@p) {
     assert_that(is(params, "MizerParams"),
@@ -1422,7 +1422,7 @@ setMetab <- function(params,
 #' 
 #' @return MizerParams
 #' @export
-setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
+changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(mu_b)) {
         assert_that(is.array(mu_b),
@@ -1501,7 +1501,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' 
 #' @return The MizerParams object.
 #' @export
-setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
+changeReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     
@@ -1627,7 +1627,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
 #' 
 #' @return A MizerParams object
 #' @export
-setPlankton <- function(params,
+changePlankton <- function(params,
                         kappa = params@kappa,
                         lambda = params@lambda,
                         r_pp = 10, 
@@ -1666,7 +1666,7 @@ setPlankton <- function(params,
 #' @param resource_params A list of parameters needed by the
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
-setResources <- function(params,
+changeResources <- function(params,
                          resource_dynamics,
                          resource_params) {
     assert_that(is(params, "MizerParams"))
@@ -1735,7 +1735,7 @@ setResources <- function(params,
 #' 
 #' @return A MizerParams object
 #' @export
-setResourceEncounter <- function(params, rho = NULL, n = params@n) {
+changeResourceEncounter <- function(params, rho = NULL, n = params@n) {
     assert_that(is(params, "MizerParams"),
                 is.number(n))
     params@n <- n
@@ -1785,7 +1785,7 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' 
 #' @return MizerParams object
 #' @export
-setFishing <- function(params) {
+changeFishing <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)

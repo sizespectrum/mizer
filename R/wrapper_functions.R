@@ -1224,7 +1224,7 @@ markBackground <- function(object, species) {
 #' \dontrun{
 #' params <- set_scaling_model()
 #' params@species_params$gamma[5] <- 3000
-#' params <- setSearchVolume(params)
+#' params <- changeSearchVolume(params)
 #' params <- steady(params)
 #' }
 steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),

@@ -11,7 +11,7 @@
 * Values for minimum plankton size, and minimum and maximum consumer sizes set
   automatically
 * Allowing feeding kernel to be kept even when using FFT methods
-* Function setPredKernel() for changing predation kernel
+* Function changePredKernel() for changing predation kernel
 * Set names on arrays returned by getEncounter and getPredRate
 * Replaced `getPhiPrey()` by `getEncounter()` which includes the search volume
   factor.

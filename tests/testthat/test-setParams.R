@@ -48,112 +48,112 @@ test_that("get_phi works", {
 })
 
 
-## setInteraction ----
-test_that("setInteraction works", {
-    expect_identical(setInteraction(params, interaction = params@interaction),
+## changeInteraction ----
+test_that("changeInteraction works", {
+    expect_identical(changeInteraction(params, interaction = params@interaction),
                      params)
     inter <- matrix(1/2, nrow = no_sp, ncol = no_sp)
-    p2 <- setInteraction(params, inter)
+    p2 <- changeInteraction(params, inter)
     expect_equivalent(p2@interaction, inter)
     inter[1, 1] <- 2
-    expect_error(setInteraction(params, inter),
+    expect_error(changeInteraction(params, inter),
                  "Values in the interaction matrix must be between 0 and 1")
-    expect_error(setInteraction(params, inter[1:(no_sp - 1), ]),
+    expect_error(changeInteraction(params, inter[1:(no_sp - 1), ]),
                  "interaction matrix is not of the right dimensions")
     inter[1, 1] <- 0
     dimnames(inter) <- list(sp = params@species_params$species,
                             sp = params@species_params$species)
-    expect_message(setInteraction(params, inter),
+    expect_message(changeInteraction(params, inter),
                  "Your interaction matrix has dimensions called: `sp, sp`. I expected 'predator, prey'")
     dimnames(inter) <- list(predator = rev(params@species_params$species),
                             prey = params@species_params$species)
-    expect_message(setInteraction(params, inter),
+    expect_message(changeInteraction(params, inter),
                    "Dimnames of interaction matrix do not match")
     params@species_params$interaction_p <- -1
-    expect_error(setInteraction(params),
+    expect_error(changeInteraction(params),
                  "Values in the plantkon interaction vector should be between 0 and 1")
 })
 
-## setPredKernel ----
-test_that("setPredKernel works", {
-    expect_identical(setPredKernel(params), params)
-    expect_identical(setPredKernel(params, pred_kernel = NULL), 
+## changePredKernel ----
+test_that("changePredKernel works", {
+    expect_identical(changePredKernel(params), params)
+    expect_identical(changePredKernel(params, pred_kernel = NULL), 
                      params)
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 2
-    expect_error(setPredKernel(params), 
+    expect_error(changePredKernel(params), 
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
-    p2 <- setPredKernel(params)
+    p2 <- changePredKernel(params)
     pred_kernel <- getPredKernel(params)
-    expect_error(setPredKernel(params, pred_kernel[1:2, ]),
+    expect_error(changePredKernel(params, pred_kernel[1:2, ]),
                  "incorrect number of dimensions")
-    expect_error(setPredKernel(params, pred_kernel - 1),
+    expect_error(changePredKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
-    p2 <- setPredKernel(params, pred_kernel)
+    p2 <- changePredKernel(params, pred_kernel)
     expect_equal(p2@ft_pred_kernel_e, array())
     expect_equal(p2@ft_pred_kernel_p, array())
     expect_equivalent(p2@pred_kernel, pred_kernel)
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
 
-## setSearchVolume ----
-test_that("setSearchVolume works", {
-    expect_identical(setSearchVolume(params, params@search_vol), params)
+## changeSearchVolume ----
+test_that("changeSearchVolume works", {
+    expect_identical(changeSearchVolume(params, params@search_vol), params)
     params@species_params$gamma <- 2 * params@species_params$gamma
-    p2 <- setSearchVolume(params)
+    p2 <- changeSearchVolume(params)
     expect_identical(2 * params@search_vol, p2@search_vol)
 })
 
-## setIntakeMax ----
-test_that("setIntakeMax works", {
-    expect_identical(setIntakeMax(params, params@intake_max), params)
+## changeIntakeMax ----
+test_that("schangeIntakeMax works", {
+    expect_identical(changeIntakeMax(params, params@intake_max), params)
     params@species_params$h <- 2 * params@species_params$h
-    p2 <- setIntakeMax(params)
+    p2 <- changeIntakeMax(params)
     expect_identical(2 * params@intake_max, p2@intake_max)
 })
 
-## setMetab ----
-test_that("setMetab works", {
-    expect_identical(setMetab(params, params@metab), params)
+## changeMetab ----
+test_that("changeMetab works", {
+    expect_identical(changeMetab(params, params@metab), params)
     params@species_params$ks <- 2 * params@species_params$ks
-    p2 <- setMetab(params)
+    p2 <- changeMetab(params)
     expect_identical(2 * params@metab, p2@metab)
 })
 
-## setBMort ----
-test_that("setBMort works", {
-    expect_identical(setBMort(params, params@mu_b), params)
+## changeBMort ----
+test_that("changeBMort works", {
+    expect_identical(changeBMort(params, params@mu_b), params)
     params@species_params$z0 <- 2 * params@species_params$z0
-    p2 <- setBMort(params)
+    p2 <- changeBMort(params)
     expect_identical(2 * params@mu_b, p2@mu_b)
 })
 
-## setReproduction ----
-test_that("setReproduction works", {
-    expect_equal(setReproduction(params), params)
+## changeReproduction ----
+test_that("changeReproduction works", {
+    expect_equal(changeReproduction(params), params)
     maturity <- array(1, dim = c(no_sp, length(params@w)))
-    p2 <- setReproduction(params, maturity = maturity)
-    expect_equal(p2, setReproduction(p2, maturity = maturity,
+    p2 <- changeReproduction(params, maturity = maturity)
+    expect_equal(p2, changeReproduction(p2, maturity = maturity,
                                      repro_prop = p2@psi))
-    expect_equal(params, setReproduction(params, repro_prop = p2@psi))
+    expect_equal(params, changeReproduction(params, repro_prop = p2@psi))
     params@species_params$erepro[1] <- NA
-    p2 <- setReproduction(params)
+    p2 <- changeReproduction(params)
     expect_equal(p2@species_params$erepro[1], 1)
 })
 
-## setResourceEncounter ----
-test_that("setResourceEncounter works", {
+## changeResourceEncounter ----
+test_that("changeResourceEncounter works", {
     species_params <- NS_species_params
     species_params$rho_detritus <- 1:no_sp
     species_params$rho_carrion <- no_sp:1
     params <- MizerParams(species_params, resource_dynamics = resource_dynamics)
     expect_equal(params@rho[2, 1, 1], 2 * params@w[1]^params@n)
     expect_equal(params@rho[2, 2, 1], (no_sp - 1) * params@w[1]^params@n)
-    expect_identical(setResourceEncounter(params, params@rho), params)
+    expect_identical(changeResourceEncounter(params, params@rho), params)
 })
 
-## setParams ----
-test_that("setParams can leave params unchanged", {
-    expect_equal(setParams(params_res), params_res)
+## changeParams ----
+test_that("changeParams can leave params unchanged", {
+    expect_equal(changeParams(params_res), params_res)
 })

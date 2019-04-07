@@ -15,7 +15,7 @@
 #' These two parameters need to be given in the species parameter dataframe in
 #' the colunns \code{beta} and \code{sigma}.
 #' 
-#' This function is called from \code{\link{setPredKernel}} to set up the
+#' This function is called from \code{\link{changePredKernel}} to set up the
 #' predation kernel slots in a \code{MizerParams} object. 
 #' 
 #' @param ppmr A vector of predator/prey size ratios
