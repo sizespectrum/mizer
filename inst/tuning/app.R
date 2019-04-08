@@ -78,7 +78,8 @@ server <- function(input, output, session) {
       sliderInput("gamma", "Predation rate coefficient gamma",
                   value = sp$gamma,
                   min = signif(sp$gamma / 2, 3),
-                  max = signif(sp$gamma * 1.5, 3)),
+                  max = signif(sp$gamma * 1.5, 3),
+                  step = sp$gamma / 50),
       sliderInput("h", "max feeding rate h",
                   value = sp$h,
                   min = signif(sp$h / 2, 2),
@@ -666,9 +667,11 @@ server <- function(input, output, session) {
     p <- params()
     no_sp <- length(p@species_params$species)
     cutoff <- p@species_params$cutoff_size
-    observed <- p@species_params$biomass_observed
     # When no cutoff known, set it to maturity weight / 20
+    if (is.null(cutoff)) cutoff <- p@species_params$w_mat / 20
     cutoff[is.na(cutoff)] <- p@species_params$w_mat[is.na(cutoff)] / 20
+    observed <- p@species_params$biomass_observed
+    if (is.null(observed)) observed <- 0
     
     biomass_model <- 1:no_sp  # create vector of right length
     for (sp in 1:no_sp) {
@@ -702,8 +705,8 @@ server <- function(input, output, session) {
     req(input$sp)
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
-    a <- p@species_params$a[sp]
-    b <- p@species_params$b[sp]
+    a <- p@species_params[sp, "a"]
+    b <- p@species_params[sp, "b"]
     
     # Check whether we have enough catch data for this species to plot it
     is_observed <- sum(catchdist$species == input$sp) > 3
@@ -729,7 +732,7 @@ server <- function(input, output, session) {
     catch_w <- getFMort(p, effort = 0)[sp, w_sel] * 
       p@initial_n[sp, w_sel]
     # We just want the distribution, so we rescale the density so its area is 1
-    catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
+    if (sum(catch_w) > 0) catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
     # The catch density in l gets an extra factor of dw/dl
     catch_l <- catch_w * b * w / l
     df <- data.frame(w, l, catch_w, catch_l, type = "Model catch")
@@ -781,6 +784,9 @@ server <- function(input, output, session) {
   # Total catch by species
   output$plotTotalCatch <- renderPlotly({
     p <- params()
+    if (is.null(p@species_params$catch_observed)) {
+      p@species_params$catch_observed <- 0
+    }
     biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
     catch <- rowSums(biomass * getFMort(p, effort = 0))
     df <- rbind(
