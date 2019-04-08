@@ -971,6 +971,7 @@ changeParams <- function(params,
                       resource_params = params@resource_params,
                       # changeResourceEncounter
                       rho = NULL) {
+    validObject(params)
     params <- changeInteraction(params,
                              interaction = interaction)
     params <- changeFishing(params)
@@ -1316,7 +1317,7 @@ changeSearchVolume <- function(params,
                 is.number(q))
     species_params <- params@species_params
     params@q <- q
-    # If gamma array is supplied, check it, store it and return
+    # If search_vol array is supplied, check it, store it and return
     if (!is.null(search_vol)) {
         assert_that(is.array(search_vol))
         assert_that(identical(dim(search_vol), dim(params@search_vol)))
