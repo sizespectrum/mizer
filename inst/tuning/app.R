@@ -244,40 +244,13 @@ server <- function(input, output, session) {
   
   ## Adjust species parameters ####
   update_species <- function(sp, p, species_params) {
-    
     # wrap the code in trycatch so that when there is a problem we can
     # simply stay with the old parameters
     tryCatch({
-      
-      # Create updated species params data frame
-      
-      
       # Create new params object identical to old one except for changed
       # species params
-      pc <- MizerParams(
-        species_params,
-        interaction = p@interaction,
-        p = p@p,
-        n = p@n,
-        q = p@q,
-        lambda = p@lambda,
-        f0 = p@f0,
-        kappa = p@kappa,
-        min_w = min(p@w),
-        max_w = max(p@w),
-        no_w = length(p@w),
-        min_w_pp = min(p@w_full),
-        w_pp_cutoff = max(p@w_full),
-        r_pp = (p@rr_pp / (p@w_full ^ (p@p - 1)))[1],
-        resource_dynamics = p@resource_dynamics,
-        resource_params = p@resource_params
-      )
-      pc@linetype <- p@linetype
-      pc@linecolour <- p@linecolour
-      pc@A <- p@A
-      pc@sc <- p@sc
-      pc@cc_pp <- p@cc_pp
-      pc@mu_b <- p@mu_b
+      p@species_params <- species_params
+      pc <- changeParams(p)
       pc@initial_n <- p@initial_n
       pc@initial_n_pp <- p@initial_n_pp
       pc@initial_B <- p@initial_B
@@ -348,6 +321,7 @@ server <- function(input, output, session) {
     p <- isolate(params())
     sp <- isolate(input$sp)
     
+    # Create updated species params data frame
     species_params <- p@species_params
     species_params[sp, "gamma"] <- input$gamma
     species_params[sp, "h"]     <- input$h
@@ -705,6 +679,8 @@ server <- function(input, output, session) {
     req(input$sp)
     p <- params()
     sp <- which.max(p@species_params$species == input$sp)
+    p <- set_species_param_default(p, "a", 0.006)
+    p <- set_species_param_default(p, "b", 3)
     a <- p@species_params[sp, "a"]
     b <- p@species_params[sp, "b"]
     
