@@ -22,6 +22,10 @@ server <- function(input, output, session) {
   p <- set_species_param_default(p, "a", 0.006)
   p <- set_species_param_default(p, "b", 3)
   p <- set_species_param_default(p, "t0", 0)
+  rdi <- getRDI(p)
+  rdd <- getRDD(p)
+  p@species_params$erepro <- p@species_params$erepro * rdd / rdi
+  p@species_params$r_max <- Inf
   params(p)
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
@@ -47,6 +51,10 @@ server <- function(input, output, session) {
     p <- set_species_param_default(p, "a", 0.006)
     p <- set_species_param_default(p, "b", 3)
     p <- set_species_param_default(p, "t0", 0)
+    rdi <- getRDI(p)
+    rdd <- getRDD(p)
+    p@species_params$erepro <- p@species_params$erepro * rdd / rdi
+    p@species_params$r_max <- Inf
     # Update the reactive params object
     params(p)
     
@@ -88,7 +96,7 @@ server <- function(input, output, session) {
                   value = sp$gamma,
                   min = signif(sp$gamma / 2, 3),
                   max = signif(sp$gamma * 1.5, 3),
-                  step = sp$gamma / 50),
+                  step = sp$gamma / 50, ticks = FALSE),
       sliderInput("h", "max feeding rate h",
                   value = sp$h,
                   min = signif(sp$h / 2, 2),
@@ -585,7 +593,8 @@ server <- function(input, output, session) {
     } else {
       power <- 1
     }
-    plotSpectra(params(), power = power) + theme_grey(base_size = base_size)
+    plotSpectra(params(), power = power, highlight = input$sp) + 
+      theme_grey(base_size = base_size)
   })
   
   ## erepro plot ####

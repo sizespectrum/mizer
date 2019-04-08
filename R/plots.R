@@ -658,6 +658,7 @@ plotlyYieldGear <- function(sim,
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is TRUE.
+#' @param highlight Name or vector of names of the species to be highlighted.
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A ggplot2 object
@@ -679,7 +680,8 @@ plotSpectra <- function(object, species = NULL,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
-                        background = TRUE, ...) {
+                        background = TRUE,
+                        highlight = NULL, ...) {
     # to deal with old-type biomass argument
     if (missing(power)) {
         power <- as.numeric(biomass)
@@ -695,7 +697,7 @@ plotSpectra <- function(object, species = NULL,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power, print_it = print_it,
                            total = total, plankton = plankton,
-                           background = background)
+                           background = background, highlight = highlight)
         return(ps)
     } else {
         ps <- plot_spectra(object, n = object@initial_n,
@@ -703,7 +705,7 @@ plotSpectra <- function(object, species = NULL,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power, print_it = print_it,
                            total = total, plankton = plankton,
-                           background = background)
+                           background = background, highligh = highlight)
         return(ps)
     }
 }
@@ -711,7 +713,7 @@ plotSpectra <- function(object, species = NULL,
 
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, ylim, power, print_it,
-                         total, plankton, background) {
+                         total, plankton, background, highlight) {
     if (is.na(wlim[1])) {
         wlim[1] <- min(params@w) / 100
     }
@@ -819,10 +821,16 @@ plot_spectra <- function(params, n, n_pp,
                           data = plot_back)
         }
     }
+    linesize <- rep(0.8, length(params@linetype))
+    names(linesize) <- names(params@linetype)
+    linesize[highlight] <- 1.6
+    p <- p +
+        scale_size_manual(values = linesize)
     if ( (length(species) + plankton + total) > 130) {
         p <- p + geom_line(aes(group = Species))
     } else {
-        p <- p + geom_line(aes(colour = Species, linetype = Species))
+        p <- p + geom_line(aes(colour = Species, linetype = Species,
+                               size = Species))
     }
     if (print_it)
         print(p)
