@@ -127,6 +127,23 @@ server <- function(input, output, session) {
                   min = 0,
                   max = 2,
                   step = 0.01),
+      tags$h3("Metabolism"),
+      sliderInput("ks", "Coefficient of standard metabolism ks",
+                  value = sp$ks,
+                  min = signif(sp$ks / 2, 2),
+                  max = signif((sp$ks + 0.1) * 1.5, 2),
+                  step = 0.05),
+      sliderInput("k", "Coefficient of activity k",
+                  value = sp$k,
+                  min = signif(sp$k / 2, 2),
+                  max = signif((sp$k + 0.1) * 1.5, 2),
+                  step = 0.01),
+      tags$h3("Mortality"),
+      sliderInput("z0", "Coefficient z0",
+                  value = sp$z0,
+                  min = signif(sp$z0 / 2, 2),
+                  max = signif((sp$z0 + 0.1) * 1.5, 2),
+                  step = 0.05),
       tags$h3("Others"),
       sliderInput("kappa", "kappa", value = p@kappa,
                   min = signif(p@kappa / 2, 2),
@@ -138,17 +155,7 @@ server <- function(input, output, session) {
       sliderInput("alpha", "Assimilation efficiency alpha",
                   value = sp$alpha,
                   min = 0,
-                  max = 1),
-      sliderInput("ks", "Coefficient of standard metabolism ks",
-                  value = sp$ks,
-                  min = signif(sp$ks / 2, 2),
-                  max = signif((sp$ks + 0.1) * 1.5, 2),
-                  step = 0.05),
-      sliderInput("k", "Coefficient of activity k",
-                  value = sp$k,
-                  min = 0,
-                  max = 1,
-                  step = 0.01)
+                  max = 1)
     )
     if (length(p@resource_dynamics) > 0) {
       for (res in names(p@resource_dynamics)) {
@@ -343,6 +350,7 @@ server <- function(input, output, session) {
     species_params[sp, "w_mat25"]   <- input$w_mat * input$wfrac
     species_params[sp, "w_mat"]   <- input$w_mat
     species_params[sp, "m"]     <- input$m
+    species_params[sp, "z0"]     <- input$z0
     if (length(p@resource_dynamics) > 0) {
       for (res in names(p@resource_dynamics)) {
         res_var <- paste0("rho_", res)
@@ -375,6 +383,12 @@ server <- function(input, output, session) {
       updateSliderInput(session, "ks",
                         min = signif(input$ks / 2, 2),
                         max = signif((input$ks + 0.1) * 1.5, 2))
+      updateSliderInput(session, "k",
+                        min = signif(input$k / 2, 2),
+                        max = signif((input$k + 0.1) * 1.5, 2))
+      updateSliderInput(session, "z0",
+                        min = signif(input$z0 / 2, 2),
+                        max = signif((input$z0 + 0.1) * 1.5, 2))
       updateSliderInput(session, "w_mat",
                         min = signif(input$w_mat / 2, 2),
                         max = signif(input$w_mat * 1.5, 2))
