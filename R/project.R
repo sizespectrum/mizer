@@ -120,9 +120,12 @@ project <- function(object, effort = 0,
     if (is(object, "MizerSim")) {
         params <- object@params
         no_t <- dim(object@B)[1]
-        initial_n <- object@n[no_t, , ]
-        initial_n_pp <- object@n_pp[no_t, ]
-        initial_B <- object@B[no_t, ]
+        initial_n <- params@initial_n # Needed to get the right dimensions
+        initial_n[] <- object@n[no_t, , ]
+        initial_n_pp <- params@initial_n_pp # Needed to get the right dimensions
+        initial_n_pp[] <- object@n_pp[no_t, ]
+        initial_B <- params@initial_B # Needed to get the right dimensions
+        initial_B[] <- object@B[no_t, ]
         t_start <- as.numeric(dimnames(object@n)[[1]][no_t])
     } else {
         params <- object
@@ -131,6 +134,10 @@ project <- function(object, effort = 0,
         if (missing(initial_B))       initial_B <- params@initial_B
         t_start <- 0
     }
+    params@initial_n[] <- initial_n
+    params@initial_n_pp[] <- initial_n_pp
+    params@initial_B[] <- initial_B
+    
     no_sp <- length(params@w_min_idx)
     assert_that(is.array(initial_n),
                 are_equal(dim(initial_n), c(no_sp, length(params@w))))

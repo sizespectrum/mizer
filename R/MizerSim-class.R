@@ -139,7 +139,8 @@ valid_MizerSim <- function(object) {
 #' @slot n_pp Array that stores the projected plankton abundance by time and
 #'   size
 #' @slot B Array that stores biomasses of unstructured resources by time and
-#'   resource
+#'   resource. Second dimension has length 0 if there are no unstructured
+#'   resources.
 #' @slot effort Array that stores the fishing effort by time and gear
 #' 
 #' @export

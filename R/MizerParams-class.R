@@ -295,6 +295,7 @@ validMizerParams <- function(object) {
 #'   the plankton abundance at each weight.
 #' @slot initial_B A vector containing the biomasses of the unstructured
 #'   resource components, see \code{\link{resource_dynamics}} for details.
+#'   Has length zero if there are no unstructured resources.
 #' @slot n Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.
 #' @slot p Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.
 #' @slot lambda Exponent of plankton spectrum. Changed with \code{\link{changePlankton}}.
@@ -678,7 +679,7 @@ emptyParams <- function(species_params,
         resource_dynamics = list(),
         plankton_dynamics = plankton_semichemostat,
         resource_params = list(),
-        initial_B = 0,
+        initial_B = vector(mode = "numeric"),
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
         linetype = linetype
@@ -1730,7 +1731,7 @@ changeResources <- function(params,
         if (no_res == 0) {
             params@rho <- array(0, dim = 0)
             params@resource_dynamics <- list()
-            params@initial_B <- 0
+            params@initial_B <- rep(0, 0)
         } else {
             if (is.null(resource_names)) {
                 stop("The resource_dynamics list must be a named list.")
@@ -1891,6 +1892,57 @@ changeFishing <- function(params) {
     
     return(params)
 }
+
+#' Change initial abundances
+#' 
+#' Changes the slots in the \code{MizerParams} object holding the initial
+#' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
+#' 
+#' @param params A \code{MizerParams} objedt
+#' @param initial_n x
+#' @param initial_n_pp x
+#' @param initial_B x
+#' @param sim x
+#' @export
+changeInitial <- function(params,
+                          initial_n = params@initial_n,
+                          initial_n_pp = params@initial_n_pp,
+                          initial_B = params@initial_B,
+                          sim) {
+    if (!missing(sim)) {
+        assert_that(is(sim, "MizerSim"))
+        no_t <- dim(sim@n)[1]
+        initial_n < sim@params@initial_n # Needed to get the right dimensions
+        initial_n[] <- sim@n[no_t, , ]
+        initial_n_pp < sim@params@initial_n_pp # Needed to get the right dimensions
+        initial_n_pp[] <- sim@n_pp[no_t, ]
+        initial_B < sim@params@initial_B # Needed to get the right dimensions
+        initial_B[] <- sim@B[no_t, ]
+    }
+    assert_that(identical(dim(initial_n), dim(params@initial_n)),
+                all(initial_n >= 0),
+                identical(dim(initial_n_pp), dim(params@initial_n_pp)),
+                all(initial_n_pp >= 0),
+                identical(dim(initial_B), dim(params@initial_B)),
+                all(initial_B >= 0))
+    if (!is.null(dimnames(initial_n)) &&
+        !identical(dimnames(initial_n), dimnames(params@initial_n))) {
+        warning("The dimnames of initial_n are not as expected. I will ignore them.")
+    }
+    if (!is.null(dimnames(initial_n_pp)) &&
+        !identical(dimnames(initial_n_pp), dimnames(params@initial_n_pp))) {
+        warning("The dimnames of initial_n_pp are not as expected. I will ignore them.")
+    }
+    if (!is.null(dimnames(initial_B)) &&
+        !identical(dimnames(initial_B), dimnames(params@initial_B))) {
+        warning("The dimnames of initial_B are not as expected. I will ignore them.")
+    }
+    params@initial_n[] <- initial_n
+    params@initial_n_pp[] <- initial_n_pp
+    params@initial_B[] <- initial_B
+    return(params)
+}
+
 
 #' Launch app for tuning model parameters
 #' @export

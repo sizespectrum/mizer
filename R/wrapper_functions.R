@@ -1259,9 +1259,9 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
             progress_bar$inc(amount = proginc)
         }
         no_t <- dim(sim@n)[1]
-        n <- sim@n[no_t, , ]
-        n_pp <- sim@n_pp[no_t, ]
-        B <- sim@B[no_t, ]
+        n[] <- sim@n[no_t, , ]
+        n_pp[] <- sim@n_pp[no_t, ]
+        B[] <- sim@B[no_t, ]
         new_rdi <- getRDI(p, n, n_pp, B)
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi)[!is.na(p@A)])
         if (deviation < tol) {
@@ -1283,9 +1283,9 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
     
     no_sp <- length(p@species_params$species)
     no_t <- dim(sim@n)[1]
-    p@initial_n <- sim@n[no_t, , ]
-    p@initial_n_pp <- sim@n_pp[no_t, ]
-    p@initial_B <- sim@B[no_t, ]
+    p@initial_n[] <- sim@n[no_t, , ]
+    p@initial_n_pp[] <- sim@n_pp[no_t, ]
+    p@initial_B[] <- sim@B[no_t, ]
     
     # Set rates of external resource influx to keep resources at steady state
     r <- getRates(p, effort = effort)

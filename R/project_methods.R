@@ -204,7 +204,7 @@ getEncounter <- function(params, n = params@initial_n,
             params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- params@search_vol * (phi_prey_species + phi_prey_background)
-        if (any(B != 0)) {
+        if (length(B) > 0) {
             encounter <- encounter +
                 rowSums(sweep(params@rho, 2, B, "+"), 1)
         }
@@ -232,7 +232,7 @@ getEncounter <- function(params, n = params@initial_n,
     avail_energy[avail_energy < 1e-18] <- 0
     
     encounter <- params@search_vol * avail_energy
-    if (any(B != 0)) {
+    if (length(B) > 0) {
         encounter <- encounter +
             rowSums(sweep(params@rho, 2, B, "+"), 1)
     }
@@ -294,12 +294,15 @@ getEncounter <- function(params, n = params@initial_n,
 #' # Get the feeding level for time 15 - 20
 #' fl <- getFeedingLevel(sim, time_range = c(15,20))
 #' }
-getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
+getFeedingLevel <- function(object, n, n_pp, B, encounter,
                             time_range, drop = FALSE) {
     if (is(object, "MizerParams")) {
         params <- object
         if (missing(encounter)) {
-            encounter <- getEncounter(params, n, n_pp, B = B)
+            if (missing(n)) n <- params@initial_n
+            if (missing(n_pp)) n_pp <- params@initial_n_pp
+            if (missing(B)) B <- params@initial_B
+            encounter <- getEncounter(params, n, n_pp, B)
         }
         # Check dims of encounter
         if (!all(dim(encounter) == c(nrow(params@species_params),
@@ -322,8 +325,11 @@ getFeedingLevel <- function(object, n, n_pp, B = 0, encounter,
             # species which makes using drop impossible
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
+            B <- sim@params@initial_B
+            B[] <- sim@B[x, ]
             feed <- getFeedingLevel(sim@params, n = n,
-                                    n_pp = sim@n_pp[x, ], B = B)
+                                    n_pp = sim@n_pp[x, ],
+                                    B = B)
             return(feed)
             }, .drop = drop)
         return(feed_time)
@@ -469,9 +475,13 @@ getPredRate <- function(params, n = params@initial_n,
 #' # Get predation mortality over the time 15 - 20
 #' getPredMort(sim, time_range = c(15,20))
 #' }
-getPredMort <- function(object, n, n_pp, B = 0, pred_rate, time_range, drop = TRUE) {
+getPredMort <- function(object, n, n_pp, B, 
+                        pred_rate, time_range, drop = TRUE) {
     if (is(object, "MizerParams")) {
         params <- object
+        if (missing(n)) n <- params@initial_n
+        if (missing(n_pp)) n_pp <- params@initial_n_pp
+        if (missing(B)) B <- params@initial_B
         if (missing(pred_rate)) {
             feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp, B = B)
 
@@ -491,6 +501,8 @@ getPredMort <- function(object, n, n_pp, B = 0, pred_rate, time_range, drop = TR
         m2_time <- aaply(which(time_elements), 1, function(x) {
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
+            B <- sim@params@initial_B
+            B[] <- sim@B[x, ]
             m2 <- getPredMort(sim@params, n = n, 
                               n_pp = sim@n_pp[x, ], B = B)
             return(m2)
