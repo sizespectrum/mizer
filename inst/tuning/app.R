@@ -17,7 +17,12 @@ server <- function(input, output, session) {
   ## Load params object and store it as a reactive value ####
   params <- reactiveVal()
   filename <- "params.rds"
-  params(changeParams(readRDS(filename)))
+  p <- readRDS(filename)
+  validObject(p)
+  p <- set_species_param_default(p, "a", 0.006)
+  p <- set_species_param_default(p, "b", 3)
+  p <- set_species_param_default(p, "t0", 0)
+  params(p)
   output$filename <- renderText(paste0("Previously uploaded file: ", filename))
   
   # Define some globals to skip certain observers
@@ -38,6 +43,10 @@ server <- function(input, output, session) {
       p <- readRDS(inFile$datapath),
       error = function(e) {stop(safeError(e))}
     )
+    validObject(p)
+    p <- set_species_param_default(p, "a", 0.006)
+    p <- set_species_param_default(p, "b", 3)
+    p <- set_species_param_default(p, "t0", 0)
     # Update the reactive params object
     params(p)
     
@@ -106,10 +115,6 @@ server <- function(input, output, session) {
                    min = 0.1, 
                    max = signif(sp$l50 / 10, 2),
                   step = 0.1),
-      numericInput("a", "Coefficient for length to weight conversion a",
-                   value = sp$a),
-      numericInput("b", "Exponent for length to weight conversion b",
-                   value = sp$b),
       tags$h3("Maturity"),
       sliderInput("w_mat", "w_mat", value = sp$w_mat,
                   min = signif(sp$w_mat / 2, 2),
@@ -200,6 +205,8 @@ server <- function(input, output, session) {
     p <- isolate(params())
     p@species_params[isolate(input$sp), "k_vb"] <- req(input$k_vb)
     p@species_params[isolate(input$sp), "t0"] <- req(input$t0)
+    p@species_params[isolate(input$sp), "a"] <- req(input$a)
+    p@species_params[isolate(input$sp), "b"] <- req(input$b)
     params(p)
   })
   
@@ -328,8 +335,6 @@ server <- function(input, output, session) {
     species_params[sp, "beta"]  <- input$beta
     species_params[sp, "sigma"] <- input$sigma
     species_params[sp, "catchability"]   <- input$catchability
-    species_params[sp, "a"]     <- input$a
-    species_params[sp, "b"]     <- input$b
     species_params[sp, "l50"]   <- input$l50
     species_params[sp, "l25"]   <- input$l50 - input$ldiff
     species_params[sp, "alpha"] <- input$alpha
@@ -393,13 +398,14 @@ server <- function(input, output, session) {
     
     tryCatch({
       # Recompute plankton
-      plankton_mort <- getPlanktonMort(p, p@initial_n, p@initial_n_pp)
+      plankton_mort <- getPlanktonMort(p)
       p@initial_n_pp <- p@rr_pp * p@cc_pp / (p@rr_pp + plankton_mort)
       # Recompute all species
       mumu <- getMort(p, effort = 0)
       gg <- getEGrowth(p)
       for (sp in 1:length(p@species_params$species)) {
-        w_inf_idx <- sum(p@w < p@species_params[sp, "w_inf"])
+        w_inf_idx <- min(sum(p@w < p@species_params[sp, "w_inf"]) + 1,
+                         length(p@w))
         idx <- p@w_min_idx[sp]:(w_inf_idx - 1)
         validate(
           need(!any(gg[sp, idx] == 0),
@@ -539,11 +545,18 @@ server <- function(input, output, session) {
     req(input$sp)
     k_vb <- params()@species_params[input$sp, "k_vb"]
     t0 <- params()@species_params[input$sp, "t0"]
+    a <- params()@species_params[input$sp, "a"]
+    b <- params()@species_params[input$sp, "b"]
     list(
       div(style = "display:inline-block",
-          numericInput("k_vb", "Von Bertalanffy k", value = k_vb)),
+          numericInput("k_vb", "Von Bertalanffy k", value = k_vb, width = "9em")),
       div(style = "display:inline-block",
-          numericInput("t0", "t_0", value = t0))
+          numericInput("t0", "t_0", value = t0, width = "6em")),
+      p("Parameters for length-weight relationship l = a w^b"),
+      div(style = "display:inline-block",
+          numericInput("a", "a", value = a, width = "8em")),
+      div(style = "display:inline-block",
+          numericInput("b", "b", value = b, width = "8em"))
     )
   })
   output$plotGrowthCurve <- renderPlotly({
