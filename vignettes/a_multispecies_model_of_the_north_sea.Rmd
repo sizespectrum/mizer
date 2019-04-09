@@ -204,7 +204,7 @@ relative_effort <- rbind(initial_effort,relative_effort)
 
 We now have our parameter object and out matrix of efforts relative to 1990.
 This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010.
-We use this effort matrix as the `effort` argument to the `project()` method.
+We use this effort matrix as the `effort` argument to the `project()` function.
 We use `dt` = 0.5 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.
 
 ```{r label=project_ns_model}
@@ -235,10 +235,10 @@ We also compare the simulated values of the LFI to a community target based on a
 
 
 
-The indicators are calculated using the methods described in 
-<!--see Table~\@ref(tab:indicator_methods) and --> [the section about summary methods for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
+The indicators are calculated using the functions described in 
+<!--see Table~\@ref(tab:indicator_methods) and --> [the section about summary functions for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
 Here we calculate the LFI and the other community indicators for the unexploited community. When calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
-Each of these methods returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = `100`).
+Each of these functions returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = `100`).
 
 ```{r label=ns_comm_ref_point}
 demersal_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock",

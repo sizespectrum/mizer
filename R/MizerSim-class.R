@@ -162,7 +162,7 @@ remove(valid_MizerSim)
 #' Constructor for the \code{MizerSim} class
 #' 
 #' A constructor for the \code{MizerSim} class. This is used by the
-#' \code{project} method to create \code{MizerSim} objects of the right
+#' \code{project} function to create \code{MizerSim} objects of the right
 #' dimensions. It is not necessary for users to use this constructor.
 #' 
 #' @param params a \linkS4class{MizerParams} object

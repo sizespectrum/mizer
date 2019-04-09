@@ -208,7 +208,7 @@ validMizerParams <- function(object) {
 #' 
 #' MizerParams objects can be created using a range of constructor functions.
 #' 
-#' Dynamic simulations are performed using the \code{\link{project}} method on
+#' Dynamic simulations are performed using the \code{\link{project}} function on
 #' objects of this class.
 #' 
 #' @slot w The size grid for the fish part of the spectrum. An increasing
@@ -694,6 +694,7 @@ emptyParams <- function(species_params,
 #' @seealso \code{\link{project}}, \linkS4class{MizerSim},
 #'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
 #' @export
+#' @family functions for setting up models
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -882,6 +883,7 @@ MizerParams <- set_multispecies_model
 #' @inheritSection changeFishing Setting fishing
 #' @md
 #' @export
+#' @family functions for changing parameters
 #' @examples
 #' \dontrun{
 #' params <- set_trait_model()
@@ -987,6 +989,7 @@ changeParams <- function(params,
 #' 
 #' @return MizerParams object
 #' @export
+#' @family functions for changing parameters
 #' @examples
 #' \dontrun{
 #' params <- set_trait_model()
@@ -1108,6 +1111,7 @@ changeInteraction <- function(params,
 #' 
 #' @return A MizerParams object
 #' @export
+#' @family functions for changing parameters
 #' @examples
 #' \dontrun{
 #' ## Set up a MizerParams object
@@ -1254,6 +1258,7 @@ getPredKernel <- function(params) {
 #' 
 #' @return MizerParams
 #' @export
+#' @family functions for changing parameters
 #' @examples
 #' \dontrun{
 #' params <- set_trait_model()
@@ -1312,6 +1317,7 @@ changeSearchVolume <- function(params,
 #' @param n Scaling exponent of the intake rate.
 #' @return MizerParams
 #' @export
+#' @family functions for changing parameters
 changeIntakeMax <- function(params, 
                          intake_max = NULL, 
                          n = params@n) {
@@ -1369,6 +1375,7 @@ changeIntakeMax <- function(params,
 #' 
 #' @return MizerParams
 #' @export
+#' @family functions for changing parameters
 changeMetab <- function(params, 
                      metab = NULL, 
                      p = params@p) {
@@ -1423,6 +1430,7 @@ changeMetab <- function(params,
 #' 
 #' @return MizerParams
 #' @export
+#' @family functions for changing parameters
 changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(mu_b)) {
@@ -1506,6 +1514,7 @@ changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) 
 #' 
 #' @return The MizerParams object.
 #' @export
+#' @family functions for changing parameters
 changeReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
@@ -1632,6 +1641,7 @@ changeReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
 #' 
 #' @return A MizerParams object
 #' @export
+#' @family functions for changing parameters
 changePlankton <- function(params,
                         kappa = params@kappa,
                         lambda = params@lambda,
@@ -1673,6 +1683,10 @@ changePlankton <- function(params,
 #' @param resource_params A list of parameters needed by the
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
+#' 
+#' @return A MizerParams object
+#' @export
+#' @family functions for changing parameters
 changeResources <- function(params,
                          resource_dynamics = NULL,
                          resource_params = NULL) {
@@ -1736,6 +1750,7 @@ changeResources <- function(params,
 #' 
 #' @return A MizerParams object
 #' @export
+#' @family functions for changing parameters
 changeResourceEncounter <- function(params, rho = NULL, n = params@n) {
     assert_that(is(params, "MizerParams"),
                 is.number(n))
@@ -1786,6 +1801,7 @@ changeResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' 
 #' @return MizerParams object
 #' @export
+#' @family functions for changing parameters
 changeFishing <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
@@ -1851,6 +1867,7 @@ changeFishing <- function(params) {
 #' @param initial_B x
 #' @param sim x
 #' @export
+#' @family functions for changing parameters
 changeInitial <- function(params,
                           initial_n = params@initial_n,
                           initial_n_pp = params@initial_n_pp,
@@ -1893,6 +1910,7 @@ changeInitial <- function(params,
 
 #' Launch app for tuning model parameters
 #' @export
+#' @family functions for changing parameters
 tuneParams <- function() {
     shiny::runApp("inst/tuning")
 }

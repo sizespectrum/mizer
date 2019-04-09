@@ -116,7 +116,7 @@ that runs a simulation of the size-spectrum model. It takes a specification
 of the model contained in an object of type `MizerParams` and returns the
 results of the simulation in an object of type `MizerSim`.
 
-There are several different methods for setting up a `MizerParams` object for
+There are several different functions for setting up a `MizerParams` object for
 specifying various concrete models. These setup functions make various 
 simplifying assumptions about the model parameters to reduce the amount of
 information that needs to be specified. This usually takes the form of
@@ -137,7 +137,7 @@ below we assume that the `MizerParams` object is called `params` and the
 
 ## The MizerParams class
 An object of class 'MizerParams' holds all the information needed for the
-'project()' method to simulate a model. 
+'project()' function to simulate a model. 
 
 ### Adding a new slot
 If you need to add a new slot to the MizerParams class, you need to make the following additions in the file `MizerParams-class.R`:

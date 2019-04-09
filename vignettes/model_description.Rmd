@@ -95,9 +95,9 @@ below.
 <details>
 This McKendrik-von Foerster equation is approximated in mizer by a
 finite-difference method (to be described in section ...). This allows the
-`project()` method in mizer to project the size
-spectrum forwards in time: Given the spectrum at one time the `project()` method
-calculates it at a set of later times.
+`project()` function in mizer to project the size
+spectrum forwards in time: Given the spectrum at one time the `project()`
+function calculates it at a set of later times.
 
 </details>
 

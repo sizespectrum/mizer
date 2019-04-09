@@ -95,7 +95,7 @@ NULL
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
 #'   individual efficiencies of size-structured communities, Proceedings of the 
 #'   Royal Society, 276, 109-114
-#' @seealso \code{\link{set_trait_model}}, \code{\link{set_multispecies_model}}
+#' @family functions for setting up models
 #' @examples
 #' \dontrun{
 #' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
@@ -253,8 +253,8 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
-#' @seealso \linkS4class{MizerParams}, 
-#'   \code{\link{set_community_model}}, \code{\link{set_multispecies_model}}
+#' @seealso \linkS4class{MizerParams}
+#' @family functions for setting up models
 #' @references K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 #'   driven by fishing in model marine ecosystems. Proceedings of the Royal
 #'   Society V, Biological Sciences, 1682, 795-802.
@@ -501,6 +501,7 @@ set_trait_model <- function(no_sp = 10,
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
+#' @family functions for setting up models
 #' @examples
 #' \dontrun{
 #' s_params <- set_scaling_model()
@@ -889,7 +890,7 @@ retuneAbundance <- function(params,
 
 #' Remove species from an ecosystem
 #' 
-#' This method simply removes all entries from the MizerParams object that 
+#' This function simply removes all entries from the MizerParams object that 
 #' refer to the selected species. It does not recalculate the initial 
 #' abundances.
 #' 

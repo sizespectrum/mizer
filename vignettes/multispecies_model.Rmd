@@ -25,7 +25,7 @@ A multispecies model can take more effort to set up.
 For example, each species will have different life-history parameters; there may be multiple gear types with different selectivities targeting different groups of species; the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
 
 In later sections we build up a multispecies model for the North Sea.
-To effectively use `mizer` for a multispecies model we are going to have to take a closer look at the `MizerParams` class and the `project()` method.
+To effectively use `mizer` for a multispecies model we are going to have to take a closer look at the `MizerParams` class and the `project()` function.
 This will all be done in the context of examples so hopefully everything will be clear.
 
 We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
@@ -99,7 +99,7 @@ The `h` column is calculated as:
 \end{equation}
 
 where $k_{vb}$ is the von Bertalanffy $K$ parameter and $f_0$ is the feeding level of small individuals feeding mainly on the plankton.
-This mean that if an `h` column is not included in the species parameter data.frame, a column for `k_vb` is necessary. If it is not included then the `set_multispecies_model()` method will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, `f0`, to the `set_multispecies_model()` constructor and it has a default value of 0.6.
+This mean that if an `h` column is not included in the species parameter data.frame, a column for `k_vb` is necessary. If it is not included then the `set_multispecies_model()` function will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, `f0`, to the `set_multispecies_model()` constructor and it has a default value of 0.6.
 
 
 

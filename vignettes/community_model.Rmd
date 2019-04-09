@@ -26,7 +26,7 @@ through time. We then use a community model to illustrate the idea of a ’troph
 cascade’. Due to the relative simplicity of this type of model they are useful
 for gently introducing some of the concepts behind the mizer package.
 Consequently, this section should hopefully serve as an introduction to using
-mizer and some of the main classes and methods.
+mizer.
 
 ## Setting up a community model {#sec:set_up_comm_model}
 
@@ -116,10 +116,10 @@ values for these, you will need to call the `set_community_model()` function and
 pass in the desired argument values.
 
 ## Running the community model {#sec:running_comm_model}
-By using the `set_community_model()` method we now have a `MizerParams` object
+By using the `set_community_model()` function we now have a `MizerParams` object
 that contains all the information we need about the model community. We can use
 this to perform a simulation and project the community through time. In the
-`mizer` package, projections are performed using the `project()` method. You can
+`mizer` package, projections are performed using the `project()` function. You can
 see the help page for `project()` for more details and it is described fully in
 [the section on running a simulation.](running_a_simulation.html) We will ignore
 the details for the moment and just use `project()` to run some simple
@@ -182,7 +182,7 @@ predation mortality being so high for the smaller individuals.
 We can see this more clearly by extracting the predation mortality information
 from the `MizerSim` object, `sim`, that we created above. This is easily done by
 using the `getPredMort()` function (see the help page for more details). There are
-several methods that can be used for extracting information from a `MizerSim`
+several functions that can be used for extracting information from a `MizerSim`
 object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see 
 [the section on exploring the simulation results](exploring_the_simulation_results.html). Here we just call
 `getPredMort()` using the `sim` object:
@@ -292,7 +292,7 @@ params_sigma1 <- set_community_model(z0 = 0.1,
      f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
 ```
 
-We want to project this new model through time using the `project()` method. Note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of `project()` that performs the projection. 
+We want to project this new model through time using the `project()` function. Note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of `project()` that performs the projection. 
 
 As you can see in the underlying model equations in [the model description section](model_description.html), the model runs in continuous time. Therefore, to project it forward, `project()` must solve the system of equations using numerical methods. The quality of these methods is strongly affected by $dt$. 
 The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
@@ -302,7 +302,7 @@ Here we project the new parameters object for 50 time steps without fishing:
 sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
 ```
 
-Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` method:
+Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` function:
 
 ```{r label=plot_comm_biomass_sigma1, fig.keep='last', fig.cap="Biomass of the community model when sigma is reduced to a value of 1.0."}
 plotBiomass(sim_sigma1)

@@ -82,6 +82,7 @@
 #' feeding by consumers described above in the "Feeding on Resources" section.
 #' 
 #' @name resource_dynamics
+#' @family resource dynamics functions
 #' @md
 NULL
 
@@ -123,6 +124,7 @@ NULL
 #'   
 #' @return A single number giving the biomass of detritus at next time step
 #' @export
+#' @family resource dynamics functions
 #' @md
 detritus_dynamics <- 
     function(params, n, n_pp, B, rates, dt,
@@ -186,6 +188,7 @@ detritus_dynamics <-
 #'   
 #' @return A single number giving the biomass of carrion at next time step
 #' @export
+#' @family resource dynamics functions
 #' @md
 carrion_dynamics <- 
     function(params, n, n_pp, B, rates, dt,

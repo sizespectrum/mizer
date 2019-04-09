@@ -1,4 +1,4 @@
-context("Methods used in project")
+context("Functions used in project")
 
 
 # Initialise --------------------------------------------------------------
@@ -73,7 +73,7 @@ test_that("getFeedingLevel for MizerParams", {
     # test dim
     expect_identical(dim(fl), c(no_sp, no_w))
     expect_identical(dimnames(fl), dimnames(params@initial_n))
-    # A crap test - just returns what's already in the method
+    # A crap test - just returns what's already in the function
     encounter <- getEncounter(params, n = n, n_pp = n_full)
     f <- encounter / (encounter + params@intake_max)
     expect_identical(fl, f)
@@ -222,7 +222,7 @@ test_that("getPredMort for MizerSim", {
     expect_equal(ttot, 0)
 })
 
-test_that("interaction is right way round in getPredMort method", {
+test_that("interaction is right way round in getPredMort function", {
     inter[, "Dab"] <- 0  # Dab not eaten by anything
     params <- set_multispecies_model(NS_species_params_gears, inter)
     m2 <- getPredMort(params, get_initial_n(params), params@cc_pp)
@@ -495,7 +495,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
 })
 
 # One species only ----
-test_that("project methods return objects of correct dimension when community only has one species",{
+test_that("project function returns objects of correct dimension when community only has one species",{
     params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
     t_max <- 50
     sim <- project(params, t_max = t_max, effort = 0)
@@ -504,7 +504,7 @@ test_that("project methods return objects of correct dimension when community on
 	n_pp <- sim@n_pp[1, ]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    # MizerParams methods
+    # MizerParams functions
     expect_equal(dim(getEncounter(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getFeedingLevel(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getPredRate(params, n, n_pp)), c(1, no_w_full))
@@ -523,7 +523,7 @@ test_that("project methods return objects of correct dimension when community on
     expect_length(getRDI(params, n, n_pp), 1)
     expect_length(getRDD(params, n, n_pp), 1)
 
-    # MizerSim methods
+    # MizerSim functions
     expect_equal(dim(getFeedingLevel(sim)), c(t_max + 1, 1, no_w)) # time x species x size
     expect_equal(dim(getPredMort(sim)), c(t_max + 1, no_w)) # time x species x size - default drop is TRUE, if called from plots drop = FALSE
     expect_equal(dim(getPredMort(sim, drop = FALSE)), c(t_max + 1, 1, no_w)) # time x species x size 

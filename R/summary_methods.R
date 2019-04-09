@@ -1,4 +1,4 @@
-# Summary methods for mizer package
+# Summary functions for mizer package
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
@@ -32,7 +32,7 @@
 #' 
 #' A list of available indicator functions for MizerSim objects is given in the table below
 #' \tabular{lll}{
-#'   Method \tab Returns \tab Description \cr
+#'   Function \tab Returns \tab Description \cr
 #'   \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
 #'   \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
 #'   \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
@@ -61,6 +61,7 @@ NULL
 #' 
 #' @return An array (predator species  x predator size x (prey species + plankton) )
 #' @export
+#' @family summary functions
 #' @concept summary_function
 getDiet <- function(params, n, n_pp) {
     # The code is based on that for getEncounter()
@@ -139,6 +140,7 @@ getDiet <- function(params, n, n_pp) {
 #'   
 #' @return An array containing the SSB (time x species)
 #' @export
+#' @family summary functions
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -171,6 +173,7 @@ getSSB <- function(sim) {
 #'
 #' @return An array containing the biomass (time x species)
 #' @export
+#' @family summary functions
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -204,6 +207,7 @@ getBiomass <- function(sim, ...) {
 #'
 #' @return An array containing the total numbers (time x species)
 #' @export
+#' @family summary functions
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -233,6 +237,7 @@ getN <- function(sim, ...) {
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
+#' @family summary functions
 #' @concept summary_function
 #' @seealso \code{\link{getYield}}
 #' @examples
@@ -262,6 +267,7 @@ getYieldGear <- function(sim) {
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
+#' @family summary functions
 #' @concept summary_function
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
@@ -294,6 +300,7 @@ getYield <- function(sim) {
 #'
 #' @return An array (species x age) containing the weight in grams.
 #' @export
+#' @family summary functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -478,7 +485,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' and also the threshold size for large fish. Sizes can be expressed as weight
 #' or size. Lengths take precedence over weights (i.e. if both min_l and min_w
 #' are supplied, only min_l will be used). You can also specify the species to
-#' be used in the calculation. This method can be used to calculate the Large
+#' be used in the calculation. This function can be used to calculate the Large
 #' Fish Index. The proportion is based on either abundance or biomass.
 #' 
 #' @inheritParams getMeanWeight
@@ -492,6 +499,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #'   
 #' @return An array containing the proportion of large fish through time
 #' @export
+#' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -545,6 +553,7 @@ getProportionOfLargeFish <- function(sim,
 #'
 #' @return A vector containing the mean weight of the community through time
 #' @export
+#' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -583,6 +592,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @return A matrix or vector containing the mean maximum weight of the
 #'   community through time
 #' @export
+#' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
 #' \dontrun{
@@ -628,6 +638,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #'
 #' @return A data frame with slope, intercept and R2 values.
 #' @export
+#' @family functions for calculating indicators
 #' @concept summary_function
 #' @examples
 #' \dontrun{

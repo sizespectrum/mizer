@@ -86,7 +86,7 @@ default values for many parameters that were not provided.
 
 
 ## Running a simulation 
-This is done by calling the `project()` method on the model parameters.
+This is done by calling the `project()` function with the model parameters.
 ```{r}
 sim <- project(params, t_max = 10, effort = 0)
 ```

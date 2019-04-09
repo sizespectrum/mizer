@@ -20,14 +20,14 @@
 #' This table shows the available plotting functions.
 #' \tabular{ll}{
 #'   Plot \tab Description \cr
-#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method getBiomass(). \cr
+#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the for \code{\link{getBiomass}}. \cr
 #'   \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
 #'   \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
 #'   \code{\link{plotM2}} \tab Plots the predation mortality of each species against size. \cr
 #'   \code{\link{plotFMort}} \tab Plots the total fishing mortality of each species against size. \cr
 #'   \code{\link{plotYield}} \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
-#'   \code{\link{plot}} \tab Produces 5 plots (plotFeedingLevel(), plotBiomass(), plotM2(), plotFMort() and plotSpectra()) in the same window as a summary. \cr
+#'   \code{\link{plot}} \tab Produces 5 plots (\code{\link{plotFeedingLevel}}, \code{\link{plotBiomass}}, \code{\link{plotM2}}, \code{\link{plotFMort}} and \code{\link{plotSpectra}}) in the same window as a summary. \cr
 #' }
 #' 
 #' These functions use the ggplot2 package and return the plot as a ggplot
@@ -41,15 +41,15 @@
 #' data from the initial values in a MizerParams object.
 #' 
 #' Where plots show results for species, the line colour and line type for each 
-#' species are specified by the `linecolour` and `linetype` slots in the 
-#' MizerParams object. These were either taken from a default palette
+#' species are specified by the \code{linecolour} and \code{linetype} slots in
+#' the MizerParams object. These were either taken from a default palette
 #' hard-coded into \code{\link{emptyParams}} or they were specified by the user
 #' in the species parameters dataframe used to set up the MizerParams object.
-#' The `linecolour` and `linetype` slots hold named vectors, named by the
-#' species. They can be overwritten by the user at any time.
+#' The \code{linecolour} and \code{linetype} slots hold named vectors, named by
+#' the species. They can be overwritten by the user at any time.
 #' 
 #' Most plots allow the user to select to show only a subset of species,
-#' specified as a vector in the `species` argument to the plot function.
+#' specified as a vector in the \code{species} argument to the plot function.
 #' 
 #' The ordering of the species in the legend is the same as the ordering in
 #' the species parameter data frame.
@@ -59,6 +59,7 @@
 #' \code{\link{displayFrames}} function.
 #' 
 #' @seealso \code{\link{summary_functions}}
+#' @family plotting functions
 #' @name plotting_functions
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
@@ -104,7 +105,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #'   scale_y_continuous() or scale_x_continuous()
 #' @export
 #' @keywords internal
-#' @concept helper
+#' @family helper
 log_breaks <- function(n = 6){
     n <- max(1, n)  # Because n=0 could lead to R crash
     function(x) {
@@ -123,7 +124,7 @@ log_breaks <- function(n = 6){
 #' variable will go on the x-axis, the third on the y-axis with a logarithmic
 #' scale. The second variable should be the species and will be used to group
 #' the data and display with the linetype and linecolour specified by the
-#' `linetype` and `linecolour` slots of the `params` object.
+#' \code{linetype} and \code{linecolour} slots of the \code{params} object.
 #' 
 #' The recommended way is to obtain the data frames using one of the supplied
 #' functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
@@ -137,7 +138,10 @@ log_breaks <- function(n = 6){
 #' 
 #' @return ggplot2 object
 #' @export
-#' @seealso \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
+#' @family frame functions
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}},
+#'   \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
@@ -203,6 +207,7 @@ displayFrames <- function(f1, f2, params,
 #'   
 #' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @export
+#' @family frame functions
 #' @seealso \code{\link{getSSB}}
 getSSBFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
@@ -261,8 +266,8 @@ getSSBFrame <- function(sim,
 #'   
 #' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @export
-#' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}},
-#'   \code{\link{getSSBFrame}}
+#' @family frame functions
+#' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
@@ -320,17 +325,14 @@ getBiomassFrame <- function(sim,
 #' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
 #' 
 #' @inheritParams getBiomassFrame
+#' @inheritParams plotSpectra
 #' @param y_ticks The approximate number of ticks desired on the y axis
-#' @param print_it Display the plot, or just return the ggplot2 object. Default
-#'   value is FALSE
-#' @param background A boolean value that determines whether background species
-#'   are included. Ignored if the model does not contain background species.
-#'   Default is TRUE.
 #' @inheritDotParams get_size_range_array -params
 #'   
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getBiomass}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}, \code{\link{getBiomass}}
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
@@ -350,7 +352,7 @@ plotBiomass <- function(sim,
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
             y_ticks = 6, print_it = FALSE,
             ylim = c(NA, NA),
-            total = FALSE, background = TRUE, ...) {
+            total = FALSE, background = TRUE, highlight = NULL, ...) {
     # First we get the data frame for all species, including the background
     bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
                           start_time = start_time,
@@ -395,6 +397,7 @@ plotBiomass <- function(sim,
 #' @inherit plotBiomass params return description details seealso
 #' @inheritDotParams get_size_range_array -params
 #' @export
+#' @family plotting functions
 plotlyBiomass <- function(sim,
              species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
              start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -429,11 +432,12 @@ plotlyBiomass <- function(sim,
 #'   all species in the system is plotted as well. Default is FALSE.
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
-#' @param ... Other arguments to pass to \code{\link{getYield}} method.
+#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getYield}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}},  \code{\link{getYield}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -538,6 +542,7 @@ plotYield <- function(sim, sim2,
 #' Plot the total yield of species through time with plotly
 #' @inherit plotYield params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
                       print_it = FALSE, total = FALSE, log = TRUE, ...) {
@@ -563,11 +568,12 @@ plotlyYield <- function(sim, sim2,
 #'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total yield
 #'   per gear over all species in the system is plotted as well. Default is FALSE
-#' @param ... Other arguments to pass to \code{\link{getYieldGear}} method
+#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getYieldGear}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}},  \code{\link{getYieldGear}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -613,6 +619,7 @@ plotYieldGear <- function(sim,
 #' Plot the total yield of each species by gear through time with plotly
 #' @inherit plotYieldGear params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
                           print_it = FALSE, total = FALSE, ...) {
@@ -663,6 +670,8 @@ plotlyYieldGear <- function(sim,
 #'   
 #' @return A ggplot2 object
 #' @export
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -840,6 +849,7 @@ plot_spectra <- function(params, n, n_pp,
 #' Plotly plot of the abundance spectra
 #' @inherit plotSpectra params return description details seealso
 #' @export
+#' @family plotting functions
 plotlySpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
@@ -865,11 +875,12 @@ plotlySpectra <- function(object, species = NULL,
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to FALSE
-#' @param ... Other arguments to pass to \code{getFeedingLevel} method
+#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getFeedingLevel}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -916,6 +927,7 @@ plotFeedingLevel <- function(sim,
 #' 
 #' @inherit plotFeedingLevel params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyFeedingLevel <- function(sim,
                              species = dimnames(sim@n)$sp,
                              time_range = max(as.numeric(dimnames(sim@n)$time)),
@@ -939,11 +951,12 @@ plotlyFeedingLevel <- function(sim,
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to FALSE
-#' @param ... Other arguments to pass to \code{getM2} method.
+#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getM2}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}},  \code{\link{getM2}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -989,6 +1002,7 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' Plot predation mortality rate of each species against size with plotly
 #' @inherit plotM2 params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
                    print_it = FALSE, ...) {
@@ -1011,11 +1025,12 @@ plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
 #'   the final time step.
 #' @param print_it Display the plot, or just return the ggplot2 object.
 #'   Defaults to FALSE
-#' @param ... Other arguments to pass to \code{getFMort} method
+#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
-#' @seealso \code{\link{getFMort}}
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}, \code{\link{getFMort}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -1059,6 +1074,7 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' Plot total fishing mortality of each species by size with plotly
 #' @inherit plotM2 params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
                       print_it = FALSE, ...) {
@@ -1072,6 +1088,8 @@ plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' Where \code{\link{plotSpectra}} plots the density function, this function 
 #' plots the cummulative distribution function. Work in progress.
 #' 
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}
 plotDistribution <- function(params, sp) {
     base_size <- 14
     biomass <- cumsum(params@initial_n[sp, ] * params@w * params@dw)
@@ -1122,6 +1140,8 @@ plotDistribution <- function(params, sp) {
 #' 
 #' @return A ggplot2 object
 #' @export
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -1198,6 +1218,7 @@ plotGrowthCurves <- function(object,
 #' Plot growth curves giving weight as a function of age with plotly
 #' @inherit plotGrowthCurves params return description details seealso
 #' @export
+#' @family plotting functions
 plotlyGrowthCurves <- function(object, species,
                              max_age = 20,
                              percentage = FALSE,
@@ -1213,7 +1234,7 @@ plotlyGrowthCurves <- function(object, species,
 #' After running a projection, produces 5 plots in the same window: feeding
 #' level, abundance spectra, predation mortality and fishing mortality of each
 #' species by size; and biomass of each species through time. This method just
-#' uses the other plotting methods and puts them all in one window.
+#' uses the other plotting functions and puts them all in one window.
 #' 
 #' @param x An object of class \linkS4class{MizerSim}
 #' @param y Not used
@@ -1223,6 +1244,8 @@ plotlyGrowthCurves <- function(object, species,
 #'   and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}
 #' @rdname plotMizerSim
 #' @examples
 #' 

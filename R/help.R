@@ -18,7 +18,7 @@
 #'   \item \code{\link{set_multispecies_model}}
 #' }
 #' \item Running a simulation. This is done by calling the
-#' \code{\link{project}} method on the model parameters. This produces an
+#' \code{\link{project}} function with the model parameters. This produces an
 #' object of \linkS4class{MizerSim} that contains the results of the simulation.
 #'
 #' \item Exploring results. After a simulation has been run, the results can be

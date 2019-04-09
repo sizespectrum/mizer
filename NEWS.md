@@ -69,12 +69,12 @@
 * `project()` now shows a progress bar while simulation is running.
 * Improvements to plots:
   + Added units to axes
-  + Added method for plotting growth curves
+  + Added function for plotting growth curves
   + `PlotYield()` no longer fails when species names are numbers or when a 
      species abundance is zero
-  + Added a `total` parameter to several plot methods to add the curve for the 
+  + Added a `total` parameter to several plot functions to add the curve for the 
      total community (sum over all species and plankton)
-  + Added a `species` parameter to all plot methods to allow for only a 
+  + Added a `species` parameter to all plot functions to allow for only a 
       selection of species to be plotted
   + Allow the number of ticks on y-axis in biomass plot to be controlled
 * Allow for size- and species-dependent background death.

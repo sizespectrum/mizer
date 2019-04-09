@@ -65,6 +65,7 @@ NULL
 #'     \item rdd from \code{\link{getRDD}}
 #'   }
 #' @export
+#' @family rate functions
 getRates <- function(params, n = params@initial_n, 
                      n_pp = params@initial_n_pp,
                      B = params@initial_B,
@@ -146,7 +147,7 @@ getRates <- function(params, n = params@initial_n,
 #' The total encounter rate is the sum of the contribution from fish and
 #' plankton and the contribution from unstructured resources, if any:
 #' \deqn{E_i(w)=E_{e.i}(w)+E_{u.i}(w).}
-#' The encounter rate is used by the \code{\link{project}} method for
+#' The encounter rate is used by the \code{\link{project}} function for
 #' performing simulations.
 #' 
 #' The function returns values also for sizes outside the size-range of the
@@ -159,6 +160,7 @@ getRates <- function(params, n = params@initial_n,
 #'   
 #' @return A two dimensional array (predator species x predator size)
 #' @export
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -260,7 +262,7 @@ getEncounter <- function(params, n = params@initial_n,
 #' @param B A vector of biomasses of unstructured resource components
 #' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
-#'   using the \code{\link{getEncounter}} method. Only used if \code{object}
+#'   using \code{\link{getEncounter}}. Only used if \code{object}
 #'   argument is of type \code{MizerParams}.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
@@ -269,15 +271,16 @@ getEncounter <- function(params, n = params@initial_n,
 #' @param drop should extra dimensions of length 1 in the output be dropped,
 #'   simplifying the output. Defaults to FALSE.
 #'
-#' @note If a \code{MizerParams} object is passed in, the method returns a two
+#' @note If a \code{MizerParams} object is passed in, the function returns a two
 #'   dimensional array (predator species x predator size) based on the
 #'   abundances also passed in.
 #'
-#'   If a \code{MizerSim} object is passed in, the method returns a three
+#'   If a \code{MizerSim} object is passed in, the function returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
 #' @seealso \code{\link{getEncounter}}
 #' @export
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -357,8 +360,7 @@ getFeedingLevel <- function(object, n, n_pp, B, encounter,
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over fish community plus plankton spectrum.
 #' @export
-#' @seealso \code{\link{getPredMort}} and
-#'   \code{\link{getFeedingLevel}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -457,7 +459,7 @@ getPredRate <- function(params, n = params@initial_n,
 #'   passed in. If a \code{MizerSim} object is passed in, the function returns a
 #'   three dimensional array (time step x prey species x prey size) with the
 #'   predation mortality calculated at every time step in the simulation.
-#' @seealso \code{\link{getPredRate}} and \code{\link{project}}.
+#' @family rate functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -536,7 +538,7 @@ getM2 <- getPredMort
 #'   it is calculated by the \code{\link{getPredRate}} function.
 #'
 #' @return A vector of mortality rate by plankton size.
-#' @seealso \code{\link{project}} and \code{\link{getPredMort}}.
+#' @family rate functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -607,6 +609,7 @@ getM2Background <- getPlanktonMort
 #' the \code{MizerSim} object is used and the \code{effort} argument is not
 #' used.
 #' @export
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -714,7 +717,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' the \code{MizerSim} object is used and the \code{effort} argument is not
 #' used.
 #' @export
-#' @seealso \code{getFMortGear}, \code{project}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -784,6 +787,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #'
 #' @export
 #' @seealso \code{\link{getPredMort}}, \code{\link{getFMort}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -835,7 +839,8 @@ getZ <- getMort
 #'
 #' @return A two dimensional array (species x size) 
 #' @export
-#' @seealso \code{\link{project}} and \code{\link{getFeedingLevel}}.
+#' @seealso \code{\link{getERepro}} and \code{\link{getEGrowth}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -886,7 +891,8 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
 #'
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
-#' @seealso \code{\link{project}} and \code{\link{getEReproAndGrowth}}.
+#' @seealso \code{\link{getERepro}} and \code{\link{getEReproAndGrowth}}.
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -938,7 +944,8 @@ getESpawning <- getERepro
 #'   
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
-#' @seealso \code{\link{project}}
+#' @seealso \code{\link{getERepro}}, \code{\link{getEReproAndGrowth}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -989,7 +996,8 @@ getEGrowth <- function(params, n = params@initial_n,
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
-#' @seealso \code{\link{project}}
+#' @seealso \code{\link{getRDD}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
@@ -1037,6 +1045,8 @@ getRDI <- function(params, n = params@initial_n,
 #'   
 #' @return A numeric vector the length of the number of species. 
 #' @export
+#' @seealso \code{\link{getRDI}}
+#' @family rate functions
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
