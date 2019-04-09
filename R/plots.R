@@ -20,7 +20,7 @@
 #' This table shows the available plotting functions.
 #' \tabular{ll}{
 #'   Plot \tab Description \cr
-#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the for \code{\link{getBiomass}}. \cr
+#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for \code{\link{getBiomass}}. \cr
 #'   \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
 #'   \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
 #'   \code{\link{plotM2}} \tab Plots the predation mortality of each species against size. \cr
@@ -379,12 +379,16 @@ plotBiomass <- function(sim,
                                linetype = sim@params@linetype["Background"])
         }
     }
-
+    
+    linesize <- rep(0.8, length(sim@params@linetype))
+    names(linesize) <- names(sim@params@linetype)
+    linesize[highlight] <- 1.6
+    p <- p + scale_size_manual(values = linesize)
     if ( (length(species) + total) > 120) {
-        p <- p + geom_line(aes(group = Species))
+        p <- p + geom_line(aes(size = Species))
     } else {
         p <- p +
-            geom_line(aes(colour = Species, linetype = Species))
+            geom_line(aes(colour = Species, linetype = Species, size = Species))
     }
     if (print_it) {
         print(p)
@@ -407,6 +411,7 @@ plotlyBiomass <- function(sim,
              ylim = c(NA, NA),
              total = FALSE,
              background = TRUE,
+             highlight = NULL,
              ...) {
     argg <- c(as.list(environment()), list(...))
     ggplotly(do.call("plotBiomass", argg))
@@ -424,15 +429,9 @@ plotlyBiomass <- function(sim,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
 #'   this is provided its yields will be shown on the same plot in bolder lines.
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species contained in \code{sim} are plotted.
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE.
-#' @param total A boolean value that determines whether the total yield from
-#'   all species in the system is plotted as well. Default is FALSE.
+#' @inheritParams plotSpectra
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
-#' @param ... Unused
 #'
 #' @return A ggplot2 object
 #' @export
@@ -453,7 +452,8 @@ plotlyBiomass <- function(sim,
 #' 
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
-                      print_it = FALSE, total = FALSE, log = TRUE, ...){
+                      print_it = FALSE, total = FALSE, log = TRUE,
+                      highlight = NULL, ...){
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     if (missing(sim2)) {
@@ -471,11 +471,12 @@ plotYield <- function(sim, sim2,
         ym <- subset(ym, ym$Yield > 0)
         if (length(species) > 120) {
             p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield, group = Species))
+                geom_line(aes(x = Year, y = Yield, size = Species))
         } else {
             p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield,
-                              colour = Species, linetype = Species))
+                              colour = Species, linetype = Species,
+                              size = Species))
         }
         if (log) {
             p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]",
@@ -484,9 +485,13 @@ plotYield <- function(sim, sim2,
         } else {
             p <- p + scale_y_continuous(name = "Yield [g/year]")
         }
+        linesize <- rep(0.8, length(sim@params@linetype))
+        names(linesize) <- names(sim@params@linetype)
+        linesize[highlight] <- 1.6
         p <- p +
             scale_colour_manual(values = sim@params@linecolour) +
-            scale_linetype_manual(values = sim@params@linetype)
+            scale_linetype_manual(values = sim@params@linetype) +
+            scale_size_manual(values = linesize)
         if (print_it) {
             print(p)
         }
@@ -545,7 +550,8 @@ plotYield <- function(sim, sim2,
 #' @family plotting functions
 plotlyYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
-                      print_it = FALSE, total = FALSE, log = TRUE, ...) {
+                      print_it = FALSE, total = FALSE, log = TRUE,
+                      highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYield", argg))
 }
@@ -562,13 +568,7 @@ plotlyYield <- function(sim, sim2,
 #' etc. Just look at the source code for details.
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param print_it Display the plot, or just return the ggplot2 object. 
-#'   Defaults to FALSE
-#' @param total A boolean value that determines whether the total yield
-#'   per gear over all species in the system is plotted as well. Default is FALSE
-#' @param ... Unused
+#' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
 #' @export
@@ -585,7 +585,8 @@ plotlyYield <- function(sim, sim2,
 #' 
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
-                          print_it = FALSE, total = FALSE, ...){
+                          print_it = FALSE, total = FALSE,
+                          highlight = NULL, ...){
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
@@ -602,14 +603,19 @@ plotYieldGear <- function(sim,
     }
     ym <- subset(ym, ym$value > 0)
     if (length(species) > 120) {
-        p <- ggplot(ym) + geom_line(aes(x = time, y = value, group = Species))
+        p <- ggplot(ym) + geom_line(aes(x = time, y = value, size = Species))
     } else {
         p <- ggplot(ym) +
-            geom_line(aes(x = time, y = value, colour = Species, linetype = gear))
+            geom_line(aes(x = time, y = value, colour = Species, 
+                          linetype = gear, size = Species))
     }
+    linesize <- rep(0.8, length(sim@params@linetype))
+    names(linesize) <- names(sim@params@linetype)
+    linesize[highlight] <- 1.6
     p <- p + scale_y_continuous(trans = "log10", name = "Yield [g]") +
         scale_x_continuous(name = "Year") +
-        scale_colour_manual(values = sim@params@linecolour)
+        scale_colour_manual(values = sim@params@linecolour) +
+        scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
     }
@@ -622,7 +628,8 @@ plotYieldGear <- function(sim,
 #' @family plotting functions
 plotlyYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
-                          print_it = FALSE, total = FALSE, ...) {
+                          print_it = FALSE, total = FALSE,
+                          highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg))
 }
@@ -833,8 +840,7 @@ plot_spectra <- function(params, n, n_pp,
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
-    p <- p +
-        scale_size_manual(values = linesize)
+    p <- p + scale_size_manual(values = linesize)
     if ( (length(species) + plankton + total) > 130) {
         p <- p + geom_line(aes(group = Species))
     } else {
@@ -855,7 +861,8 @@ plotlySpectra <- function(object, species = NULL,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE, print_it = FALSE,
                         total = FALSE, plankton = TRUE, 
-                        background = TRUE, ...) {
+                        background = TRUE,
+                        highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotSpectra", argg))
 }
@@ -868,14 +875,7 @@ plotlySpectra <- function(object, species = NULL,
 #' for the time range can be used).
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}.
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param time_range The time range (either a vector of values, a vector of min
-#'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE
-#' @param ... Unused
+#' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
 #' @export
@@ -893,7 +893,8 @@ plotlySpectra <- function(object, species = NULL,
 plotFeedingLevel <- function(sim,
             species = dimnames(sim@n)$sp,
             time_range = max(as.numeric(dimnames(sim@n)$time)),
-            print_it = FALSE, ...) {
+            print_it = FALSE, highlight = NULL, ...) {
+    assert_that(is(sim, "MizerSim"))
     feed_time <- getFeedingLevel(sim, time_range = time_range, drop = FALSE)
     feed <- apply(feed_time, c(2, 3), mean)
     # selector for desired species
@@ -905,18 +906,24 @@ plotFeedingLevel <- function(sim,
                            Species = factor(dimnames(feed)$sp, 
                                             levels = dimnames(feed)$sp),
                            w = rep(sim@params@w, each = length(species)))
+    
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, group = Species))
+            geom_line(aes(x = w, y = value, size = Species))
     } else {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, linetype = Species))
+            geom_line(aes(x = w, y = value, colour = Species, 
+                          linetype = Species, size = Species))
     }
+    linesize <- rep(0.8, length(sim@params@linetype))
+    names(linesize) <- names(sim@params@linetype)
+    linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
         scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype)
+        scale_linetype_manual(values = sim@params@linetype) +
+        scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
     }
@@ -931,7 +938,8 @@ plotFeedingLevel <- function(sim,
 plotlyFeedingLevel <- function(sim,
                              species = dimnames(sim@n)$sp,
                              time_range = max(as.numeric(dimnames(sim@n)$time)),
-                             print_it = FALSE, ...) {
+                             print_it = FALSE,
+                             highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotFeedingLevel", argg))
 }
@@ -944,19 +952,12 @@ plotlyFeedingLevel <- function(sim,
 #' single value for the time range can be used to plot a single time step).
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param time_range The time range (either a vector of values, a vector of min
-#'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE
-#' @param ... Unused
+#' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}},  \code{\link{getM2}}
+#' @seealso \code{\link{plotting_functions}},  \code{\link{getPredMort}}
 #' @examples
 #' 
 #' data(NS_species_params_gears)
@@ -968,11 +969,11 @@ plotlyFeedingLevel <- function(sim,
 #' 
 plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
-                   print_it = FALSE, ...) {
+                   print_it = FALSE, highlight = NULL, ...) {
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
-    m2_time <- getM2(sim, time_range = time_range, drop = FALSE)
+    m2_time <- getPredMort(sim, time_range = time_range, drop = FALSE)
     m2 <- apply(m2_time, c(2, 3), mean)
     m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
              drop = FALSE]
@@ -982,17 +983,22 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
                            w = rep(sim@params@w, each = length(species)))
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, group = Species))
+            geom_line(aes(x = w, y = value, size = Species))
     } else {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, linetype = Species))
+            geom_line(aes(x = w, y = value, colour = Species, 
+                          linetype = Species, size = Species))
     }
+    linesize <- rep(0.8, length(sim@params@linetype))
+    names(linesize) <- names(sim@params@linetype)
+    linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Predation mortality [1/year]",
                            limits = c(0, max(plot_dat$value))) +
         scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype)
+        scale_linetype_manual(values = sim@params@linetype) +
+        scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
     }
@@ -1005,7 +1011,8 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' @family plotting functions
 plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
                    time_range = max(as.numeric(dimnames(sim@n)$time)),
-                   print_it = FALSE, ...) {
+                   print_it = FALSE,
+                   highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotM2", argg))
 }
@@ -1018,14 +1025,7 @@ plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' step).
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}.
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
-#' @param time_range The time range (either a vector of values, a vector of min
-#'   and max time, or a single value) to average the abundances over. Default is
-#'   the final time step.
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE
-#' @param ... Unused
+#' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
 #' @export
@@ -1038,11 +1038,11 @@ plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
-#' plotFMort(sim, time_range = 10:20)
+#' plotFMort(sim, highlight = c("Cod", "Haddock"))
 #' 
 plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
-                      print_it = FALSE, ...) {
+                      print_it = FALSE, highlight = NULL, ...) {
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
@@ -1053,18 +1053,24 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
                            Species = factor(dimnames(f)[[1]],
                                             levels = species_levels),
                            w = rep(sim@params@w, each = length(species)))
+    
+    linesize <- rep(0.8, length(sim@params@linetype))
+    names(linesize) <- names(sim@params@linetype)
+    linesize[highlight] <- 1.6
     if (length(species) > 120) {
-        p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, group = Species))
+        p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, size = Species))
     } else {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, colour = Species, linetype = Species))
+            geom_line(aes(x = w, y = value, colour = Species, 
+                          linetype = Species, size = Species))
     }
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Fishing mortality [1/Year]",
                            limits = c(0, max(plot_dat$value))) +
         scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype)
+        scale_linetype_manual(values = sim@params@linetype) + 
+        scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
     }
@@ -1077,7 +1083,8 @@ plotFMort <- function(sim, species = dimnames(sim@n)$sp,
 #' @family plotting functions
 plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
-                      print_it = FALSE, ...) {
+                      print_it = FALSE,
+                      highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotFMort", argg))
 }
@@ -1134,9 +1141,7 @@ plotDistribution <- function(params, sp) {
 #' k_vb, then the von Bertalanffy growth curve is superimposed in black.
 #' 
 #' @inheritParams getGrowthCurves
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE
-#' @param ... Other arguments (unused)
+#' @inheritParams plotSpectra
 #' 
 #' @return A ggplot2 object
 #' @export
@@ -1155,6 +1160,7 @@ plotGrowthCurves <- function(object,
                              species,
                              max_age = 20,
                              percentage = FALSE,
+                             highlight = NULL,
                              print_it = FALSE) {
     if (is(object, "MizerSim")) {
         params <- object@params
@@ -1164,24 +1170,32 @@ plotGrowthCurves <- function(object,
     } else if (is(object, "MizerParams")) {
         params <- object
     }
+    if (missing(species)) {
+        species <- params@species_params$species
+    }
     ws <- getGrowthCurves(params, species, max_age, percentage)
     plot_dat <- reshape2::melt(ws)
     # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
-            geom_line(aes(x = Age, y = value, group = Species))
+            geom_line(aes(x = Age, y = value, size = Species))
     } else {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value,
-                          colour = Species, linetype = Species))
+                          colour = Species, linetype = Species,
+                          size = Species))
     }
     y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
+    linesize <- rep(0.8, length(params@linetype))
+    names(linesize) <- names(params@linetype)
+    linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Age [Years]") +
         scale_y_continuous(name = y_label) +
         scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype)
+        scale_linetype_manual(values = params@linetype) +
+        scale_size_manual(values = linesize)
     
     # Extra stuff for single-species case
     if (length(species) == 1 && !percentage) {
@@ -1222,6 +1236,7 @@ plotGrowthCurves <- function(object,
 plotlyGrowthCurves <- function(object, species,
                              max_age = 20,
                              percentage = FALSE,
+                             highlight = NULL,
                              print_it = FALSE) {
     argg <- as.list(environment())
     ggplotly(do.call("plotGrowthCurves", argg))
