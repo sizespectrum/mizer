@@ -386,11 +386,7 @@ setClass(
         search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         rho = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
         metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        pred_kernel = array(
-            NA, dim = c(1,1,1), dimnames = list(
-                sp = NULL, w_pred = NULL, w_prey = NULL
-            )
-        ),
+        pred_kernel = array(),
         ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
         mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
@@ -1949,6 +1945,45 @@ changeInitial <- function(params,
 #' @export
 tuneParams <- function() {
     shiny::runApp("inst/tuning")
+}
+
+
+#' Upgrade MizerParams object from earlier mizer versions
+#' 
+#' Uses set_multispecies_model to create a new MizerParams object using the
+#' parameters extracted from the old MizerParams object.
+#' 
+#' @param params An old MizerParams object to be upgraded
+#' 
+#' @return The upgraded MizerParams object
+#' @export
+upgradeParams <- function(params) {
+    if (!.hasSlot(params, "interaction_p")) {
+        params@interaction_p <- rep(1, nrow(params@species_params))
+    }
+    pnew <- set_multispecies_model(params@species_params,
+                                   interaction = params@interaction,
+                                   interaction_p = params@interaction_p,
+                                   no_w = length(params@w),
+                                   min_w = params@w[1],
+                                   max_w = params@w[length(params@w)],
+                                   min_w_pp = params@w_full[1],
+                                   n = params@n,
+                                   p = params@p,
+                                   q = params@q,
+                                   kappa = params@kappa,
+                                   lambda = params@lambda,
+                                   f0 = params@f0)
+    
+    if (.hasSlot(params, "rho")) {
+        pnew <- setResourceEncounter(pnew, params@rho)
+    }
+    if (.hasSlot(params, "resource_dynamics")) {
+        pnew <- setResources(pnew,
+                             resource_dynamics = params@resource_dynamics,
+                             resource_params = params@resource_params)
+    }
+    return(pnew)
 }
 
 

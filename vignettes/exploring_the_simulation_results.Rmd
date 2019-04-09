@@ -296,33 +296,25 @@ plotting.
 
 ### Plotting examples {#sec:plot_examples}
 
-Using the plotting methods is straightforward. For example, to plot the total
-biomass of each species against time you use the `plotBiomass()` method:
+Using the plotting methods is straightforward. For example, to plot the total biomass of each species against time you use the `plotBiomass()` method:
 
-```{r}
+```{r label=plotBiomass, fig.keep='last', fig.cap="An example of using the plotBiomass() method."}
 plotBiomass(sim)
 ```
 
-As mentioned above, some of the plot methods plot values against size at a point
-in time (or averaged over a time period). For these plots it is possible to
-specify the time step to plot, or the time period to average the values over.
-The default is to use the final time step. Here we plot the abundance spectra
-(biomass), averaged over time = 5 to 10:
+As mentioned above, some of the plot methods plot values against size at a point in time (or averaged over a time period).
+For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step.
+Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:
 
-```{r}
+```{r label=plotSpectra_example, fig.keep='last', fig.cap="An example of using the plotSpectra() method, plotting values averaged over the period t = 5 to 10."}
 plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 ```
 
-As mentioned above, and as we have seen several times in this vignette, the
-generic `plot()` method has also been overloaded.  This produces 5 plots in the
-same window (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()`
-and `plotSpectra()`). It is possible to pass in the same arguments that these
-individual plots use, e.g. arguments to change the time period over which the
-data is averaged.
 
-```{r}
+As mentioned above, and as we have seen several times in this vignette, the generic `plot()` method has also been overloaded.  This produces 5 plots in the same window (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()` and `plotSpectra()`). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
+
+```{r label=demo_summary_plot, fig.cap="Example output from using the summary plot() method."}
 plot(sim)
 ```
 
-The next section describes how to use what we have used to [model the North
-Sea.](a_multispecies_model_of_the_north_sea.html)
+The next section describes how to use what we have used to [model the North Sea.](a_multispecies_model_of_the_north_sea.html) 

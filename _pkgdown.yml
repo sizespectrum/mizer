@@ -17,6 +17,9 @@ template:
       api_key: de91577b2f58755afaa137388a513a88
       index_name: mizer
 
+development:
+  mode: auto
+
 toc: 
   depth: 3
 
@@ -63,6 +66,7 @@ reference:
   - addSpecies
   - removeSpecies
   - retuneAbundance
+  - upgradeParams
   - markBackground
 - title: Running simulations
   contents:

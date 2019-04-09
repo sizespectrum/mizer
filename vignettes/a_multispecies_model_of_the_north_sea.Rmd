@@ -214,7 +214,7 @@ sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
 Plotting the results, we can see how the biomasses of the stocks change over time.
 You can see the 100 year period of transients with constant fishing fishing mortality before the historical relative mortality is used from 1967.
 
-```{r}
+```{r label = plot_ns_biomass, fig.keep='last', fig.cap="Simulated biomasses of stocks in the North Sea with 100 years of transients."}
 plotBiomass(sim)
 ```
 
