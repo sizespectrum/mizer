@@ -152,23 +152,7 @@ setClass(
         effort = "array",
         n_pp = "array",
         B = "array"
-    ),
-    prototype = prototype(
-        params = new("MizerParams"),
-        n = array(
-            NA,dim = c(1,1,1), dimnames = list(time = NULL, sp = NULL, w = NULL)
-        ),
-        effort = array(
-            NA,dim = c(1,1), dimnames = list(time = NULL, gear = NULL)
-        ),
-        n_pp = array(
-            NA,dim = c(1,1), dimnames = list(time = NULL, w = NULL)
-        ),
-        B = array(
-            NA, dim = c(1,1), dimnames = list(time = NULL, res = NULL)
-        )
-    ),
-    validity = valid_MizerSim
+    )
 )
 
 setValidity("MizerSim", valid_MizerSim)

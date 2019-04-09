@@ -157,3 +157,8 @@ test_that("changeResourceEncounter works", {
 test_that("changeParams can leave params unchanged", {
     expect_equal(changeParams(params_res), params_res)
 })
+
+## upgradeParams ----
+test_that("upgradeParams leaves new params unchanged", {
+    expect_equal(upgradeParams(params_res), params_res)
+})

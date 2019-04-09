@@ -239,8 +239,8 @@ validMizerParams <- function(object) {
 #'   each species at size. Changed with \code{\link{changeSearchVolume}}.
 #' @slot rho A 3-dim array (species x resource x size) holding the encounter
 #'   rates for unstructured resources. Changed with 
-#'   \code{\link{changeResourceEncounter}} .See \code{\link{resource_dynamics}} for
-#'    details.
+#'   \code{\link{changeResourceEncounter}}. See \code{\link{resource_dynamics}}
+#'   for details.
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with \code{\link{changeMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -265,8 +265,9 @@ validMizerParams <- function(object) {
 #'   carrying capacity of the plankton spectrum. Changed with 
 #'   \code{\link{changePlankton}}.
 #' @slot plankton_dynamics A function for projecting the plankton abundance
-#'   density by one timestep. See \code{\link{plankton_semichemostat}} for 
-#'   an example. Changed with \code{\link{changePlankton}}.
+#'   density by one timestep. The default is 
+#'   \code{\link{plankton_semichemostat}}. 
+#'   Changed with \code{\link{changePlankton}}.
 #' @slot resource_dynamics A named list of functions for projecting the
 #'   biomasses in the unstructured resource components by one timestep. The
 #'   names of the list entries are the resource names. Changed with 
@@ -327,7 +328,7 @@ validMizerParams <- function(object) {
 #' @export
 setClass(
     "MizerParams",
-    representation(
+    slots = c(
         w = "numeric",
         dw = "numeric",
         w_full = "numeric",
@@ -367,49 +368,6 @@ setClass(
         linecolour = "character",
         linetype = "character"
     ),
-    prototype = prototype(
-        w = NA_real_,
-        dw = NA_real_,
-        w_full = NA_real_,
-        dw_full = NA_real_,
-        w_min_idx = NA_real_,
-        n = NA_real_,
-        p = NA_real_,
-        lambda = NA_real_,
-        q = NA_real_,
-        f0 = NA_real_,
-        kappa = NA_real_,
-        maturity = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        psi = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        initial_n = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        intake_max = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        search_vol = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        rho = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        metab = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        pred_kernel = array(),
-        ft_pred_kernel_e = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
-        ft_pred_kernel_p = array(NA,dim = c(1,1), dimnames = list(sp = NULL,k = NULL)),
-        mu_b = array(NA,dim = c(1,1), dimnames = list(sp = NULL,w = NULL)),
-        rr_pp = NA_real_,
-        cc_pp = NA_real_,
-        sc = NA_real_,
-        initial_n_pp = NA_real_,
-        initial_B = NA_real_,
-        A = NA_real_,
-        linecolour = NA_character_,
-        linetype = NA_character_,
-        #speciesParams = data.frame(),
-        interaction = array(
-            NA,dim = c(1,1), dimnames = list(predator = NULL, prey = NULL)
-        ),
-        selectivity = array(
-            NA, dim = c(1,1,1), dimnames = list(gear = NULL, sp = NULL, w = NULL)
-        ),
-        catchability = array(
-            NA, dim = c(1,1), dimnames = list(gear = NULL, sp = NULL)
-        )
-    ),
-    validity = validMizerParams
 )
 
 setValidity("MizerParams", validMizerParams)
@@ -493,7 +451,8 @@ emptyParams <- function(species_params,
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
     } else {
-        if (max(species_params$w_inf) > max_w) {
+        if (max(species_params$w_inf) > max_w * (1 + 1e-9)) { # The fudge factor
+            # is there to avoid false alerts due to rounding errors.
             too_large <- species_params$species[max_w < species_params$w_inf]
             stop(paste0("Some of your species have an maximum size larger than max_w: ",
                         toString(too_large)))
@@ -585,13 +544,6 @@ emptyParams <- function(species_params,
     # Basic arrays for templates ----
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
-    # mat2 <- array(NA, dim = c(no_sp, no_w, no_w_full), 
-    #               dimnames = list(sp = species_names, w_pred = signif(w,3), 
-    #                               w_prey = signif(w_full,3)))
-        
-    mat3 <- array(1, dim = c(no_sp, no_sp),
-                  dimnames = list(predator = species_names, 
-                                  prey = species_names))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
     
@@ -605,7 +557,7 @@ emptyParams <- function(species_params,
                                          prey = species_names))
     
     vec1 <- as.numeric(rep(NA, no_w_full))
-    names(vec1) <- signif(w_full,3)
+    names(vec1) <- signif(w_full, 3)
     
     w_min_idx <- as.vector(suppressWarnings(
         tapply(species_params$w_min, 1:no_sp,
@@ -772,6 +724,7 @@ set_multispecies_model <- function(species_params,
                                    # changeMetab()
                                    metab = NULL,
                                    # changeBMort
+                                   mu_b = NULL,
                                    z0pre = 0.6,
                                    z0exp = n - 1,
                                    # changeReproduction
@@ -951,6 +904,7 @@ changeParams <- function(params,
                       metab = NULL,
                       p = params@p,
                       # changeBMort
+                      mu_b = NULL,
                       z0pre = 0.6,
                       z0exp = n - 1,
                       # changeReproduction
@@ -961,7 +915,7 @@ changeParams <- function(params,
                       lambda = params@lambda,
                       r_pp = 10,
                       w_pp_cutoff = 10,
-                      plankton_dynamics = params@plankton_dynamics,
+                      plankton_dynamics = NULL,
                       # changeResources
                       resource_dynamics = params@resource_dynamics,
                       resource_params = params@resource_params,
@@ -1674,7 +1628,7 @@ changeReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
 #'   Default is 10 g.
 #' @param plankton_dynamics Function that determines plankton dynamics by
 #'   calculating the plankton spectrum at the next time step from the current
-#'   state. The default is \code{"\link{plankton_semichemostat}"}.
+#'   state.
 #' 
 #' @return A MizerParams object
 #' @export
@@ -1683,13 +1637,12 @@ changePlankton <- function(params,
                         lambda = params@lambda,
                         r_pp = 10, 
                         w_pp_cutoff = 10,
-                        plankton_dynamics = plankton_semichemostat) {
+                        plankton_dynamics = NULL) {
     assert_that(is(params, "MizerParams"),
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
                 is.number(w_pp_cutoff),
-                is.function(plankton_dynamics),
                 is.number(params@n))
     params@kappa <- kappa
     params@lambda <- lambda
@@ -1698,7 +1651,10 @@ changePlankton <- function(params,
     # the plankton carrying capacity
     params@cc_pp[] <- kappa*params@w_full^(-lambda)
     params@cc_pp[params@w_full > w_pp_cutoff] <- 0
-    params@plankton_dynamics <- plankton_dynamics
+    if (!is.null(plankton_dynamics)) {
+        assert_that(is.function(plankton_dynamics))
+        params@plankton_dynamics <- plankton_dynamics
+    }
     
     return(params)
 }
@@ -1718,19 +1674,14 @@ changePlankton <- function(params,
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
 changeResources <- function(params,
-                         resource_dynamics,
-                         resource_params) {
+                         resource_dynamics = NULL,
+                         resource_params = NULL) {
     assert_that(is(params, "MizerParams"))
-    if (!missing(resource_dynamics)) {
+    if (!is.null(resource_dynamics)) {
         assert_that(is.list(resource_dynamics))
         no_res <- length(resource_dynamics)
         resource_names = names(resource_dynamics)
-        if (no_res == 0) {
-            params@rho <- array(0, dim = 0)
-            params@resource_dynamics <- list()
-            params@initial_B <- rep(0, 0)
-        } else {
-            if (is.null(resource_names)) {
+            if (no_res > 0  && is.null(resource_names)) {
                 stop("The resource_dynamics list must be a named list.")
             }
             params@resource_dynamics <- resource_dynamics
@@ -1746,9 +1697,8 @@ changeResources <- function(params,
                 params@initial_B <- rep(0, no_res)
                 names(params@initial_B) <- resource_names
             }
-        }
     }
-    if (!missing(resource_params)) {
+    if (!is.null(resource_params)) {
         assert_that(is.list(resource_params))
         params@resource_params <- resource_params
     }
@@ -1953,17 +1903,46 @@ tuneParams <- function() {
 #' Uses set_multispecies_model to create a new MizerParams object using the
 #' parameters extracted from the old MizerParams object.
 #' 
+#' If you only have a serialised version of the old object, for example
+#' created via `saveRDS()`, and you get an error when trying to read it in
+#' with `readRDS()` then unfortunately you will need to install the old version
+#' of mizer first to read the params object into your workspace, then switch
+#' to the current version and then call `upgradeParams()`. You can then save
+#' the new version again with `saveRDS()`.
+#' 
 #' @param params An old MizerParams object to be upgraded
 #' 
 #' @return The upgraded MizerParams object
 #' @export
 upgradeParams <- function(params) {
-    if (!.hasSlot(params, "interaction_p")) {
-        params@interaction_p <- rep(1, nrow(params@species_params))
+    if (.hasSlot(params, "pred_kernel") && 
+            length(dim(params@pred_kernel)) == 3) {
+        pred_kernel <- params@pred_kernel
+    } else pred_kernel <- NULL
+    
+    if (.hasSlot(params, "maturity")) {
+        maturity <- params@maturity
+    } else maturity <- NULL
+    
+    if (.hasSlot(params, "repro_prop")) {
+        repro_prop <- params@repro_prop
+    } else repro_prop <- NULL
+    
+    if (.hasSlot(params, "rho")) {
+        rho <- params@rho
+    } else rho <- NULL
+    
+    if (.hasSlot(params, "resource_dynamics")) {
+        resource_dynamics <- params@resource_dynamics
+        resource_params <- params@resource_params
+    } else {
+        resource_dynamics <- NULL
+        resource_params <- NULL
     }
+    # Does not yet deal with rr_pp and cc_pp slots because they will be 
+    # changed anyway when multiple size-structured resources are introduced.
     pnew <- set_multispecies_model(params@species_params,
                                    interaction = params@interaction,
-                                   interaction_p = params@interaction_p,
                                    no_w = length(params@w),
                                    min_w = params@w[1],
                                    max_w = params@w[length(params@w)],
@@ -1973,16 +1952,18 @@ upgradeParams <- function(params) {
                                    q = params@q,
                                    kappa = params@kappa,
                                    lambda = params@lambda,
-                                   f0 = params@f0)
-    
-    if (.hasSlot(params, "rho")) {
-        pnew <- setResourceEncounter(pnew, params@rho)
-    }
-    if (.hasSlot(params, "resource_dynamics")) {
-        pnew <- setResources(pnew,
-                             resource_dynamics = params@resource_dynamics,
-                             resource_params = params@resource_params)
-    }
+                                   f0 = params@f0,
+                                   pred_kernel = pred_kernel,
+                                   search_vol = params@search_vol,
+                                   intake_max = params@intake_max,
+                                   metab = params@metab,
+                                   mu_b = params@mu_b,
+                                   maturity = maturity,
+                                   repro_prop = repro_prop,
+                                   resource_dynamics = resource_dynamics,
+                                   resource_params = resource_params,
+                                   rho = rho,
+                                   srr = params@srr)
     return(pnew)
 }
 
