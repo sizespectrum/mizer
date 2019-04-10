@@ -107,14 +107,14 @@ getRates <- function(params, n = params@initial_n,
 
 #' Get encounter rate
 #' 
-#' Calculates the rate \eqn{E_i(w)} at which a predator of species $i$ and
-#' weight $w$ encounters food (grams/year).
+#' Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
+#' weight \eqn{w} encounters food (grams/year).
 #' 
 #' @section Predation encounter:
 #' The encounter rate has contributions from the encounter of fish prey, of
 #' plankton, and of other resoruces. The contribution from fish and plankton
 #' is determined by summing over all prey species and the resource spectrum and
-#' then integrating over all prey sizes $w_p$, weighted by predation kernel 
+#' then integrating over all prey sizes \eqn{w_p}, weighted by predation kernel 
 #' \eqn{\phi(w,w_p)}:
 #' \deqn{
 #' E_{e.i}(w) = \gamma_i(w) \int 
