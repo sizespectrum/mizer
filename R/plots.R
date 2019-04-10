@@ -721,7 +721,7 @@ plotSpectra <- function(object, species = NULL,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power, print_it = print_it,
                            total = total, plankton = plankton,
-                           background = background, highligh = highlight)
+                           background = background, highlight = highlight)
         return(ps)
     }
 }
@@ -874,7 +874,11 @@ plotlySpectra <- function(object, species = NULL,
 #' The feeding level is averaged over the specified time range (a single value
 #' for the time range can be used).
 #' 
-#' @param sim An object of class \linkS4class{MizerSim}.
+#' When called with a \linkS4class{MizerSim} object, the feeding level is averaged
+#' over the specified time range (a single value for the time range can be used
+#' to plot a single time step). When called with a \linkS4class{MizerParams}
+#' object the initial feeding level is plotted.
+#' 
 #' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
@@ -890,14 +894,31 @@ plotlySpectra <- function(object, species = NULL,
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 #' 
-plotFeedingLevel <- function(sim,
-            species = dimnames(sim@n)$sp,
-            time_range = max(as.numeric(dimnames(sim@n)$time)),
-            print_it = FALSE, highlight = NULL, ...) {
-    assert_that(is(sim, "MizerSim"))
-    feed_time <- getFeedingLevel(sim, time_range = time_range, drop = FALSE)
-    feed <- apply(feed_time, c(2, 3), mean)
+plotFeedingLevel <- function(object,
+            species = NULL,
+            time_range,
+            print_it = FALSE, 
+            highlight = NULL, ...) {
+    if (is(object, "MizerSim")) {
+        if (missing(time_range)) {
+            time_range  <- max(as.numeric(dimnames(object@n)$time))
+        }
+        params <- object@params
+    } else {
+        assert_that(is(object, "MizerParams"))
+        params <- object
+    }
+    feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
+    # If a time range was returned, average over it
+    if (length(dim(feed)) == 3) {
+        feed <- apply(feed, c(2, 3), mean)
+    }
+        
     # selector for desired species
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+    }
     sel_sp <- as.character(dimnames(feed)$sp) %in% species
     feed <- feed[sel_sp, , drop = FALSE]
     plot_dat <- data.frame(value = c(feed),
@@ -905,7 +926,7 @@ plotFeedingLevel <- function(sim,
                            # of the factors, hence we need the levels argument
                            Species = factor(dimnames(feed)$sp, 
                                             levels = dimnames(feed)$sp),
-                           w = rep(sim@params@w, each = length(species)))
+                           w = rep(params@w, each = length(species)))
     
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
@@ -915,14 +936,14 @@ plotFeedingLevel <- function(sim,
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
     }
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
+    linesize <- rep(0.8, length(params@linetype))
+    names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Feeding Level", limits = c(0, 1)) +
-        scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype) +
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
@@ -935,9 +956,9 @@ plotFeedingLevel <- function(sim,
 #' @inherit plotFeedingLevel params return description details seealso
 #' @export
 #' @family plotting functions
-plotlyFeedingLevel <- function(sim,
-                             species = dimnames(sim@n)$sp,
-                             time_range = max(as.numeric(dimnames(sim@n)$time)),
+plotlyFeedingLevel <- function(object,
+                             species = NULL,
+                             time_range,
                              print_it = FALSE,
                              highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -951,7 +972,6 @@ plotlyFeedingLevel <- function(sim,
 #' by size. The mortality rate is averaged over the specified time range (a
 #' single value for the time range can be used to plot a single time step).
 #' 
-#' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
@@ -967,20 +987,37 @@ plotlyFeedingLevel <- function(sim,
 #' plotM2(sim)
 #' plotM2(sim, time_range = 10:20)
 #' 
-plotM2 <- function(sim, species = dimnames(sim@n)$sp,
-                   time_range = max(as.numeric(dimnames(sim@n)$time)),
+plotM2 <- function(object, species = NULL,
+                   time_range,
                    print_it = FALSE, highlight = NULL, ...) {
-    # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    if (is(object, "MizerSim")) {
+        if (missing(time_range)) {
+            time_range  <- max(as.numeric(dimnames(object@n)$time))
+        }
+        params <- object@params
+    } else {
+        assert_that(is(object, "MizerParams"))
+        params <- object
+    }
+    m2 <- getPredMort(object, time_range = time_range, drop = FALSE)
+    # If a time range was returned, average over it
+    if (length(dim(m2)) == 3) {
+        m2 <- apply(m2, c(2, 3), mean)
+    }
     
-    m2_time <- getPredMort(sim, time_range = time_range, drop = FALSE)
-    m2 <- apply(m2_time, c(2, 3), mean)
-    m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , 
-             drop = FALSE]
+    # selector for desired species
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+    }
+    # Need to keep species in order for legend
+    species_levels <- c(as.character(params@species_params$species), 
+                        "Background", "Plankton", "Total")
+    m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(m2),
                            Species = factor(dimnames(m2)[[1]],
                                             levels = species_levels),
-                           w = rep(sim@params@w, each = length(species)))
+                           w = rep(params@w, each = length(species)))
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, size = Species))
@@ -989,15 +1026,15 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
     }
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
+    linesize <- rep(0.8, length(params@linetype))
+    names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Predation mortality [1/year]",
                            limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype) +
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
@@ -1009,10 +1046,9 @@ plotM2 <- function(sim, species = dimnames(sim@n)$sp,
 #' @inherit plotM2 params return description details seealso
 #' @export
 #' @family plotting functions
-plotlyM2 <- function(sim, species = dimnames(sim@n)$sp,
-                   time_range = max(as.numeric(dimnames(sim@n)$time)),
-                   print_it = FALSE,
-                   highlight = NULL, ...) {
+plotlyM2 <- function(object, species = NULL,
+                     time_range,
+                     print_it = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotM2", argg))
 }
@@ -1292,5 +1328,49 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
               print(p2 + theme(legend.position = "right",
                                legend.key.size = unit(0.1, "cm")),
                     vp = vplayout(3, 1:2))
+          }
+)
+
+#' Summary plot for \code{MizerParams} objects
+#' 
+#' Produces 3 plots in the same window: abundance spectra, feeding
+#' level and predation mortality of each species through time. This method just
+#' uses the other plotting functions and puts them all in one window.
+#' 
+#' @param x An object of class \linkS4class{MizerParams}
+#' @param y Not used
+#' @param ...  For additional arguments see the documentation for
+#'   \code{\link{plotBiomass}},
+#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
+#'   and \code{\link{plotFMort}}.
+#' @return A viewport object
+#' @export
+#' @family plotting functions
+#' @seealso \code{\link{plotting_functions}}
+#' @rdname plotMizerSim
+#' @examples
+#' 
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' plot(params)
+#' plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
+#' 
+setMethod("plot", signature(x = "MizerParams", y = "missing"),
+          function(x, ...) {
+              p11 <- plotFeedingLevel(x, print_it = FALSE, ...)
+              p2 <- plotSpectra(x, print_it = FALSE, ...)
+              p12 <- plotM2(x, print_it = FALSE, ...)
+              grid::grid.newpage()
+              glayout <- grid::grid.layout(2, 2) # widths and heights arguments
+              vp <- grid::viewport(layout = glayout)
+              grid::pushViewport(vp)
+              vplayout <- function(x, y)
+                  grid::viewport(layout.pos.row = x, layout.pos.col = y)
+              print(p11 + theme(legend.position = "none"), vp = vplayout(1, 1))
+              print(p12 + theme(legend.position = "none"), vp = vplayout(1, 2))
+              print(p2 + theme(legend.position = "right",
+                               legend.key.size = unit(0.1, "cm")),
+                    vp = vplayout(2, 1:2))
           }
 )

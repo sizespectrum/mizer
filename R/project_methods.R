@@ -271,13 +271,15 @@ getEncounter <- function(params, n = params@initial_n,
 #' @param drop should extra dimensions of length 1 in the output be dropped,
 #'   simplifying the output. Defaults to FALSE.
 #'
-#' @note If a \code{MizerParams} object is passed in, the function returns a two
+#' @return If a \code{MizerParams} object is passed in, the function returns a two
 #'   dimensional array (predator species x predator size) based on the
 #'   abundances also passed in.
-#'
 #'   If a \code{MizerSim} object is passed in, the function returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
+#'   If `drop = TRUE` then the dimension of length 1 will be removed from the
+#'   returned array.
+#'   
 #' @seealso \code{\link{getEncounter}}
 #' @export
 #' @family rate functions

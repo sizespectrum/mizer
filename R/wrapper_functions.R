@@ -895,9 +895,9 @@ retuneAbundance <- function(params,
 #' abundances.
 #' 
 #' @param params A mizer params object for the original system.
-#' @param species A vector of the names of the species 
-#'                to be deleted or a boolean vector indicating for each species 
-#'                whether it is to be removed (TRUE) or not.
+#' @param remove A vector of the names of the species to be deleted or a boolean
+#'   vector indicating for each species whether it is to be removed (TRUE) or
+#'   not.
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
