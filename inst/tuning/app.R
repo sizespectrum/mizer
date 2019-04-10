@@ -612,12 +612,8 @@ server <- function(input, output, session) {
   
   ## Plot feeding level ####
   output$plot_feeding_level <- renderPlotly({
-    p <- params()
-    fl <- getFeedingLevel(p, p@initial_n, p@initial_n_pp)
-    df <- melt(fl)
-    ggplot(df) +
-      geom_line(aes(x = w, y = value, color = sp, linetype = sp)) +
-      scale_x_log10()
+    plotFeedingLevel(params(), highlight = input$sp) + 
+      theme_grey(base_size = base_size)
   })
   
   ## Biomass plot ####
