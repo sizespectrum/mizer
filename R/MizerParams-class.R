@@ -679,6 +679,7 @@ emptyParams <- function(species_params,
 #' 
 #' All the parameters will be mentioned in the following sections.
 #' 
+#' @inheritSection changeParams Units in mizer
 #' @inheritSection changeInteraction Setting interactions
 #' @inheritSection changePredKernel Setting predation kernel
 #' @inheritSection changeSearchVolume Setting search volume
@@ -869,6 +870,32 @@ MizerParams <- set_multispecies_model
 #' If you have changed any of the model functions previously and now want to
 #' make changes to a different slot, you will want to call the appropriate
 #' change function individually.
+#' 
+#' @section Units in mizer:
+#' Mizer uses grams to measure weight, centimetres to measure lengths, and
+#' years to measure time.
+#' 
+#' Mizer is agnostic about whether abundances are given as 
+#' 1. numbers per area, 
+#' 2. numbers per volume or
+#' 3. total numbers for the entire study area. 
+#' 
+#' You should make the choice most convenient for your application and then
+#' stick with it. If you make choice 1 or 2 you will also have to choose a unit
+#' for area or volume. Your choice will then determine the units for rates.
+#' These will be either per area and time, per volume and time, or just per
+#' time. For example, the yield will be in grams/year/m^2 in case 1 if you
+#' choose m^2 as your measure of area, in grams/year/m^3 in case 2 if you choose
+#' m^3 as your unit of volume, or simply grams/year in case 3. The same comment
+#' applies for other measures, like total biomass, which will be grams/area in
+#' case 1, grams/volume in case 2 or simply grams in case 3. When mizer puts
+#' units on axes, for example in \code{plotBiomass}, it will simply put grams,
+#' as appropriate for case 3.
+#' 
+#' You can convert between these choices. For example, if you use case 1, you
+#' need to multiply with the area of the ecosystem to get the total quantity. 
+#' If you work with case 2, you need to multiply by both area and the thickness 
+#' of the productive layer. In that respect, case 2 is a bit cumbersome.
 #' 
 #' @inheritSection changeInteraction Setting interactions
 #' @inheritSection changePredKernel Setting predation kernel
