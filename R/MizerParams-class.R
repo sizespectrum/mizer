@@ -1418,6 +1418,9 @@ changeMetab <- function(params,
 #' species_params data frame, if that column exists. Otherwise it is calculated
 #' as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 #' 
+#' In the Examples section you see an example of how to implement background
+#' mortality rates depending on body size.
+#' 
 #' @param params MizerParams
 #' @param mu_b Optional. An array (species x size) holding the background
 #'   mortality rate.
@@ -1431,6 +1434,23 @@ changeMetab <- function(params,
 #' @return MizerParams
 #' @export
 #' @family functions for changing parameters
+#' @examples
+#' \dontrun{
+#' data("NS_species_params")
+#' params <- set_multispecies_model(NS_species_params)
+#'
+#' #### Setting allometric death rate #######################
+#' 
+#' # Set coefficient for each species. Here we choose 0.1 for each species
+#' mu_b0 <- rep(0.1, nrow(params@species_params))
+#' 
+#' # Multiply by power of size with exponent, here chosen to be -1/4
+#' # The outer() function makes it an array species x size
+#' mu_b <- outer(mu_b0, params@w^(-1/4))
+#' 
+#' # Change the background death in the params object
+#' params <- changeBMort(params, mu_b = mu_b)
+#' }
 changeBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(mu_b)) {
