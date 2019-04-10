@@ -993,7 +993,8 @@ changeParams <- function(params,
 #' 
 #' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the
 #' food encounter rate in \code{\link{getEncounter}} and the predation rate in
-#' \code{\link{getPredRate}}. This function checks that the supplied interaction
+#' \code{\link{getPredRate}}. Its entries are dimensionless numbers between
+#' 0 and 1. This function checks that the supplied interaction
 #' matrix is valid and then stores it in the \code{interaction} slot of the
 #' params object before returning that object.
 #' 
@@ -1270,11 +1271,21 @@ getPredKernel <- function(params) {
 #' calculating the encounter rate in \code{\link{getEncounter}} and the 
 #' predation rate in \code{\link{getPredRate}}.
 #' 
+#' The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
+#' not have units of volume. It is simply a parameter that determines the rate
+#' of predation. Its units depend on your choice, see section "Units in mizer".
+#' If you have chose to work with total abundances, then it is a rate with units
+#' 1/year. If you have chosen to work with abundances per m^2 then it has units
+#' of m^2/year. If you have chosen to work with abundances of m^3 then it has
+#' units of m^3/year.
+#' 
 #' If the \code{search_vol} argument is not supplied, then the search volume is set to
 #' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
 #' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
 #' column is not supplied in the species parameter dataframe, a default is
-#' calculated by the \code{\link{get_gamma_default}} function.
+#' calculated by the \code{\link{get_gamma_default}} function. Note that only
+#' for predators of size \eqn{w = 1} gram is the value of the species parameter
+#' \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
 #' 
 #' @param params MizerParams
 #' @param search_vol Optional. An array (species x size) holding the search volume
@@ -1325,11 +1336,12 @@ changeSearchVolume <- function(params,
 #' @section Setting maximum intake rate:
 #' The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
 #' weight \eqn{w} determines the feeding level, calculated with
-#' \code{\link{getFeedingLevel}}.
+#' \code{\link{getFeedingLevel}}. It is measured in grams/year.
 #'
 #' If the \code{intake_max} argument is not supplied, then the maximum intake
 #' rate is set to \deqn{h_i(w) = h_i w^n.} 
-#' The values of \eqn{h_i} are taken from the \code{h} column in the
+#' The values of \eqn{h_i} (the maximum intake rate of an individual of size
+#' 1 gram) are taken from the \code{h} column in the
 #' species parameter dataframe. If the \code{h} column is not supplied in the
 #' species parameter dataframe, it is calculated by the 
 #' \code{\link{get_h_default}} function, using \code{f0} and the \code{k_vb}
@@ -1381,7 +1393,7 @@ changeIntakeMax <- function(params,
 #' @section Setting metabolic rate:
 #' The metabolic rate is subtracted from the energy income rate to calculate
 #' the rate at which energy is available for growth and reproduction, see
-#' \code{\link{getEReproAndGrowth}}.
+#' \code{\link{getEReproAndGrowth}}. It is measured in grams/year.
 #' 
 #' If the \code{metab} argument is not supplied, then the metabolic
 #' rate \eqn{k_i(w)} for and individual of species \eqn{i} and size \eqn{w}
@@ -1436,7 +1448,11 @@ changeMetab <- function(params,
 #' 
 #' @section Setting background mortality rate:
 #' The background mortality is all the mortality that is not due to either
-#' predation or fishing. 
+#' predation or fishing. It is a rate with units 1/year.
+#' 
+#' The \code{mu_b} argument allows you to specify a background mortality rate
+#' that depends on species and body size. You can see an example of this in
+#' the Examples section of the help page for \coce{\link{changeBMort}}.
 #' 
 #' If the \code{mu_b} argument is not supplied, then the background mortality
 #' is assumed to depend only on the asymptotic size of the species, not on the
@@ -1444,9 +1460,6 @@ changeMetab <- function(params,
 #' constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 #' species_params data frame, if that column exists. Otherwise it is calculated
 #' as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
-#' 
-#' In the Examples section you see an example of how to implement background
-#' mortality rates depending on body size.
 #' 
 #' @param params MizerParams
 #' @param mu_b Optional. An array (species x size) holding the background
@@ -1769,10 +1782,10 @@ changeResources <- function(params,
 #' Set resource encounter rate
 #' 
 #' @section Setting resource encounter rate:
-#' The resource encounter rate \eqn{\rho_{id}(w)} determines the rate at which
-#' an individual of species \eqn{i} encounters biomass of resource \eqn{d},
-#' \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the d-th
-#' unstructured resource component. 
+#' The resource encounter rate \eqn{\rho_{id}(w)} (units 1/year) determines the
+#' rate at which an individual of species \eqn{i} encounters biomass of resource
+#' \eqn{d}, \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the
+#' d-th unstructured resource component.
 #' See \code{\link{resource_dynamics}} for more details.
 #' 
 #' The ordering of the entries in the array \code{rho} is important. The order
@@ -1908,7 +1921,7 @@ changeFishing <- function(params) {
 #' Changes the slots in the \code{MizerParams} object holding the initial
 #' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
 #' 
-#' @param params A \code{MizerParams} objedt
+#' @param params A \code{MizerParams} object
 #' @param initial_n x
 #' @param initial_n_pp x
 #' @param initial_B x
