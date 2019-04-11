@@ -1067,7 +1067,6 @@ plotlyPredMort <- function(object, species = NULL,
 #' range (a single value for the time range can be used to plot a single time
 #' step).
 #' 
-#' @param sim An object of class \linkS4class{MizerSim}.
 #' @inheritParams plotSpectra
 #'
 #' @return A ggplot2 object
@@ -1083,22 +1082,39 @@ plotlyPredMort <- function(object, species = NULL,
 #' plotFMort(sim)
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
 #' 
-plotFMort <- function(object, species = dimnames(sim@n)$sp,
-                      time_range = max(as.numeric(dimnames(sim@n)$time)),
+plotFMort <- function(object, species = NULL,
+                      time_range,
                       print_it = FALSE, highlight = NULL, ...) {
+    if (is(object, "MizerSim")) {
+        if (missing(time_range)) {
+            time_range  <- max(as.numeric(dimnames(object@n)$time))
+        }
+        params <- object@params
+    } else {
+        assert_that(is(object, "MizerParams"))
+        params <- object
+    }
+    f <- getFMort(object, time_range = time_range, drop = FALSE)
+    # If a time range was returned, average over it
+    if (length(dim(f)) == 3) {
+        f <- apply(f, c(2, 3), mean)
+    }
+    # selector for desired species
+    # Set species if missing to list of all non-background species
+    if (is.null(species)) {
+        species <- dimnames(params@initial_n)$sp[!is.na(params@A)]
+    }
     # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
-    
-    f_time <- getFMort(sim, time_range = time_range, drop = FALSE)
-    f <- apply(f_time, c(2, 3), mean)
+    species_levels <- c(as.character(params@species_params$species), 
+                        "Background", "Plankton", "Total")
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(f),
                            Species = factor(dimnames(f)[[1]],
                                             levels = species_levels),
-                           w = rep(sim@params@w, each = length(species)))
+                           w = rep(params@w, each = length(species)))
     
-    linesize <- rep(0.8, length(sim@params@linetype))
-    names(linesize) <- names(sim@params@linetype)
+    linesize <- rep(0.8, length(params@linetype))
+    names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
     if (length(species) > 120) {
         p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, size = Species))
@@ -1111,8 +1127,8 @@ plotFMort <- function(object, species = dimnames(sim@n)$sp,
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Fishing mortality [1/Year]",
                            limits = c(0, max(plot_dat$value))) +
-        scale_colour_manual(values = sim@params@linecolour) +
-        scale_linetype_manual(values = sim@params@linetype) + 
+        scale_colour_manual(values = params@linecolour) +
+        scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
     if (print_it) {
         print(p)
@@ -1124,8 +1140,8 @@ plotFMort <- function(object, species = dimnames(sim@n)$sp,
 #' @inherit plotPredMort params return description details seealso
 #' @export
 #' @family plotting functions
-plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
-                      time_range = max(as.numeric(dimnames(sim@n)$time)),
+plotlyFMort <- function(object, species = NULL,
+                      time_range,
                       print_it = FALSE,
                       highlight = NULL, ...) {
     argg <- as.list(environment())
