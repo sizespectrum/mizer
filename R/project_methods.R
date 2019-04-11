@@ -346,8 +346,10 @@ getFeedingLevel <- function(object, n, n_pp, B, encounter,
 #' Get predation rate
 #' 
 #' Calculates the potential rate (in units 1/year) at which a prey individual of
-#' a given size \eqn{w} is killed by predators from species \eqn{i}. In formulas
-#' \deqn{\int\phi_i(w,w_p) (1-f_i(w)) \gamma_i(w) N_i(w) dw.}
+#' a given size \eqn{w} is killed by predators from species \eqn{j}. In formulas
+#' \deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
+#'   \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
+#'   \gamma_i(w) N_i(w) dw.}
 #' This potential rate is used in the function \code{\link{getPredMort}} to
 #' calculate the realised predation mortality rate on the prey individual.
 #'
@@ -432,17 +434,17 @@ getPredRate <- function(params, n = params@initial_n,
 #' Get total predation mortality rate
 #'
 #' Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units
-#' of 1/year) on each prey species by prey size.
-#' 
-#' This function is used by the
-#' \code{\link{project}} function for performing simulations.
+#' of 1/year) on each prey species by prey size:
+#' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
+#'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 #' 
 #' @param object A \code{MizerParams} or \code{MizerSim} object.
 #' @param n A matrix of species abundance (species x size). Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
 #' @param n_pp A vector of the plankton abundance by size. Only used if
 #'   \code{object} argument is of type \code{MizerParams}.
-#' @param B A vector of biomasses of unstructured resource components
+#' @param B A vector of biomasses of unstructured resource components. Only used
+#'   if \code{object} argument is of type \code{MizerParams}.
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
@@ -461,6 +463,7 @@ getPredRate <- function(params, n = params@initial_n,
 #'   passed in. If a \code{MizerSim} object is passed in, the function returns a
 #'   three dimensional array (time step x prey species x prey size) with the
 #'   predation mortality calculated at every time step in the simulation.
+#'   Dimensions may be dropped if they have length 1 unless `drop = FALSE`.
 #' @family rate functions
 #' @export
 #' @examples
@@ -825,8 +828,7 @@ getZ <- getMort
 #'
 #' Calculates the energy rate (grams/year) available by species and size for
 #' reproduction and growth after metabolism and movement have been accounted
-#' for: \eqn{E_{r.i}(w)}. Used by the \code{project} function for performing
-#' simulations.
+#' for. 
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -839,7 +841,11 @@ getZ <- getMort
 #'   no. species x no. size bins. If not supplied, is calculated internally
 #'   using the \code{\link{getFeedingLevel}} function.
 #'
-#' @return A two dimensional array (species x size) 
+#' @return A two dimensional array (species x size) holding
+#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
+#'   E_{r.i}(w) = max(0, \alpha_i encounter_i(w) - metab_i(w)).}
+#' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
+#' data frame in \code{params}. The metabolic rate is taken from \code{params}. 
 #' @export
 #' @seealso \code{\link{getERepro}} and \code{\link{getEGrowth}}
 #' @family rate functions

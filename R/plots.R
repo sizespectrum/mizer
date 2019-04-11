@@ -1076,7 +1076,7 @@ plotlyM2 <- function(object, species = NULL,
 #' plotFMort(sim)
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
 #' 
-plotFMort <- function(sim, species = dimnames(sim@n)$sp,
+plotFMort <- function(object, species = dimnames(sim@n)$sp,
                       time_range = max(as.numeric(dimnames(sim@n)$time)),
                       print_it = FALSE, highlight = NULL, ...) {
     # Need to keep species in order for legend
@@ -1337,12 +1337,6 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' level and predation mortality of each species through time. This method just
 #' uses the other plotting functions and puts them all in one window.
 #' 
-#' @param x An object of class \linkS4class{MizerParams}
-#' @param y Not used
-#' @param ...  For additional arguments see the documentation for
-#'   \code{\link{plotBiomass}},
-#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
-#'   and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
 #' @family plotting functions

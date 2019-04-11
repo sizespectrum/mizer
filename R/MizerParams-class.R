@@ -279,7 +279,7 @@ validMizerParams <- function(object) {
 #'   details.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
-#'   See \code{\link{set_multispecies_params}} for details.
+#'   See \code{\link{set_multispecies_model}} for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with \code{\link{changeInteraction}}.
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
@@ -848,15 +848,20 @@ MizerParams <- set_multispecies_model
 #' from the species parameters and only want to change the values of some
 #' species parameters, you would make those changes in the `species_params`
 #' data frame contained in the `params` object and then call the
-#' `changeParams()` function to effect the change. Note that just changing
-#' the species parameters by themselves is not changing the model until you
-#' call `changeParams()` or the appropriate one of its sub-functions.
-#' 
+#' `changeParams()` function to effect the change, as in the following example,
+#' which assumes that you have have a MizerParams object `params` in which you
+#' just want to change one parameter of the third species:
+#' ```
+#' params@species_params$gamma[3] <- 1000
+#' params <- changeParams(params)
+#' ```
+#' Note that just changing the species parameters by themselves is not changing
+#' the model until you call `changeParams()` or the appropriate one of its
+#' sub-functions.
 #' Because of the way the R language works, `changeParams` does not make the
 #' changes to the `params` object that you pass to it but instead returns a new
 #' params object. So to affect the change you call the function in the form
-#' ```params <- changeParams(params, ...)```. See the examples section for an
-#' example of how to change a species parameter and then change the model.
+#' `params <- changeParams(params, ...)`.
 #' 
 #' If you are not happy with the assumptions that mizer makes by default about
 #' the shape of the model functions, for example if you want to change one of
@@ -864,12 +869,13 @@ MizerParams <- set_multispecies_model
 #' choice as an array in the appropriate argument to `changeParams()`. The
 #' sections below discuss all the model functions that you can change this way.
 #' 
-#' This function will use the species parameters from the `species_params` data
-#' frame from the `params` object to reset the values of all the model functions
-#' that you do not specify explictly when calling this function.
-#' If you have changed any of the model functions previously and now want to
-#' make changes to a different slot, you will want to call the appropriate
-#' change function individually.
+#' This function will use the species parameters in the `params` object to reset
+#' the values of all the model functions that you do not specify explictly when
+#' calling this function. If you have changed any of the model functions in the
+#' `params` object previously and now want to make changes to a different slot,
+#' you will want to call the appropriate change function individually. So in the
+#' above example you would have used `params <- changeSearchVolume(params)`
+#' instead of `params <- changeParams(params)`.
 #' 
 #' @section Units in mizer:
 #' Mizer uses grams to measure weight, centimetres to measure lengths, and
@@ -882,15 +888,18 @@ MizerParams <- set_multispecies_model
 #' 
 #' You should make the choice most convenient for your application and then
 #' stick with it. If you make choice 1 or 2 you will also have to choose a unit
-#' for area or volume. Your choice will then determine the units for rates.
-#' These will be either per area and time, per volume and time, or just per
-#' time. For example, the yield will be in grams/year/m^2 in case 1 if you
-#' choose m^2 as your measure of area, in grams/year/m^3 in case 2 if you choose
-#' m^3 as your unit of volume, or simply grams/year in case 3. The same comment
-#' applies for other measures, like total biomass, which will be grams/area in
-#' case 1, grams/volume in case 2 or simply grams in case 3. When mizer puts
-#' units on axes, for example in \code{plotBiomass}, it will simply put grams,
-#' as appropriate for case 3.
+#' for area or volume. Your choice will then determine the units for some of
+#' the parameters. This will be mentioned when the parameters are discussed in
+#' the sections below.
+#' 
+#' You choice will also affect the units of the quantities you may want to
+#' calculate with the model. For example, the yield will be in grams/year/m^2 in
+#' case 1 if you choose m^2 as your measure of area, in grams/year/m^3 in case 2
+#' if you choose m^3 as your unit of volume, or simply grams/year in case 3. The
+#' same comment applies for other measures, like total biomass, which will be
+#' grams/area in case 1, grams/volume in case 2 or simply grams in case 3. When
+#' mizer puts units on axes, for example in \code{plotBiomass}, it will simply
+#' put grams, as appropriate for case 3.
 #' 
 #' You can convert between these choices. For example, if you use case 1, you
 #' need to multiply with the area of the ecosystem to get the total quantity. 
@@ -991,21 +1000,22 @@ changeParams <- function(params,
 #' 
 #' @section Setting interactions:
 #' 
-#' The species interaction matrix \eqn{\theta_{ij}} is used when calculating the
-#' food encounter rate in \code{\link{getEncounter}} and the predation rate in
-#' \code{\link{getPredRate}}. Its entries are dimensionless numbers between
-#' 0 and 1. This function checks that the supplied interaction
+#' The species interaction matrix \eqn{\theta_{ij}}, is used when calculating the
+#' food encounter rate in \code{\link{getEncounter}} and the predation mortality rate in
+#' \code{\link{getPredMort}}. Its entries are dimensionless numbers between
+#' 0 and 1 that characterise the strength at which predator species \eqn{i}
+#' predates on prey species \eqn{j}. 
+#' 
+#' This function checks that the supplied interaction
 #' matrix is valid and then stores it in the \code{interaction} slot of the
 #' params object before returning that object.
 #' 
-#' Any dimnames of the interaction matrix argument are ignored by the
-#' constructor. The dimnames of the interaction matrix in the returned
-#' \code{MizerParams} object are taken from the species names in the
-#' \code{species_params} slot. This means that the order of the columns and rows
-#' of the interaction matrix argument should be the same as the species name in
-#' the \code{species_params} slot. 
+#' The order of the columns and rows of the `interaction` argument should be the 
+#' same as the order in the species params dataframe in the `params` object.
+#' If you supply a named array then the function will check the order and warn 
+#' if it is different.
 #' 
-#' The interaction of the species with the plankton are set via a colun
+#' The interaction of the species with the plankton are set via a column
 #' \code{interaction_p} in the species_params data frame. Again the entries
 #' have to be numbers between 0 and 1. By default this column is set to all
 #' 1s.
@@ -1109,7 +1119,7 @@ changeInteraction <- function(params,
 #' When using a kernel that depends on the predator/prey size ratio only, mizer
 #' does not need to store the entire three dimensional array in the MizerParams
 #' object. Such an array can be very big when there is a large number of size
-#' bins. Instead mizer only needs to store two two-dimensional arrays that hold
+#' bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 #' Fourier transforms of the feeding kernel function that allow the encounter
 #' rate and the predation rate to be calculated very efficiently. However, if
 #' you need the full three-dimensional array you can calculate it with the
@@ -1128,8 +1138,9 @@ changeInteraction <- function(params,
 #' methods to significantly reduce the running time of simulations.
 #'
 #' The order of the predator species in \code{pred_kernel} should be the same
-#' as the order in the species params dataframe. If you supply a named array
-#' then the function will check the order and warn if it is different.
+#' as the order in the species params dataframe in the `params` object. If you
+#' supply a named array then the function will check the order and warn if it is
+#' different.
 #' 
 #' @param params A MizerParams object
 #' @param pred_kernel Optional. An array (species x predator size x prey size)
@@ -1223,9 +1234,11 @@ changePredKernel <- function(params,
 
 #' Get predation kernel
 #' 
-#' If no explicit predation kernel is stored in the params object, then this
-#' function calculates it from the information in the species parameter data
-#' frame in the params object.
+#' If no explicit predation kernel \eqn{\phi_i(w, w_p)} is stored in the params
+#' object, then this function calculates it from the information in the species
+#' parameter data frame in the params object.
+#' 
+#' For more detail about the predation kernel see \code{\link{changePredKernel}}.
 #' 
 #' @param params A MizerParams object
 #' @return An array (predator x predator_size x prey_size)
@@ -1276,7 +1289,7 @@ getPredKernel <- function(params) {
 #' of predation. Its units depend on your choice, see section "Units in mizer".
 #' If you have chose to work with total abundances, then it is a rate with units
 #' 1/year. If you have chosen to work with abundances per m^2 then it has units
-#' of m^2/year. If you have chosen to work with abundances of m^3 then it has
+#' of m^2/year. If you have chosen to work with abundances per m^3 then it has
 #' units of m^3/year.
 #' 
 #' If the \code{search_vol} argument is not supplied, then the search volume is set to
@@ -1396,15 +1409,16 @@ changeIntakeMax <- function(params,
 #' \code{\link{getEReproAndGrowth}}. It is measured in grams/year.
 #' 
 #' If the \code{metab} argument is not supplied, then the metabolic
-#' rate \eqn{k_i(w)} for and individual of species \eqn{i} and size \eqn{w}
+#' rate \eqn{k_i(w)} for an individual of species \eqn{i} and size \eqn{w}
 #' is set to \deqn{k_i(w) = ks_i\, w^p + k_i\, w,}{k_i(w) = ks_i w^p + k_i w}
 #' where \eqn{ks_i w^p} represents the rate of standard metabolism and 
 #' \eqn{k_i w} is the rate at which energy is expended on activity and movement.
 #' The values of \eqn{ks_i} and \eqn{k_i} are taken from the \code{ks} and
 #' \code{k} columns in the
 #' species parameter dataframe. If these parameters are not supplied, the
-#' defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0} where \eqn{h_i} is the
-#' coefficient of the maximum intake rate.
+#' defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0}, where \eqn{h_i} is the
+#' coefficient of the maximum intake rate and is taken from the species
+#' parameter data frame in \code{params}.
 #' 
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
@@ -1452,7 +1466,7 @@ changeMetab <- function(params,
 #' 
 #' The \code{mu_b} argument allows you to specify a background mortality rate
 #' that depends on species and body size. You can see an example of this in
-#' the Examples section of the help page for \coce{\link{changeBMort}}.
+#' the Examples section of the help page for \code{\link{changeBMort}}.
 #' 
 #' If the \code{mu_b} argument is not supplied, then the background mortality
 #' is assumed to depend only on the asymptotic size of the species, not on the
@@ -1917,15 +1931,22 @@ changeFishing <- function(params) {
 }
 
 #' Change initial abundances
-#' 
+#'
 #' Changes the slots in the \code{MizerParams} object holding the initial
 #' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
-#' 
+#'
 #' @param params A \code{MizerParams} object
-#' @param initial_n x
-#' @param initial_n_pp x
-#' @param initial_B x
-#' @param sim x
+#' @param initial_n The initial abundances of species. A matrix with dimensions
+#'   species x size. The order of species must be the same as in the MizerParams
+#'   argument. Optional. Ignored if `sim` is supplied.
+#' @param initial_n_pp The initial abundances of plankton. A numeric vector.
+#'   Optional. Ignored if `sim` is supplied.
+#' @param initial_B The initial biomasses of the unstructured resources. A named
+#'   vector with one entry for each resource. Optional. Ignored if `sim` is
+#'   supplied.
+#' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
+#'   `initial_n_pp` and `initial_B` arguments are ignored and the information
+#'   is taken from the last timestep of the simulation in `sim`.
 #' @export
 #' @family functions for changing parameters
 changeInitial <- function(params,
