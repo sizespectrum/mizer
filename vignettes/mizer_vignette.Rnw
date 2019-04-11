@@ -1935,11 +1935,11 @@ With these plotting methods, it is also possible to specify a different time ste
 	plotBiomass() & Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method \code{getBiomass()}.\\
 	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the plankton community. It is possible to specify a minimum size which is useful for truncating the plot. \\
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
-	plotM2() & Plots the predation mortality of each species against size.\\
+	plotPredMort() & Plots the predation mortality of each species against size.\\
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
 	plotYield() & Plots the total yield of each species across all fishing gears against time.\\
 	plotYieldGear() & Plots the total yield of each species by gear against time.\\
-	plot() & Produces 5 plots (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}) in the same window as a summary.\\
+	plot() & Produces 5 plots (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotPredMort()}, \code{plotFMort()} and \code{plotSpectra()}) in the same window as a summary.\\
 	\hline
 	\end{tabularx}
 	\caption{Plot methods for \class{MizerSim} objects.}
@@ -1980,7 +1980,7 @@ plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 \label{fig:plotSpectra_example}
 \end{figure}
 
-As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotM2()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\ref{fig:plot_example}). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
+As mentioned above, and as we have seen several times in this vignette, the generic \code{plot()} method has also been overloaded.  This produces 5 plots in the same window (\code{plotFeedingLevel()}, \code{plotBiomass()}, \code{plotPredMort()}, \code{plotFMort()} and \code{plotSpectra()}, see Figure~\ref{fig:plot_example}). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
 
 <<label=demo_summary_plot,eval=FALSE>>=
 plot(sim)

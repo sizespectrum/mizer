@@ -28,6 +28,9 @@ navbar:
     left: [home, intro, reference, articles, publications, news]
     right: [github]
   components:
+    articles:
+      text: Articles
+      href: articles/index.html
     publications:
       text: Publications
       href: articles/publications.html
@@ -53,13 +56,23 @@ articles:
 
 
 reference:
-- title: Creating new model
+- title: Creating a new model
   contents:
   - starts_with("set")
 - title: Changing model parameters
   contents:
   - changeParams
-  - starts_with("change")
+  - changePredKernel
+  - changeSearchVolume
+  - changeInteraction
+  - changeIntakeMax
+  - changeMetab
+  - changeBMort
+  - changeReproduction
+  - changeFishing
+  - changePlankton
+  - changeResourceDynamics
+  - changeResourceEncounter
   - tuneParams
   - steady
   - emptyParams
@@ -92,7 +105,7 @@ reference:
   - getBiomassFrame
   - getSSBFrame
   - displayFrames
-- title: Calculating rates used in model
+- title: Calculating rates used in the model
   contents:
   - getRates
   - getEncounter
@@ -109,18 +122,15 @@ reference:
   - getRDD
   - getRDI
   - getPredKernel
-- title: Dynamics of unstructured resources
-  contents:
-  - resource_dynamics
-  - carrion_dynamics
-  - detritus_dynamics
-- title: Functions used in model
+- title: Functions used in the model
   contents:
   - lognormal_pred_kernel
   - box_pred_kernel
   - knife_edge
   - sigmoid_length
   - plankton_semichemostat
+  - carrion_dynamics
+  - detritus_dynamics
   - srrBevertonHolt
 - title: Internal helper functions
   contents:

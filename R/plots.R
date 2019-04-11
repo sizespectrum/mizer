@@ -23,11 +23,11 @@
 #'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for \code{\link{getBiomass}}. \cr
 #'   \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
 #'   \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
-#'   \code{\link{plotM2}} \tab Plots the predation mortality of each species against size. \cr
+#'   \code{\link{plotPredMort}} \tab Plots the predation mortality of each species against size. \cr
 #'   \code{\link{plotFMort}} \tab Plots the total fishing mortality of each species against size. \cr
 #'   \code{\link{plotYield}} \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
-#'   \code{\link{plot}} \tab Produces 5 plots (\code{\link{plotFeedingLevel}}, \code{\link{plotBiomass}}, \code{\link{plotM2}}, \code{\link{plotFMort}} and \code{\link{plotSpectra}}) in the same window as a summary. \cr
+#'   \code{\link{plot}} \tab Produces 5 plots (\code{\link{plotFeedingLevel}}, \code{\link{plotBiomass}}, \code{\link{plotPredMort}}, \code{\link{plotFMort}} and \code{\link{plotSpectra}}) in the same window as a summary. \cr
 #' }
 #' 
 #' These functions use the ggplot2 package and return the plot as a ggplot
@@ -984,10 +984,10 @@ plotlyFeedingLevel <- function(object,
 #' data(inter)
 #' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
-#' plotM2(sim)
-#' plotM2(sim, time_range = 10:20)
+#' plotPredMort(sim)
+#' plotPredMort(sim, time_range = 10:20)
 #' 
-plotM2 <- function(object, species = NULL,
+plotPredMort <- function(object, species = NULL,
                    time_range,
                    print_it = FALSE, highlight = NULL, ...) {
     if (is(object, "MizerSim")) {
@@ -1042,15 +1042,22 @@ plotM2 <- function(object, species = NULL,
     return(p)
 }
 
+#' Alias for plotPredMort
+#' 
+#' An alias provided for backward compatibility with mizer version <= 1.0
+#' @inherit plotPredMort
+#' @export
+plotM2 <- plotPredMort
+
 #' Plot predation mortality rate of each species against size with plotly
-#' @inherit plotM2 params return description details seealso
+#' @inherit plotPredMort params return description details seealso
 #' @export
 #' @family plotting functions
-plotlyM2 <- function(object, species = NULL,
+plotlyPredMort <- function(object, species = NULL,
                      time_range,
                      print_it = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
-    ggplotly(do.call("plotM2", argg))
+    ggplotly(do.call("plotPredMort", argg))
 }
 
 #' Plot total fishing mortality of each species by size
@@ -1114,7 +1121,7 @@ plotFMort <- function(object, species = dimnames(sim@n)$sp,
 }
 
 #' Plot total fishing mortality of each species by size with plotly
-#' @inherit plotM2 params return description details seealso
+#' @inherit plotPredMort params return description details seealso
 #' @export
 #' @family plotting functions
 plotlyFMort <- function(sim, species = dimnames(sim@n)$sp,
@@ -1291,7 +1298,7 @@ plotlyGrowthCurves <- function(object, species,
 #' @param y Not used
 #' @param ...  For additional arguments see the documentation for
 #'   \code{\link{plotBiomass}},
-#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotM2}}
+#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotPredMort}}
 #'   and \code{\link{plotFMort}}.
 #' @return A viewport object
 #' @export
@@ -1313,7 +1320,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
               p1 <- plotFeedingLevel(x, print_it = FALSE, ...)
               p2 <- plotSpectra(x, print_it = FALSE, ...)
               p3 <- plotBiomass(x, y_ticks = 3, print_it = FALSE, ...)
-              p4 <- plotM2(x, print_it = FALSE, ...)
+              p4 <- plotPredMort(x, print_it = FALSE, ...)
               p5 <- plotFMort(x, print_it = FALSE, ...)
               grid::grid.newpage()
               glayout <- grid::grid.layout(3, 2) # widths and heights arguments
@@ -1354,7 +1361,7 @@ setMethod("plot", signature(x = "MizerParams", y = "missing"),
           function(x, ...) {
               p11 <- plotFeedingLevel(x, print_it = FALSE, ...)
               p2 <- plotSpectra(x, print_it = FALSE, ...)
-              p12 <- plotM2(x, print_it = FALSE, ...)
+              p12 <- plotPredMort(x, print_it = FALSE, ...)
               grid::grid.newpage()
               glayout <- grid::grid.layout(2, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)

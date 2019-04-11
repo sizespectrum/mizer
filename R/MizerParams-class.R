@@ -239,8 +239,7 @@ validMizerParams <- function(object) {
 #'   each species at size. Changed with \code{\link{changeSearchVolume}}.
 #' @slot rho A 3-dim array (species x resource x size) holding the encounter
 #'   rates for unstructured resources. Changed with 
-#'   \code{\link{changeResourceEncounter}}. See \code{\link{resource_dynamics}}
-#'   for details.
+#'   \code{\link{changeResourceEncounter}}.
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with \code{\link{changeMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -271,12 +270,10 @@ validMizerParams <- function(object) {
 #' @slot resource_dynamics A named list of functions for projecting the
 #'   biomasses in the unstructured resource components by one timestep. The
 #'   names of the list entries are the resource names. Changed with 
-#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
-#'   details.
+#'   \code{\link{changeResourceDynamics}}.
 #' @slot resource_params A list containing the parameters needed by the
 #'   \code{resource_dynamics} functions.  Changed with 
-#'   \code{\link{changeResources}}. See \code{\link{resource_dynamics}} for 
-#'   details.
+#'   \code{\link{changeResourceDynamics}}.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See \code{\link{set_multispecies_model}} for details.
@@ -295,7 +292,7 @@ validMizerParams <- function(object) {
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
 #'   the plankton abundance at each weight.
 #' @slot initial_B A vector containing the biomasses of the unstructured
-#'   resource components, see \code{\link{resource_dynamics}} for details.
+#'   resource components.
 #'   Has length zero if there are no unstructured resources.
 #' @slot n Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.
 #' @slot p Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.
@@ -687,10 +684,10 @@ emptyParams <- function(species_params,
 #' @inheritSection changeMetab Setting metabolic rate
 #' @inheritSection changeBMort Setting background mortality rate
 #' @inheritSection changeReproduction Setting reproduction
-#' @inheritSection changePlankton Setting plankton dynamics
-#' @inheritSection changeResources Setting resource dynamics
-#' @inheritSection changeResourceEncounter Setting resource encounter rate
 #' @inheritSection changeFishing Setting fishing
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResourceDynamics Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
 #'   
 #' @seealso \code{\link{project}}, \linkS4class{MizerSim},
 #'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
@@ -736,7 +733,7 @@ set_multispecies_model <- function(species_params,
                                    r_pp = 10,
                                    w_pp_cutoff = 10,
                                    plankton_dynamics = plankton_semichemostat,
-                                   # changeResources
+                                   # changeResourceDynamics
                                    resource_dynamics = list(),
                                    resource_params = list(),
                                    # changeResourceEncounter
@@ -785,7 +782,7 @@ set_multispecies_model <- function(species_params,
                         r_pp = r_pp,
                         w_pp_cutoff = w_pp_cutoff,
                         plankton_dynamics = plankton_dynamics,
-                        # changeResources
+                        # changeResourceDynamics
                         resource_dynamics = resource_dynamics,
                         resource_params = resource_params,
                         # changeResourceEncounter
@@ -817,10 +814,10 @@ MizerParams <- set_multispecies_model
 #' \item \code{\link{changeMetab}}
 #' \item \code{\link{changeBMort}}
 #' \item \code{\link{changeReproduction}}
-#' \item \code{\link{changePlankton}}
-#' \item \code{\link{changeResources}}
-#' \item \code{\link{changeResourceEncounter}}
 #' \item \code{\link{changeFishing}}
+#' \item \code{\link{changePlankton}}
+#' \item \code{\link{changeResourceDynamics}}
+#' \item \code{\link{changeResourceEncounter}}
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #' 
@@ -836,10 +833,10 @@ MizerParams <- set_multispecies_model
 #' @inheritParams changeMetab
 #' @inheritParams changeBMort
 #' @inheritParams changeReproduction
-#' @inheritParams changePlankton
-#' @inheritParams changeResources
-#' @inheritParams changeResourceEncounter
 #' @inheritParams changeFishing
+#' @inheritParams changePlankton
+#' @inheritParams changeResourceDynamics
+#' @inheritParams changeResourceEncounter
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -913,10 +910,10 @@ MizerParams <- set_multispecies_model
 #' @inheritSection changeMetab Setting metabolic rate
 #' @inheritSection changeBMort Setting background mortality rate
 #' @inheritSection changeReproduction Setting reproduction
-#' @inheritSection changePlankton Setting plankton dynamics
-#' @inheritSection changeResources Setting resource dynamics
-#' @inheritSection changeResourceEncounter Setting resource encounter rate
 #' @inheritSection changeFishing Setting fishing
+#' @inheritSection changePlankton Setting plankton dynamics
+#' @inheritSection changeResourceDynamics Setting resource dynamics
+#' @inheritSection changeResourceEncounter Setting resource encounter rate
 #' @md
 #' @export
 #' @family functions for changing parameters
@@ -954,44 +951,44 @@ changeParams <- function(params,
                       r_pp = 10,
                       w_pp_cutoff = 10,
                       plankton_dynamics = NULL,
-                      # changeResources
+                      # changeResourceDynamics
                       resource_dynamics = params@resource_dynamics,
                       resource_params = params@resource_params,
                       # changeResourceEncounter
                       rho = NULL) {
     validObject(params)
     params <- changeInteraction(params,
-                             interaction = interaction)
+                                interaction = interaction)
     params <- changeFishing(params)
-    params <- changePredKernel(params, 
-                            pred_kernel = pred_kernel)
-    params <- changeIntakeMax(params, 
-                           intake_max = intake_max,
-                           n = n)
-    params <- changeMetab(params, 
-                       metab = metab,
-                       p = p)
-    params <- changeBMort(params, 
-                       z0pre = z0pre, 
-                       z0exp = z0exp)
-    params <- changeSearchVolume(params, 
-                              search_vol = search_vol,
-                              q = q)
-    params <- changeReproduction(params, 
-                              maturity = maturity,
-                              repro_prop = repro_prop)
+    params <- changePredKernel(params,
+                               pred_kernel = pred_kernel)
+    params <- changeIntakeMax(params,
+                              intake_max = intake_max,
+                              n = n)
+    params <- changeMetab(params,
+                          metab = metab,
+                          p = p)
+    params <- changeBMort(params,
+                          z0pre = z0pre,
+                          z0exp = z0exp)
+    params <- changeSearchVolume(params,
+                                 search_vol = search_vol,
+                                 q = q)
+    params <- changeReproduction(params,
+                                 maturity = maturity,
+                                 repro_prop = repro_prop)
     params <- changePlankton(params,
-                          kappa = kappa,
-                          lambda = lambda,
-                          r_pp = r_pp, 
-                          w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics)
-    params <- changeResources(params,
-                           resource_dynamics = resource_dynamics,
-                           resource_params = resource_params)
-    params <- changeResourceEncounter(params, 
-                                   rho = rho,
-                                   n = params@n)
+                             kappa = kappa,
+                             lambda = lambda,
+                             r_pp = r_pp,
+                             w_pp_cutoff = w_pp_cutoff,
+                             plankton_dynamics = plankton_dynamics)
+    params <- changeResourceDynamics(params,
+                                     resource_dynamics = resource_dynamics,
+                                     resource_params = resource_params)
+    params <- changeResourceEncounter(params,
+                                      rho = rho,
+                                      n = params@n)
     return(params)
 }
 
@@ -1746,7 +1743,46 @@ changePlankton <- function(params,
 #' Set resource dynamics
 #' 
 #' @section Setting resource dynamics:
-#' Still need to document
+#' Besides the size-structured planktonic resource, mizer can also model any number
+#' of unstructured resource components. Such unstructured components are
+#' appropriate whenever the predation on these componente is not size based.
+#' Examples include detritus as a resource for detritovores, carrion as a
+#' resource for scavengers, or macroflora on which fish can graze. 
+#' 
+#' During a simulation using [project()], the biomasses of the resources are
+#' updated at each time step by calling the functions specified in the
+#' `resource_dynamics` list, which has one named entry for each unstructured
+#' resource component. By default a model is set up without unstructured
+#' resource components, so you do not need to provide this list. But if you
+#' do want to use it, you can see an example of how to set up a
+#' `resource_dynamics` list in the Examples section of
+#' `changeResourceDynamics()`.
+#' 
+#' Mizer provides two functions that you can use to model resource dynamics:
+#' [detritus_dynamics()] and [carrion_dynamics()], but you can easily implement
+#' others by following those templates.
+#' As you can see in the documentation of these functions, their arguments are:
+#' the `MizerParams` object `params`, the current fish size spectra `n`, the
+#' current plankton spectrum `n_pp`, the current resource biomasses `B` and the
+#' current rates calculated by the [getRates()] function.
+#' 
+#' The other arguments to the resource dynamics functions are model parameters,
+#' like for example growth rates. These need to be provided in the
+#' `resource_params` argument which is a named list. One model parameter that
+#' should always be present in this list is the rate of change due to external
+#' causes. This should be given a name of the form `resource_external` where
+#' `resource` should be replaced by the name of the resource, see for example
+#' `detritus_external` in [detritus_dynamics()].
+#' 
+#' When writing your own resource dynamics functions, you can choose any names
+#' for your other model parameters, but you must make sure not to use the same
+#' name in the function for another resource component. One way to ensure this
+#' is to prefix all parameter namse with your resource name.
+#' 
+#' The dynamics for a resource should always have a loss term accounting for
+#' the consumption of the resource. This should always have the form used in the
+#' example function [detritus_dynamics()], in order to be in agreement with the
+#' feeding by consumers that is set with \code{\link{changeResourceEncounter}}.
 #' 
 #' @param params A MizerParams object
 #' @param resource_dynamics A named list of functions that determine the
@@ -1754,14 +1790,15 @@ changePlankton <- function(params,
 #'   the next time step from the current state. See
 #'   \code{\link{resource_dynamics}} for details. An empty list if the model
 #'   does not have unstructured resources.
-#' @param resource_params A list of parameters needed by the
+#' @param resource_params A named list of parameters needed by the
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
 #'   needed.
 #' 
 #' @return A MizerParams object
 #' @export
+#' @md
 #' @family functions for changing parameters
-changeResources <- function(params,
+changeResourceDynamics <- function(params,
                          resource_dynamics = NULL,
                          resource_params = NULL) {
     assert_that(is(params, "MizerParams"))
@@ -1798,15 +1835,14 @@ changeResources <- function(params,
 #' @section Setting resource encounter rate:
 #' The resource encounter rate \eqn{\rho_{id}(w)} (units 1/year) determines the
 #' rate at which an individual of species \eqn{i} encounters biomass of resource
-#' \eqn{d}, \deqn{\sum_d\rho_{id}(w) B_d,} where \eqn{B_d} is the biomass of the
-#' d-th unstructured resource component.
-#' See \code{\link{resource_dynamics}} for more details.
+#' \eqn{d}, so that the contribution from all unstructured resources to the
+#' total encounter rate is
+#' \deqn{E_{u.i}(w) = \sum_d\rho_{id}(w) B_d,} 
+#' where \eqn{B_d} is the biomass of the d-th unstructured resource component.
 #' 
-#' The ordering of the entries in the array \code{rho} is important. The order
-#' of the species in the first array dimension needs to be the same as that in
-#' the species parameter dataframe. The order of the resources in the second
-#' array dimension must be the same as in the list of resource dynamics. The
-#' third dimension, if given, is the size dimension.
+#' Resource consumption is subject to satiation in the same way as other food,
+#' so that a consumer only consumes a fraction \eqn{1-f_i(w)} of the encountered
+#' resource biomass, where \eqn{f_i(w)} is the feeding level.
 #' 
 #' If the \code{rho} array is not supplied, then the resource encounter rate is
 #' set to a power law
@@ -1815,6 +1851,12 @@ changeResources <- function(params,
 #' For example if there is a resource called "detritus" then the species_params
 #' data frame needs to have a column called \code{rho_detritus} and similarly
 #' for each other resource.
+#' 
+#' If the \code{rho} array is supplied, the ordering of the entries in the array
+#' is important. The order of the species in the first array dimension needs to
+#' be the same as that in the species parameter dataframe. The order of the
+#' resources in the second array dimension must be the same as in the list of
+#' resource dynamics. The third dimension is the size dimension.
 #' 
 #' @param params A MizerParams object
 #' @param rho Optional. An array (species x resource x size)
@@ -1869,12 +1911,67 @@ changeResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' Set fishing parameters
 #' 
 #' @section Setting fishing:
-#' Needs to be documented
+#' In `mizer`, fishing mortality is imposed on species by fishing gears. The
+#' total fishing mortality is obtained by summing over the mortality from all
+#' gears,
+#' \deqn{\mu_{f.i}(w) = \sum_g F_{g,i}(w),}
+#' where the fishing mortality \eqn{F_{g,i}(w)} imposed by gear \eqn{g} on
+#' species \eqn{i} at size \eqn{w} is calculated as:
+#' \deqn{F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},}
+#' where \eqn{S} is the selectivity by species, gear and size, \eqn{Q} is the 
+#' catchability by species and gear and \eqn{E} is the fishing effort by gear.
+#' At the moment a species can only be selected by one fishing gear, although 
+#' each gear can select more than one species (this is a limitation with the 
+#' current package that will be developed in future releases).
+#' 
+#' \strong{Selectivity}
+#' 
+#' The selectivity at size of each gear has a range between 0 (not selected at
+#' that size) to 1 (fully selected at that size). It is given by a selectivity
+#' function. The name of the selectivity function is given by the `sel_func`
+#' column in the species parameters data frame. Some selectivity functions are
+#' included in the package: `knife_edge()` and `sigmoid_length()`. New functions
+#' can be defined by the user. Each gear has the same selectivity function for
+#' all the species it selects, but the parameter values for each species may be
+#' different, e.g. the lengths of species that a gear selects may be different.
+#' 
+#' Each selectivity function has a range of arguments. Values for these
+#' arguments must be included as columns in the species parameters data.frame.
+#' The names of the columns must exactly match the names of the arguments. For
+#' example, the default selectivity function is `knife_edge()` which has sudden
+#' change of selectivity from 0 to 1 at a certain size.
+#' In its help page you can see that the `knife_edge()` function has arguments `w` and
+#' `knife_edge_size` The first argument, `w`, is size (the function calculates
+#' selectivity at size). All selectivity functions must have `w` as the first
+#' argument. The values for the other arguments must be found in the species
+#' parameters data.frame. So for the `knife_edge()` function there should be a
+#' `knife_edge_size` column. Because `knife_edge()` is the default
+#' selectivity function, the `knife_edge_size` argument has a default
+#' value = `w_mat`.
+#' 
+#' \strong{Catchability}
+#' 
+#' Catchability is used as an additional scalar to make the link between gear 
+#' selectivity, fishing effort and fishing mortality. For example, it can be set 
+#' so that an effort of 1 gives a desired fishing mortality.
+#' In this way effort can then be specified relative to a 'base effort', e.g. 
+#' the effort in a particular year.
+#' 
+#' Because currently mizer only allows one gear to select each species, the
+#' catchability matrix \eqn{Q_{g,i}} reduces to a catchability vector 
+#' \eqn{Q_{i}}, and this is given as a column `catchability` in the species
+#' parameter data frame. If it is not specified, it defaults to 1.
+#' 
+#' Fishing effort is not stored in the `MizerParams` object.
+#' Instead, effort is set when the simulation is run and can vary through time 
+#' with `project()`.
+#'         
 #' 
 #' @param params A MizerParams object
 #' 
 #' @return MizerParams object
 #' @export
+#' @md
 #' @family functions for changing parameters
 changeFishing <- function(params) {
     assert_that(is(params, "MizerParams"))
