@@ -11,38 +11,19 @@ vignette: >
 
 ```{r include=FALSE}
 library(mizer)
-params_data <- read.csv("NS_species_params.csv")
-inter <- read.csv("inter.csv", row.names=1)
-inter <- as(inter, "matrix")
-params_data_gears <- params_data
-params_data_gears$gear <- c("Industrial","Industrial","Industrial",
-		      "Pelagic","Beam","Otter",
-		      "Beam","Otter","Beam",
-		      "Otter","Otter","Otter")
-params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
-gear_names <- c("Industrial","Pelagic","Beam","Otter")
-times <- seq(from = 1, to = 10, by = 1)
-effort_array <- array(NA, dim = c(length(times), length(gear_names)),
-    dimnames = list(time = times, gear = gear_names))
-effort_array[,"Industrial"] <- 0.5
-effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
-effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
-effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 ```
 
 
 ## Introduction {#sec:scale_invariant_trait_based_model}
-
-
 
 Constructing models that allow fish species to coexist is not trivial. This
 applies as much to size-spectrum models that use the mizer software tool, as 
 it does to other kinds of multispecies models.  Current size-spectrum models 
 achieve coexistence by assuming that stock-recruitment relationships are strong 
 enough within species to promote coexistence of the species.  They do this 
-by making the controlling parameter $R_{max.i}$ (described in 
-[the section on the stock-recruitment relationship](model_description.html#sec:recruitment)) and keeping recruitment sufficiently 
-low. Although coexistence can be achieved in this way, it can necessitate 
+by making the controlling parameter $R_{max.i}$ sufficiently low (described in 
+[the section on the stock-recruitment relationship](model_description.html#sec:recruitment)).
+Although coexistence can be achieved in this way, it can necessitate 
 rather small values of $R_{max.i}$, with major effects on persistence and 
 stability of species.
 
@@ -95,13 +76,8 @@ rate of increase when rare. The figure can constructed using the following code:
 ```{r label=demo_trait_model_insensitive, warning=FALSE, message=FALSE}
 params_trait <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e3,
                           knife_edge_size = 100)
-sim_trait_initial <- project(params_trait, t_max=100, effort = 0)
-sim_trait <- project(params_trait,
-                     initial_n = sim_trait_initial@n[dim(
-                         sim_trait_initial@n)[1],,],
-                     initial_n_pp = sim_trait_initial@
-                         n_pp[dim(sim_trait_initial@n_pp)[1],], t_max=15,
-                     effort = 1)
+sim_trait_initial <- project(params_trait, t_max = 100, effort = 0)
+sim_trait <- project(sim_trait_initial, t_max = 15, effort = 1, append = FALSE)
 plotBiomass(sim_trait)
 ```
 
@@ -373,9 +349,9 @@ $w$ approaches $\min\{w_{m.i}\}$ from below, the carrying capacity of the plankt
 
 ## Introduction
 
-We have seen that using strong stock recruitment relationships, as implemented within the models discussed in [the section on the trait-based model](trait_model.html) and [the section on the North Sea model](a_multispecies_model_of_the_north_sea.html) can lead to scenarios where the stock levels are unrealistically insensitive to changes in the environment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach is to use species from the scale-invariant trait based model as a type of background or substrate, into which the heterogeneous species of specific interest (the *foreground species*) can added. 
+We have seen that using strong stock recruitment relationships, as implemented within the models discussed in [the section on the trait-based model](trait_model.html) and [the section on the North Sea model](a_multispecies_model_of_the_north_sea.html) can lead to scenarios where the stock levels are unrealistically insensitive to changes in the environment. In order to fix this issue we want to create a model where species of interest can co-exist and interact without imposing a strong stock recruitment relationship. The key to our approach is to use species from the scale-invariant trait based model as a type of background or substrate, into which the heterogeneous species of specific interest (the *foreground species*) can be added. 
 
-We begin with only the scale-invariant background, which is setup close to a steady state by the `set_scaling_model()` command. We add new species using the `addSpecies()` command, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under the McKendrick–von Foerster equation. Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under the McKendrick–von Foerster equation, and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
+We begin with only the scale-invariant background, which is set up close to a steady state with  `set_scaling_model()`. We add new species using `addSpecies()`, in such a way that the resulting system remains close to a steady state. To achieve this we lower the abundances of the background species in our candidate steady state to compensate for the addition of the new foreground species, so that the background species still have the same food levels, and growth rates, as they did in the original system. We also choose the abundance curve for the newly added species so that it will be time-invariant under the McKendrick–von Foerster equation. Additional steps are taken to fine tune the resulting state to make sure that the background species are close to time-invariant under the McKendrick–von Foerster equation, and that the quantity of fish growing up from the egg size is balanced by the rate of egg production.
 
 
 
