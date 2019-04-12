@@ -76,11 +76,32 @@ for (i in 1:no_sp) {
     idx <- params@w_min_idx[i]:(w_inf_idx - 1)
     idxs <- params@w_min_idx[i]:(w_inf_idx)
     # Steady state solution of the upwind-difference scheme used in project
-    params@initial_n[i, idxs] <- params@initial_n[i, params@w_min_idx[i] + 1] * 
+    params@initial_n[i, idxs] <- 
         c(1, cumprod(gg[idx] / ((gg + mumu * dw)[idx + 1])))
+    # rescale abundance to agree with observation
+    if (is.na(sp$cutoff_size[i])) {
+        stop(paste("No cutoff size is given for ",
+                   sp$species[i]))
+    }
+    sel <- w >= sp$cutoff_size[i]
+    if (!is.na(sp$abundance_observed[i])) {
+        abundance <- sum(params@initial_n[i, sel] * dw[sel])
+        params@initial_n[i, ] <- params@initial_n[i, ] / abundance *
+            sp$abundance_observed[i]
+    } else {
+        if (is.na(sp$biomass_observed[i])) {
+            stop(paste("Neither abundance nor biomass is observed for ",
+                       sp$species[i]))
+        }
+        biomass <- sum(params@initial_n[i, sel] * w[sel] * dw[sel])
+        params@initial_n[i, ] <- params@initial_n[i, ] / biomass *
+            sp$biomass_observed[i]
+    }
 }
 
-#plotlySpectra(params, plankton = FALSE, total = TRUE)
+
+
+#plotlySpectra(params, plankton = FALSE)
 
 # params@sc <- kappa * w^(-lambda)
 # params <- retuneAbundance(params)
