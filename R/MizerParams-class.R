@@ -1787,8 +1787,7 @@ changePlankton <- function(params,
 #' @param params A MizerParams object
 #' @param resource_dynamics A named list of functions that determine the
 #'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. See
-#'   \code{\link{resource_dynamics}} for details. An empty list if the model
+#'   the next time step from the current state. An empty list if the model
 #'   does not have unstructured resources.
 #' @param resource_params A named list of parameters needed by the
 #'   \code{resource_dynamics} functions. An empty list if no parameters are
