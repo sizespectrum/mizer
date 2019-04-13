@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Publications describing mizer:
 * F. Scott, J.L. Blanchard and K.H. Andersen: mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling. Methods in Ecology and Evolution 5(10) 1121-1125 (2014). _Contains the "official" announcement and description of mizer_
 
+* K.H. Andersen, N.S. Jacobsen and K.D. Farnsworth (2016): The theoretical foundations for size spectrum models of fish communities. Canadian Journal of Fisheries and Aquatic Science 73(4): 575-588. _Describes the theoretical background of size spectrum models_
+
 ### Publications using mizer:
 
 * Zhang C, Chen Y, Xu B, Xue Y, Ren Y. Evaluating fishing effects on the stability of fish communities using a size-spectrum model. Fisheries Research. 2018 Jan 1;197:123-30.
