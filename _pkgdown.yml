@@ -28,6 +28,9 @@ navbar:
     publications:
       text: Publications
       href: articles/publications.html
+    news:
+      text: New Version
+      href: dev/reference/index.html
 
 articles:
 - title: User Guides
