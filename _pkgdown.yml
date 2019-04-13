@@ -44,11 +44,9 @@ articles:
   - running_a_simulation
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
-  - scale_invariant_trait_based_model
 - title: Developer Guides
   contents:
   - developer_vignette
-  - mathematical_details
   - editing_website
 
 
