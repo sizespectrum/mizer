@@ -1,4 +1,4 @@
-^vignettes/*\.Rmd$
+^vignettes/.*\.Rmd$
 ^codecov\.yml$
 ^docs$
 ^_pkgdown\.yml$
