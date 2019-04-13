@@ -89,7 +89,7 @@ NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
 utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
-                         "x", "y", "Year", "Yield", "Biomass"))
+                         "x", "y", "Year", "Yield", "Biomass", "Size"))
 
 #' Helper function to produce nice breaks on logarithmic axes
 #'
@@ -1153,6 +1153,8 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' Where \code{\link{plotSpectra}} plots the density function, this function 
 #' plots the cummulative distribution function. Work in progress.
+#' @param params A \code{MizerParams} object
+#' @param sp Name or index of species to be plotted
 #' 
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}
