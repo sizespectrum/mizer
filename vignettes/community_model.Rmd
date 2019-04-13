@@ -1,14 +1,11 @@
 ---
 title: "The Community Model"
 output:
-  rmarkdown::html_vignette:
-    toc: true
+  html_document:
+    number_sections: yes
+    toc: yes
     fig_width: 5
     fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Community Model}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r include=FALSE}

@@ -1,12 +1,11 @@
 ---
 title: "Developer Guide"
 output:
-  rmarkdown::html_vignette:
-    toc: true
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r setup, include = FALSE}

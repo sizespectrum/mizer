@@ -4,16 +4,8 @@ output:
   html_document:
     number_sections: yes
     toc: yes
-  rmarkdown::html_vignette:
-    toc: true
-  pdf_document:
-    toc: yes
-    toc_depth: 3
-    number_sections: yes
-vignette: >
-  %\VignetteIndexEntry{Mathematical Details behind Mizer}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+    fig_width: 5
+    fig_height: 5
 ---
 
 
