@@ -1,12 +1,11 @@
 ---
 title: "The General Mizer Size-spectrum Model"
 output:
-  rmarkdown::html_vignette:
-    toc: true
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r setup, include = FALSE}
@@ -19,7 +18,12 @@ knitr::opts_chunk$set(
 On this page we will revisit the presentation of the mizer model given
 in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
 but taking care to separate the essential features of the model that are
-hard-coded and the various possible specialisations.
+hard-coded and the various possible specialisations for which mizer provides
+setup functions. We will provide links to the functions that can be used to set
+or change the various model parameters (all collected together in `changeParams()`)
+as well as to the functions that calculate the various ecological rates in the
+model (all collected together in `getRates()`) because the help pages of these
+functions will provide useful additional details.
 
 We will not go into detail of how this model is 
 realised in code. Such detail will be provided in the [developer guide](developer_vignette.html). However some details are hidden on this page
@@ -90,9 +94,9 @@ below.
 <details>
 This McKendrik-von Foerster equation is approximated in mizer by a
 finite-difference method (to be described in section ...). This allows the
-`project()` method in mizer to project the size
-spectrum forwards in time: Given the spectrum at one time the `project()` method
-calculates it at a set of later times.
+`project()` function in mizer to project the size
+spectrum forwards in time: Given the spectrum at one time the `project()`
+function calculates it at a set of later times.
 
 </details>
 
@@ -165,6 +169,7 @@ integrating over all prey sizes $w_p$, weighted by the selectivity factors:
    \theta_{ip} N_R(w_p) + \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}
+This is calculated by `getEncounter()`.
 The overall prefactor $\gamma_i(w)$ sets the predation power of the predator. It
 could be interpreted as a search volume. It is set by `changeSearchVolume()`. By 
 default it is assumed to scale allometrically as
@@ -223,6 +228,7 @@ encountered food that is consumed. The feeding level is given by
 where $h_i(w)$ is the maximum consumption rate. This is changed with
 `changeIntakeMax()`. By default mizer assumes an allometric form
 $h_i(w) = h_i\, w^n.$
+The feeding level is calculated with the function `getFeedingLevel()`.
 
 The rate at which food is consumed is then 
 \begin{equation}
@@ -245,6 +251,7 @@ becomes available for growth and reproduction is
   \label{eq:Er}
   E_{r.i}(w) = \max(0, \alpha_i f_i(w)\, h_i(w) - {\tt metab}_i(w))
 \end{equation}
+This is calculated with the `getEReproAndGrowth()` function.
 
 
 ## Investment into reproduction  {#sec:repro}
@@ -288,6 +295,7 @@ is invested in somatic growth. Thus the growth rate is
   \label{eq:growth}
   g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
 \end{equation}
+It is calculated by the `getEGrowth()` function.
 
 When food supply does not cover the requirements of metabolism and activity, 
 growth and reproduction stops, i.e. there is no negative growth.
@@ -310,6 +318,7 @@ rate at which all predators of species $j$ consume prey of size $w_p$ is
   {\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w))
   \gamma_j(w) N_j(w) \, dw.
 \end{equation}
+This predation rate is calculated by the function `getPredRate()`.
 
 <details>
 The integral is approximated by a Riemann sum over all fish weight brackets.
@@ -326,6 +335,7 @@ The mortality rate due to predation is then obtained as
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}
+This predation mortality rate is calculated by the function `getPredMort()`.
 
 Background mortality $\mu_{b .i}(w)$ is independent of the abundances and is
 changed with `changeBMort()`. By default mizer assumes an allometric form
@@ -334,9 +344,9 @@ where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
 Fishing mortality $\mu_{f.i}(w)$ will be discussed in section [Fishing].
 
-The total mortality rate is
+The total mortality rate
 \[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{f.i}(w)\]
-
+is calculated with the function `getMort()`.
 
 
 ## Plankton Mortality
@@ -348,6 +358,7 @@ as the predation mortality on fish:
   \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
 \end{equation}
 This is the only mortality on plankton currently implemented in mizer.
+It is calculated with the function `getPlanktonMort()`.
 
 
 ## Fishing

@@ -1,12 +1,11 @@
 ---
 title: "Exploring the Simulation Results"
-output: html_document
-fig_width: 5
-fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r include=FALSE}
@@ -19,7 +18,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- MizerParams(params_data_gears, interaction = inter)
+params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
 effort_array <- array(NA, dim = c(length(times), length(gear_names)),
@@ -81,18 +80,18 @@ output is only saved every uear.
 
 The `n_pp` slot can be accessed in the same way.
 
-## Summary methods for `MizerSim` objects {#sec:summaries}
+## Summary functions{#sec:summaries}
 
 As well as the `summary()` methods that are available for both `MizerParams` and
-`MizerSim` objects, there are other useful summary methods to pull information
-out of a `MizerSim` object. A description of the different summary methods
-available is given in [the summary methods help
-page.](../reference/summary_methods.html)
+`MizerSim` objects, there are other useful summary functions to pull information
+out of a `MizerSim` object. A description of the different summary functions
+available is given in [the summary functions help
+page.](../reference/summary_functions.html)
 
 
 <!--(see Table~\@ref(tab:summary_methods)). -->
-All of these methods have help files to explain how they are used. (It is also
-possible to use most of these methods with a `MizerParams` object if you also
+All of these functions have help files to explain how they are used. (It is also
+possible to use most of these functions with a `MizerParams` object if you also
 supply the population abundance as an argument. This can be useful for exploring
 how changes in parameter value or abundance can affect summary statistics and
 indicators. We won't explore this here but you can see their help files for more
@@ -106,7 +105,7 @@ details.)
     \begin{center}
 	\begin{tabularx}{\linewidth}{r|X|X}
 	\hline
-	Method & Returns & Description \\
+	Function & Returns & Description \\
 	\hline
 	getSSB() & Two dimensional array (time x species) & Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals.\\
 	getBiomass() & Two dimensional array (time x species) & Total biomass of each species through time.\\
@@ -124,14 +123,14 @@ details.)
 	getYield() & Two dimensional array (time x species) & Total yield of each species across all gears through time. \\
 	\hline
 	\end{tabularx}
-	\caption{Summary methods for `MizerSim` objects.}
+	\caption{Summary functions for `MizerSim` objects.}
 	 {#tab:summary_methods}
     \end{center}
 \end{table}
 
 -->
 
-The methods `getBiomass()` and `getN()` have additional arguments that allow the
+The functions `getBiomass()` and `getN()` have additional arguments that allow the
 user to set the size range over which to calculate the summary statistic.  This
 is done by passing in a combination of the arguments `min_l`, `min_w`, `max_l`
 and `max_w` for the minimum and maximum length or weight.
@@ -146,9 +145,9 @@ length. The default values are the minimum and maximum weights of the spectrum,
 i.e. the full range of the size spectrum is used.
 
 
-### Examples of using the summary methods {#sec:summaries_example}
+### Examples of using the summary functions {#sec:summaries_example}
 
-Here we show a simple demonstration of using a summary method using the `sim`
+Here we show a simple demonstration of using a summary function using the `sim`
 object we created earlier. Here, we use `getSSB()` to calculate the SSB of each
 species through time (note the use of the `head()` function to only display the
 first few rows).
@@ -160,7 +159,7 @@ head(ssb)
 ```
 
 As mentioned above, we can specify the size range for the `getBiomass()` and
-`getN()` methods. For example, here we calculate the total biomass of each
+`getN()` functions. For example, here we calculate the total biomass of each
 species but only include individuals that are larger than 10 g and smaller than
 1000 g.
 
@@ -169,19 +168,20 @@ biomass <- getBiomass(sim, min_w = 10, max_w = 1000)
 head(biomass)
 ```
 
-## Methods for calculating indicators
 
-Methods are available to calculate a range of indicators from a `MizerSim`
-object after a projection. A description of the different indicator methods
-available is given in [the summary methods help
-page.](../reference/summary_methods.html) You can read the help pages for each
-of the methods for full instructions on how to use them, along with examples.
+## Functions for calculating indicators
 
-With all of the methods in the table it is possible to specify the size range of
+Functions are available to calculate a range of indicators from a `MizerSim`
+object after a projection. A description of the different indicator functions
+available is given in [the summary functions help
+page.](../reference/summary_functions.html) You can read the help pages for each
+of the functions for full instructions on how to use them, along with examples.
+
+With all of the functions in the table it is possible to specify the size range of
 the community to be used in the calculation (e.g. to exclude very small or very
 large individuals) so that the calculated metrics can be compared to empirical
-data. This is used in the same way that we saw with the method `getBiomass()` in
-[the section on summary methods for MizerSim
+data. This is used in the same way that we saw with the function `getBiomass()` in
+[the section on summary functions for MizerSim
 objects.](exploring_the_simulation_results.html#sec:summaries) It is also
 possible to specify which species to include in the calculation.  See the help
 files for more details.
@@ -196,7 +196,7 @@ files for more details.
     \begin{center}
 	\begin{tabularx}{\linewidth}{r|X|X}
 	\hline
-	Method & Returns & Description \\
+	function & Returns & Description \\
 	\hline
 	getProportionOfLargeFish() & A vector with values at each time step. & Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \\
 	getMeanWeight() & A vector with values at each saved time step.  & The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance.\\
@@ -204,7 +204,7 @@ files for more details.
 	getCommunitySlope() & A data.frame with four columns: time step, slope, intercept and $R^2$ value. & Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \\
 	\hline
 	\end{tabularx}
-	\caption{Indicator methods for `MizerSim` objects.}
+	\caption{Indicator functions for `MizerSim` objects.}
 	 {#tab:indicator_methods}
     \end{center}
 \end{table}
@@ -216,7 +216,7 @@ files for more details.
 For these examples we use the `sim` object we created earlier.
 
 The slope of the community can be calculated using the `getCommunitySlope()`
-method. Initially we include all species and all sizes in the calculation (only
+function. Initially we include all species and all sizes in the calculation (only
 the first five rows are shown):
 
 ```{r label=getCommunitySlope_demo}
@@ -245,7 +245,7 @@ head(slope)
 
 R is very powerful when it comes to exploring data through plots.  A useful
 package for plotting is `ggplot2`.  `ggplot2` uses data.frames for input data.
-Many of the summary methods and slots of the `mizer` classes are arrays or
+Many of the summary functions and slots of the `mizer` classes are arrays or
 matrices. Fortunately it is straightforward to turn arrays and matrices into
 data.frames using the command `melt` which is in the `reshape2` package.
 Although `mizer` does include some dedicated plots, it is definitely worth your
@@ -254,16 +254,16 @@ will make it possible for you to make your own plots.
 
 Included in `mizer` are several dedicated plots that use `MizerSim` objects as
 inputs (see [the plots help page.](../reference/plotting_functions.html)). As
-well as displaying the plots, these methods all return objects of type `ggplot`
+well as displaying the plots, these functions all return objects of type `ggplot`
 from the `ggplot2` package meaning that they can be further modified by the user
 (e.g. by changing the plotting theme). See the help page of the individual plot
-methods for more details. The generic `plot()` method has also been overloaded
+functions for more details. The generic `plot()` method has also been overloaded
 for `MizerSim` objects. This produces several plots in the same window to
 provide a snapshot of the results of the simulation.
 
 Some of the plots plot values by size (for example `plotFeedingLevel()` and
 `plotSpectra()`). For these plots, the default is to use the data at the final
-time step of the projection. With these plotting methods, it is also possible to
+time step of the projection. With these plotting functions, it is also possible to
 specify a different time step or a time range to average the values over before
 plotting.
 
@@ -277,17 +277,17 @@ plotting.
 	\hline
 	Plot & Description \\
 	\hline
-	plotBiomass() & Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the method `getBiomass()`.\\
+	plotBiomass() & Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as the function `getBiomass()`.\\
 	plotSpectra() & Plots the abundance (biomass or numbers) spectra of each species and the plankton community. It is possible to specify a minimum size which is useful for truncating the plot. \\
 	plotFeedingLevel() & Plots the feeding level of each species against size.\\
-	plotM2() & Plots the predation mortality of each species against size.\\
+	plotPredMort() & Plots the predation mortality of each species against size.\\
 	plotFMort() & Plots the total fishing mortality of each species against size.\\
 	plotYield() & Plots the total yield of each species across all fishing gears against time.\\
 	plotYieldGear() & Plots the total yield of each species by gear against time.\\
-	plot() & Produces 5 plots (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()` and `plotSpectra()`) in the same window as a summary.\\
+	plot() & Produces 5 plots (`plotFeedingLevel()`, `plotBiomass()`, `plotPredMort()`, `plotFMort()` and `plotSpectra()`) in the same window as a summary.\\
 	\hline
 	\end{tabularx}
-	\caption{Plot methods for `MizerSim` objects.}
+	\caption{Plot functions for `MizerSim` objects.}
 	 {#tab:plots}
     \end{center}
 \end{table}
@@ -296,22 +296,22 @@ plotting.
 
 ### Plotting examples {#sec:plot_examples}
 
-Using the plotting methods is straightforward. For example, to plot the total biomass of each species against time you use the `plotBiomass()` method:
+Using the plotting functions is straightforward. For example, to plot the total biomass of each species against time you use the `plotBiomass()` function:
 
-```{r label=plotBiomass, fig.keep='last', fig.cap="An example of using the plotBiomass() method."}
+```{r label=plotBiomass, fig.keep='last', fig.cap="An example of using the plotBiomass() function."}
 plotBiomass(sim)
 ```
 
-As mentioned above, some of the plot methods plot values against size at a point in time (or averaged over a time period).
+As mentioned above, some of the plot functions plot values against size at a point in time (or averaged over a time period).
 For these plots it is possible to specify the time step to plot, or the time period to average the values over. The default is to use the final time step.
 Here we plot the abundance spectra (biomass), averaged over time = 5 to 10:
 
-```{r label=plotSpectra_example, fig.keep='last', fig.cap="An example of using the plotSpectra() method, plotting values averaged over the period t = 5 to 10."}
+```{r label=plotSpectra_example, fig.keep='last', fig.cap="An example of using the plotSpectra() function, plotting values averaged over the period t = 5 to 10."}
 plotSpectra(sim, time_range = 5:10, biomass=TRUE)
 ```
 
 
-As mentioned above, and as we have seen several times in this vignette, the generic `plot()` method has also been overloaded.  This produces 5 plots in the same window (`plotFeedingLevel()`, `plotBiomass()`, `plotM2()`, `plotFMort()` and `plotSpectra()`). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
+As mentioned above, and as we have seen several times in this vignette, the generic `plot()` method has also been overloaded.  This produces 5 plots in the same window (`plotFeedingLevel()`, `plotBiomass()`, `plotPredMort()`, `plotFMort()` and `plotSpectra()`). It is possible to pass in the same arguments that these individual plots use, e.g. arguments to change the time period over which the data is averaged.
 
 ```{r label=demo_summary_plot, fig.cap="Example output from using the summary plot() method."}
 plot(sim)

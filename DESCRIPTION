@@ -4,7 +4,6 @@ Type: Package
 Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine
     environment.
-    Finlay Scott, Julia L. Blanchard, Ken H. Andersen (2014) <doi: 10.1111/2041-210X.12256>
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
 Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
@@ -19,13 +18,15 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     comment = c(ORCID = "0000-0003-4092-8228")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
-Version: 1.0.1
+Version: 1.0.1.9000
 License: GPL-3
 Imports:
+    assertthat,
     deSolve,
     ggplot2,
     grid,
     methods,
+    plotly,
     plyr,
     progress,
     Rcpp,
@@ -46,6 +47,9 @@ Collate:
     'MizerParams-class.R'
     'MizerSim-class.R'
     'selectivity_funcs.R'
+    'pred_kernel_funcs.R'
+    'resource_dynamics.R'
+    'plankton_dynamics.R'
     'project.R'
     'help.R'
     'project_methods.R'

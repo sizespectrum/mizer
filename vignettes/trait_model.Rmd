@@ -1,12 +1,11 @@
 ---
 title: "The Trait-Based Model"
-output: html_document
-fig_width: 5
-fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r include=FALSE}
@@ -87,7 +86,7 @@ Ignore the summary section on fishing gear for the moment. This is explained lat
 
 ## Running the trait-based model {#sec:running_trait_model}
 
-As with the community model described above, we can project the model through time using the `project()` method.
+As with the community model described above, we can project the model through time using the `project()` function.
 Here we project the model for 75 time steps without any fishing (the `effort` argument is set to 0).
 We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see [the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
 
@@ -183,7 +182,7 @@ The impact of fishing on species larger than 1000 g can be clearly seen.
 The fishing pressure lowers the abundance of large fish ($> 1000$ g). This then relieves the predation pressure on their smaller prey (the preferred predator-prey size ratio is given by the $\beta$ parameter, which is set to 100 by default), leading to an increase in their abundance. This in turn increases the predation mortality on their smaller prey, which reduces their abundance and so on.  
 
 This impact can also be seen by looking at the predation mortality by size. 
-The predation mortalities are retrieved using the `getM2()` method for `MizerSim` objects. This returns a three dimensional array of predation mortalities by time x species x size (see the help page for `getM2()` for more details). As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species. 
+The predation mortalities are retrieved using the `getM2()` function for `MizerSim` objects. This returns a three dimensional array of predation mortalities by time x species x size (see the help page for `getM2()` for more details). As mentioned above, for the trait based model the predation mortality by size is the same for each species. Therefore we only look at the predation mortality of the first species. 
 
 ```{r label='get_M2_trait'}
 m2_no_fishing <- getM2(sim0)[76,1,]
