@@ -814,7 +814,6 @@ set_scaling_model <- function(no_sp = 11,
 #'   
 #' @return An object of type \code{MizerParams}
 #' @seealso \linkS4class{MizerParams}
-#' @export
 retuneAbundance <- function(params,
                             retune = rep(TRUE, nrow(params@species_params)), 
                             cutoff = 1e-3) {

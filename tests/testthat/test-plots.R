@@ -34,9 +34,9 @@ p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
 p$plot_env <- NULL
 expect_known_value(p, "values/plotFeedingLevel")
 
-p <- plotM2(sim, species = species, time_range = 1:3)
+p <- plotPredMort(sim, species = species, time_range = 1:3)
 p$plot_env <- NULL
-expect_known_value(p, "values/plotM2")
+expect_known_value(p, "values/plotPredMort")
 
 p <- plotFMort(sim, species = species, time_range = 1:3)
 p$plot_env <- NULL

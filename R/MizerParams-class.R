@@ -2186,6 +2186,7 @@ srrBevertonHolt <- function(rdi, species_params) {
 #'   each species
 #' @param message A string with a message to be issued when the parameter did
 #'   not already exist
+#' @return The `object` with an updated column in the species params data frame.
 #' @export
 #' @keywords internal
 #' @concept helper
