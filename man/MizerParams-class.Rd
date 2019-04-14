@@ -5,99 +5,139 @@
 \alias{MizerParams-class}
 \title{A class to hold the parameters for a size based model.}
 \description{
-These parameters include the model species, their life history parameters and
-the size ranges of the model.
+MizerParams objects can be created using a range of constructor functions.
 }
 \details{
-\linkS4class{MizerParams} objects can be created using a range of
-\code{MizerParams} constructor methods.
-
-Dynamic simulations are performed using the \code{\link{project}} method on
+Dynamic simulations are performed using the \code{\link{project}} function on
 objects of this class.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{w}}{A numeric vector of size bins used for the community (i.e. fish) part
-of the model. These are usually spaced on a log10 scale}
+\item{\code{w}}{The size grid for the fish part of the spectrum. An increasing
+vector of weights (in grams) running from the smallest egg size to the
+largest asymptotic size.}
 
-\item{\code{dw}}{The absolute difference between the size bins specified in the w
-slot. A vector the same length as the w slot. The final value is the same
-as the second to last value}
+\item{\code{dw}}{The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
+the same length as the w_full slot. The last entry is not determined by
+the w slot but represents the size of the last size bin.}
 
-\item{\code{w_full}}{A numeric vector of size bins used for the whole model (i.e. the
-community and background spectra) . These are usually spaced on a log10
-scale}
+\item{\code{w_full}}{The size grid for the full size range including the plankton
+spectrum. An increasing vector of weights (in grams) running from the
+smallest plankton size to the largest asymptotic size of fish. The
+last entries of the vector have to be equal to the content of the w slot.}
 
-\item{\code{dw_full}}{The absolute difference between the size bins specified in the
-w_full slot. A vector the same length as the w_full slot. The final value
-is the same as the second to last value}
+\item{\code{dw_full}}{The spacing in the full size grid. 
+So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
+equal to the content of the dw slot.}
+
+\item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
+of each species}
+
+\item{\code{maturity}}{An array (species x size) that holds the proportion of
+individuals of each species at size that are mature. This enters in the
+calculation of the spawning stock biomass with \code{\link{getSSB}}. Set 
+with \code{\link{changeReproduction}}.}
 
 \item{\code{psi}}{An array (species x size) that holds the allocation to reproduction
-for each species at size, \eqn{\psi_i(w)}}
+for each species at size, \eqn{\psi_i(w)}. Changed with 
+\code{\link{changeReproduction}}.}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size, \eqn{h_i w^n}}
+each species at size. Changed with \code{\link{changeIntakeMax}}.}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
-each species at size, \eqn{\gamma_i w^q}}
+each species at size. Changed with \code{\link{changeSearchVolume}}.}
 
-\item{\code{activity}}{An array (species x size) that holds the activity for each
-species at size, \eqn{k_i w}}
+\item{\code{rho}}{A 3-dim array (species x resource x size) holding the encounter
+rates for unstructured resources. Changed with 
+\code{\link{changeResourceEncounter}}.}
 
-\item{\code{std_metab}}{An array (species x size) that holds the standard metabolism
-for each species at size, \eqn{k_{s.i} w^p}}
+\item{\code{metab}}{An array (species x size) that holds the metabolism
+for each species at size. Changed with \code{\link{changeMetab}}.}
 
 \item{\code{mu_b}}{An array (species x size) that holds the background death 
-\eqn{\mu_{b.i}(w)}}
+\eqn{\mu_{b.i}(w)}. Changed with \code{\link{changeBMort}}.}
 
-\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio) that holds 
-the Fourier transform of the feeding kernel in a form appropriate for
-evaluating the available energy integral}
+\item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
+the predation coefficient of each predator at size on each prey size. If
+this is NA then the following two slots will be used. Changed with 
+\code{\link{changePredKernel}}.}
 
-\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio) that holds 
-the Fourier transform of the feeding kernel in a form appropriate for
-evaluating the predation mortality integral}
+\item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the encounter rate integral. If this is NA
+then the \code{pred_kernel} will be used to calculate the available 
+energy integral. Changed with \code{\link{changePredKernel}}.}
+
+\item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the predation mortality integral. If this is NA
+then the \code{pred_kernel} will be used to calculate the integral.
+Changed with \code{\link{changePredKernel}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the background spectrum, \eqn{r_0 w^{p-1}}}
+growth rate of the plankton spectrum. Changed with \code{\link{changePlankton}}.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the background spectrum, \eqn{\kappa w^{-\lambda}}}
+carrying capacity of the plankton spectrum. Changed with 
+\code{\link{changePlankton}}.}
+
+\item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
+density by one timestep. The default is 
+\code{\link{plankton_semichemostat}}. 
+Changed with \code{\link{changePlankton}}.}
+
+\item{\code{resource_dynamics}}{A named list of functions for projecting the
+biomasses in the unstructured resource components by one timestep. The
+names of the list entries are the resource names. Changed with 
+\code{\link{changeResourceDynamics}}.}
+
+\item{\code{resource_params}}{A list containing the parameters needed by the
+\code{resource_dynamics} functions.  Changed with 
+\code{\link{changeResourceDynamics}}.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
-\item{\code{species_params}}{A data.frame to hold the species specific parameters
-(see the mizer vignette, Table 2, for details)}
+\item{\code{species_params}}{A data.frame to hold the species specific parameters.
+See \code{\link{set_multispecies_model}} for details.}
 
-\item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}}
+\item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
+Changed with \code{\link{changeInteraction}}.}
 
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
-each gear for species and size, \eqn{S_{g,i,w}}}
+each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
+\code{\link{changeFishing}}.}
 
 \item{\code{catchability}}{An array (gear x species) that holds the catchability of
-each species by each gear, \eqn{Q_{g,i}}}
+each species by each gear, \eqn{Q_{g,i}}. Changed with 
+\code{\link{changeFishing}}.}
 
 \item{\code{initial_n}}{An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.}
 
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
-the abundance of the background background resource at each weight.}
+the plankton abundance at each weight.}
 
-\item{\code{n}}{Exponent of maximum intake rate.}
+\item{\code{initial_B}}{A vector containing the biomasses of the unstructured
+resource components.
+Has length zero if there are no unstructured resources.}
 
-\item{\code{p}}{Exponent of metabolic cost.}
+\item{\code{n}}{Exponent of maximum intake rate. Changed with \code{\link{changeIntakeMax}}.}
 
-\item{\code{lambda}}{Exponent of resource spectrum.}
+\item{\code{p}}{Exponent of metabolic cost. Changed with \code{\link{changeMetab}}.}
 
-\item{\code{q}}{Exponent for volumetric search rate.}
+\item{\code{lambda}}{Exponent of plankton spectrum. Changed with \code{\link{changePlankton}}.}
+
+\item{\code{kappa}}{Magnitude of plankton spectrum. Changed with \code{\link{changePlankton}}.}
+
+\item{\code{q}}{Exponent for volumetric search rate. 
+Changed with \code{\link{changeSearchVolume}}.}
 
 \item{\code{f0}}{Initial feeding level.}
-
-\item{\code{kappa}}{Magnitude of resource spectrum.}
 
 \item{\code{A}}{Abundance multipliers.}
 
@@ -105,7 +145,7 @@ the abundance of the background background resource at each weight.}
 to give consistent colours to species in plots.}
 
 \item{\code{linetype}}{A named vector of linetypes, named by species. Used 
-to give consistent colours to species in plots.}
+to give consistent line types to species in plots.}
 }}
 
 \note{
@@ -123,4 +163,7 @@ The \linkS4class{MizerParams} class is fairly complex with a large number of
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}
+  \code{\link{emptyParams}} \code{\link{set_multispecies_model}}
+  \code{\link{set_community_model}}
+  \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 }

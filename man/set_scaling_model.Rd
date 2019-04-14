@@ -6,11 +6,11 @@
 \usage{
 set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   min_egg = 10^(-4), min_w_mat = 10^(0.4),
-  no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = min_egg/(beta *
-  exp(5 * sigma)), n = 2/3, q = 3/4, lambda = 2 + q - n,
+  no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = NA,
+  w_pp_cutoff = min_w_inf, n = 2/3, q = 3/4, lambda = 2 + q - n,
   r_pp = 0.1, kappa = 0.005, alpha = 0.4, ks = 4, h = 30,
   beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
-  gear_names = "knife_edge_gear", rfac = Inf, ...)
+  gear_names = "knife_edge_gear", rfac = Inf, perfect = FALSE, ...)
 }
 \arguments{
 \item{no_sp}{The number of species in the model. The default value is 11.}
@@ -30,9 +30,12 @@ is 10^(-4).}
 \item{no_w}{The number of size bins in the community spectrum. Default value
 is such that there are 100 bins for each factor of 10 in weight.}
 
-\item{min_w_pp}{The smallest size of the background spectrum. Default value
-is min_egg/(beta*exp(5*sigma)) so that it covers the entire range of the
+\item{min_w_pp}{Obsolete argument because the smallest plankton size is now
+set so that it covers the entire range of the
 feeding kernel of even the smallest fish larva.}
+
+\item{w_pp_cutoff}{The largest size of the plankton spectrum. Default
+value is max_w_inf unless \code{perfect = TRUE} when it is Inf.}
 
 \item{n}{Scaling of the intake. Default value is 2/3.}
 
@@ -74,6 +77,10 @@ recruitment allowed and R is the steady-state recruitment. Thus the larger
 \code{rfac} the less the impact of the non-linear stock-recruitment curve.
 The default is Inf.}
 
+\item{perfect}{Boolean. Default FALSE. If TRUE then parameters are set so
+that the community abundance, growth before reproduction and death are
+perfect power laws.}
+
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
 \value{
@@ -87,9 +94,8 @@ general size-based model used in \code{mizer}. All the species-specific
 parameters are the same for all species, except for the egg size, maturity
 size and asymptotic size. These differ over the species, but the ratio of egg
 size to maturity size and the ratio of egg size to asymptotic size are the
-same for each species. The asymptotic sizes of the species are spread evenly
-on a logarithmic scale. See the \code{mizer} vignette and the Details section
-below for more details and examples of the scale free trait-based model.
+same for all species. The asymptotic sizes of the species are spread evenly
+on a logarithmic scale.
 }
 \details{
 The scale free trait-based model is similar to the standard trait-based
@@ -108,12 +114,13 @@ particular interest to the user are the number of species in the model and
 the minimum and maximum asymptotic sizes.
 
 The characteristic weights of the different species are defined by
-min_egg, min_w_mat, min_w_inf, max_w_inf and no_sp, in the sense that the egg
-weights of the no_sp species are logarithmically evenly spaced, ranging from
-min_w=min_egg to max_w=max_w_inf. The maturity weights of the species can be
-obtained by multiplying the egg_weights by min_w_mat/min_egg. The asymptotic
+\code{min_egg}, \code{min_w_mat}, \code{min_w_inf}, \code{max_w_inf} and
+\code{no_sp}, in the sense that the egg weights of the \code{no_sp} species
+are logarithmically evenly spaced, ranging from \code{min_w = min_egg} to
+\code{max_w = max_w_inf}. The maturity weights of the species can be obtained
+by muliplying the egg weights by \code{min_w_mat / min_egg}. The asymptotic
 weights of the species can be obtained by multiplying the egg weights by
-min_w_inf/min_egg.
+\code{min_w_inf / min_egg}.
 
 Although the scale free trait based model's default steady state is often
 stable without imposing a stock recruitment relationship, the function can
@@ -130,7 +137,7 @@ feeding level, \code{f0}.
 
 The option of including fishing is given, but the steady state may lose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stabilizing effects (like Rmax and chi) to ensure the
+may wish to include stablizing effects (like \code{rfac}) to ensure the
 steady state is stable. Fishing selectivity is modelled as a knife-edge
 function with one parameter, \code{knife_edge_size}, which is the size at
 which species are selected. Each species can either be fished by the same
@@ -153,4 +160,9 @@ plotSpectra(sim)
 }
 \seealso{
 \linkS4class{MizerParams}
+
+Other functions for setting up models: \code{\link{set_community_model}},
+  \code{\link{set_multispecies_model}},
+  \code{\link{set_trait_model}}
 }
+\concept{functions for setting up models}

@@ -14,6 +14,9 @@ template:
   params:
     bootswatch: cerulean
 
+development:
+  mode: devel
+
 toc: 
   depth: 3
 
@@ -41,11 +44,119 @@ articles:
   - running_a_simulation
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
-  - scale_invariant_trait_based_model
 - title: Developer Guides
   contents:
   - developer_vignette
-  - mathematical_details
   - editing_website
 
 
+reference:
+- title: Creating a new model
+  contents:
+  - starts_with("set")
+- title: Changing model parameters
+  contents:
+  - changeParams
+  - changePredKernel
+  - changeSearchVolume
+  - changeInteraction
+  - changeIntakeMax
+  - changeMetab
+  - changeBMort
+  - changeReproduction
+  - changeFishing
+  - changePlankton
+  - changeResourceDynamics
+  - changeResourceEncounter
+  - tuneParams
+  - steady
+  - emptyParams
+  - addSpecies
+  - removeSpecies
+  - retuneAbundance
+  - upgradeParams
+  - markBackground
+- title: Running simulations
+  contents:
+  - project
+- title: Analysing results
+  contents:
+  - summary_functions
+  - getDiet
+  - getBiomass
+  - getCommunitySlope
+  - getMeanMaxWeight
+  - getMeanWeight
+  - getN
+  - getProportionOfLargeFish
+  - getSSB
+  - getYield
+  - getYieldGear
+  - getGrowthCurves
+- title: Plotting results
+  contents:
+  - plotting_functions
+  - starts_with("plot")
+  - getBiomassFrame
+  - getSSBFrame
+  - displayFrames
+- title: Calculating rates used in the model
+  contents:
+  - getRates
+  - getEncounter
+  - getEGrowth
+  - getERepro
+  - getEReproAndGrowth
+  - getFMort
+  - getFMortGear
+  - getFeedingLevel
+  - getMort
+  - getPlanktonMort
+  - getPredMort
+  - getPredRate
+  - getRDD
+  - getRDI
+  - getPredKernel
+- title: Functions used in the model
+  contents:
+  - lognormal_pred_kernel
+  - box_pred_kernel
+  - knife_edge
+  - sigmoid_length
+  - plankton_semichemostat
+  - carrion_dynamics
+  - detritus_dynamics
+  - srrBevertonHolt
+- title: Internal helper functions
+  contents:
+# The following should list all functions with @concept helper
+# but instead lists all functions. A bug in pkgdown?
+#  - has_concept("helper")
+  - set_species_param_default
+  - get_h_default
+  - get_gamma_default
+  - get_ks_default
+  - get_phi
+  - log_breaks
+  - get_initial_n
+- title: Classes
+  contents:
+  - MizerParams-class
+  - MizerSim-class
+  - MizerSim
+  - summary,MizerParams-method
+  - summary,MizerSim-method
+- title: Data sets
+  contents:
+  - NS_species_params
+  - NS_species_params_gears
+  - inter
+- title: Aliases
+  desc: These aliases are available for backwards compatibility with earlier
+        versions of mizer
+  contents:
+  - MizerParams
+  - getESpawning
+  - getM2
+  - getM2Background
+  - getZ

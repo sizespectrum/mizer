@@ -1,12 +1,11 @@
 ---
 title: "A Multi-Species Model Of The North Sea"
-output: html_document
-fig_width: 5
-fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r include=FALSE}
@@ -19,7 +18,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- MizerParams(params_data_gears, interaction = inter)
+params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
 effort_array <- array(NA, dim = c(length(times), length(gear_names)),
@@ -172,7 +171,7 @@ This was estimated along with the values `r_max` as part of the calibration proc
 We now have all the information we need to create the `MizerParams` object using the species parameters data.frame.
 
 ```{r label=make_ns_params, results='hide'}
-params <- MizerParams(params_data, inter, kappa = 9.27e10)
+params <- set_multispecies_model(params_data, inter, kappa = 9.27e10)
 ```
 
 ## Setting up and running the simulation
@@ -204,7 +203,7 @@ relative_effort <- rbind(initial_effort,relative_effort)
 
 We now have our parameter object and out matrix of efforts relative to 1990.
 This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010.
-We use this effort matrix as the `effort` argument to the `project()` method.
+We use this effort matrix as the `effort` argument to the `project()` function.
 We use `dt` = 0.5 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.
 
 ```{r label=project_ns_model}
@@ -231,14 +230,10 @@ Here we look at some of the ways the results of the simulation can be explored.
 We calculate the community indicators ``mean maximum weight``, ``mean individual weight``, ``community slope`` and the ''large fish indicator'' (LFI) over the simulation period, and compare them to the unexploited values.
 We also compare the simulated values of the LFI to a community target based on achieving a high proportion of the unexploited value of the LFI of $0.8 LFI_{F=0}$.
 
-
-
-
-
-The indicators are calculated using the methods described in 
-<!--see Table~\@ref(tab:indicator_methods) and --> [the section about summary methods for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
+The indicators are calculated using the functions described in 
+<!--see Table~\@ref(tab:indicator_methods) and --> [the section about summary functions for MizerSim objects.](exploring_the_simulation_results.html#sec:summaries)
 Here we calculate the LFI and the other community indicators for the unexploited community. When calculating these indicators we only include demersal species and individuals in the size range 10 g to 100 kg, and the LFI is based on species larger than 40 cm.
-Each of these methods returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = `100`).
+Each of these functions returns a time series. We are interested only in the equilibrium unexploited values so we just select the final time step (year = `100`).
 
 ```{r label=ns_comm_ref_point}
 demersal_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock",

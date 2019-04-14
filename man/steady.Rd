@@ -4,18 +4,39 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, rfac = Inf, effort = 0)
+steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
+  dt = 0.1, progress_bar = TRUE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{rfac}{A number that determines the strength of the non-linearity in
-the Beverton-Holt stock-recruitment relationship. The maximal recruitment
-will be set to rfac times the normal steady-state recruitment.
-Default value is 10.}
-
 \item{effort}{The fishing effort. Default is 0}
+
+\item{t_max}{The maximum number of years to run the simulation. Default is 50.}
+
+\item{t_per}{The simulation is broken up into shorter runs of t_per years,
+after each of which we check for convergence. Default value is 2.}
+
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over t_per years is less than tol for every background
+species. Default value is 1/100.}
+
+\item{dt}{The time step to use in `project()`}
+
+\item{progress_bar}{A shiny progress object to implement 
+a progress bar in a shiny app. Default FALSE}
 }
 \description{
-Tune params object to be at steady state
+This is done by running the dynamics for a specified number of years while
+keeping recruitment and resources constant to reach steady state. Then the
+reproductive efficiencies and the external resource rates are retuned to
+achieve that level of recruitment.
+}
+\examples{
+\dontrun{
+params <- set_scaling_model()
+params@species_params$gamma[5] <- 3000
+params <- changeSearchVolume(params)
+params <- steady(params)
+}
 }

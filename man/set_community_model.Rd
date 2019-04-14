@@ -12,7 +12,7 @@ set_community_model(max_w = 1e+06, min_w = 0.001, z0 = 0.1,
 }
 \arguments{
 \item{max_w}{The maximum size of the community. The \code{w_inf} of the 
-species used to represent the community is set to 0.9 * this value. The 
+species used to represent the community is set to this value. The 
 default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
@@ -31,14 +31,14 @@ default value is 1e6.}
 
 \item{n}{The scaling of the intake. Default value is 2/3.}
 
-\item{kappa}{The carrying capacity of the background spectrum. Default value
+\item{kappa}{The carrying capacity of the plankton spectrum. Default value
 is 1000.}
 
-\item{lambda}{The exponent of the background spectrum. Default value is 2 + q
+\item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
 - n.}
 
-\item{f0}{The average feeding level of individuals who feed mainly on the 
-resource. This value is used to calculate the search rate parameter 
+\item{f0}{The average feeding level of individuals who feed on a power-law 
+spectrum. This value is used to calculate the search rate parameter 
 \code{gamma} (see the package vignette). Default value is 0.7.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default value is 10.}
@@ -54,7 +54,7 @@ function. Default value is 1000.}
 
 \item{recruitment}{The constant recruitment in the smallest size class of the
 community spectrum. This should be set so that the community spectrum 
-continues the background spectrum. Default value = \code{kappa} * 
+continues the plankton spectrum. Default value = \code{kappa} * 
 \code{min_w}^-\code{lambda}.}
 
 \item{rec_mult}{Additional multiplier for the constant recruitment. Default 
@@ -70,7 +70,7 @@ This functions creates a \code{\linkS4class{MizerParams}} object so that
 community-type models can be easily set up and run. A community model has
 several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The resource spectrum only extends to the start of the community
+community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
 energy invested in reproduction (the slot \code{psi} of the returned 
@@ -91,9 +91,10 @@ selected.
 
 The resulting \code{MizerParams} object can be projected forward using 
 \code{project()} like any other \code{MizerParams} object. When projecting 
-the community model it may be necessary to reduce \code{dt} to 0.1 to avoid 
-any instabilities with the solver. You can check this by plotting the biomass
-or abundance through time after the projection.
+the community model it may be necessary to keep a small time step size
+\code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+check for these numerical instabilities by plotting the biomass or abundance
+through time after the projection.
 }
 \examples{
 \dontrun{
@@ -108,3 +109,9 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
   individual efficiencies of size-structured communities, Proceedings of the 
   Royal Society, 276, 109-114
 }
+\seealso{
+Other functions for setting up models: \code{\link{set_multispecies_model}},
+  \code{\link{set_scaling_model}},
+  \code{\link{set_trait_model}}
+}
+\concept{functions for setting up models}

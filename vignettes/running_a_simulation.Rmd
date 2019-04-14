@@ -1,12 +1,11 @@
 ---
 title: "Running a Simulation"
-output: html_document
-fig_width: 5
-fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r include=FALSE}
@@ -19,18 +18,18 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- MizerParams(params_data_gears, interaction = inter)
+params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
 ```
 
 
 
 ## Introduction {#sec:projection}
 
-In the [community](community_model.html) and [trait-based](trait_model.html) models, we used the `project()` method to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
+In the [community](community_model.html) and [trait-based](trait_model.html) models, we used the `project()` function to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
 In the trait-based model example, we also looked at how the effort for different gears could be specified.
-In this section we take a detailed look at how the `project()` method works and the different ways in which effort and time can be set up. This will allow us to run more general systems like the [multispecies model.](multispecies_model.html)
+In this section we take a detailed look at how the `project()` function works and the different ways in which effort and time can be set up. This will allow us to run more general systems like the [multispecies model.](multispecies_model.html)
 
-In `mizer`, simulations are performed using the `project()` method. This method takes a `MizerParams` object and projects it
+In `mizer`, simulations are performed using the `project()` function. This function takes a `MizerParams` object and projects it
 forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.
 
 Running a projection with `project()` requires various arguments:
@@ -59,7 +58,7 @@ The object returned from calling `project()` is of class `MizerSim`. This contai
 
 ## The time arguments {#sec:time_arguments}
 
-There are three arguments that control time in the `project()` method:
+There are three arguments that control time in the `project()` function:
 `dt`, `t_max` and `t_save`. All of them have default values.
 
 `t_max` determines the maximum time of the simulation, i.e. how long the projection is run for.
@@ -100,7 +99,7 @@ It is not necessary to supply a `t_max` argument when the effort is specified as
 
 ## Setting the initial population abundance {#sec:setting_initial_abundances}
 
-When running a simulation with the `project()` method, the initial populations of the species and the plankton spectrum need to be specified. These are passed to `project()` as the arguments `initial_n` and `initial_n_pp` respectively.
+When running a simulation with the `project()` function, the initial populations of the species and the plankton spectrum need to be specified. These are passed to `project()` as the arguments `initial_n` and `initial_n_pp` respectively.
 `initial_n` is a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). `initial_n_pp` is a vector of the same length as the the length of the full spectrum (which can be seen as slot `w_full` in the `MizerParams` object).
 
 By default, the `initial_n` argument has values automatically calculated by the function `get_initial_n()`.
@@ -118,7 +117,7 @@ The `n` and `n_pp` slots hold the saved abundances of the species and the plankt
 
 ## Projection examples {#sec:projection_examples}
 
-In this section we'll look at how to run simulations with the `project()` method.
+In this section we'll look at how to run simulations with the `project()` function.
 The examples will focus on how fishing effort can be specified in different ways.
 The results of the simulations will not be explored in detail. We will leave that for [the section on exploring the simulation results.](exploring_the_simulation_results.html#).
 
@@ -127,7 +126,7 @@ The results of the simulations will not be explored in detail. We will leave tha
 
 
 
-\subsection{Summary methods for MizerSim objects}
+\subsection{Summary functions for MizerSim objects}
 \label{sec:summaries}
 
 Remember that the fishing mortality by size on a species is the product of the selectivity, the catchability and the effort of the gear that caught it. We have not specified any catchability values in the species parameter data.frame so the default value of 1 is used. The selectivity ranges between 0 and 1. This means that in these examples the fishing mortality of a fully selected species is given by the effort of the gear that catches it.
@@ -143,7 +142,7 @@ in which each species is caught by a separate gear.
 Here we make the object again:
 
 ```{r label = remaking_simple_ms_params, results='hide'}
-params <- MizerParams(params_data, interaction = inter)
+params <- set_multispecies_model(params_data, interaction = inter)
 ```
 
 As described above, effort is associated with fishing gears.
@@ -220,7 +219,7 @@ You can see that the effort for each gear is constant but each gear has the effo
 This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, `plotFMort()`, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step).
 The fishing mortality on each of the species is determined by the effort of the gear that caught it.
 
-```{r label=plotFMort, fig.keep='last', fig.cap="An example of using the `plotFMort()` method to show how different efforts for different gears can be specified."}
+```{r label=plotFMort, fig.keep='last', fig.cap="An example of using the `plotFMort()` function to show how different efforts for different gears can be specified."}
 plotFMort(sim)
 ```
 

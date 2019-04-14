@@ -1,12 +1,11 @@
 ---
 title: "Developer Guide"
 output:
-  rmarkdown::html_vignette:
-    toc: true
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 ---
 
 ```{r setup, include = FALSE}
@@ -116,7 +115,7 @@ that runs a simulation of the size-spectrum model. It takes a specification
 of the model contained in an object of type `MizerParams` and returns the
 results of the simulation in an object of type `MizerSim`.
 
-There are several different methods for setting up a `MizerParams` object for
+There are several different functions for setting up a `MizerParams` object for
 specifying various concrete models. These setup functions make various 
 simplifying assumptions about the model parameters to reduce the amount of
 information that needs to be specified. This usually takes the form of
@@ -137,28 +136,21 @@ below we assume that the `MizerParams` object is called `params` and the
 
 ## The MizerParams class
 An object of class 'MizerParams' holds all the information needed for the
-'project()' method to simulate a model. 
+'project()' function to simulate a model. 
 
 ### Adding a new slot
 If you need to add a new slot to the MizerParams class, you need to make the following additions in the file `MizerParams-class.R`:
 
 1. Go to the section "Class definition" and add a
   description of you new slot with @slot.
-2. Add an entry in the `representation` list inside `setClass`.
-3. Add an entry in the `prototype` list inside `setClass`. This gives a default
-  value for the slot when a new oject of the class is created with `new()`.
-  This is optional. If you do not provide a default then you must do the next
-  step.
-4. In the function `emptyParams()` go to the section "Make object" and inside
+2. Add an entry in the `slots` list inside `setClass`.
+3. In the function `emptyParams()` go to the section "Make object" and inside
   the call to `new()` provide a default value for your slot. If your slot holds
   an array, then it is conventional in mizer to already give it the correct
-  dimensions and dimnames here, if possible. 
+  dimensions and dimnames here, if possible.
 
 What exactly to put into these places is usually clear in analogy to what is
-already there for other similar slots. You can see a good example in commit
-[https://github.com/gustavdelius/mizer/commit/c7236b7e1c320c4d6e65e48775bf1aac9f71a677].
-Next you will probably want to provide code to fill the slot with what you want
-it to hold and write the code that actually uses the slot.
+already there for other similar slots.
 
 <!--
 

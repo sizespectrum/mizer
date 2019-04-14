@@ -18,7 +18,7 @@ communities. The package has been developed to model marine ecosystems
 that are subject to fishing. However, it may also be appropriate for
 other ecosystems.
 
-The package contains routines and methods to allow users to set up an
+The package contains routines and functions to allow users to set up an
 ecosystem model, and then project it through time under different
 fishing strategies. Methods are included to explore the results,
 including plots and calculation of community indicators such as the
@@ -50,7 +50,8 @@ therefore available from R’s build-it package manager.
 ``` r
 # Install release version from CRAN
 install.packages("mizer")
-# Install development version from GitHub
+
+# Alternatively, install development version from GitHub
 devtools::install_github("sizespectrum/mizer")
 ```
 
@@ -65,7 +66,7 @@ years.
 library(mizer)
 data(NS_species_params)
 data(inter)
-params <- MizerParams(NS_species_params, inter)
+params <- set_multispecies_model(NS_species_params, inter)
 sim <- project(params, t_max = 10, effort = 0)
 ```
 
@@ -76,8 +77,9 @@ plots:
 plot(sim)
 ```
 
-![](docs/reference/figures/unnamed-chunk-4-1.png)<!-- -->
+![](docs/dev/reference/figures/unnamed-chunk-4-1.png)<!-- -->
 
 See the accompanying [Get
-started](http://sizespectrum.github.io/mizer/articles/mizer.html) page
-for more details on how the package works, including detailed examples.
+started](http://sizespectrum.github.io/mizer/dev/articles/mizer.html)
+page for more details on how the package works, including detailed
+examples.

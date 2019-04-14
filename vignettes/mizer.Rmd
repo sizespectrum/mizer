@@ -1,12 +1,13 @@
 ---
 title: "Get started"
-output: html_document
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 bibliography: reflib.bib
 link-citations: true
-vignette: >
-  %\VignetteIndexEntry{Mizer Developer Vignette}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ## Overview
@@ -78,7 +79,7 @@ with the package.
 ```{r}
 data(NS_species_params)
 data(inter)
-params <- MizerParams(NS_species_params, inter)
+params <- set_multispecies_model(NS_species_params, inter)
 ```
 The notes printed out by the function show us that mizer calculated
 default values for many parameters that were not provided.
@@ -86,7 +87,7 @@ default values for many parameters that were not provided.
 
 
 ## Running a simulation 
-This is done by calling the `project()` method on the model parameters.
+This is done by calling the `project()` function with the model parameters.
 ```{r}
 sim <- project(params, t_max = 10, effort = 0)
 ```
