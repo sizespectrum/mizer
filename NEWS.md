@@ -1,56 +1,202 @@
 
-# mizer 1.1
+# mizer 1.0.1.9000 
 
-* Satiation can be switched off by setting the maximum intake rate to Inf
-* Users can now replace the lognormal function in the predation kernel by a
-  function of their choice
-* `project()` can now continue projection from last time step of a previous
-  simulation provided in an optional `sim` argument
-* Added function to get diet of predators
-* Removed discrepancies between FFT method and old method for calculating integrals
-* Values for minimum plankton size, and minimum and maximum consumer sizes set
-  automatically
-* Allowing feeding kernel to be kept even when using FFT methods
-* Function changePredKernel() for changing predation kernel
-* Set names on arrays returned by getEncounter and getPredRate
-* Replaced `getPhiPrey()` by `getEncounter()` which includes the search volume
-  factor.
-* Added numerical unit tests
-* Allow user-defined plankton dynamics
-* Introduced a new parameter slot `interact_p` that sets the strength of
-  interaction of species with plankton.
-* Avoid duplicate graphs in rmarkdown documents by setting the default for
+## Modelling unstructured resources
+Besides the size-structured planktonic resource, mizer can now also model any
+number of unstructured resource components. Such unstructured components are
+appropriate whenever the predation on these componente is not size based.
+Possible applications include the modelling of detritus as a resource for
+detritovores, carrion as a resource for scavengers, or macroflora on which fish
+can graze. (#46)
+
+* Each unstructured resource component can have its own dynamics, with its own
+  parameters. These are set up with `changeResourceDynamics()`.
+* Each species can be set to consume resources. The rates are set up with
+ `changeResourceEncounter()`.
+* Example dynamics are provided in `carrion_dynamics()` and `detritus_dynamics()`.
+
+## Setting model parameters
+After setting up a mizer model, it is possible to change specific model
+parameters with the new functions
+
+* `changePredKernel()`
+* `changeSearchVolume()`
+* `changeInteraction()`
+* `changeIntakeMax()`
+* `changeMetab()`
+* `changeBMort()`
+* `changeReproduction()`
+* `changeFishing()`
+* `changePlankton()`
+* `changeResourceDynamics()`
+* `changeResourceEncounter()`
+
+The new function `changeParams()` is a wrapper for all of the above functions
+and is also used when setting up a new model with `set_multispecies_model()`.
+(#51)
+
+## Plotting
+
+* Every plot function now has a plotly version that makes the plot interactive 
+  using the plotly package. So for example there is `plotlyBiomass()` as the 
+  plotly version of `plotBiomass()`, and so on.
+* New `plotGrowthCurves()` plots growth curves and compares them to the von
+  Bertalanffy growth curve.
+* New `highlight` argument to all plot functions that display curves for 
+  multiple species. Displays highlighted species with wider lines.
+* In the legends of all plots the species are now consistently ordered in the
+  same way as in the species parameter data frame.
+* All plot functions that are not time-resolved now accept also a MizerParams
+  object as an alternative to the MizerSim object to plot the initial state.
+* New `plot()` method for MizerParams object to plot the initial state.
+* Avoiding duplicate graphs in rmarkdown documents by setting the default for
   the `print_it` argument in plot functions to `FALSE`.
-* Introduce unstructured resources into mizer model
-* Use a more general expression for the maturity ogive `psi` with two
-  additional species parameters `m` and `w25`.
-* Correctly deal with NAs in species parameters.
-* Consistently cutting off predation kernel at 0 and beta + 3 sigma.
-* `cc_pp` is calculated in a way that reduces rounding errors.
-* `set_scaling_model()` now produces perfectly scale-invariant model when
-  called with `perfect = TRUE`.
-* Using Singular Value Decomposition to retune background species to keep
-  community close to power law.
-* Background species with very low abundances are automatically removed.
-* Converted all S4 methods to functions to decrease the learning curve for
-  new developers.
-* Changed naming convention: function names are now in camelCase.
+* New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
+  argument to limit the w range in the plot.
+* New arguments `xlab` and `ylab` for `displayFrames()`.
+* Use colour and linetype for plots irrespective of the number of species.
+* Plot background species in the colour specified in the `linecolour` slot.
+
+## General feeding kernel
+
+* Users can now replace the lognormal function in the predation kernel by a
+  function of their choice, allowing a differently shaped kernel for each 
+  species.
+* New `box_pred_kernel()` implements a box-shaped kernel as an alternative to
+  the default `lognormal_pred_kernel()`.
+* Users can sets a predation kernel that has a predator-size-dependent
+  predator/prey mass ration (via `changePredKernel()`). Mizer automatically
+  falls back on the old non-FFT code to handle this. (#41)
+* New `getPredKernel()` returns the full 3-dimensional predation kernel array,
+  even when this is not stored in MizerParams object.
+
+## Other new features
+
+* `project()` now shows a progress bar while a simulation is running. Can be
+  turned off with `progress_bar = FALSE` argument.
+* New `getDiet()` calculates the diet of predators. (#43)
+* Satiation can be switched off by setting the maximum intake rate to `Inf`.
+* Users can now set their own plankton dynamics instead of the default
+  `plankton_semichemostat()`.
+* Different species can interact with plankton with different strengths, or not
+  feed on plankton at all, controlled by an `interaction_p` column in the
+  species parameter data frame.
+* The steepness of the maturity ogive can now be controlled via a `w_mat25`
+  column in the species parameter dataframe, which gives the size at which
+  25% of the individuals of a species are mature.
+* The scaling exponent for the allocation of resources into reproduction can
+  now be set via the `m` column in the species parameter data frame.
+* `project()` can now continue projection from last time step of a previous
+  simulation if the first argument is a MizerSim object. The new `append` 
+  argument then controls whether the new results are appended to the old.
+* New `getGrowthCurves()` calculates the growth curves (size at age).
+* Values for minimum plankton size, and minimum and maximum consumer sizes are
+  set automatically if not provided in `set_multispecies_model()`.
+* Default values for species parameters are used for missing values within a 
+  column in the species parameter data frame, not only if the column is missing 
+  entirely.
+* New `getRates()` calculates all the rates needed in the model and collects
+  them in a list.
+* Can set initial state with `changeInitial()`.
+* Rate functions take defaults for their `initial_n`, `initial_n_pp` and
+  `initial_B` arguments from the corresponding slot in the `params` argument.
+* Can remove a species from a model with `removeSpecies()`.
+* New `perfect` argument allows `set_scaling_model()` to produce a perfectly 
+  scale-invariant model.
+* In `retuneAbundance()`, Singular Value Decomposition is used to retune 
+  background species to keep the community close to power law. Background 
+  species with very low abundances are automatically removed.
 * Renamed some functions for consistency and to make them easier to understand,
   but kept old names as aliases for backwards compatibility:
-  + `getmM2` -> `getPredMort`
-  + `getM2background` -> `getPlanktonMort`
-  + `getZ` -> `getMort`
-  + `getESpawning` -> `getERepro`
-  + `MizerParams` -> `emptyParams` or `set_multispecies_model`
-* Improvement to MizerParams class:
+  + `getmM2()` -> `getPredMort()`
+  + `plotM2` -> `plotPredMort()`
+  + `getM2background()` -> `getPlanktonMort()`
+  + `getZ()` -> `getMort()`
+  + `getESpawning()` -> `getERepro()`
+  + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
+  
+## Documentation
+
+* Mizer now has a documentation website at <https://sizespectrum.github.io/mizer>
+  for the latest released version and at <https://sizespectrum.github.io/mizer/dev>
+  for the development version. (#48)
+* The help pages of mizer functions has been extended massively, see for
+  example the help for `set_multispecies_model()`.
+* The vingnette chapters are shown as pages on the website.
+* The html help pages for plotting functions now show example plots.
+* Clarified that mizer uses grams and years as size and time units and is 
+  agnostic about whether abundances are per area, per volume or per study area.
+  (#42)
+
+## Bug fixes
+
+* In `getSSB()`, the calculation of the spawning stock biomass is done correctly
+  using the maturity ogive instead of the proportion of energy allocated to
+  reproduction. (#47)
+* The fast FFT method and the old method for calculating integrals now give 
+  the same numerical results. (#39)
+* `getEncounter()` and `getPredRate()` now set names on the returned arrays.
+* Plankton carrying capacity for scale-invariant model is calculated in a way 
+  that reduces rounding errors.
+* Avoids potential problems with negative numbers due to numerical errors.
+* Consistently cutting off predation kernel at 0 and beta + 3 sigma.
+* The `ylim` argument is not handled correctly in plots.
+* `display_frame()` is now exported.
+  
+## Under the hood
+
+* Increased regression test coverage from 67% to 86%.
+* Converted all S4 methods to functions to decrease the learning curve for
+  new developers.
+* The calculation of defaults is now handled by new `get_gamma_default()`,
+  `get_h_default()` and `get_ks_default()`, making it easier to change or
+  extend these in the future.
+* Helper function `set_species_param_default()` makes it easier to set default
+  values for species parameters.
+* Simplified FFT calculations are more readable.
+* Using `@inherit` functionality of roxygen2 to reduce duplication in
+  roxygen documentation.
+* Using `@family' to group function documentation pages.
+* The helper functions are now documented and exported.
+* `getPhiPrey()` is replaced by `getEncounter()` which now returns the full
+  encounter rate, including the contribution from unstructured resources. Even
+  in the absence of unstructured resources, `getEncounter()` differs from the
+  old `getPhiPrey()` because it includes the search volume factor.
+* Changed naming convention: user-facing function names are now in camelCase.
+* Consistently use `params` to refer to an argument of class MizerParams, `sim`
+  to refer to an argument of class MizerSim, and `object` to an argument that
+  can be either.
+* Updated the calls to `setClass()` to follow the new guidelines, replacing
+  `representation` by `class` and removing `prototype` and `validity`.
+* Added numerical tests.
+* Using assert_that to check arguments to functions more often.
+* Argument `shiny_progress` renamed to `progress_bar` because they control
+  any type of progress bar.
+* In documentation renamed "background" to "plankton".
+* Using `outer()` instead of `tapply()` where possible to improve readability.
+* Avoiding use of `hasArg()` and `anyNA()` because they were not available in R 3.1
+* A more robust code for setting up the size grids.
+* Improved consistency of when to issue warnings and when to issue messages.
+* Changes to MizerParams class:
   + Merged `std_metab` and `activity` slots into a single `metab` slot.
   + Moved `w_min_idx` out of `species_params` into its own slot.
-* Started work on two new vignettes:
-  + `developer_vignette.Rmd`
-  + `mathematical_details.Rmd`
-* Code improvements:
-  + Starting to use assert_that to check arguments to functions.
-  + Added more unit tests.
+  + Added slot `maturity` to hold the maturity ogive.
+  + Added slot `rho` to hold the resource encounter rates.
+  + Added slot `pred_kernel` to hold predation kernel if it has variable
+    predator/prey ratio.
+  + Added slot `plankton_dynamics` to allow user to specify alternative
+    plankton dynamics.
+  + Addes slots `resource_dynamics` and `resource_params`.
+  + Added slot `initial_B` for the initial biomasses of the resources.
+* Changes to MizerSim class:
+  + Added slot `B` to hold resource biomasses over time
+
+
+# mizer 1.0.1
+
+* Now compatible with older versions of R > 3.1.0.
+* Skipping a test on CRAN that fails on some machines with different precision.
+* Fixing minor typos in documentation.
 
 
 # mizer 1.0
@@ -66,7 +212,6 @@
 * Created an example shiny app to allow people to use mizer through a web 
   browser without having to install mizer. The app explores the effect of more 
   selective fishing gear in a case study.
-* `project()` now shows a progress bar while simulation is running.
 * Improvements to plots:
   + Added units to axes
   + Added function for plotting growth curves
@@ -82,8 +227,6 @@
 * Now checking that effort times are increasing.
 * Corrections in the documentation.
 * Improvements to the vignette.
-* Fix potential problems with negative numbers due to numerical errors.
-* Fix a bug in the divisibility checks.
 * Add a test of the numeric solution against an analytic solution.
 
 
