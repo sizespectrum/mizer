@@ -54,8 +54,7 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}},
-  \code{\link{plotDistribution}}, \code{\link{plotFMort}},
+  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
   \code{\link{plotYieldGear}}, \code{\link{plotYield}},

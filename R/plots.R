@@ -1149,46 +1149,6 @@ plotlyFMort <- function(object, species = NULL,
 }
 
 
-#' Plot biomass or abundance distribution
-#' 
-#' Where \code{\link{plotSpectra}} plots the density function, this function 
-#' plots the cummulative distribution function. Work in progress.
-#' @param params A \code{MizerParams} object
-#' @param sp Name or index of species to be plotted
-#' 
-#' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}
-plotDistribution <- function(params, sp) {
-    base_size <- 14
-    biomass <- cumsum(params@initial_n[sp, ] * params@w * params@dw)
-    species_params <- params@species_params[sp, ]
-    
-    max_w <- species_params$w_inf
-    min_w <- species_params$w_min
-    sel <- params@w >= min_w & params@w <= max_w
-    df <- data.frame(Size = params@w[sel], Biomass = biomass[sel])
-    pl <- ggplot(df, aes(x = Size, y = Biomass)) + 
-        geom_line(color = "blue") + scale_x_log10() +
-        geom_vline(xintercept = species_params$w_mat, 
-                   linetype = "dotted") +
-        theme_grey(base_size = base_size) +
-        labs(x = "Size [g]", y = "Cummulative biomass")  +
-        geom_text(aes(x = species_params$w_mat, 
-                      y = max(Biomass * 0.2),
-                      label = "\nMaturity"), 
-                  angle = 90)
-    if (!is.na(species_params$biomass_observed)) {
-        cutoff_idx <- which.max(params@w >= species_params$cutoff_size)
-        target <- species_params$biomass_observed + biomass[cutoff_idx]
-        pl <- pl +
-            geom_hline(yintercept = biomass[cutoff_idx]) +
-            geom_vline(xintercept = species_params$cutoff_size) +
-            geom_hline(yintercept = target, color = "green")
-    }
-    pl
-}
-
-
 #' Plot growth curves giving weight as a function of age
 #' 
 #' If given a \linkS4class{MizerSim} object, uses the growth rates at the final

@@ -44,7 +44,6 @@ Other functions for changing parameters: \code{\link{changeBMort}},
   \code{\link{changeReproduction}},
   \code{\link{changeResourceDynamics}},
   \code{\link{changeResourceEncounter}},
-  \code{\link{changeSearchVolume}},
-  \code{\link{tuneParams}}
+  \code{\link{changeSearchVolume}}
 }
 \concept{functions for changing parameters}

@@ -59,8 +59,7 @@ plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 \code{\link{plotting_functions}}
 
 Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plotBiomass}},
-  \code{\link{plotDistribution}}, \code{\link{plotFMort}},
+  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
   \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
@@ -74,8 +73,7 @@ Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plotting_functions}}
 
 Other plotting functions: \code{\link{displayFrames}},
-  \code{\link{plotBiomass}},
-  \code{\link{plotDistribution}}, \code{\link{plotFMort}},
+  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
   \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},

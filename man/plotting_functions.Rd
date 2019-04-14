@@ -83,8 +83,7 @@ p
 
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}},
-  \code{\link{plotDistribution}}, \code{\link{plotFMort}},
+  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
   \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},

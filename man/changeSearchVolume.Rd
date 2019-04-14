@@ -63,7 +63,6 @@ Other functions for changing parameters: \code{\link{changeBMort}},
   \code{\link{changePredKernel}},
   \code{\link{changeReproduction}},
   \code{\link{changeResourceDynamics}},
-  \code{\link{changeResourceEncounter}},
-  \code{\link{tuneParams}}
+  \code{\link{changeResourceEncounter}}
 }
 \concept{functions for changing parameters}
