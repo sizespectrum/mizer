@@ -220,9 +220,6 @@
     <loc>https://sizespectrum.github.io/mizer//reference/plotBiomass.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/plotDistribution.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.github.io/mizer//reference/plotFMort.html</loc>
   </url>
   <url>
@@ -320,12 +317,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.github.io/mizer//reference/summary_functions.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/tuneParams.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/upgradeParams.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.github.io/mizer//reference/wrapper_functions.html</loc>
