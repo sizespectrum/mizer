@@ -146,7 +146,7 @@ valid_MizerSim <- function(object) {
 #' @export
 setClass(
     "MizerSim",
-    representation(
+    slots = c(
         params = "MizerParams",
         n = "array",
         effort = "array",
