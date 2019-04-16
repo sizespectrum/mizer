@@ -116,6 +116,14 @@
 <h1 class="page-header">
 <a href="#mizer-1-0-1-9000" class="anchor"></a>mizer 1.0.1.9000<small> Unreleased </small>
 </h1>
+<div id="breaking-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#breaking-changes" class="anchor"></a>Breaking changes</h2>
+<ul>
+<li>The default for <code>min_w_pp</code>, the smallest size of plankton, has changed in <code><a href="../reference/MizerParams.html">MizerParams()</a></code>, <code><a href="../reference/set_trait_model.html">set_trait_model()</a></code> and <code><a href="../reference/set_community_model.html">set_community_model()</a></code>. It used to be <code>w_min_pp = 1e-10</code>. Now the default is the smallest size at which any of the species feeds. If your code relies on the old default, you now need to supply the <code>w_min_pp = 1e-10</code> argument explicitly.</li>
+<li>The default for <code>max_w</code>, the largest size in the model, has changed in <code><a href="../reference/MizerParams.html">MizerParams()</a></code> and <code><a href="../reference/set_trait_model.html">set_trait_model()</a></code>. It used to be 1.1 times the largest asymptotic size of any species in the model otherwise. The unnecessary factor of 1.1 has now been removed. If your code relies on the old default, you now need to set <code>w_max</code> explicitly.</li>
+</ul>
+</div>
 <div id="modelling-unstructured-resources" class="section level2">
 <h2 class="hasAnchor">
 <a href="#modelling-unstructured-resources" class="anchor"></a>Modelling unstructured resources</h2>

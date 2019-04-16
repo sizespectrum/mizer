@@ -1,6 +1,19 @@
 
 # mizer 1.0.1.9000 
 
+## Breaking changes
+
+* The default for `min_w_pp`, the smallest size of plankton, has changed in
+  `MizerParams()`, `set_trait_model()` and `set_community_model()`.
+  It used to be `w_min_pp = 1e-10`. Now the default is the smallest size at
+  which any of the species feeds. If your code relies on the old default, you
+  now need to supply the `w_min_pp = 1e-10` argument explicitly.
+* The default for `max_w`, the largest size in the model, has changed in
+  `MizerParams()` and `set_trait_model()`. It used to be 1.1 times the largest 
+  asymptotic size of any species in the model otherwise. The unnecessary factor
+  of 1.1 has now been removed. If your code relies on the old default, you now
+  need to set `w_max` explicitly.
+
 ## Modelling unstructured resources
 Besides the size-structured planktonic resource, mizer can now also model any
 number of unstructured resource components. Such unstructured components are
