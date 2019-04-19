@@ -2192,9 +2192,9 @@ get_phi <- function(species_params, ppmr) {
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
         if (any(is.na(phi))) {
-            stop(paste0("The function ", pred_kernel_func,
-                        "returned NA. Did you correctly specify all required",
-                        "parameters in the species parameter dataframe?"))
+            stop(paste("The function", pred_kernel_func_name,
+                       "returned NA. Did you correctly specify all required",
+                       "parameters in the species parameter dataframe?"))
         }
         phis[i, ] <- phi
     }
