@@ -41,10 +41,10 @@ Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 \eqn{N_R(w)} is the abundance density of plankton.
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is changed with the
-\code{\link{changeSearchVolume}} function. The predation kernel
-\eqn{\phi(w,w_p)} is changed with the \code{\link{changePredKernel}} function. The
+\code{\link{setSearchVolume}} function. The predation kernel
+\eqn{\phi(w,w_p)} is changed with the \code{\link{setPredKernel}} function. The
 species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-vector \eqn{\theta{ip}} are changed with \code{\link{changeInteraction}}.
+vector \eqn{\theta{ip}} are changed with \code{\link{setInteraction}}.
 }
 
 \section{Resource encounter}{
@@ -57,7 +57,7 @@ where \eqn{B_d} is the biomass of the d-th unstructured resource component
 and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
 which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
 the d-th unstructured resource component. This is changed with
-\code{\link{changeResourceEncounter}}.
+\code{\link{setResourceEncounter}}.
 }
 
 \section{Details}{

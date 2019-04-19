@@ -53,28 +53,29 @@ articles:
 reference:
 - title: Creating a new model
   contents:
-  - starts_with("set")
+  - set_multispecies_model
+  - set_community_model
+  - set_trait_model
+  - set_scaling_model
 - title: Changing model parameters
   contents:
-  - changeParams
-  - changePredKernel
-  - changeSearchVolume
-  - changeInteraction
-  - changeIntakeMax
-  - changeMetab
-  - changeBMort
-  - changeReproduction
-  - changeFishing
-  - changePlankton
-  - changeResourceDynamics
-  - changeResourceEncounter
-  - tuneParams
+  - setParams
+  - setPredKernel
+  - setSearchVolume
+  - setInteraction
+  - setIntakeMax
+  - setMetab
+  - setBMort
+  - setReproduction
+  - setFishing
+  - setPlankton
+  - setResourceDynamics
+  - setResourceEncounter
+  - setInitial
   - steady
-  - emptyParams
   - addSpecies
   - removeSpecies
   - retuneAbundance
-  - upgradeParams
   - markBackground
 - title: Running simulations
   contents:

@@ -31,45 +31,6 @@
     <loc>https://sizespectrum.github.io/mizer//reference/carrion_dynamics.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeBMort.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeFishing.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeInitial.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeIntakeMax.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeInteraction.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeMetab.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeParams.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changePlankton.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changePredKernel.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeReproduction.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeResourceDynamics.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeResourceEncounter.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.github.io/mizer//reference/changeSearchVolume.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.github.io/mizer//reference/detritus_dynamics.html</loc>
   </url>
   <url>
@@ -284,6 +245,45 @@
   </url>
   <url>
     <loc>https://sizespectrum.github.io/mizer//reference/retuneAbundance.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setBMort.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setFishing.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setInitial.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setIntakeMax.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setInteraction.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setMetab.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setPlankton.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setPredKernel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setReproduction.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setResourceDynamics.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setResourceEncounter.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.github.io/mizer//reference/setSearchVolume.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.github.io/mizer//reference/set_community_model.html</loc>

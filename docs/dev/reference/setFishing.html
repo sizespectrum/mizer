@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set metabolic rate — changeMetab • mizer</title>
+<title>Set fishing parameters — setFishing • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Set metabolic rate — changeMetab" />
+<meta property="og:title" content="Set fishing parameters — setFishing" />
 
-<meta property="og:description" content="Sets the rate at which energy is used for metabolism and activity" />
+<meta property="og:description" content="Set fishing parameters" />
 <meta name="twitter:card" content="summary" />
 
 <meta name="robots" content="noindex">
@@ -111,72 +111,94 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set metabolic rate</h1>
+    <h1>Set fishing parameters</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>changeMetab.Rd</code></div>
+    <div class="hidden name"><code>setFishing.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Sets the rate at which energy is used for metabolism and activity</p>
+    <p>Set fishing parameters</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>changeMetab</span>(<span class='no'>params</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>)</pre>
+    <pre class="usage"><span class='fu'>setFishing</span>(<span class='no'>params</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>MizerParams</p></td>
-    </tr>
-    <tr>
-      <th>metab</th>
-      <td><p>Optional. An array (species x size) holding the metabolic rate
-for each species at size. If not supplied, a default is set as described in
-the section "Setting metabolic rate".</p></td>
-    </tr>
-    <tr>
-      <th>p</th>
-      <td><p>Scaling exponent of the standard metabolic rate.</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams</p>
+    <p>MizerParams object</p>
     
-    <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
+    <h2 class="hasAnchor" id="setting-fishing"><a class="anchor" href="#setting-fishing"></a>Setting fishing</h2>
 
     
-    <p>The metabolic rate is subtracted from the energy income rate to calculate
-the rate at which energy is available for growth and reproduction, see
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>. It is measured in grams/year.</p>
-<p>If the <code>metab</code> argument is not supplied, then the metabolic
-rate \(k_i(w)\) for an individual of species \(i\) and size \(w\)
-is set to $$k_i(w) = ks_i\, w^p + k_i\, w,$$
-where \(ks_i w^p\) represents the rate of standard metabolism and 
-\(k_i w\) is the rate at which energy is expended on activity and movement.
-The values of \(ks_i\) and \(k_i\) are taken from the <code>ks</code> and
-<code>k</code> columns in the
-species parameter dataframe. If these parameters are not supplied, the
-defaults are \(ks_i = 0.2 h_i\) and \(k_i = 0\), where \(h_i\) is the
-coefficient of the maximum intake rate and is taken from the species
-parameter data frame in <code>params</code>.</p>
+    <p>In <code>mizer</code>, fishing mortality is imposed on species by fishing gears. The
+total fishing mortality is obtained by summing over the mortality from all
+gears,
+$$\mu_{f.i}(w) = \sum_g F_{g,i}(w),$$
+where the fishing mortality \(F_{g,i}(w)\) imposed by gear \(g\) on
+species \(i\) at size \(w\) is calculated as:
+$$F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},$$
+where \(S\) is the selectivity by species, gear and size, \(Q\) is the
+catchability by species and gear and \(E\) is the fishing effort by gear.
+At the moment a species can only be selected by one fishing gear, although
+each gear can select more than one species (this is a limitation with the
+current package that will be developed in future releases).</p>
+<p><strong>Selectivity</strong></p>
+<p>The selectivity at size of each gear has a range between 0 (not selected at
+that size) to 1 (fully selected at that size). It is given by a selectivity
+function. The name of the selectivity function is given by the <code>sel_func</code>
+column in the species parameters data frame. Some selectivity functions are
+included in the package: <code><a href='knife_edge.html'>knife_edge()</a></code> and <code><a href='sigmoid_length.html'>sigmoid_length()</a></code>. New functions
+can be defined by the user. Each gear has the same selectivity function for
+all the species it selects, but the parameter values for each species may be
+different, e.g. the lengths of species that a gear selects may be different.</p>
+<p>Each selectivity function has a range of arguments. Values for these
+arguments must be included as columns in the species parameters data.frame.
+The names of the columns must exactly match the names of the arguments. For
+example, the default selectivity function is <code><a href='knife_edge.html'>knife_edge()</a></code> which has sudden
+change of selectivity from 0 to 1 at a certain size.
+In its help page you can see that the <code><a href='knife_edge.html'>knife_edge()</a></code> function has arguments <code>w</code> and
+<code>knife_edge_size</code> The first argument, <code>w</code>, is size (the function calculates
+selectivity at size). All selectivity functions must have <code>w</code> as the first
+argument. The values for the other arguments must be found in the species
+parameters data.frame. So for the <code><a href='knife_edge.html'>knife_edge()</a></code> function there should be a
+<code>knife_edge_size</code> column. Because <code><a href='knife_edge.html'>knife_edge()</a></code> is the default
+selectivity function, the <code>knife_edge_size</code> argument has a default
+value = <code>w_mat</code>.</p>
+<p><strong>Catchability</strong></p>
+<p>Catchability is used as an additional scalar to make the link between gear
+selectivity, fishing effort and fishing mortality. For example, it can be set
+so that an effort of 1 gives a desired fishing mortality.
+In this way effort can then be specified relative to a 'base effort', e.g.
+the effort in a particular year.</p>
+<p>Because currently mizer only allows one gear to select each species, the
+catchability matrix \(Q_{g,i}\) reduces to a catchability vector
+\(Q_{i}\), and this is given as a column <code>catchability</code> in the species
+parameter data frame. If it is not specified, it defaults to 1.</p>
+<p>Fishing effort is not stored in the <code>MizerParams</code> object.
+Instead, effort is set when the simulation is run and can vary through time
+with <code><a href='project.html'>project()</a></code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for changing parameters: <code><a href='changeBMort.html'>changeBMort</a></code>,
-  <code><a href='changeFishing.html'>changeFishing</a></code>, <code><a href='changeInitial.html'>changeInitial</a></code>,
-  <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>,
-  <code><a href='changeInteraction.html'>changeInteraction</a></code>,
-  <code><a href='changeParams.html'>changeParams</a></code>, <code><a href='changePlankton.html'>changePlankton</a></code>,
-  <code><a href='changePredKernel.html'>changePredKernel</a></code>,
-  <code><a href='changeReproduction.html'>changeReproduction</a></code>,
-  <code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>,
-  <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>,
-  <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
+  <code><a href='setInitial.html'>setInitial</a></code>, <code><a href='setIntakeMax.html'>setIntakeMax</a></code>,
+  <code><a href='setInteraction.html'>setInteraction</a></code>, <code><a href='setMetab.html'>setMetab</a></code>,
+  <code><a href='setParams.html'>setParams</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code>,
+  <code><a href='setPredKernel.html'>setPredKernel</a></code>,
+  <code><a href='setReproduction.html'>setReproduction</a></code>,
+  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
+  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
+  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
     
 
   </div>
@@ -187,7 +209,7 @@ parameter data frame in <code>params</code>.</p>
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#setting-metabolic-rate">Setting metabolic rate</a></li>
+      <li><a href="#setting-fishing">Setting fishing</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>

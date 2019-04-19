@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set search volume — changeSearchVolume • mizer</title>
+<title>Set metabolic rate — setMetab • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Set search volume — changeSearchVolume" />
+<meta property="og:title" content="Set metabolic rate — setMetab" />
 
-<meta property="og:description" content="Set search volume" />
+<meta property="og:description" content="Sets the rate at which energy is used for metabolism and activity" />
 <meta name="twitter:card" content="summary" />
 
 <meta name="robots" content="noindex">
@@ -111,18 +111,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set search volume</h1>
+    <h1>Set metabolic rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>changeSearchVolume.Rd</code></div>
+    <div class="hidden name"><code>setMetab.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Set search volume</p>
+    <p>Sets the rate at which energy is used for metabolism and activity</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>changeSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>q</span>)</pre>
+    <pre class="usage"><span class='fu'>setMetab</span>(<span class='no'>params</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -132,15 +132,14 @@
       <td><p>MizerParams</p></td>
     </tr>
     <tr>
-      <th>search_vol</th>
-      <td><p>Optional. An array (species x size) holding the search volume
+      <th>metab</th>
+      <td><p>Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
-the section "Setting search volume".</p></td>
+the section "Setting metabolic rate".</p></td>
     </tr>
     <tr>
-      <th>q</th>
-      <td><p>Exponent of the allometric search volume. Not needed if a
-<code>search_vol</code> array is specified.</p></td>
+      <th>p</th>
+      <td><p>Scaling exponent of the standard metabolic rate.</p></td>
     </tr>
     </table>
     
@@ -148,48 +147,37 @@ the section "Setting search volume".</p></td>
 
     <p>MizerParams</p>
     
-    <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
+    <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
 
     
-    <p>The search volume \(\gamma_i(w)\) of an individual of species \(i\)
-and weight \(w\) multiplies the predation kernel when
-calculating the encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the 
-predation rate in <code><a href='getPredRate.html'>getPredRate</a></code>.</p>
-<p>The name "search volume" is a bit misleading, because \(\gamma_i(w)\) does
-not have units of volume. It is simply a parameter that determines the rate
-of predation. Its units depend on your choice, see section "Units in mizer".
-If you have chose to work with total abundances, then it is a rate with units
-1/year. If you have chosen to work with abundances per m^2 then it has units
-of m^2/year. If you have chosen to work with abundances per m^3 then it has
-units of m^3/year.</p>
-<p>If the <code>search_vol</code> argument is not supplied, then the search volume is set to
-$$\gamma_i(w) = \gamma_i w^q.$$ The values of \(\gamma_i\) are taken from
-the <code>gamma</code> column in the species parameter dataframe. If the <code>gamma</code>
-column is not supplied in the species parameter dataframe, a default is
-calculated by the <code><a href='get_gamma_default.html'>get_gamma_default</a></code> function. Note that only
-for predators of size \(w = 1\) gram is the value of the species parameter
-\(\gamma_i\) the same as the value of the search volume \(\gamma_i(w)\).</p>
+    <p>The metabolic rate is subtracted from the energy income rate to calculate
+the rate at which energy is available for growth and reproduction, see
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>. It is measured in grams/year.</p>
+<p>If the <code>metab</code> argument is not supplied, then the metabolic
+rate \(k_i(w)\) for an individual of species \(i\) and size \(w\)
+is set to $$k_i(w) = ks_i\, w^p + k_i\, w,$$
+where \(ks_i w^p\) represents the rate of standard metabolism and 
+\(k_i w\) is the rate at which energy is expended on activity and movement.
+The values of \(ks_i\) and \(k_i\) are taken from the <code>ks</code> and
+<code>k</code> columns in the
+species parameter dataframe. If these parameters are not supplied, the
+defaults are \(ks_i = 0.2 h_i\) and \(k_i = 0\), where \(h_i\) is the
+coefficient of the maximum intake rate and is taken from the species
+parameter data frame in <code>params</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for changing parameters: <code><a href='changeBMort.html'>changeBMort</a></code>,
-  <code><a href='changeFishing.html'>changeFishing</a></code>, <code><a href='changeInitial.html'>changeInitial</a></code>,
-  <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>,
-  <code><a href='changeInteraction.html'>changeInteraction</a></code>,
-  <code><a href='changeMetab.html'>changeMetab</a></code>, <code><a href='changeParams.html'>changeParams</a></code>,
-  <code><a href='changePlankton.html'>changePlankton</a></code>,
-  <code><a href='changePredKernel.html'>changePredKernel</a></code>,
-  <code><a href='changeReproduction.html'>changeReproduction</a></code>,
-  <code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>,
-  <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
+  <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setInitial.html'>setInitial</a></code>,
+  <code><a href='setIntakeMax.html'>setIntakeMax</a></code>, <code><a href='setInteraction.html'>setInteraction</a></code>,
+  <code><a href='setParams.html'>setParams</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code>,
+  <code><a href='setPredKernel.html'>setPredKernel</a></code>,
+  <code><a href='setReproduction.html'>setReproduction</a></code>,
+  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
+  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
+  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_trait_model.html'>set_trait_model</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>changeSearchVolume</span>(<span class='no'>params</span>)
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -198,12 +186,10 @@ for predators of size \(w = 1\) gram is the value of the species parameter
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#setting-search-volume">Setting search volume</a></li>
+      <li><a href="#setting-metabolic-rate">Setting metabolic rate</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>

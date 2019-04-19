@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set predation kernel — changePredKernel • mizer</title>
+<title>Set predation kernel — setPredKernel • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Set predation kernel — changePredKernel" />
+<meta property="og:title" content="Set predation kernel — setPredKernel" />
 
 <meta property="og:description" content="The predation kernel determines the distribution of prey sizes that a
 predator feeds on. It is used in getEncounter when calculating
@@ -119,7 +119,7 @@ this function." />
     <div class="page-header">
     <h1>Set predation kernel</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>changePredKernel.Rd</code></div>
+    <div class="hidden name"><code>setPredKernel.Rd</code></div>
     </div>
 
     <div class="ref-description">
@@ -134,7 +134,7 @@ this function.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>changePredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -201,16 +201,14 @@ different.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for changing parameters: <code><a href='changeBMort.html'>changeBMort</a></code>,
-  <code><a href='changeFishing.html'>changeFishing</a></code>, <code><a href='changeInitial.html'>changeInitial</a></code>,
-  <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>,
-  <code><a href='changeInteraction.html'>changeInteraction</a></code>,
-  <code><a href='changeMetab.html'>changeMetab</a></code>, <code><a href='changeParams.html'>changeParams</a></code>,
-  <code><a href='changePlankton.html'>changePlankton</a></code>,
-  <code><a href='changeReproduction.html'>changeReproduction</a></code>,
-  <code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>,
-  <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>,
-  <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
+  <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setInitial.html'>setInitial</a></code>,
+  <code><a href='setIntakeMax.html'>setIntakeMax</a></code>, <code><a href='setInteraction.html'>setInteraction</a></code>,
+  <code><a href='setMetab.html'>setMetab</a></code>, <code><a href='setParams.html'>setParams</a></code>,
+  <code><a href='setPlankton.html'>setPlankton</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>,
+  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
+  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
+  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -221,22 +219,22 @@ different.</p>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 
 <span class='co'>## If you change predation kernel parameters after setting up a model, you</span>
-<span class='co'># need to call changePredKernel</span>
+<span class='co'># need to call setPredKernel</span>
 <span class='no'>params</span>@<span class='kw'>species_params</span>[<span class='st'>"Cod"</span>, <span class='st'>"beta"</span>] <span class='kw'>&lt;-</span> <span class='fl'>200</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>changePredKernel</span>(<span class='no'>params</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>)
 
 <span class='co'>## You can change to a different predation kernel type</span>
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>pred_kernel_type</span> <span class='kw'>&lt;-</span> <span class='st'>"box"</span>
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>ppmr_min</span> <span class='kw'>&lt;-</span> <span class='fl'>2</span>
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>ppmr_max</span> <span class='kw'>&lt;-</span> <span class='fl'>4</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>changePredKernel</span>(<span class='no'>params</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>)
 
 <span class='co'>## If you need a kernel that depends also on prey size you need to define</span>
 <span class='co'># it yourself.</span>
 <span class='no'>pred_kernel</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='getPredKernel.html'>getPredKernel</a></span>(<span class='no'>params</span>)
 <span class='no'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sweep'>sweep</a></span>(<span class='no'>pred_kernel</span>[<span class='st'>"Herring"</span>, , ], <span class='fl'>2</span>,
                                     <span class='no'>params</span>@<span class='kw'>w_full</span>, <span class='st'>"*"</span>)
-<span class='no'>params</span><span class='kw'>&lt;-</span> <span class='fu'>changePredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='no'>pred_kernel</span>)
+<span class='no'>params</span><span class='kw'>&lt;-</span> <span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='no'>pred_kernel</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

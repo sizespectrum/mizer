@@ -322,7 +322,7 @@ predation or fishing. It is a rate with units 1/year.
 
 The \code{mu_b} argument allows you to specify a background mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for \code{\link{changeBMort}}.
+the Examples section of the help page for \code{\link{setBMort}}.
 
 If the \code{mu_b} argument is not supplied, then the background mortality
 is assumed to depend only on the asymptotic size of the species, not on the
@@ -456,7 +456,7 @@ resource component. By default a model is set up without unstructured
 resource components, so you do not need to provide this list. But if you
 do want to use it, you can see an example of how to set up a
 \code{resource_dynamics} list in the Examples section of
-\code{changeResourceDynamics()}.
+\code{setResourceDynamics()}.
 
 Mizer provides two functions that you can use to model resource dynamics:
 \code{\link[=detritus_dynamics]{detritus_dynamics()}} and \code{\link[=carrion_dynamics]{carrion_dynamics()}}, but you can easily implement
@@ -482,7 +482,7 @@ is to prefix all parameter namse with your resource name.
 The dynamics for a resource should always have a loss term accounting for
 the consumption of the resource. This should always have the form used in the
 example function \code{\link[=detritus_dynamics]{detritus_dynamics()}}, in order to be in agreement with the
-feeding by consumers that is set with \code{\link{changeResourceEncounter}}.
+feeding by consumers that is set with \code{\link{setResourceEncounter}}.
 }
 
 \section{Setting resource encounter rate}{

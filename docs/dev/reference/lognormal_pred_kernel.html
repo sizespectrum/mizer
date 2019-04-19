@@ -153,7 +153,7 @@ predator/prey mass ratios in the <code>ppmr</code> argument.</p>
     <p>Writing the predator mass as \(w\) and the prey mass as \(w_p\),
 the feeding kernel is given as
 $$\phi_i(w, w_p) = 
-\exp \left[ \dfrac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
+\exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 $$
 if \(w/w_p\) is between 1 and \(\beta_i\exp(3\sigma_i)\)
 and zero otherwise.
@@ -161,7 +161,7 @@ Here \(\beta_i\) is the preferred predator-prey mass ratio and \(\sigma_i\)
 determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the colunns <code>beta</code> and <code>sigma</code>.</p>
-<p>This function is called from <code><a href='changePredKernel.html'>changePredKernel</a></code> to set up the
+<p>This function is called from <code><a href='setPredKernel.html'>setPredKernel</a></code> to set up the
 predation kernel slots in a <code>MizerParams</code> object.</p>
     
 

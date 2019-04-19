@@ -20,7 +20,7 @@ in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/package
 but taking care to separate the essential features of the model that are
 hard-coded and the various possible specialisations for which mizer provides
 setup functions. We will provide links to the functions that can be used to set
-or change the various model parameters (all collected together in `changeParams()`)
+or change the various model parameters (all collected together in `setParams()`)
 as well as to the functions that calculate the various ecological rates in the
 model (all collected together in `getRates()`) because the help pages of these
 functions will provide useful additional details.
@@ -134,11 +134,11 @@ semi-chemostat equation:
 \end{equation}
 Here $r_p(w)$ is the plankton regeneration rate and $c_p(w)$ is the carrying
 capacity in the absence of predation. These parameters are changed with
-`changePlankton()`. By default mizer assumes allometric forms
+`setPlankton()`. By default mizer assumes allometric forms
 \[r_p(w)= r_p\, w^{n-1}.\]
 \[c_p(w)=\kappa\, w^{-\lambda}.\]
 It is also possible to implement other plankton dynamics, as
-described in the help page for `changePlankton()`. The death $\mu_p(w)$ is
+described in the help page for `setPlankton()`. The death $\mu_p(w)$ is
 described in the subsection [Plankton mortality].
 
 <details>
@@ -171,15 +171,15 @@ integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 \end{equation}
 This is calculated by `getEncounter()`.
 The overall prefactor $\gamma_i(w)$ sets the predation power of the predator. It
-could be interpreted as a search volume. It is set by `changeSearchVolume()`. By 
+could be interpreted as a search volume. It is set by `setSearchVolume()`. By 
 default it is assumed to scale allometrically as
 $\gamma_i(w) = \gamma_i\, w^q.$
 
 The $\theta$ matrix sets the interaction strength between predators and the
-various prey species and plankton. It is changed with `changeInteraction()`.
+various prey species and plankton. It is changed with `setInteraction()`.
 
 The size selectivity is encoded in the predation kernel $\phi_i(w,w_p)$. This is
-changed with `changePredKernel()`.
+changed with `setPredKernel()`.
 
 <details>
 An important simplification occurs when the predation kernel $\phi_i(w,w_p)$
@@ -226,7 +226,7 @@ encountered food that is consumed. The feeding level is given by
 \end{equation}
 
 where $h_i(w)$ is the maximum consumption rate. This is changed with
-`changeIntakeMax()`. By default mizer assumes an allometric form
+`setIntakeMax()`. By default mizer assumes an allometric form
 $h_i(w) = h_i\, w^n.$
 The feeding level is calculated with the function `getFeedingLevel()`.
 
@@ -242,7 +242,7 @@ activity and movement, at a rate ${\tt metab}_i(w)$. By default
 this is made up out of standard metabolism, scaling with exponent $p$, and
 loss due to activity and movement, scaling with exponent $1$:
 \[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
-See the help page for `changeMetab()`. 
+See the help page for `setMetab()`. 
 
 The remaining rate, if any, is assimilated with an efficiency $\alpha_i$ and 
 is then available for growth and reproduction. So the rate at which energy
@@ -259,7 +259,7 @@ A proportion $\psi_i(w)$ of the energy available for growth and reproduction is
 used for reproduction. This proportion should change from zero below the weight
 $w_{m.i}$ of maturation to one at the asymptotic weight $w_{\infty.i}$, where
 all available energy is used for reproduction. This function is changed with
-`changeReproduction()`. Mizer provides a default form for the function which you
+`setReproduction()`. Mizer provides a default form for the function which you
 can however overrule.
 
 The total production rate of egg production $R_{p.i}$ (numbers per year) is
@@ -338,7 +338,7 @@ The mortality rate due to predation is then obtained as
 This predation mortality rate is calculated by the function `getPredMort()`.
 
 Background mortality $\mu_{b .i}(w)$ is independent of the abundances and is
-changed with `changeBMort()`. By default mizer assumes an allometric form
+changed with `setBMort()`. By default mizer assumes an allometric form
 \[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]
 where $w_{\infty.i}$ is the asymptotic size of species $i$.
 

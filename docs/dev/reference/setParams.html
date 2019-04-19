@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set or change any model parameters — changeParams • mizer</title>
+<title>Set or change any model parameters — setParams • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,21 +30,21 @@
 
 
 
-<meta property="og:title" content="Set or change any model parameters — changeParams" />
+<meta property="og:title" content="Set or change any model parameters — setParams" />
 
 <meta property="og:description" content="This is a convenient wrapper function calling each of the following
 functions
-changePredKernel
-changeSearchVolume
-changeInteraction
-changeIntakeMax
-changeMetab
-changeBMort
-changeReproduction
-changeFishing
-changePlankton
-changeResourceDynamics
-changeResourceEncounter
+setPredKernel
+setSearchVolume
+setInteraction
+setIntakeMax
+setMetab
+setBMort
+setReproduction
+setFishing
+setPlankton
+setResourceDynamics
+setResourceEncounter
 See the Details section below for a discussion of how to use this function." />
 <meta name="twitter:card" content="summary" />
 
@@ -126,29 +126,29 @@ See the Details section below for a discussion of how to use this function." />
     <div class="page-header">
     <h1>Set or change any model parameters</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>changeParams.Rd</code></div>
+    <div class="hidden name"><code>setParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
     <p>This is a convenient wrapper function calling each of the following
 functions</p><ul>
-<li><p><code><a href='changePredKernel.html'>changePredKernel</a></code></p></li>
-<li><p><code><a href='changeSearchVolume.html'>changeSearchVolume</a></code></p></li>
-<li><p><code><a href='changeInteraction.html'>changeInteraction</a></code></p></li>
-<li><p><code><a href='changeIntakeMax.html'>changeIntakeMax</a></code></p></li>
-<li><p><code><a href='changeMetab.html'>changeMetab</a></code></p></li>
-<li><p><code><a href='changeBMort.html'>changeBMort</a></code></p></li>
-<li><p><code><a href='changeReproduction.html'>changeReproduction</a></code></p></li>
-<li><p><code><a href='changeFishing.html'>changeFishing</a></code></p></li>
-<li><p><code><a href='changePlankton.html'>changePlankton</a></code></p></li>
-<li><p><code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code></p></li>
-<li><p><code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code></p></li>
+<li><p><code><a href='setPredKernel.html'>setPredKernel</a></code></p></li>
+<li><p><code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></li>
+<li><p><code><a href='setInteraction.html'>setInteraction</a></code></p></li>
+<li><p><code><a href='setIntakeMax.html'>setIntakeMax</a></code></p></li>
+<li><p><code><a href='setMetab.html'>setMetab</a></code></p></li>
+<li><p><code><a href='setBMort.html'>setBMort</a></code></p></li>
+<li><p><code><a href='setReproduction.html'>setReproduction</a></code></p></li>
+<li><p><code><a href='setFishing.html'>setFishing</a></code></p></li>
+<li><p><code><a href='setPlankton.html'>setPlankton</a></code></p></li>
+<li><p><code><a href='setResourceDynamics.html'>setResourceDynamics</a></code></p></li>
+<li><p><code><a href='setResourceEncounter.html'>setResourceEncounter</a></code></p></li>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>changeParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>setParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>q</span>, <span class='kw'>f0</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>f0</span>,
   <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>,
   <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -299,30 +299,30 @@ resource. Described in the section "Setting resource encounter rate".</p></td>
 from the species parameters and only want to change the values of some
 species parameters, you would make those changes in the <code>species_params</code>
 data frame contained in the <code>params</code> object and then call the
-<code>changeParams()</code> function to effect the change, as in the following example,
+<code>setParams()</code> function to effect the change, as in the following example,
 which assumes that you have have a MizerParams object <code>params</code> in which you
 just want to change one parameter of the third species:</p><pre>params@species_params$gamma[3] &lt;- 1000
-params &lt;- changeParams(params)
+params &lt;- setParams(params)
 </pre>
     <p>Note that just changing the species parameters by themselves is not changing
-the model until you call <code>changeParams()</code> or the appropriate one of its
+the model until you call <code>setParams()</code> or the appropriate one of its
 sub-functions.
-Because of the way the R language works, <code>changeParams</code> does not make the
+Because of the way the R language works, <code>setParams</code> does not make the
 changes to the <code>params</code> object that you pass to it but instead returns a new
 params object. So to affect the change you call the function in the form
-<code>params &lt;- changeParams(params, ...)</code>.</p>
+<code>params &lt;- setParams(params, ...)</code>.</p>
 <p>If you are not happy with the assumptions that mizer makes by default about
 the shape of the model functions, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
-choice as an array in the appropriate argument to <code>changeParams()</code>. The
+choice as an array in the appropriate argument to <code>setParams()</code>. The
 sections below discuss all the model functions that you can change this way.</p>
 <p>This function will use the species parameters in the <code>params</code> object to reset
 the values of all the model functions that you do not specify explictly when
 calling this function. If you have changed any of the model functions in the
 <code>params</code> object previously and now want to make changes to a different slot,
 you will want to call the appropriate change function individually. So in the
-above example you would have used <code>params &lt;- changeSearchVolume(params)</code>
-instead of <code>params &lt;- changeParams(params)</code>.</p>
+above example you would have used <code>params &lt;- setSearchVolume(params)</code>
+instead of <code>params &lt;- setParams(params)</code>.</p>
     
     <h2 class="hasAnchor" id="units-in-mizer"><a class="anchor" href="#units-in-mizer"></a>Units in mizer</h2>
 
@@ -478,7 +478,7 @@ parameter data frame in <code>params</code>.</p>
 predation or fishing. It is a rate with units 1/year.</p>
 <p>The <code>mu_b</code> argument allows you to specify a background mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code><a href='changeBMort.html'>changeBMort</a></code>.</p>
+the Examples section of the help page for <code><a href='setBMort.html'>setBMort</a></code>.</p>
 <p>If the <code>mu_b</code> argument is not supplied, then the background mortality
 is assumed to depend only on the asymptotic size of the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
@@ -597,7 +597,7 @@ resource component. By default a model is set up without unstructured
 resource components, so you do not need to provide this list. But if you
 do want to use it, you can see an example of how to set up a
 <code>resource_dynamics</code> list in the Examples section of
-<code><a href='changeResourceDynamics.html'>changeResourceDynamics()</a></code>.</p>
+<code><a href='setResourceDynamics.html'>setResourceDynamics()</a></code>.</p>
 <p>Mizer provides two functions that you can use to model resource dynamics:
 <code><a href='detritus_dynamics.html'>detritus_dynamics()</a></code> and <code><a href='carrion_dynamics.html'>carrion_dynamics()</a></code>, but you can easily implement
 others by following those templates.
@@ -619,7 +619,7 @@ is to prefix all parameter namse with your resource name.</p>
 <p>The dynamics for a resource should always have a loss term accounting for
 the consumption of the resource. This should always have the form used in the
 example function <code><a href='detritus_dynamics.html'>detritus_dynamics()</a></code>, in order to be in agreement with the
-feeding by consumers that is set with <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>.</p>
+feeding by consumers that is set with <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>.</p>
     
     <h2 class="hasAnchor" id="setting-resource-encounter-rate"><a class="anchor" href="#setting-resource-encounter-rate"></a>Setting resource encounter rate</h2>
 
@@ -648,23 +648,22 @@ resource dynamics. The third dimension is the size dimension.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for changing parameters: <code><a href='changeBMort.html'>changeBMort</a></code>,
-  <code><a href='changeFishing.html'>changeFishing</a></code>, <code><a href='changeInitial.html'>changeInitial</a></code>,
-  <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>,
-  <code><a href='changeInteraction.html'>changeInteraction</a></code>,
-  <code><a href='changeMetab.html'>changeMetab</a></code>, <code><a href='changePlankton.html'>changePlankton</a></code>,
-  <code><a href='changePredKernel.html'>changePredKernel</a></code>,
-  <code><a href='changeReproduction.html'>changeReproduction</a></code>,
-  <code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>,
-  <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>,
-  <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
+  <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setInitial.html'>setInitial</a></code>,
+  <code><a href='setIntakeMax.html'>setIntakeMax</a></code>, <code><a href='setInteraction.html'>setInteraction</a></code>,
+  <code><a href='setMetab.html'>setMetab</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code>,
+  <code><a href='setPredKernel.html'>setPredKernel</a></code>,
+  <code><a href='setReproduction.html'>setReproduction</a></code>,
+  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
+  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
+  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_trait_model.html'>set_trait_model</a></span>()
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>changeParams</span>(<span class='no'>params</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

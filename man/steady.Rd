@@ -36,7 +36,7 @@ achieve that level of recruitment.
 \dontrun{
 params <- set_scaling_model()
 params@species_params$gamma[5] <- 3000
-params <- changeSearchVolume(params)
+params <- setSearchVolume(params)
 params <- steady(params)
 }
 }

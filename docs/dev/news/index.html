@@ -129,8 +129,8 @@
 <a href="#modelling-unstructured-resources" class="anchor"></a>Modelling unstructured resources</h2>
 <p>Besides the size-structured planktonic resource, mizer can now also model any number of unstructured resource components. Such unstructured components are appropriate whenever the predation on these componente is not size based. Possible applications include the modelling of detritus as a resource for detritovores, carrion as a resource for scavengers, or macroflora on which fish can graze. (<a href='https://github.com/sizespectrum/mizer/issues/46'>#46</a>)</p>
 <ul>
-<li>Each unstructured resource component can have its own dynamics, with its own parameters. These are set up with <code><a href="../reference/changeResourceDynamics.html">changeResourceDynamics()</a></code>.</li>
-<li>Each species can be set to consume resources. The rates are set up with <code><a href="../reference/changeResourceEncounter.html">changeResourceEncounter()</a></code>.</li>
+<li>Each unstructured resource component can have its own dynamics, with its own parameters. These are set up with <code><a href="../reference/setResourceDynamics.html">setResourceDynamics()</a></code>.</li>
+<li>Each species can be set to consume resources. The rates are set up with <code><a href="../reference/setResourceEncounter.html">setResourceEncounter()</a></code>.</li>
 <li>Example dynamics are provided in <code><a href="../reference/carrion_dynamics.html">carrion_dynamics()</a></code> and <code><a href="../reference/detritus_dynamics.html">detritus_dynamics()</a></code>.</li>
 </ul>
 </div>
@@ -139,19 +139,19 @@
 <a href="#setting-model-parameters" class="anchor"></a>Setting model parameters</h2>
 <p>After setting up a mizer model, it is possible to change specific model parameters with the new functions</p>
 <ul>
-<li><code><a href="../reference/changePredKernel.html">changePredKernel()</a></code></li>
-<li><code><a href="../reference/changeSearchVolume.html">changeSearchVolume()</a></code></li>
-<li><code><a href="../reference/changeInteraction.html">changeInteraction()</a></code></li>
-<li><code><a href="../reference/changeIntakeMax.html">changeIntakeMax()</a></code></li>
-<li><code><a href="../reference/changeMetab.html">changeMetab()</a></code></li>
-<li><code><a href="../reference/changeBMort.html">changeBMort()</a></code></li>
-<li><code><a href="../reference/changeReproduction.html">changeReproduction()</a></code></li>
-<li><code><a href="../reference/changeFishing.html">changeFishing()</a></code></li>
-<li><code><a href="../reference/changePlankton.html">changePlankton()</a></code></li>
-<li><code><a href="../reference/changeResourceDynamics.html">changeResourceDynamics()</a></code></li>
-<li><code><a href="../reference/changeResourceEncounter.html">changeResourceEncounter()</a></code></li>
+<li><code><a href="../reference/setPredKernel.html">setPredKernel()</a></code></li>
+<li><code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code></li>
+<li><code><a href="../reference/setInteraction.html">setInteraction()</a></code></li>
+<li><code><a href="../reference/setIntakeMax.html">setIntakeMax()</a></code></li>
+<li><code><a href="../reference/setMetab.html">setMetab()</a></code></li>
+<li><code><a href="../reference/setBMort.html">setBMort()</a></code></li>
+<li><code><a href="../reference/setReproduction.html">setReproduction()</a></code></li>
+<li><code><a href="../reference/setFishing.html">setFishing()</a></code></li>
+<li><code><a href="../reference/setPlankton.html">setPlankton()</a></code></li>
+<li><code><a href="../reference/setResourceDynamics.html">setResourceDynamics()</a></code></li>
+<li><code><a href="../reference/setResourceEncounter.html">setResourceEncounter()</a></code></li>
 </ul>
-<p>The new function <code><a href="../reference/changeParams.html">changeParams()</a></code> is a wrapper for all of the above functions and is also used when setting up a new model with <code><a href="../reference/set_multispecies_model.html">set_multispecies_model()</a></code>. (<a href='https://github.com/sizespectrum/mizer/issues/51'>#51</a>)</p>
+<p>The new function <code><a href="../reference/setParams.html">setParams()</a></code> is a wrapper for all of the above functions and is also used when setting up a new model with <code><a href="../reference/set_multispecies_model.html">set_multispecies_model()</a></code>. (<a href='https://github.com/sizespectrum/mizer/issues/51'>#51</a>)</p>
 </div>
 <div id="plotting" class="section level2">
 <h2 class="hasAnchor">
@@ -176,7 +176,7 @@
 <ul>
 <li>Users can now replace the lognormal function in the predation kernel by a function of their choice, allowing a differently shaped kernel for each species.</li>
 <li>New <code><a href="../reference/box_pred_kernel.html">box_pred_kernel()</a></code> implements a box-shaped kernel as an alternative to the default <code><a href="../reference/lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>.</li>
-<li>Users can sets a predation kernel that has a predator-size-dependent predator/prey mass ration (via <code><a href="../reference/changePredKernel.html">changePredKernel()</a></code>). Mizer automatically falls back on the old non-FFT code to handle this. (<a href='https://github.com/sizespectrum/mizer/issues/41'>#41</a>)</li>
+<li>Users can sets a predation kernel that has a predator-size-dependent predator/prey mass ration (via <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code>). Mizer automatically falls back on the old non-FFT code to handle this. (<a href='https://github.com/sizespectrum/mizer/issues/41'>#41</a>)</li>
 <li>New <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code> returns the full 3-dimensional predation kernel array, even when this is not stored in MizerParams object.</li>
 </ul>
 </div>
@@ -198,7 +198,7 @@
 <li>Values for minimum plankton size, and minimum and maximum consumer sizes are set automatically if not provided in <code><a href="../reference/set_multispecies_model.html">set_multispecies_model()</a></code>.</li>
 <li>Default values for species parameters are used for missing values within a column in the species parameter data frame, not only if the column is missing entirely.</li>
 <li>New <code><a href="../reference/getRates.html">getRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
-<li>Can set initial state with <code><a href="../reference/changeInitial.html">changeInitial()</a></code>.</li>
+<li>Can set initial state with <code><a href="../reference/setInitial.html">setInitial()</a></code>.</li>
 <li>Rate functions take defaults for their <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_B</code> arguments from the corresponding slot in the <code>params</code> argument.</li>
 <li>Can remove a species from a model with <code><a href="../reference/removeSpecies.html">removeSpecies()</a></code>.</li>
 <li>New <code>perfect</code> argument allows <code><a href="../reference/set_scaling_model.html">set_scaling_model()</a></code> to produce a perfectly scale-invariant model.</li>

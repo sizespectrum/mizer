@@ -23,28 +23,28 @@ detritovores, carrion as a resource for scavengers, or macroflora on which fish
 can graze. (#46)
 
 * Each unstructured resource component can have its own dynamics, with its own
-  parameters. These are set up with `changeResourceDynamics()`.
+  parameters. These are set up with `setResourceDynamics()`.
 * Each species can be set to consume resources. The rates are set up with
- `changeResourceEncounter()`.
+ `setResourceEncounter()`.
 * Example dynamics are provided in `carrion_dynamics()` and `detritus_dynamics()`.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
 
-* `changePredKernel()`
-* `changeSearchVolume()`
-* `changeInteraction()`
-* `changeIntakeMax()`
-* `changeMetab()`
-* `changeBMort()`
-* `changeReproduction()`
-* `changeFishing()`
-* `changePlankton()`
-* `changeResourceDynamics()`
-* `changeResourceEncounter()`
+* `setPredKernel()`
+* `setSearchVolume()`
+* `setInteraction()`
+* `setIntakeMax()`
+* `setMetab()`
+* `setBMort()`
+* `setReproduction()`
+* `setFishing()`
+* `setPlankton()`
+* `setResourceDynamics()`
+* `setResourceEncounter()`
 
-The new function `changeParams()` is a wrapper for all of the above functions
+The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `set_multispecies_model()`.
 (#51)
 
@@ -78,7 +78,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 * New `box_pred_kernel()` implements a box-shaped kernel as an alternative to
   the default `lognormal_pred_kernel()`.
 * Users can sets a predation kernel that has a predator-size-dependent
-  predator/prey mass ration (via `changePredKernel()`). Mizer automatically
+  predator/prey mass ration (via `setPredKernel()`). Mizer automatically
   falls back on the old non-FFT code to handle this. (#41)
 * New `getPredKernel()` returns the full 3-dimensional predation kernel array,
   even when this is not stored in MizerParams object.
@@ -110,7 +110,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   entirely.
 * New `getRates()` calculates all the rates needed in the model and collects
   them in a list.
-* Can set initial state with `changeInitial()`.
+* Can set initial state with `setInitial()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
 * Can remove a species from a model with `removeSpecies()`.

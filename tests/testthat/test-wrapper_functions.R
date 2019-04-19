@@ -140,7 +140,7 @@ test_that("steady works", {
     expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
-    params <- changeSearchVolume(params)
+    params <- setSearchVolume(params)
     params <- steady(params)
     expect_known_value(getRDI(params), "values/steady")
 })

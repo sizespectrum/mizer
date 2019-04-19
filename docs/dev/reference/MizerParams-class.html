@@ -150,64 +150,64 @@ of each species</p></dd>
     <dt><code>maturity</code></dt><dd><p>An array (species x size) that holds the proportion of
 individuals of each species at size that are mature. This enters in the
 calculation of the spawning stock biomass with <code><a href='getSSB.html'>getSSB</a></code>. Set 
-with <code><a href='changeReproduction.html'>changeReproduction</a></code>.</p></dd>
+with <code><a href='setReproduction.html'>setReproduction</a></code>.</p></dd>
     <dt><code>psi</code></dt><dd><p>An array (species x size) that holds the allocation to reproduction
 for each species at size, \(\psi_i(w)\). Changed with 
-<code><a href='changeReproduction.html'>changeReproduction</a></code>.</p></dd>
+<code><a href='setReproduction.html'>setReproduction</a></code>.</p></dd>
     <dt><code>intake_max</code></dt><dd><p>An array (species x size) that holds the maximum intake for
-each species at size. Changed with <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>.</p></dd>
+each species at size. Changed with <code><a href='setIntakeMax.html'>setIntakeMax</a></code>.</p></dd>
     <dt><code>search_vol</code></dt><dd><p>An array (species x size) that holds the search volume for
-each species at size. Changed with <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code>.</p></dd>
+each species at size. Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
     <dt><code>rho</code></dt><dd><p>A 3-dim array (species x resource x size) holding the encounter
 rates for unstructured resources. Changed with 
-<code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>.</p></dd>
+<code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>.</p></dd>
     <dt><code>metab</code></dt><dd><p>An array (species x size) that holds the metabolism
-for each species at size. Changed with <code><a href='changeMetab.html'>changeMetab</a></code>.</p></dd>
+for each species at size. Changed with <code><a href='setMetab.html'>setMetab</a></code>.</p></dd>
     <dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the background death 
-\(\mu_{b.i}(w)\). Changed with <code><a href='changeBMort.html'>changeBMort</a></code>.</p></dd>
+\(\mu_{b.i}(w)\). Changed with <code><a href='setBMort.html'>setBMort</a></code>.</p></dd>
     <dt><code>pred_kernel</code></dt><dd><p>An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
 this is NA then the following two slots will be used. Changed with 
-<code><a href='changePredKernel.html'>changePredKernel</a></code>.</p></dd>
+<code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
     <dt><code>ft_pred_kernel_e</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the available 
-energy integral. Changed with <code><a href='changePredKernel.html'>changePredKernel</a></code>.</p></dd>
+energy integral. Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
     <dt><code>ft_pred_kernel_p</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
-Changed with <code><a href='changePredKernel.html'>changePredKernel</a></code>.</p></dd>
+Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
     <dt><code>rr_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum. Changed with <code><a href='changePlankton.html'>changePlankton</a></code>.</p></dd>
+growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
     <dt><code>cc_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
 carrying capacity of the plankton spectrum. Changed with 
-<code><a href='changePlankton.html'>changePlankton</a></code>.</p></dd>
+<code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
     <dt><code>plankton_dynamics</code></dt><dd><p>A function for projecting the plankton abundance
 density by one timestep. The default is 
 <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>. 
-Changed with <code><a href='changePlankton.html'>changePlankton</a></code>.</p></dd>
+Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
     <dt><code>resource_dynamics</code></dt><dd><p>A named list of functions for projecting the
 biomasses in the unstructured resource components by one timestep. The
 names of the list entries are the resource names. Changed with 
-<code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>.</p></dd>
+<code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>.</p></dd>
     <dt><code>resource_params</code></dt><dd><p>A list containing the parameters needed by the
 <code>resource_dynamics</code> functions.  Changed with 
-<code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>.</p></dd>
+<code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>.</p></dd>
     <dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
     <dt><code>species_params</code></dt><dd><p>A data.frame to hold the species specific parameters.
 See <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code> for details.</p></dd>
     <dt><code>interaction</code></dt><dd><p>The species specific interaction matrix, \(\theta_{ij}\).
-Changed with <code><a href='changeInteraction.html'>changeInteraction</a></code>.</p></dd>
+Changed with <code><a href='setInteraction.html'>setInteraction</a></code>.</p></dd>
     <dt><code>srr</code></dt><dd><p>Function to calculate the realised (density dependent) recruitment.
 Has two arguments which are rdi and species_params</p></dd>
     <dt><code>selectivity</code></dt><dd><p>An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \(S_{g,i,w}\). Changed with 
-<code><a href='changeFishing.html'>changeFishing</a></code>.</p></dd>
+<code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
     <dt><code>catchability</code></dt><dd><p>An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\). Changed with 
-<code><a href='changeFishing.html'>changeFishing</a></code>.</p></dd>
+<code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
     <dt><code>initial_n</code></dt><dd><p>An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.</p></dd>
     <dt><code>initial_n_pp</code></dt><dd><p>A vector the same length as the w_full slot that describes
@@ -215,12 +215,12 @@ the plankton abundance at each weight.</p></dd>
     <dt><code>initial_B</code></dt><dd><p>A vector containing the biomasses of the unstructured
 resource components.
 Has length zero if there are no unstructured resources.</p></dd>
-    <dt><code>n</code></dt><dd><p>Exponent of maximum intake rate. Changed with <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>.</p></dd>
-    <dt><code>p</code></dt><dd><p>Exponent of metabolic cost. Changed with <code><a href='changeMetab.html'>changeMetab</a></code>.</p></dd>
-    <dt><code>lambda</code></dt><dd><p>Exponent of plankton spectrum. Changed with <code><a href='changePlankton.html'>changePlankton</a></code>.</p></dd>
-    <dt><code>kappa</code></dt><dd><p>Magnitude of plankton spectrum. Changed with <code><a href='changePlankton.html'>changePlankton</a></code>.</p></dd>
+    <dt><code>n</code></dt><dd><p>Exponent of maximum intake rate. Changed with <code><a href='setIntakeMax.html'>setIntakeMax</a></code>.</p></dd>
+    <dt><code>p</code></dt><dd><p>Exponent of metabolic cost. Changed with <code><a href='setMetab.html'>setMetab</a></code>.</p></dd>
+    <dt><code>lambda</code></dt><dd><p>Exponent of plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
+    <dt><code>kappa</code></dt><dd><p>Magnitude of plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
     <dt><code>q</code></dt><dd><p>Exponent for volumetric search rate. 
-Changed with <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code>.</p></dd>
+Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
     <dt><code>f0</code></dt><dd><p>Initial feeding level.</p></dd>
     <dt><code>A</code></dt><dd><p>Abundance multipliers.</p></dd>
     <dt><code>linecolour</code></dt><dd><p>A named vector of colour values, named by species. Used 

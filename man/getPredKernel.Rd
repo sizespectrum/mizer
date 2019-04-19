@@ -18,5 +18,5 @@ object, then this function calculates it from the information in the species
 parameter data frame in the params object.
 }
 \details{
-For more detail about the predation kernel see \code{\link{changePredKernel}}.
+For more detail about the predation kernel see \code{\link{setPredKernel}}.
 }

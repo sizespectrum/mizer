@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set background mortality rate — changeBMort • mizer</title>
+<title>Set proportion of energy that is invested into reproduction — setReproduction • mizer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,11 @@
 
 
 
-<meta property="og:title" content="Set background mortality rate — changeBMort" />
+<meta property="og:title" content="Set proportion of energy that is invested into reproduction — setReproduction" />
 
-<meta property="og:description" content="Set background mortality rate" />
+<meta property="og:description" content="Sets the proportion of the total energy available for reproduction and growth
+that is invested into reproduction as a function of the size of the
+individual and sets the reproductive efficiency." />
 <meta name="twitter:card" content="summary" />
 
 <meta name="robots" content="noindex">
@@ -111,96 +113,99 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set background mortality rate</h1>
+    <h1>Set proportion of energy that is invested into reproduction</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>changeBMort.Rd</code></div>
+    <div class="hidden name"><code>setReproduction.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Set background mortality rate</p>
+    <p>Sets the proportion of the total energy available for reproduction and growth
+that is invested into reproduction as a function of the size of the
+individual and sets the reproductive efficiency.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>changeBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span> - <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='no'>params</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>MizerParams</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>mu_b</th>
-      <td><p>Optional. An array (species x size) holding the background
-mortality rate.</p></td>
+      <th>maturity</th>
+      <td><p>Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
-      <th>z0pre</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.</p></td>
-    </tr>
-    <tr>
-      <th>z0exp</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
-Default value is <code>n-1</code>.</p></td>
+      <th>repro_prop</th>
+      <td><p>Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams</p>
+    <p>The MizerParams object.</p>
     
-    <h2 class="hasAnchor" id="setting-background-mortality-rate"><a class="anchor" href="#setting-background-mortality-rate"></a>Setting background mortality rate</h2>
+    <h2 class="hasAnchor" id="setting-reproduction"><a class="anchor" href="#setting-reproduction"></a>Setting reproduction</h2>
 
     
-    <p>The background mortality is all the mortality that is not due to either
-predation or fishing. It is a rate with units 1/year.</p>
-<p>The <code>mu_b</code> argument allows you to specify a background mortality rate
-that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code>changeBMort</code>.</p>
-<p>If the <code>mu_b</code> argument is not supplied, then the background mortality
-is assumed to depend only on the asymptotic size of the species, not on the
-size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
-constant \(z_0\) for each species is taken from the <code>z0</code> column of the
-species_params data frame, if that column exists. Otherwise it is calculated
-as $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
+    <p>For each species and at each size, the proportion of the available energy 
+that is invested into reproduction is the product of two factors: the
+proportion <code>maturity</code> of individuals that are mature and the proportion
+<code>repro_prop</code> of the energy available to a mature individual that is 
+invested into reproduction.</p>
+<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal 
+maturity ogive that changes from 0 to 1 at around the maturity size:
+$${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
+(To avoid clutter, we are not showing the species index in the equations.)
+The maturity weights are taken from the <code>w_mat</code> column of the 
+species_params data frame. Any missing maturity weights are set to 1/4 of the
+asymptotic weight in the <code>w_inf</code> column.
+The exponent \(U\) determines the steepness of the maturity ogive. By
+default it is chosen as \(U = 10\), however this can be overridden by
+including a column <code>w_mat25</code> in the species parameter dataframe that
+specifies the weight at which 25% of individuals are mature, which sets
+\(U = \log(3) / \log(w_{mat} / w_{25}).\)</p>
+<p>The sigmoidal function given above would strictly reach 1 only asymptotically.
+Mizer instead sets the function equal to 1 already at the species' 
+maximum size, taken from the compulsory <code>w_inf</code> column in the
+<code>species_params</code> data frame.</p>
+<p>If the <code>repro_prop</code> argument is not supplied, it is set to the
+allometric form
+$${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
+Here \(n\) is the scaling exponent of the energy income rate. Hence
+the exponent \(m\) determines the scaling of the investment into
+reproduction for mature individuals. By default it is chosen to be 
+\(m = 1\) so that the rate at which energy is invested into reproduction 
+scales linearly with the size. This default can be overridden by including a 
+column <code>m</code> in the species parameter dataframe. The asymptotic sizes
+are taken from the compulsory <code>w_inf</code> column in the species_params
+data frame.</p>
+<p>The reproductive efficiency, i.e., the proportion of energy allocated to
+reproduction that results in offspring biomass, is set from the 
+<code>erepro</code> column in the species_params data frame. If that is not
+provided the default is set to 1 (which you will want to override).</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for changing parameters: <code><a href='changeFishing.html'>changeFishing</a></code>,
-  <code><a href='changeInitial.html'>changeInitial</a></code>,
-  <code><a href='changeIntakeMax.html'>changeIntakeMax</a></code>,
-  <code><a href='changeInteraction.html'>changeInteraction</a></code>,
-  <code><a href='changeMetab.html'>changeMetab</a></code>, <code><a href='changeParams.html'>changeParams</a></code>,
-  <code><a href='changePlankton.html'>changePlankton</a></code>,
-  <code><a href='changePredKernel.html'>changePredKernel</a></code>,
-  <code><a href='changeReproduction.html'>changeReproduction</a></code>,
-  <code><a href='changeResourceDynamics.html'>changeResourceDynamics</a></code>,
-  <code><a href='changeResourceEncounter.html'>changeResourceEncounter</a></code>,
-  <code><a href='changeSearchVolume.html'>changeSearchVolume</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
+  <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setInitial.html'>setInitial</a></code>,
+  <code><a href='setIntakeMax.html'>setIntakeMax</a></code>, <code><a href='setInteraction.html'>setInteraction</a></code>,
+  <code><a href='setMetab.html'>setMetab</a></code>, <code><a href='setParams.html'>setParams</a></code>,
+  <code><a href='setPlankton.html'>setPlankton</a></code>, <code><a href='setPredKernel.html'>setPredKernel</a></code>,
+  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
+  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
+  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='st'>"NS_species_params"</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params</span>)
-
-<span class='co'>#### Setting allometric death rate #######################</span>
-
-<span class='co'># Set coefficient for each species. Here we choose 0.1 for each species</span>
-<span class='no'>mu_b0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0.1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>params</span>@<span class='kw'>species_params</span>))
-
-<span class='co'># Multiply by power of size with exponent, here chosen to be -1/4</span>
-<span class='co'># The outer() function makes it an array species x size</span>
-<span class='no'>mu_b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/outer'>outer</a></span>(<span class='no'>mu_b0</span>, <span class='no'>params</span>@<span class='kw'>w</span>^(-<span class='fl'>1</span>/<span class='fl'>4</span>))
-
-<span class='co'># Change the background death in the params object</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>changeBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='no'>mu_b</span>)
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -209,12 +214,10 @@ as $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#setting-background-mortality-rate">Setting background mortality rate</a></li>
+      <li><a href="#setting-reproduction">Setting reproduction</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>
