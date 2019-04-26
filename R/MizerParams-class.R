@@ -2129,6 +2129,74 @@ setInitial <- function(params,
     return(params)
 }
 
+#' Upgrade MizerParams object from earlier mizer versions
+#' 
+#' Uses set_multispecies_model to create a new MizerParams object using the
+#' parameters extracted from the old MizerParams object.
+#' 
+#' If you only have a serialised version of the old object, for example
+#' created via `saveRDS()`, and you get an error when trying to read it in
+#' with `readRDS()` then unfortunately you will need to install the old version
+#' of mizer first to read the params object into your workspace, then switch
+#' to the current version and then call `upgradeParams()`. You can then save
+#' the new version again with `saveRDS()`.
+#' 
+#' @param params An old MizerParams object to be upgraded
+#' 
+#' @return The upgraded MizerParams object
+#' @export
+upgradeParams <- function(params) {
+    if (.hasSlot(params, "pred_kernel") && 
+        length(dim(params@pred_kernel)) == 3) {
+        pred_kernel <- params@pred_kernel
+    } else pred_kernel <- NULL
+    
+    if (.hasSlot(params, "maturity")) {
+        maturity <- params@maturity
+    } else maturity <- NULL
+    
+    if (.hasSlot(params, "repro_prop")) {
+        repro_prop <- params@repro_prop
+    } else repro_prop <- NULL
+    
+    if (.hasSlot(params, "rho")) {
+        rho <- params@rho
+    } else rho <- NULL
+    
+    if (.hasSlot(params, "resource_dynamics")) {
+        resource_dynamics <- params@resource_dynamics
+        resource_params <- params@resource_params
+    } else {
+        resource_dynamics <- NULL
+        resource_params <- NULL
+    }
+    # Does not yet deal with rr_pp and cc_pp slots because they will be 
+    # changed anyway when multiple size-structured resources are introduced.
+    pnew <- set_multispecies_model(params@species_params,
+                                   interaction = params@interaction,
+                                   no_w = length(params@w),
+                                   min_w = params@w[1],
+                                   max_w = params@w[length(params@w)],
+                                   min_w_pp = params@w_full[1],
+                                   n = params@n,
+                                   p = params@p,
+                                   q = params@q,
+                                   kappa = params@kappa,
+                                   lambda = params@lambda,
+                                   f0 = params@f0,
+                                   pred_kernel = pred_kernel,
+                                   search_vol = params@search_vol,
+                                   intake_max = params@intake_max,
+                                   metab = params@metab,
+                                   mu_b = params@mu_b,
+                                   maturity = maturity,
+                                   repro_prop = repro_prop,
+                                   resource_dynamics = resource_dynamics,
+                                   resource_params = resource_params,
+                                   rho = rho,
+                                   srr = params@srr)
+    return(pnew)
+}
 
 #' Beverton Holt stock-recruitment function
 #' 
