@@ -120,8 +120,8 @@ test_that("Multiple gears work correctly in trait-based model", {
     sim1 <- project(params, t_max = 10, effort = 1)
     fmg <- getFMortGear(sim1)
     for (i in 1:no_sp){
-        expect_that(all(fmg[10,1,i,params@w < knife_edges[i]] == 0), is_true())
-        expect_that(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1), is_true())
+        expect_true(all(fmg[10,1,i,params@w < knife_edges[i]] == 0))
+        expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
     }
     # Only the 4th gear fires
     params <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = 1:no_sp)
@@ -129,9 +129,9 @@ test_that("Multiple gears work correctly in trait-based model", {
     names(effort) = 1:no_sp
     sim2 <- project(params, t_max = 10, effort = effort)
     fmg <- getFMortGear(sim2)
-    expect_that(all(fmg[10,c(1:3,5:10),c(1:3,5:10),] == 0), is_true())
-    expect_that(all(fmg[10,4,4,params@w < knife_edges[4]] == 0), is_true())
-    expect_that(all(fmg[10,4,4,params@w >= knife_edges[4]] == 1), is_true())
+    expect_true(all(fmg[10,c(1:3,5:10),c(1:3,5:10),] == 0))
+    expect_true(all(fmg[10,4,4,params@w < knife_edges[4]] == 0))
+    expect_true(all(fmg[10,4,4,params@w >= knife_edges[4]] == 1))
     
 })
 
