@@ -63,7 +63,9 @@ NULL
 #' @export
 #' @family summary functions
 #' @concept summary_function
-getDiet <- function(params, n, n_pp) {
+getDiet <- function(params, 
+                    n = params@initial_n, 
+                    n_pp = params@initial_n_pp) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
                 is.array(n),
@@ -97,8 +99,8 @@ getDiet <- function(params, n, n_pp) {
         diet[, , 1:no_sp] <- sweep(ae, c(1, 3), params@interaction, "*")
         # Eating the plankton
         diet[, , no_sp + 1] <- rowSums(sweep(
-            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
-            "*", check.margin = FALSE), dims = 2)
+            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"), 
+            dims = 2)
     } else {
         prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
         prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
@@ -118,7 +120,7 @@ getDiet <- function(params, n, n_pp) {
         ae[ae < 1e-18] <- 0
         diet[] <- ae
         # Multiply by interaction matrix
-        diet[, , 1:no_sp] <- sweep(diet[, , 1:no_sp], c(1, 3), 
+        diet[, , 1:no_sp] <- sweep(diet[, , 1:no_sp, drop = FALSE], c(1, 3), 
                                    params@interaction, "*")
     }
     
