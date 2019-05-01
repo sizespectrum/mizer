@@ -8,8 +8,6 @@ sim <- project(params, effort = 1, t_max = 10)
 no_sp <- nrow(NS_species_params_gears)
 no_w <- length(params@w)
 
-community_params <- set_community_model()
-
 # Random abundances
 set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
@@ -253,14 +251,15 @@ test_that("getCommunitySlope works",{
 
 # getDiet ----
 test_that("getDiet works", {
-    diet <- getDiet(sim@params, n, n_pp)
+    diet <- getDiet(params, n, n_pp)
     expect_known_value(diet, "values/getDiet")
-    community_diet <- getDiet(community_params)
-    community_f <- getFeedingLevel(community_params)
-    community_encounter <- (community_diet[1, , 1] + community_diet[1, , 2]) /
-        (1 - community_f[1, ])
-    ce <- getEncounter(community_params)[1, ]
-    expect_equivalent(community_encounter, ce)
+    # Check that summing over all species, plankton and resources gives 
+    # total consumption
+    consumption <- rowSums(diet, dims = 2)
+    encounter <- getEncounter(params, n, n_pp)
+    feeding_level <- getFeedingLevel(params, n, n_pp)
+    expect_equivalent(consumption, encounter * (1 - feeding_level))
+    # Check that using pred kernel instead of FFT gives the same result
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     expect_equal(diet, getDiet(params, n, n_pp))
 })

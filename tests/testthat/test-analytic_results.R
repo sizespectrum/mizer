@@ -2,17 +2,21 @@ context("Analytic results")
 
 # Initialise power law ----
 no_w = 100
-p <- set_scaling_model(no_sp = 2, perfect = TRUE, no_w = no_w)
-p@initial_n[] <- 0
-p@initial_n_pp[] <- p@kappa * p@w_full^(-p@lambda)
+no_sp <- 2
+p <- set_scaling_model(no_sp = no_sp, perfect = TRUE, no_w = no_w)
+n0 <- p@initial_n
+n0[] <- 0
+n_pp <- p@initial_n_pp
+n_pp[] <- p@kappa * p@w_full^(-p@lambda)
 sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 gamma <- p@species_params$gamma[sp]
 lm2 <- p@lambda - 2
 
+# getEncounter ----
 test_that("getEncounter approximates analytic result when feeding on plankton only", {
-    e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - p@q)
+    e <- getEncounter(p, n0, n_pp)[sp, ] * p@w^(lm2 - p@q)
     # Check that this is constant
     expect_equivalent(e, rep(e[1], length(e)))
     # Check that it agrees with analytic result
@@ -43,6 +47,27 @@ test_that("getEncounter approximates analytic result when feeding on plankton on
     }
     ear <- ear * p@kappa * p@w_full[i]^(p@lambda - 2) * dx * gamma
     expect_equivalent(e[1], ear * Dx / dx)
+})
+
+# getDiet ----
+test_that("getDiet approximates analytic result when feeding on plankton only", {
+    # n and n_pp are power laws
+    n <- p@initial_n
+    n[] <- rep(p@kappa * p@w^(-p@lambda), each = 2)
+    n_pp <- p@initial_n_pp
+    n_pp[] <- p@kappa * p@w_full^(-p@lambda)
+    # switch of interaction between species
+    p0 <- setInteraction(p, interaction = matrix(0, nrow = no_sp, ncol = no_sp))
+    diet <- getDiet(p0, n, n_pp)[sp, , ]
+    # None of the diet should come from fish
+    expect_true(all(diet[, 1:2] == 0))
+    # Check that diet from plankton is power law
+    diet_coeff <- diet[, 3] * p@w^(lm2 - p@q)
+    expect_equivalent(diet_coeff, rep(diet_coeff[1], no_w))
+    # and agrees with result from getEncounter
+    feeding_level <- getFeedingLevel(p0, n0, n_pp)[sp, ]
+    encounter <- getEncounter(p0, n0, n_pp)[sp, ]
+    expect_equivalent(diet[, 3], encounter * (1 - feeding_level))
 })
 
 
