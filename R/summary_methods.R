@@ -55,9 +55,7 @@ NULL
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
 #'
-#' @param params A MizerParams object
-#' @param n An array (species x size) with the abundance density of fish
-#' @param n_pp A vector with the abundance of plankton
+#' @inheritParams getEncounter
 #' 
 #' @return An array (predator species  x predator size x (prey species + plankton) )
 #' @export
@@ -124,10 +122,11 @@ getDiet <- function(params,
                                    params@interaction, "*")
     }
     
-    # Correct for satiation and keep only entries corresponding to fish sizes
+    # Multiply by search volume, correct for satiation and keep only entries 
+    # corresponding to fish sizes
     f <- getFeedingLevel(params, n, n_pp)
     fish_mask <- n > 0
-    diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
+    diet <- sweep(diet, c(1, 2), params@search_vol * (1 - f) * fish_mask, "*")
     return(diet)
 }
 
