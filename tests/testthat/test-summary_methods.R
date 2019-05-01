@@ -1,11 +1,14 @@
 context("Summary methods")
 
+## Initialisation ----
 data(NS_species_params_gears)
 data(inter)
 params <- set_multispecies_model(NS_species_params_gears, inter)
 sim <- project(params, effort = 1, t_max = 10)
-no_sp <- nrow(NS_species_params)
+no_sp <- nrow(NS_species_params_gears)
 no_w <- length(params@w)
+
+community_params <- set_community_model()
 
 # Random abundances
 set.seed(0)
@@ -252,6 +255,12 @@ test_that("getCommunitySlope works",{
 test_that("getDiet works", {
     diet <- getDiet(sim@params, n, n_pp)
     expect_known_value(diet, "values/getDiet")
+    community_diet <- getDiet(community_params)
+    community_f <- getFeedingLevel(community_params)
+    community_encounter <- (community_diet[1, , 1] + community_diet[1, , 2]) /
+        (1 - community_f[1, ])
+    ce <- getEncounter(community_params)[1, ]
+    expect_equivalent(community_encounter, ce)
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
     expect_equal(diet, getDiet(params, n, n_pp))
 })
