@@ -55,6 +55,9 @@ NULL
 #' returned rate is zero.
 #'
 #' @inheritParams getEncounter
+#' @param proportion If TRUE (default) the function returns the diet as a
+#'   proportion of the total consumption rate. If FALSE it returns the 
+#'   consumption rate in grams.
 #' 
 #' @return An array (predator species  x predator size x 
 #'   (prey species + plankton + resources) )
@@ -64,7 +67,8 @@ NULL
 getDiet <- function(params, 
                     n = params@initial_n, 
                     n_pp = params@initial_n_pp,
-                    B = params@initial_B) {
+                    B = params@initial_B,
+                    proportion = TRUE) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
                 is.array(n),
@@ -138,6 +142,11 @@ getDiet <- function(params,
     f <- getFeedingLevel(params, n, n_pp)
     fish_mask <- n > 0
     diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
+    if (proportion) {
+        total <- rowSums(diet, dims = 2)
+        diet <- sweep(diet, c(1, 2), total, "/")
+        diet[is.nan(diet)] <- 0
+    }
     return(diet)
 }
 

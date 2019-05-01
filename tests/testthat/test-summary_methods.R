@@ -250,8 +250,8 @@ test_that("getCommunitySlope works",{
 
 
 # getDiet ----
-test_that("getDiet works", {
-    diet <- getDiet(params, n, n_pp)
+test_that("getDiet works with proportion = FALSE", {
+    diet <- getDiet(params, n, n_pp, proportion = FALSE)
     expect_known_value(diet, "values/getDiet")
     # Check that summing over all species, plankton and resources gives 
     # total consumption
@@ -261,7 +261,15 @@ test_that("getDiet works", {
     expect_equivalent(consumption, encounter * (1 - feeding_level))
     # Check that using pred kernel instead of FFT gives the same result
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
-    expect_equal(diet, getDiet(params, n, n_pp))
+    expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE))
+})
+
+test_that("getDiet works with proportion = TRUE", {
+    diet <- getDiet(params, n, n_pp)
+    total <- rowSums(diet, dims = 2)
+    ones <- total
+    ones[] <- 1
+    expect_equal(total, ones)
 })
 
 
