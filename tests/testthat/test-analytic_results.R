@@ -58,7 +58,7 @@ test_that("getDiet approximates analytic result when feeding on plankton only", 
     n_pp[] <- p@kappa * p@w_full^(-p@lambda)
     # switch of interaction between species
     p0 <- setInteraction(p, interaction = matrix(0, nrow = no_sp, ncol = no_sp))
-    diet <- getDiet(p0, n, n_pp)[sp, , ]
+    diet <- getDiet(p0, n, n_pp, proportion = FALSE)[sp, , ]
     # None of the diet should come from fish
     expect_true(all(diet[, 1:2] == 0))
     # Check that diet from plankton is power law
