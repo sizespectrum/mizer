@@ -4,22 +4,29 @@
 \alias{getDiet}
 \title{Get diet of predator at size, resolved by prey species}
 \usage{
-getDiet(params, n, n_pp)
+getDiet(params, n = params@initial_n, n_pp = params@initial_n_pp,
+  B = params@initial_B, proportion = TRUE)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{params}{An \linkS4class{MizerParams} object}
 
-\item{n}{An array (species x size) with the abundance density of fish}
+\item{n}{A matrix of species abundances (species x size)}
 
-\item{n_pp}{A vector with the abundance of plankton}
+\item{n_pp}{A vector of the plankton abundance by size}
+
+\item{B}{A vector of biomasses of unstructured resource components}
+
+\item{proportion}{If TRUE (default) the function returns the diet as a
+proportion of the total consumption rate. If FALSE it returns the 
+consumption rate in grams.}
 }
 \value{
-An array (predator species  x predator size x (prey species + plankton) )
+An array (predator species  x predator size x 
+  (prey species + plankton + resources) )
 }
 \description{
 Calculates the rate at which a predator of a particular species and size
-consumes biomass of a prey species, where for this purpose we treat the
-plankton like another prey species.
+consumes biomass of each prey species, plankton and resources.
 }
 \details{
 This function performs the same integration as

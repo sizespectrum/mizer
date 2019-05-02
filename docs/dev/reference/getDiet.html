@@ -33,8 +33,7 @@
 <meta property="og:title" content="Get diet of predator at size, resolved by prey species — getDiet" />
 
 <meta property="og:description" content="Calculates the rate at which a predator of a particular species and size
-consumes biomass of a prey species, where for this purpose we treat the
-plankton like another prey species." />
+consumes biomass of each prey species, plankton and resources." />
 <meta name="twitter:card" content="summary" />
 
 <meta name="robots" content="noindex">
@@ -121,33 +120,44 @@ plankton like another prey species." />
     <div class="ref-description">
     
     <p>Calculates the rate at which a predator of a particular species and size
-consumes biomass of a prey species, where for this purpose we treat the
-plankton like another prey species.</p>
+consumes biomass of each prey species, plankton and resources.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>getDiet</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>)</pre>
+    <pre class="usage"><span class='fu'>getDiet</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
+  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>, <span class='kw'>proportion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A MizerParams object</p></td>
+      <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>An array (species x size) with the abundance density of fish</p></td>
+      <td><p>A matrix of species abundances (species x size)</p></td>
     </tr>
     <tr>
       <th>n_pp</th>
-      <td><p>A vector with the abundance of plankton</p></td>
+      <td><p>A vector of the plankton abundance by size</p></td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td><p>A vector of biomasses of unstructured resource components</p></td>
+    </tr>
+    <tr>
+      <th>proportion</th>
+      <td><p>If TRUE (default) the function returns the diet as a
+proportion of the total consumption rate. If FALSE it returns the 
+consumption rate in grams.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array (predator species  x predator size x (prey species + plankton) )</p>
+    <p>An array (predator species  x predator size x 
+  (prey species + plankton + resources) )</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 

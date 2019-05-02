@@ -46,8 +46,7 @@ NULL
 #' Get diet of predator at size, resolved by prey species
 #'
 #' Calculates the rate at which a predator of a particular species and size
-#' consumes biomass of a prey species, where for this purpose we treat the
-#' plankton like another prey species. 
+#' consumes biomass of each prey species, plankton and resources.
 #' 
 #' This function performs the same integration as
 #' \code{\link{getEncounter}} but does not aggregate over prey species, and
@@ -55,29 +54,41 @@ NULL
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
 #'
-#' @param params A MizerParams object
-#' @param n An array (species x size) with the abundance density of fish
-#' @param n_pp A vector with the abundance of plankton
+#' @inheritParams getEncounter
+#' @param proportion If TRUE (default) the function returns the diet as a
+#'   proportion of the total consumption rate. If FALSE it returns the 
+#'   consumption rate in grams.
 #' 
-#' @return An array (predator species  x predator size x (prey species + plankton) )
+#' @return An array (predator species  x predator size x 
+#'   (prey species + plankton + resources) )
 #' @export
 #' @family summary functions
 #' @concept summary_function
-getDiet <- function(params, n, n_pp) {
+getDiet <- function(params, 
+                    n = params@initial_n, 
+                    n_pp = params@initial_n_pp,
+                    B = params@initial_B,
+                    proportion = TRUE) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
                 is.array(n),
-                is.vector(n_pp))
+                is.vector(n_pp),
+                is.vector(B))
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
+    no_res <- length(params@resource_dynamics)
+    resource_names <- names(params@resource_dynamics)
     assert_that(identical(dim(n), c(no_sp, no_w)),
-                length(n_pp) == no_w_full)
-    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
+                length(n_pp) == no_w_full,
+                length(B) == no_res)
+    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1 + no_res),
                   dimnames = list("predator" = species,
-                                  "w" = dimnames(n)$w,
-                                  "prey" = c(species, "plankton")))
+                                  "w" = dimnames(params@initial_n)$w,
+                                  "prey" = c(species, 
+                                             "Plankton", 
+                                             resource_names)))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -92,13 +103,11 @@ getDiet <- function(params, n, n_pp) {
         ae <- matrix(params@pred_kernel[, , idx_sp, drop = FALSE],
                      ncol = no_w) %*%
             t(sweep(n, 2, params@w * params@dw, "*"))
-        dim(ae) <- c(no_sp, no_w, no_sp)
-        # We multiply by interaction matrix, choosing the correct dimensions
-        diet[, , 1:no_sp] <- sweep(ae, c(1, 3), params@interaction, "*")
+        diet[, , 1:no_sp] <- ae
         # Eating the plankton
         diet[, , no_sp + 1] <- rowSums(sweep(
-            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
-            "*", check.margin = FALSE), dims = 2)
+            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"), 
+            dims = 2)
     } else {
         prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
         prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
@@ -116,16 +125,28 @@ getDiet <- function(params, n, n_pp) {
         # Due to numerical errors we might get negative or very small entries that
         # should be 0
         ae[ae < 1e-18] <- 0
-        diet[] <- ae
-        # Multiply by interaction matrix
-        diet[, , 1:no_sp] <- sweep(diet[, , 1:no_sp], c(1, 3), 
-                                   params@interaction, "*")
+        diet[, , 1:(no_sp + 1)] <- ae
     }
-    
+    # Multiply by interaction matrix, including plankton, and then by 
+    # search volume
+    inter <- cbind(params@interaction, params@species_params$interaction_p)
+    diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
+                                           c(1, 3), inter, "*"), 
+                                     c(1, 2), params@search_vol, "*")
+    # Add diet from resources
+    if (no_res > 0) {
+        diet[, , (no_sp + 2):(no_sp + 1 + no_res)] <- 
+            sweep(params@rho, 2, B, "+")
+    }
     # Correct for satiation and keep only entries corresponding to fish sizes
     f <- getFeedingLevel(params, n, n_pp)
     fish_mask <- n > 0
     diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
+    if (proportion) {
+        total <- rowSums(diet, dims = 2)
+        diet <- sweep(diet, c(1, 2), total, "/")
+        diet[is.nan(diet)] <- 0
+    }
     return(diet)
 }
 

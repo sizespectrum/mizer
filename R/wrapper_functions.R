@@ -1098,8 +1098,8 @@ addSpecies <- function(params, species_params, SSB = NA,
     if (any(is.infinite(p@initial_n))) {
         stop("Candidate steady state holds infinities")
     }
-    if (any(is.na(p@initial_n) || is.nan(p@initial_n))) {
-        stop("Candidate steady state holds none numeric values")
+    if (any(is.na(p@initial_n) | is.nan(p@initial_n))) {
+        stop("Candidate steady state holds non-numeric values")
     }
     
     # Normalise solution

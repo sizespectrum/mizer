@@ -1,10 +1,11 @@
 context("Summary methods")
 
+## Initialisation ----
 data(NS_species_params_gears)
 data(inter)
 params <- set_multispecies_model(NS_species_params_gears, inter)
 sim <- project(params, effort = 1, t_max = 10)
-no_sp <- nrow(NS_species_params)
+no_sp <- nrow(NS_species_params_gears)
 no_w <- length(params@w)
 
 # Random abundances
@@ -18,53 +19,53 @@ test_that("get_size_range_array",{
     NS_species_params_gears$b <- 3
     params <- set_multispecies_model(NS_species_params_gears, inter)
     size_n <- get_size_range_array(params)
-    expect_that(all(size_n), is_true())
+    expect_true(all(size_n))
     size_n <- get_size_range_array(params, min_w = 1)
-    expect_that(!all(size_n[,which(params@w < 1)]), is_true())
-    expect_that(all(size_n[,which(params@w >= 1)]), is_true())
+    expect_true(!all(size_n[,which(params@w < 1)]))
+    expect_true(all(size_n[,which(params@w >= 1)]))
     size_n <- get_size_range_array(params, max_w = 100)
-    expect_that(all(size_n[,which(params@w <= 100)]), is_true())
-    expect_that(!all(size_n[,which(params@w > 1)]), is_true())
+    expect_true(all(size_n[,which(params@w <= 100)]))
+    expect_true(!all(size_n[,which(params@w > 1)]))
     size_n <- get_size_range_array(params, min_w = 1, max_w = 100)
-    expect_that(!all(size_n[,which(params@w > 100)]), is_true())
-    expect_that(!all(size_n[,which(params@w < 1)]), is_true())
-    expect_that(all(size_n[,which((params@w >= 1) & (params@w<=100))]), is_true())
+    expect_true(!all(size_n[,which(params@w > 100)]))
+    expect_true(!all(size_n[,which(params@w < 1)]))
+    expect_true(all(size_n[,which((params@w >= 1) & (params@w<=100))]))
     size_n <- get_size_range_array(params, min_l = 1)
 
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-        expect_that(all(size_n[sp,which(params@w >= min_w[sp])]), is_true())
-        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
+        expect_true(all(size_n[sp,which(params@w >= min_w[sp])]))
+        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
     }
     size_n <- get_size_range_array(params, max_l = 100)
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-        expect_that(all(size_n[sp,which(params@w <= max_w[sp])]), is_true())
-        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_true(all(size_n[sp,which(params@w <= max_w[sp])]))
+        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = 1, max_l = 100)
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_w = 1, max_l = 100)
     min_w <- rep(1,nrow(params@species_params))
     max_w <- params@species_params$a * 100 ^ params@species_params$b
     for (sp in 1:nrow(params@species_params)){ 
-        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
     }
     size_n <- get_size_range_array(params, min_l = 1, max_w = 100)
     min_w <- params@species_params$a * 1 ^ params@species_params$b
     max_w <- rep(100,nrow(params@species_params))
     for (sp in 1:nrow(params@species_params)){ 
-        expect_that(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]), is_true())
-        expect_that(!all(size_n[sp,which(params@w < min_w[sp])]), is_true())
-        expect_that(!all(size_n[sp,which(params@w > max_w[sp])]), is_true())
+        expect_true(all(size_n[sp,which((params@w <= max_w[sp]) & (params@w >= min_w[sp]))]))
+        expect_true(!all(size_n[sp,which(params@w < min_w[sp])]))
+        expect_true(!all(size_n[sp,which(params@w > max_w[sp])]))
     }
     expect_that(get_size_range_array(params, min_w = 1000, max_w = 1), throws_error())
     expect_that(get_size_range_array(params, min_l = 1000, max_l = 1), throws_error())
@@ -121,8 +122,8 @@ test_that("getProportionOfLargeFish works",{
 # check_species ----
 test_that("check_species works",{
     sim <- project(params, effort=1, t_max=20, dt = 0.5, t_save = 0.5)
-    expect_that(check_species(sim,c("Cod","Haddock")), is_true())
-    expect_that(check_species(sim,c(10,11)), is_true())
+    expect_true(check_species(sim,c("Cod","Haddock")))
+    expect_true(check_species(sim,c(10,11)))
     expect_that(check_species(sim,c("Arse","Balls")), throws_error())
     expect_that(check_species(sim,c(10,666)), throws_error())
 
@@ -249,11 +250,26 @@ test_that("getCommunitySlope works",{
 
 
 # getDiet ----
-test_that("getDiet works", {
-    diet <- getDiet(sim@params, n, n_pp)
+test_that("getDiet works with proportion = FALSE", {
+    diet <- getDiet(params, n, n_pp, proportion = FALSE)
     expect_known_value(diet, "values/getDiet")
+    # Check that summing over all species, plankton and resources gives 
+    # total consumption
+    consumption <- rowSums(diet, dims = 2)
+    encounter <- getEncounter(params, n, n_pp)
+    feeding_level <- getFeedingLevel(params, n, n_pp)
+    expect_equivalent(consumption, encounter * (1 - feeding_level))
+    # Check that using pred kernel instead of FFT gives the same result
     params <- setPredKernel(params, pred_kernel = getPredKernel(params))
-    expect_equal(diet, getDiet(params, n, n_pp))
+    expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE))
+})
+
+test_that("getDiet works with proportion = TRUE", {
+    diet <- getDiet(params, n, n_pp)
+    total <- rowSums(diet, dims = 2)
+    ones <- total
+    ones[] <- 1
+    expect_equal(total, ones)
 })
 
 
