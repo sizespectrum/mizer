@@ -1658,7 +1658,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
                 )
             )
     }
-    assert_that(all(maturity >= 0 && maturity <= 1))
+    assert_that(all(maturity >= 0 & maturity <= 1))
     params@maturity[] <- maturity
     
     if (!is.null(repro_prop)) {
@@ -1690,7 +1690,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
     # Set all w > w_inf to 1
     params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
-    assert_that(all(params@psi >= 0 && params@psi <= 1))
+    assert_that(all(params@psi >= 0 & params@psi <= 1))
     return(params)
 }
 
