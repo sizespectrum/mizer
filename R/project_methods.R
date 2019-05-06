@@ -208,7 +208,7 @@ getEncounter <- function(params, n = params@initial_n,
         encounter <- params@search_vol * (phi_prey_species + phi_prey_background)
         if (length(B) > 0) {
             encounter <- encounter +
-                rowSums(sweep(params@rho, 2, B, "+"), 1)
+                rowSums(sweep(params@rho, 2, B, "*"), 1)
         }
         return(encounter)
     }
