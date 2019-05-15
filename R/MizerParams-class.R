@@ -771,6 +771,7 @@ set_multispecies_model <- function(species_params,
                         metab = metab,
                         p = p,
                         # setBMort
+                        mu_b = mu_b,
                         z0pre = z0pre,
                         z0exp = z0exp,
                         # setReproduction
@@ -969,8 +970,9 @@ setParams <- function(params,
                           metab = metab,
                           p = p)
     params <- setBMort(params,
-                          z0pre = z0pre,
-                          z0exp = z0exp)
+                       mu_b = mu_b,
+                       z0pre = z0pre,
+                       z0exp = z0exp)
     params <- setSearchVolume(params,
                                  search_vol = search_vol,
                                  q = q)
