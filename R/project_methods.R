@@ -232,9 +232,10 @@ getEncounter <- function(params, n = params@initial_n,
     dimnames(encounter) <- dimnames(params@metab)
     
     # Add contribution from unstructured resources
-    if (length(B) > 0) {
-        encounter[] <- encounter +
-            rowSums(sweep(params@rho, 2, B, "*"), 1)
+    # Can't use rowSums or colSums unfortunately because
+    # the resource index that we want to sum over is the middle index.
+    for (u in seq_along(B)) {
+        encounter[] <- encounter + params@rho[, u, ] * B[u]
     }
     return(encounter)
 }
