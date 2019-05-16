@@ -771,6 +771,7 @@ set_multispecies_model <- function(species_params,
                         metab = metab,
                         p = p,
                         # setBMort
+                        mu_b = mu_b,
                         z0pre = z0pre,
                         z0exp = z0exp,
                         # setReproduction
@@ -969,8 +970,9 @@ setParams <- function(params,
                           metab = metab,
                           p = p)
     params <- setBMort(params,
-                          z0pre = z0pre,
-                          z0exp = z0exp)
+                       mu_b = mu_b,
+                       z0pre = z0pre,
+                       z0exp = z0exp)
     params <- setSearchVolume(params,
                                  search_vol = search_vol,
                                  q = q)
@@ -1626,9 +1628,11 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
         }
         missing <- is.na(species_params$w_mat)
         if (any(missing)) {
-            stop(paste0("Note The following species were missing data for their maturity size w_mat: "),
-                 toString(species_params$species[missing]),
-                 ". These have been set to 1/4 w_inf.")
+            message("Note: The following species were missing data for ",
+                    "their maturity size w_mat: ",
+                    toString(species_params$species[missing]),
+                    ". These have been set to 1/4 w_inf.")
+            species_params$w_mat[missing] <- species_params$w_inf[missing] / 4
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
         
@@ -2191,7 +2195,9 @@ get_phi <- function(species_params, ppmr) {
         }
         pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
         phi <- do.call(pred_kernel_func_name, args = pars)
-        if (any(is.na(phi))) {
+        if (any(is.na(phi)) && 
+            (species_params$interaction_p[i] > 0 ||
+             any(interaction[i, ] > 0))) {
             stop(paste("The function", pred_kernel_func_name,
                        "returned NA. Did you correctly specify all required",
                        "parameters in the species parameter dataframe?"))

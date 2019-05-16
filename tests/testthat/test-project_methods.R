@@ -13,6 +13,16 @@ no_w <- length(params@w)
 no_w_full <- length(params@w_full)
 sim <- project(params, effort = 1, t_max = 20, dt = 0.5, t_save = 0.5)
 
+# Rescaled
+params_r <- params
+volume <- 1e-13
+params_r@initial_n <- params@initial_n * volume
+params_r@initial_n_pp <- params@initial_n_pp * volume
+params_r@initial_B <- params@initial_B * volume
+params_r@species_params$gamma <- params@species_params$gamma / volume
+params_r <- setSearchVolume(params_r)
+params_r@species_params$r_max <- params_r@species_params$r_max * volume
+
 # Random abundances
 set.seed(0)
 n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
@@ -21,7 +31,11 @@ n_full <- abs(rnorm(no_w_full))
 
 # getEncounter --------------------------------------------------------------
 
-
+test_that("getEncounter is independent of volume", {
+    enc <- getEncounter(params)
+    enc_r <- getEncounter(params_r)
+    expect_equal(enc, enc_r)
+})
 
 
 # getFeedingLevel -----------------------------------------
@@ -64,6 +78,11 @@ test_that("getFeedingLevel for MizerSim", {
     )
 })
 
+test_that("getFeedingLevel is independent of volume", {
+    fl <- getFeedingLevel(params)
+    fl_r <- getFeedingLevel(params_r)
+    expect_equal(fl, fl_r)
+})
 
 # getPredRate -------------------------------------------------------------
 
@@ -77,6 +96,12 @@ test_that("getPredRate for MizerParams", {
     expect_identical(pr, pr2)
     # test value
     expect_known_value(pr, "values/getPredRate")
+})
+
+test_that("getPredRate is independent of volume", {
+    pr <- getPredRate(params)
+    pr_r <- getPredRate(params_r)
+    expect_equal(pr, pr_r)
 })
 
 
@@ -140,6 +165,12 @@ test_that("interaction is right way round in getPredMort function", {
     expect_true(all(m2["Dab", ] == 0))
 })
 
+test_that("getPredMort is independent of volume", {
+    pr <- getPredMort(params)
+    pr_r <- getPredMort(params_r)
+    expect_equal(pr, pr_r)
+})
+
 
 # getPlanktonMort ---------------------------------------------------------
 
@@ -157,6 +188,12 @@ test_that("getPlanktonMort", {
     expect_identical(m2b1, m2b2)
     # test value
     expect_known_value(m2b1, "values/getPlanktonMort")
+})
+
+test_that("getPlanktonMort is independent of volume", {
+    pm <- getPlanktonMort(params)
+    pm_r <- getPlanktonMort(params_r)
+    expect_equal(pm, pm_r)
 })
 
 
@@ -268,6 +305,12 @@ test_that("getMort", {
     expect_known_value(z, "values/getMort")
 })
 
+test_that("getMort is independent of volume", {
+    m <- getMort(params, effort = 1)
+    m_r <- getMort(params_r, effort = 1)
+    expect_equal(m, m_r)
+})
+
 
 # getEReproAndGrowth ------------------------------------------------------
 
@@ -295,6 +338,12 @@ test_that("getEReproAndGrowth", {
     expect_true(!anyNA(getEReproAndGrowth(params, n = n, n_pp = n_full)))
     
     expect_known_value(erg, "values/getEReproAndGrowth")
+})
+
+test_that("getEReproAndGrowth is independent of volume", {
+    g <- getEReproAndGrowth(params)
+    g_r <- getEReproAndGrowth(params_r)
+    expect_equal(g, g_r)
 })
 
 
@@ -338,6 +387,12 @@ test_that("getRDI", {
     expect_known_value(rdi, "values/getRDI")
 })
 
+test_that("getRDI is proportional to volume", {
+    rdi <- getRDI(params)
+    rdi_r <- getRDI(params_r)
+    expect_equal(rdi * volume, rdi_r)
+})
+
 
 # getRDD ------------------------------------------------------------------
 
@@ -350,6 +405,12 @@ test_that("getRDD", {
     rdd2 <- params@srr(rdi = rdi, species_params = params@species_params)
     expect_identical(rdd, rdd2)
     expect_known_value(rdd, "values/getRDD")
+})
+
+test_that("getRDD is proportional to volume", {
+    rdd <- getRDD(params)
+    rdd_r <- getRDD(params_r)
+    expect_equal(rdd * volume, rdd_r)
 })
 
 

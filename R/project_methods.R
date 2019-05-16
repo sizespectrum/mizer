@@ -208,39 +208,37 @@ getEncounter <- function(params, n = params@initial_n,
             params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- params@search_vol * (phi_prey_species + phi_prey_background)
-        if (length(B) > 0) {
-            encounter <- encounter +
-                rowSums(sweep(params@rho, 2, B, "+"), 1)
-        }
-        return(encounter)
-    }
-
-    prey <- outer(params@species_params$interaction_p, n_pp)
-    prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% n
-    # The vector prey equals everything inside integral (3.4) except the feeding
-    # kernel phi_i(w_p/w).
-    prey <- sweep(prey, 2, params@w_full * params@dw_full, "*")
-    # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
-    # We approximate the integral by the trapezoidal method. Using the
-    # convolution theorem we can evaluate the resulting sum via fast fourier
-    # transform.
-    # mvfft() does a Fourier transform of each column of its argument, but
-    # we need the Fourier transforms of each row, so we need to apply mvfft()
-    # to the transposed matrices and then transpose again at the end.
-    avail_energy <- Re(t(mvfft(t(params@ft_pred_kernel_e) * mvfft(t(prey)),
-                               inverse = TRUE))) / length(params@w_full)
-    # Only keep the bit for fish sizes
-    avail_energy <- avail_energy[, idx_sp, drop = FALSE]
-    # Due to numerical errors we might get negative or very small entries that
-    # should be 0
-    avail_energy[avail_energy < 1e-18] <- 0
-    
-    encounter <- params@search_vol * avail_energy
-    if (length(B) > 0) {
-        encounter <- encounter +
-            rowSums(sweep(params@rho, 2, B, "+"), 1)
+    } else {
+        prey <- outer(params@species_params$interaction_p, n_pp)
+        prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% n
+        # The vector prey equals everything inside integral (3.4) except the feeding
+        # kernel phi_i(w_p/w).
+        prey <- sweep(prey, 2, params@w_full * params@dw_full, "*")
+        # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
+        # We approximate the integral by the trapezoidal method. Using the
+        # convolution theorem we can evaluate the resulting sum via fast fourier
+        # transform.
+        # mvfft() does a Fourier transform of each column of its argument, but
+        # we need the Fourier transforms of each row, so we need to apply mvfft()
+        # to the transposed matrices and then transpose again at the end.
+        avail_energy <- Re(t(mvfft(t(params@ft_pred_kernel_e) * mvfft(t(prey)),
+                                   inverse = TRUE))) / length(params@w_full)
+        # Only keep the bit for fish sizes
+        avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+        # Due to numerical errors we might get negative or very small entries that
+        # should be 0
+        avail_energy[avail_energy < 1e-18] <- 0
+        
+        encounter <- params@search_vol * avail_energy
     }
     dimnames(encounter) <- dimnames(params@metab)
+    
+    # Add contribution from unstructured resources
+    # Can't use rowSums or colSums unfortunately because
+    # the resource index that we want to sum over is the middle index.
+    for (u in seq_along(B)) {
+        encounter[] <- encounter + params@rho[, u, ] * B[u]
+    }
     return(encounter)
 }
 
@@ -844,10 +842,13 @@ getZ <- getMort
 #'   using the \code{\link{getFeedingLevel}} function.
 #'
 #' @return A two dimensional array (species x size) holding
-#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-#'   E_{r.i}(w) = max(0, \alpha_i encounter_i(w) - metab_i(w)).}
+#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
+#'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
+#'   E_{r.i}(w) = max(0, \alpha_i * (1 - feeding_level_i(w)) * 
+#'                       encounter_i(w) - metab_i(w)).}
 #' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-#' data frame in \code{params}. The metabolic rate is taken from \code{params}. 
+#' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
+#' \code{params}. 
 #' @export
 #' @seealso \code{\link{getERepro}} and \code{\link{getEGrowth}}
 #' @family rate functions
