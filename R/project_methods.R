@@ -130,7 +130,7 @@ getRates <- function(params, n = params@initial_n,
 #' \code{\link{setSearchVolume}} function. The predation kernel
 #' \eqn{\phi(w,w_p)} is changed with the \code{\link{setPredKernel}} function. The
 #' species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-#' vector \eqn{\theta{ip}} are changed with \code{\link{setInteraction}}.
+#' vector \eqn{\theta_{ip}} are changed with \code{\link{setInteraction}}.
 #' 
 #' @section Resource encounter:
 #' In addition to the contribution from predation on fish prey and plankton,
@@ -147,11 +147,13 @@ getRates <- function(params, n = params@initial_n,
 #' The total encounter rate is the sum of the contribution from fish and
 #' plankton and the contribution from unstructured resources, if any:
 #' \deqn{E_i(w)=E_{e.i}(w)+E_{u.i}(w).}
-#' The encounter rate is used by the \code{\link{project}} function for
-#' performing simulations.
+#'
+#' The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
+#' where \eqn{f_0} is the feeding level calculated with \code{\link{getFeedingLevel}}.
+#' This is used by the \code{\link{project}} function for performing simulations.
 #' 
 #' The function returns values also for sizes outside the size-range of the
-#' species. These values should not be trusted, as they are meaningless.
+#' species. These values should not be used, as they are meaningless.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
