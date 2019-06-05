@@ -361,7 +361,7 @@ getGrowthCurves <- function(object,
         myodefun <- function(t, state, parameters){
             return(list(g_fn(state)))
         }
-        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+        ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i]], 
                                 times = age, func = myodefun)[, 2]
         if (percentage) {
             ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
