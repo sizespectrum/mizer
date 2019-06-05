@@ -391,6 +391,16 @@ remove(validMizerParams)
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 
+#' The \code{species_params} slot of the returned MizerParams object may differ
+#' slightly from the data frame supplied as argument to this function in the
+#' following ways:
+#' \itemize{
+#'   \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+#'   \item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
+#' }
+#' Note that the other characteristic sizes of the species, like \code{w_mat} and
+#' \code{w_inf}, are not modified to lie on grid points.
+#' 
 #' @param species_params A data frame of species-specific parameter values.
 #' @param no_w The number of size bins in the consumer spectrum.
 #' @param min_w Sets the size of the eggs of all species for which this is not
@@ -556,12 +566,15 @@ emptyParams <- function(species_params,
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full, 3)
     
+    # Round down w_min to lie on grid points and store the indices of these
+    # grid points in w_min_idx
     w_min_idx <- as.vector(suppressWarnings(
         tapply(species_params$w_min, 1:no_sp,
                function(w_min, wx) max(which(wx <= w_min)), wx = w)))
     # Due to rounding errors this might happen:
     w_min_idx[w_min_idx == -Inf] <- 1
     names(w_min_idx) = species_names
+    species_params$w_min <- w[w_min_idx]
     
     # Colour and linetype scales ----
     # for use in plots
