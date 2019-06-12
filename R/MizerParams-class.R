@@ -2027,10 +2027,14 @@ setFishing <- function(params) {
         # lop off w as that is always the first argument of the selectivity functions
         arg <- arg[!(arg %in% "w")]
         if (!all(arg %in% colnames(species_params))) {
-            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
+            stop("Some arguments needed for the selectivity function are ",
+                 "missing in the parameter dataframe.")
         }
-        # Check that there is only one column in species_params with the same name
-        # Check that column of arguments exists
+        # Check that there are no missing values for selectivity parameters
+        if (any(is.na(as.list(species_params[g, arg])))) {
+            stop("Some selectivity parameters are NA.")
+        }
+        # Call selectivity function with selectivity parameters
         par <- c(w = list(params@w), as.list(species_params[g, arg]))
         sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
         # Dump Sel in the right place
