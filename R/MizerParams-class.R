@@ -1711,6 +1711,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     
     params@psi[] <- params@maturity * repro_prop
     
+    # psi should never be larger than 1
+    params@psi[params@psi > 1] <- 1
     # For reasons of efficiency we next set all very small values to 0 
     # Set w < 10% of w_mat to 0
     params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
