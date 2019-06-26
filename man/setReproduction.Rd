@@ -4,7 +4,8 @@
 \alias{setReproduction}
 \title{Set proportion of energy that is invested into reproduction}
 \usage{
-setReproduction(params, maturity = NULL, repro_prop = NULL)
+setReproduction(params, maturity = NULL, repro_prop = NULL,
+  srr = params@srr)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -17,6 +18,8 @@ default is set as described in the section "Setting reproduction".}
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
+
+\item{srr}{Optional. The stock recruitment function.}
 }
 \value{
 The MizerParams object.
@@ -70,6 +73,17 @@ The reproductive efficiency, i.e., the proportion of energy allocated to
 reproduction that results in offspring biomass, is set from the 
 \code{erepro} column in the species_params data frame. If that is not
 provided the default is set to 1 (which you will want to override).
+The offspring biomass divided by the egg biomass gives the
+density-independent rate of egg production, returned by \code{\link{getRDI}}.
+
+Mizer allows some density dependence in the production of eggs by putting
+the density-independent rate of egg production through a stock-recruitment
+function. The result is returned by \code{\link{getRDD}}. The
+stock-recruitment function is specified by the \code{srr} argument. The default
+is the BevertonHolt function \code{\link{srrBevertonHolt}}, which requires
+an \code{r_max} column in the species_params data frame giving the maximum
+egg production rate. If this column does not exist, it is initialised to 
+\code{Inf}, leading to no density-dependence.
 }
 
 \seealso{

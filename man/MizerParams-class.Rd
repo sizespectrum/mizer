@@ -106,7 +106,7 @@ See \code{\link{set_multispecies_model}} for details.}
 Changed with \code{\link{setInteraction}}.}
 
 \item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
-Has two arguments which are rdi and species_params}
+Has two arguments which are rdi and species_params.}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \eqn{S_{g,i,w}}. Changed with 

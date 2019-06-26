@@ -8,8 +8,9 @@ setParams(params, interaction = NULL, pred_kernel = NULL,
   search_vol = NULL, q = params@q, f0 = params@f0,
   intake_max = NULL, n = params@n, metab = NULL, p = params@p,
   mu_b = NULL, z0pre = 0.6, z0exp = n - 1, maturity = NULL,
-  repro_prop = NULL, kappa = params@kappa, lambda = params@lambda,
-  r_pp = 10, w_pp_cutoff = 10, plankton_dynamics = NULL,
+  repro_prop = NULL, srr = params@srr, kappa = params@kappa,
+  lambda = params@lambda, r_pp = 10, w_pp_cutoff = 10,
+  plankton_dynamics = NULL,
   resource_dynamics = params@resource_dynamics,
   resource_params = params@resource_params, rho = NULL)
 }
@@ -69,6 +70,8 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
+\item{srr}{Optional. The stock recruitment function.}
+
 \item{kappa}{Carrying capacity of the plankton spectrum.}
 
 \item{lambda}{Exponent of the plankton spectrum.}
@@ -119,17 +122,16 @@ See the Details section below for a discussion of how to use this function.
 \details{
 Usually, if you are happy with the way mizer calculates its model functions
 from the species parameters and only want to change the values of some
-species parameters, you would make those changes in the \code{species_params}
-data frame contained in the \code{params} object and then call the
-\code{setParams()} function to effect the change, as in the following example,
-which assumes that you have have a MizerParams object \code{params} in which you
-just want to change one parameter of the third species:\preformatted{params@species_params$gamma[3] <- 1000
+species parameters, you would make those changes in the \code{species_params} data
+frame contained in the \code{params} object and then call the \code{setParams()}
+function to effect the change. Note that just changing the species parameters
+by themselves is not changing the model until you call \code{setParams()} or the
+appropriate one of its sub-functions. Here is an example which assumes that
+you have have a MizerParams object \code{params} in which you just want to change
+one parameter of the third species:\preformatted{params@species_params$gamma[3] <- 1000
 params <- setParams(params)
 }
 
-Note that just changing the species parameters by themselves is not changing
-the model until you call \code{setParams()} or the appropriate one of its
-sub-functions.
 Because of the way the R language works, \code{setParams} does not make the
 changes to the \code{params} object that you pass to it but instead returns a new
 params object. So to affect the change you call the function in the form
@@ -195,13 +197,13 @@ This function checks that the supplied interaction
 matrix is valid and then stores it in the \code{interaction} slot of the
 params object before returning that object.
 
-The order of the columns and rows of the `interaction` argument should be the 
-same as the order in the species params dataframe in the `params` object.
+The order of the columns and rows of the \code{interaction} argument should be the 
+same as the order in the species params dataframe in the \code{params} object.
 If you supply a named array then the function will check the order and warn 
 if it is different.
 
 The interaction of the species with the plankton are set via a column
-\code{interaction_p} in the species_params data frame. Again the entries
+\code{interaction_p} in the \code{species_params} data frame. Again the entries
 have to be numbers between 0 and 1. By default this column is set to all
 1s.
 }
@@ -379,6 +381,17 @@ The reproductive efficiency, i.e., the proportion of energy allocated to
 reproduction that results in offspring biomass, is set from the 
 \code{erepro} column in the species_params data frame. If that is not
 provided the default is set to 1 (which you will want to override).
+The offspring biomass divided by the egg biomass gives the
+density-independent rate of egg production, returned by \code{\link{getRDI}}.
+
+Mizer allows some density dependence in the production of eggs by putting
+the density-independent rate of egg production through a stock-recruitment
+function. The result is returned by \code{\link{getRDD}}. The
+stock-recruitment function is specified by the \code{srr} argument. The default
+is the BevertonHolt function \code{\link{srrBevertonHolt}}, which requires
+an \code{r_max} column in the species_params data frame giving the maximum
+egg production rate. If this column does not exist, it is initialised to 
+\code{Inf}, leading to no density-dependence.
 }
 
 \section{Setting fishing}{

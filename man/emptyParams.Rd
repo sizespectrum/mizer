@@ -5,7 +5,7 @@
 \title{Create empty MizerParams object of the right size}
 \usage{
 emptyParams(species_params, no_w = 100, min_w = 0.001, max_w = NA,
-  min_w_pp = NA, no_w_pp = NA, srr = srrBevertonHolt)
+  min_w_pp = NA, no_w_pp = NA)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
@@ -21,9 +21,6 @@ set to the largest w_inf specified in the species_params data frame.}
 \item{min_w_pp}{The smallest size of the plankton spectrum.}
 
 \item{no_w_pp}{No longer used}
-
-\item{srr}{The stock recruitment function. Default is
-\code{\link{srrBevertonHolt}}.}
 }
 \value{
 An empty but valid MizerParams object
@@ -43,4 +40,14 @@ the log-sizes are equally spaced. The spacing is chosen so that there will be
 starting at `max_w`. For `w_full` additional size bins are added below
 `min_w`, with the same log size. The number of extra bins is such that
 `min_w_pp` comes to lie within the smallest bin.
+
+The \code{species_params} slot of the returned MizerParams object may differ
+slightly from the data frame supplied as argument to this function in the
+following ways:
+\itemize{
+  \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+  \item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
+}
+Note that the other characteristic sizes of the species, like \code{w_mat} and
+\code{w_inf}, are not modified to lie on grid points.
 }
