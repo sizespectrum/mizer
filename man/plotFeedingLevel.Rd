@@ -5,7 +5,7 @@
 \title{Plot the feeding level of species by size}
 \usage{
 plotFeedingLevel(object, species = NULL, time_range, print_it = FALSE,
-  highlight = NULL, ...)
+  highlight = NULL, all.sizes = FALSE, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -22,6 +22,9 @@ object.}
 Defaults to FALSE}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{all.sizes}{If TRUE, then feeding level is plotted also for sizes
+outside a species' size range. Default FALSE.}
 
 \item{...}{Other arguments (currently unused)}
 }
