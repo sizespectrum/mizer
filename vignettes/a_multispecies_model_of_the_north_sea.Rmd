@@ -95,7 +95,7 @@ and uses the parameters `l25` and `l50`, which are the lengths at which 25\% and
 \end{equation}
 
 where $l$ is the length of an individual, $S_l$ is the selectivity at length,
-$S2 = \log(3) / (l50 - l25)$ and $S1$ = $l50 \cdot S2$.
+$S2 = \log(3) / (l50 - l25)$ and $S1 = l50 \cdot S2$.
 
 This selectivity function is included in mizer as `sigmoid_length()`. You can
 see the help page for more details. As well as the arguments `l25` and `l50`,

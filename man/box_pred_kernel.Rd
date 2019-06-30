@@ -25,6 +25,6 @@ distributed on an interval.
 Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
 feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
 \code{ppmr_max} and zero otherwise. The parameters need to be given in the
-species parameter dataframe in the colunns \code{ppmr_min} and
+species parameter dataframe in the columns \code{ppmr_min} and
 \code{ppmr_max}.
 }

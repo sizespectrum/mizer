@@ -77,7 +77,7 @@ Mizer is developed using the version control system _git_ and the code is hosted
 To work with the code you will create your own git repository with a copy of the mizer code.
 
 Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
-Then create a version control new project in Rstudio, and indicate your depository url.
+Then create a version control new project in RStudio, and indicate your depository url.
 
 Go the the Git tab and from "More" select "Shell..." to open up a Git shell.
 There issue the commands

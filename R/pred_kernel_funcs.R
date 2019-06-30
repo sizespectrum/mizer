@@ -13,7 +13,7 @@
 #' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
 #' determines the width of the kernel.
 #' These two parameters need to be given in the species parameter dataframe in
-#' the colunns \code{beta} and \code{sigma}.
+#' the columns \code{beta} and \code{sigma}.
 #' 
 #' This function is called from \code{\link{setPredKernel}} to set up the
 #' predation kernel slots in a \code{MizerParams} object. 
@@ -45,7 +45,7 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
 #' feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
 #' \code{ppmr_max} and zero otherwise. The parameters need to be given in the
-#' species parameter dataframe in the colunns \code{ppmr_min} and
+#' species parameter dataframe in the columns \code{ppmr_min} and
 #' \code{ppmr_max}.
 #' 
 #' @param ppmr A vector of predator/prey size ratios

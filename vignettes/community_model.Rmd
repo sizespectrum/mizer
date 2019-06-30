@@ -19,8 +19,8 @@ set to be constant. The resource spectrum only extends to the start of the
 community spectrum. Standard metabolism is turned off.
 
 In this section we describe how a community model can be set up and projected
-through time. We then use a community model to illustrate the idea of a ’trophic
-cascade’. Due to the relative simplicity of this type of model they are useful
+through time. We then use a community model to illustrate the idea of a trophic
+cascade. Due to the relative simplicity of this type of model they are useful
 for gently introducing some of the concepts behind the mizer package.
 Consequently, this section should hopefully serve as an introduction to using
 mizer.

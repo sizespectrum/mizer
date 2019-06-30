@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setInteraction}
 \alias{setInteraction}
-\title{Set species interation matrix}
+\title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
 }
@@ -17,7 +17,7 @@ section below.}
 MizerParams object
 }
 \description{
-Set species interation matrix
+Set species interaction matrix
 }
 \section{Setting interactions}{
 

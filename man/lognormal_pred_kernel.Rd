@@ -32,7 +32,7 @@ and zero otherwise.
 Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
 determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
-the colunns \code{beta} and \code{sigma}.
+the columns \code{beta} and \code{sigma}.
 
 This function is called from \code{\link{setPredKernel}} to set up the
 predation kernel slots in a \code{MizerParams} object.

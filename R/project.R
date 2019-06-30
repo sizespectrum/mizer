@@ -79,7 +79,7 @@ NULL
 #' 
 #' If the \code{object} argument is of class \code{MizerSim} then the initial
 #' values for the simulation are taken from the final values in the 
-#' \code{MizerSim} object and the corresponding argumens to this function will
+#' \code{MizerSim} object and the corresponding arguments to this function will
 #' be ignored.
 #' 
 #' @return An object of class \linkS4class{MizerSim}.

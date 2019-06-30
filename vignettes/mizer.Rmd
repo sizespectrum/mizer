@@ -163,7 +163,7 @@ describes the flow of biomass up the size spectrum,
 \end{equation}
 where individual growth $g_i(w)$ and mortality $\mu_i(w)$ are coupled, 
 because growth of one individual is due to predation on another, who
-consequenty dies.
+consequently dies.
 
 The continuity equation is supplemented by a
 boundary condition at the egg weight $w_0$ where the flux of individuals

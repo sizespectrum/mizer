@@ -40,7 +40,7 @@ The default pred_kernel_type is "lognormal". This will call the function
 An alternative pred_kernel type is "box", implemented by the functions
 \code{\link{box_pred_kernel}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
-are \code{beta} and \code{sigma}, for the box kernely they are
+are \code{beta} and \code{sigma}, for the box kernel they are
 \code{ppmr_min} and \code{ppmr_max}. They are explained in the help pages
 for the kernel functions. No defaults are set for these parameters. If they
 are missing from the species_params data frame then mizer will issue an

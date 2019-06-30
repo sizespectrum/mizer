@@ -17,9 +17,9 @@
 ## Modelling unstructured resources
 Besides the size-structured planktonic resource, mizer can now also model any
 number of unstructured resource components. Such unstructured components are
-appropriate whenever the predation on these componente is not size based.
+appropriate whenever the predation on these components is not size based.
 Possible applications include the modelling of detritus as a resource for
-detritovores, carrion as a resource for scavengers, or macroflora on which fish
+detritivores, carrion as a resource for scavengers, or macroflora on which fish
 can graze. (#46)
 
 * Each unstructured resource component can have its own dynamics, with its own
@@ -135,7 +135,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
   example the help for `set_multispecies_model()`.
-* The vingnette chapters are shown as pages on the website.
+* The vignette chapters are shown as pages on the website.
 * The html help pages for plotting functions now show example plots.
 * Clarified that mizer uses grams and years as size and time units and is 
   agnostic about whether abundances are per area, per volume or per study area.
@@ -199,7 +199,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
     predator/prey ratio.
   + Added slot `plankton_dynamics` to allow user to specify alternative
     plankton dynamics.
-  + Addes slots `resource_dynamics` and `resource_params`.
+  + Added slots `resource_dynamics` and `resource_params`.
   + Added slot `initial_B` for the initial biomasses of the resources.
 * Changes to MizerSim class:
   + Added slot `B` to hold resource biomasses over time
@@ -269,4 +269,4 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 # mizer 0.1
 
 * Beta release - just about works but still some gremlins to sort out.
-  There are a number of features I'd like to add in the coming relases.
+  There are a number of features I'd like to add in the coming releases.

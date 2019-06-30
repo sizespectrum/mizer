@@ -118,7 +118,7 @@ The characteristic weights of the different species are defined by
 \code{no_sp}, in the sense that the egg weights of the \code{no_sp} species
 are logarithmically evenly spaced, ranging from \code{min_w = min_egg} to
 \code{max_w = max_w_inf}. The maturity weights of the species can be obtained
-by muliplying the egg weights by \code{min_w_mat / min_egg}. The asymptotic
+by multiplying the egg weights by \code{min_w_mat / min_egg}. The asymptotic
 weights of the species can be obtained by multiplying the egg weights by
 \code{min_w_inf / min_egg}.
 
@@ -137,7 +137,7 @@ feeding level, \code{f0}.
 
 The option of including fishing is given, but the steady state may lose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stablizing effects (like \code{rfac}) to ensure the
+may wish to include stabilising effects (like \code{rfac}) to ensure the
 steady state is stable. Fishing selectivity is modelled as a knife-edge
 function with one parameter, \code{knife_edge_size}, which is the size at
 which species are selected. Each species can either be fished by the same
