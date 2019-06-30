@@ -880,6 +880,8 @@ plotlySpectra <- function(object, species = NULL,
 #' object the initial feeding level is plotted.
 #' 
 #' @inheritParams plotSpectra
+#' @param all.sizes If TRUE, then feeding level is plotted also for sizes
+#'   outside a species' size range. Default FALSE.
 #'
 #' @return A ggplot2 object
 #' @export
@@ -898,7 +900,8 @@ plotFeedingLevel <- function(object,
             species = NULL,
             time_range,
             print_it = FALSE, 
-            highlight = NULL, ...) {
+            highlight = NULL,
+            all.sizes = FALSE, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -927,6 +930,16 @@ plotFeedingLevel <- function(object,
                            Species = factor(dimnames(feed)$sp, 
                                             levels = dimnames(feed)$sp),
                            w = rep(params@w, each = length(species)))
+    
+    if (!all.sizes) {
+        # Remove feeding level for sizes outside a species' size range
+        for (sp in species) {
+            plot_dat$value[plot_dat$Species == sp &
+                           (plot_dat$w < params@species_params$w_min |
+                            plot_dat$w > params@species_params$w_inf)] <- NA
+        }
+        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+    }
     
     if (length(species) > 120) {
         p <- ggplot(plot_dat) +
