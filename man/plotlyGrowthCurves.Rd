@@ -5,7 +5,7 @@
 \title{Plot growth curves giving weight as a function of age with plotly}
 \usage{
 plotlyGrowthCurves(object, species, max_age = 20, percentage = FALSE,
-  highlight = NULL, print_it = FALSE)
+  highlight = NULL)
 }
 \arguments{
 \item{object}{MizerSim or MizerParams object}
@@ -19,9 +19,6 @@ default all species are included.}
 of the maximal size.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
-
-\item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to FALSE}
 }
 \value{
 A ggplot2 object

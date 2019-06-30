@@ -4,8 +4,8 @@
 \alias{plotlyPredMort}
 \title{Plot predation mortality rate of each species against size with plotly}
 \usage{
-plotlyPredMort(object, species = NULL, time_range, print_it = FALSE,
-  highlight = NULL, ...)
+plotlyPredMort(object, species = NULL, time_range, highlight = NULL,
+  ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -17,9 +17,6 @@ default all species are plotted.}
 and max time, or a single value) to average the abundances over. Default is
 the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
-
-\item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to FALSE}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 

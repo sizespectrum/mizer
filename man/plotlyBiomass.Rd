@@ -7,8 +7,8 @@
 plotlyBiomass(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  y_ticks = 6, print_it = FALSE, ylim = c(NA, NA), total = FALSE,
-  background = TRUE, highlight = NULL, ...)
+  y_ticks = 6, ylim = c(NA, NA), total = FALSE, background = TRUE,
+  highlight = NULL, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -23,9 +23,6 @@ of the time series.}
 time series.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
-
-\item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to FALSE}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use NA to refer to the existing minimum or maximum. Any
