@@ -112,8 +112,7 @@ needed.}
 holding the rate at which a consumer of a particular size feeds on each
 resource. Described in the section "Setting resource encounter rate".}
 
-\item{srr}{The stock recruitment function. Default is
-\code{\link{srrBevertonHolt}}.}
+\item{srr}{Optional. The stock recruitment function.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -198,13 +197,13 @@ This function checks that the supplied interaction
 matrix is valid and then stores it in the \code{interaction} slot of the
 params object before returning that object.
 
-The order of the columns and rows of the `interaction` argument should be the 
-same as the order in the species params dataframe in the `params` object.
+The order of the columns and rows of the \code{interaction} argument should be the 
+same as the order in the species params dataframe in the \code{params} object.
 If you supply a named array then the function will check the order and warn 
 if it is different.
 
 The interaction of the species with the plankton are set via a column
-\code{interaction_p} in the species_params data frame. Again the entries
+\code{interaction_p} in the \code{species_params} data frame. Again the entries
 have to be numbers between 0 and 1. By default this column is set to all
 1s.
 }
@@ -382,6 +381,17 @@ The reproductive efficiency, i.e., the proportion of energy allocated to
 reproduction that results in offspring biomass, is set from the 
 \code{erepro} column in the species_params data frame. If that is not
 provided the default is set to 1 (which you will want to override).
+The offspring biomass divided by the egg biomass gives the
+density-independent rate of egg production, returned by \code{\link{getRDI}}.
+
+Mizer allows some density dependence in the production of eggs by putting
+the density-independent rate of egg production through a stock-recruitment
+function. The result is returned by \code{\link{getRDD}}. The
+stock-recruitment function is specified by the \code{srr} argument. The default
+is the BevertonHolt function \code{\link{srrBevertonHolt}}, which requires
+an \code{r_max} column in the species_params data frame giving the maximum
+egg production rate. If this column does not exist, it is initialised to 
+\code{Inf}, leading to no density-dependence.
 }
 
 \section{Setting fishing}{

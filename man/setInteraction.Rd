@@ -32,13 +32,13 @@ This function checks that the supplied interaction
 matrix is valid and then stores it in the \code{interaction} slot of the
 params object before returning that object.
 
-The order of the columns and rows of the `interaction` argument should be the 
-same as the order in the species params dataframe in the `params` object.
+The order of the columns and rows of the \code{interaction} argument should be the 
+same as the order in the species params dataframe in the \code{params} object.
 If you supply a named array then the function will check the order and warn 
 if it is different.
 
 The interaction of the species with the plankton are set via a column
-\code{interaction_p} in the species_params data frame. Again the entries
+\code{interaction_p} in the \code{species_params} data frame. Again the entries
 have to be numbers between 0 and 1. By default this column is set to all
 1s.
 }

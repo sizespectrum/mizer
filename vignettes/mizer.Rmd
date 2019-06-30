@@ -108,7 +108,7 @@ plot(sim)
 
 Just as an example: we might be interested in how the proportion of large fish
 varies over time. We can get the proportion of Herrings in terms of biomass that
-have a weight above 50g in each of the 50 years:
+have a weight above 50g in each of the 10 years:
 ```{r}
 getProportionOfLargeFish(sim, species = "Herring", threshold_w = 50, biomass_proportion = TRUE)
 ```

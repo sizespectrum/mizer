@@ -29,10 +29,13 @@ using the \code{\link{getFeedingLevel}} function.}
 }
 \value{
 A two dimensional array (species x size) holding
-\deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-  E_{r.i}(w) = max(0, \alpha_i encounter_i(w) - metab_i(w)).}
+\deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
+                           {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
+  E_{r.i}(w) = max(0, \alpha_i * (1 - feeding_level_i(w)) * 
+                      encounter_i(w) - metab_i(w)).}
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-data frame in \code{params}. The metabolic rate is taken from \code{params}.
+data frame in \code{params}. The metabolic rate \code{metab} is taken from 
+\code{params}.
 }
 \description{
 Calculates the energy rate (grams/year) available by species and size for

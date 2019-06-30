@@ -280,7 +280,7 @@ validMizerParams <- function(object) {
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with \code{\link{setInteraction}}.
 #' @slot srr Function to calculate the realised (density dependent) recruitment.
-#'   Has two arguments which are rdi and species_params
+#'   Has two arguments which are rdi and species_params.
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
 #'   \code{\link{setFishing}}.
@@ -391,6 +391,16 @@ remove(validMizerParams)
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 
+#' The \code{species_params} slot of the returned MizerParams object may differ
+#' slightly from the data frame supplied as argument to this function in the
+#' following ways:
+#' \itemize{
+#'   \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+#'   \item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
+#' }
+#' Note that the other characteristic sizes of the species, like \code{w_mat} and
+#' \code{w_inf}, are not modified to lie on grid points.
+#' 
 #' @param species_params A data frame of species-specific parameter values.
 #' @param no_w The number of size bins in the consumer spectrum.
 #' @param min_w Sets the size of the eggs of all species for which this is not
@@ -407,8 +417,6 @@ remove(validMizerParams)
 #' @param min_w_pp The smallest size of the plankton spectrum.
 # #'   Ignored if w_full is specified.
 #' @param no_w_pp  No longer used
-#' @param srr The stock recruitment function. Default is
-#'   \code{\link{srrBevertonHolt}}.
 #' 
 #' @return An empty but valid MizerParams object
 #' 
@@ -419,8 +427,7 @@ emptyParams <- function(species_params,
                         # w_full = NA,
                         max_w = NA,
                         min_w_pp = NA,
-                        no_w_pp = NA,
-                        srr = srrBevertonHolt) {
+                        no_w_pp = NA) {
     if (!is.na(no_w_pp)) {
         warning("New mizer code does not support the parameter no_w_pp")
     }
@@ -556,12 +563,15 @@ emptyParams <- function(species_params,
     vec1 <- as.numeric(rep(NA, no_w_full))
     names(vec1) <- signif(w_full, 3)
     
+    # Round down w_min to lie on grid points and store the indices of these
+    # grid points in w_min_idx
     w_min_idx <- as.vector(suppressWarnings(
         tapply(species_params$w_min, 1:no_sp,
                function(w_min, wx) max(which(wx <= w_min)), wx = w)))
     # Due to rounding errors this might happen:
     w_min_idx[w_min_idx == -Inf] <- 1
     names(w_min_idx) = species_names
+    species_params$w_min <- w[w_min_idx]
     
     # Colour and linetype scales ----
     # for use in plots
@@ -620,7 +630,7 @@ emptyParams <- function(species_params,
         initial_n_pp = vec1,
         species_params = species_params,
         interaction = interaction,
-        srr = srr,
+        srr = srrBevertonHolt,
         resource_dynamics = list(),
         plankton_dynamics = plankton_semichemostat,
         resource_params = list(),
@@ -746,8 +756,7 @@ set_multispecies_model <- function(species_params,
                           min_w = min_w,  
                           max_w = max_w, 
                           min_w_pp = min_w_pp, 
-                          no_w_pp = NA,
-                          srr = srr)
+                          no_w_pp = NA)
     
     ## Fill the slots ----
     params@n <- n
@@ -763,7 +772,7 @@ set_multispecies_model <- function(species_params,
                         # setSearchVolume()
                         search_vol = search_vol,
                         q = q,
-                        f0 <- f0,
+                        f0 = f0,
                         # setIntakeMax()
                         intake_max = intake_max,
                         n = n,
@@ -777,6 +786,7 @@ set_multispecies_model <- function(species_params,
                         # setReproduction
                         maturity = maturity,
                         repro_prop = repro_prop,
+                        srr = srr,
                         # setPlankton
                         kappa = kappa,
                         lambda = lambda,
@@ -844,18 +854,17 @@ MizerParams <- set_multispecies_model
 #' @details 
 #' Usually, if you are happy with the way mizer calculates its model functions
 #' from the species parameters and only want to change the values of some
-#' species parameters, you would make those changes in the `species_params`
-#' data frame contained in the `params` object and then call the
-#' `setParams()` function to effect the change, as in the following example,
-#' which assumes that you have have a MizerParams object `params` in which you
-#' just want to change one parameter of the third species:
+#' species parameters, you would make those changes in the `species_params` data
+#' frame contained in the `params` object and then call the `setParams()`
+#' function to effect the change. Note that just changing the species parameters
+#' by themselves is not changing the model until you call `setParams()` or the
+#' appropriate one of its sub-functions. Here is an example which assumes that
+#' you have have a MizerParams object `params` in which you just want to change
+#' one parameter of the third species:
 #' ```
 #' params@species_params$gamma[3] <- 1000
 #' params <- setParams(params)
 #' ```
-#' Note that just changing the species parameters by themselves is not changing
-#' the model until you call `setParams()` or the appropriate one of its
-#' sub-functions.
 #' Because of the way the R language works, `setParams` does not make the
 #' changes to the `params` object that you pass to it but instead returns a new
 #' params object. So to affect the change you call the function in the form
@@ -946,6 +955,7 @@ setParams <- function(params,
                       # setReproduction
                       maturity = NULL,
                       repro_prop = NULL,
+                      srr = params@srr,
                       # setPlankton
                       kappa = params@kappa,
                       lambda = params@lambda,
@@ -959,38 +969,39 @@ setParams <- function(params,
                       rho = NULL) {
     validObject(params)
     params <- setInteraction(params,
-                                interaction = interaction)
+                             interaction = interaction)
     params <- setFishing(params)
     params <- setPredKernel(params,
-                               pred_kernel = pred_kernel)
+                            pred_kernel = pred_kernel)
     params <- setIntakeMax(params,
-                              intake_max = intake_max,
-                              n = n)
+                           intake_max = intake_max,
+                           n = n)
     params <- setMetab(params,
-                          metab = metab,
-                          p = p)
+                       metab = metab,
+                       p = p)
     params <- setBMort(params,
                        mu_b = mu_b,
                        z0pre = z0pre,
                        z0exp = z0exp)
     params <- setSearchVolume(params,
-                                 search_vol = search_vol,
-                                 q = q)
+                              search_vol = search_vol,
+                              q = q)
     params <- setReproduction(params,
-                                 maturity = maturity,
-                                 repro_prop = repro_prop)
+                              maturity = maturity,
+                              repro_prop = repro_prop,
+                              srr = srr)
     params <- setPlankton(params,
-                             kappa = kappa,
-                             lambda = lambda,
-                             r_pp = r_pp,
-                             w_pp_cutoff = w_pp_cutoff,
-                             plankton_dynamics = plankton_dynamics)
+                          kappa = kappa,
+                          lambda = lambda,
+                          r_pp = r_pp,
+                          w_pp_cutoff = w_pp_cutoff,
+                          plankton_dynamics = plankton_dynamics)
     params <- setResourceDynamics(params,
-                                     resource_dynamics = resource_dynamics,
-                                     resource_params = resource_params)
+                                  resource_dynamics = resource_dynamics,
+                                  resource_params = resource_params)
     params <- setResourceEncounter(params,
-                                      rho = rho,
-                                      n = params@n)
+                                   rho = rho,
+                                   n = params@n)
     return(params)
 }
 
@@ -1009,13 +1020,13 @@ setParams <- function(params,
 #' matrix is valid and then stores it in the \code{interaction} slot of the
 #' params object before returning that object.
 #' 
-#' The order of the columns and rows of the `interaction` argument should be the 
-#' same as the order in the species params dataframe in the `params` object.
+#' The order of the columns and rows of the \code{interaction} argument should be the 
+#' same as the order in the species params dataframe in the \code{params} object.
 #' If you supply a named array then the function will check the order and warn 
 #' if it is different.
 #' 
 #' The interaction of the species with the plankton are set via a column
-#' \code{interaction_p} in the species_params data frame. Again the entries
+#' \code{interaction_p} in the \code{species_params} data frame. Again the entries
 #' have to be numbers between 0 and 1. By default this column is set to all
 #' 1s.
 #' 
@@ -1575,6 +1586,17 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' reproduction that results in offspring biomass, is set from the 
 #' \code{erepro} column in the species_params data frame. If that is not
 #' provided the default is set to 1 (which you will want to override).
+#' The offspring biomass divided by the egg biomass gives the
+#' density-independent rate of egg production, returned by \code{\link{getRDI}}.
+#' 
+#' Mizer allows some density dependence in the production of eggs by putting
+#' the density-independent rate of egg production through a stock-recruitment
+#' function. The result is returned by \code{\link{getRDD}}. The
+#' stock-recruitment function is specified by the \code{srr} argument. The default
+#' is the BevertonHolt function \code{\link{srrBevertonHolt}}, which requires
+#' an \code{r_max} column in the species_params data frame giving the maximum
+#' egg production rate. If this column does not exist, it is initialised to 
+#' \code{Inf}, leading to no density-dependence.
 #' 
 #' @param params A MizerParams object
 #' @param maturity Optional. An array (species x size) that holds the proportion
@@ -1584,17 +1606,17 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
+#' @param srr Optional. The stock recruitment function. 
 #' 
 #' @return The MizerParams object.
 #' @export
 #' @family functions for setting parameters
-setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
-    assert_that(is(params, "MizerParams"))
+setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+                            srr = params@srr) {
+    assert_that(is(params, "MizerParams"),
+                is.function(srr))
     species_params <- params@species_params
-    
-    # If no erepro (reproductive efficiency), then set to 1
-    params <- set_species_param_default(params, "erepro", 1)
-    assert_that(all(params@species_params$erepro > 0))
+
     # Check maximum sizes
     if (!("w_inf" %in% colnames(species_params))) {
         stop("The maximum sizes of the species must be specified in the w_inf column of the species parameter data frame.")
@@ -1689,15 +1711,30 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL) {
     
     params@psi[] <- params@maturity * repro_prop
     
+    # psi should never be larger than 1
+    params@psi[params@psi > 1] <- 1
     # For reasons of efficiency we next set all very small values to 0 
     # Set w < 10% of w_mat to 0
     params@psi[outer(species_params$w_mat * 0.1, params@w, ">")] <- 0
     # Set all w > w_inf to 1
     params@psi[outer(species_params$w_inf, params@w, "<")] <- 1
     assert_that(all(params@psi >= 0 & params@psi <= 1))
+    
+    # If no erepro (reproductive efficiency), then set to 1
+    params <- set_species_param_default(params, "erepro", 1)
+    assert_that(all(params@species_params$erepro > 0))
+    
+    # srr must have two arguments: rdi amd species_params
+    if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
+        stop("Arguments of srr function must be 'rdi' and 'species_params'")
+    }
+    params@srr <- srr
+    if (identical(params@srr, srrBevertonHolt)) {
+        set_species_param_default(params, "r_max", Inf)
+    }
+    
     return(params)
 }
-
 
 #' Set up plankton
 #' 
@@ -2014,10 +2051,14 @@ setFishing <- function(params) {
         # lop off w as that is always the first argument of the selectivity functions
         arg <- arg[!(arg %in% "w")]
         if (!all(arg %in% colnames(species_params))) {
-            stop("All of the arguments needed for the selectivity function are not in the parameter dataframe")
+            stop("Some arguments needed for the selectivity function are ",
+                 "missing in the parameter dataframe.")
         }
-        # Check that there is only one column in species_params with the same name
-        # Check that column of arguments exists
+        # Check that there are no missing values for selectivity parameters
+        if (any(is.na(as.list(species_params[g, arg])))) {
+            stop("Some selectivity parameters are NA.")
+        }
+        # Call selectivity function with selectivity parameters
         par <- c(w = list(params@w), as.list(species_params[g, arg]))
         sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
         # Dump Sel in the right place

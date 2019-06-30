@@ -86,7 +86,7 @@ getDiet <- function(params,
     diet <- array(0, dim = c(no_sp, no_w, no_sp + 1 + no_res),
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
-                                  "prey" = c(species, 
+                                  "prey" = c(as.character(species), 
                                              "Plankton", 
                                              resource_names)))
     # idx_sp are the index values of object@w_full such that
@@ -361,7 +361,7 @@ getGrowthCurves <- function(object,
         myodefun <- function(t, state, parameters){
             return(list(g_fn(state)))
         }
-        ws[j, ] <- deSolve::ode(y = params@species_params$w_min[i], 
+        ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i]], 
                                 times = age, func = myodefun)[, 2]
         if (percentage) {
             ws[j, ] <- ws[j, ] / params@species_params$w_inf[i] * 100
