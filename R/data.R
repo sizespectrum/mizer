@@ -54,3 +54,17 @@ NULL
 #' @name inter
 NULL
 # "inter"
+
+#' Example MizerParams object for the North Sea example
+#'
+#' A MizerParams object created from the \code{NS_species_params_gears} species
+#' parameters and the \code{inter} interaction matrix together with an initial
+#' condition corresponding to the steady state obtained from fishing with an
+#' effort 
+#' \code{effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)}.
+#' @format A MizerParams object
+#' @source{Blanchard et al.}
+#' @docType data
+#' @name NS_params
+NULL
+# "NS_params"
