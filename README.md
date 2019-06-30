@@ -80,6 +80,6 @@ plot(sim)
 ![](docs/dev/reference/figures/unnamed-chunk-4-1.png)<!-- -->
 
 See the accompanying [Get
-started](http://sizespectrum.github.io/mizer/dev/articles/mizer.html)
+started](https://sizespectrum.org/mizer/dev/articles/mizer.html)
 page for more details on how the package works, including detailed
 examples.

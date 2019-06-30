@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 
 
 ## Website built from package documentation
-The mizer website at [http://sizespectrum.github.io/mizer/] is created
-programmatically from the documentation included in the mizer github
+The mizer website at [https://sizespectrum.org/mizer/] is created
+programmatically from the documentation included in the mizer GitHub
 repository. Thus to edit the website just means editing this documentation.
 The website creation is performed by the 
 [`pkgdown`](https://pkgdown.r-lib.org/index.html) package. You can trigger
@@ -106,8 +106,8 @@ pkgdown::build_reference()
 ```
 
 To change the homepage you edit index.md. This file is very similar to 
-README.md that is used on the mizer homepage on github, but can contain
-extra content like embedded videos that the github homepage does not
+README.md that is used on the mizer homepage on GitHub, but can contain
+extra content like embedded videos that the GitHub homepage does not
 support. After changes to index.md you can update your local copy of
 the website with
 ```{r eval=FALSE}
@@ -120,9 +120,9 @@ a pull request for your changed files against the master branch of the upstream
 repository. 
 
 
-## Github pages
+## GitHub pages
 The website is hosted with [GitHubPages](https://pages.github.com/). In the
-settings pages of the mizer repository on github the source is set to
+settings pages of the mizer repository on GitHub the source is set to
 "master branch/docs folder". This means that only the master branch controls
 the website.
 
@@ -144,5 +144,5 @@ into the source of this page produced the following embedded video:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/0RlXqLbFbWc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-The github site itself (as opposed to GitHub Pages) does not support
+The GitHub site itself (as opposed to GitHub Pages) does not support
 embedded videos. 

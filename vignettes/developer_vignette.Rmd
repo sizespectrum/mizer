@@ -62,18 +62,18 @@ You are now all set to develop R packages, and
 
 
 
-## Installing git
-In case git is not already installed on your system, you need to 
+## Installing Git
+In case Git is not already installed on your system, you need to 
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
 [built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN). 
-A good place to learn about using git and github is 
+A good place to learn about using Git and GitHub is 
 [this chapter](http://r-pkgs.had.co.nz/git.html) 
 in the guide by Hadley on R package development.
 
-## Forking mizer from github
+## Forking mizer from GitHub
 
-Mizer is developed using the version control system _git_ and the code is hosted on github.
+Mizer is developed using the version control system _Git_ and the code is hosted on GitHub.
 To work with the code you will create your own git repository with a copy of the mizer code.
 
 Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 

@@ -131,7 +131,7 @@ After installing \pkg{mizer}, to actually use it you need to load the package us
 library(mizer)
 @
 
-The source code for \pkg{mizer} is hosted on Github (\url{https://github.com/sizespectrum/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here using the \R package \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
+The source code for \pkg{mizer} is hosted on GitHub (\url{https://github.com/sizespectrum/mizer}). If you are feeling brave and wish to try out a development version of \pkg{mizer} you can install the package from here using the \R package \pkg{devtools} (which was used extensively in putting together \pkg{mizer}).
 
 \subsection{Getting help}
 

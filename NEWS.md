@@ -130,8 +130,8 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   
 ## Documentation
 
-* Mizer now has a documentation website at <https://sizespectrum.github.io/mizer>
-  for the latest released version and at <https://sizespectrum.github.io/mizer/dev>
+* Mizer now has a documentation website at <https://sizespectrum.org/mizer/>
+  for the latest released version and at <https://sizespectrum.org/mizer/dev>
   for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
   example the help for `set_multispecies_model()`.
@@ -249,7 +249,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   removing the bottlenecks in `getPhiPrey()` and `getPredRate()`.
 * Using C++ for the inner loop in the project method for extra speed.
 * Minor corrections to vignette and documentation to bring them into alignment
-  and to document the new home on github and new maintainers.
+  and to document the new home on GitHub and new maintainers.
 
 
 # mizer 0.3
