@@ -350,7 +350,7 @@ plotBiomass <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            y_ticks = 6, print_it = FALSE,
+            y_ticks = 6,
             ylim = c(NA, NA),
             total = FALSE, background = TRUE, highlight = NULL, ...) {
     # First we get the data frame for all species, including the background
@@ -390,9 +390,6 @@ plotBiomass <- function(sim,
         p <- p +
             geom_line(aes(colour = Species, linetype = Species, size = Species))
     }
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -407,7 +404,6 @@ plotlyBiomass <- function(sim,
              start_time = as.numeric(dimnames(sim@n)[[1]][1]),
              end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
              y_ticks = 6,
-             print_it = FALSE,
              ylim = c(NA, NA),
              total = FALSE,
              background = TRUE,
@@ -416,7 +412,7 @@ plotlyBiomass <- function(sim,
     argg <- c(as.list(environment()), list(...))
     ggplotly(do.call("plotBiomass", argg))
     # ggplotly(do.callplotBiomass(sim, species, start_time, end_time, y_ticks,
-    #                      print_it, ylim, total, background, ...))
+    #                      ylim, total, background, ...))
 }
 
 
@@ -452,7 +448,7 @@ plotlyBiomass <- function(sim,
 #' 
 plotYield <- function(sim, sim2,
                       species = dimnames(sim@n)$sp,
-                      print_it = FALSE, total = FALSE, log = TRUE,
+                      total = FALSE, log = TRUE,
                       highlight = NULL, ...){
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
@@ -492,9 +488,6 @@ plotYield <- function(sim, sim2,
             scale_colour_manual(values = sim@params@linecolour) +
             scale_linetype_manual(values = sim@params@linetype) +
             scale_size_manual(values = linesize)
-        if (print_it) {
-            print(p)
-        }
         return(p)
     } else {
         if (!all(dimnames(sim@n)$time == dimnames(sim2@n)$time)) {
@@ -537,9 +530,6 @@ plotYield <- function(sim, sim2,
             p <- p + scale_y_continuous(name = "Yield [g/year]")
         }
         p <- p + facet_wrap(~ Simulation)
-        if (print_it) {
-            print(p)
-        }
         return(p)
     }
 }
@@ -549,9 +539,9 @@ plotYield <- function(sim, sim2,
 #' @export
 #' @family plotting functions
 plotlyYield <- function(sim, sim2,
-                      species = dimnames(sim@n)$sp,
-                      print_it = FALSE, total = FALSE, log = TRUE,
-                      highlight = NULL, ...) {
+                        species = dimnames(sim@n)$sp,
+                        total = FALSE, log = TRUE,
+                        highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYield", argg))
 }
@@ -585,7 +575,7 @@ plotlyYield <- function(sim, sim2,
 #' 
 plotYieldGear <- function(sim,
                           species = dimnames(sim@n)$sp,
-                          print_it = FALSE, total = FALSE,
+                          total = FALSE,
                           highlight = NULL, ...){
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
@@ -616,9 +606,6 @@ plotYieldGear <- function(sim,
         scale_x_continuous(name = "Year") +
         scale_colour_manual(values = sim@params@linecolour) +
         scale_size_manual(values = linesize)
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -627,9 +614,8 @@ plotYieldGear <- function(sim,
 #' @export
 #' @family plotting functions
 plotlyYieldGear <- function(sim,
-                          species = dimnames(sim@n)$sp,
-                          print_it = FALSE, total = FALSE,
-                          highlight = NULL, ...) {
+                            species = dimnames(sim@n)$sp,
+                            total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg))
 }
@@ -663,8 +649,6 @@ plotlyYieldGear <- function(sim,
 #' @param biomass Obsolete. Only used if \code{power} argument is missing. Then
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
-#' @param print_it Display the plot, or just return the ggplot2 object.
-#'   Defaults to FALSE
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
 #' @param plankton A boolean value that determines whether plankton is included.
@@ -694,7 +678,7 @@ plotlyYieldGear <- function(sim,
 plotSpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
-                        power = 1, biomass = TRUE, print_it = FALSE,
+                        power = 1, biomass = TRUE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE,
                         highlight = NULL, ...) {
@@ -711,7 +695,7 @@ plotSpectra <- function(object, species = NULL,
         n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean)
         ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
                            species = species, wlim = wlim, ylim = ylim,
-                           power = power, print_it = print_it,
+                           power = power,
                            total = total, plankton = plankton,
                            background = background, highlight = highlight)
         return(ps)
@@ -719,7 +703,7 @@ plotSpectra <- function(object, species = NULL,
         ps <- plot_spectra(object, n = object@initial_n,
                            n_pp = object@initial_n_pp,
                            species = species, wlim = wlim, ylim = ylim,
-                           power = power, print_it = print_it,
+                           power = power,
                            total = total, plankton = plankton,
                            background = background, highlight = highlight)
         return(ps)
@@ -728,7 +712,7 @@ plotSpectra <- function(object, species = NULL,
 
 
 plot_spectra <- function(params, n, n_pp,
-                         species, wlim, ylim, power, print_it,
+                         species, wlim, ylim, power,
                          total, plankton, background, highlight) {
     if (is.na(wlim[1])) {
         wlim[1] <- min(params@w) / 100
@@ -847,8 +831,6 @@ plot_spectra <- function(params, n, n_pp,
         p <- p + geom_line(aes(colour = Species, linetype = Species,
                                size = Species))
     }
-    if (print_it)
-        print(p)
     return(p)
 }
 
@@ -859,7 +841,7 @@ plot_spectra <- function(params, n, n_pp,
 plotlySpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
-                        power = 1, biomass = TRUE, print_it = FALSE,
+                        power = 1, biomass = TRUE,
                         total = FALSE, plankton = TRUE, 
                         background = TRUE,
                         highlight = NULL, ...) {
@@ -899,7 +881,6 @@ plotlySpectra <- function(object, species = NULL,
 plotFeedingLevel <- function(object,
             species = NULL,
             time_range,
-            print_it = FALSE, 
             highlight = NULL,
             all.sizes = FALSE, ...) {
     if (is(object, "MizerSim")) {
@@ -958,9 +939,6 @@ plotFeedingLevel <- function(object,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -972,7 +950,6 @@ plotFeedingLevel <- function(object,
 plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
-                             print_it = FALSE,
                              highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotFeedingLevel", argg))
@@ -1001,8 +978,8 @@ plotlyFeedingLevel <- function(object,
 #' plotPredMort(sim, time_range = 10:20)
 #' 
 plotPredMort <- function(object, species = NULL,
-                   time_range,
-                   print_it = FALSE, highlight = NULL, ...) {
+                         time_range,
+                         highlight = NULL, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -1049,9 +1026,6 @@ plotPredMort <- function(object, species = NULL,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -1067,8 +1041,8 @@ plotM2 <- plotPredMort
 #' @export
 #' @family plotting functions
 plotlyPredMort <- function(object, species = NULL,
-                     time_range,
-                     print_it = FALSE, highlight = NULL, ...) {
+                           time_range,
+                           highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotPredMort", argg))
 }
@@ -1097,7 +1071,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' 
 plotFMort <- function(object, species = NULL,
                       time_range,
-                      print_it = FALSE, highlight = NULL, ...) {
+                      highlight = NULL, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -1143,9 +1117,6 @@ plotFMort <- function(object, species = NULL,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) + 
         scale_size_manual(values = linesize)
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -1154,9 +1125,8 @@ plotFMort <- function(object, species = NULL,
 #' @export
 #' @family plotting functions
 plotlyFMort <- function(object, species = NULL,
-                      time_range,
-                      print_it = FALSE,
-                      highlight = NULL, ...) {
+                        time_range,
+                        highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotFMort", argg))
 }
@@ -1194,8 +1164,7 @@ plotGrowthCurves <- function(object,
                              species,
                              max_age = 20,
                              percentage = FALSE,
-                             highlight = NULL,
-                             print_it = FALSE) {
+                             highlight = NULL) {
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
@@ -1256,10 +1225,6 @@ plotGrowthCurves <- function(object,
             p <- p + geom_line(data = dat, aes(x = x, y = y))
         }
     }
-    
-    if (print_it) {
-        print(p)
-    }
     return(p)
 }
 
@@ -1270,8 +1235,7 @@ plotGrowthCurves <- function(object,
 plotlyGrowthCurves <- function(object, species,
                              max_age = 20,
                              percentage = FALSE,
-                             highlight = NULL,
-                             print_it = FALSE) {
+                             highlight = NULL) {
     argg <- as.list(environment())
     ggplotly(do.call("plotGrowthCurves", argg))
 }
@@ -1308,11 +1272,11 @@ plotlyGrowthCurves <- function(object, species,
 #' 
 setMethod("plot", signature(x = "MizerSim", y = "missing"),
           function(x, ...) {
-              p1 <- plotFeedingLevel(x, print_it = FALSE, ...)
-              p2 <- plotSpectra(x, print_it = FALSE, ...)
-              p3 <- plotBiomass(x, y_ticks = 3, print_it = FALSE, ...)
-              p4 <- plotPredMort(x, print_it = FALSE, ...)
-              p5 <- plotFMort(x, print_it = FALSE, ...)
+              p1 <- plotFeedingLevel(x, ...)
+              p2 <- plotSpectra(x, ...)
+              p3 <- plotBiomass(x, y_ticks = 3, ...)
+              p4 <- plotPredMort(x, ...)
+              p5 <- plotFMort(x, ...)
               grid::grid.newpage()
               glayout <- grid::grid.layout(3, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
@@ -1350,9 +1314,9 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' 
 setMethod("plot", signature(x = "MizerParams", y = "missing"),
           function(x, ...) {
-              p11 <- plotFeedingLevel(x, print_it = FALSE, ...)
-              p2 <- plotSpectra(x, print_it = FALSE, ...)
-              p12 <- plotPredMort(x, print_it = FALSE, ...)
+              p11 <- plotFeedingLevel(x, ...)
+              p2 <- plotSpectra(x, ...)
+              p12 <- plotPredMort(x, ...)
               grid::grid.newpage()
               glayout <- grid::grid.layout(2, 2) # widths and heights arguments
               vp <- grid::viewport(layout = glayout)
