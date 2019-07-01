@@ -1,6 +1,6 @@
 # This is the configuration for the mizer website using the pkgdown package.
 
-url: https://sizespectrum.github.io/mizer/
+url: https://sizespectrum.org/mizer/
 
 authors:
   Julia Blanchard:

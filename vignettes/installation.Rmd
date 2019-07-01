@@ -50,7 +50,7 @@ together mizer). If you have not yet installed devtools, do
 ```{r, eval=FALSE}
 install.packages("devtools")
 ```
-Then you can install the latest version from github using
+Then you can install the latest version from GitHub using
 ```{r, eval=FALSE}
 devtools::install_github("sizespectrum/mizer")
 ```

@@ -75,5 +75,5 @@ plot(sim)
 ```
 
 See the accompanying
-[Get started](http://sizespectrum.github.io/mizer/dev/articles/mizer.html) page
+[Get started](articles/mizer.html) page
 for more details on how the package works, including detailed examples.
