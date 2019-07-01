@@ -20,7 +20,7 @@ An object of the same class as the \code{object} argument
 }
 \description{
 Background species are handled differently in some plots and their
-abundance is automatically adjusted in addSpecies() to keep the community
+abundance is automatically adjusted in \code{\link{addSpecies}} to keep the community
 close to the Sheldon spectrum.
 }
 \examples{

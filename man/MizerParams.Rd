@@ -216,7 +216,7 @@ The default pred_kernel_type is "lognormal". This will call the function
 An alternative pred_kernel type is "box", implemented by the functions
 \code{\link{box_pred_kernel}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
-are \code{beta} and \code{sigma}, for the box kernely they are
+are \code{beta} and \code{sigma}, for the box kernel they are
 \code{ppmr_min} and \code{ppmr_max}. They are explained in the help pages
 for the kernel functions. No defaults are set for these parameters. If they
 are missing from the species_params data frame then mizer will issue an
@@ -382,7 +382,7 @@ Mizer allows some density dependence in the production of eggs by putting
 the density-independent rate of egg production through a stock-recruitment
 function. The result is returned by \code{\link{getRDD}}. The
 stock-recruitment function is specified by the \code{srr} argument. The default
-is the BevertonHolt function \code{\link{srrBevertonHolt}}, which requires
+is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which requires
 an \code{r_max} column in the species_params data frame giving the maximum
 egg production rate. If this column does not exist, it is initialised to 
 \code{Inf}, leading to no density-dependence.
@@ -455,8 +455,8 @@ Still need to document
 
 Besides the size-structured planktonic resource, mizer can also model any number
 of unstructured resource components. Such unstructured components are
-appropriate whenever the predation on these componente is not size based.
-Examples include detritus as a resource for detritovores, carrion as a
+appropriate whenever the predation on these components is not size based.
+Examples include detritus as a resource for detritivores, carrion as a
 resource for scavengers, or macroflora on which fish can graze.
 
 During a simulation using \code{\link[=project]{project()}}, the biomasses of the resources are
@@ -487,7 +487,7 @@ causes. This should be given a name of the form \code{resource_external} where
 When writing your own resource dynamics functions, you can choose any names
 for your other model parameters, but you must make sure not to use the same
 name in the function for another resource component. One way to ensure this
-is to prefix all parameter namse with your resource name.
+is to prefix all parameter names with your resource name.
 
 The dynamics for a resource should always have a loss term accounting for
 the consumption of the resource. This should always have the form used in the

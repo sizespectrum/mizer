@@ -63,7 +63,7 @@ navbar:
 ```
 This is quite self-explanatory, specifying the order of the navbar entries,
 their text and link destination, and whether they are on the left or right side.
-It is clearly easy to add additional navbar entires.
+It is clearly easy to add additional navbar entries.
 It would be possible to also include drop-down items in navbar. See the
 [pkgdown documentation](https://pkgdown.r-lib.org/articles/pkgdown.html#navigation-bar)
 for more details.
@@ -83,7 +83,7 @@ articles:
 By now it has more entries to link to more vignettes. It
 is not necessary to use this index file. The menu entry could just as well
 point to a more elaborate file created from an .Rmd file in the vignette
-subdirecty, which might become useful in the future.
+subdirectory, which might become useful in the future.
 
 The file `docs/reference/index.html` is created according to the reference:
 section in the `_pkgdown_yml` file, with a similar syntax as the article:

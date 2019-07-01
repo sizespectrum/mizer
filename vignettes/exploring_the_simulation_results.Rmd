@@ -76,7 +76,7 @@ This returns a two-dimensional array: time x size, containing the cod
 abundances. The time dimension depends on the value of the argument `t_save`
 when `project()` was run. You can see that even though we specified `dt` to be
 0.1 when we called `project()`, the `t_save = 1` argument has meant that the
-output is only saved every uear.
+output is only saved every year.
 
 The `n_pp` slot can be accessed in the same way.
 

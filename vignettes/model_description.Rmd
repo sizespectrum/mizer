@@ -113,7 +113,7 @@ mature individuals in the population:
 In the code this boundary condition is actually implemented as an equation for
 the rate of change of the number of individuals in the smallest size bin:
 \begin{equation}
-\frac{dN_i(w_0)}{dt}=...
+\frac{d N_i(w_0)}{dt}=...
 \end{equation}
 
 </details>

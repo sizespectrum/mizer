@@ -11,7 +11,7 @@ set_species_param_default(object, parname, default, message = NULL)
 
 \item{parname}{A string with the name of the species parameter to set}
 
-\item{default}{A single defaul value or a vector with one default value for
+\item{default}{A single default value or a vector with one default value for
 each species}
 
 \item{message}{A string with a message to be issued when the parameter did
