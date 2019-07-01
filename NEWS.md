@@ -13,6 +13,11 @@
   asymptotic size of any species in the model otherwise. The unnecessary factor
   of 1.1 has now been removed. If your code relies on the old default, you now
   need to set `w_max` explicitly.
+* Removed the `print_it` argument from plot functions.
+* plotFeedingLevel() now only plots the values within the size range of each
+  species. If for some reason you want the old plots that show a feeding level
+  also for sizes that the fish can never have, you need to supply an argument
+  `all.sizes = TRUE`.
 
 ## Modelling unstructured resources
 Besides the size-structured planktonic resource, mizer can now also model any

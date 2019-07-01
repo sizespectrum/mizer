@@ -5,9 +5,8 @@
 \title{Plot the abundance spectra}
 \usage{
 plotSpectra(object, species = NULL, time_range, wlim = c(NA, NA),
-  ylim = c(NA, NA), power = 1, biomass = TRUE, print_it = FALSE,
-  total = FALSE, plankton = TRUE, background = TRUE,
-  highlight = NULL, ...)
+  ylim = c(NA, NA), power = 1, biomass = TRUE, total = FALSE,
+  plankton = TRUE, background = TRUE, highlight = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -35,9 +34,6 @@ to logarithmic size bins.}
 \item{biomass}{Obsolete. Only used if \code{power} argument is missing. Then
 \code{biomass = TRUE} is equivalent to \code{power=1} and 
 \code{biomass = FALSE} is equivalent to \code{power=0}}
-
-\item{print_it}{Display the plot, or just return the ggplot2 object.
-Defaults to FALSE}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}
