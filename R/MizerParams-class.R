@@ -2157,7 +2157,7 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "repro_prop")) {
         repro_prop <- params@repro_prop
-    } else repro_prop <- NULL
+    } else repro_prop <- params@psi
     
     if (.hasSlot(params, "rho")) {
         rho <- params@rho
@@ -2177,7 +2177,8 @@ upgradeParams <- function(params) {
                                    no_w = length(params@w),
                                    min_w = params@w[1],
                                    max_w = params@w[length(params@w)],
-                                   min_w_pp = params@w_full[1],
+                                   min_w_pp = params@w_full[1] + 1e-16, # To make
+                                   # sure that we don't add an extra bracket.
                                    n = params@n,
                                    p = params@p,
                                    q = params@q,
@@ -2195,6 +2196,12 @@ upgradeParams <- function(params) {
                                    resource_params = resource_params,
                                    rho = rho,
                                    srr = params@srr)
+
+    pnew@linecolour <- params@linecolour
+    pnew@linetype <- params@linetype
+    pnew@initial_n <- params@initial_n
+    pnew@initial_n_pp <- params@initial_n_pp
+    
     return(pnew)
 }
 
