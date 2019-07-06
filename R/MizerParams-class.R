@@ -1611,7 +1611,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' @return The MizerParams object.
 #' @export
 #' @family functions for setting parameters
-    setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
                             srr = params@srr) {
     assert_that(is(params, "MizerParams"),
                 is.function(srr))

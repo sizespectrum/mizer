@@ -11,9 +11,6 @@ knitr::opts_chunk$set(
   fig.path = "docs/dev/reference/figures/"
 )
 ```
-# This branch
-Here I am developing a `upgradeParams()` function to upgrade MizerParams
-objects from previous versions of mizer to the current version.
 
 # mizer
 [![CRAN Status](https://www.r-pkg.org/badges/version/mizer)](https://cran.r-project.org/package=mizer)
