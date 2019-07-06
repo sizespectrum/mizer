@@ -2131,7 +2131,13 @@ setInitial <- function(params,
 
 #' Upgrade MizerParams object from earlier mizer versions
 #' 
-#' Uses set_multispecies_model to create a new MizerParams object using the
+#' Occasionally during the development of new features for mizer, the
+#' MizerParams object gains extra slots. MizerParams objects created in older
+#' versions of mizer are then no longer valid in the new version because of
+#' the missing slots. This function adds the missing slots and fills them
+#' with default values.
+#' 
+#' Uses set_multispecies_model() to create a new MizerParams object using the
 #' parameters extracted from the old MizerParams object.
 #' 
 #' If you only have a serialised version of the old object, for example
