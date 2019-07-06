@@ -1611,7 +1611,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' @return The MizerParams object.
 #' @export
 #' @family functions for setting parameters
-setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
+    setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
                             srr = params@srr) {
     assert_that(is(params, "MizerParams"),
                 is.function(srr))
@@ -2153,11 +2153,12 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "maturity")) {
         maturity <- params@maturity
-    } else maturity <- NULL
-    
-    if (.hasSlot(params, "repro_prop")) {
-        repro_prop <- params@repro_prop
-    } else repro_prop <- params@psi
+        repro_prop <- params@psi / params@maturity
+        repro_prop[params@maturity == 0] <- 0
+    } else {
+        maturity <- NULL
+        repro_prop <- NULL
+    }
     
     if (.hasSlot(params, "rho")) {
         rho <- params@rho
@@ -2172,36 +2173,40 @@ upgradeParams <- function(params) {
     }
     # Does not yet deal with rr_pp and cc_pp slots because they will be 
     # changed anyway when multiple size-structured resources are introduced.
-    pnew <- set_multispecies_model(params@species_params,
-                                   interaction = params@interaction,
-                                   no_w = length(params@w),
-                                   min_w = params@w[1],
-                                   max_w = params@w[length(params@w)],
-                                   min_w_pp = params@w_full[1] + 1e-16, # To make
-                                   # sure that we don't add an extra bracket.
-                                   n = params@n,
-                                   p = params@p,
-                                   q = params@q,
-                                   kappa = params@kappa,
-                                   lambda = params@lambda,
-                                   f0 = params@f0,
-                                   pred_kernel = pred_kernel,
-                                   search_vol = params@search_vol,
-                                   intake_max = params@intake_max,
-                                   metab = params@metab,
-                                   mu_b = params@mu_b,
-                                   maturity = maturity,
-                                   repro_prop = repro_prop,
-                                   resource_dynamics = resource_dynamics,
-                                   resource_params = resource_params,
-                                   rho = rho,
-                                   srr = params@srr)
-
+    
+    pnew <- set_multispecies_model(
+        params@species_params,
+        interaction = params@interaction,
+        no_w = length(params@w),
+        min_w = params@w[1],
+        max_w = params@w[length(params@w)],
+        min_w_pp = params@w_full[1] + 1e-16, # To make
+        # sure that we don't add an extra bracket.
+        n = params@n,
+        p = params@p,
+        q = params@q,
+        kappa = params@kappa,
+        lambda = params@lambda,
+        f0 = params@f0,
+        pred_kernel = pred_kernel,
+        search_vol = params@search_vol,
+        intake_max = params@intake_max,
+        metab = params@metab,
+        mu_b = params@mu_b,
+        maturity = maturity,
+        repro_prop = repro_prop,
+        resource_dynamics = resource_dynamics,
+        resource_params = resource_params,
+        rho = rho,
+        srr = params@srr)
+    
     pnew@linecolour <- params@linecolour
     pnew@linetype <- params@linetype
     pnew@initial_n <- params@initial_n
     pnew@initial_n_pp <- params@initial_n_pp
-    
+    if (.hasSlot(params, "resource_dynamics")) {
+        pnew@initial_B <- params@initial_B
+    }
     return(pnew)
 }
 
