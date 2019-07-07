@@ -2129,6 +2129,92 @@ setInitial <- function(params,
     return(params)
 }
 
+#' Upgrade MizerParams object from earlier mizer versions
+#' 
+#' Occasionally during the development of new features for mizer, the
+#' MizerParams object gains extra slots. MizerParams objects created in older
+#' versions of mizer are then no longer valid in the new version because of
+#' the missing slots. This function adds the missing slots and fills them
+#' with default values.
+#' 
+#' Uses set_multispecies_model() to create a new MizerParams object using the
+#' parameters extracted from the old MizerParams object.
+#' 
+#' If you only have a serialised version of the old object, for example
+#' created via `saveRDS()`, and you get an error when trying to read it in
+#' with `readRDS()` then unfortunately you will need to install the old version
+#' of mizer first to read the params object into your workspace, then switch
+#' to the current version and then call `upgradeParams()`. You can then save
+#' the new version again with `saveRDS()`.
+#' 
+#' @param params An old MizerParams object to be upgraded
+#' 
+#' @return The upgraded MizerParams object
+#' @export
+upgradeParams <- function(params) {
+    if (.hasSlot(params, "pred_kernel") && 
+        length(dim(params@pred_kernel)) == 3) {
+        pred_kernel <- params@pred_kernel
+    } else pred_kernel <- NULL
+    
+    if (.hasSlot(params, "maturity")) {
+        maturity <- params@maturity
+        repro_prop <- params@psi / params@maturity
+        repro_prop[params@maturity == 0] <- 0
+    } else {
+        maturity <- NULL
+        repro_prop <- NULL
+    }
+    
+    if (.hasSlot(params, "rho")) {
+        rho <- params@rho
+    } else rho <- NULL
+    
+    if (.hasSlot(params, "resource_dynamics")) {
+        resource_dynamics <- params@resource_dynamics
+        resource_params <- params@resource_params
+    } else {
+        resource_dynamics <- NULL
+        resource_params <- NULL
+    }
+    # Does not yet deal with rr_pp and cc_pp slots because they will be 
+    # changed anyway when multiple size-structured resources are introduced.
+    
+    pnew <- set_multispecies_model(
+        params@species_params,
+        interaction = params@interaction,
+        no_w = length(params@w),
+        min_w = params@w[1],
+        max_w = params@w[length(params@w)],
+        min_w_pp = params@w_full[1] + 1e-16, # To make
+        # sure that we don't add an extra bracket.
+        n = params@n,
+        p = params@p,
+        q = params@q,
+        kappa = params@kappa,
+        lambda = params@lambda,
+        f0 = params@f0,
+        pred_kernel = pred_kernel,
+        search_vol = params@search_vol,
+        intake_max = params@intake_max,
+        metab = params@metab,
+        mu_b = params@mu_b,
+        maturity = maturity,
+        repro_prop = repro_prop,
+        resource_dynamics = resource_dynamics,
+        resource_params = resource_params,
+        rho = rho,
+        srr = params@srr)
+    
+    pnew@linecolour <- params@linecolour
+    pnew@linetype <- params@linetype
+    pnew@initial_n <- params@initial_n
+    pnew@initial_n_pp <- params@initial_n_pp
+    if (.hasSlot(params, "resource_dynamics")) {
+        pnew@initial_B <- params@initial_B
+    }
+    return(pnew)
+}
 
 #' Beverton Holt stock-recruitment function
 #' 

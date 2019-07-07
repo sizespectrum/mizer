@@ -76,6 +76,7 @@ reference:
   - addSpecies
   - removeSpecies
   - retuneAbundance
+  - upgradeParams
   - markBackground
 - title: Running simulations
   contents:
