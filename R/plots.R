@@ -383,13 +383,9 @@ plotBiomass <- function(sim,
     linesize <- rep(0.8, length(sim@params@linetype))
     names(linesize) <- names(sim@params@linetype)
     linesize[highlight] <- 1.6
-    p <- p + scale_size_manual(values = linesize)
-    if ( (length(species) + total) > 120) {
-        p <- p + geom_line(aes(size = Species))
-    } else {
-        p <- p +
-            geom_line(aes(colour = Species, linetype = Species, size = Species))
-    }
+    p <- p + scale_size_manual(values = linesize) +
+        geom_line(aes(colour = Species, linetype = Species, size = Species))
+
     return(p)
 }
 
@@ -465,15 +461,11 @@ plotYield <- function(sim, sim2,
                              value.name = "Yield")
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym <- subset(ym, ym$Yield > 0)
-        if (length(species) > 120) {
-            p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield, size = Species))
-        } else {
-            p <- ggplot(ym) +
+        p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield,
                               colour = Species, linetype = Species,
                               size = Species))
-        }
+
         if (log) {
             p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]",
                                         breaks = log_breaks(),
@@ -516,14 +508,10 @@ plotYield <- function(sim, sim2,
         ym$Species <- factor(ym$Species, levels = species_levels)
         ym$Simulation <- as.factor(ym$Simulation)
         ym <- subset(ym, ym$Yield > 0)
-        if (nlevels(ym$Species) > 120) {
-            p <- ggplot(ym) +
-                geom_line(aes(x = Year, y = Yield, group = Species))
-        } else {
-            p <- ggplot(ym) +
+        p <- ggplot(ym) +
                 geom_line(aes(x = Year, y = Yield, colour = Species,
                               linetype = Species))
-        }
+
         if (log) {
             p <- p + scale_y_continuous(trans = "log10", name = "Yield [g/year]")
         } else {
@@ -592,13 +580,10 @@ plotYieldGear <- function(sim,
         ym <- rbind(ym, yt)
     }
     ym <- subset(ym, ym$value > 0)
-    if (length(species) > 120) {
-        p <- ggplot(ym) + geom_line(aes(x = time, y = value, size = Species))
-    } else {
-        p <- ggplot(ym) +
+    p <- ggplot(ym) +
             geom_line(aes(x = time, y = value, colour = Species, 
                           linetype = gear, size = Species))
-    }
+
     linesize <- rep(0.8, length(sim@params@linetype))
     names(linesize) <- names(sim@params@linetype)
     linesize[highlight] <- 1.6
@@ -824,13 +809,8 @@ plot_spectra <- function(params, n, n_pp,
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
-    p <- p + scale_size_manual(values = linesize)
-    if ( (length(species) + plankton + total) > 130) {
-        p <- p + geom_line(aes(group = Species))
-    } else {
-        p <- p + geom_line(aes(colour = Species, linetype = Species,
-                               size = Species))
-    }
+    p <- p + scale_size_manual(values = linesize) + 
+        geom_line(aes(colour = Species, linetype = Species, size = Species))
     return(p)
 }
 
@@ -922,14 +902,10 @@ plotFeedingLevel <- function(object,
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
     
-    if (length(species) > 120) {
-        p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, size = Species))
-    } else {
-        p <- ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
-    }
+
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
@@ -1008,14 +984,10 @@ plotPredMort <- function(object, species = NULL,
                            Species = factor(dimnames(m2)[[1]],
                                             levels = species_levels),
                            w = rep(params@w, each = length(species)))
-    if (length(species) > 120) {
-        p <- ggplot(plot_dat) +
-            geom_line(aes(x = w, y = value, size = Species))
-    } else {
-        p <- ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
-    }
+
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
@@ -1103,13 +1075,10 @@ plotFMort <- function(object, species = NULL,
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
     linesize[highlight] <- 1.6
-    if (length(species) > 120) {
-        p <- ggplot(plot_dat) + geom_line(aes(x = w, y = value, size = Species))
-    } else {
-        p <- ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
             geom_line(aes(x = w, y = value, colour = Species, 
                           linetype = Species, size = Species))
-    }
+
     p <- p +
         scale_x_continuous(name = "Size [g]", trans = "log10") +
         scale_y_continuous(name = "Fishing mortality [1/Year]",
@@ -1180,15 +1149,11 @@ plotGrowthCurves <- function(object,
     plot_dat <- reshape2::melt(ws)
     # Need to keep species in order for legend
     plot_dat$Species <- factor(plot_dat$Species, params@species_params$species)
-    if (length(species) > 120) {
-        p <- ggplot(plot_dat) +
-            geom_line(aes(x = Age, y = value, size = Species))
-    } else {
-        p <- ggplot(plot_dat) +
+    p <- ggplot(plot_dat) +
             geom_line(aes(x = Age, y = value,
                           colour = Species, linetype = Species,
                           size = Species))
-    }
+
     y_label <- if (percentage) "Percent of maximum size" else "Size [g]"
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
