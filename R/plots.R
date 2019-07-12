@@ -892,7 +892,7 @@ plotFeedingLevel <- function(object,
         assert_that(is(object, "MizerParams"))
         params <- object
     }
-    feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
+    feed <- getFeedingLevel(params, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
@@ -916,8 +916,8 @@ plotFeedingLevel <- function(object,
         # Remove feeding level for sizes outside a species' size range
         for (sp in species) {
             plot_dat$value[plot_dat$Species == sp &
-                           (plot_dat$w < params@species_params$w_min |
-                            plot_dat$w > params@species_params$w_inf)] <- NA
+                           (plot_dat$w < params@species_params[sp, "w_min"] |
+                            plot_dat$w > params@species_params[sp, "w_inf"])] <- NA
         }
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
