@@ -325,7 +325,7 @@ getFeedingLevel <- function(object, n, n_pp, B, encounter,
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
-        feed_time <- aaply(which(time_elements), 1, function(x) {
+        feed_time <- plyr::aaply(which(time_elements), 1, function(x) {
             # Necessary as we only want single time step but may only have 1
             # species which makes using drop impossible
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
@@ -505,7 +505,7 @@ getPredMort <- function(object, n, n_pp, B,
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
-        m2_time <- aaply(which(time_elements), 1, function(x) {
+        m2_time <- plyr::aaply(which(time_elements), 1, function(x) {
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
             B <- sim@params@initial_B
