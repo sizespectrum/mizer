@@ -1232,7 +1232,7 @@ setPredKernel <- function(params,
         # Fourier transform of feeding kernel for evaluating available energy
         params@ft_pred_kernel_e[i, ] <- fft(phi)
         # Fourier transform of feeding kernel for evaluating predation rate
-        ri <- max(which(phi > 0))  # index of largest ppmr
+        ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
         phi_p <- rep(0, no_w_full)
         phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
         params@ft_pred_kernel_p[i, ] <- fft(phi_p)
