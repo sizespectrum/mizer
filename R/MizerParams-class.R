@@ -437,7 +437,7 @@ emptyParams <- function(species_params,
     if (!("species" %in% colnames(species_params))) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }
-    species_names <- species_params$species
+    species_names <- as.character(species_params$species)
     row.names(species_params) <- species_names
     no_sp <- nrow(species_params)
     
@@ -464,9 +464,8 @@ emptyParams <- function(species_params,
     }
     
     # If no gear_name column in species_params, then named after species
-    if (!("gear" %in% colnames(species_params))) {
-        species_params$gear <- species_params$species
-    }
+    species_params <- set_species_param_default(species_params,
+                                                "gear", species_params$species)
     gear_names <- unique(species_params$gear)
     
     # If no alpha (conversion efficiency), then set to 0.6
@@ -580,13 +579,44 @@ emptyParams <- function(species_params,
     # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
     #                 "#CC79A7", "#F0E442")
     # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-    cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
-                    "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+    # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
+    #                 "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+    # Random palette gemerated pm https://medialab.github.io/iwanthue/
+    colour_palette <- c("#815f00",
+                        "#6237e2",
+                        "#8da600",
+                        "#de53ff",
+                        "#0e4300",
+                        "#430079",
+                        "#6caa72",
+                        "#ee0053",
+                        "#007957",
+                        "#b42979",
+                        "#142300",
+                        "#a08dfb",
+                        "#644500",
+                        "#04004c",
+                        "#b79955",
+                        "#0060a8",
+                        "#dc8852",
+                        "#007ca9",
+                        "#ab003c",
+                        "#9796d9",
+                        "#472c00",
+                        "#b492b0",
+                        "#140000",
+                        "#dc8488",
+                        "#005c67",
+                        "#5c585a")
+    type_palette <- c("solid", "dashed", "dotdash", "longdash", 
+                      "twodash")
     
     if ("linecolour" %in% names(species_params)) {
         linecolour <- species_params$linecolour
+        linecolour[is.na(linecolour)] <- 
+            setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
     } else {
-        linecolour <- rep(cbbPalette, length.out = no_sp)
+        linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
@@ -594,9 +624,9 @@ emptyParams <- function(species_params,
     
     if ("linetype" %in% names(species_params)) {
         linetype <- species_params$linetype
+        linetype[is.na(linetype)] <- "solid"
     } else {
-        linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
-                          "twodash"), length.out = no_sp)
+        linetype <- rep(type_palette, length.out = no_sp)
     }
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
@@ -2018,26 +2048,26 @@ setFishing <- function(params) {
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     
-    # If no gear_name column in species_params, then named after species
-    if (!("gear" %in% colnames(species_params))) {
-        species_params$gear <- species_params$species
-    }
+    # If no gear specified in species_params, then named after species
+    species_params <- set_species_param_default(
+        species_params, "gear", default = species_params$species)
     
     # If no sel_func column in species_params, set to 'knife_edge'
-    if (!("sel_func" %in% colnames(species_params))) {
-        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
-        species_params$sel_func <- 'knife_edge'
-        # Set default selectivity size
-        if (!("knife_edge_size" %in% colnames(species_params))) {
-            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
-            species_params$knife_edge_size <- species_params$w_mat
-        }
+    species_params <- set_species_param_default(
+        species_params, "sel_func", default = "knife_edge",
+        message = "Note: Setting missing selectivity function to be 'knife_edge'.")
+
+    # Provide default for knife_edge_size if needed
+    if ("knife_edge" %in% species_params$sel_func) {
+        species_params <- set_species_param_default(
+            species_params, "knife_edge_size", 
+            default = species_params$w_mat,
+            message = "Note: Setting missing knife edge selectivity equal to w_mat.")
     }
     
     # If no catchability column in species_params, set to 1
     species_params <- set_species_param_default(species_params,
                                                 "catchability", 1)
-    
     # At the moment, each species is only caught by 1 gear so in species_params
     # there are the columns: gear_name and sel_func.
     # BEWARE! This routine assumes that each species has only one gear operating on it
@@ -2175,9 +2205,14 @@ set_species_param_default <- function(object, parname, default,
         if (!missing(message)) {
             message(message)
         }
-        species_params <- cbind(species_params, default)
+        species_params <- data.frame(species_params, default,
+                                     stringsAsFactors = FALSE)
         colnames(species_params)[[ncol(species_params)]] <- parname
     } else {
+        # We do not like factors
+        if (is.factor(species_params[[parname]])) {
+            species_params[[parname]] <- as.character(species_params[[parname]])
+        }
         missing <- is.na(species_params[[parname]])
         if (any(missing)) {
             species_params[missing, parname] <- default[missing]

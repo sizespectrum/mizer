@@ -149,7 +149,8 @@ set_community_model <- function(max_w = 1e6,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
         knife_is_min = knife_is_min,
-        constant_recruitment = recruitment * rec_mult # to be used in the SRR
+        constant_recruitment = recruitment * rec_mult, # to be used in the SRR
+        stringsAsFactors = FALSE
     )
     # Set the recruitment function for constant recruitment
     constant_recruitment <- function(rdi, species_params){
@@ -344,7 +345,8 @@ set_trait_model <- function(no_sp = 10,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
         gear = gear_names,
-        erepro = 1
+        erepro = 1,
+        stringsAsFactors = FALSE
     )
     # Make the MizerParams
     trait_params <-
@@ -630,7 +632,8 @@ set_scaling_model <- function(no_sp = 11,
         sel_func = "knife_edge",
         # not used but required
         knife_edge_size = knife_edge_size,
-        gear = gear_names
+        gear = gear_names,
+        stringsAsFactors = FALSE
     )
     params <-
         set_multispecies_model(
@@ -914,35 +917,35 @@ removeSpecies <- function(params, remove) {
         }
     }
     keep <- !remove
-    p <- params
-    p@psi <- p@psi[keep, , drop = FALSE]
-    p@initial_n <- p@initial_n[keep, , drop = FALSE]
-    p@intake_max <- p@intake_max[keep, , drop = FALSE]
-    p@search_vol <- p@search_vol[keep, , drop = FALSE]
-    p@metab <- p@metab[keep, , drop = FALSE]
-    if (length(dim(p@ft_pred_kernel_e)) == 2) {
-        p@ft_pred_kernel_e <- p@ft_pred_kernel_e[keep, , drop = FALSE]
-    }
-    if (length(dim(p@ft_pred_kernel_p)) == 2) {
-        p@ft_pred_kernel_p <- p@ft_pred_kernel_p[keep, , drop = FALSE]
-    }
-    p@mu_b <- p@mu_b[keep, , drop = FALSE]
-    p@species_params <- p@species_params[keep, , drop = FALSE]
-    p@interaction <- p@interaction[keep, keep, drop = FALSE]
-    p@selectivity <- p@selectivity[, keep, , drop = FALSE]
-    p@catchability <- p@catchability[, keep, drop = FALSE]
-    if (length(dim(p@rho)) == 3) {
-        p@rho <- p@rho[keep, , , drop = FALSE]
-    }
-    p@w_min_idx <- p@w_min_idx[keep]
-    p@A <- p@A[keep]
-    p@linecolour <- p@linecolour[!(p@species_params$species %in% 
-                                       p@species_params$species[remove])]
-    p@linetype <- p@linetype[!(p@species_params$species %in% 
-                                       p@species_params$species[remove])]
     
-    validObject(p)
-    return(p)
+    params@linecolour <- params@linecolour[!(names(params@linecolour) %in% 
+                                                 params@species_params$species[remove])]
+    params@linetype <- params@linetype[!(names(params@linetype) %in% 
+                                             params@species_params$species[remove])]
+    params@psi <- params@psi[keep, , drop = FALSE]
+    params@initial_n <- params@initial_n[keep, , drop = FALSE]
+    params@intake_max <- params@intake_max[keep, , drop = FALSE]
+    params@search_vol <- params@search_vol[keep, , drop = FALSE]
+    params@metab <- params@metab[keep, , drop = FALSE]
+    if (length(dim(params@ft_pred_kernel_e)) == 2) {
+        params@ft_pred_kernel_e <- params@ft_pred_kernel_e[keep, , drop = FALSE]
+    }
+    if (length(dim(params@ft_pred_kernel_p)) == 2) {
+        params@ft_pred_kernel_p <- params@ft_pred_kernel_p[keep, , drop = FALSE]
+    }
+    params@mu_b <- params@mu_b[keep, , drop = FALSE]
+    params@species_params <- params@species_params[keep, , drop = FALSE]
+    params@interaction <- params@interaction[keep, keep, drop = FALSE]
+    params@selectivity <- params@selectivity[, keep, , drop = FALSE]
+    params@catchability <- params@catchability[, keep, drop = FALSE]
+    if (length(dim(params@rho)) == 3) {
+        params@rho <- params@rho[keep, , , drop = FALSE]
+    }
+    params@w_min_idx <- params@w_min_idx[keep]
+    params@A <- params@A[keep]
+    
+    validObject(params)
+    return(params)
 }
 
 
@@ -1029,9 +1032,9 @@ addSpecies <- function(params, species_params, SSB = NA,
     
     # Move linecolour and linetype into species_params
     params@species_params$linetype <- 
-        params@linetype[params@species_params$species]
+        params@linetype[as.character(params@species_params$species)]
     params@species_params$linecolour <- 
-        params@linecolour[params@species_params$species]
+        params@linecolour[as.character(params@species_params$species)]
     # TODO: Check if we need to do this with selectivity as well
     
     # Make sure that all columns exist in both data frames
@@ -1042,7 +1045,8 @@ addSpecies <- function(params, species_params, SSB = NA,
     
     # add the new species (with parameters described by species_params), 
     # to make a larger species_params dataframe.
-    combi_species_params <- rbind(params@species_params, species_params)
+    combi_species_params <- rbind(params@species_params, species_params,
+                                  stringsAsFactors = FALSE)
     
     # use dataframe and global settings from params to make a new MizerParams 
     # object.
@@ -1267,7 +1271,7 @@ steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
         n_pp[] <- sim@n_pp[no_t, ]
         B[] <- sim@B[no_t, ]
         new_rdi <- getRDI(p, n, n_pp, B)
-        deviation <- max(abs((new_rdi - old_rdi)/old_rdi)[!is.na(p@A)])
+        deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (deviation < tol) {
             break
         }
