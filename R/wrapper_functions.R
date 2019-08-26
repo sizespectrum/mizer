@@ -492,6 +492,9 @@ set_trait_model <- function(no_sp = 10,
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the knife_edge_size parameter. Default value is
 #'   "knife_edge_gear".
+#' @param bmort_prop The proportion of the total mortality that comes from
+#'   background mortality, i.e., from sources other than predation or fishing. A
+#'   number in the interval [0, 1). Default 0.
 #' @param rfac The factor such that Rmax = rfac * R, where Rmax is the maximum
 #'   recruitment allowed and R is the steady-state recruitment. Thus the larger
 #'   \code{rfac} the less the impact of the non-linear stock-recruitment curve.
@@ -531,6 +534,7 @@ set_scaling_model <- function(no_sp = 11,
                               f0 = 0.6,
                               knife_edge_size = 100,
                               gear_names = "knife_edge_gear",
+                              bmort_prop = 0, 
                               rfac = Inf,
                               perfect = FALSE,
                               ...) {
@@ -540,6 +544,11 @@ set_scaling_model <- function(no_sp = 11,
     }
     
     ## Check validity of parameters ----
+    if (bmort_prop >= 1 || bmort_prop < 0) {
+        stop("bmort_prop can not take the value ", bmort_prop,
+             " because it should be the proportion of the total mortality",
+             " coming from sources other than predation.")
+    }
     if (rfac <= 1) {
         message("rfac needs to be larger than 1. Setting rfac=1.01")
         rfac <- 1.01
@@ -657,8 +666,11 @@ set_scaling_model <- function(no_sp = 11,
     ## Construct steady state solution ----
     
     # Get constants for steady-state solution
+    # Predation mortality rate coefficient
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
+    # Add backgound mortality rate
+    mu0 <- mu0 / (1 - bmort_prop)
     hbar <- alpha * h * f0 - ks
     if (hbar < 0) {
         stop("The feeding level is not sufficient to maintain the fish.")
@@ -1035,7 +1047,6 @@ addSpecies <- function(params, species_params, SSB = NA,
         params@linetype[as.character(params@species_params$species)]
     params@species_params$linecolour <- 
         params@linecolour[as.character(params@species_params$species)]
-    # TODO: Check if we need to do this with selectivity as well
     
     # Make sure that all columns exist in both data frames
     missing <- setdiff(names(params@species_params), names(species_params))
@@ -1068,6 +1079,7 @@ addSpecies <- function(params, species_params, SSB = NA,
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
+    
     new_sp <- length(params@species_params$species) + 1
     no_sp <- new_sp
     # Initially use abundance curves for pre-existing species 
@@ -1172,9 +1184,10 @@ addSpecies <- function(params, species_params, SSB = NA,
 
 #' Designate species as background species
 #'
-#' Background species are handled differently in some plots and their
-#' abundance is automatically adjusted in \code{\link{addSpecies}} to keep the community
-#' close to the Sheldon spectrum.
+#' Marks the specified set of species as background species. Background species
+#' are handled differently in some plots and their abundance is automatically
+#' adjusted in \code{\link{addSpecies}} to keep the community close to the
+#' Sheldon spectrum.
 #' 
 #' @param object An object of class \linkS4class{MizerParams} or 
 #'   \linkS4class{MizerSim}.
