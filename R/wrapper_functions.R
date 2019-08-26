@@ -1232,7 +1232,7 @@ markBackground <- function(object, species) {
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort. Default is 1.
-#' @param t_max The maximum number of years to run the simulation. Default is 50.
+#' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
 #'   after each of which we check for convergence. Default value is 2.
 #' @param tol The simulation stops when the relative change in the egg
@@ -1249,7 +1249,7 @@ markBackground <- function(object, species) {
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
 #' }
-steady <- function(params, effort = 1, t_max = 50, t_per = 2, tol = 10^(-2),
+steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
                    dt = 0.1, progress_bar = TRUE) {
     p <- params
     
