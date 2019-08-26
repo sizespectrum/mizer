@@ -769,6 +769,7 @@ set_multispecies_model <- function(species_params,
                                    # setReproduction
                                    maturity = NULL,
                                    repro_prop = NULL,
+                                   srr = srrBevertonHolt,
                                    # setPlankton
                                    r_pp = 10,
                                    w_pp_cutoff = 10,
@@ -777,8 +778,7 @@ set_multispecies_model <- function(species_params,
                                    resource_dynamics = list(),
                                    resource_params = list(),
                                    # setResourceEncounter
-                                   rho = NULL,
-                                   srr = srrBevertonHolt) {
+                                   rho = NULL) {
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
@@ -1567,13 +1567,15 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 }
 
 
-#' Set proportion of energy that is invested into reproduction
+#' Set reproduction parameters
 #' 
 #' Sets the proportion of the total energy available for reproduction and growth
 #' that is invested into reproduction as a function of the size of the
 #' individual and sets the reproductive efficiency.
 #' 
 #' @section Setting reproduction:
+#' 
+#' \subsection{Investment}{
 #' For each species and at each size, the proportion of the available energy 
 #' that is invested into reproduction is the product of two factors: the
 #' proportion \code{maturity} of individuals that are mature and the proportion
@@ -1611,23 +1613,47 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' column \code{m} in the species parameter dataframe. The asymptotic sizes
 #' are taken from the compulsory \code{w_inf} column in the species_params
 #' data frame.
+#' }
 #' 
+#' \subsection{Efficiency}{
 #' The reproductive efficiency, i.e., the proportion of energy allocated to
-#' reproduction that results in offspring biomass, is set from the 
-#' \code{erepro} column in the species_params data frame. If that is not
-#' provided the default is set to 1 (which you will want to override).
-#' The offspring biomass divided by the egg biomass gives the
-#' density-independent rate of egg production, returned by \code{\link{getRDI}}.
+#' reproduction that results in egg biomass, is set from the \code{erepro}
+#' column in the species_params data frame. If that is not provided, the default
+#' is set to 1 (which you will want to override). The offspring biomass divided
+#' by the egg biomass gives the rate of egg production, returned by
+#' \code{\link{getRDI}}.
+#' }
 #' 
-#' Mizer allows some density dependence in the production of eggs by putting
-#' the density-independent rate of egg production through a stock-recruitment
+#' \subsection{Density dependence}{
+#' The stock-recruitment relationship is an emergent phenomenon in mizer, with
+#' several sources of density dependence. Firstly, the amount of energy invested
+#' into reproduction depends on the energy income of the spawners, which is
+#' density-dependent due to competition for prey. Secondly, the proportion of
+#' larvae that grow up to recruitment size depends on the larval mortality,
+#' which depends on the density of predators, and on larval growth rate, which
+#' depends on density of prey.
+#' 
+#' Finally, the proportion of eggs that are viable and hatch to larvae can be
+#' density dependent. Somewhat misleadingly, mizer refers to this relationship
+#' between the number of eggs and the number of hatched larvae as the
+#' stock-recruitment relationship, even though it is only one part of the full
+#' stock-recruitment relationship. However it is the only part that can be set
+#' independently, while the other parts are already determined by the predation
+#' parameters and other model parameters. Thus in practice this part of the
+#' density dependence is used to encode all the density dependence that is not
+#' already included in the other two sources of density dependence.
+#' 
+#' To calculate the density-dependent rate of larvae production, mizer puts the
+#' the density-independent rate of egg production through a "stock-recruitment"
 #' function. The result is returned by \code{\link{getRDD}}. The
-#' stock-recruitment function is specified by the \code{srr} argument. The default
-#' is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which requires
-#' an \code{r_max} column in the species_params data frame giving the maximum
-#' egg production rate. If this column does not exist, it is initialised to 
-#' \code{Inf}, leading to no density-dependence.
-#' 
+#' stock-recruitment function is specified by the \code{srr} argument. The
+#' default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
+#' requires an \code{r_max} column in the species_params data frame giving the
+#' maximum egg production rate. If this column does not exist, it is initialised
+#' to \code{Inf}, leading to no density-dependence. Other functions provided by
+#' mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
+#' easily use these as models for writing your own functions.
+#' }
 #' @param params A MizerParams object
 #' @param maturity Optional. An array (species x size) that holds the proportion
 #'   of individuals of each species at size that are mature. If not supplied, a
@@ -1636,7 +1662,8 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
-#' @param srr Optional. The stock recruitment function. 
+#' @param srr The stock recruitment function. Defaults to 
+#'   \code{\link{srrBevertonHolt}}.
 #' 
 #' @return The MizerParams object.
 #' @export
@@ -2162,13 +2189,73 @@ setInitial <- function(params,
 
 #' Beverton Holt stock-recruitment function
 #' 
-#' @param rdi x
-#' @param species_params x
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent larvae production rates \eqn{R} given as
+#' \deqn{R = R_p \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})}
+#' where \eqn{R_{max}} are the maximum possible larvae production rates that
+#' must be specified in a column in the species parameter dataframe.
 #' 
-#' @return rdd
+#' This is only one example of a stock-recruitment function. You can write
+#' your own function based on this example, returning different
+#' density-dependent larvae production rates. Two other examples provided are
+#' \code{\link{srrRicker}} and \code{\link{srrSheperd}}. For more explanation
+#' see \code{\link{setReproduction}}.
+#' 
+#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   r_max holding the maximum larvae production rate \eqn{R_{max}} for each
+#'   species.
+#' 
+#' @return Vector of density-dependent larvae production rates.
 #' @export
+#' @family stock-recruitment functions
 srrBevertonHolt <- function(rdi, species_params) {
+    if (!("r_max" %in% names(species_params))) {
+        stop("The r_max column is missing in species_params")
+    }
     return(rdi / (1 + rdi/species_params$r_max))
+}
+
+#' Ricker stock-recruitment function
+#' 
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent rates \eqn{R} given as
+#' \deqn{R = R_p \exp{- b R_p}}
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   \code{ricker_b} holding the coefficients b.
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrRicker <- function(rdi, species_params) {
+    if (!("ricker_b" %in% names(species_params))) {
+        stop("The ricker_b column is missing in species_params")
+    }
+    return(rdi * exp(-species_params$ricker_b * rdi))
+}
+
+#' Sheperd stock-recruitment function
+#' 
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent rates \eqn{R} as
+#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (B R_p)^c)}
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param species_params A species parameter dataframe. Must contain columns
+#'   \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrSheperd <- function(rdi, species_params) {
+    if (!all(c("sheperd_b", "sheperd_c") %in% names(species_params))) {
+        stop("The species_params dataframe must contain columns sheperd_b and sheperd_c.")
+    }
+    return(rdi / (1 + (species_params$sheperd_b * rdi)^species_params$sheperd_c))
 }
 
 #' Set a species parameter to a default value

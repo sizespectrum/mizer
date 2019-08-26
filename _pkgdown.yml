@@ -128,6 +128,8 @@ reference:
   - carrion_dynamics
   - detritus_dynamics
   - srrBevertonHolt
+  - srrRicker
+  - srrSheperd  
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper
