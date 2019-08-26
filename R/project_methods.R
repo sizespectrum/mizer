@@ -46,7 +46,7 @@ NULL
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
-#' @param effort The effort for each fishing gear
+#' @param effort The effort for each fishing gear. Default 1.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' 
@@ -69,7 +69,7 @@ NULL
 getRates <- function(params, n = params@initial_n, 
                      n_pp = params@initial_n_pp,
                      B = params@initial_B,
-                     effort = 0, sex_ratio = 0.5) {
+                     effort = 1, sex_ratio = 0.5) {
     r <- list()
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- getEncounter(params, n = n, n_pp = n_pp, B = B)
@@ -640,7 +640,7 @@ getM2Background <- getPlanktonMort
 #' getFMortGear(sim, time_range=c(10,20))
 #' }
 #' 
-getFMortGear <- function(object, effort, time_range) {
+getFMortGear <- function(object, effort = 1, time_range) {
     if (is(object, "MizerSim")) {
         sim <- object
         if (missing(time_range)) {
@@ -783,7 +783,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
 #' @param effort A numeric vector of the effort by gear or a single numeric
-#'   effort value which is used for all gears.
+#'   effort value which is used for all gears. Default 1.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
 #'   calculated using the \code{\link{getPredMort}} function.
@@ -806,7 +806,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 getMort <- function(params, n = params@initial_n, 
                     n_pp = params@initial_n_pp,
                     B = params@initial_B,
-                    effort, 
+                    effort = 1, 
                     m2 = getPredMort(params, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(m2) == c(nrow(params@species_params), length(params@w)))) {
         stop("m2 argument must have dimensions: no. species (",

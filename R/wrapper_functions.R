@@ -639,6 +639,7 @@ set_scaling_model <- function(no_sp = 11,
         alpha = alpha,
         erepro = erepro,
         sel_func = "knife_edge",
+        catchability = 0,
         # not used but required
         knife_edge_size = knife_edge_size,
         gear = gear_names,
@@ -781,7 +782,7 @@ set_scaling_model <- function(no_sp = 11,
     ## Set erepro to meet boundary condition ----
     rdi <- getRDI(params, initial_n, initial_n_pp)
     gg <- getEGrowth(params, initial_n, initial_n_pp)
-    mumu <- getMort(params, initial_n, initial_n_pp, effort = 0)
+    mumu <- getMort(params, initial_n, initial_n_pp)
     erepro_final <- 1:no_sp  # set up vector of right dimension
     for (i in (1:no_sp)) {
         gg0 <- gg[i, params@w_min_idx[i]]
@@ -976,7 +977,7 @@ removeSpecies <- function(params, remove) {
 #'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
 #'   will be set to rfac times the normal steady-state recruitment.
 #'   Default value is 10.
-#' @param effort Fishing effort. Default value is 0.
+#' @param effort Fishing effort. Default value is 1.
 #' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
@@ -1013,7 +1014,7 @@ removeSpecies <- function(params, remove) {
 #' plotBiomass(sim)
 #' }
 addSpecies <- function(params, species_params, SSB = NA,
-                       rfac=10, effort = 0) {
+                       rfac=10, effort = 1) {
     # The code adds a new species into the system, and sets its abundance to the
     # steady state in the system where the new species does not self-interact. Then
     # the abundance multipliers of the background species are retuned to retain the
@@ -1230,7 +1231,7 @@ markBackground <- function(object, species) {
 #' achieve that level of recruitment.
 #' 
 #' @param params A \linkS4class{MizerParams} object
-#' @param effort The fishing effort. Default is 0
+#' @param effort The fishing effort. Default is 1.
 #' @param t_max The maximum number of years to run the simulation. Default is 50.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
 #'   after each of which we check for convergence. Default value is 2.
@@ -1248,7 +1249,7 @@ markBackground <- function(object, species) {
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
 #' }
-steady <- function(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
+steady <- function(params, effort = 1, t_max = 50, t_per = 2, tol = 10^(-2),
                    dt = 0.1, progress_bar = TRUE) {
     p <- params
     
