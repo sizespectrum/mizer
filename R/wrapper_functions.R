@@ -465,9 +465,8 @@ set_trait_model <- function(no_sp = 10,
 #'   10^(0.4),
 #' @param no_w The number of size bins in the community spectrum. Default value
 #'   is such that there are 100 bins for each factor of 10 in weight.
-#' @param min_w_pp Obsolete argument because the smallest plankton size is now
-#'   set so that it covers the entire range of the
-#'   feeding kernel of even the smallest fish larva.
+#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#'   is set to the smallest value at which any of the consumers can feed.
 #' @param w_pp_cutoff The largest size of the plankton spectrum. Default
 #'   value is max_w_inf unless \code{perfect = TRUE} when it is Inf.
 #' @param n Scaling of the intake. Default value is 2/3.
@@ -657,6 +656,7 @@ set_scaling_model <- function(no_sp = 11,
             min_w = min_w,
             no_w = no_w,
             w_pp_cutoff = max_w,
+            min_w_pp = min_w_pp,
             r_pp = r_pp
         )
     # gamma is determined by MizerParams
@@ -814,15 +814,17 @@ set_scaling_model <- function(no_sp = 11,
 #' Retunes abundance of background species.
 #' 
 #' Rescales all background species in such a way that the total community
-#' spectrum is as close to the Sheldon power law as possible.
+#' spectrum is as close to the Sheldon power law as possible. Background
+#' species that are no longer needed are removed.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #'   
 #' @return An object of type \code{MizerParams}
+#' @seealso markBackground
 #' @export
 retuneBackground <- function(params) {
     no_sp <- nrow(params@species_params)  # Number of species
-    retune <- is.na(params@A)
+    L <- is.na(params@A)
     
     # We find the abundance multipliers A_i so
     # that the integral of the square of the relative distance 
@@ -834,13 +836,13 @@ retuneBackground <- function(params) {
     nonzero <- params@sc > 0
     sc <- params@sc[nonzero]
     # rho is the total abundance of all the non-tunable species
-    rho <- colSums(params@initial_n[!retune, nonzero, drop = FALSE])
+    rho <- colSums(params@initial_n[!L, nonzero, drop = FALSE])
     
     # Use Singular Value Decomposition to find optimal abundance multipliers.
     # See Numerical Recipes section 15.4.2
     #
     # Rescale by sc
-    A <- t(sweep(params@initial_n[retune, nonzero, drop = FALSE], 2, sc, "/"))
+    A <- t(sweep(params@initial_n[L, nonzero, drop = FALSE], 2, sc, "/"))
     b <- (sc - rho) / sc
     
     sv <- svd(A)
@@ -848,7 +850,7 @@ retuneBackground <- function(params) {
     di[di > 10^8] <- 0  # cut off
     x <- sweep(sv$v, 2, di, "*") %*% t(sv$u) %*% b
     A2 <- rep(1, no_sp) 
-    A2[retune] <- x
+    A2[L] <- x
     
     # We may have to repeat this if any of the multipliers is negative or zero
     if (any(A2 <= 0)) {
@@ -903,32 +905,33 @@ pruneSpecies <- function(params, cutoff = 1e-3) {
 #' the remaining species.
 #' 
 #' @param params A mizer params object for the original system.
-#' @param remove A vector of the names of the species to be deleted or a boolean
+#' @param species A vector of the names of the species to be deleted or a boolean
 #'   vector indicating for each species whether it is to be removed (TRUE) or
 #'   not.
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
-removeSpecies <- function(params, remove) {
+removeSpecies <- function(params, species) {
     no_sp <- length(params@w_min_idx)
-    if (is.logical(remove)) {
-        if (length(remove) != no_sp) {
+    if (is.logical(species)) {
+        if (length(species) != no_sp) {
             stop("The boolean species argument has the wrong length")
         }
     } else {
-        remove <- dimnames(params@initial_n)$sp %in% remove
-        if (length(remove) == 0) {
+        species <- dimnames(params@initial_n)$sp %in% species
+        if (length(species) == 0) {
             warning("The species argument matches none of the species in the params object")
             return(params)
         }
     }
-    keep <- !remove
+    keep <- !species
     
     params@linecolour <- params@linecolour[!(names(params@linecolour) %in% 
-                                                 params@species_params$species[remove])]
+                                                 params@species_params$species[species])]
     params@linetype <- params@linetype[!(names(params@linetype) %in% 
-                                             params@species_params$species[remove])]
+                                             params@species_params$species[species])]
     params@psi <- params@psi[keep, , drop = FALSE]
+    params@maturity <- params@maturity[keep, , drop = FALSE]
     params@initial_n <- params@initial_n[keep, , drop = FALSE]
     params@intake_max <- params@intake_max[keep, , drop = FALSE]
     params@search_vol <- params@search_vol[keep, , drop = FALSE]
@@ -955,24 +958,30 @@ removeSpecies <- function(params, remove) {
 }
 
 
-#' Add more species into an ecosystem with background species.
+#' Add new species
 #'
-#' Takes a \linkS4class{MizerParams} object and adds an additional species with
-#' given parameters to the ecosystem. It sets the initial values for this species
-#' to its steady-state solution in the given initial state of the existing
-#' species. This will be close to the true steady-state if the abundance of the
-#' new species is sufficiently low. Hence the abundance of the new species is
-#' set so that its maximal biomass density lies at 1/100 of the community power law.
-#'
+#' Takes a \linkS4class{MizerParams} object and adds additional species with
+#' given parameters to the ecosystem. It sets the initial values for these new
+#' species to its steady-state solution in the given initial state of the
+#' existing ecosystem. This will be close to the true steady-state if the
+#' abundances of the new species are sufficiently low. Hence the abundances of
+#' the new species are set so that the maximal biomass density of each new
+#' species lies at 1/100 of the community power law. The reproductive
+#' efficiencies of the new species are set so as to keep them at that low level.
+#' 
+#' After adding the new species, the background species are not retuned and the
+#' system is not run to steady state. You would have to call
+#' \code{\link{retuneBackground}} and \code{\link{steady}} explicitly.
+#' 
 #' @param params A mizer params object for the original system. 
 #' @param species_params The species parameters of the new species we
 #'   want to add to the system.
-#' @param rfac A number that determines the strength of the non-linearity in
-#'   the Beverton-Holt stock-recruitment relationship. The maximal recruitment
-#'   will be set to rfac times the normal steady-state recruitment.
-#'   Default value is 10.
+#' @param interaction Interaction matrix. A square matrix giving either the
+#'   interaction coefficients between all species or only those between the
+#'   new species. In the latter case all interaction between an old and a new
+#'   species are set to 1. If this argument is missing, all interactions 
+#'   involving a new species are set to 1.
 #' @param effort Fishing effort. Default value is 1.
-#' @param ... Other arguments (unused)
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @seealso \code{\link{removeSpecies}}
@@ -1007,7 +1016,7 @@ removeSpecies <- function(params, remove) {
 #' sim <- project(params, t_max=50)
 #' plotBiomass(sim)
 #' }
-addSpecies <- function(params, species_params, effort = 1) {
+addSpecies <- function(params, species_params, interaction, effort = 1) {
     # check validity of parameters ----
     assert_that(is(params, "MizerParams"),
                 is.data.frame(species_params),
@@ -1016,11 +1025,29 @@ addSpecies <- function(params, species_params, effort = 1) {
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")
     }
+    no_old_sp <- nrow(params@species_params)
+    old_sp <- 1:no_old_sp
+    no_new_sp <- nrow(species_params)
+    new_sp <- 1:no_new_sp + no_old_sp
+    no_sp <- no_old_sp + no_new_sp
+    if (missing(interaction)) {
+        # keep existing interactions between old species and
+        # set interactions involving new species to 1
+        inter <- matrix(1, nrow = no_sp, ncol = no_sp)
+        inter[old_sp, old_sp] <- params@interaction
+    } else if (all(dim(interaction) == c(no_new_sp, no_new_sp))) {
+        # keep existing interactions between old species,
+        # set interactions involving an old and a new species to 1
+        # and use supplied matrix for interaction among new species
+        inter <- matrix(1, nrow = no_sp, ncol = no_sp)
+        inter[old_sp, old_sp] <- params@interaction
+        inter[new_sp, new_sp] <- interaction
+    } else if (all(dim(interaction) != c(no_sp, no_sp))) {
+        stop("interaction matrix has invalid dimensions.")
+    }
     
     # combine species params ----
-    
-    # provide erepro column that is later overwritten
-    species_params$erepro <- 0.1
+
     # Move linecolour and linetype into species_params
     params@species_params$linetype <- 
         params@linetype[as.character(params@species_params$species)]
@@ -1042,6 +1069,7 @@ addSpecies <- function(params, species_params, effort = 1) {
     # object.
     p <- set_multispecies_model(
         combi_species_params,
+        interaction = inter,
         p = params@p,
         n = params@n,
         q = params@q,
@@ -1060,62 +1088,59 @@ addSpecies <- function(params, species_params, effort = 1) {
     p@cc_pp <- params@cc_pp
     
     # initial solution ----
-    new_sp <- length(params@species_params$species) + 1
-    no_sp <- new_sp
-    # Initially use abundance curves for pre-existing species 
-    # (we shall retune the abundance multipliers of such 
-    # species from the background later)
-    p@initial_n[1:(new_sp - 1), ] <- params@initial_n
+    p@initial_n[old_sp, ] <- params@initial_n
+    p@A[old_sp] <- params@A
     # Use the same psi and mu_b as before for old species
-    p@psi[1:(new_sp - 1), ] <- params@psi
+    p@psi[old_sp, ] <- params@psi
     p@sc <- params@sc
-    p@mu_b[1:(new_sp - 1), ] <- params@mu_b
-    p@mu_b[new_sp, ] <- params@mu_b[1, ]  # NOTE: we assume same background
-                                          # death for all species
+    p@mu_b[old_sp, ] <- params@mu_b
+    # we assume same background death for all species
+    p@mu_b[new_sp, ] <- rep(params@mu_b[1, ], each = no_new_sp)
     
-    # Turn off self-interaction of the new species, so we can determine the
-    # growth rates, and death rates induced upon it by the pre-existing species
+    # Turn off self-interaction among the new species, so we can determine the
+    # growth rates, and death rates induced upon them by the pre-existing species
     p@interaction[new_sp, new_sp] <- 0
-    # compute death rate for new species
-    mumu <- getMort(p, p@initial_n, p@initial_n_pp, effort = effort)[new_sp, ]
-    # compute growth rate for new species
-    gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)[new_sp, ]
+    mumu <- getMort(p, effort = effort)
+    gg <- getEGrowth(p)
     
     # Compute solution for new species
-    w_inf_idx <- sum(p@w < p@species_params$w_inf[new_sp])
-    idx <- p@w_min_idx[new_sp]:(w_inf_idx - 1)
-    if (any(gg[idx] == 0)) {
-        stop("Can not compute steady state due to zero growth rates")
+    for (i in new_sp) {
+        g <- gg[i, ]
+        mu <- mumu[i, ]
+        w_inf_idx <- sum(p@w < p@species_params$w_inf[i])
+        idx <- p@w_min_idx[i]:(w_inf_idx - 1)
+        if (any(g[idx] == 0)) {
+            stop("Can not compute steady state due to zero growth rates for ",
+                 p@species_params$species[i])
+        }
+        p@initial_n[i, ] <- 0
+        p@initial_n[i, p@w_min_idx[i]:w_inf_idx] <- 
+            c(1, cumprod(g[idx] / ((g + mu * p@dw)[idx + 1])))
+        
+        # set low abundance ----
+        # Normalise solution so that at its maximum it lies at 1/100 of the 
+        # Sheldon spectrum.
+        # We look at the maximum of abundance times w^lambda
+        # because that is always an increasing function at small size.
+        idx <- which.max(p@initial_n[i, ] * p@w^p@lambda)
+        p@initial_n[i, ] <- p@initial_n[i, ] *
+            p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[i, idx] / 100
+        p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
     }
-    p@initial_n[new_sp, ] <- 0
-    p@initial_n[new_sp, p@w_min_idx[new_sp]:w_inf_idx] <- 
-        c(1, cumprod(gg[idx] / ((gg + mumu * p@dw)[idx + 1])))
+    
     if (any(is.infinite(p@initial_n))) {
-        stop("Candidate steady state holds infinities")
+        stop("Candidate steady state holds infinities.")
     }
     if (any(is.na(p@initial_n) | is.nan(p@initial_n))) {
-        stop("Candidate steady state holds non-numeric values")
+        stop("Candidate steady state holds non-numeric values.")
     }
     
-    # set low abundance ----
-    # Normalise solution so that at its maximum it lies at 1/100 of the 
-    # Sheldon spectrum.
-    # We choose the maximum of the biomass density in log space
-    # because that is always an increasing function at small size.
-    idx <- which.max(p@initial_n[new_sp, ] * p@w^p@lambda)
-    p@initial_n[new_sp, ] <- p@initial_n[new_sp, ] *
-        p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[new_sp, idx] / 100
-    SSB <- sum(p@initial_n[new_sp, ] * p@w * p@dw * p@maturity[new_sp, ])
-    p@A <- c(params@A, SSB)
-    
     # Turn self interaction back on
-    p@interaction[new_sp, new_sp] <- 1
-    p@srr <- srrNone
+    p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
     
-    p <- p %>% 
-        retuneBackground() %>% 
-        retuneReproductionEfficiency()
-
+    # Retune reproductive efficiencies of new species
+    p <- retuneReproductionEfficiency(p, p@species_params$species[new_sp])
+    
     return(p)
 }
 
@@ -1126,20 +1151,36 @@ addSpecies <- function(params, species_params, effort = 1) {
 #' to growth and mortality. Sets the identical stock recruitment function.
 #' 
 #' @inheritParams steady
+#' @param species A vector of the names of the species to be affected or a
+#'   boolean vector indicating for each species whether it is to be affected
+#'   (TRUE) or not. By default all species are affected
 #' @return A MizerParams object
 #' @export
-retuneReproductionEfficiency <- function(params, effort = 1) {
+retuneReproductionEfficiency <- function(params, 
+                                         species = params@species_params$species,
+                                         effort = 1) {
     assert_that(is(params, "MizerParams"),
                 is.numeric(effort),
                 length(effort) %in% c(1, nrow(params@catchability)),
                 all(effort >= 0))
 
     no_sp <- nrow(params@species_params)
+    if (is.logical(species)) {
+        if (length(species) != no_sp) {
+            stop("The boolean species argument has the wrong length")
+        }
+    } else {
+        species <- dimnames(params@initial_n)$sp %in% species
+        if (length(species) == 0) {
+            warning("The species argument matches none of the species in the params object")
+            return(params)
+        }
+    }
     mumu <- getMort(params, effort = effort)
     gg <- getEGrowth(params)
     rdi <- getRDI(params)
-    eff <- 1:no_sp  # set up vector of right dimension
-    for (i in (1:no_sp)) {
+    eff <- params@species_params$erepro
+    for (i in (1:no_sp)[species]) {
         gg0 <- gg[i, params@w_min_idx[i]]
         mumu0 <- mumu[i, params@w_min_idx[i]]
         DW <- params@dw[params@w_min_idx[i]]
@@ -1332,14 +1373,7 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
-    for (i in (1:no_sp)) {
-        gg0 <- r$e_growth[i, p@w_min_idx[i]]
-        mumu0 <- r$mort[i, p@w_min_idx[i]]
-        DW <- p@dw[p@w_min_idx[i]]
-        p@species_params$erepro[i] <- p@species_params$erepro[i] *
-            (p@initial_n[i, p@w_min_idx[i]] *
-                 (gg0 + DW * mumu0)) / r$rdd[i]
-    }
+    p <- retuneReproductionEfficiency(p)
     
     return(p)
 }
