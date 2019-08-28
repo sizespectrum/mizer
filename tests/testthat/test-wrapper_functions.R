@@ -1,5 +1,44 @@
 context("Wrapper functions for trait and community models")
 
+# Multiple gears work correctly in trait-based model ----
+test_that("Multiple gears work correctly in trait-based model", {
+    # Check multiple gears are working properly
+    min_w_inf <- 10
+    max_w_inf <- 1e5
+    no_sp <- 10
+    w_inf <- 10^seq(from = log10(min_w_inf), 
+                    to = log10(max_w_inf), 
+                    length = no_sp)
+    knife_edges <- w_inf * 0.05
+    params <- set_trait_model(no_sp = no_sp, 
+                              min_w_inf = min_w_inf, 
+                              max_w_inf = max_w_inf, 
+                              knife_edge_size = knife_edges)
+    expect_identical(params@species_params$knife_edge_size, 
+                     knife_edges)
+    # All gears fire
+    sim1 <- project(params, t_max = 10, effort = 1)
+    fmg <- getFMortGear(sim1)
+    for (i in 1:no_sp) {
+        expect_true(all(fmg[10,1,i,params@w < knife_edges[i]] == 0))
+        expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
+    }
+    # Only the 4th gear fires
+    params <- set_trait_model(no_sp = no_sp, 
+                              min_w_inf = min_w_inf, 
+                              max_w_inf = max_w_inf, 
+                              knife_edge_size = knife_edges, 
+                              gear_names = 1:no_sp)
+    effort <- c(0,0,0,1,0,0,0,0,0,0)
+    names(effort) = 1:no_sp
+    sim2 <- project(params, t_max = 10, effort = effort)
+    fmg <- getFMortGear(sim2)
+    expect_true(all(fmg[10, c(1:3,5:10),c(1:3,5:10),] == 0))
+    expect_true(all(fmg[10, 4, 4, params@w < knife_edges[4]] == 0))
+    expect_true(all(fmg[10, 4, 4, params@w >= knife_edges[4]] == 1))
+    
+})
+
 # Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
     p <- set_scaling_model(perfect = TRUE, sigma = 1)
@@ -62,6 +101,23 @@ test_that("Scaling model is set up correctly", {
     expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
 })
 
+# removeSpecies ----
+test_that("removeSpecies works", {
+    data("NS_species_params")
+    remove <- NS_species_params$species[2:11]
+    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
+    params <- MizerParams(NS_species_params, no_w = 20, 
+                          max_w = 39900, min_w_pp = 9e-14)
+    p1 <- removeSpecies(params, species = remove)
+    expect_equal(nrow(p1@species_params), nrow(params@species_params) - 10)
+    p2 <- MizerParams(reduced, no_w = 20, 
+                      max_w = 39900, min_w_pp = 9e-14)
+    expect_equivalent(p1, p2)
+    sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
+    sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
+    expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
+})
+
 # retuneBackground() reproduces scaling model ----
 test_that("retuneBackground() reproduces scaling model", {
     # This numeric test failed on Solaris and without long doubles. So for now
@@ -69,6 +125,8 @@ test_that("retuneBackground() reproduces scaling model", {
     skip_on_cran()
     p <- set_scaling_model()
     initial_n <- p@initial_n
+    # We multiply one of the species by a factor of 5 and expect
+    # retuneBackground() to tune it back down to the original value.
     p@initial_n[5, ] <- 5 * p@initial_n[5, ]
     pr <- p %>% 
         markBackground() %>% 
@@ -76,7 +134,20 @@ test_that("retuneBackground() reproduces scaling model", {
     expect_lt(max(abs(initial_n - pr@initial_n)), 2e-11)
 })
 
-# addSpecies works when adding a second identical species ----
+# pruneSpecies() removes low-abundance species ----
+test_that("pruneSpecies() removes low-abundance species", {
+    params <- set_scaling_model()
+    p <- params
+    # We multiply one of the species by a factor of 10^-3 and expect
+    # pruneSpecies() to remove it.
+    p@initial_n[5, ] <- p@initial_n[5, ] * 10^-4
+    p <- pruneSpecies(p, 10^-2)
+    expect_is(p, "MizerParams")
+    expect_equal(nrow(params@species_params) - 1, nrow(p@species_params))
+    expect_equal(p@initial_n[5, ], params@initial_n[6, ])
+})
+
+# addSpecies ----
 test_that("addSpecies works when adding a second identical species", {
     p <- set_scaling_model()
     no_sp <- length(p@A)
@@ -88,50 +159,31 @@ test_that("addSpecies works when adding a second identical species", {
     pa <- addSpecies(p, species_params)
     # TODO: think about what to check now
 })
-
-# removeSpecies ----
-test_that("removeSpecies works", {
-    data("NS_species_params")
-    remove <- NS_species_params$species[2:11]
-    reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
-    params <- MizerParams(NS_species_params, no_w = 20, 
-                          max_w = 39900, min_w_pp = 9e-14)
-    p1 <- removeSpecies(params, remove = remove)
-    p2 <- MizerParams(reduced, no_w = 20, 
-                      max_w = 39900, min_w_pp = 9e-14)
-    sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
-    sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
-    expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
+test_that("addSpecies does not allow duplicate species", {
+    p <- NS_params
+    species_params <- p@species_params[5, ]
+    expect_error(addSpecies(p, species_params),
+                 "You can not add species that are already there.")
 })
 
-# Multiple gears work correctly in trait-based model ----
-test_that("Multiple gears work correctly in trait-based model", {
-    # Check multiple gears are working properly
-    min_w_inf <- 10
-    max_w_inf <- 1e5
-    no_sp <- 10
-    w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
-    knife_edges <- w_inf * 0.05
-    params <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges)
-    expect_that(params@species_params$knife_edge_size, is_identical_to(knife_edges))
-    # All gears fire
-    sim1 <- project(params, t_max = 10, effort = 1)
-    fmg <- getFMortGear(sim1)
-    for (i in 1:no_sp){
-        expect_true(all(fmg[10,1,i,params@w < knife_edges[i]] == 0))
-        expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
-    }
-    # Only the 4th gear fires
-    params <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = 1:no_sp)
-    effort <- c(0,0,0,1,0,0,0,0,0,0)
-    names(effort) = 1:no_sp
-    sim2 <- project(params, t_max = 10, effort = effort)
-    fmg <- getFMortGear(sim2)
-    expect_true(all(fmg[10,c(1:3,5:10),c(1:3,5:10),] == 0))
-    expect_true(all(fmg[10,4,4,params@w < knife_edges[4]] == 0))
-    expect_true(all(fmg[10,4,4,params@w >= knife_edges[4]] == 1))
-    
+# retuneReproductiveEfficiency ----
+test_that("retuneReproductiveEfficiency works", {
+    p <- set_scaling_model()
+    no_sp <- nrow(p@species_params)
+    erepro <- p@species_params$erepro
+    p@species_params$erepro[5] <- 15
+    ps <- retuneReproductionEfficiency(p)
+    expect_equal(ps@species_params$erepro, erepro)
+    # can also select species in various ways
+    ps <- retuneReproductionEfficiency(p, species = p@species_params$species[5])
+    expect_equal(ps@species_params$erepro, erepro)
+    p@species_params$erepro[3] <- 15
+    species <- (1:no_sp) %in% c(3,5)
+    ps <- retuneReproductionEfficiency(p, species = species)
+    expect_equal(ps@species_params$erepro, erepro)
 })
+
+
 
 # steady ----
 test_that("steady works", {
