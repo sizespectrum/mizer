@@ -968,6 +968,12 @@ removeSpecies <- function(params, species) {
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @export
+#' @examples
+#' \dontrun{
+#' replace <- c(Cod = "Kabeljau", Haddock = "Schellfisch")
+#' params <- renameSpecies(NS_params, replace)
+#' params@species_params$species
+#' }
 renameSpecies <- function(params, replace) {
     replace[] <- as.character(replace)
     to_replace <- names(replace)
@@ -975,7 +981,7 @@ renameSpecies <- function(params, replace) {
     wrong <- setdiff(names(replace), species)
     if (length(wrong) > 0) {
         stop(paste(wrong, collapse = ", "),
-             " do not exist")
+             " do not exist.")
     }
     names(species) <- species
     species[to_replace] <- replace
