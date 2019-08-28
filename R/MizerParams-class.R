@@ -2132,7 +2132,7 @@ setFishing <- function(params) {
         params@catchability[as.character(species_params[g,'gear']), g] <- 
             species_params[g, "catchability"]
     }
-    
+    params@species_params <- species_params
     return(params)
 }
 
