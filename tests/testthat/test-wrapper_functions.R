@@ -194,7 +194,11 @@ test_that("renameSpecies works", {
     p2 <- renameSpecies(p2, replace)
     expect_identical(p, p2)
 })
-
+test_that("renameSpecies warns on wrong names", {
+    p <- NS_params
+    expect_error(renameSpecies(p, c(Kod = "cod", Hadok = "haddock")),
+                 "Kod, Hadok do not exist")
+})
 
 # steady ----
 test_that("steady works", {

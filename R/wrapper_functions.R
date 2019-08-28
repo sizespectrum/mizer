@@ -973,9 +973,9 @@ renameSpecies <- function(params, replace) {
     to_replace <- names(replace)
     species <- as.character(params@species_params$species)
     wrong <- setdiff(names(replace), species)
-    if (any(wrong)) {
-        stop("There are no species with names: ", 
-             paste(wrong, collapse = ", "))
+    if (length(wrong) > 0) {
+        stop(paste(wrong, collapse = ", "),
+             " do not exist")
     }
     names(species) <- species
     species[to_replace] <- replace
