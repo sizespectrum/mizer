@@ -958,6 +958,63 @@ removeSpecies <- function(params, species) {
 }
 
 
+#' Rename species
+#' 
+#' Changes the names of species in a MizerParams object
+#' 
+#' @param params A mizer params object
+#' @param replace A named character vector, with new names as values, and old 
+#'   names as names.
+#' 
+#' @return An object of type \linkS4class{MizerParams}
+#' @export
+renameSpecies <- function(params, replace) {
+    replace[] <- as.character(replace)
+    to_replace <- names(replace)
+    species <- as.character(params@species_params$species)
+    wrong <- setdiff(names(replace), species)
+    if (any(wrong)) {
+        stop("There are no species with names: ", 
+             paste(wrong, collapse = ", "))
+    }
+    names(species) <- species
+    species[to_replace] <- replace
+    names(species) <- NULL
+    rownames(params@species_params) <- species
+    params@species_params$species <- species
+    linenames <- names(params@linecolour)
+    names(linenames) <- linenames
+    linenames[to_replace] <- replace
+    names(linenames) <- NULL
+    names(params@linecolour) <- linenames
+    names(params@linetype) <- linenames
+    names(params@w_min_idx) <- species
+    dimnames(params@maturity)$sp <- species
+    dimnames(params@psi)$sp <- species
+    dimnames(params@initial_n)$sp <- species
+    dimnames(params@intake_max)$sp <- species
+    dimnames(params@search_vol)$sp <- species
+    dimnames(params@metab)$sp <- species
+    if (length(dim(params@ft_pred_kernel_e)) == 2) {
+        dimnames(params@ft_pred_kernel_e)$sp <- species
+        dimnames(params@ft_pred_kernel_p)$sp <- species
+    } else {
+        dimnames(params@pred_kernel)$sp <- species
+    }
+    dimnames(params@mu_b)$sp <- species
+    dimnames(params@interaction)$predator <- species
+    dimnames(params@interaction)$prey <- species
+    dimnames(params@selectivity)$sp <- species
+    dimnames(params@catchability)$sp <- species
+    if (length(dim(params@rho)) == 3) {
+        dimnames(params@rho)$sp <- species
+    }
+    
+    validObject(params)
+    return(params)
+}
+
+
 #' Add new species
 #'
 #' Takes a \linkS4class{MizerParams} object and adds additional species with
