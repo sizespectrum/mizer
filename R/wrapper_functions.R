@@ -957,6 +957,49 @@ removeSpecies <- function(params, species) {
     return(params)
 }
 
+#' Rescale Abundance
+#' 
+#' Multiplies the abundances of all or of selected species by given factors and
+#' then retunes the reproductive efficiencies accordingly. 
+#' 
+#' Does not run the system to steady state. For that you should call 
+#' \code{\link{steady}} explicitly afterwards.
+#' 
+#' @param params A mizer params object
+#' @param factor The factor by which the abundance of each species is multiplied.
+#'   This can be specified in two ways:
+#'   \itemize{
+#'   \item A named numeric vector where the name indicates the species and the
+#'     value gives the factor for that species. Only the named species are 
+#'     affected.
+#'   \item  A number that gives the factor for all foreground species.
+#'   }
+#' 
+#' @return An object of type \linkS4class{MizerParams}
+#' @export
+rescaleAbundance <- function(params, factor) {
+    assert_that(is(params, "MizerParams"),
+                is.numeric(factor),
+                all(factor > 0))
+    is_foreground <- !is.na(params@A)
+    no_sp <- sum(is_foreground)
+    if (length(factor) == 1 && length(names(factor)) == 0) {
+        factor <- rep(factor, no_sp)
+        names(factor) <- params@species_params$species[is_foreground]
+    }
+    to_rescale <- names(factor)
+    wrong <- setdiff(to_rescale, params@species_params$species)
+    if (length(wrong) > 0) {
+        stop(paste(wrong, collapse = ", "),
+             " do not exist.")
+    }
+    assert_that(length(to_rescale) == length(factor))
+
+    params@initial_n[to_rescale, ] <- 
+        params@initial_n[to_rescale, ] * factor
+    
+    return(params)
+}
 
 #' Rename species
 #' 

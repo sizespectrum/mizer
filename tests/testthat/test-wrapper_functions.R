@@ -195,8 +195,24 @@ test_that("renameSpecies works", {
     expect_identical(p, p2)
 })
 test_that("renameSpecies warns on wrong names", {
+    expect_error(renameSpecies(NS_params, c(Kod = "cod", Hadok = "haddock")),
+                 "Kod, Hadok do not exist")
+})
+
+# rescaleAbundance ----
+test_that("rescaleAbundance works", {
     p <- NS_params
-    expect_error(renameSpecies(p, c(Kod = "cod", Hadok = "haddock")),
+    factor <- c(Cod = 2, Haddock = 3)
+    p2 <- rescaleAbundance(NS_params, factor)
+    expect_identical(p@initial_n["Cod"] * 2, p2@initial_n["Cod"])
+    expect_equal(p, rescaleAbundance(p2, 1/factor))
+})
+test_that("rescaleAbundance throws correct error",{
+    expect_error(rescaleAbundance(NS_params, c(2, 3)))
+    expect_error(rescaleAbundance(NS_params, "a"))
+})
+test_that("rescaleAbundance warns on wrong names", {
+    expect_error(rescaleAbundance(NS_params, c(Kod = 2, Hadok = 3)),
                  "Kod, Hadok do not exist")
 })
 
