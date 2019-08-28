@@ -43,8 +43,8 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dim(test_params@search_vol), c(no_sp,no_w))
     expect_equal(dim(test_params@metab), c(no_sp, no_w))
     expect_equal(dim(test_params@ft_pred_kernel_e), c(no_sp, no_w_full))
-    expect_equal(dim(test_params@catchability), c(no_sp, no_sp))
-    expect_equal(dim(test_params@selectivity), c(no_sp, no_sp, no_w))
+    expect_equal(dim(test_params@catchability), c(1, no_sp))
+    expect_equal(dim(test_params@selectivity), c(1, no_sp, no_w))
     expect_equal(dim(test_params@interaction), c(no_sp, no_sp))
     # lengths of the other slots
     expect_length(test_params@rr_pp, no_w_full) 
@@ -69,7 +69,7 @@ test_that("constructor with species_params and interaction signature gives the r
     expect_that(params, is_a("MizerParams"))
     expect_equal(dim(params@psi)[1], nrow(NS_species_params))
     expect_equal(dimnames(params@psi)$sp, as.character(NS_species_params$species))
-    expect_equal(dimnames(params@selectivity)$gear, dimnames(params@selectivity)$sp)
+    expect_equal(dimnames(params@selectivity)$gear, "knife_edge_gear")
     params_gears <- set_multispecies_model(NS_species_params_gears, inter)  
     expect_equal(unique(dimnames(params_gears@selectivity)$gear), 
                 as.character(unique(params_gears@species_params$gear)))

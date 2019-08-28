@@ -419,7 +419,7 @@ remove(validMizerParams)
 #' @param no_w_pp  No longer used
 #' 
 #' @return An empty but valid MizerParams object
-#' 
+#' @md
 #' @export
 emptyParams <- function(species_params,
                         no_w = 100,
@@ -463,9 +463,9 @@ emptyParams <- function(species_params,
         }
     }
     
-    # If no gear_name column in species_params, then named after species
+    # If no gear_name column in species_params, then set to knife_edge_gear
     species_params <- set_species_param_default(species_params,
-                                                "gear", species_params$species)
+                                                "gear", "knife_edge_gear")
     gear_names <- unique(species_params$gear)
     
     # If no alpha (conversion efficiency), then set to 0.6
@@ -2008,6 +2008,9 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' Set fishing parameters
 #' 
 #' @section Setting fishing:
+#' 
+#' \strong{Gears}
+#' 
 #' In `mizer`, fishing mortality is imposed on species by fishing gears. The
 #' total fishing mortality is obtained by summing over the mortality from all
 #' gears,
@@ -2017,9 +2020,13 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' \deqn{F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},}
 #' where \eqn{S} is the selectivity by species, gear and size, \eqn{Q} is the 
 #' catchability by species and gear and \eqn{E} is the fishing effort by gear.
+#' 
 #' At the moment a species can only be selected by one fishing gear, although 
 #' each gear can select more than one species (this is a limitation with the 
-#' current package that will be developed in future releases).
+#' current package that will be developed in future releases). The gear
+#' selecting each species can be specified in the `gear` column in the
+#' species_params data frame. If no gear is specified, the default gear is
+#' "knife_edge_gear".
 #' 
 #' \strong{Selectivity}
 #' 
@@ -2027,24 +2034,25 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' that size) to 1 (fully selected at that size). It is given by a selectivity
 #' function. The name of the selectivity function is given by the `sel_func`
 #' column in the species parameters data frame. Some selectivity functions are
-#' included in the package: `knife_edge()` and `sigmoid_length()`. New functions
-#' can be defined by the user. Each gear has the same selectivity function for
-#' all the species it selects, but the parameter values for each species may be
-#' different, e.g. the lengths of species that a gear selects may be different.
+#' included in the package: `knife_edge()`, `sigmoid_length()` and
+#' `double_sigmoid_length()`. New functions can be defined by the user. Each
+#' gear has the same selectivity function for all the species it selects, but
+#' the parameter values for each species may be different, e.g. the lengths of
+#' species that a gear selects may be different.
 #' 
-#' Each selectivity function has a range of arguments. Values for these
-#' arguments must be included as columns in the species parameters data.frame.
-#' The names of the columns must exactly match the names of the arguments. For
-#' example, the default selectivity function is `knife_edge()` which has sudden
-#' change of selectivity from 0 to 1 at a certain size.
-#' In its help page you can see that the `knife_edge()` function has arguments `w` and
-#' `knife_edge_size` The first argument, `w`, is size (the function calculates
-#' selectivity at size). All selectivity functions must have `w` as the first
-#' argument. The values for the other arguments must be found in the species
-#' parameters data.frame. So for the `knife_edge()` function there should be a
-#' `knife_edge_size` column. Because `knife_edge()` is the default
-#' selectivity function, the `knife_edge_size` argument has a default
-#' value = `w_mat`.
+#' Each selectivity function has a range of parameters. Values for these
+#' parameters must be included as columns in the species parameters data.frame.
+#' The names of the columns must exactly match the names of the corresponding
+#' arguments of the selectivity function. For example, the default selectivity
+#' function is `knife_edge()` which has sudden change of selectivity from 0 to 1
+#' at a certain size. In its help page you can see that the `knife_edge()`
+#' function has arguments `w` and `knife_edge_size` The first argument, `w`, is
+#' size (the function calculates selectivity at size). All selectivity functions
+#' must have `w` as the first argument. The values for the other arguments must
+#' be found in the species parameters data.frame. So for the `knife_edge()`
+#' function there should be a `knife_edge_size` column. Because `knife_edge()`
+#' is the default selectivity function, the `knife_edge_size` argument has a
+#' default value = `w_mat`.
 #' 
 #' \strong{Catchability}
 #' 
@@ -2059,10 +2067,10 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' \eqn{Q_{i}}, and this is given as a column `catchability` in the species
 #' parameter data frame. If it is not specified, it defaults to 1.
 #' 
-#' Fishing effort is not stored in the `MizerParams` object.
-#' Instead, effort is set when the simulation is run and can vary through time 
-#' with `project()`.
-#'         
+#' \strong{Effort}
+#' 
+#' Fishing effort is not stored in the `MizerParams` object. Instead, effort is
+#' set when the simulation is run with `project()` and can vary through time.
 #' 
 #' @param params A MizerParams object
 #' 
@@ -2075,9 +2083,9 @@ setFishing <- function(params) {
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     
-    # If no gear specified in species_params, then named after species
+    # If no gear specified in species_params, then use `knife_edge_gear`
     species_params <- set_species_param_default(
-        species_params, "gear", default = species_params$species)
+        species_params, "gear", default = "knife_edge_gear")
     
     # If no sel_func column in species_params, set to 'knife_edge'
     species_params <- set_species_param_default(
