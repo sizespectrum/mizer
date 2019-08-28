@@ -855,7 +855,7 @@ retuneBackground <- function(params) {
     # We may have to repeat this if any of the multipliers is negative or zero
     if (any(A2 <= 0)) {
         # Remove those species
-        params <- removeSpecies(params, remove = (A2 <= 0))
+        params <- removeSpecies(params, species = (A2 <= 0))
         # and try again retuning the remaining retunable species
         if (any(A2 > 0)) {
             params <- retuneBackground(params)
