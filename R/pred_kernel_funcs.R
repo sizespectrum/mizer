@@ -65,3 +65,34 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     phi[1] <- 0
     return(phi)
 }
+
+#' Power-law predation kernel
+#' 
+#' A predation kernel where the predator/prey mass ratio follows a power-law,
+#' with sigmoidal cut-offs at large and small ratios.
+#' 
+#' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
+#' feeding kernel is given by
+#' \deqn{.} 
+#' The parameters need to be given in the
+#' species parameter dataframe in the columns \code{ppmr_min} and
+#' \code{ppmr_max}.
+#' 
+#' @param ppmr A vector of predator/prey size ratios at which to evaluate the
+#'   predation kernel.
+#' @param kernel_exp x
+#' @param kernel_l_l x
+#' @param kernel_u_l x
+#' @param kernel_l_r x
+#' @param kernel_u_r x
+#' 
+#' @return A vector giving the value of the predation kernel at each of the
+#'   predator/prey mass ratios in the \code{ppmr} argument.
+#' @export
+power_law_pred_kernel <- function(ppmr, kernel_exp,
+                                  kernel_l_l, kernel_u_l,
+                                  kernel_l_r, kernel_u_r) {
+    ppmr^kernel_exp /
+        (1 + (exp(kernel_l_l) / ppmr)^kernel_u_l) /
+        (1 + (ppmr / exp(kernel_l_r))^kernel_u_r) 
+}
