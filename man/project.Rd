@@ -4,7 +4,7 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(object, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
+project(object, effort = 1, t_max = 100, dt = 0.1, t_save = 1,
   t_start = 0, initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
   append = TRUE, progress_bar = TRUE, ...)

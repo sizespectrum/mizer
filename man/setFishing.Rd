@@ -17,6 +17,9 @@ Set fishing parameters
 }
 \section{Setting fishing}{
 
+
+\strong{Gears}
+
 In \code{mizer}, fishing mortality is imposed on species by fishing gears. The
 total fishing mortality is obtained by summing over the mortality from all
 gears,
@@ -26,9 +29,13 @@ species \eqn{i} at size \eqn{w} is calculated as:
 \deqn{F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},}
 where \eqn{S} is the selectivity by species, gear and size, \eqn{Q} is the
 catchability by species and gear and \eqn{E} is the fishing effort by gear.
+
 At the moment a species can only be selected by one fishing gear, although
 each gear can select more than one species (this is a limitation with the
-current package that will be developed in future releases).
+current package that will be developed in future releases). The gear
+selecting each species can be specified in the \code{gear} column in the
+species_params data frame. If no gear is specified, the default gear is
+"knife_edge_gear".
 
 \strong{Selectivity}
 
@@ -36,24 +43,25 @@ The selectivity at size of each gear has a range between 0 (not selected at
 that size) to 1 (fully selected at that size). It is given by a selectivity
 function. The name of the selectivity function is given by the \code{sel_func}
 column in the species parameters data frame. Some selectivity functions are
-included in the package: \code{knife_edge()} and \code{sigmoid_length()}. New functions
-can be defined by the user. Each gear has the same selectivity function for
-all the species it selects, but the parameter values for each species may be
-different, e.g. the lengths of species that a gear selects may be different.
+included in the package: \code{knife_edge()}, \code{sigmoid_length()} and
+\code{double_sigmoid_length()}. New functions can be defined by the user. Each
+gear has the same selectivity function for all the species it selects, but
+the parameter values for each species may be different, e.g. the lengths of
+species that a gear selects may be different.
 
-Each selectivity function has a range of arguments. Values for these
-arguments must be included as columns in the species parameters data.frame.
-The names of the columns must exactly match the names of the arguments. For
-example, the default selectivity function is \code{knife_edge()} which has sudden
-change of selectivity from 0 to 1 at a certain size.
-In its help page you can see that the \code{knife_edge()} function has arguments \code{w} and
-\code{knife_edge_size} The first argument, \code{w}, is size (the function calculates
-selectivity at size). All selectivity functions must have \code{w} as the first
-argument. The values for the other arguments must be found in the species
-parameters data.frame. So for the \code{knife_edge()} function there should be a
-\code{knife_edge_size} column. Because \code{knife_edge()} is the default
-selectivity function, the \code{knife_edge_size} argument has a default
-value = \code{w_mat}.
+Each selectivity function has a range of parameters. Values for these
+parameters must be included as columns in the species parameters data.frame.
+The names of the columns must exactly match the names of the corresponding
+arguments of the selectivity function. For example, the default selectivity
+function is \code{knife_edge()} which has sudden change of selectivity from 0 to 1
+at a certain size. In its help page you can see that the \code{knife_edge()}
+function has arguments \code{w} and \code{knife_edge_size} The first argument, \code{w}, is
+size (the function calculates selectivity at size). All selectivity functions
+must have \code{w} as the first argument. The values for the other arguments must
+be found in the species parameters data.frame. So for the \code{knife_edge()}
+function there should be a \code{knife_edge_size} column. Because \code{knife_edge()}
+is the default selectivity function, the \code{knife_edge_size} argument has a
+default value = \code{w_mat}.
 
 \strong{Catchability}
 
@@ -68,9 +76,10 @@ catchability matrix \eqn{Q_{g,i}} reduces to a catchability vector
 \eqn{Q_{i}}, and this is given as a column \code{catchability} in the species
 parameter data frame. If it is not specified, it defaults to 1.
 
-Fishing effort is not stored in the \code{MizerParams} object.
-Instead, effort is set when the simulation is run and can vary through time
-with \code{project()}.
+\strong{Effort}
+
+Fishing effort is not stored in the \code{MizerParams} object. Instead, effort is
+set when the simulation is run with \code{project()} and can vary through time.
 }
 
 \seealso{

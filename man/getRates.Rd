@@ -5,7 +5,7 @@
 \title{Get all rates}
 \usage{
 getRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, effort = 0, sex_ratio = 0.5)
+  B = params@initial_B, effort = 1, sex_ratio = 0.5)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -16,7 +16,7 @@ getRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
 
 \item{B}{A vector of biomasses of unstructured resource components}
 
-\item{effort}{The effort for each fishing gear}
+\item{effort}{The effort for each fishing gear. Default 1.}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}

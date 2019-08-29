@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setReproduction}
 \alias{setReproduction}
-\title{Set proportion of energy that is invested into reproduction}
+\title{Set reproduction parameters}
 \usage{
 setReproduction(params, maturity = NULL, repro_prop = NULL,
   srr = params@srr)
@@ -19,7 +19,8 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{srr}{Optional. The stock recruitment function.}
+\item{srr}{The stock recruitment function. Defaults to 
+\code{\link{srrBevertonHolt}}.}
 }
 \value{
 The MizerParams object.
@@ -31,6 +32,8 @@ individual and sets the reproductive efficiency.
 }
 \section{Setting reproduction}{
 
+
+\subsection{Investment}{
 For each species and at each size, the proportion of the available energy 
 that is invested into reproduction is the product of two factors: the
 proportion \code{maturity} of individuals that are mature and the proportion
@@ -68,22 +71,47 @@ scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
 are taken from the compulsory \code{w_inf} column in the species_params
 data frame.
+}
 
+\subsection{Efficiency}{
 The reproductive efficiency, i.e., the proportion of energy allocated to
-reproduction that results in offspring biomass, is set from the 
-\code{erepro} column in the species_params data frame. If that is not
-provided the default is set to 1 (which you will want to override).
-The offspring biomass divided by the egg biomass gives the
-density-independent rate of egg production, returned by \code{\link{getRDI}}.
+reproduction that results in egg biomass, is set from the \code{erepro}
+column in the species_params data frame. If that is not provided, the default
+is set to 1 (which you will want to override). The offspring biomass divided
+by the egg biomass gives the rate of egg production, returned by
+\code{\link{getRDI}}.
+}
 
-Mizer allows some density dependence in the production of eggs by putting
-the density-independent rate of egg production through a stock-recruitment
+\subsection{Density dependence}{
+The stock-recruitment relationship is an emergent phenomenon in mizer, with
+several sources of density dependence. Firstly, the amount of energy invested
+into reproduction depends on the energy income of the spawners, which is
+density-dependent due to competition for prey. Secondly, the proportion of
+larvae that grow up to recruitment size depends on the larval mortality,
+which depends on the density of predators, and on larval growth rate, which
+depends on density of prey.
+
+Finally, the proportion of eggs that are viable and hatch to larvae can be
+density dependent. Somewhat misleadingly, mizer refers to this relationship
+between the number of eggs and the number of hatched larvae as the
+stock-recruitment relationship, even though it is only one part of the full
+stock-recruitment relationship. However it is the only part that can be set
+independently, while the other parts are already determined by the predation
+parameters and other model parameters. Thus in practice this part of the
+density dependence is used to encode all the density dependence that is not
+already included in the other two sources of density dependence.
+
+To calculate the density-dependent rate of larvae production, mizer puts the
+the density-independent rate of egg production through a "stock-recruitment"
 function. The result is returned by \code{\link{getRDD}}. The
-stock-recruitment function is specified by the \code{srr} argument. The default
-is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which requires
-an \code{r_max} column in the species_params data frame giving the maximum
-egg production rate. If this column does not exist, it is initialised to 
-\code{Inf}, leading to no density-dependence.
+stock-recruitment function is specified by the \code{srr} argument. The
+default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
+requires an \code{r_max} column in the species_params data frame giving the
+maximum egg production rate. If this column does not exist, it is initialised
+to \code{Inf}, leading to no density-dependence. Other functions provided by
+mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
+easily use these as models for writing your own functions.
+}
 }
 
 \seealso{

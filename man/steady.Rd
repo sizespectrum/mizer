@@ -4,15 +4,15 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 0, t_max = 50, t_per = 2, tol = 10^(-2),
+steady(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
   dt = 0.1, progress_bar = TRUE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{effort}{The fishing effort. Default is 0}
+\item{effort}{The fishing effort. Default is 1.}
 
-\item{t_max}{The maximum number of years to run the simulation. Default is 50.}
+\item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
 \item{t_per}{The simulation is broken up into shorter runs of t_per years,
 after each of which we check for convergence. Default value is 2.}
