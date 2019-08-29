@@ -11,7 +11,7 @@
 #'   frame should have columns \code{length} and \code{dl} holding the start of
 #'   the size bins in cm and the width of the size bins in cm respectively. In
 #'   the latter case the data frame should have columns \code{weight} and
-#'   \code{dw} holding the start of the size bins in frams and the width of the
+#'   \code{dw} holding the start of the size bins in grams and the width of the
 #'   size bins in grams. The data frame also needs to have the columns
 #'   \code{species} (the name of the species), \code{catch} (the number of
 #'   individuals of a particular species caught in a size bin).
