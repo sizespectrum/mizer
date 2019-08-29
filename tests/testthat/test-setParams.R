@@ -137,9 +137,19 @@ test_that("setReproduction works", {
     expect_equal(p2, setReproduction(p2, maturity = maturity,
                                      repro_prop = p2@psi))
     expect_equal(params, setReproduction(params, repro_prop = p2@psi))
+    expect_error(setReproduction(params, srr = sum),
+                 "Arguments of srr function must be 'rdi' and 'species_params'")
     params@species_params$erepro[1] <- NA
-    p2 <- setReproduction(params)
+    p2 <- setReproduction(params, srr = srrSheperd)
     expect_equal(p2@species_params$erepro[1], 1)
+    p2@species_params$sheperd_b <- 0
+    expect_error(getRDD(p2),
+                 "The species_params dataframe must contain columns sheperd_b and sheperd_c.")
+    p2 <- setReproduction(params, srr = srrRicker)
+    expect_error(getRDD(p2),
+                 "The ricker_b column is missing in species_params")
+    p2@species_params$ricker_b <- 0
+    expect_equal(getRDI(p2), getRDD(p2))
 })
 
 ## setResourceEncounter ----

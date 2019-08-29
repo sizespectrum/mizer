@@ -418,8 +418,8 @@ get_size_range_array <- function(params, min_w = min(params@w),
     else max_w <- rep(max_w,no_sp)
     if (!all(min_w < max_w))
         stop("min_w must be less than max_w")
-    min_n <- aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
-    max_n <- aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
+    min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
+    max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
     size_n <- min_n & max_n
     # Add dimnames?
     dimnames(size_n) <- list(sp = params@species_params$species, w = signif(params@w,3)) 
@@ -693,7 +693,7 @@ getCommunitySlope <- function(sim, species = 1:nrow(sim@params@species_params),
     # so that they will be ignored when fitting the linear model
     total_n[total_n <= 0] <- NA
     # fit linear model at every time and put result in data frame
-    slope <- adply(total_n, 1, function(x, w) {
+    slope <- plyr::adply(total_n, 1, function(x, w) {
         summary_fit <- summary(lm(log(x) ~ log(w)))
         out_df <- data.frame(
             slope = summary_fit$coefficients[2, 1],

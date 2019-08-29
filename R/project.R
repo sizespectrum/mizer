@@ -109,7 +109,7 @@ NULL
 #' effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 #' sim <- project(params, effort = effort_array)
 #' }
-project <- function(object, effort = 0,
+project <- function(object, effort = 1,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
                     initial_n = params@initial_n,
                     initial_n_pp = params@initial_n_pp,

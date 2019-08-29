@@ -29,13 +29,10 @@
 #' See the mizer website and vignettes for full details of the principles behind
 #' mizer and how the package can be used to perform size-based modelling.
 #'
-#' @import plyr ggplot2 methods assertthat
+#' @import ggplot2 methods assertthat shiny
 #' @importFrom reshape2 melt
-#' @importFrom stats fft mvfft lm pnorm complete.cases
-#' @importFrom deSolve ode
-#' @importFrom progress progress_bar
-#' @importFrom plotly ggplotly
-#'
+#' @importFrom plotly ggplotly plotlyOutput renderPlotly
+#' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @docType package
 #' @name mizer
 #' @aliases mizer-package

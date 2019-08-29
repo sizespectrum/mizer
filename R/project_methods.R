@@ -46,7 +46,7 @@ NULL
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
-#' @param effort The effort for each fishing gear
+#' @param effort The effort for each fishing gear. Default 1.
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' 
@@ -69,7 +69,7 @@ NULL
 getRates <- function(params, n = params@initial_n, 
                      n_pp = params@initial_n_pp,
                      B = params@initial_B,
-                     effort = 0, sex_ratio = 0.5) {
+                     effort = 1, sex_ratio = 0.5) {
     r <- list()
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- getEncounter(params, n = n, n_pp = n_pp, B = B)
@@ -325,7 +325,7 @@ getFeedingLevel <- function(object, n, n_pp, B, encounter,
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
-        feed_time <- aaply(which(time_elements), 1, function(x) {
+        feed_time <- plyr::aaply(which(time_elements), 1, function(x) {
             # Necessary as we only want single time step but may only have 1
             # species which makes using drop impossible
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
@@ -505,7 +505,7 @@ getPredMort <- function(object, n, n_pp, B,
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
-        m2_time <- aaply(which(time_elements), 1, function(x) {
+        m2_time <- plyr::aaply(which(time_elements), 1, function(x) {
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
             B <- sim@params@initial_B
@@ -640,7 +640,7 @@ getM2Background <- getPlanktonMort
 #' getFMortGear(sim, time_range=c(10,20))
 #' }
 #' 
-getFMortGear <- function(object, effort, time_range) {
+getFMortGear <- function(object, effort = 1, time_range) {
     if (is(object, "MizerSim")) {
         sim <- object
         if (missing(time_range)) {
@@ -783,7 +783,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
 #' @param effort A numeric vector of the effort by gear or a single numeric
-#'   effort value which is used for all gears.
+#'   effort value which is used for all gears. Default 1.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
 #'   calculated using the \code{\link{getPredMort}} function.
@@ -806,7 +806,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 getMort <- function(params, n = params@initial_n, 
                     n_pp = params@initial_n_pp,
                     B = params@initial_B,
-                    effort, 
+                    effort = 1, 
                     m2 = getPredMort(params, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(m2) == c(nrow(params@species_params), length(params@w)))) {
         stop("m2 argument must have dimensions: no. species (",
@@ -994,6 +994,7 @@ getEGrowth <- function(params, n = params@initial_n,
 #' Calculates the density independent rate of egg production \eqn{R_{p.i}}
 #' (units 1/year) before density dependence, by species. Used by
 #' \code{\link{getRDD}} to calculate the actual density dependent rate.
+#' See \code{\link{setRecruitment}} for more details.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -1036,13 +1037,14 @@ getRDI <- function(params, n = params@initial_n,
 }
 
 
-#' Get density dependent recruitment
+#' Get density dependent rate of larvae production
 #'
-#' Calculates the density dependent rate of egg production \eqn{R_i} (units
+#' Calculates the density dependent rate of larvae production \eqn{R_i} (units
 #' 1/year) for each species. This is the flux entering the smallest size class
-#' of each species. The density dependent recruitment is the density independent
-#' recruitment after it has been put through the density dependent
-#' stock-recruitment relationship function.
+#' of each species. The density dependent rate is the density independent
+#' rate obtained with \code{\link{getRDI}} after it has been put through the 
+#' density dependent "stock-recruitment" relationship function. See
+#' \code{\link{setRecruitment}} for more details.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -1065,7 +1067,7 @@ getRDI <- function(params, n = params@initial_n,
 #' params <- set_multispecies_model(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get the energy at a particular time step
+#' # Get the rate at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDD <- function(params, n = params@initial_n, 
