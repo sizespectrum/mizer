@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{getRDD}
 \alias{getRDD}
-\title{Get density dependent recruitment}
+\title{Get density dependent rate of larvae production}
 \usage{
 getRDD(params, n = params@initial_n, n_pp = params@initial_n_pp,
   B = params@initial_B, sex_ratio = 0.5, rdi = getRDI(params, n = n,
@@ -28,11 +28,12 @@ If not specified rdi is calculated internally using
 A numeric vector the length of the number of species.
 }
 \description{
-Calculates the density dependent rate of egg production \eqn{R_i} (units
+Calculates the density dependent rate of larvae production \eqn{R_i} (units
 1/year) for each species. This is the flux entering the smallest size class
-of each species. The density dependent recruitment is the density independent
-recruitment after it has been put through the density dependent
-stock-recruitment relationship function.
+of each species. The density dependent rate is the density independent
+rate obtained with \code{\link{getRDI}} after it has been put through the 
+density dependent "stock-recruitment" relationship function. See
+\code{\link{setRecruitment}} for more details.
 }
 \examples{
 \dontrun{
@@ -41,7 +42,7 @@ data(inter)
 params <- set_multispecies_model(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-# Get the energy at a particular time step
+# Get the rate at a particular time step
 getRDD(params,sim@n[21,,],sim@n_pp[21,])
 }
 }

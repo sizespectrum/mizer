@@ -19,6 +19,6 @@ the mizer vignette where the corresponding model is described.
       \tab 7 \cr
 }
 
-The file also contains a helper function \code{\link{retuneAbundance}}.
+The file also contains functions for adding, removing or rescaling species.
 }
 

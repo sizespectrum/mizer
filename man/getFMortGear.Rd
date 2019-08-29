@@ -4,7 +4,7 @@
 \alias{getFMortGear}
 \title{Get the fishing mortality by time, gear, species and size}
 \usage{
-getFMortGear(object, effort, time_range)
+getFMortGear(object, effort = 1, time_range)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object.}

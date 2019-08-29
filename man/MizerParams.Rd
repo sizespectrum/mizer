@@ -10,10 +10,10 @@ MizerParams(species_params, interaction = matrix(1, nrow =
   n = 2/3, p = 0.7, q = 0.8, kappa = 1e+11, lambda = (2 + q - n),
   f0 = 0.6, pred_kernel = NULL, search_vol = NULL,
   intake_max = NULL, metab = NULL, mu_b = NULL, z0pre = 0.6,
-  z0exp = n - 1, maturity = NULL, repro_prop = NULL, r_pp = 10,
-  w_pp_cutoff = 10, plankton_dynamics = plankton_semichemostat,
-  resource_dynamics = list(), resource_params = list(), rho = NULL,
-  srr = srrBevertonHolt)
+  z0exp = n - 1, maturity = NULL, repro_prop = NULL,
+  srr = srrBevertonHolt, r_pp = 10, w_pp_cutoff = 10,
+  plankton_dynamics = plankton_semichemostat,
+  resource_dynamics = list(), resource_params = list(), rho = NULL)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
@@ -90,6 +90,9 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
+\item{srr}{The stock recruitment function. Defaults to 
+\code{\link{srrBevertonHolt}}.}
+
 \item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
@@ -111,8 +114,6 @@ needed.}
 \item{rho}{Optional. An array (species x resource x size)
 holding the rate at which a consumer of a particular size feeds on each
 resource. Described in the section "Setting resource encounter rate".}
-
-\item{srr}{Optional. The stock recruitment function.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -333,6 +334,8 @@ as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{in
 
 \section{Setting reproduction}{
 
+
+\subsection{Investment}{
 For each species and at each size, the proportion of the available energy 
 that is invested into reproduction is the product of two factors: the
 proportion \code{maturity} of individuals that are mature and the proportion
@@ -370,25 +373,53 @@ scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
 are taken from the compulsory \code{w_inf} column in the species_params
 data frame.
+}
 
+\subsection{Efficiency}{
 The reproductive efficiency, i.e., the proportion of energy allocated to
-reproduction that results in offspring biomass, is set from the 
-\code{erepro} column in the species_params data frame. If that is not
-provided the default is set to 1 (which you will want to override).
-The offspring biomass divided by the egg biomass gives the
-density-independent rate of egg production, returned by \code{\link{getRDI}}.
+reproduction that results in egg biomass, is set from the \code{erepro}
+column in the species_params data frame. If that is not provided, the default
+is set to 1 (which you will want to override). The offspring biomass divided
+by the egg biomass gives the rate of egg production, returned by
+\code{\link{getRDI}}.
+}
 
-Mizer allows some density dependence in the production of eggs by putting
-the density-independent rate of egg production through a stock-recruitment
+\subsection{Density dependence}{
+The stock-recruitment relationship is an emergent phenomenon in mizer, with
+several sources of density dependence. Firstly, the amount of energy invested
+into reproduction depends on the energy income of the spawners, which is
+density-dependent due to competition for prey. Secondly, the proportion of
+larvae that grow up to recruitment size depends on the larval mortality,
+which depends on the density of predators, and on larval growth rate, which
+depends on density of prey.
+
+Finally, the proportion of eggs that are viable and hatch to larvae can be
+density dependent. Somewhat misleadingly, mizer refers to this relationship
+between the number of eggs and the number of hatched larvae as the
+stock-recruitment relationship, even though it is only one part of the full
+stock-recruitment relationship. However it is the only part that can be set
+independently, while the other parts are already determined by the predation
+parameters and other model parameters. Thus in practice this part of the
+density dependence is used to encode all the density dependence that is not
+already included in the other two sources of density dependence.
+
+To calculate the density-dependent rate of larvae production, mizer puts the
+the density-independent rate of egg production through a "stock-recruitment"
 function. The result is returned by \code{\link{getRDD}}. The
-stock-recruitment function is specified by the \code{srr} argument. The default
-is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which requires
-an \code{r_max} column in the species_params data frame giving the maximum
-egg production rate. If this column does not exist, it is initialised to 
-\code{Inf}, leading to no density-dependence.
+stock-recruitment function is specified by the \code{srr} argument. The
+default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
+requires an \code{r_max} column in the species_params data frame giving the
+maximum egg production rate. If this column does not exist, it is initialised
+to \code{Inf}, leading to no density-dependence. Other functions provided by
+mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
+easily use these as models for writing your own functions.
+}
 }
 
 \section{Setting fishing}{
+
+
+\strong{Gears}
 
 In \code{mizer}, fishing mortality is imposed on species by fishing gears. The
 total fishing mortality is obtained by summing over the mortality from all
@@ -399,9 +430,13 @@ species \eqn{i} at size \eqn{w} is calculated as:
 \deqn{F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},}
 where \eqn{S} is the selectivity by species, gear and size, \eqn{Q} is the
 catchability by species and gear and \eqn{E} is the fishing effort by gear.
+
 At the moment a species can only be selected by one fishing gear, although
 each gear can select more than one species (this is a limitation with the
-current package that will be developed in future releases).
+current package that will be developed in future releases). The gear
+selecting each species can be specified in the \code{gear} column in the
+species_params data frame. If no gear is specified, the default gear is
+"knife_edge_gear".
 
 \strong{Selectivity}
 
@@ -409,24 +444,25 @@ The selectivity at size of each gear has a range between 0 (not selected at
 that size) to 1 (fully selected at that size). It is given by a selectivity
 function. The name of the selectivity function is given by the \code{sel_func}
 column in the species parameters data frame. Some selectivity functions are
-included in the package: \code{knife_edge()} and \code{sigmoid_length()}. New functions
-can be defined by the user. Each gear has the same selectivity function for
-all the species it selects, but the parameter values for each species may be
-different, e.g. the lengths of species that a gear selects may be different.
+included in the package: \code{knife_edge()}, \code{sigmoid_length()} and
+\code{double_sigmoid_length()}. New functions can be defined by the user. Each
+gear has the same selectivity function for all the species it selects, but
+the parameter values for each species may be different, e.g. the lengths of
+species that a gear selects may be different.
 
-Each selectivity function has a range of arguments. Values for these
-arguments must be included as columns in the species parameters data.frame.
-The names of the columns must exactly match the names of the arguments. For
-example, the default selectivity function is \code{knife_edge()} which has sudden
-change of selectivity from 0 to 1 at a certain size.
-In its help page you can see that the \code{knife_edge()} function has arguments \code{w} and
-\code{knife_edge_size} The first argument, \code{w}, is size (the function calculates
-selectivity at size). All selectivity functions must have \code{w} as the first
-argument. The values for the other arguments must be found in the species
-parameters data.frame. So for the \code{knife_edge()} function there should be a
-\code{knife_edge_size} column. Because \code{knife_edge()} is the default
-selectivity function, the \code{knife_edge_size} argument has a default
-value = \code{w_mat}.
+Each selectivity function has a range of parameters. Values for these
+parameters must be included as columns in the species parameters data.frame.
+The names of the columns must exactly match the names of the corresponding
+arguments of the selectivity function. For example, the default selectivity
+function is \code{knife_edge()} which has sudden change of selectivity from 0 to 1
+at a certain size. In its help page you can see that the \code{knife_edge()}
+function has arguments \code{w} and \code{knife_edge_size} The first argument, \code{w}, is
+size (the function calculates selectivity at size). All selectivity functions
+must have \code{w} as the first argument. The values for the other arguments must
+be found in the species parameters data.frame. So for the \code{knife_edge()}
+function there should be a \code{knife_edge_size} column. Because \code{knife_edge()}
+is the default selectivity function, the \code{knife_edge_size} argument has a
+default value = \code{w_mat}.
 
 \strong{Catchability}
 
@@ -441,9 +477,10 @@ catchability matrix \eqn{Q_{g,i}} reduces to a catchability vector
 \eqn{Q_{i}}, and this is given as a column \code{catchability} in the species
 parameter data frame. If it is not specified, it defaults to 1.
 
-Fishing effort is not stored in the \code{MizerParams} object.
-Instead, effort is set when the simulation is run and can vary through time
-with \code{project()}.
+\strong{Effort}
+
+Fishing effort is not stored in the \code{MizerParams} object. Instead, effort is
+set when the simulation is run with \code{project()} and can vary through time.
 }
 
 \section{Setting plankton dynamics}{

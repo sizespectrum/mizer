@@ -4,12 +4,12 @@
 \alias{removeSpecies}
 \title{Remove species from an ecosystem}
 \usage{
-removeSpecies(params, remove)
+removeSpecies(params, species)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
 
-\item{remove}{A vector of the names of the species to be deleted or a boolean
+\item{species}{A vector of the names of the species to be deleted or a boolean
 vector indicating for each species whether it is to be removed (TRUE) or
 not.}
 }
@@ -17,7 +17,7 @@ not.}
 An object of type \linkS4class{MizerParams}
 }
 \description{
-This function simply removes all entries from the MizerParams object that 
-refer to the selected species. It does not recalculate the initial 
-abundances.
+This function simply removes all entries from the MizerParams object that
+refer to the selected species. It does not recalculate the steady state for
+the remaining species.
 }

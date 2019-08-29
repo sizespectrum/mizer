@@ -2,9 +2,9 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{addSpecies}
 \alias{addSpecies}
-\title{Add more species into an ecosystem with background species.}
+\title{Add new species}
 \usage{
-addSpecies(params, species_params, SSB = NA, rfac = 10, effort = 0)
+addSpecies(params, species_params, interaction, effort = 1)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -12,25 +12,31 @@ addSpecies(params, species_params, SSB = NA, rfac = 10, effort = 0)
 \item{species_params}{The species parameters of the new species we
 want to add to the system.}
 
-\item{SSB}{The spawning stock biomass of the new species. If not provided, 
-the abundance of the new species will be chosen so that its maximal 
-biomass density lies at half the community power law.}
+\item{interaction}{Interaction matrix. A square matrix giving either the
+interaction coefficients between all species or only those between the
+new species. In the latter case all interaction between an old and a new
+species are set to 1. If this argument is missing, all interactions 
+involving a new species are set to 1.}
 
-\item{rfac}{A number that determines the strength of the non-linearity in
-the Beverton-Holt stock-recruitment relationship. The maximal recruitment
-will be set to rfac times the normal steady-state recruitment.
-Default value is 10.}
-
-\item{effort}{Fishing effort. Default value is 0.}
-
-\item{...}{Other arguments (unused)}
+\item{effort}{Fishing effort. Default value is 1.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
 }
 \description{
-Takes a \linkS4class{MizerParams} object and adds an additional species with
-given parameters to the ecosystem.
+Takes a \linkS4class{MizerParams} object and adds additional species with
+given parameters to the ecosystem. It sets the initial values for these new
+species to its steady-state solution in the given initial state of the
+existing ecosystem. This will be close to the true steady-state if the
+abundances of the new species are sufficiently low. Hence the abundances of
+the new species are set so that the maximal biomass density of each new
+species lies at 1/100 of the community power law. The reproductive
+efficiencies of the new species are set so as to keep them at that low level.
+}
+\details{
+After adding the new species, the background species are not retuned and the
+system is not run to steady state. You would have to call
+\code{\link{retuneBackground}} and \code{\link{steady}} explicitly.
 }
 \examples{
 \dontrun{

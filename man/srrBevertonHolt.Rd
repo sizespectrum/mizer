@@ -7,13 +7,31 @@
 srrBevertonHolt(rdi, species_params)
 }
 \arguments{
-\item{rdi}{x}
+\item{rdi}{Vector of egg production rates \eqn{R_p} for all species.}
 
-\item{species_params}{x}
+\item{species_params}{A species parameter dataframe. Must contain a column
+r_max holding the maximum larvae production rate \eqn{R_{max}} for each
+species.}
 }
 \value{
-rdd
+Vector of density-dependent larvae production rates.
 }
 \description{
-Beverton Holt stock-recruitment function
+Takes the rates \eqn{R_p} of egg production and returns reduced,
+density-dependent larvae production rates \eqn{R} given as
+\deqn{R = R_p \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})}
+where \eqn{R_{max}} are the maximum possible larvae production rates that
+must be specified in a column in the species parameter dataframe.
 }
+\details{
+This is only one example of a stock-recruitment function. You can write
+your own function based on this example, returning different
+density-dependent larvae production rates. Two other examples provided are
+\code{\link{srrRicker}} and \code{\link{srrSheperd}}. For more explanation
+see \code{\link{setReproduction}}.
+}
+\seealso{
+Other stock-recruitment functions: \code{\link{srrNone}},
+  \code{\link{srrRicker}}, \code{\link{srrSheperd}}
+}
+\concept{stock-recruitment functions}
