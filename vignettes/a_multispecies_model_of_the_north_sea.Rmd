@@ -120,11 +120,11 @@ params_data$a <- c(0.007, 0.001, 0.009, 0.002, 0.010, 0.006, 0.008, 0.004,
 0.007, 0.005, 0.005, 0.007)
 params_data$b <- c(3.014, 3.320, 2.941, 3.429, 2.986, 3.080, 3.019, 3.198,
     3.101, 3.160, 3.173, 3.075)
+params_data$gear <- params_data$species
 ```
 
-Note that we do not set up a `gear` column to give specific gear names. This
-means that each species will be caught by a separate gear named after the
-species.
+Note that we have set up a `gear` column so that each species will be caught by
+a separate gear named after the species.
 
 In this model we are interested in projecting forward using historical fishing
 mortalities. The historical fishing mortality from 1967 to 2010 for each species
