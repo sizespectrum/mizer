@@ -2258,6 +2258,21 @@ srrSheperd <- function(rdi, species_params) {
     return(rdi / (1 + (species_params$sheperd_b * rdi)^species_params$sheperd_c))
 }
 
+#' Identity stock-recruitment function
+#' 
+#' Simply returns its \code{rdi} argument.
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param species_params A species parameter dataframe. Not used.
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrNone <- function(rdi, species_params) {
+    return(rdi)
+}
+
 #' Set a species parameter to a default value
 #'
 #' If the species parameter does not yet exist in the species parameter data
