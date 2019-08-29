@@ -59,6 +59,7 @@ Collate:
     'wrapper_functions.R'
     'data.R'
     'RcppExports.R'
+    'gadgets.R'
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1.9000
 Encoding: UTF-8
