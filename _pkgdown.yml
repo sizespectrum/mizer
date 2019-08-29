@@ -125,6 +125,7 @@ reference:
   - box_pred_kernel
   - knife_edge
   - sigmoid_length
+  - double_sigmoid_length
   - plankton_semichemostat
   - carrion_dynamics
   - detritus_dynamics
