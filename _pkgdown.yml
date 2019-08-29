@@ -26,14 +26,14 @@ navbar:
     right: [github]
   components:
     articles:
-      text: Articles
+      text: Guides
       href: articles/index.html
     publications:
       text: Publications
       href: articles/publications.html
 
 articles:
-- title: User Guides
+- title: For the user
   contents:
   - mizer
   - installation
@@ -44,7 +44,7 @@ articles:
   - running_a_simulation
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
-- title: Developer Guides
+- title: For the developer
   contents:
   - developer_vignette
   - editing_website
@@ -57,6 +57,17 @@ reference:
   - set_community_model
   - set_trait_model
   - set_scaling_model
+  - markBackground
+  - retuneBackground
+  - steady
+  - addSpecies
+  - tuneParams
+  - rescaleAbundance
+  - retuneReproductionEfficiency
+  - pruneSpecies
+  - removeSpecies
+  - renameSpecies
+  - setRmax
 - title: Changing model parameters
   contents:
   - setParams
@@ -72,12 +83,7 @@ reference:
   - setResourceDynamics
   - setResourceEncounter
   - setInitial
-  - steady
-  - addSpecies
-  - removeSpecies
-  - retuneAbundance
   - upgradeParams
-  - markBackground
 - title: Running simulations
   contents:
   - project
@@ -123,6 +129,7 @@ reference:
   contents:
   - lognormal_pred_kernel
   - box_pred_kernel
+  - power_law_pred_kernel
   - knife_edge
   - sigmoid_length
   - double_sigmoid_length
@@ -131,7 +138,8 @@ reference:
   - detritus_dynamics
   - srrBevertonHolt
   - srrRicker
-  - srrSheperd  
+  - srrSheperd
+  - srrNone
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper
@@ -153,6 +161,7 @@ reference:
   - summary,MizerSim-method
 - title: Data sets
   contents:
+  - NS_params
   - NS_species_params
   - NS_species_params_gears
   - inter

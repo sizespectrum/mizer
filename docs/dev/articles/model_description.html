@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The General Mizer Size-spectrum Model • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="The General Mizer Size-spectrum Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -39,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -50,7 +51,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Guides</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -62,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sizespectrum/mizer">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -75,6 +76,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -98,7 +100,7 @@ And clicking again will hide the details again.
 <p>The model framework builds on two central assumption and a number of lesser standard assumption.</p>
 <p>The first central assumption is that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(mizer)</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_scaling_model.html">set_scaling_model</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_egg =</span> <span class="fl">1e-3</span>)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</a></code></pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
@@ -118,7 +120,7 @@ And clicking again will hide the details again.
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}\]</span></p>
 <details><p>In the code this boundary condition is actually implemented as an equation for the rate of change of the number of individuals in the smallest size bin: <span class="math display">\[\begin{equation}
-\frac{dN_i(w_0)}{dt}=...
+\frac{d N_i(w_0)}{dt}=...
 \end{equation}\]</span></p>
 </details>
 </div>
@@ -249,6 +251,7 @@ And clicking again will hide the details again.
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -271,17 +274,20 @@ And clicking again will hide the details again.
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

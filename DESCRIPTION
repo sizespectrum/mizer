@@ -23,6 +23,7 @@ License: GPL-3
 Imports:
     assertthat,
     deSolve,
+    dplyr,
     ggplot2,
     grid,
     methods,
@@ -30,7 +31,10 @@ Imports:
     plyr,
     progress,
     Rcpp,
-    reshape2
+    reshape2,
+    shiny,
+    shinyjs,
+    tidyr
 LinkingTo: Rcpp
 Depends:
     R (>= 3.1)
@@ -38,7 +42,6 @@ Suggests:
     testthat,
     roxygen2,
     knitr,
-    shiny,
     shinyBS,
     rmarkdown,
     pkgdown,
