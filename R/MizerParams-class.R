@@ -302,10 +302,10 @@ validMizerParams <- function(object) {
 #'   Changed with \code{\link{setSearchVolume}}.
 #' @slot f0 Initial feeding level.
 #' @slot A Abundance multipliers.
-#' @slot linecolour A named vector of colour values, named by species. Used 
-#'   to give consistent colours to species in plots.
-#' @slot linetype A named vector of linetypes, named by species. Used 
-#'   to give consistent line types to species in plots.
+#' @slot linecolour A named vector of colour values, named by species or 
+#'   resources. Used to give consistent colours in plots.
+#' @slot linetype A named vector of linetypes, named by species or resources. 
+#'   Used to give consistent line types in plots.
 
 #' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
@@ -625,7 +625,7 @@ emptyParams <- function(species_params,
     }
     names(linecolour) <- as.character(species_names)
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
-                    "Background" = "grey")
+                    "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
         linetype <- species_params$linetype
@@ -635,7 +635,7 @@ emptyParams <- function(species_params,
     }
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
-                  "Background" = "solid")
+                  "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
@@ -1908,23 +1908,40 @@ setResourceDynamics <- function(params,
         assert_that(is.list(resource_dynamics))
         no_res <- length(resource_dynamics)
         resource_names = names(resource_dynamics)
-            if (no_res > 0  && is.null(resource_names)) {
-                stop("The resource_dynamics list must be a named list.")
-            }
-            params@resource_dynamics <- resource_dynamics
-            params@rho <- 
-                array(NA,
-                      dim = c(nrow(params@species_params),
-                              no_res,
-                              length(params@w)),
-                      dimnames = list(sp = params@species_params$species,
-                                      res = resource_names,
-                                      w = signif(params@w, 3)))
-            if (length(params@initial_B) != no_res) {
-                params@initial_B <- rep(0, no_res)
-                names(params@initial_B) <- resource_names
-            }
+        if (no_res > 0  && is.null(resource_names)) {
+            stop("The resource_dynamics list must be a named list.")
+        }
+        params@resource_dynamics <- resource_dynamics
+        params@rho <- 
+            array(NA,
+                  dim = c(nrow(params@species_params),
+                          no_res,
+                          length(params@w)),
+                  dimnames = list(sp = params@species_params$species,
+                                  res = resource_names,
+                                  w = signif(params@w, 3)))
+        if (any(names(params@initial_B) != resource_names)) {
+            params@initial_B <- rep(0, no_res)
+            names(params@initial_B) <- resource_names
+        }
+        
+        # Set linecolour and linetype if necessary
+        # Colour-blind-friendly palette
+        # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+        cbbPalette <- c("#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+                        "#CC79A7", "#F0E442")
+        unused <- setdiff(cbbPalette, params@linecolour)
+        colourless <- setdiff(resource_names, names(params@linecolour))
+        linecolour <- rep(unused, length.out = length(colourless))
+        names(linecolour) <- colourless
+        params@linecolour <- c(params@linecolour, linecolour)
+        
+        linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
+                          "twodash"), length.out = length(colourless))
+        names(linetype) <- colourless
+        params@linetype <- c(params@linetype, linetype)
     }
+    
     if (!is.null(resource_params)) {
         assert_that(is.list(resource_params))
         params@resource_params <- resource_params
