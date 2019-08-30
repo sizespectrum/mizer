@@ -815,7 +815,8 @@ set_scaling_model <- function(no_sp = 11,
 #' 
 #' Rescales all background species in such a way that the total community
 #' spectrum is as close to the Sheldon power law as possible. Background
-#' species that are no longer needed are removed.
+#' species that are no longer needed are removed. The reproductive efficiencies
+#' of all species are retuned.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #'   
@@ -867,13 +868,14 @@ retuneBackground <- function(params) {
         params@initial_n <- params@initial_n * A2
     }
     
-    return(params)
+    return(retuneReproductionEfficiency(params))
 }
 
 #' Removes species with abundance below a threshold
 #' 
 #' This species simply removes the low-abundance species from the params object. 
-#' It does not recalculate the steady state for the remaining species.
+#' It does not recalculate the steady state for the remaining species or
+#' retune their reproductive efficiencies.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @param cutoff Species with an abundance at maturity size that is less than 
@@ -902,7 +904,7 @@ pruneSpecies <- function(params, cutoff = 1e-3) {
 #' 
 #' This function simply removes all entries from the MizerParams object that
 #' refer to the selected species. It does not recalculate the steady state for
-#' the remaining species.
+#' the remaining species or retune their reproductive efficiency.
 #' 
 #' @param params A mizer params object for the original system.
 #' @param species A vector of the names of the species to be deleted or a boolean
@@ -998,7 +1000,7 @@ rescaleAbundance <- function(params, factor) {
     params@initial_n[to_rescale, ] <- 
         params@initial_n[to_rescale, ] * factor
     
-    return(params)
+    return(retuneReproductionEfficiency(params))
 }
 
 #' Rename species
