@@ -2508,6 +2508,19 @@ get_h_default <- function(params) {
         }
         h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
             (species_params$w_inf ^ (1/3))
+        
+        if (!is.null(getOption("mizer_new"))) {
+            w_mat <- species_params$w_mat
+            w_inf <- species_params$w_inf
+            w_min <- species_params$w_min
+            b <- species_params$b
+            k_vb <- species_params$k_vb
+            n <- params@n
+            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb
+            h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
+                (params@species_params$alpha * params@f0 - 0.2) 
+        }
+        
         if (any(is.na(h[missing]))) {
             stop("Could not calculate h, perhaps k_vb is missing?")
         }
