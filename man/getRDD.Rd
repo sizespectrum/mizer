@@ -33,7 +33,7 @@ Calculates the density dependent rate of larvae production \eqn{R_i} (units
 of each species. The density dependent rate is the density independent
 rate obtained with \code{\link{getRDI}} after it has been put through the 
 density dependent "stock-recruitment" relationship function. See
-\code{\link{setRecruitment}} for more details.
+\code{\link{setReproduction}} for more details.
 }
 \examples{
 \dontrun{

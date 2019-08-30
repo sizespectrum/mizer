@@ -50,8 +50,8 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
+  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
+  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
   \code{\link{plotYieldGear}}, \code{\link{plotYield}},
   \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
