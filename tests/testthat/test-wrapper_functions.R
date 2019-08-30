@@ -201,7 +201,7 @@ test_that("renameSpecies warns on wrong names", {
 
 # rescaleAbundance ----
 test_that("rescaleAbundance works", {
-    p <- NS_params
+    p <- retuneReproductionEfficiency(NS_params)
     factor <- c(Cod = 2, Haddock = 3)
     p2 <- rescaleAbundance(NS_params, factor)
     expect_identical(p@initial_n["Cod"] * 2, p2@initial_n["Cod"])
