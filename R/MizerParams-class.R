@@ -614,8 +614,12 @@ emptyParams <- function(species_params,
     
     if ("linecolour" %in% names(species_params)) {
         linecolour <- species_params$linecolour
+        # If any NA's first fill them with unused colours
         linecolour[is.na(linecolour)] <- 
             setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
+        # if there are still NAs, start from beginning of palette again
+        linecolour[is.na(linecolour)] <- 
+            colour_palette[1:sum(is.na(linecolour))]
     } else {
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
