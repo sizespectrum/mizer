@@ -1307,7 +1307,7 @@ retuneReproductionEfficiency <- function(params,
 #' 
 #' Takes a MizerParams object with trivial stock recruitment function and sets 
 #' Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-#' factor \code{rfac} higher than the iniital-state recruitment.
+#' factor \code{rfac} higher than the inital-state recruitment.
 #' 
 #' @param params A MizerParams object
 #' @param rfac The factor by which the maximum recruitment should be higher than

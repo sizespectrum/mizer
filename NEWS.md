@@ -1,37 +1,20 @@
 
 # mizer 1.0.1.9000 
 
-## Breaking changes
+## Model building
+The process of building a new multi-species model by adding the species to a
+generic trait-based background has better support.
 
-* The default for `min_w_pp`, the smallest size of plankton, has changed in
-  `MizerParams()`, `set_trait_model()` and `set_community_model()`.
-  It used to be `w_min_pp = 1e-10`. Now the default is the smallest size at
-  which any of the species feeds. If your code relies on the old default, you
-  now need to supply the `w_min_pp = 1e-10` argument explicitly.
-* The default for `max_w`, the largest size in the model, has changed in
-  `MizerParams()` and `set_trait_model()`. It used to be 1.1 times the largest 
-  asymptotic size of any species in the model otherwise. The unnecessary factor
-  of 1.1 has now been removed. If your code relies on the old default, you now
-  need to set `w_max` explicitly.
-* Removed the `print_it` argument from plot functions.
-* plotFeedingLevel() now only plots the values within the size range of each
-  species. If for some reason you want the old plots that show a feeding level
-  also for sizes that the fish can never have, you need to supply an argument
-  `all.sizes = TRUE`.
-
-## Modelling unstructured resources
-Besides the size-structured planktonic resource, mizer can now also model any
-number of unstructured resource components. Such unstructured components are
-appropriate whenever the predation on these components is not size based.
-Possible applications include the modelling of detritus as a resource for
-detritivores, carrion as a resource for scavengers, or macroflora on which fish
-can graze. (#46)
-
-* Each unstructured resource component can have its own dynamics, with its own
-  parameters. These are set up with `setResourceDynamics()`.
-* Each species can be set to consume resources. The rates are set up with
- `setResourceEncounter()`.
-* Example dynamics are provided in `carrion_dynamics()` and `detritus_dynamics()`.
+* `tuneParams()` starts a shiny gadget that allows for interactive tuning of 
+  model parameters while various plots update automatically.
+* `addSpecies()` can now add several species at once, all at low abundance
+* New functions `pruneSpecies()`, `renameSpecies()`, `rescaleAbundance()`,
+  `retuneReproductionEfficiency()`.
+* In `retuneBackground()`, Singular Value Decomposition is used to retune 
+  background species to keep the community close to power law. Background 
+  species with very low abundances are automatically removed.
+* Setting of nonlinear stock-recruitment has been separated out into new
+  function `setRmax()`.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
@@ -53,6 +36,20 @@ The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `set_multispecies_model()`.
 (#51)
 
+## Modelling unstructured resources
+Besides the size-structured planktonic resource, mizer can now also model any
+number of unstructured resource components. Such unstructured components are
+appropriate whenever the predation on these components is not size based.
+Possible applications include the modelling of detritus as a resource for
+detritivores, carrion as a resource for scavengers, or macroflora on which fish
+can graze. (#46)
+
+* Each unstructured resource component can have its own dynamics, with its own
+  parameters. These are set up with `setResourceDynamics()`.
+* Each species can be set to consume resources. The rates are set up with
+ `setResourceEncounter()`.
+* Example dynamics are provided in `carrion_dynamics()` and `detritus_dynamics()`.
+
 ## Plotting
 
 * Every plot function now has a plotly version that makes the plot interactive 
@@ -60,6 +57,7 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   plotly version of `plotBiomass()`, and so on.
 * New `plotGrowthCurves()` plots growth curves and compares them to the von
   Bertalanffy growth curve.
+* New `plotDiet()` plots the diet composition as a function of predator size.
 * New `highlight` argument to all plot functions that display curves for 
   multiple species. Displays highlighted species with wider lines.
 * In the legends of all plots the species are now consistently ordered in the
@@ -74,6 +72,8 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 * New arguments `xlab` and `ylab` for `displayFrames()`.
 * Use colour and linetype for plots irrespective of the number of species.
 * Plot background species in the colour specified in the `linecolour` slot.
+* The default line type is `solid` but this can be changed via the `linetype`
+  slot.
 
 ## General feeding kernel
 
@@ -82,6 +82,8 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   species.
 * New `box_pred_kernel()` implements a box-shaped kernel as an alternative to
   the default `lognormal_pred_kernel()`.
+* New `power_law_pred_kernel()` implements a power-law kernel with sigmoidal
+  cutoffs at both ends. This is suitable for filter feeders.
 * Users can sets a predation kernel that has a predator-size-dependent
   predator/prey mass ration (via `setPredKernel()`). Mizer automatically
   falls back on the old non-FFT code to handle this. (#41)
@@ -93,12 +95,15 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
 * New `getDiet()` calculates the diet of predators. (#43)
+* Alternative stock-recruitment functions `srrRicker()` and `srrSheperd()`.
 * Satiation can be switched off by setting the maximum intake rate to `Inf`.
 * Users can now set their own plankton dynamics instead of the default
   `plankton_semichemostat()`.
 * Different species can interact with plankton with different strengths, or not
   feed on plankton at all, controlled by an `interaction_p` column in the
   species parameter data frame.
+* New gear selectivity function `double_sigmoid_length()` allows modelling
+  of escape of large individuals.
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which
   25% of the individuals of a species are mature.
@@ -118,20 +123,11 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 * Can set initial state with `setInitial()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
-* Can remove a species from a model with `removeSpecies()`.
 * New `perfect` argument allows `set_scaling_model()` to produce a perfectly 
   scale-invariant model.
-* In `retuneAbundance()`, Singular Value Decomposition is used to retune 
-  background species to keep the community close to power law. Background 
-  species with very low abundances are automatically removed.
-* Renamed some functions for consistency and to make them easier to understand,
-  but kept old names as aliases for backwards compatibility:
-  + `getmM2()` -> `getPredMort()`
-  + `plotM2` -> `plotPredMort()`
-  + `getM2background()` -> `getPlanktonMort()`
-  + `getZ()` -> `getMort()`
-  + `getESpawning()` -> `getERepro()`
-  + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
+* A new `bmort_prop` argument in `set_scaling_model()` allows the inclusion of
+  background death.
+* Added a data file with the North Sea model MizerParams object.
   
 ## Documentation
 
@@ -145,6 +141,15 @@ and is also used when setting up a new model with `set_multispecies_model()`.
 * Clarified that mizer uses grams and years as size and time units and is 
   agnostic about whether abundances are per area, per volume or per study area.
   (#42)
+* Added a unit test to automatically run a spell check on documentation.
+* Renamed some functions for consistency and to make them easier to understand,
+  but kept old names as aliases for backwards compatibility:
+  + `getmM2()` -> `getPredMort()`
+  + `plotM2` -> `plotPredMort()`
+  + `getM2background()` -> `getPlanktonMort()`
+  + `getZ()` -> `getMort()`
+  + `getESpawning()` -> `getERepro()`
+  + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
 
 ## Bug fixes
 
@@ -208,6 +213,26 @@ and is also used when setting up a new model with `set_multispecies_model()`.
   + Added slot `initial_B` for the initial biomasses of the resources.
 * Changes to MizerSim class:
   + Added slot `B` to hold resource biomasses over time
+
+## Breaking changes
+
+* The default for `min_w_pp`, the smallest size of plankton, has changed in
+  `MizerParams()`, `set_trait_model()` and `set_community_model()`.
+  It used to be `w_min_pp = 1e-10`. Now the default is the smallest size at
+  which any of the species feeds. If your code relies on the old default, you
+  now need to supply the `w_min_pp = 1e-10` argument explicitly.
+* The default for `max_w`, the largest size in the model, has changed in
+  `MizerParams()` and `set_trait_model()`. It used to be 1.1 times the largest 
+  asymptotic size of any species in the model otherwise. The unnecessary factor
+  of 1.1 has now been removed. If your code relies on the old default, you now
+  need to set `w_max` explicitly.
+* Removed the `print_it` argument from plot functions.
+* plotFeedingLevel() now only plots the values within the size range of each
+  species. If for some reason you want the old plots that show a feeding level
+  also for sizes that the fish can never have, you need to supply an argument
+  `all.sizes = TRUE`.
+* When no gear is specified for a species, the default is `knife_edge_gear`
+  rather than the species name.
 
 
 # mizer 1.0.1

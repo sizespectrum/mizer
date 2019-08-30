@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Get started • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -39,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -50,7 +51,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Guides</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -62,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sizespectrum/mizer">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -75,6 +76,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -106,9 +108,9 @@
 <h2 class="hasAnchor">
 <a href="#installing-mizer" class="anchor"></a>Installing mizer</h2>
 <p>If you already have R installed on your computer, then installation of the mizer package is very simple (assuming you have an active internet connection). Just start an R session and then type:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"mizer"</span>)</a></code></pre></div>
-<p>After installing mizer, to actually use it, you need to load the package using the <code><a href="https://www.rdocumentation.org/packages/base/topics/library">library()</a></code> function. Note that whilst you only need to install the package once, it will need to be loaded every time you start a new R session.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(mizer)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"mizer"</span>)</a></code></pre></div>
+<p>After installing mizer, to actually use it, you need to load the package using the <code><a href="https://rdrr.io/r/base/library.html">library()</a></code> function. Note that whilst you only need to install the package once, it will need to be loaded every time you start a new R session.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</a></code></pre></div>
 <p>If you still need to install R as well, or if you are interested in installing a development version of mizer, see the <a href="installation.html">Installing mizer</a> vignette for further details</p>
 </div>
 <div id="setting-the-model-parameters" class="section level2">
@@ -118,11 +120,11 @@
 <p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package. These make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> vignette) you can even let mizer choose all the parameters for you.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_community_model.html">set_community_model</a></span>()</a></code></pre></div>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species how species predate on each other. An example of a North Sea model is provided with the package.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(NS_species_params)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(inter)</a>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(NS_species_params)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(inter)</a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_multispecies_model.html">set_multispecies_model</a></span>(NS_species_params, inter)</a></code></pre></div>
-<pre><code>## Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</code></pre>
-<pre><code>## Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</code></pre>
+<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
+<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: No ks column in species data frame so using ks = h * 0.2.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
@@ -139,10 +141,10 @@
 <div id="exploring-the-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#exploring-the-results" class="anchor"></a>Exploring the results</h2>
-<p>After a simulation has been run, the results can be examined using a range of <code>plotting_functions</code> and <code>summary functions</code>. The <code><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot()</a></code> function combines several of these plots into one:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(sim)</a></code></pre></div>
+<p>After a simulation has been run, the results can be examined using a range of <code>plotting_functions</code> and <code>summary functions</code>. The <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> function combines several of these plots into one:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</a></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 50 years:</p>
+<p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(sim, <span class="dt">species =</span> <span class="st">"Herring"</span>, <span class="dt">threshold_w =</span> <span class="dv">50</span>, <span class="dt">biomass_proportion =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>##          0          1          2          3          4          5 
 ## 0.82418075 0.04388892 0.29419134 0.51446384 0.73563622 0.88702688 
@@ -159,7 +161,7 @@
 <p>Size spectrum models are a subset of physiologically structured models <span class="citation">(Metz and Diekmann <a href="#ref-metz_dynamics_1986">1986</a>; De Roos and Persson <a href="#ref-de_roos_physiologically_2001">2001</a>)</span> as growth (and thus maturation) is food dependent, and processes are formulated in terms of individual level processes. All parameters in the size spectrum models are related to individual weight which makes it possible to formulate the model with a small set of general parameters, which has prompted the label ``charmingly simple’’ to the model framework [<span class="citation">Pope et al. (<a href="#ref-pope_modelling_2006">2006</a>)</span>}.</p>
 <p>The model framework builds on the central assumption that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size- and trait-spectrum <span class="math inline">\({\cal N}_i(w)\)</span> which is the density of individuals such that <span class="math inline">\({\cal N}_i(w)dw\)</span> is the number of individuals in the interval <span class="math inline">\([w:w+dw]\)</span>. Scaling from individual-level processes of growth and mortality to the size spectrum of each trait group is achieved by means of the McKendrik-von Foerster equation, which is simply a continuity equation that describes the flow of biomass up the size spectrum, <span class="math display">\[\begin{equation}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} = -\mu_i(w) N_i(w)
-\end{equation}\]</span> where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> are coupled, because growth of one individual is due to predation on another, who consequenty dies.</p>
+\end{equation}\]</span> where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> are coupled, because growth of one individual is due to predation on another, who consequently dies.</p>
 <p>The continuity equation is supplemented by a boundary condition at the egg weight <span class="math inline">\(w_0\)</span> where the flux of individuals (numbers per time) <span class="math inline">\(g_i(w_0) N_i(w_0)\)</span> is determined by the reproduction of offspring by mature individuals in the population <span class="math inline">\(R_i\)</span>: <span class="math display">\[\begin{equation}
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}\]</span></p>
@@ -254,6 +256,7 @@ stock-recruitment relationship.
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -280,17 +283,20 @@ stock-recruitment relationship.
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

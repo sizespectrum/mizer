@@ -18,5 +18,5 @@ A MizerParams object
 \description{
 Takes a MizerParams object with trivial stock recruitment function and sets 
 Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-factor \code{rfac} higher than the iniital-state recruitment.
+factor \code{rfac} higher than the inital-state recruitment.
 }

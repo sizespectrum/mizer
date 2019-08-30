@@ -1,5 +1,5 @@
 pandoc: 2.3.1
-pkgdown: 1.3.0.9000
+pkgdown: 1.3.0.9101
 pkgdown_sha: ~
 articles:
   a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
@@ -15,6 +15,6 @@ articles:
   running_a_simulation: running_a_simulation.html
   trait_model: trait_model.html
 urls:
-  reference: https://sizespectrum.github.io/mizer//reference
-  article: https://sizespectrum.github.io/mizer//articles
+  reference: https://sizespectrum.org/mizer//reference
+  article: https://sizespectrum.org/mizer//articles
 

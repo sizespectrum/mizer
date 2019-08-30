@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Developer Guide • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Developer Guide">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -39,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -50,7 +51,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Guides</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -62,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sizespectrum/mizer">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -75,6 +76,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -101,22 +103,22 @@
 <div id="installing-r-rstudio-devtools" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installing-r-rstudio-devtools" class="anchor"></a>Installing R, RStudio, devtools</h2>
-<p>Mizer is compatible with R versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This vignette was prepared with R version 3.5.3 (2019-03-11).</p>
+<p>Mizer is compatible with R versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This vignette was prepared with R version 3.6.1 (2019-07-05).</p>
 <p>This guide assumes that you will be using RStudio to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
 <p>To work with R packages as a developer, you will need to <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">install additional tools</a>. Once you have these in place, you should install the devtools package with</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)</a></code></pre></div>
 <p>You are now all set to develop R packages, and <a href="https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio">RStudio makes this extra easy</a>. There is even a cheat sheet for package development accessible from the Help menu in RStudio.</p>
 </div>
 <div id="installing-git" class="section level2">
 <h2 class="hasAnchor">
-<a href="#installing-git" class="anchor"></a>Installing git</h2>
-<p>In case git is not already installed on your system, you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using git and github is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
+<a href="#installing-git" class="anchor"></a>Installing Git</h2>
+<p>In case Git is not already installed on your system, you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
 </div>
 <div id="forking-mizer-from-github" class="section level2">
 <h2 class="hasAnchor">
-<a href="#forking-mizer-from-github" class="anchor"></a>Forking mizer from github</h2>
-<p>Mizer is developed using the version control system <em>git</em> and the code is hosted on github. To work with the code you will create your own git repository with a copy of the mizer code.</p>
-<p>Go to <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> and fork it into your own repository. Then create a version control new project in Rstudio, and indicate your depository url.</p>
+<a href="#forking-mizer-from-github" class="anchor"></a>Forking mizer from GitHub</h2>
+<p>Mizer is developed using the version control system <em>Git</em> and the code is hosted on GitHub. To work with the code you will create your own git repository with a copy of the mizer code.</p>
+<p>Go to <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> and fork it into your own repository. Then create a version control new project in RStudio, and indicate your depository url.</p>
 <p>Go the the Git tab and from “More” select “Shell…” to open up a Git shell. There issue the commands</p>
 <pre><code>git remote add upstream git@github.com:sizespectrum/mizer.git
 git fetch upstream</code></pre>
@@ -173,8 +175,8 @@ git fetch upstream</code></pre>
 <h2 class="hasAnchor">
 <a href="#always-write-tests-for-your-code" class="anchor"></a>Always write tests for your code</h2>
 <p>We use <a href="http://testthat.r-lib.org/">testthat</a> and <a href="https://rstudio.github.io/shinytest/articles/shinytest.html">shinytest</a>. The test are in the directory <code>tests/testthat</code>.</p>
-<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://www.rdocumentation.org/packages/testthat/topics/expect_known_output">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
-<p>When a plot has changed, the error message from <code><a href="https://www.rdocumentation.org/packages/testthat/topics/expect_known_output">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://www.rdocumentation.org/packages/base/topics/readRDS">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
+<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
+<p>When a plot has changed, the error message from <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://rdrr.io/r/base/readRDS.html">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
 <p>It may be that the change in the result of a calculation is intended, perhaps because your new code is more accurate than the old code. If you are 100% certain of this, but only then, should you commit the changed files in tests/testthat/values, so that these new values form the basis of future comparison tests.</p>
 </div>
 <div id="rebuild-package-after-altering-code" class="section level2">
@@ -187,6 +189,7 @@ git fetch upstream</code></pre>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -195,8 +198,8 @@ git fetch upstream</code></pre>
       <li>
 <a href="#setting-up-working-environment">Setting up working environment</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#installing-r-rstudio-devtools">Installing R, RStudio, devtools</a></li>
-      <li><a href="#installing-git">Installing git</a></li>
-      <li><a href="#forking-mizer-from-github">Forking mizer from github</a></li>
+      <li><a href="#installing-git">Installing Git</a></li>
+      <li><a href="#forking-mizer-from-github">Forking mizer from GitHub</a></li>
       </ul>
 </li>
       <li>
@@ -218,17 +221,20 @@ git fetch upstream</code></pre>
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

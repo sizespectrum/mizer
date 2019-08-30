@@ -608,8 +608,9 @@ emptyParams <- function(species_params,
                         "#dc8488",
                         "#005c67",
                         "#5c585a")
-    type_palette <- c("solid", "dashed", "dotdash", "longdash", 
-                      "twodash")
+    # type_palette <- c("solid", "dashed", "dotdash", "longdash", 
+    #                   "twodash")
+    type_palette <- c("solid")
     
     if ("linecolour" %in% names(species_params)) {
         linecolour <- species_params$linecolour

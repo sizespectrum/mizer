@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Community Model • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="The Community Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -39,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -50,7 +51,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="../articles/index.html">Articles</a>
+  <a href="../articles/index.html">Guides</a>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -62,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sizespectrum/mizer">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -75,6 +76,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -89,7 +91,7 @@
     
     
 <p>The simplest version of the size spectrum model is the community model. In the community model, individuals are only characterized by their size and are represented by a single group representing an across species average. Reproduction is not considered and the recruitment flux <span class="math inline">\(R\)</span> is set to be constant. The resource spectrum only extends to the start of the community spectrum. Standard metabolism is turned off.</p>
-<p>In this section we describe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a ’trophic cascade’. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the mizer package. Consequently, this section should hopefully serve as an introduction to using mizer.</p>
+<p>In this section we describe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a trophic cascade. Due to the relative simplicity of this type of model they are useful for gently introducing some of the concepts behind the mizer package. Consequently, this section should hopefully serve as an introduction to using mizer.</p>
 <div id="sec:set_up_comm_model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:set_up_comm_model" class="anchor"></a>Setting up a community model</h2>
@@ -101,8 +103,8 @@
 <p>Although default values for these parameters are provided, you are encouraged to explore how changing the values affects the simulated community. For example, the default value of <code>z0</code> is 0.1. Increasing this value effectively ‘shortens’ the length of the community spectrum. The value of the constant recruitment should be set so that the community spectrum is a continuation of the plankton spectrum. This can be done with trial and error. A reasonable value for <code>alpha</code> is 0.2.</p>
 <p>The <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function is called by passing in the arguments by name. Any parameter that is not passed in is set to the default value. For example, the following line sets up the parameters with <code>z0</code> = 0.1, <code>f0</code> = 0.7, <code>alpha</code> = 0.2 and <code>recruitment</code> = 4e7. All other parameters will have their default value:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/set_community_model.html">set_community_model</a></span>(<span class="dt">z0 =</span> <span class="fl">0.1</span>, <span class="dt">f0 =</span> <span class="fl">0.7</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>, <span class="dt">recruitment =</span> <span class="fl">4e7</span>)</a></code></pre></div>
-<p>Calling the function creates and returns an object of type <code>MizerParams</code>. We can check this using the <code><a href="https://www.rdocumentation.org/packages/base/topics/class">class()</a></code> function.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/class">class</a></span>(params)</a></code></pre></div>
+<p>Calling the function creates and returns an object of type <code>MizerParams</code>. We can check this using the <code><a href="https://rdrr.io/r/base/class.html">class()</a></code> function.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(params)</a></code></pre></div>
 <pre><code>## [1] "MizerParams"
 ## attr(,"package")
 ## [1] "mizer"</code></pre>
@@ -123,8 +125,8 @@
 ## [37] "linecolour"        "linetype"</code></pre>
 <p>As you can see, the <code>params</code> object is made up of lots of slots. A quick description can be found in the <a href="../reference/MizerParams-class.html"><code>MizerParams</code> help page</a> (run <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. The slots of an object are accessed by using the <code>@</code> operator. For example, to access the <code>w</code> slot (which contains a vector of the size bins in the model) you would use</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">params<span class="op">@</span>w</a></code></pre></div>
-<p>Rather than picking through the slots to find out what is in a particular <code>MizerParams</code> object, a summary of the object can be seen by calling the <code><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary()</a></code> method on it:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/summary">summary</a></span>(params)</a></code></pre></div>
+<p>Rather than picking through the slots to find out what is in a particular <code>MizerParams</code> object, a summary of the object can be seen by calling the <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method on it:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(params)</a></code></pre></div>
 <pre><code>## An object of class "MizerParams" 
 ## Consumer size spectrum:
 ##  minimum size:   0.001
@@ -139,7 +141,7 @@
 ## Community Community 1e+06    NA  100     2
 ## Fishing gear details:
 ##  Gear            Target species
-##   Community       Community</code></pre>
+##   knife_edge_gear         Community</code></pre>
 <p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and these are spread over <span class="math inline">\(100\)</span> size bins. Similar information is available for the plankton spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(10^{6}\)</span> and a preferred predator prey mass ratio of <span class="math inline">\(100\)</span>. The <code>w_mat</code> parameter has been set to <code>NA</code> as it is not used when running a community model. These values have all been set by default using the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function. If you want to set different values for these, you will need to call the <code><a href="../reference/set_community_model.html">set_community_model()</a></code> function and pass in the desired argument values.</p>
 </div>
 <div id="sec:running_comm_model" class="section level2">
@@ -150,8 +152,8 @@
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">t_max =</span> <span class="dv">50</span>, <span class="dt">effort =</span> <span class="dv">0</span>)</a></code></pre></div>
 <p>The resulting object, <code>sim</code>, is of type <code>MizerSim</code>. This class holds the results of the simulation, including the community and plankton abundances at size through time, as well as the original model parameters. It is explained in detail in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 <p>After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in <a href="exploring_the_simulation_results.html">the section on exploring the simulation results.</a></p>
-<p>To quickly look at the results of the projection you can call the generic <code><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot()</a></code> method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time. Each of the plots can be show individually if desired.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(sim)</a></code></pre></div>
+<p>To quickly look at the results of the projection you can call the generic <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the biomass through time. Each of the plots can be show individually if desired.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</a></code></pre></div>
 <div class="figure">
 <img src="community_model_files/figure-html/print_plot_comm_sim-1.png" alt="Example plot of the community model." width="700"><p class="caption">
 Example plot of the community model.
@@ -165,7 +167,7 @@ Example plot of the community model.
 <p>To pull out the predation mortality at size in the final time step we use:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">m2[<span class="dv">51</span>,]</a></code></pre></div>
 <p>If you plot this predation mortality on a log-log scale you can see how the predation mortality declines to almost zero for the largest sizes.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="dt">x =</span> sim<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> m2[<span class="dv">51</span>,], <span class="dt">log =</span> <span class="st">"xy"</span>, <span class="dt">type =</span> <span class="st">"l"</span>, </a>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="dt">x =</span> sim<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> m2[<span class="dv">51</span>,], <span class="dt">log =</span> <span class="st">"xy"</span>, <span class="dt">type =</span> <span class="st">"l"</span>, </a>
 <a class="sourceLine" id="cb14-2" data-line-number="2">     <span class="dt">xlab =</span> <span class="st">"Size"</span>, <span class="dt">ylab =</span> <span class="st">"Predation mortality"</span>)</a></code></pre></div>
 <div class="figure">
 <img src="community_model_files/figure-html/print_plot_comm_m2-1.png" alt="Predation mortality without fishing in the community model (note the log scales for both axes)." width="700"><p class="caption">
@@ -184,23 +186,23 @@ Predation mortality without fishing in the community model (note the log scales 
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">sim0 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_knife, <span class="dt">effort =</span> <span class="dv">0</span>, <span class="dt">t_max =</span> <span class="dv">50</span>)</a></code></pre></div>
 <p>Now we want to simulate again, this time with fishing. In the simulations, fishing mortality is calculated as the product of the fishing selectivity, effort and catchability (see <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears</a> for more details). By default catchability is set to 1. This means that a fishing effort of 1 will result in a fishing mortality of 1 for fully selected sizes. Here we run a simulation with fishing effort set to 1 for the duration of the simulation:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">sim1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params_knife, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">50</span>)</a></code></pre></div>
-<p>You can compare the difference between these scenarios by using the <code><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot()</a></code> method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(sim1)</a></code></pre></div>
+<p>You can compare the difference between these scenarios by using the <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim1)</a></code></pre></div>
 <div class="figure">
 <img src="community_model_files/figure-html/print_plot_comm_fmort-1.png" alt="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g." width="700"><p class="caption">
 Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g.
 </p>
 </div>
 <p>To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are stored in the <code>n</code> slot of the <code>MizerSim</code> objects. The <code>n</code> slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(sim0<span class="op">@</span>n)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(sim0<span class="op">@</span>n)</a></code></pre></div>
 <pre><code>## [1]  51   1 100</code></pre>
 <p>We want the abundances in the final time step, and we can use these to calculate the relative abundances:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">relative_abundance &lt;-<span class="st"> </span>sim1<span class="op">@</span>n[<span class="dv">51</span>,,] <span class="op">/</span><span class="st"> </span>sim0<span class="op">@</span>n[<span class="dv">51</span>,,]</a></code></pre></div>
 <p>This can then be plotted using basic R plotting commands. The sizes are stored in the <code>params@w</code> slot (a slot of a slot!).</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="dt">x =</span> sim0<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> relative_abundance, <span class="dt">log =</span> <span class="st">"x"</span>, <span class="dt">type =</span> <span class="st">"n"</span>,</a>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="dt">x =</span> sim0<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> relative_abundance, <span class="dt">log =</span> <span class="st">"x"</span>, <span class="dt">type =</span> <span class="st">"n"</span>,</a>
 <a class="sourceLine" id="cb22-2" data-line-number="2">    <span class="dt">xlab =</span> <span class="st">"Size (g)"</span>, <span class="dt">ylab =</span> <span class="st">"Relative abundance"</span>)</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x =</span> sim0<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> relative_abundance)</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/lines">lines</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">min</a></span>(sim0<span class="op">@</span>params<span class="op">@</span>w), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(sim0<span class="op">@</span>params<span class="op">@</span>w)), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">lty =</span> <span class="dv">2</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="dt">x =</span> sim0<span class="op">@</span>params<span class="op">@</span>w, <span class="dt">y =</span> relative_abundance)</a>
+<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(sim0<span class="op">@</span>params<span class="op">@</span>w), <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(sim0<span class="op">@</span>params<span class="op">@</span>w)), <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="dt">lty =</span> <span class="dv">2</span>)</a></code></pre></div>
 <div class="figure">
 <img src="community_model_files/figure-html/plot_relative_comm_abund-1.png" alt="Relative abundances from the unfished (dashed line) and fished (solid line) community model." width="700"><p class="caption">
 Relative abundances from the unfished (dashed line) and fished (solid line) community model.
@@ -230,6 +232,7 @@ Biomass of the community model when sigma is reduced to a value of 1.0.
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -245,17 +248,20 @@ Biomass of the community model when sigma is reduced to a value of 1.0.
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
