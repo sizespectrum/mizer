@@ -60,7 +60,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
     sp_old_kernel <- 1
     sp_old_predation <- 1
     sp_old_fishing <- 1
-    sp_old_maturity <- 1
+    sp_old_reproduction <- 1
     sp_old_prey <- 1
     sp_old_n0 <- 1
     
@@ -140,7 +140,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                 "->",
                 tags$a("Fishing", href = "#fishing"),
                 "->",
-                tags$a("Maturity", href = "#maturity"),
+                tags$a("Reproduction", href = "#reproduction"),
                 "->",
                 tags$a("Others", href = "#others"),
                 "->",
@@ -170,7 +170,8 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                             tabPanel("Spectra", plotlyOutput("plotSpectra"),
                                      radioButtons("binning", "Binning:",
                                                   choices = c("Logarithmic", "Constant"), 
-                                                  selected = "Logarithmic", inline = TRUE)
+                                                  selected = "Logarithmic", inline = TRUE),
+                                     actionButton("scale", "Scale by 2x")
                             ),
                             tabPanel("Biomass",
                                      plotlyOutput("plotTotalBiomass"),
@@ -186,10 +187,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                                 click = "growth_click"),
                                      textOutput("info"),
                                      uiOutput("k_vb_sel"),
-                                     plotlyOutput("plot_feeding_level"),
-                                     plotlyOutput("plot_psi")),
+                                     plotlyOutput("plot_feeding_level")),
                             tabPanel("Repro",
-                                     plotlyOutput("plot_erepro")),
+                                     plotlyOutput("plot_erepro"),
+                                     plotlyOutput("plot_psi")),
                             tabPanel("Catch",
                                      actionButton("tune_catch", "Tune catchability"),
                                      uiOutput("catch_sel"),
@@ -407,7 +408,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                 step = 0.1)
                 ))
             }
-            l1 <- c(l1, list(tags$h3(tags$a(id = "maturity"), "Maturity"),
+            l1 <- c(l1, list(tags$h3(tags$a(id = "reproduction"), "Reproduction"),
                              sliderInput("w_mat", "w_mat", value = sp$w_mat,
                                          min = signif(sp$w_mat / 2, 2),
                                          max = signif(sp$w_mat * 1.5, 2)),
@@ -831,14 +832,14 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             }
         })
         
-        ## Adjust maturity ####
+        ## Adjust reproduction ####
         observe({
             req(input$w_mat, input$wfrac, input$w_inf, input$m)
             p <- isolate(params())
             sp <- isolate(input$sp)
             
-            if (sp != sp_old_maturity) {
-                sp_old_maturity <<- sp
+            if (sp != sp_old_reproduction) {
+                sp_old_reproduction <<- sp
             } else {
                 # Update slider min/max so that they are a fixed proportion of the 
                 # parameter value
@@ -1020,6 +1021,11 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             params(readRDS(logs[log_idx]))
             # Trigger an update of sliders
             trigger_update(runif(1))
+        })
+        
+        ## Scale ####
+        observeEvent(input$scale, {
+            params(rescaleAbundance(params(), factor = 2))
         })
         
         observeEvent(input$growth_click, {
