@@ -2216,6 +2216,62 @@ setInitial <- function(params,
     return(params)
 }
 
+
+#' Update the initial abundances
+#' 
+#' Recalculates the steady-state abundances in a fixed background
+#' given by the current abundances, keeping the abundances fixed in the
+#' smallest size class for each species. Then readjusts the \code{erepro}
+#' values.
+#' 
+#' @param params A MizerParams object
+#' @param effort Fishing effort. A numeric vector of the effort by gear or 
+#'   a single numeric effort value which is used for all gears.
+#'   
+#' @return The MizerParams object with updated \code{initial_n} and 
+#'   \code{initial_n_pp} slots.
+#' @export
+updateInitial <- function(params, effort = 1) {
+    assert_that(is(params, "MizerParams"))
+    # Calculate the rates in the current background
+    plankton_mort <- getPlanktonMort(params)
+    mumu <- getMort(params, effort = effort)
+    gg <- getEGrowth(params)
+    # Recompute plankton
+    params@initial_n_pp <- params@rr_pp * params@cc_pp / 
+        (params@rr_pp + plankton_mort)
+    # Recompute all species
+    for (sp in 1:length(params@species_params$species)) {
+        w_inf_idx <- min(sum(params@w < params@species_params[sp, "w_inf"]) + 1,
+                         length(params@w))
+        idx <- params@w_min_idx[sp]:(w_inf_idx - 1)
+        if (any(gg[sp, idx] == 0)) {
+            stop("Can not compute steady state due to zero growth rates")
+        }
+        n0 <- params@initial_n[sp, params@w_min_idx[sp]]
+        params@initial_n[sp, ] <- 0
+        params@initial_n[sp, params@w_min_idx[sp]:w_inf_idx] <- 
+            c(1, cumprod(gg[sp, idx] / ((gg[sp, ] + mumu[sp, ] * params@dw)[idx + 1]))) *
+            n0
+    }
+    
+    # Retune the values of erepro so that we get the correct level of
+    # recruitment
+    mumu <- getMort(params, effort = effort)
+    gg <- getEGrowth(params)
+    rdd <- getRDD(params)
+    # TODO: vectorise this
+    for (i in (1:length(params@species_params$species))) {
+        gg0 <- gg[i, params@w_min_idx[i]]
+        mumu0 <- mumu[i, params@w_min_idx[i]]
+        DW <- params@dw[params@w_min_idx[i]]
+        params@species_params$erepro[i] <- params@species_params$erepro[i] *
+            params@initial_n[i, params@w_min_idx[i]] *
+            (gg0 + DW * mumu0) / rdd[i]
+    }
+    return(params)
+}
+
 #' Upgrade MizerParams object from earlier mizer versions
 #' 
 #' Occasionally during the development of new features for mizer, the
