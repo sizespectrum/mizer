@@ -34,6 +34,7 @@ Imports:
     reshape2,
     shiny,
     shinyjs,
+    tibble,
     tidyr
 LinkingTo: Rcpp
 Depends:
@@ -67,6 +68,6 @@ VignetteBuilder: knitr
 RoxygenNote: 6.1.1.9000
 Encoding: UTF-8
 LazyData: true
-URL: https://sizespectrum.org/mizer/, https://github.com/sizespectrum/mizer
+URL: https://sizespectrum.org/mizer, https://github.com/sizespectrum/mizer
 BugReports: https://github.com/sizespectrum/mizer/issues
 Language: en-GB
