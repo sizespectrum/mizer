@@ -1390,7 +1390,9 @@ markBackground <- function(object, species) {
 #' @param effort The fishing effort. Default is 1.
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
-#'   after each of which we check for convergence. Default value is 2.
+#'   after each of which we check for convergence. Default value is 7.5. This
+#'   should be chosen as an odd multiple of the timestep `dt` in order to be
+#'   able to detect period 2 cycles.
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
@@ -1398,6 +1400,7 @@ markBackground <- function(object, species) {
 #' @param progress_bar A shiny progress object to implement 
 #'   a progress bar in a shiny app. Default FALSE
 #' @export
+#' @md
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model()
@@ -1405,8 +1408,8 @@ markBackground <- function(object, species) {
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
 #' }
-steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
-                   dt = 0.1, progress_bar = TRUE) {
+steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
+                   dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
     p <- params
     
     if (is(progress_bar, "Progress")) {
@@ -1428,13 +1431,20 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     n <- p@initial_n
     n_pp <- p@initial_n_pp
     B <- p@initial_B
+    sim <- p
     for (ti in (1:ceiling(t_max/t_per))) {
-        sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
-                       effort = effort, 
-                       initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
+        }
+        if (return_sim) {
+            sim <- project(sim, dt = dt, t_max = t_per, t_save = t_per,
+                           effort = effort,
+                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
+        } else {
+            sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
+                           effort = effort,
+                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
         }
         no_t <- dim(sim@n)[1]
         n[] <- sim@n[no_t, , ]
@@ -1452,7 +1462,7 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
             "Simulation run in steady() did not converge after ", ti * t_per, 
             "years. Residual relative rate of change = ", deviation))
     } else {
-        message(paste("Steady state was reached after ", ti * t_per, "years."))
+        message(paste("Steady state was reached before ", ti * t_per, "years."))
     }
     
     # Restore original stock-recruitment relationship and resource dynamics
@@ -1460,10 +1470,9 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     p@resource_dynamics <- old_resource_dynamics
     
     no_sp <- length(p@species_params$species)
-    no_t <- dim(sim@n)[1]
-    p@initial_n[] <- sim@n[no_t, , ]
-    p@initial_n_pp[] <- sim@n_pp[no_t, ]
-    p@initial_B[] <- sim@B[no_t, ]
+    p@initial_n[] <- n
+    p@initial_n_pp[] <- n_pp
+    p@initial_B[] <- B
     
     # Set rates of external resource influx to keep resources at steady state
     r <- getRates(p, effort = effort)
@@ -1483,7 +1492,12 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     # recruitment
     p <- retuneReproductionEfficiency(p)
     
-    return(p)
+    if (return_sim) {
+        sim@params <- p
+        return(sim)
+    } else {
+        return(p)
+    }
 }
 
 # Helper function to create constant resource dynamics

@@ -222,6 +222,10 @@ test_that("steady works", {
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
-    params <- steady(params)
-    expect_known_value(getRDI(params), "values/steady")
+    p <- steady(params, t_per = 2)
+    expect_known_value(getRDI(p), "values/steady")
+    # and works the same when returning sim
+    sim <- steady(params, t_per = 2, return_sim = TRUE)
+    expect_is(sim, "MizerSim")
+    expect_known_value(getRDI(sim@params), "values/steady")
 })

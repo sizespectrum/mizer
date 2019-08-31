@@ -4,8 +4,8 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
-  dt = 0.1, progress_bar = TRUE)
+steady(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
+  dt = 0.1, return_sim = FALSE, progress_bar = TRUE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -15,15 +15,17 @@ steady(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
 \item{t_per}{The simulation is broken up into shorter runs of t_per years,
-after each of which we check for convergence. Default value is 2.}
+after each of which we check for convergence. Default value is 7.5. This
+should be chosen as an odd multiple of the timestep \code{dt} in order to be
+able to detect period 2 cycles.}
 
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over t_per years is less than tol for every background
 species. Default value is 1/100.}
 
-\item{dt}{The time step to use in `project()`}
+\item{dt}{The time step to use in \code{project()}}
 
-\item{progress_bar}{A shiny progress object to implement 
+\item{progress_bar}{A shiny progress object to implement
 a progress bar in a shiny app. Default FALSE}
 }
 \description{
