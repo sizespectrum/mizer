@@ -224,7 +224,9 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                      radioButtons("plankton_death_prop", "Show",
                                                   choices = c("Proportion", "Rate"), 
                                                   selected = "Proportion", 
-                                                  inline = TRUE))
+                                                  inline = TRUE)),
+                            tabPanel("Steady",
+                                     plotlyOutput("plot_steady"))
                             # tabPanel("Stomach",
                             #          plotOutput("plot_stomach"),
                             #          plotOutput("plot_kernel"))
@@ -241,6 +243,40 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         foreground <- !is.na(p@A)
         foreground_indices <- (1:no_sp)[foreground]
         
+        run_steady <- function(p, return_sim = FALSE) {
+            
+            tryCatch({
+                # Create a Progress object
+                progress <- shiny::Progress$new(session)
+                on.exit(progress$close())
+                
+                # Run to steady state
+                if (return_sim) {
+                    sim <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                                  return_sim = TRUE,
+                                  progress_bar = progress)
+                    sim_steady(sim)
+                    p <- sim@params
+                } else {
+                    p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                                progress_bar = progress)
+                }
+                
+                # Update the reactive params object
+                params(p)
+                add_to_logs(p)
+            },
+            error = function(e) {
+                showModal(modalDialog(
+                    title = "Invalid parameters",
+                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
+                                "Please choose other values.<br>",
+                                "The error message was:<br>", e)),
+                    easyClose = TRUE
+                ))}
+            )
+        }
+        
         ## Store params object as a reactive value ####
         params <- reactiveVal(p)
         add_to_logs(p)
@@ -250,6 +286,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             shinyjs::disable("undo_all")
         }
         output$filename <- renderText("")
+        
+        # Reactive value to hold simulations from steady()
+        sim_steady <- reactiveVal(project(p, effort = 1, 
+                                          t_max = 0.2, t_save = 0.1))
         
         # Define a reactive value for triggering an update of species sliders
         trigger_update <- reactiveVal(0)
@@ -503,6 +543,12 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             l1
         })
         
+        ## Observe tabs ####
+        observe({
+            if (req(input$mainTabs) == "Steady") {
+                run_steady(isolate(params()), return_sim = TRUE)
+            }
+        })
         
         ## Adjust growth exponent ####
         observe({
@@ -1040,30 +1086,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         ## Find new steady state ####
         # triggered by "Steady" button on "species" tab
         observeEvent(input$sp_steady, {
-            p <- params()
-            
-            tryCatch({
-                # Create a Progress object
-                progress <- shiny::Progress$new(session)
-                on.exit(progress$close())
-                
-                # Run to steady state
-                p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
-                            progress_bar = progress)
-                
-                # Update the reactive params object
-                params(p)
-                add_to_logs(p)
-            },
-            error = function(e) {
-                showModal(modalDialog(
-                    title = "Invalid parameters",
-                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
-                                "Please choose other values.<br>",
-                                "The error message was:<br>", e)),
-                    easyClose = TRUE
-                ))}
-            )
+            run_steady(params())
         })
         
         ## Growth curves ####
@@ -1725,6 +1748,11 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                            size = 3) 
             st <- stomach %>% 
                 filter(species == input$sp)
+        })
+        
+        ## Plot run to steady ####
+        output$plot_steady <- renderPlotly({
+            plotBiomass(sim_steady())
         })
         
     } #the server
