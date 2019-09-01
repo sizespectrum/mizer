@@ -2295,6 +2295,12 @@ updateInitial <- function(params, effort = 1) {
 #' @return The upgraded MizerParams object
 #' @export
 upgradeParams <- function(params) {
+    if (.hasSlot(params, "metab")) {
+        metab <- params@metab
+    } else {
+        metab <- params@std_metab + params@activity
+    }
+    
     if (.hasSlot(params, "pred_kernel") && 
         length(dim(params@pred_kernel)) == 3) {
         pred_kernel <- params@pred_kernel
@@ -2340,7 +2346,7 @@ upgradeParams <- function(params) {
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,
-        metab = params@metab,
+        metab = metab,
         mu_b = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
