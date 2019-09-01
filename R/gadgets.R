@@ -171,7 +171,9 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                      radioButtons("binning", "Binning:",
                                                   choices = c("Logarithmic", "Constant"), 
                                                   selected = "Logarithmic", inline = TRUE),
-                                     actionButton("scale", "Scale by 2x")
+                                     actionButton("scale", "Scale by 2x"),
+                                     actionButton("retune_background",
+                                                  "Retune background")
                             ),
                             tabPanel("Biomass",
                                      plotlyOutput("plotTotalBiomass"),
@@ -1071,7 +1073,19 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         
         ## Scale ####
         observeEvent(input$scale, {
-            params(rescaleAbundance(params(), factor = 2))
+            run_steady(rescaleAbundance(params(), factor = 2))
+        })
+        
+        ## Retune background ####
+        observeEvent(input$retune_background, {
+            p <- retuneBackground(params())
+            # This may have changed the number of species
+            no_sp <<- length(p@species_params$species)
+            # and the selector for foreground species
+            foreground <<- !is.na(p@A)
+            foreground_indices <<- (1:no_sp)[foreground]
+            
+            params(p)
         })
         
         observeEvent(input$growth_click, {
@@ -1116,7 +1130,8 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                 gc <- getGrowthCurves(p)[foreground, ] %>% 
                     as.tbl_cube(met_name = "Size") %>% 
                     as_tibble() %>%
-                    mutate(Legend = "Model")
+                    mutate(Legend = "Model",
+                           Species = factor(Species, p@species_params$species))
                 
                 vb <- gc %>% 
                     mutate(Legend = "von Bertalanffy") %>% 
