@@ -1172,7 +1172,7 @@ plotGrowthCurves <- function(object,
         w_inf <- params@species_params$w_inf[idx]
         # set w_inf to w at next grid point, because that is when growth rate
         # becomes zero
-        w_inf <- params@w[min(sum(w_inf > params@w) + 1, length(params@w))]
+        #   w_inf <- params@w[min(sum(w_inf > params@w) + 1, length(params@w))]
         p <- p + geom_hline(yintercept = w_inf) +
             annotate("text", 0, w_inf, vjust = -1, label = "Maximum")
         w_mat <- params@species_params$w_mat[idx]
