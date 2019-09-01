@@ -244,6 +244,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         # selector for foreground species
         foreground <- !is.na(p@A)
         foreground_indices <- (1:no_sp)[foreground]
+        # disable "retune background" button if there are no background species
+        if (!anyNA(p@A)) {
+            shinyjs::disable("retune_background")
+        }
         
         run_steady <- function(p, return_sim = FALSE) {
             
@@ -1084,7 +1088,9 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             # and the selector for foreground species
             foreground <<- !is.na(p@A)
             foreground_indices <<- (1:no_sp)[foreground]
-            
+            if (!anyNA(p@A)) {
+                shinyjs::disable("retune_background")
+            }
             params(p)
         })
         
