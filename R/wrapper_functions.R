@@ -486,11 +486,6 @@ set_trait_model <- function(no_sp = 10,
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
 #'   coefficient in the search rate. The default value is 0.6.
-#' @param knife_edge_size The minimum size at which the gear or gears select
-#'   species. Must be of length 1 or no_sp. Default value is 100.
-#' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the knife_edge_size parameter. Default value is
-#'   "knife_edge_gear".
 #' @param bmort_prop The proportion of the total mortality that comes from
 #'   background mortality, i.e., from sources other than predation or fishing. A
 #'   number in the interval [0, 1). Default 0.
@@ -531,8 +526,6 @@ set_scaling_model <- function(no_sp = 11,
                               beta = 100,
                               sigma = 1.3,
                               f0 = 0.6,
-                              knife_edge_size = 100,
-                              gear_names = "knife_edge_gear",
                               bmort_prop = 0, 
                               rfac = Inf,
                               perfect = FALSE,
@@ -579,8 +572,8 @@ set_scaling_model <- function(no_sp = 11,
     if (no_sp < 2) {
         stop("The number of species must be at least 2.")
     }
-    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
-        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
+    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks and f0, if supplied, need to be positive.")
     }
     
     if (perfect) {
@@ -640,8 +633,8 @@ set_scaling_model <- function(no_sp = 11,
         sel_func = "knife_edge",
         catchability = 0,
         # not used but required
-        knife_edge_size = knife_edge_size,
-        gear = gear_names,
+        knife_edge_size = w_mat,
+        gear = "knife_edge_gear",
         stringsAsFactors = FALSE
     )
     params <-
