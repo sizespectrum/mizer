@@ -63,7 +63,10 @@ You are now all set to develop R packages, and
 
 
 ## Installing Git
-In case Git is not already installed on your system, you need to 
+Mizer is developed using the version control system _Git_ and the code is hosted
+on GitHub. To contribute to the mizer code, you need to have the Git software
+installed on your system. On most Linux machines it will be installed already,
+but otherwise you need to
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
 [built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN). 
@@ -73,36 +76,69 @@ in the guide by Hadley on R package development.
 
 ## Forking mizer from GitHub
 
-Mizer is developed using the version control system _Git_ and the code is hosted on GitHub.
-To work with the code you will create your own git repository with a copy of the mizer code.
+To work with the code you will create your own git repository with a copy of the mizer code. Go to https://github.com/sizespectrum/mizer and fork it into your own repository by clicking the "Fork" button.
 
-Go to https://github.com/sizespectrum/mizer and fork it into your own repository. 
-Then create a version control new project in RStudio, and indicate your depository url.
+<center>
+![](images/fork.png){width=80%}
+</center>
 
-Go the the Git tab and from "More" select "Shell..." to open up a Git shell.
-There issue the commands
-```
-git remote add upstream git@github.com:sizespectrum/mizer.git
-git fetch upstream
-```
-This will allow you to, from time to time, sync changes made in the 
-sizespectrum/mizer repository into your own fork (see [https://help.github.com/en/articles/syncing-a-fork]). 
-You do this with the command
-```
-git merge upstream/dev
-```
+You will be prompted to log in to GitHub. If you do not yet have an account, 
+you need to create one for yourself.
+
+Once you have your own fork of the mizer repository, you create a local copy on
+whichever machine you work on. You can do this from within RStudio. For this you
+click on the "Project" drop-down and then select "New Project...".
+
+<center>
+![](images/new_project.png){width=80%}
+</center>
+
+This will bring up a dialog box where you select "Version Control".
+<center>
+![](images/version_control.png){width=50%}
+</center>
+
+Provided you have Git installed and RStudio was able to find it you can then
+choose "Git" on the next dialog box.
+
+<center>
+![](images/git.png){width=50%}
+</center>
+
+If the Git option is not showing, the you need to troubleshoot, and perhaps
+https://happygitwithr.com/rstudio-see-git.html helps.
+
+In the next dialog box you let RStudio know where to find your fork.
+<center>
+![](images/repository.png){width=50%}
+</center>
+
+To find the correct repository URL you go back to GitHub to the front page of 
+the repository that was created when you forked the official mizer repository.
+There you will find a "Clone or download" button which when clicked will
+reveal the repository URL. Make sure that you are on the page of your fork of
+the repository. The URL should contain your GitHub username.
+<center>
+![](images/repro_url.png){width=80%}
+</center>
+
+You can copy that to the clipboard by pressing the
+button next to the URL and then paste it back into the RStudio dialog box.
+In that dialog box you can also change where RStudio stores the repository on
+your machine. Choose anywhere convenient. Then click "Create Project".
 
 
+## Setting up RStudio developer tools
 You will want to set up RStudio so that it automatically builds the 
 documentation using roxygen.
 * Go to Build -> Configure Build Tools, tick the checkbox "Generate
   documentation with roxygen".
 
-On the "Git" tab select the "dev" branch. This contains the latest development
-code for mizer. 
 
 To run this code go to the "Build" tab in RStudio and click on "Install and Restart". 
 This builds and loads the mizer package based on this development code.
+
+# Collaborating
 
 # Finding your way around the mizer code
 

@@ -27,11 +27,13 @@ frequently. This guide was written with version 1.2.1268.
 ## Installing the mizer package
 
 The easiest way to install the mizer package (assuming you have an active internet
-connection) is to start an session and then type:
+connection) is to start RStudio and then type:
 
 ```{r, eval=FALSE}
 install.packages("mizer")
 ```
+
+in the console. 
 
 After installing mizer, to actually use it you need to load the package using
 the `library()` function. Note that whilst you only need to install the
