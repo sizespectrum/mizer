@@ -25,6 +25,10 @@ species. Default value is 1/100.}
 
 \item{dt}{The time step to use in \code{project()}}
 
+\item{return_sim}{If TRUE, the function returns the MizerSim object holding
+the result of the simulation run. If FALSE (default) the function returns
+a MizerParams object with the "initial" slots set to the steady state.}
+
 \item{progress_bar}{A shiny progress object to implement
 a progress bar in a shiny app. Default FALSE}
 }

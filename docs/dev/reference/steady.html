@@ -132,8 +132,8 @@ reproductive efficiencies and the external resource rates are retuned to
 achieve that level of recruitment.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>steady</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
-  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>steady</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>7.5</span>, <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
+  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>return_sim</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,7 +153,9 @@ achieve that level of recruitment.</p>
     <tr>
       <th>t_per</th>
       <td><p>The simulation is broken up into shorter runs of t_per years,
-after each of which we check for convergence. Default value is 2.</p></td>
+after each of which we check for convergence. Default value is 7.5. This
+should be chosen as an odd multiple of the timestep <code>dt</code> in order to be
+able to detect period 2 cycles.</p></td>
     </tr>
     <tr>
       <th>tol</th>
@@ -163,11 +165,17 @@ species. Default value is 1/100.</p></td>
     </tr>
     <tr>
       <th>dt</th>
-      <td><p>The time step to use in `project()`</p></td>
+      <td><p>The time step to use in <code><a href='project.html'>project()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>return_sim</th>
+      <td><p>If TRUE, the function returns the MizerSim object holding
+the result of the simulation run. If FALSE (default) the function returns
+a MizerParams object with the "initial" slots set to the steady state.</p></td>
     </tr>
     <tr>
       <th>progress_bar</th>
-      <td><p>A shiny progress object to implement 
+      <td><p>A shiny progress object to implement
 a progress bar in a shiny app. Default FALSE</p></td>
     </tr>
     </table>
