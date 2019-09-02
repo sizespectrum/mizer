@@ -136,7 +136,7 @@ getDiet <- function(params,
     # Add diet from resources
     if (no_res > 0) {
         diet[, , (no_sp + 2):(no_sp + 1 + no_res)] <- 
-            sweep(params@rho, 2, B, "+")
+            aperm(sweep(params@rho, 2, B, "*"), c(1, 3, 2))
     }
     # Correct for satiation and keep only entries corresponding to fish sizes
     f <- getFeedingLevel(params, n, n_pp)

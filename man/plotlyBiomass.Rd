@@ -60,8 +60,8 @@ against time. The biomass is calculated within user defined size limits
 \seealso{
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
+  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
+  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
   \code{\link{plotYieldGear}}, \code{\link{plotYield}},

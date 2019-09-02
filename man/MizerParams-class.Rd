@@ -141,11 +141,11 @@ Changed with \code{\link{setSearchVolume}}.}
 
 \item{\code{A}}{Abundance multipliers.}
 
-\item{\code{linecolour}}{A named vector of colour values, named by species. Used 
-to give consistent colours to species in plots.}
+\item{\code{linecolour}}{A named vector of colour values, named by species or 
+resources. Used to give consistent colours in plots.}
 
-\item{\code{linetype}}{A named vector of linetypes, named by species. Used 
-to give consistent line types to species in plots.}
+\item{\code{linetype}}{A named vector of linetypes, named by species or resources. 
+Used to give consistent line types in plots.}
 }}
 
 \note{

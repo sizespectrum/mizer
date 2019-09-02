@@ -1,6 +1,6 @@
 # This is the configuration for the mizer website using the pkgdown package.
 
-url: https://sizespectrum.org/mizer/
+url: https://sizespectrum.org/mizer
 
 authors:
   Julia Blanchard:
@@ -57,18 +57,18 @@ reference:
   - set_community_model
   - set_trait_model
   - set_scaling_model
-  - markBackground
-  - retuneBackground
-  - steady
-  - addSpecies
+- title: Interactively tuning a model
+  contents:
   - tuneParams
+  - markBackground
+  - addSpecies
+  - steady
+  - retuneBackground
   - rescaleAbundance
   - retuneReproductionEfficiency
   - pruneSpecies
-  - removeSpecies
-  - renameSpecies
   - setRmax
-- title: Changing model parameters
+- title: Setting or changing model parameters
   contents:
   - setParams
   - setPredKernel
@@ -84,6 +84,8 @@ reference:
   - setResourceEncounter
   - setInitial
   - upgradeParams
+  - removeSpecies
+  - renameSpecies
 - title: Running simulations
   contents:
   - project

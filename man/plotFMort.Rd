@@ -45,7 +45,7 @@ plotFMort(sim, highlight = c("Cod", "Haddock"))
 
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}},
+  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
   \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},

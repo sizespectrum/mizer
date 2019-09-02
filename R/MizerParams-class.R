@@ -302,10 +302,10 @@ validMizerParams <- function(object) {
 #'   Changed with \code{\link{setSearchVolume}}.
 #' @slot f0 Initial feeding level.
 #' @slot A Abundance multipliers.
-#' @slot linecolour A named vector of colour values, named by species. Used 
-#'   to give consistent colours to species in plots.
-#' @slot linetype A named vector of linetypes, named by species. Used 
-#'   to give consistent line types to species in plots.
+#' @slot linecolour A named vector of colour values, named by species or 
+#'   resources. Used to give consistent colours in plots.
+#' @slot linetype A named vector of linetypes, named by species or resources. 
+#'   Used to give consistent line types in plots.
 
 #' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
 #'   slots, many of which are multidimensional arrays. The dimensions of these
@@ -614,14 +614,18 @@ emptyParams <- function(species_params,
     
     if ("linecolour" %in% names(species_params)) {
         linecolour <- species_params$linecolour
+        # If any NA's first fill them with unused colours
         linecolour[is.na(linecolour)] <- 
             setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
+        # if there are still NAs, start from beginning of palette again
+        linecolour[is.na(linecolour)] <- 
+            colour_palette[1:sum(is.na(linecolour))]
     } else {
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
     linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
-                    "Background" = "grey")
+                    "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
         linetype <- species_params$linetype
@@ -631,7 +635,7 @@ emptyParams <- function(species_params,
     }
     names(linetype) <- as.character(species_names)
     linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
-                  "Background" = "solid")
+                  "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
@@ -1904,23 +1908,40 @@ setResourceDynamics <- function(params,
         assert_that(is.list(resource_dynamics))
         no_res <- length(resource_dynamics)
         resource_names = names(resource_dynamics)
-            if (no_res > 0  && is.null(resource_names)) {
-                stop("The resource_dynamics list must be a named list.")
-            }
-            params@resource_dynamics <- resource_dynamics
-            params@rho <- 
-                array(NA,
-                      dim = c(nrow(params@species_params),
-                              no_res,
-                              length(params@w)),
-                      dimnames = list(sp = params@species_params$species,
-                                      res = resource_names,
-                                      w = signif(params@w, 3)))
-            if (length(params@initial_B) != no_res) {
-                params@initial_B <- rep(0, no_res)
-                names(params@initial_B) <- resource_names
-            }
+        if (no_res > 0  && is.null(resource_names)) {
+            stop("The resource_dynamics list must be a named list.")
+        }
+        params@resource_dynamics <- resource_dynamics
+        params@rho <- 
+            array(NA,
+                  dim = c(nrow(params@species_params),
+                          no_res,
+                          length(params@w)),
+                  dimnames = list(sp = params@species_params$species,
+                                  res = resource_names,
+                                  w = signif(params@w, 3)))
+        if (any(names(params@initial_B) != resource_names)) {
+            params@initial_B <- rep(0, no_res)
+            names(params@initial_B) <- resource_names
+        }
+        
+        # Set linecolour and linetype if necessary
+        # Colour-blind-friendly palette
+        # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+        cbbPalette <- c("#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+                        "#CC79A7", "#F0E442")
+        unused <- setdiff(cbbPalette, params@linecolour)
+        colourless <- setdiff(resource_names, names(params@linecolour))
+        linecolour <- rep(unused, length.out = length(colourless))
+        names(linecolour) <- colourless
+        params@linecolour <- c(params@linecolour, linecolour)
+        
+        linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
+                          "twodash"), length.out = length(colourless))
+        names(linetype) <- colourless
+        params@linetype <- c(params@linetype, linetype)
     }
+    
     if (!is.null(resource_params)) {
         assert_that(is.list(resource_params))
         params@resource_params <- resource_params
@@ -2195,6 +2216,62 @@ setInitial <- function(params,
     return(params)
 }
 
+
+#' Update the initial abundances
+#' 
+#' Recalculates the steady-state abundances in a fixed background
+#' given by the current abundances, keeping the abundances fixed in the
+#' smallest size class for each species. Then readjusts the \code{erepro}
+#' values.
+#' 
+#' @param params A MizerParams object
+#' @param effort Fishing effort. A numeric vector of the effort by gear or 
+#'   a single numeric effort value which is used for all gears.
+#'   
+#' @return The MizerParams object with updated \code{initial_n} and 
+#'   \code{initial_n_pp} slots.
+#' @export
+updateInitial <- function(params, effort = 1) {
+    assert_that(is(params, "MizerParams"))
+    # Calculate the rates in the current background
+    plankton_mort <- getPlanktonMort(params)
+    mumu <- getMort(params, effort = effort)
+    gg <- getEGrowth(params)
+    # Recompute plankton
+    params@initial_n_pp <- params@rr_pp * params@cc_pp / 
+        (params@rr_pp + plankton_mort)
+    # Recompute all species
+    for (sp in 1:length(params@species_params$species)) {
+        w_inf_idx <- min(sum(params@w < params@species_params[sp, "w_inf"]) + 1,
+                         length(params@w))
+        idx <- params@w_min_idx[sp]:(w_inf_idx - 1)
+        if (any(gg[sp, idx] == 0)) {
+            stop("Can not compute steady state due to zero growth rates")
+        }
+        n0 <- params@initial_n[sp, params@w_min_idx[sp]]
+        params@initial_n[sp, ] <- 0
+        params@initial_n[sp, params@w_min_idx[sp]:w_inf_idx] <- 
+            c(1, cumprod(gg[sp, idx] / ((gg[sp, ] + mumu[sp, ] * params@dw)[idx + 1]))) *
+            n0
+    }
+    
+    # Retune the values of erepro so that we get the correct level of
+    # recruitment
+    mumu <- getMort(params, effort = effort)
+    gg <- getEGrowth(params)
+    rdd <- getRDD(params)
+    # TODO: vectorise this
+    for (i in (1:length(params@species_params$species))) {
+        gg0 <- gg[i, params@w_min_idx[i]]
+        mumu0 <- mumu[i, params@w_min_idx[i]]
+        DW <- params@dw[params@w_min_idx[i]]
+        params@species_params$erepro[i] <- params@species_params$erepro[i] *
+            params@initial_n[i, params@w_min_idx[i]] *
+            (gg0 + DW * mumu0) / rdd[i]
+    }
+    return(params)
+}
+
 #' Upgrade MizerParams object from earlier mizer versions
 #' 
 #' Occasionally during the development of new features for mizer, the
@@ -2218,6 +2295,12 @@ setInitial <- function(params,
 #' @return The upgraded MizerParams object
 #' @export
 upgradeParams <- function(params) {
+    if (.hasSlot(params, "metab")) {
+        metab <- params@metab
+    } else {
+        metab <- params@std_metab + params@activity
+    }
+    
     if (.hasSlot(params, "pred_kernel") && 
         length(dim(params@pred_kernel)) == 3) {
         pred_kernel <- params@pred_kernel
@@ -2263,7 +2346,7 @@ upgradeParams <- function(params) {
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,
-        metab = params@metab,
+        metab = metab,
         mu_b = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
@@ -2504,6 +2587,19 @@ get_h_default <- function(params) {
         }
         h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
             (species_params$w_inf ^ (1/3))
+        
+        if (!is.null(getOption("mizer_new"))) {
+            w_mat <- species_params$w_mat
+            w_inf <- species_params$w_inf
+            w_min <- species_params$w_min
+            b <- species_params$b
+            k_vb <- species_params$k_vb
+            n <- params@n
+            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb
+            h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
+                (params@species_params$alpha * params@f0 - 0.2) 
+        }
+        
         if (any(is.na(h[missing]))) {
             stop("Could not calculate h, perhaps k_vb is missing?")
         }

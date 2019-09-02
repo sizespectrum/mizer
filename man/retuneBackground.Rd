@@ -15,7 +15,8 @@ An object of type \code{MizerParams}
 \description{
 Rescales all background species in such a way that the total community
 spectrum is as close to the Sheldon power law as possible. Background
-species that are no longer needed are removed.
+species that are no longer needed are removed. The reproductive efficiencies
+of all species are retuned.
 }
 \seealso{
 markBackground

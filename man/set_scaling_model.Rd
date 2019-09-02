@@ -9,8 +9,7 @@ set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
   no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = NA,
   w_pp_cutoff = min_w_inf, n = 2/3, q = 3/4, lambda = 2 + q - n,
   r_pp = 0.1, kappa = 0.005, alpha = 0.4, ks = 4, h = 30,
-  beta = 100, sigma = 1.3, f0 = 0.6, knife_edge_size = 100,
-  gear_names = "knife_edge_gear", bmort_prop = 0, rfac = Inf,
+  beta = 100, sigma = 1.3, f0 = 0.6, bmort_prop = 0, rfac = Inf,
   perfect = FALSE, ...)
 }
 \arguments{
@@ -64,13 +63,6 @@ is 0.4.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
 coefficient in the search rate. The default value is 0.6.}
-
-\item{knife_edge_size}{The minimum size at which the gear or gears select
-species. Must be of length 1 or no_sp. Default value is 100.}
-
-\item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the knife_edge_size parameter. Default value is
-"knife_edge_gear".}
 
 \item{bmort_prop}{The proportion of the total mortality that comes from
 background mortality, i.e., from sources other than predation or fishing. A

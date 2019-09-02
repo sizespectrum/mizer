@@ -60,7 +60,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
     sp_old_kernel <- 1
     sp_old_predation <- 1
     sp_old_fishing <- 1
-    sp_old_maturity <- 1
+    sp_old_reproduction <- 1
     sp_old_prey <- 1
     sp_old_n0 <- 1
     
@@ -140,7 +140,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                 "->",
                 tags$a("Fishing", href = "#fishing"),
                 "->",
-                tags$a("Maturity", href = "#maturity"),
+                tags$a("Reproduction", href = "#reproduction"),
                 "->",
                 tags$a("Others", href = "#others"),
                 "->",
@@ -170,7 +170,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                             tabPanel("Spectra", plotlyOutput("plotSpectra"),
                                      radioButtons("binning", "Binning:",
                                                   choices = c("Logarithmic", "Constant"), 
-                                                  selected = "Logarithmic", inline = TRUE)
+                                                  selected = "Logarithmic", inline = TRUE),
+                                     actionButton("scale", "Scale by 2x"),
+                                     actionButton("retune_background",
+                                                  "Retune background")
                             ),
                             tabPanel("Biomass",
                                      plotlyOutput("plotTotalBiomass"),
@@ -186,10 +189,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                                 click = "growth_click"),
                                      textOutput("info"),
                                      uiOutput("k_vb_sel"),
-                                     plotlyOutput("plot_feeding_level"),
-                                     plotlyOutput("plot_psi")),
+                                     plotlyOutput("plot_feeding_level")),
                             tabPanel("Repro",
-                                     plotlyOutput("plot_erepro")),
+                                     plotlyOutput("plot_erepro"),
+                                     plotlyOutput("plot_psi")),
                             tabPanel("Catch",
                                      actionButton("tune_catch", "Tune catchability"),
                                      uiOutput("catch_sel"),
@@ -223,7 +226,9 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                      radioButtons("plankton_death_prop", "Show",
                                                   choices = c("Proportion", "Rate"), 
                                                   selected = "Proportion", 
-                                                  inline = TRUE))
+                                                  inline = TRUE)),
+                            tabPanel("Steady",
+                                     plotlyOutput("plot_steady"))
                             # tabPanel("Stomach",
                             #          plotOutput("plot_stomach"),
                             #          plotOutput("plot_kernel"))
@@ -239,6 +244,44 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         # selector for foreground species
         foreground <- !is.na(p@A)
         foreground_indices <- (1:no_sp)[foreground]
+        # disable "retune background" button if there are no background species
+        if (!anyNA(p@A)) {
+            shinyjs::disable("retune_background")
+        }
+        
+        run_steady <- function(p, return_sim = FALSE) {
+            
+            tryCatch({
+                # Create a Progress object
+                progress <- shiny::Progress$new(session)
+                on.exit(progress$close())
+                
+                # Run to steady state
+                if (return_sim) {
+                    sim <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                                  return_sim = TRUE,
+                                  progress_bar = progress)
+                    sim_steady(sim)
+                    p <- sim@params
+                } else {
+                    p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                                progress_bar = progress)
+                }
+                
+                # Update the reactive params object
+                params(p)
+                add_to_logs(p)
+            },
+            error = function(e) {
+                showModal(modalDialog(
+                    title = "Invalid parameters",
+                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
+                                "Please choose other values.<br>",
+                                "The error message was:<br>", e)),
+                    easyClose = TRUE
+                ))}
+            )
+        }
         
         ## Store params object as a reactive value ####
         params <- reactiveVal(p)
@@ -249,6 +292,10 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             shinyjs::disable("undo_all")
         }
         output$filename <- renderText("")
+        
+        # Reactive value to hold simulations from steady()
+        sim_steady <- reactiveVal(project(p, effort = 1, 
+                                          t_max = 0.2, t_save = 0.1))
         
         # Define a reactive value for triggering an update of species sliders
         trigger_update <- reactiveVal(0)
@@ -407,7 +454,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                                 step = 0.1)
                 ))
             }
-            l1 <- c(l1, list(tags$h3(tags$a(id = "maturity"), "Maturity"),
+            l1 <- c(l1, list(tags$h3(tags$a(id = "reproduction"), "Reproduction"),
                              sliderInput("w_mat", "w_mat", value = sp$w_mat,
                                          min = signif(sp$w_mat / 2, 2),
                                          max = signif(sp$w_mat * 1.5, 2)),
@@ -502,6 +549,12 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             l1
         })
         
+        ## Observe tabs ####
+        observe({
+            if (req(input$mainTabs) == "Steady") {
+                run_steady(isolate(params()), return_sim = TRUE)
+            }
+        })
         
         ## Adjust growth exponent ####
         observe({
@@ -831,14 +884,14 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             }
         })
         
-        ## Adjust maturity ####
+        ## Adjust reproduction ####
         observe({
             req(input$w_mat, input$wfrac, input$w_inf, input$m)
             p <- isolate(params())
             sp <- isolate(input$sp)
             
-            if (sp != sp_old_maturity) {
-                sp_old_maturity <<- sp
+            if (sp != sp_old_reproduction) {
+                sp_old_reproduction <<- sp
             } else {
                 # Update slider min/max so that they are a fixed proportion of the 
                 # parameter value
@@ -1022,6 +1075,25 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
             trigger_update(runif(1))
         })
         
+        ## Scale ####
+        observeEvent(input$scale, {
+            run_steady(rescaleAbundance(params(), factor = 2))
+        })
+        
+        ## Retune background ####
+        observeEvent(input$retune_background, {
+            p <- retuneBackground(params())
+            # This may have changed the number of species
+            no_sp <<- length(p@species_params$species)
+            # and the selector for foreground species
+            foreground <<- !is.na(p@A)
+            foreground_indices <<- (1:no_sp)[foreground]
+            if (!anyNA(p@A)) {
+                shinyjs::disable("retune_background")
+            }
+            params(p)
+        })
+        
         observeEvent(input$growth_click, {
             if (input$growth_click$panelvar1 != input$sp) {
                 updateSelectInput(session, "sp",
@@ -1034,30 +1106,7 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
         ## Find new steady state ####
         # triggered by "Steady" button on "species" tab
         observeEvent(input$sp_steady, {
-            p <- params()
-            
-            tryCatch({
-                # Create a Progress object
-                progress <- shiny::Progress$new(session)
-                on.exit(progress$close())
-                
-                # Run to steady state
-                p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
-                            progress_bar = progress)
-                
-                # Update the reactive params object
-                params(p)
-                add_to_logs(p)
-            },
-            error = function(e) {
-                showModal(modalDialog(
-                    title = "Invalid parameters",
-                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
-                                "Please choose other values.<br>",
-                                "The error message was:<br>", e)),
-                    easyClose = TRUE
-                ))}
-            )
+            run_steady(params())
         })
         
         ## Growth curves ####
@@ -1087,7 +1136,8 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                 gc <- getGrowthCurves(p)[foreground, ] %>% 
                     as.tbl_cube(met_name = "Size") %>% 
                     as_tibble() %>%
-                    mutate(Legend = "Model")
+                    mutate(Legend = "Model",
+                           Species = factor(Species, p@species_params$species))
                 
                 vb <- gc %>% 
                     mutate(Legend = "von Bertalanffy") %>% 
@@ -1719,6 +1769,11 @@ tuneParams <- function(p, catch = NULL, stomach = NULL) {
                            size = 3) 
             st <- stomach %>% 
                 filter(species == input$sp)
+        })
+        
+        ## Plot run to steady ####
+        output$plot_steady <- renderPlotly({
+            plotBiomass(sim_steady())
         })
         
     } #the server

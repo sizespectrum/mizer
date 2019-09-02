@@ -17,5 +17,6 @@ An object of type \code{MizerParams}
 }
 \description{
 This species simply removes the low-abundance species from the params object. 
-It does not recalculate the steady state for the remaining species.
+It does not recalculate the steady state for the remaining species or
+retune their reproductive efficiencies.
 }
