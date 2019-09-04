@@ -996,6 +996,82 @@ rescaleAbundance <- function(params, factor) {
     return(retuneReproductionEfficiency(params))
 }
 
+#' Rescale System
+#' 
+#' The abundances in mizer and some rates depend on the size of the area to
+#' which they refer. So they could be given per square meter or per square
+#' kilometer or for an entire study area or any other choice of yours. This
+#' function allows you to change the size by automatically changing the
+#' abundances and rates accordingly.
+#' 
+#' If you rescale the system by a factor \eqn{c} then this function makes the
+#' following rescalings in the params object:
+#' \itemize{
+#' \item The initial abundances \code{initial_n}, \code{initial_n_pp} and
+#'   \code{initial_B} are rescaled by \eqn{c}.
+#' \item The search volume is rescaled by \eqn{1/c}.
+#' \item The resource encounter rates are rescaled by \eqn{1/c}.
+#' \item The external influx rates for resources are rescaled by \eqn{c}.
+#' \item The plankton carrying capacity is rescaled by \eqn{c}
+#' \item The maximum recruitment rate \eqn{R_{max}}, if used, is rescaled by 
+#'   \eqn{c}.
+#' }
+#' The effect of this is that the dynamics of the rescaled system are identical
+#' to those of the unscaled system, in the sense that it does not matter whether
+#' one first calls \code{rescaleSystem} and then runs a simulation with
+#' \code{project} or whether one first runs a simulation and then rescales the
+#' resulting abundances.
+#' 
+#' Note that if you use non-standard resource or plankton dynamics then you
+#' may need to rescale additional parameters that appear in those dynamics.
+#' 
+#' @param params A mizer params object
+#' @param factor The factor by which the size is rescaled with respect to which 
+#'   the abundances are given.
+#' 
+#' @return An object of type \linkS4class{MizerParams}
+#' @export
+rescaleSystem <- function(params, factor) {
+    assert_that(is(params, "MizerParams"),
+                is.number(factor),
+                factor > 0)
+    
+    # Plankton replenishment rate
+    params@cc_pp <- params@cc_pp * factor
+    params@kappa <- params@kappa * factor
+    
+    # Resource external influx rates
+    resources <- names(params@resource_dynamics)
+    for (resource in resources) {
+        param <- paste0(resource, "_external")
+        if (!(param %in% names(params@resource_params))) {
+            stop("The parameter ", param, "is missing in the params object.")
+        }
+        params@resource_params[param] <- params@resource_params[param] * factor
+    }
+    params <- setResourceDynamics(params)
+    params <- setResourceEncounter(params, rho = params@rho / factor)
+    
+    # Rmax
+    if ("r_max" %in% names(params@species_params)) {
+        params@species_params$r_max <- params@species_params$r_max * factor
+    }
+    
+    # Search volume
+    params <- setSearchVolume(params, search_vol = params@search_vol / factor)
+    if ("gamma" %in% names(params@species_params)) {
+        params@species_params$gamma <- params@species_params$gamma / factor
+    }
+    
+    # Initial values
+    params <- setInitial(params,
+                         initial_n = params@initial_n * factor,
+                         initial_n_pp = params@initial_n_pp * factor,
+                         initial_B = params@initial_B * factor)
+    
+    return(params)
+}
+
 #' Rename species
 #' 
 #' Changes the names of species in a MizerParams object

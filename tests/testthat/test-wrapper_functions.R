@@ -216,6 +216,16 @@ test_that("rescaleAbundance warns on wrong names", {
                  "Kod, Hadok do not exist")
 })
 
+# rescaleSystem ----
+test_that("rescaleSystem does not change dynamics.", {
+    factor <- 10
+    sim <- project(NS_params, t_max = 1)
+    params2 <- rescaleSystem(NS_params, factor)
+    sim2 <- project(params2, t_max = 1)
+    expect_equal(sim2@n[1, , ], sim@n[1, , ] * factor)
+    expect_equal(sim2@n[2, , ], sim@n[2, , ] * factor)
+})
+
 # steady ----
 test_that("steady works", {
     expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
