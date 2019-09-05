@@ -68,23 +68,27 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
 
 #' Power-law predation kernel
 #' 
-#' A predation kernel where the predator/prey mass ratio follows a power-law,
-#' with sigmoidal cut-offs at large and small ratios.
+#' This predation kernel is a power-law, with sigmoidal cut-offs at large and
+#' small predator/prey mass ratios.
 #' 
-#' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
-#' feeding kernel is given by
-#' \deqn{.} 
-#' The parameters need to be given in the
-#' species parameter dataframe in the columns \code{ppmr_min} and
-#' \code{ppmr_max}.
+#' The return value is calculated as
+#' 
+#' \code{
+#' ppmr^kernel_exp /
+#'   (1 + (exp(kernel_l_l) / ppmr)^kernel_u_l) /
+#'   (1 + (ppmr / exp(kernel_l_r))^kernel_u_r) 
+#' }
+#'
+#' The parameters need to be given as columns in the species parameter
+#' dataframe.
 #' 
 #' @param ppmr A vector of predator/prey size ratios at which to evaluate the
 #'   predation kernel.
-#' @param kernel_exp x
-#' @param kernel_l_l x
-#' @param kernel_u_l x
-#' @param kernel_l_r x
-#' @param kernel_u_r x
+#' @param kernel_exp The exponent of the power law
+#' @param kernel_l_l The location of the left, rising sigmoid
+#' @param kernel_u_l The shape of the left, rising sigmoid
+#' @param kernel_l_r The location of the right, falling sigmoid
+#' @param kernel_u_r The shape of the right, falling sigmoid
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the \code{ppmr} argument.
