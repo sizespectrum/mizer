@@ -1,0 +1,279 @@
+---
+title: "Running a Simulation"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+---
+
+```{r include=FALSE}
+library(mizer)
+params_data <- read.csv("NS_species_params.csv")
+inter <- read.csv("inter.csv", row.names=1)
+inter <- as(inter, "matrix")
+params_data_gears <- params_data
+params_data_gears$gear <- c("Industrial","Industrial","Industrial",
+		      "Pelagic","Beam","Otter",
+		      "Beam","Otter","Beam",
+		      "Otter","Otter","Otter")
+params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
+```
+
+
+
+## Introduction {#sec:projection}
+
+In the [community](community_model.html) and [trait-based](trait_model.html) models, we used the `project()` function to perform simple simulations where the fishing effort was held constant throughout the duration of the simulation.
+In the trait-based model example, we also looked at how the effort for different gears could be specified.
+In this section we take a detailed look at how the `project()` function works and the different ways in which effort and time can be set up. This will allow us to run more general systems like the [multispecies model.](multispecies_model.html)
+
+In `mizer`, simulations are performed using the `project()` function. This function takes a `MizerParams` object and projects it
+forward through time, starting from an initial population abundance and with a pre-determined fishing effort pattern.
+
+Running a projection with `project()` requires various arguments:
+
+A `MizerParams` object -The model parameters (see previous
+	section);
+
+Fishing effort -The fishing effort of each gear through time;
+
+Initial population -The initial abundances of the stocks and the
+	plankton spectrum;
+
+Time arguments -Arguments to control the time of the simulation,
+	including the simulation time step, the length of the simulation
+	and how frequently the output is stored.
+
+
+The help page for `project()` describes the arguments in more detail.
+
+The `MizerParams` class was explored in the previous section.
+In this section we will look at the other arguments and use examples to perform some simple projections.
+
+The object returned from calling `project()` is of class `MizerSim`. This contains the abundances of the species in the model by time and size. It is described fully in [the section on running project().](running_a_simulation.html#sec:mizersim)
+
+
+
+## The time arguments {#sec:time_arguments}
+
+There are three arguments that control time in the `project()` function:
+`dt`, `t_max` and `t_save`. All of them have default values.
+
+`t_max` determines the maximum time of the simulation, i.e. how long the projection is run for.
+The default value for `t_max` is 100. 
+
+`dt` is the time step used by the numerical solver in `project()`.
+This is the time step on which the model operates. The smaller the value, the longer the model will take to run. However, sometimes it is necessary to use a small value to avoid numerical instabilities. The default value is 0.1.
+
+The final argument is `t_save`. This sets how frequently `project()` stores the state of the model in the resulting `MizerSim` object.
+For example, if `t_save` = 2, the state of the model is stored at t = 0, 2, 4... etc.
+`t_save` must be a multiple of `dt`. The default value of `t_save` is 1.
+
+## Setting the fishing effort
+
+The fishing effort argument describes the effort of the fishing gears in the model through time. We have already seen that information on the fishing gears and their selectivities and catchabilities is stored in the `MizerParams` argument.
+
+There are three ways of setting the fishing effort. Examples of all three can be seen in [the section on projection examples.](running_a_simulation.html#sec:projection_examples)
+
+
+
+The simplest way is by passing the `effort` argument as a single number.
+This value is then used as the fishing effort by all of the gears at each time step of the projection, i.e. fishing effort is constant throughout the simulation and is the same for all gears. We have seen this method in the community and trait-based model sections above.
+The length of the simulation is determined by the `t_max` argument.
+
+
+
+The second method for setting the fishing effort is to use a numeric vector that has the same length as the number of gears.
+The values in the vector are used as the fishing effort of each gear at each time step, i.e. again, the fishing effort is constant through time but now each gear can have a different constant effort.
+The effort vector must be named and the names must be the same as the gears in the `MizerParams` object.
+Again, the length of the simulation is determined by the `t_max` argument.
+
+Finally, the most sophisticated way of setting the fishing effort is to use a two-dimensional array or matrix of values, set up as time step by gear.
+Each row of the array has the effort values of each fishing gear by time.
+The array must have dimension names. The names of the first dimension (the row names) are the times. The steps between the times can be greater than the `dt` argument but must be contiguous.
+The names of the second dimension (the column names) must match the names of the gears in the `MizerParams` object used in the projection.
+
+It is not necessary to supply a `t_max` argument when the effort is specified as an array because the maximum time of the simulation is taken from the dimension names. If a value for `t_max` is also supplied it is ignored.
+
+## Setting the initial population abundance {#sec:setting_initial_abundances}
+
+When running a simulation with the `project()` function, the initial populations of the species and the plankton spectrum need to be specified. These are passed to `project()` as the arguments `initial_n` and `initial_n_pp` respectively.
+`initial_n` is a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). `initial_n_pp` is a vector of the same length as the the length of the full spectrum (which can be seen as slot `w_full` in the `MizerParams` object).
+
+By default, the `initial_n` argument has values automatically calculated by the function `get_initial_n()`.
+The default value for `initial_n_pp` is the carrying capacity of the plankton spectrum, stored in the `cc_pp` slot of the
+`MizerParams` parameters object.
+
+## What do you get from running `project()?` {#sec:mizersim}
+
+Running `project()` returns an object of type `MizerSim` that stores the results of the projection.
+Like the `MizerParams` class this is also made up of various *slots*, which can be accessed using the `@` operator.
+An object of `MizerSim` has four slots, details of which can be seen in the help page (`help("MizerSim-class"`).
+The `params` slot holds the `MizerParams` object that was passed in to `project()`.
+The `effort` slot holds the fishing effort of each gear through time. Note that the `effort` slot may not be exactly the same as the `effort` argument that was passed in to `project()`. This is because only the saved effort is stored (the frequency of saving is determined by the argument `t_save`).
+The `n` and `n_pp` slots hold the saved abundances of the species and the plankton population at size respectively. 
+
+## Projection examples {#sec:projection_examples}
+
+In this section we'll look at how to run simulations with the `project()` function.
+The examples will focus on how fishing effort can be specified in different ways.
+The results of the simulations will not be explored in detail. We will leave that for [the section on exploring the simulation results.](exploring_the_simulation_results.html#).
+
+
+
+
+
+
+\subsection{Summary functions for MizerSim objects}
+\label{sec:summaries}
+
+Remember that the fishing mortality by size on a species is the product of the selectivity, the catchability and the effort of the gear that caught it. We have not specified any catchability values in the species parameter data.frame so the default value of 1 is used. The selectivity ranges between 0 and 1. This means that in these examples the fishing mortality of a fully selected species is given by the effort of the gear that catches it.
+
+### Projections with single, simple constant effort
+
+When we use a single value for the `effort` argument, the value is used as a constant effort for all the gears.
+This method can be particularly useful for quickly projecting forward without fishing (you just set the `effort` argument to 0).
+
+
+We will use the `params` object that was created in [the section with examples of making a MizerParams objects](multispecies_model.html#sec:params_example) 
+in which each species is caught by a separate gear.
+Here we make the object again:
+
+```{r label = remaking_simple_ms_params, results='hide'}
+params <- set_multispecies_model(params_data, interaction = inter)
+```
+
+As described above, effort is associated with fishing gears.
+Because we haven't specified any gears in the `params_data` species parameter data.frame, each species is caught by a separate gear, named after the species.
+
+As well as thinking about the `effort` argument we also need to consider the time parameters.
+We will project the populations forward until time equals 10 (`t_max` = 10), with a time step of 0.1 (`dt` = 0.1), saving the output every time step (`t_save` = 1). We use a constant effort value of 1.0.
+
+```{r label=siple_projection_single_effort}
+sim <- project(params, effort = 1, t_max = 10, dt = 0.1, t_save = 1)
+```
+
+
+The resulting `sim` object is of class `MizerSim`.
+At this point we won't explore how the results can be investigated in detail. However, we will use the basic summary plot that you have seen before:
+
+```{r label=plot_basic_ms_sim, fig.cap="Plot of the North Sea multispecies model with no default fishing gears and constant effort of 1."}
+plot(sim)
+```
+
+
+Without fishing the community settles down to equilibrium at about t = 50. The big difference between this multispecies model and the trait-based model can be seen in the range of M2 and feeding level values. With the trait-based model all the *species* had the same M2 and feeding level patterns. Here the species all have different patterns, driven by their differing life history characteristics and the heterogeneous interaction matrix.
+
+You can also see in the above figure that each species has different fishing selectivity (see the Total fishing mortality panel). Remember that the default setting for the fishing gears is a knife-edge gear where the knife-edge is positioned at the species `w_mat` parameter.
+
+The effort through time can be inspected by looking at the `effort` slot (we use the `head()` function to just show the first few lines).
+The `effort` slot shows the effort by time and gear.
+You can see here that each species is caught by a separate gear, and the gear is named after the species.
+In this example, we specified the `effort` argument as a single numeric of value 1. As you can see this results in the same effort being used for all gears for all time steps:
+
+```{r label=show_effort}
+head(sim@effort)
+```
+
+A `summary()` method is also available for objects of type `MizerSim`. This is essentially the same as the summary for `MizerParams` objects, but includes information on the simulation time parameters.
+
+```{r summary_mizersim,eval=FALSE}
+summary(sim)
+```
+
+If we decrease `t_save` but keep `t_max` the same then we can see that the time dimension of the `effort` slot changes accordingly.
+This will also be true of the `n` and `n_pp` slots.
+Here we reduce `t_save` to 0.5, meaning that the effort and abundance information is stored at t = 1.0, 1.5, 2.0 etc.
+
+```{r label=simple_proj_tsave05}
+sim <- project(params_gears, effort = 1, t_max = 10, dt = 0.1, t_save = 0.5)
+head(sim@effort)
+```
+
+### Setting constant effort for different gears {#sec:proj_diff_gears_constant_effort}
+
+As mentioned above, we can also set the effort values for each gear separately using a vector of effort values. This still keeps the efforts constant through time but it means that each gear can have a different constant effort.
+
+
+Here we will use the `MizerParams` object with four gears, `params_gears`, that we created in [the section on setting up different gears.](multispecies_model.html#sec:setting_different_gears)
+The names of the gears are `r paste(unique(params_gears@species_params$gear), collapse = ", ")`.
+We need to create a named vector of effort, where the names match the gears.
+For example, here we want to switch off the industrial gear (i.e. effort = 0), keep the pelagic gear effort at 1, set the effort of the beam trawl gears to 0.3 and the effort of the otter trawl gear to 0.7.
+We set the `effort` like this: 
+
+```{r label=set_effort_vector}
+effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.3, Otter = 0.7)
+```
+
+We then call `project()` with this effort and inspect the resulting `effort` slot (again we use the `head()` function to just show the first few lines):
+
+```{r label=project_effort_vector}
+sim <- project(params_gears, effort = effort, t_max = 10, dt = 1, t_save = 1)
+head(sim@effort)
+```
+
+You can see that the effort for each gear is constant but each gear has the effort that was specified in the `effort` argument.
+
+This impact of this can be seen plotting the fishing mortality. There is a dedicated plot, `plotFMort()`, that shows the fishing mortality at size for each species at a particular time step (the default is the final time step).
+The fishing mortality on each of the species is determined by the effort of the gear that caught it.
+
+```{r label=plotFMort, fig.keep='last', fig.cap="An example of using the `plotFMort()` function to show how different efforts for different gears can be specified."}
+plotFMort(sim)
+```
+
+
+### An example of changing effort through time
+
+In this example we set up a more complicated fishing effort structure that allows the fishing effort of each gear to change through time.
+As mentioned above, to do this, effort must be supplied as a two dimensional array or matrix. The first dimension is time and the second dimension is gear.
+The dimensions must be named. The gear names must match the gears in the `MizerParams` object.
+Also, as mentioned above, if effort is passed in as an array then the length of the simulation is determined by the time dimension names and the argument `t_max` is not used. Instead the simulation runs from
+the earliest time in the effort array to the latest.
+
+
+Here, we will use the `params_gears` object we created in 
+[the section on setting up different fishing gears](multispecies_model.html#sec:setting_different_gears) which has four gears.
+The names of the gears are `r paste(unique(params_gears@species_params$gear), collapse = ", ")`.
+
+In this example, we will project forward from time $t=1$ to time $t=10$. The effort of the industrial gear is held constant at 0.5, the effort of the pelagic gear is increased linearly from 1 to 2, the effort of the beam trawl decreases linearly from 1 to 0, whilst the effort of the otter trawl decreases linearly from 1 to 0.5.
+
+First we create the empty `effort` array:
+```{r label=set_empty_effort_array}
+gear_names <- c("Industrial","Pelagic","Beam","Otter")
+times <- seq(from = 1, to = 10, by = 1)
+effort_array <- array(NA, dim = c(length(times), length(gear_names)),
+    dimnames = list(time = times, gear = gear_names))
+```
+
+Then we fill it up, one gear at a time, making heavy use of the `seq()` function to create a sequence:
+
+```{r label=fill_effort_array}
+effort_array[,"Industrial"] <- 0.5
+effort_array[,"Pelagic"] <- seq(from = 1, to = 2, length = length(times))
+effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
+effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
+```
+
+The first few rows of the effort array are shown as an illustration:
+```{r label=show_effort_array}
+head(effort_array)
+```
+The first row gives the effort between times 1 and 2, the second between times 
+2 and 3, and so on. The time 10 row in the array is not actually used, except
+to set the final time for the simulation.
+Now we can use this effort array in the projection:
+
+```{r label=project_effort_array}
+sim <- project(params_gears,effort=effort_array, dt=0.1, t_save = 1)
+head(sim@effort)
+```
+
+
+As you can see, it can be quite fiddly to set up a complicated effort array so it may be easier to prepare it in advance as a .csv file and read it in, similar to how we read in the interaction matrix in [the section with an examples of making a MizerParams object.](multispecies_model.html#sec:params_example)
+We give an example of this in [the section on the North Sea model.](a_multispecies_model_of_the_north_sea.html)
+
+Note that in this example we set up the effort array so that the effort was set every whole time step (e.g. time = 1, 2, etc). This does not have to be the case and it is possible to set the effort more frequently than that, e.g. at time = 1.0, 1.5, 2.0, 2.5 etc. The only restriction is that the difference between time dimension names must be at least as big as the `dt` argument.
+
+Now that we know how to run a simulation, the we are ready to learn how to [explore the simulation results.](exploring_the_simulation_results.html)

@@ -1,0 +1,178 @@
+# This is the configuration for the mizer website using the pkgdown package.
+
+url: https://sizespectrum.org/mizer
+
+authors:
+  Julia Blanchard:
+    href: http://www.utas.edu.au/profiles/staff/imas/julia-blanchard
+  Ken Andersen:
+    href: https://ken.haste.dk/
+  Gustav Delius:
+    href: https://www.york.ac.uk/maths/staff/gustav-delius/
+
+template:
+  params:
+    bootswatch: cerulean
+
+development:
+  mode: devel
+
+toc: 
+  depth: 3
+
+navbar:
+  structure:
+    left: [home, intro, reference, articles, publications, news]
+    right: [github]
+  components:
+    articles:
+      text: Guides
+      href: articles/index.html
+    publications:
+      text: Publications
+      href: articles/publications.html
+
+articles:
+- title: For the user
+  contents:
+  - mizer
+  - installation
+  - model_description
+  - community_model
+  - trait_model
+  - multispecies_model
+  - running_a_simulation
+  - exploring_the_simulation_results
+  - a_multispecies_model_of_the_north_sea
+- title: For the developer
+  contents:
+  - developer_vignette
+  - editing_website
+
+
+reference:
+- title: Creating a new model
+  contents:
+  - set_multispecies_model
+  - set_community_model
+  - set_trait_model
+  - set_scaling_model
+- title: Interactively tuning a model
+  contents:
+  - tuneParams
+  - markBackground
+  - addSpecies
+  - steady
+  - retuneBackground
+  - rescaleAbundance
+  - retuneReproductionEfficiency
+  - pruneSpecies
+  - setRmax
+- title: Setting or changing model parameters
+  contents:
+  - setParams
+  - setPredKernel
+  - setSearchVolume
+  - setInteraction
+  - setIntakeMax
+  - setMetab
+  - setBMort
+  - setReproduction
+  - setFishing
+  - setPlankton
+  - setResourceDynamics
+  - setResourceEncounter
+  - setInitial
+  - upgradeParams
+  - removeSpecies
+  - renameSpecies
+- title: Running simulations
+  contents:
+  - project
+- title: Analysing results
+  contents:
+  - summary_functions
+  - getDiet
+  - getBiomass
+  - getCommunitySlope
+  - getMeanMaxWeight
+  - getMeanWeight
+  - getN
+  - getProportionOfLargeFish
+  - getSSB
+  - getYield
+  - getYieldGear
+  - getGrowthCurves
+- title: Plotting results
+  contents:
+  - plotting_functions
+  - starts_with("plot")
+  - getBiomassFrame
+  - getSSBFrame
+  - displayFrames
+- title: Calculating rates used in the model
+  contents:
+  - getRates
+  - getEncounter
+  - getEGrowth
+  - getERepro
+  - getEReproAndGrowth
+  - getFMort
+  - getFMortGear
+  - getFeedingLevel
+  - getMort
+  - getPlanktonMort
+  - getPredMort
+  - getPredRate
+  - getRDD
+  - getRDI
+  - getPredKernel
+- title: Functions used in the model
+  contents:
+  - lognormal_pred_kernel
+  - box_pred_kernel
+  - power_law_pred_kernel
+  - knife_edge
+  - sigmoid_length
+  - double_sigmoid_length
+  - plankton_semichemostat
+  - carrion_dynamics
+  - detritus_dynamics
+  - srrBevertonHolt
+  - srrRicker
+  - srrSheperd
+  - srrNone
+- title: Internal helper functions
+  contents:
+# The following should list all functions with @concept helper
+# but instead lists all functions. A bug in pkgdown?
+#  - has_concept("helper")
+  - set_species_param_default
+  - get_h_default
+  - get_gamma_default
+  - get_ks_default
+  - get_phi
+  - log_breaks
+  - get_initial_n
+- title: Classes
+  contents:
+  - MizerParams-class
+  - MizerSim-class
+  - MizerSim
+  - summary,MizerParams-method
+  - summary,MizerSim-method
+- title: Data sets
+  contents:
+  - NS_params
+  - NS_species_params
+  - NS_species_params_gears
+  - inter
+- title: Aliases
+  desc: These aliases are available for backwards compatibility with earlier
+        versions of mizer
+  contents:
+  - MizerParams
+  - getESpawning
+  - getM2
+  - getM2Background
+  - getZ

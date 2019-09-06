@@ -1,0 +1,20 @@
+pandoc: 2.3.1
+pkgdown: 1.3.0.9000
+pkgdown_sha: ~
+articles:
+  a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
+  community_model: community_model.html
+  developer_vignette: developer_vignette.html
+  editing_website: editing_website.html
+  exploring_the_simulation_results: exploring_the_simulation_results.html
+  installation: installation.html
+  mizer: mizer.html
+  model_description: model_description.html
+  multispecies_model: multispecies_model.html
+  publications: publications.html
+  running_a_simulation: running_a_simulation.html
+  trait_model: trait_model.html
+urls:
+  reference: https://sizespectrum.github.io/mizer//reference
+  article: https://sizespectrum.github.io/mizer//articles
+

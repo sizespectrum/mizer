@@ -1,0 +1,64 @@
+---
+title: "Publications"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Publications describing mizer:
+* F. Scott, J.L. Blanchard and K.H. Andersen: mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling. Methods in Ecology and Evolution 5(10) 1121-1125 (2014). _Contains the "official" announcement and description of mizer_
+
+* K.H. Andersen, N.S. Jacobsen and K.D. Farnsworth (2016): [The theoretical foundations for size spectrum models of fish communities](https://www.nrcresearchpress.com/doi/abs/10.1139/cjfas-2015-0230#.XLGeHS97HOR). Canadian Journal of Fisheries and Aquatic Science 73(4): 575-588. _Describes the theoretical background of the three types of size spectrum models_
+
+* K.H. Andersen (2019): Fish Ecology, Evolution, and Exploitation - a New Theoretical Synthesis. [Princeton University Press](https://press.princeton.edu/titles/13516.html).  _In depth theory_
+
+### Publications using mizer:
+
+* Zhang C, Chen Y, Xu B, Xue Y, Ren Y. Evaluating fishing effects on the stability of fish communities using a size-spectrum model. Fisheries Research. 2018 Jan 1;197:123-30.
+
+* Szuwalski CS, Burgess MG, Costello C, Gaines SD (2017) High fishery catches through trophic cascades in China. Proc Natl Acad Sci USA 114:717–721. _Application to the South-east China Sea_
+
+* N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199-211. doi:10.1111/faf.12171. _Appendix describes simple calibration procedure_
+
+* Zhang, C., Chen, Y., & Ren, Y. (2016). An evaluation of implementing long-term MSY in ecosystem-based fisheries management: Incorporating trophic interaction, bycatch and uncertainty. Fisheries Research, 174, 179-189.
+
+* Zhang C, Chen Y, Thompson K, Ren Y. Implementing a multispecies size-spectrum model in a data-poor ecosystem. Acta Oceanologica Sinica. 2016 Apr 1;35(4):63.
+
+* Zhang C, Chen Y, Ren Y. The efficacy of fisheries closure in rebuilding depleted stocks: Lessons from size-spectrum modeling. Ecological Modelling. 2016 Jul 24;332:59-66.
+
+* Spence M., Blackwell, P. & Blanchard J.L. (2016) Parameter uncertainty of a dynamic multispecies size spectrum model. Canadian Journal of Fisheries and Aquatic Sciences. 10.1139/cjfas-2015-0022 (In press)
+_Bayesian parameter estimation and uncertainty_
+
+* Datta, S. & Blanchard J.L. (2016) The effects of seasonal processes on size spectrum dynamics. Canadian Journal of Fisheries and Aquatic Sciences. 10.1139/cjfas-2015-0468
+
+* Zhang, C., Chen, Y., & Ren, Y. (2015). Assessing uncertainty of a multispecies size-spectrum model resulting from process and observation errors. ICES Journal of Marine Science: Journal du Conseil, 72(8), 2223-2233.
+
+* Jennings, S. & Collingridge, K. Predicting Consumer Biomass, Size-Structure,
+Production, Catch Potential, Responses to Fishing and Associated Uncertainties in the World’s Marine Ecosystems. (2015) PLoS ONE 10(7), e0133794.
+
+* J.L. Blanchard, K.H. Andersen, F. Scott, N.T. Hinzen, G. Piet, S. Jennings (2014): Evaluating targets and trade-offs among fisheries and conservation objectives using a multispecies size spectrum model. J. Applied Ecology, 51: 612–622. doi:10.1111/1365-2664.12238. _Application of Mizer on the North Sea_
+
+
+### Projects that have used/are using mizer:
+
+The MINOUW Project (http://minouw-project.eu/) European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No. 634495
+
+Rewiring marine food webs: predicting consequences of species range shifts. Australian Research Council Discovery Project DP170104240
+
+Mesopelagic Southern Ocean Prey and Predators (MESOPP), European Commission H2020 (www.mesopp.eu)
+
+Expert Working Group on Benchmarks for Ecosystem Assessment under EBFM. Lenfest Ocean Program 
+
+Marine Ecosystems Research Programme (MERP) (https://marine-ecosystems.org.uk). UK Defra - Natural Environmental Research Council
+
+“Monitoring and Management of Deepwater Fisheries and Stocks” (Deepfishman) European Union Framework 7. 
+
+“Developing fisheries management indicators and targets” (DEFINEIT) European Marifish Joint Research project. 
+
+“Indicators for fisheries Management in Europe” (IMAGE) European Union Framework 6. 

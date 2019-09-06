@@ -1,0 +1,280 @@
+---
+title: "Developer Guide"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    fig_width: 5
+    fig_height: 5
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+This vignette is for you if you need to extend mizer 
+to meet the needs of your research project. 
+You will already have read the mizer model description in
+`vignette("model_description")`
+and thus be familiar with what mizer can do out of the box.
+You now want to implement the extension or modification of the
+model required for your research, and for that you need to dive into 
+the internal workings of mizer. This vignette is meant to make
+that as easy as possible.
+
+The first thing you should do, even before reading this vignette, is to
+go to https://github.com/sizespectrum/mizer/issues and create a new "issue""
+to share your ideas and plans with the mizer community. You may get back 
+valuable feedback and advice. Another way to get in touch with the
+mizer community is via the [size-spectrum modelling Google group](https://groups.google.com/forum/#!forum/size-spectrum-models).
+
+
+# Setting up working environment
+In this section we describe how to set up your working environment
+to allow you to easily work with the mizer code. Much of it you
+may already have in place, so feel free to skip ahead.
+
+## Installing R, RStudio and Git
+
+Mizer is compatible with __R__ versions 3.1 and later.
+If you still need to [install R](https://cran.r-project.org/), simply install 
+the latest version. This vignette was prepared with
+`r R.version.string`.
+
+This guide assumes that you will be using __RStudio__ to work with R. There is
+really no reason not to use RStudio and it makes a lot of things much easier.
+RStudio develops rapidly and adds useful features all the time and so it pays 
+to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
+frequently. This guide was written with version 1.2.1268.
+
+Mizer is developed using the version control system __Git__ and the code is hosted
+on GitHub. To contribute to the mizer code, you need to have the Git software
+installed on your system. On most Linux machines it will be installed already,
+but otherwise you need to
+[install it](http://happygitwithr.com/install-git.html). You do not need to install
+any GUI for git because RStudio has 
+[built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN). 
+A good place to learn about using Git and GitHub is 
+[this chapter](http://r-pkgs.had.co.nz/git.html) 
+in the guide by Hadley on R package development.
+
+## Forking mizer from GitHub
+
+To work with the code you will create your own git repository with a copy of the mizer code. Go to https://github.com/sizespectrum/mizer and fork it into your own repository by clicking the "Fork" button.
+
+<center>
+![](images/fork.png){width=80%}
+</center>
+
+You will be prompted to log in to GitHub. If you do not yet have an account, 
+you need to create one for yourself.
+
+Once you have your own fork of the mizer repository, you create a local copy on
+whichever machine you work on. You can do this from within RStudio. For this you
+click on the "Project" drop-down and then select "New Project...".
+
+<center>
+![](images/new_project.png){width=80%}
+</center>
+
+This will bring up a dialog box where you select "Version Control".
+<center>
+![](images/version_control.png){width=50%}
+</center>
+
+Provided you have Git installed and RStudio was able to find it you can then
+choose "Git" on the next dialog box.
+
+<center>
+![](images/git.png){width=50%}
+</center>
+
+If the Git option is not showing, the you need to troubleshoot, and perhaps
+https://happygitwithr.com/rstudio-see-git.html helps.
+
+In the next dialog box you let RStudio know where to find your fork.
+<center>
+![](images/repository.png){width=50%}
+</center>
+
+To find the correct repository URL you go back to GitHub to the front page of 
+the repository that was created when you forked the official mizer repository.
+There you will find a "Clone or download" button which when clicked will
+reveal the repository URL. Make sure that you are on the page of your fork of
+the repository. The URL should contain your GitHub username.
+<center>
+![](images/repro_url.png){width=80%}
+</center>
+
+You can copy that to the clipboard by pressing the
+button next to the URL and then paste it back into the RStudio dialog box.
+In that dialog box you can also change where RStudio stores the repository on
+your machine. Choose anywhere convenient. Then click "Create Project".
+
+
+## Setting up RStudio developer tools
+
+To work with R packages as a developer, you will need to
+[install additional tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites). 
+
+Once you have these tools in place, you should install the devtools and roxygen2 packages with
+```{r eval=FALSE}
+install.packages(c("devtools", "roxygen2")
+```
+
+You are now all set to develop R packages, and 
+[RStudio makes this extra easy](https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio). There is even a cheat sheet "Package Development with devtools" accessible from the Help menu in RStudio.
+
+To set things up, click on Build -> More -> Configure Build Tools.
+
+<center>
+![](images/build_tools.png)
+</center>
+
+In the resulting dialog box, tick the checkboxes "Use devtools package functions if available" and "Generate documentation with roxygen" and then click on "Configure".
+
+<center>
+![](images/roxygen.png)
+</center>
+
+This will open another dialog box where you tick "Install and Restart".
+
+<center>
+![](images/tick.png)
+</center>
+
+Hit "OK". While you are on the Project Options dialog box, click on
+"Code Editing" and then check "Insert spaces for tabs" and set "Tab width"
+to 4, because that is the convention the mizer code follows.
+
+<center>
+![](images/tabs.png)
+</center>
+
+## Installing mizer
+You are now ready to install the mizer package using the development code from
+GitHub. First you should do this with the command
+```{r message=FALSE, warning=FALSE}
+devtools::install_github("sizespectrum/mizer")
+```
+This will automatically also install all the other packages that mizer depends
+on. However this uses the version of the code in the official mizer repository
+on GitHub, not your local copy of the code. Once you have made changes to your
+local code, you will want to install mizer using that code. To do this 
+go to the "Build" tab in RStudio and click on "Install and Restart" or
+alternatively use the keyboard shortcut Ctrl+Shift+B.
+<center>
+![](images/build.png)
+
+You can watch the progress in the "Build" tab. Once the build has completed, you will see that in the console RStudio automatically runs
+```{r eval=FALSE}
+library(mizer)
+```
+to load you freshly built mizer package. 
+You will want to click "Install and Restart" whenever you have changed your
+local code.
+
+# Collaborating
+
+To be written ....
+
+## Coding style
+[Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
+
+[The tidyverse style guide](http://style.tidyverse.org/)
+
+## Always write tests for your code
+We use [testthat](http://testthat.r-lib.org/) and
+[shinytest](https://rstudio.github.io/shinytest/articles/shinytest.html).
+The test are in the directory `tests/testthat`. 
+
+Some tests compare the results of calculations to the results the code gave in
+the past, using the `testthat::expect_known_value()` test. The past values are stored in
+tests/testthat/values. If one of the tests gives a value that is different from
+the stored value, then the test throws an error *and* overwrites the stored
+value with the new result. The second time the test is run, it then no longer
+fails. Luckily the original values will still be in the git repository. So after
+you think you have fixed the error that led to the wrong result, you should
+revert to the old stored values before re-running the test. Reverting to the old
+stored values is easy: Just go to the Git tab in RStudio, select the changed
+files in `tests/testthat/values` (select, not tick), then right-click and choose
+Revert.
+
+When a plot has changed, the error message from `testthat::expect_known_value()`
+is not particularly useful, because it compares two ggplot objects. In this 
+case you should carefully compare the plots by eye. To view the old plot you 
+have to first revert the file in `tests/testthat/values` and then load the plot
+from that file with `readRDS("tests/testthat/values/name_of_plot_function")`.
+
+It may be that the change in the result of a calculation is intended, perhaps
+because your new code is more accurate than the old code. If you are 100%
+certain of this, but only then, should you commit the changed files in
+tests/testthat/values, so that these new values form the basis of future
+comparison tests.
+
+
+# Finding your way around the mizer code
+
+This section is still in an early stage of development.
+
+Mizer is organised in a modular fashion. It is separated into setup functions,
+simulation functions, and analysis and plotting functions. 
+
+There are several different functions for setting up a `MizerParams` object for
+specifying various concrete models. These setup functions make various 
+simplifying assumptions about the model parameters to reduce the amount of
+information that needs to be specified. This usually takes the form of
+assuming allometric scaling laws. 
+
+The core of mizer is the `project()` function
+that runs a simulation of the size-spectrum model. It takes a specification
+of the model contained in an object of type `MizerParams` and returns the
+results of the simulation in an object of type `MizerSim`.
+
+There are many functions for analysing and plotting the results of a mizer
+simulation contained in a `MizerSim` object.
+
+The `MizerParams` and `MizerSim` objects are S4 objects,
+meaning that their slots are rigorously defined and are accessed with the '@'
+notation. You do not need to learn about S4 classes in order to understand the
+mizer code, because the code avoids using S4 methods. In the presentation
+below we assume that the `MizerParams` object is called `params` and the
+`MixerSim` object is called `sim`.
+
+
+## The MizerParams class
+An object of class 'MizerParams' holds all the information needed for the
+'project()' function to simulate a model. 
+
+### Adding a new slot
+If you need to add a new slot to the MizerParams class, you need to make the following additions in the file `MizerParams-class.R`:
+
+1. Go to the section "Class definition" and add a
+  description of you new slot with @slot.
+2. Add an entry in the `slots` list inside `setClass`.
+3. In the function `emptyParams()` go to the section "Make object" and inside
+  the call to `new()` provide a default value for your slot. If your slot holds
+  an array, then it is conventional in mizer to already give it the correct
+  dimensions and dimnames here, if possible.
+
+What exactly to put into these places is usually clear in analogy to what is
+already there for other similar slots.
+
+<!--
+
+## The project methods
+
+## The MizerSim object
+
+## Shiny apps
+
+
+
+-->
+
+
