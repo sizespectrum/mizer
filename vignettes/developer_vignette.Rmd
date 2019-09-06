@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 # Introduction
 
 This vignette is for you if you need to extend mizer 
-to meet the needs of your research project.
+to meet the needs of your research project. 
 You will already have read the mizer model description in
 `vignette("model_description")`
 and thus be familiar with what mizer can do out of the box.
