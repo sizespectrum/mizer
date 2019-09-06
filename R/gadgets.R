@@ -15,20 +15,20 @@
 #'   size bins in grams. The data frame also needs to have the columns
 #'   \code{species} (the name of the species), \code{catch} (the number of
 #'   individuals of a particular species caught in a size bin).
-#' @param stomach Data frame holding observations of prey items in predator
-#'   stomachs. The required columns are 
-#'   \itemize{
-#'   \item \code{species} holding the name of the predator species,
-#'   \item \code{wpredator} with the weight in grams of the predator,
-#'   \item \code{wprey} with the weight of the prey item.
-#'   }
-#'   In case prey items of the same weight have been aggregated in the data
-#'   frame then there should be a column \code{Nprey} saying how many prey 
-#'   items have been aggregated in each row.
+# #' @param stomach Data frame holding observations of prey items in predator
+# #'   stomachs. The required columns are 
+# #'   \itemize{
+# #'   \item \code{species} holding the name of the predator species,
+# #'   \item \code{wpredator} with the weight in grams of the predator,
+# #'   \item \code{wprey} with the weight of the prey item.
+# #'   }
+# #'   In case prey items of the same weight have been aggregated in the data
+# #'   frame then there should be a column \code{Nprey} saying how many prey 
+# #'   items have been aggregated in each row.
 #' 
 #' @return The tuned MizerParams object
 #' @export
-tuneParams <- function(p, catch = NULL, stomach = NULL) {
+tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
     # Check arguments ----
     if (!is.null(catch)) {
         assert_that(
