@@ -29,6 +29,7 @@
 #' @return The tuned MizerParams object
 #' @export
 tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
+    stomach <- NULL
     # Check arguments ----
     if (!is.null(catch)) {
         assert_that(
