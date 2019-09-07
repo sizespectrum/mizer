@@ -104,6 +104,7 @@ can graze. (#46)
   species parameter data frame.
 * New gear selectivity function `double_sigmoid_length()` allows modelling
   of escape of large individuals.
+* New gear selectivity function `sigmoidal_weight()` is weight-based trawl selectivity function. (Ken H Andersen)
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which
   25% of the individuals of a species are mature.
