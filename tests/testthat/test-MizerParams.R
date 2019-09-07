@@ -144,7 +144,7 @@ test_that("option is handled correctly", {
     options("mizer_new" = TRUE)
     paramsn <- MizerParams(NS_species_params)
     h_new <- paramsn@species_params$h
-    expect_false(h_old == h_new)
+    expect_true(all(h_old != h_new))
     options("mizer_new" = FALSE)
     params <- MizerParams(NS_species_params)
     h_back <- params@species_params$h
