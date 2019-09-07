@@ -2588,7 +2588,7 @@ get_h_default <- function(params) {
         h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
             (species_params$w_inf ^ (1/3))
         
-        if (!is.null(getOption("mizer_new"))) {
+        if (!is.null(getOption("mizer_new")) && isTRUE(getOption("mizer_new"))) {
             w_mat <- species_params$w_mat
             w_inf <- species_params$w_inf
             w_min <- species_params$w_min

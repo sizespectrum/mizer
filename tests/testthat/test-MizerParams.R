@@ -136,3 +136,17 @@ test_that("min_w_pp is being set correctly", {
     params <- set_multispecies_model(sp)
     expect_identical(params@w[1], params@w_full[1])
 })
+
+test_that("option is handled correctly", {
+    options("mizer_new" = NULL)
+    params <- MizerParams(NS_species_params)
+    h_old <- params@species_params$h
+    options("mizer_new" = TRUE)
+    paramsn <- MizerParams(NS_species_params)
+    h_new <- paramsn@species_params$h
+    expect_false(h_old == h_new)
+    options("mizer_new" = FALSE)
+    params <- MizerParams(NS_species_params)
+    h_back <- params@species_params$h
+    expect_equal(h_old, h_back)
+})
