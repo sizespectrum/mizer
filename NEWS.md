@@ -16,6 +16,11 @@ generic trait-based background has better support.
 * Setting of nonlinear stock-recruitment has been separated out into new
   function `setRmax()`.
 
+## Ecosystems
+Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
+* `data(Benguela_current)` with five species: Anchovy, Sardine, Kingklip, 
+  Shallow water hake, and Deep water hake.
+
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
