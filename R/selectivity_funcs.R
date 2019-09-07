@@ -100,6 +100,7 @@ knife_edge <- function(w, knife_edge_size) {
 #'
 #' @param w The size of the individual.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.
+#' @param sigmoidal_sigma The width of the selection function
 #' @export
 sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma=3) {
   return( (1+(w/sigmoidal_weight)^(-sigmoidal_sigma))^(-1) )
