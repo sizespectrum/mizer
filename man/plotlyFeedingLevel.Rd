@@ -39,8 +39,8 @@ object the initial feeding level is plotted.
 \seealso{
 Other plotting functions: \code{\link{displayFrames}},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
+  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
+  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
   \code{\link{plotGrowthCurves}},
   \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
   \code{\link{plotYieldGear}}, \code{\link{plotYield}},

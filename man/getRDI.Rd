@@ -31,7 +31,7 @@ A numeric vector the length of the number of species
 Calculates the density independent rate of egg production \eqn{R_{p.i}}
 (units 1/year) before density dependence, by species. Used by
 \code{\link{getRDD}} to calculate the actual density dependent rate.
-See \code{\link{setRecruitment}} for more details.
+See \code{\link{setReproduction}} for more details.
 }
 \examples{
 \dontrun{

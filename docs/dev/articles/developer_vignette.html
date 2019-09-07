@@ -100,41 +100,138 @@
 <h1 class="hasAnchor">
 <a href="#setting-up-working-environment" class="anchor"></a>Setting up working environment</h1>
 <p>In this section we describe how to set up your working environment to allow you to easily work with the mizer code. Much of it you may already have in place, so feel free to skip ahead.</p>
-<div id="installing-r-rstudio-devtools" class="section level2">
+<div id="installing-r-rstudio-and-git" class="section level2">
 <h2 class="hasAnchor">
-<a href="#installing-r-rstudio-devtools" class="anchor"></a>Installing R, RStudio, devtools</h2>
-<p>Mizer is compatible with R versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This vignette was prepared with R version 3.6.1 (2019-07-05).</p>
-<p>This guide assumes that you will be using RStudio to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
-<p>To work with R packages as a developer, you will need to <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">install additional tools</a>. Once you have these in place, you should install the devtools package with</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)</a></code></pre></div>
-<p>You are now all set to develop R packages, and <a href="https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio">RStudio makes this extra easy</a>. There is even a cheat sheet for package development accessible from the Help menu in RStudio.</p>
-</div>
-<div id="installing-git" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installing-git" class="anchor"></a>Installing Git</h2>
-<p>In case Git is not already installed on your system, you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
+<a href="#installing-r-rstudio-and-git" class="anchor"></a>Installing R, RStudio and Git</h2>
+<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This vignette was prepared with R version 3.6.1 (2019-07-05).</p>
+<p>This guide assumes that you will be using <strong>RStudio</strong> to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
+<p>Mizer is developed using the version control system <strong>Git</strong> and the code is hosted on GitHub. To contribute to the mizer code, you need to have the Git software installed on your system. On most Linux machines it will be installed already, but otherwise you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
 </div>
 <div id="forking-mizer-from-github" class="section level2">
 <h2 class="hasAnchor">
 <a href="#forking-mizer-from-github" class="anchor"></a>Forking mizer from GitHub</h2>
-<p>Mizer is developed using the version control system <em>Git</em> and the code is hosted on GitHub. To work with the code you will create your own git repository with a copy of the mizer code.</p>
-<p>Go to <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> and fork it into your own repository. Then create a version control new project in RStudio, and indicate your depository url.</p>
-<p>Go the the Git tab and from “More” select “Shell…” to open up a Git shell. There issue the commands</p>
-<pre><code>git remote add upstream git@github.com:sizespectrum/mizer.git
-git fetch upstream</code></pre>
-<p>This will allow you to, from time to time, sync changes made in the sizespectrum/mizer repository into your own fork (see [<a href="https://help.github.com/en/articles/syncing-a-fork" class="uri">https://help.github.com/en/articles/syncing-a-fork</a>]). You do this with the command</p>
-<pre><code>git merge upstream/dev</code></pre>
-<p>You will want to set up RStudio so that it automatically builds the documentation using roxygen. * Go to Build -&gt; Configure Build Tools, tick the checkbox “Generate documentation with roxygen”.</p>
-<p>On the “Git” tab select the “dev” branch. This contains the latest development code for mizer.</p>
-<p>To run this code go to the “Build” tab in RStudio and click on “Install and Restart”. This builds and loads the mizer package based on this development code.</p>
+<p>To work with the code you will create your own git repository with a copy of the mizer code. Go to <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> and fork it into your own repository by clicking the “Fork” button.</p>
+<center>
+<img src="images/fork.png" style="width:80.0%">
+</center>
+<p>You will be prompted to log in to GitHub. If you do not yet have an account, you need to create one for yourself.</p>
+<p>Once you have your own fork of the mizer repository, you create a local copy on whichever machine you work on. You can do this from within RStudio. For this you click on the “Project” drop-down and then select “New Project…”.</p>
+<center>
+<img src="images/new_project.png" style="width:80.0%">
+</center>
+This will bring up a dialog box where you select “Version Control”.
+<center>
+<img src="images/version_control.png" style="width:50.0%">
+</center>
+<p>Provided you have Git installed and RStudio was able to find it you can then choose “Git” on the next dialog box.</p>
+<center>
+<img src="images/git.png" style="width:50.0%">
+</center>
+<p>If the Git option is not showing, the you need to troubleshoot, and perhaps <a href="https://happygitwithr.com/rstudio-see-git.html" class="uri">https://happygitwithr.com/rstudio-see-git.html</a> helps.</p>
+In the next dialog box you let RStudio know where to find your fork.
+<center>
+<img src="images/repository.png" style="width:50.0%">
+</center>
+To find the correct repository URL you go back to GitHub to the front page of the repository that was created when you forked the official mizer repository. There you will find a “Clone or download” button which when clicked will reveal the repository URL. Make sure that you are on the page of your fork of the repository. The URL should contain your GitHub username.
+<center>
+<img src="images/repro_url.png" style="width:80.0%">
+</center>
+<p>You can copy that to the clipboard by pressing the button next to the URL and then paste it back into the RStudio dialog box. In that dialog box you can also change where RStudio stores the repository on your machine. Choose anywhere convenient. Then click “Create Project”.</p>
+</div>
+<div id="setting-up-rstudio-developer-tools" class="section level2">
+<h2 class="hasAnchor">
+<a href="#setting-up-rstudio-developer-tools" class="anchor"></a>Setting up RStudio developer tools</h2>
+<p>To work with R packages as a developer, you will need to <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">install additional tools</a>.</p>
+<p>Once you have these tools in place, you should install the devtools and roxygen2 packages with</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"devtools"</span>, <span class="st">"roxygen2"</span>)</a></code></pre></div>
+<p>You are now all set to develop R packages, and <a href="https://support.rstudio.com/hc/en-us/articles/200486488-Developing-Packages-with-RStudio">RStudio makes this extra easy</a>. There is even a cheat sheet “Package Development with devtools” accessible from the Help menu in RStudio.</p>
+<p>To set things up, click on Build -&gt; More -&gt; Configure Build Tools.</p>
+<center>
+<img src="images/build_tools.png">
+</center>
+<p>In the resulting dialog box, tick the checkboxes “Use devtools package functions if available” and “Generate documentation with roxygen” and then click on “Configure”.</p>
+<center>
+<img src="images/roxygen.png">
+</center>
+<p>This will open another dialog box where you tick “Install and Restart”.</p>
+<center>
+<img src="images/tick.png">
+</center>
+<p>Hit “OK”. While you are on the Project Options dialog box, click on “Code Editing” and then check “Insert spaces for tabs” and set “Tab width” to 4, because that is the convention the mizer code follows.</p>
+<center>
+<img src="images/tabs.png">
+</center>
+</div>
+<div id="installing-mizer" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installing-mizer" class="anchor"></a>Installing mizer</h2>
+<p>You are now ready to install the mizer package using the development code from GitHub. First you should do this with the command</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/reexports.html">install_github</a></span>(<span class="st">"sizespectrum/mizer"</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;   </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">   checking <span class="cf">for</span> file ‘<span class="op">/</span>tmp<span class="op">/</span>RtmpATmu0Y<span class="op">/</span>remotes1f8e11b9662b<span class="op">/</span>sizespectrum<span class="op">-</span>mizer<span class="dv">-4207267</span><span class="op">/</span>DESCRIPTION’ ...</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  </a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">✔  checking <span class="cf">for</span> file ‘<span class="op">/</span>tmp<span class="op">/</span>RtmpATmu0Y<span class="op">/</span>remotes1f8e11b9662b<span class="op">/</span>sizespectrum<span class="op">-</span>mizer<span class="dv">-4207267</span><span class="op">/</span>DESCRIPTION’ (<span class="fl">1.2</span>s)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">  </a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">─  preparing ‘mizer’<span class="op">:</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="st">  </span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="st">   </span>checking DESCRIPTION meta<span class="op">-</span>information ...</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">  </a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">✔  checking DESCRIPTION meta<span class="op">-</span>information</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">  </a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">─  cleaning src</a>
+<a class="sourceLine" id="cb2-18" data-line-number="18"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">  </a>
+<a class="sourceLine" id="cb2-20" data-line-number="20">─  checking <span class="cf">for</span> LF line<span class="op">-</span>endings <span class="cf">in</span> source and make files and shell <span class="kw">scripts</span> (678ms)</a>
+<a class="sourceLine" id="cb2-21" data-line-number="21"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">  </a>
+<a class="sourceLine" id="cb2-23" data-line-number="23">─  checking <span class="cf">for</span> empty or unneeded directories</a>
+<a class="sourceLine" id="cb2-24" data-line-number="24"><span class="co">#&gt; ─  looking to see if a ‘data/datalist’ file should be added</span></a>
+<a class="sourceLine" id="cb2-25" data-line-number="25"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-26" data-line-number="26">  </a>
+<a class="sourceLine" id="cb2-27" data-line-number="27">─  building ‘mizer_<span class="dv">1</span>.<span class="dv">0</span>.<span class="dv">1</span>.<span class="fl">9000.</span>tar.gz’</a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-29" data-line-number="29">  </a>
+<a class="sourceLine" id="cb2-30" data-line-number="30">   </a>
+<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="co">#&gt; </span></a></code></pre></div>
+This will automatically also install all the other packages that mizer depends on. However this uses the version of the code in the official mizer repository on GitHub, not your local copy of the code. Once you have made changes to your local code, you will want to install mizer using that code. To do this go to the “Build” tab in RStudio and click on “Install and Restart” or alternatively use the keyboard shortcut Ctrl+Shift+B.
+<center>
+<p><img src="images/build.png"></p>
+<p>You can watch the progress in the “Build” tab. Once the build has completed, you will see that in the console RStudio automatically runs</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</a></code></pre></div>
+<p>to load you freshly built mizer package. You will want to click “Install and Restart” whenever you have changed your local code.</p>
+</center>
+</div>
+</div>
+<div id="collaborating" class="section level1">
+<h1 class="hasAnchor">
+<a href="#collaborating" class="anchor"></a>Collaborating</h1>
+<p>To be written ….</p>
+<div id="coding-style" class="section level2">
+<h2 class="hasAnchor">
+<a href="#coding-style" class="anchor"></a>Coding style</h2>
+<p><a href="https://google.github.io/styleguide/Rguide.xml">Google’s R Style Guide</a></p>
+<p><a href="http://style.tidyverse.org/">The tidyverse style guide</a></p>
+</div>
+<div id="always-write-tests-for-your-code" class="section level2">
+<h2 class="hasAnchor">
+<a href="#always-write-tests-for-your-code" class="anchor"></a>Always write tests for your code</h2>
+<p>We use <a href="http://testthat.r-lib.org/">testthat</a> and <a href="https://rstudio.github.io/shinytest/articles/shinytest.html">shinytest</a>. The test are in the directory <code>tests/testthat</code>.</p>
+<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
+<p>When a plot has changed, the error message from <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://rdrr.io/r/base/readRDS.html">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
+<p>It may be that the change in the result of a calculation is intended, perhaps because your new code is more accurate than the old code. If you are 100% certain of this, but only then, should you commit the changed files in tests/testthat/values, so that these new values form the basis of future comparison tests.</p>
 </div>
 </div>
 <div id="finding-your-way-around-the-mizer-code" class="section level1">
 <h1 class="hasAnchor">
 <a href="#finding-your-way-around-the-mizer-code" class="anchor"></a>Finding your way around the mizer code</h1>
-<p>Mizer is organised in a modular fashion. It is separated into setup functions, simulation functions, and analysis and plotting functions. These will be described below after we have introduced the mizer model.</p>
+<p>This section is still in an early stage of development.</p>
+<p>Mizer is organised in a modular fashion. It is separated into setup functions, simulation functions, and analysis and plotting functions.</p>
+<p>There are several different functions for setting up a <code>MizerParams</code> object for specifying various concrete models. These setup functions make various simplifying assumptions about the model parameters to reduce the amount of information that needs to be specified. This usually takes the form of assuming allometric scaling laws.</p>
 <p>The core of mizer is the <code><a href="../reference/project.html">project()</a></code> function that runs a simulation of the size-spectrum model. It takes a specification of the model contained in an object of type <code>MizerParams</code> and returns the results of the simulation in an object of type <code>MizerSim</code>.</p>
-<p>There are several different functions for setting up a <code>MizerParams</code> object for specifying various concrete models. These setup functions make various simplifying assumptions about the model parameters to reduce the amount of information that needs to be specified. This usually takes the form of assuming allometric scaling laws. Below we will first describe the most general size spectrum model handled by mizer before describing the specialisations for which mizer has special setup functions.</p>
 <p>There are many functions for analysing and plotting the results of a mizer simulation contained in a <code>MizerSim</code> object.</p>
 <p>The <code>MizerParams</code> and <code>MizerSim</code> objects are S4 objects, meaning that their slots are rigorously defined and are accessed with the ‘@’ notation. You do not need to learn about S4 classes in order to understand the mizer code, because the code avoids using S4 methods. In the presentation below we assume that the <code>MizerParams</code> object is called <code>params</code> and the <code>MixerSim</code> object is called <code>sim</code>.</p>
 <div id="the-mizerparams-class" class="section level2">
@@ -159,31 +256,10 @@ git fetch upstream</code></pre>
 
 ## Shiny apps
 
-# Developer guidelines
 
-## Collaborating on Github
 
 -->
 </div>
-</div>
-<div id="coding-style" class="section level2">
-<h2 class="hasAnchor">
-<a href="#coding-style" class="anchor"></a>Coding style</h2>
-<p><a href="https://google.github.io/styleguide/Rguide.xml">Google’s R Style Guide</a> <a href="http://style.tidyverse.org/">The tidyverse style guide</a></p>
-</div>
-<div id="always-write-tests-for-your-code" class="section level2">
-<h2 class="hasAnchor">
-<a href="#always-write-tests-for-your-code" class="anchor"></a>Always write tests for your code</h2>
-<p>We use <a href="http://testthat.r-lib.org/">testthat</a> and <a href="https://rstudio.github.io/shinytest/articles/shinytest.html">shinytest</a>. The test are in the directory <code>tests/testthat</code>.</p>
-<p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
-<p>When a plot has changed, the error message from <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://rdrr.io/r/base/readRDS.html">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
-<p>It may be that the change in the result of a calculation is intended, perhaps because your new code is more accurate than the old code. If you are 100% certain of this, but only then, should you commit the changed files in tests/testthat/values, so that these new values form the basis of future comparison tests.</p>
-</div>
-<div id="rebuild-package-after-altering-code" class="section level2">
-<h2 class="hasAnchor">
-<a href="#rebuild-package-after-altering-code" class="anchor"></a>Rebuild package after altering code</h2>
-<p>If you make a change to mizer’s code you will have to rebuild the package after you are done. In RStudio this can be done by clicking on the <em>Build</em> tab at the top right and clicking <em>Install and Restart</em>. To be sure that the changes have taken proper effect it may also help to clean the environment and/or restart RStudio.</p>
-<p>To be sure that the package builds properly, make sure that the Roxygen2 package is properly installed, and click the <em>More</em> dropdown, on the <em>Build</em> tab, and click <em>Configure Build Tools</em> and tick <em>Use devtools package functions if available</em> and <em>Generate documentation with Roxygen</em>, and click <em>Configure</em> and under <em>Automatically roxygenize when running:</em> tick <em>Build &amp; Reload</em>.</p>
 </div>
 </div>
   </div>
@@ -197,9 +273,16 @@ git fetch upstream</code></pre>
 <li><a href="#introduction">Introduction</a></li>
       <li>
 <a href="#setting-up-working-environment">Setting up working environment</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#installing-r-rstudio-devtools">Installing R, RStudio, devtools</a></li>
-      <li><a href="#installing-git">Installing Git</a></li>
+<li><a href="#installing-r-rstudio-and-git">Installing R, RStudio and Git</a></li>
       <li><a href="#forking-mizer-from-github">Forking mizer from GitHub</a></li>
+      <li><a href="#setting-up-rstudio-developer-tools">Setting up RStudio developer tools</a></li>
+      <li><a href="#installing-mizer">Installing mizer</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#collaborating">Collaborating</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#coding-style">Coding style</a></li>
+      <li><a href="#always-write-tests-for-your-code">Always write tests for your code</a></li>
       </ul>
 </li>
       <li>
@@ -209,9 +292,6 @@ git fetch upstream</code></pre>
 <li><a href="#adding-a-new-slot">Adding a new slot</a></li>
       </ul>
 </li>
-      <li><a href="#coding-style">Coding style</a></li>
-      <li><a href="#always-write-tests-for-your-code">Always write tests for your code</a></li>
-      <li><a href="#rebuild-package-after-altering-code">Rebuild package after altering code</a></li>
       </ul>
 </li>
       </ul>

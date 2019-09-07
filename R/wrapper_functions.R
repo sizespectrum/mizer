@@ -486,11 +486,6 @@ set_trait_model <- function(no_sp = 10,
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
 #'   coefficient in the search rate. The default value is 0.6.
-#' @param knife_edge_size The minimum size at which the gear or gears select
-#'   species. Must be of length 1 or no_sp. Default value is 100.
-#' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the knife_edge_size parameter. Default value is
-#'   "knife_edge_gear".
 #' @param bmort_prop The proportion of the total mortality that comes from
 #'   background mortality, i.e., from sources other than predation or fishing. A
 #'   number in the interval [0, 1). Default 0.
@@ -531,8 +526,6 @@ set_scaling_model <- function(no_sp = 11,
                               beta = 100,
                               sigma = 1.3,
                               f0 = 0.6,
-                              knife_edge_size = 100,
-                              gear_names = "knife_edge_gear",
                               bmort_prop = 0, 
                               rfac = Inf,
                               perfect = FALSE,
@@ -579,8 +572,8 @@ set_scaling_model <- function(no_sp = 11,
     if (no_sp < 2) {
         stop("The number of species must be at least 2.")
     }
-    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0, knife_edge_size) > 0)) {
-        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0 and knife_edge_size, if supplied, need to be positive.")
+    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks and f0, if supplied, need to be positive.")
     }
     
     if (perfect) {
@@ -640,8 +633,8 @@ set_scaling_model <- function(no_sp = 11,
         sel_func = "knife_edge",
         catchability = 0,
         # not used but required
-        knife_edge_size = knife_edge_size,
-        gear = gear_names,
+        knife_edge_size = w_mat,
+        gear = "knife_edge_gear",
         stringsAsFactors = FALSE
     )
     params <-
@@ -815,7 +808,8 @@ set_scaling_model <- function(no_sp = 11,
 #' 
 #' Rescales all background species in such a way that the total community
 #' spectrum is as close to the Sheldon power law as possible. Background
-#' species that are no longer needed are removed.
+#' species that are no longer needed are removed. The reproductive efficiencies
+#' of all species are retuned.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #'   
@@ -867,13 +861,14 @@ retuneBackground <- function(params) {
         params@initial_n <- params@initial_n * A2
     }
     
-    return(params)
+    return(retuneReproductionEfficiency(params))
 }
 
 #' Removes species with abundance below a threshold
 #' 
 #' This species simply removes the low-abundance species from the params object. 
-#' It does not recalculate the steady state for the remaining species.
+#' It does not recalculate the steady state for the remaining species or
+#' retune their reproductive efficiencies.
 #'
 #' @param params A \linkS4class{MizerParams} object
 #' @param cutoff Species with an abundance at maturity size that is less than 
@@ -902,7 +897,7 @@ pruneSpecies <- function(params, cutoff = 1e-3) {
 #' 
 #' This function simply removes all entries from the MizerParams object that
 #' refer to the selected species. It does not recalculate the steady state for
-#' the remaining species.
+#' the remaining species or retune their reproductive efficiency.
 #' 
 #' @param params A mizer params object for the original system.
 #' @param species A vector of the names of the species to be deleted or a boolean
@@ -998,7 +993,7 @@ rescaleAbundance <- function(params, factor) {
     params@initial_n[to_rescale, ] <- 
         params@initial_n[to_rescale, ] * factor
     
-    return(params)
+    return(retuneReproductionEfficiency(params))
 }
 
 #' Rename species
@@ -1307,7 +1302,7 @@ retuneReproductionEfficiency <- function(params,
 #' 
 #' Takes a MizerParams object with trivial stock recruitment function and sets 
 #' Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-#' factor \code{rfac} higher than the inital-state recruitment.
+#' factor \code{rfac} higher than the initial-state recruitment.
 #' 
 #' @param params A MizerParams object
 #' @param rfac The factor by which the maximum recruitment should be higher than
@@ -1388,14 +1383,20 @@ markBackground <- function(object, species) {
 #' @param effort The fishing effort. Default is 1.
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
-#'   after each of which we check for convergence. Default value is 2.
+#'   after each of which we check for convergence. Default value is 7.5. This
+#'   should be chosen as an odd multiple of the timestep `dt` in order to be
+#'   able to detect period 2 cycles.
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over t_per years is less than tol for every background
 #'   species. Default value is 1/100.
 #' @param dt The time step to use in `project()`
+#' @param return_sim If TRUE, the function returns the MizerSim object holding
+#'   the result of the simulation run. If FALSE (default) the function returns
+#'   a MizerParams object with the "initial" slots set to the steady state.
 #' @param progress_bar A shiny progress object to implement 
 #'   a progress bar in a shiny app. Default FALSE
 #' @export
+#' @md
 #' @examples
 #' \dontrun{
 #' params <- set_scaling_model()
@@ -1403,8 +1404,8 @@ markBackground <- function(object, species) {
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
 #' }
-steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
-                   dt = 0.1, progress_bar = TRUE) {
+steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
+                   dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
     p <- params
     
     if (is(progress_bar, "Progress")) {
@@ -1426,13 +1427,20 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     n <- p@initial_n
     n_pp <- p@initial_n_pp
     B <- p@initial_B
+    sim <- p
     for (ti in (1:ceiling(t_max/t_per))) {
-        sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
-                       effort = effort, 
-                       initial_n = n, initial_n_pp = n_pp, initial_B = B)
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
+        }
+        if (return_sim) {
+            sim <- project(sim, dt = dt, t_max = t_per, t_save = t_per,
+                           effort = effort,
+                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
+        } else {
+            sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
+                           effort = effort,
+                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
         }
         no_t <- dim(sim@n)[1]
         n[] <- sim@n[no_t, , ]
@@ -1450,7 +1458,7 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
             "Simulation run in steady() did not converge after ", ti * t_per, 
             "years. Residual relative rate of change = ", deviation))
     } else {
-        message(paste("Steady state was reached after ", ti * t_per, "years."))
+        message(paste("Steady state was reached before ", ti * t_per, "years."))
     }
     
     # Restore original stock-recruitment relationship and resource dynamics
@@ -1458,10 +1466,9 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     p@resource_dynamics <- old_resource_dynamics
     
     no_sp <- length(p@species_params$species)
-    no_t <- dim(sim@n)[1]
-    p@initial_n[] <- sim@n[no_t, , ]
-    p@initial_n_pp[] <- sim@n_pp[no_t, ]
-    p@initial_B[] <- sim@B[no_t, ]
+    p@initial_n[] <- n
+    p@initial_n_pp[] <- n_pp
+    p@initial_B[] <- B
     
     # Set rates of external resource influx to keep resources at steady state
     r <- getRates(p, effort = effort)
@@ -1481,7 +1488,12 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 2, tol = 10^(-2),
     # recruitment
     p <- retuneReproductionEfficiency(p)
     
-    return(p)
+    if (return_sim) {
+        sim@params <- p
+        return(sim)
+    } else {
+        return(p)
+    }
 }
 
 # Helper function to create constant resource dynamics

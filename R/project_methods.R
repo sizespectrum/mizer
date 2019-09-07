@@ -994,7 +994,7 @@ getEGrowth <- function(params, n = params@initial_n,
 #' Calculates the density independent rate of egg production \eqn{R_{p.i}}
 #' (units 1/year) before density dependence, by species. Used by
 #' \code{\link{getRDD}} to calculate the actual density dependent rate.
-#' See \code{\link{setRecruitment}} for more details.
+#' See \code{\link{setReproduction}} for more details.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -1044,7 +1044,7 @@ getRDI <- function(params, n = params@initial_n,
 #' of each species. The density dependent rate is the density independent
 #' rate obtained with \code{\link{getRDI}} after it has been put through the 
 #' density dependent "stock-recruitment" relationship function. See
-#' \code{\link{setRecruitment}} for more details.
+#' \code{\link{setReproduction}} for more details.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
