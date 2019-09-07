@@ -79,16 +79,30 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right, a, b) {
     return(1 / (1 + exp(s1 - s2 * l)) / (1 + exp(s1_right - s2_right * l)))
 }
 
-#' Size based knife-edge selectivity function
+#' Weight based knife-edge selectivity function
 #'
-#' A knife-edge selectivity function where only sizes greater or equal to
+#' A knife-edge selectivity function where weights greater or equal to
 #' \code{knife_edge_size} are selected.
 #'
 #' @param w The size of the individual.
-#' @param knife_edge_size The size at which the knife-edge operates.
+#' @param knife_edge_size The weight at which the knife-edge operates.
 #' @export
 knife_edge <- function(w, knife_edge_size) {
     sel <- rep(0, length(w))
     sel[w >= knife_edge_size] <- 1
     return(sel)
 } 
+
+#' Weight based sigmoidal selectivity function
+#'
+#' A sigmoidal selectivity function with 50\% selectivity at
+#' weight \code{sigmoidal_weight} and width \code{sigmoidal_sigma}.
+#'
+#' @param w The size of the individual.
+#' @param sigmoidal_weight The weight at which the knife-edge operates.
+#' @export
+sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma=3) {
+  return( (1+(w/sigmoidal_weight)^(-sigmoidal_sigma))^(-1) )
+} 
+
+
