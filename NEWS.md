@@ -21,6 +21,7 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
 * `data(Benguela_params)` with five species: Anchovy, Sardine, Kingklip, 
   Shallow water hake, and Deep water hake.
 * `data(Baltic_params)` with three species: sprat, herring, and cod.
+* `data(Barents_params)` with six species.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model

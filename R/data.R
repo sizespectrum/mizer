@@ -112,3 +112,25 @@ NULL
 #' @name Baltic_params
 NULL
 # "Baltic_params"
+
+#' Example MizerParams object for the Barents Sea
+#' 
+#' Created with purely size-based predation, i.e., no species-specific interactions. 
+#' Set up with three fishing gears targeting small, medium and large species. 
+#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
+#' Calibrated to efforts
+#' \code{effort = c(small=1.1, medium=0.5, large=0.75)}.
+#' @examples 
+#' \dontrun{ 
+#' data("Barents_params")
+#' sim = project(Barents_params, effort = c(small=1.1, medium=0.5, large=0.75))
+#' plot(sim)
+#' }
+#' @format A MizerParams object
+#' @source{N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 
+#' Efficiency of fisheries is increasing at the ecosystem level. 
+#' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
+#' @docType data
+#' @name Barents_params
+NULL
+# "Barents_params"
