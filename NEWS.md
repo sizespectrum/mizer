@@ -18,8 +18,9 @@ generic trait-based background has better support.
 
 ## Ecosystems
 Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
-* `data(Benguela_current)` with five species: Anchovy, Sardine, Kingklip, 
+* `data(Benguela_params)` with five species: Anchovy, Sardine, Kingklip, 
   Shallow water hake, and Deep water hake.
+* `data(Baltic_params)` with three species: sprat, herring, and cod.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
