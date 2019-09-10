@@ -72,7 +72,7 @@ NULL
 #'   is 1000.
 #' @param lambda The exponent of the plankton spectrum. Default value is 2 + q
 #'   - n.
-#' @param r_pp Growth rate of the primary productivity. Default value is 10.
+#' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 10.
 #' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 #'   \code{kappa} if not supplied.
 #' @param recruitment The constant recruitment in the smallest size class of the
@@ -231,7 +231,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param p Scaling of the standard metabolism. Default value is 0.75.
 #' @param q Exponent of the search volume. Default value is 0.9.
 #' @param eta Factor to calculate \code{w_mat} from asymptotic size.
-#' @param r_pp Growth rate of the primary productivity. Default value is 4.
+#' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 4.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
 #' @param lambda Exponent of the abundance power law. Default value is (2+q-n).
@@ -475,7 +475,7 @@ set_trait_model <- function(no_sp = 10,
 #'   q = lambda - 2 + n.
 #' @param lambda Exponent of the abundance power law. If supplied, this 
 #'   overrules the \code{q} argument. Otherwise the default value is 2+q-n.
-#' @param r_pp Growth rate of the primary productivity. Default value is 0.1.
+#' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 0.1.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
 #' @param alpha The assimilation efficiency of the community. The default value

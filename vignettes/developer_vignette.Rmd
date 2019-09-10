@@ -124,7 +124,7 @@ To work with R packages as a developer, you will need to
 
 Once you have these tools in place, you should install the devtools and roxygen2 packages with
 ```{r eval=FALSE}
-install.packages(c("devtools", "roxygen2")
+install.packages(c("devtools", "roxygen2"))
 ```
 
 You are now all set to develop R packages, and 
