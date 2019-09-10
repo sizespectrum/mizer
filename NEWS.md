@@ -22,6 +22,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
   Shallow water hake, and Deep water hake.
 * `data(Baltic_params)` with three species: sprat, herring, and cod.
 * `data(Barents_params)` with six species.
+* `data(NEUSCS_params)` with 24 species.
+* `data(NorthSea_params)` with 10 species.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
