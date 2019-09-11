@@ -3,6 +3,15 @@ title: "Estimating feeding kernel parameters"
 output: html_notebook
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(tidyverse)
+library(bbmle)
+```
+
 Specifying the species we are interested in:
 ```{r}
 select <- c("Merluccius merluccius", "Aspitrigla cuculus")
@@ -100,6 +109,7 @@ ggplot(stomach) +
 ```
 If we are happy with the fits, then we would set the following species parameters:
 ```{r}
+lambda <- 2.05
 sp <- stomach %>% 
     group_by(Species) %>% 
     summarize(sigma = sd(l),
