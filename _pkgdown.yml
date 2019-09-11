@@ -161,9 +161,9 @@ reference:
   - MizerSim
   - summary,MizerParams-method
   - summary,MizerSim-method
-- title: Data sets
+- title: Example parameter sets
   contents:
-  - NS_params
+  - ends_with("_params")
   - NS_species_params
   - NS_species_params_gears
   - inter

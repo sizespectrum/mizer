@@ -1,4 +1,4 @@
-#' Example parameter set based on the North Sea
+#' Example species parameter set based on the North Sea
 #' 
 #' This data set is based on species in the North Sea (Blanchard et al.).
 #' It is a data.frame that contains all the necessary information to be used by the
@@ -22,7 +22,7 @@
 NULL
 # "NS_species_params"
 
-#' Example parameter set based on the North Sea with different gears
+#' Example species parameter set based on the North Sea with different gears
 #'
 #' This data set is based on species in the North Sea (Blanchard et al.).
 #' It is similar to the data set \code{NS_species_params} except that
@@ -66,6 +66,7 @@ NULL
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_params
+#' @family example parameter objects
 NULL
 # "NS_params"
 
@@ -88,6 +89,7 @@ NULL
 #' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 #' @docType data
 #' @name Benguela_params
+#' @family example parameter objects
 NULL
 # "Benguela_params"
 
@@ -110,6 +112,7 @@ NULL
 #' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 #' @docType data
 #' @name Baltic_params
+#' @family example parameter objects
 NULL
 # "Baltic_params"
 
@@ -132,6 +135,7 @@ NULL
 #' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 #' @docType data
 #' @name Barents_params
+#' @family example parameter objects
 NULL
 # "Barents_params"
 
@@ -154,6 +158,7 @@ NULL
 #' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 #' @docType data
 #' @name NEUSCS_params
+#' @family example parameter objects
 NULL
 # "NEUSCS_params"
 
@@ -176,6 +181,7 @@ NULL
 #' Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 #' @docType data
 #' @name NorthSea_params
+#' @family example parameter objects
 NULL
 # "NorthSea_params"
 
