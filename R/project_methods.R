@@ -71,11 +71,22 @@ getRates <- function(params, n = params@initial_n,
                      B = params@initial_B,
                      effort = 1, sex_ratio = 0.5) {
     r <- list()
+    
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- getEncounter(params, n = n, n_pp = n_pp, B = B)
     # Calculate feeding level f_i(w)
     r$feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp, B = B,
                                        encounter = r$encounter)
+    # Calculate the energy available for reproduction and growth
+    r$e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B,
+                              encounter = r$encounter,
+                              feeding_level = r$feeding_level)
+    # Calculate the energy for reproduction
+    r$e_repro <- getERepro(params, n = n, n_pp = n_pp, B = B, e = r$e)
+    # Calculate the growth rate g_i(w)
+    r$e_growth <- getEGrowth(params, n = n, n_pp = n_pp, B = B, 
+                             e_repro = r$e_repro, e = r$e)
+    
     # Calculate the predation rate
     r$pred_rate <- getPredRate(params, n = n, n_pp = n_pp, B = B,
                                feeding_level = r$feeding_level)
@@ -87,15 +98,7 @@ getRates <- function(params, n = params@initial_n,
     # Calculate mortality on the plankton spectrum
     r$plankton_mort <- getPlanktonMort(params, n = n, n_pp = n_pp, B = B,
                                        pred_rate = r$pred_rate)
-    # Calculate the energy available for reproduction and growth
-    r$e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B,
-                              encounter = r$encounter,
-                              feeding_level = r$feeding_level)
-    # Calculate the energy for reproduction
-    r$e_repro <- getERepro(params, n = n, n_pp = n_pp, B = B, e = r$e)
-    # Calculate the growth rate g_i(w)
-    r$e_growth <- getEGrowth(params, n = n, n_pp = n_pp, B = B, 
-                             e_repro = r$e_repro, e = r$e)
+    
     # R_{p,i}
     r$rdi <- getRDI(params, n = n, n_pp = n_pp, B = B, 
                     e_repro = r$e_repro, sex_ratio = sex_ratio)
