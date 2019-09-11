@@ -159,7 +159,7 @@ to 4, because that is the convention the mizer code follows.
 ## Installing mizer
 You are now ready to install the mizer package using the development code from
 GitHub. First you should do this with the command
-```{r message=FALSE, warning=FALSE}
+```{r eval=FALSE}
 devtools::install_github("sizespectrum/mizer")
 ```
 This will automatically also install all the other packages that mizer depends
@@ -170,6 +170,7 @@ go to the "Build" tab in RStudio and click on "Install and Restart" or
 alternatively use the keyboard shortcut Ctrl+Shift+B.
 <center>
 ![](images/build.png)
+</center>
 
 You can watch the progress in the "Build" tab. Once the build has completed, you will see that in the console RStudio automatically runs
 ```{r eval=FALSE}
@@ -277,4 +278,17 @@ already there for other similar slots.
 
 -->
 
+# Specialised topics
+
+## Size of git repo
+We should try to avoid committing too many very large files to the git
+repository, because the larger the repository the longer it takes to download.
+Currently (September 2019) the repository is still at a manageable 110 MiB.
+The best way to check the size of the repository is with the git-sizer, see
+https://github.com/github/git-sizer/
+
+We are currently storing the mizer website in the mizer repository (in the docs
+subdirectory). That is convenient, partly because that is where pkgdown puts it
+by default and GitHub serves it from there. However in the future we might
+consider moving the website to its own repository.
 

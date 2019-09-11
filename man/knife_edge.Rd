@@ -2,16 +2,16 @@
 % Please edit documentation in R/selectivity_funcs.R
 \name{knife_edge}
 \alias{knife_edge}
-\title{Size based knife-edge selectivity function}
+\title{Weight based knife-edge selectivity function}
 \usage{
 knife_edge(w, knife_edge_size)
 }
 \arguments{
 \item{w}{The size of the individual.}
 
-\item{knife_edge_size}{The size at which the knife-edge operates.}
+\item{knife_edge_size}{The weight at which the knife-edge operates.}
 }
 \description{
-A knife-edge selectivity function where only sizes greater or equal to
+A knife-edge selectivity function where weights greater or equal to
 \code{knife_edge_size} are selected.
 }

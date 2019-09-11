@@ -444,8 +444,9 @@ The selectivity at size of each gear has a range between 0 (not selected at
 that size) to 1 (fully selected at that size). It is given by a selectivity
 function. The name of the selectivity function is given by the \code{sel_func}
 column in the species parameters data frame. Some selectivity functions are
-included in the package: \code{knife_edge()}, \code{sigmoid_length()} and
-\code{double_sigmoid_length()}. New functions can be defined by the user. Each
+included in the package: \code{knife_edge()}, \code{sigmoid_length()},
+\code{double_sigmoid_length()}, and \code{sigmoid_weight()}. New functions can be defined
+by the user. Each
 gear has the same selectivity function for all the species it selects, but
 the parameter values for each species may be different, e.g. the lengths of
 species that a gear selects may be different.

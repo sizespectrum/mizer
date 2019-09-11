@@ -128,7 +128,7 @@ variety of plots to visualise the steady-state" />
 variety of plots to visualise the steady-state</p>
     </div>
 
-    <pre class="usage"><span class='fu'>tuneParams</span>(<span class='no'>p</span>, <span class='kw'>catch</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>stomach</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>tuneParams</span>(<span class='no'>p</span>, <span class='kw'>catch</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,17 +149,6 @@ the latter case the data frame should have columns <code>weight</code> and
 size bins in grams. The data frame also needs to have the columns
 <code>species</code> (the name of the species), <code>catch</code> (the number of
 individuals of a particular species caught in a size bin).</p></td>
-    </tr>
-    <tr>
-      <th>stomach</th>
-      <td><p>Data frame holding observations of prey items in predator
-stomachs. The required columns are</p><ul>
-<li><p><code>species</code> holding the name of the predator species,</p></li>
-<li><p><code>wpredator</code> with the weight in grams of the predator,</p></li>
-<li><p><code>wprey</code> with the weight of the prey item.</p></li>
-</ul><p>In case prey items of the same weight have been aggregated in the data
-frame then there should be a column <code>Nprey</code> saying how many prey 
-items have been aggregated in each row.</p></td>
     </tr>
     </table>
 

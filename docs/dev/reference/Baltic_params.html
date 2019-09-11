@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Power-law predation kernel — power_law_pred_kernel • mizer</title>
+<title>Example MizerParams object for the Central Baltic Sea — Baltic_params • mizer</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,12 @@
 
 
 
-<meta property="og:title" content="Power-law predation kernel — power_law_pred_kernel" />
-<meta property="og:description" content="This predation kernel is a power-law, with sigmoidal cut-offs at large and
-small predator/prey mass ratios." />
+<meta property="og:title" content="Example MizerParams object for the Central Baltic Sea — Baltic_params" />
+<meta property="og:description" content="Created with purely size-based predation, i.e., no species-specific interactions. 
+Set up with three fishing gears targeting small, medium and large species. 
+Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
+Calibrated to efforts
+effort = c(small=0.3, medium=0.3, large=0.7)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -118,71 +121,43 @@ small predator/prey mass ratios." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Power-law predation kernel</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/pred_kernel_funcs.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/pred_kernel_funcs.R'><code>R/pred_kernel_funcs.R</code></a></small>
-    <div class="hidden name"><code>power_law_pred_kernel.Rd</code></div>
+    <h1>Example MizerParams object for the Central Baltic Sea</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/data.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>Baltic_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This predation kernel is a power-law, with sigmoidal cut-offs at large and
-small predator/prey mass ratios.</p>
+    <p>Created with purely size-based predation, i.e., no species-specific interactions. 
+Set up with three fishing gears targeting small, medium and large species. 
+Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
+Calibrated to efforts
+<code>effort = c(small=0.3, medium=0.3, large=0.7)</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>power_law_pred_kernel</span>(<span class='no'>ppmr</span>, <span class='no'>kernel_exp</span>, <span class='no'>kernel_l_l</span>, <span class='no'>kernel_u_l</span>, <span class='no'>kernel_l_r</span>,
-  <span class='no'>kernel_u_r</span>)</pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>ppmr</th>
-      <td><p>A vector of predator/prey size ratios at which to evaluate the
-predation kernel.</p></td>
-    </tr>
-    <tr>
-      <th>kernel_exp</th>
-      <td><p>The exponent of the power law</p></td>
-    </tr>
-    <tr>
-      <th>kernel_l_l</th>
-      <td><p>The location of the left, rising sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_u_l</th>
-      <td><p>The shape of the left, rising sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_l_r</th>
-      <td><p>The location of the right, falling sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_u_r</th>
-      <td><p>The shape of the right, falling sigmoid</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A vector giving the value of the predation kernel at each of the
-  predator/prey mass ratios in the <code>ppmr</code> argument.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <p>A MizerParams object</p>
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
 
-    <p>The return value is calculated as</p>
-<p><code>
-ppmr^kernel_exp /
-  (1 + (exp(kernel_l_l) / ppmr)^kernel_u_l) /
-  (1 + (ppmr / exp(kernel_l_r))^kernel_u_r) 
-</code></p>
-<p>The parameters need to be given as columns in the species parameter
-dataframe.</p>
+    <p>N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 
+Efficiency of fisheries is increasing at the ecosystem level. 
+Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"Baltic_params"</span>)
+<span class='no'>sim</span> <span class='kw'>=</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>Baltic_params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>small</span><span class='kw'>=</span><span class='fl'>0.3</span>, <span class='kw'>medium</span><span class='kw'>=</span><span class='fl'>0.3</span>, <span class='kw'>large</span><span class='kw'>=</span><span class='fl'>0.7</span>))
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>sim</span>)
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#format">Format</a></li>
+      <li><a href="#source">Source</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

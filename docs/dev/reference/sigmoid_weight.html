@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Power-law predation kernel — power_law_pred_kernel • mizer</title>
+<title>Weight based sigmoidal selectivity function — sigmoid_weight • mizer</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,9 @@
 
 
 
-<meta property="og:title" content="Power-law predation kernel — power_law_pred_kernel" />
-<meta property="og:description" content="This predation kernel is a power-law, with sigmoidal cut-offs at large and
-small predator/prey mass ratios." />
+<meta property="og:title" content="Weight based sigmoidal selectivity function — sigmoid_weight" />
+<meta property="og:description" content="A sigmoidal selectivity function with 50% selectivity at
+weight sigmoidal_weight and width sigmoidal_sigma." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -118,71 +118,41 @@ small predator/prey mass ratios." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Power-law predation kernel</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/pred_kernel_funcs.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/pred_kernel_funcs.R'><code>R/pred_kernel_funcs.R</code></a></small>
-    <div class="hidden name"><code>power_law_pred_kernel.Rd</code></div>
+    <h1>Weight based sigmoidal selectivity function</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/selectivity_funcs.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/selectivity_funcs.R'><code>R/selectivity_funcs.R</code></a></small>
+    <div class="hidden name"><code>sigmoid_weight.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This predation kernel is a power-law, with sigmoidal cut-offs at large and
-small predator/prey mass ratios.</p>
+    <p>A sigmoidal selectivity function with 50% selectivity at
+weight <code>sigmoidal_weight</code> and width <code>sigmoidal_sigma</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>power_law_pred_kernel</span>(<span class='no'>ppmr</span>, <span class='no'>kernel_exp</span>, <span class='no'>kernel_l_l</span>, <span class='no'>kernel_u_l</span>, <span class='no'>kernel_l_r</span>,
-  <span class='no'>kernel_u_r</span>)</pre>
+    <pre class="usage"><span class='fu'>sigmoid_weight</span>(<span class='no'>w</span>, <span class='no'>sigmoidal_weight</span>, <span class='kw'>sigmoidal_sigma</span> <span class='kw'>=</span> <span class='fl'>3</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ppmr</th>
-      <td><p>A vector of predator/prey size ratios at which to evaluate the
-predation kernel.</p></td>
+      <th>w</th>
+      <td><p>The size of the individual.</p></td>
     </tr>
     <tr>
-      <th>kernel_exp</th>
-      <td><p>The exponent of the power law</p></td>
+      <th>sigmoidal_weight</th>
+      <td><p>The weight at which the knife-edge operates.</p></td>
     </tr>
     <tr>
-      <th>kernel_l_l</th>
-      <td><p>The location of the left, rising sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_u_l</th>
-      <td><p>The shape of the left, rising sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_l_r</th>
-      <td><p>The location of the right, falling sigmoid</p></td>
-    </tr>
-    <tr>
-      <th>kernel_u_r</th>
-      <td><p>The shape of the right, falling sigmoid</p></td>
+      <th>sigmoidal_sigma</th>
+      <td><p>The width of the selection function</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A vector giving the value of the predation kernel at each of the
-  predator/prey mass ratios in the <code>ppmr</code> argument.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The return value is calculated as</p>
-<p><code>
-ppmr^kernel_exp /
-  (1 + (exp(kernel_l_l) / ppmr)^kernel_u_l) /
-  (1 + (ppmr / exp(kernel_l_r))^kernel_u_r) 
-</code></p>
-<p>The parameters need to be given as columns in the species parameter
-dataframe.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

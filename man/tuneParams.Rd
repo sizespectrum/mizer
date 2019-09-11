@@ -4,7 +4,7 @@
 \alias{tuneParams}
 \title{Launch shiny gadget for tuning parameters}
 \usage{
-tuneParams(p, catch = NULL, stomach = NULL)
+tuneParams(p, catch = NULL)
 }
 \arguments{
 \item{p}{MizerParams object to tune. If missing, the gadget tries to recover
@@ -19,17 +19,6 @@ the latter case the data frame should have columns \code{weight} and
 size bins in grams. The data frame also needs to have the columns
 \code{species} (the name of the species), \code{catch} (the number of
 individuals of a particular species caught in a size bin).}
-
-\item{stomach}{Data frame holding observations of prey items in predator
-stomachs. The required columns are 
-\itemize{
-\item \code{species} holding the name of the predator species,
-\item \code{wpredator} with the weight in grams of the predator,
-\item \code{wprey} with the weight of the prey item.
-}
-In case prey items of the same weight have been aggregated in the data
-frame then there should be a column \code{Nprey} saying how many prey 
-items have been aggregated in each row.}
 }
 \value{
 The tuned MizerParams object

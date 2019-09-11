@@ -4,6 +4,12 @@
     <loc>https://sizespectrum.org/mizer/index.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/Baltic_params.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/Benguela_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/MizerParams-class.html</loc>
   </url>
   <url>
@@ -329,6 +335,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/sigmoid_length.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/sigmoid_weight.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/srrBevertonHolt.html</loc>
