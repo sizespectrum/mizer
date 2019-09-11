@@ -24,3 +24,10 @@ sim = project(NEUSCS_params, effort = c(small=0.4, medium=0.3, large=0.25))
 plot(sim)
 }
 }
+\seealso{
+Other example parameter objects: \code{\link{Baltic_params}},
+  \code{\link{Barents_params}},
+  \code{\link{Benguela_params}}, \code{\link{NS_params}},
+  \code{\link{NorthSea_params}}
+}
+\concept{example parameter objects}

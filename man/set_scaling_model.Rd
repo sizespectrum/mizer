@@ -45,7 +45,7 @@ q = lambda - 2 + n.}
 \item{lambda}{Exponent of the abundance power law. If supplied, this 
 overrules the \code{q} argument. Otherwise the default value is 2+q-n.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default value is 0.1.}
+\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 0.1.}
 
 \item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}

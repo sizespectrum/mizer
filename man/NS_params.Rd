@@ -15,3 +15,11 @@ condition corresponding to the steady state obtained from fishing with an
 effort 
 \code{effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)}.
 }
+\seealso{
+Other example parameter objects: \code{\link{Baltic_params}},
+  \code{\link{Barents_params}},
+  \code{\link{Benguela_params}},
+  \code{\link{NEUSCS_params}},
+  \code{\link{NorthSea_params}}
+}
+\concept{example parameter objects}

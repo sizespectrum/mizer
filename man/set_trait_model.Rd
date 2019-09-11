@@ -48,7 +48,7 @@ is 1.}
 
 \item{eta}{Factor to calculate \code{w_mat} from asymptotic size.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default value is 4.}
+\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 4.}
 
 \item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}

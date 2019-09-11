@@ -65,6 +65,7 @@ reference:
   - steady
   - retuneBackground
   - rescaleAbundance
+  - rescaleSystem
   - retuneReproductionEfficiency
   - pruneSpecies
   - setRmax

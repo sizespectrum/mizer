@@ -41,7 +41,7 @@ is 1000.}
 spectrum. This value is used to calculate the search rate parameter 
 \code{gamma} (see the package vignette). Default value is 0.7.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default value is 10.}
+\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 10.}
 
 \item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 \code{kappa} if not supplied.}

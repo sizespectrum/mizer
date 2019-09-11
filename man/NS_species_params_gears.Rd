@@ -3,7 +3,7 @@
 \docType{data}
 \name{NS_species_params_gears}
 \alias{NS_species_params_gears}
-\title{Example parameter set based on the North Sea with different gears}
+\title{Example species parameter set based on the North Sea with different gears}
 \format{A data frame with 12 rows and 8 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
