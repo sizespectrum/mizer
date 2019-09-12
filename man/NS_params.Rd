@@ -15,6 +15,12 @@ condition corresponding to the steady state obtained from fishing with an
 effort 
 \code{effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)}.
 }
+\examples{
+\dontrun{
+sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+plot(sim)
+}
+}
 \seealso{
 Other example parameter objects: \code{\link{Baltic_params}},
   \code{\link{Barents_params}},

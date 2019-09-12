@@ -24,3 +24,10 @@ It is similar to the data set \code{NS_species_params} except that
 this one has an additional column specifying the fishing gear that
 operates on each species.
 }
+\examples{
+\dontrun{
+params <- MizerParams(NS_species_params_gears)
+sim = project(params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+plot(sim)
+}
+}

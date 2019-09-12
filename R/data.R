@@ -1,3 +1,4 @@
+# NS_species_params ----
 #' Example species parameter set based on the North Sea
 #' 
 #' This data set is based on species in the North Sea (Blanchard et al.).
@@ -19,9 +20,15 @@
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params)
+#' sim = project(params)
+#' plot(sim)
+#' }
 NULL
-# "NS_species_params"
 
+# NS_species_params_gears ----
 #' Example species parameter set based on the North Sea with different gears
 #'
 #' This data set is based on species in the North Sea (Blanchard et al.).
@@ -42,9 +49,15 @@ NULL
 #' @source{Blanchard et al.}
 #' @docType data
 #' @name NS_species_params_gears
+#' @examples 
+#' \dontrun{
+#' params <- MizerParams(NS_species_params_gears)
+#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+#' plot(sim)
+#' }
 NULL
-# "NS_species_params_gears"
 
+# inter ----
 #' Example interaction matrix for the North Sea example
 #'
 #' The interaction coefficient between predators and preys in the North Sea.
@@ -53,8 +66,8 @@ NULL
 #' @docType data
 #' @name inter
 NULL
-# "inter"
 
+# NS_params ----
 #' Example MizerParams object for the North Sea example
 #'
 #' A MizerParams object created from the \code{NS_species_params_gears} species
@@ -67,20 +80,24 @@ NULL
 #' @docType data
 #' @name NS_params
 #' @family example parameter objects
+#' @examples 
+#' \dontrun{
+#' sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+#' plot(sim)
+#' }
 NULL
-# "NS_params"
 
+# Benguela current ----
 #' Example MizerParams object for the Benguela current
 #' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.13, medium=0.05, large=0.45)}.
+#' Created with purely size-based predation, i.e., no species-specific
+#' interactions. Set up with three fishing gears targeting small, medium and
+#' large species. Vulnerabilities are represented by changing the clearance rate
+#' constant (gamma) between species. Calibrated to efforts
+#' \code{effort = c(small = 0.13, medium = 0.05, large = 0.45)}.
 #' @examples 
-#' \dontrun{ 
-#' data("Benguela_params")
-#' sim = project(Benguela_params, effort=c(small=0.13, medium=0.05, large=0.45))
+#' \dontrun{
+#' sim = project(Benguela_params, effort = c(small = 0.13, medium = 0.05, large = 0.45))
 #' plot(sim)
 #' }
 #' @format A MizerParams object
@@ -91,19 +108,18 @@ NULL
 #' @name Benguela_params
 #' @family example parameter objects
 NULL
-# "Benguela_params"
 
+# Baltic Sea ----
 #' Example MizerParams object for the Central Baltic Sea
 #' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.3, medium=0.3, large=0.7)}.
+#' Created with purely size-based predation, i.e., no species-specific
+#' interactions. Set up with three fishing gears targeting small, medium and
+#' large species. Vulnerabilities are represented by changing the clearance rate
+#' constant (gamma) between species. Calibrated to efforts
+#' \code{effort = c(small = 0.3, medium = 0.3, large = 0.7)}.
 #' @examples 
-#' \dontrun{ 
-#' data("Baltic_params")
-#' sim = project(Baltic_params, effort = c(small=0.3, medium=0.3, large=0.7))
+#' \dontrun{
+#' sim = project(Baltic_params, effort = c(small = 0.3, medium = 0.3, large = 0.7))
 #' plot(sim)
 #' }
 #' @format A MizerParams object
@@ -114,19 +130,18 @@ NULL
 #' @name Baltic_params
 #' @family example parameter objects
 NULL
-# "Baltic_params"
 
+# Barents Sea ----
 #' Example MizerParams object for the Barents Sea
 #' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=1.1, medium=0.5, large=0.75)}.
+#' Created with purely size-based predation, i.e., no species-specific
+#' interactions. Set up with three fishing gears targeting small, medium and
+#' large species. Vulnerabilities are represented by changing the clearance rate
+#' constant (gamma) between species. Calibrated to efforts
+#' \code{effort = c(small = 1.1, medium = 0.5, large = 0.75)}.
 #' @examples 
-#' \dontrun{ 
-#' data("Barents_params")
-#' sim = project(Barents_params, effort = c(small=1.1, medium=0.5, large=0.75))
+#' \dontrun{
+#' sim = project(Barents_params, effort = c(small = 1.1, medium = 0.5, large = 0.75))
 #' plot(sim)
 #' }
 #' @format A MizerParams object
@@ -137,19 +152,18 @@ NULL
 #' @name Barents_params
 #' @family example parameter objects
 NULL
-# "Barents_params"
 
+# North-East US ----
 #' Example MizerParams object for the North East US Continential Shelf (NEUSCS) with 24 species.
 #' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.4, medium=0.3, large=0.25)}.
+#' Created with purely size-based predation, i.e., no species-specific
+#' interactions. Set up with three fishing gears targeting small, medium and
+#' large species. Vulnerabilities are represented by changing the clearance rate
+#' constant (gamma) between species. Calibrated to efforts
+#' \code{effort = c(small = 0.4, medium = 0.3, large = 0.25)}.
 #' @examples 
-#' \dontrun{ 
-#' data("NEUSCS_params")
-#' sim = project(NEUSCS_params, effort = c(small=0.4, medium=0.3, large=0.25))
+#' \dontrun{
+#' sim = project(NEUSCS_params, effort = c(small = 0.4, medium = 0.3, large = 0.25))
 #' plot(sim)
 #' }
 #' @format A MizerParams object
@@ -160,19 +174,18 @@ NULL
 #' @name NEUSCS_params
 #' @family example parameter objects
 NULL
-# "NEUSCS_params"
 
+# North Sea 10 species ----
 #' Example MizerParams object for the North Sea with 10 species.
 #' 
-#' Created with purely size-based predation, i.e., no species-specific interactions. 
-#' Set up with three fishing gears targeting small, medium and large species. 
-#' Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-#' Calibrated to efforts
-#' \code{effort = c(small=0.6, medium=0.6, large=1.25)}.
+#' Created with purely size-based predation, i.e., no species-specific
+#' interactions. Set up with three fishing gears targeting small, medium and
+#' large species. Vulnerabilities are represented by changing the clearance rate
+#' constant (gamma) between species. Calibrated to efforts
+#' \code{effort = c(small = 0.6, medium = 0.6, large = 1.25)}.
 #' @examples 
-#' \dontrun{ 
-#' data("NorthSea.params")
-#' sim = project(NorthSea_params, effort = c(small=0.6, medium=0.6, large=1.25))
+#' \dontrun{
+#' sim = project(NorthSea_params, effort = c(small = 0.6, medium = 0.6, large = 1.25))
 #' plot(sim)
 #' }
 #' @format A MizerParams object
@@ -183,5 +196,4 @@ NULL
 #' @name NorthSea_params
 #' @family example parameter objects
 NULL
-# "NorthSea_params"
 

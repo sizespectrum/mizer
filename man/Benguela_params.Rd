@@ -11,16 +11,15 @@ Efficiency of fisheries is increasing at the ecosystem level.
 Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 }
 \description{
-Created with purely size-based predation, i.e., no species-specific interactions. 
-Set up with three fishing gears targeting small, medium and large species. 
-Vulnerabilities are represented by changing the clearance rate constant (gamma) between species.
-Calibrated to efforts
-\code{effort = c(small=0.13, medium=0.05, large=0.45)}.
+Created with purely size-based predation, i.e., no species-specific
+interactions. Set up with three fishing gears targeting small, medium and
+large species. Vulnerabilities are represented by changing the clearance rate
+constant (gamma) between species. Calibrated to efforts
+\code{effort = c(small = 0.13, medium = 0.05, large = 0.45)}.
 }
 \examples{
-\dontrun{ 
-data("Benguela_params")
-sim = project(Benguela_params, effort=c(small=0.13, medium=0.05, large=0.45))
+\dontrun{
+sim = project(Benguela_params, effort = c(small = 0.13, medium = 0.05, large = 0.45))
 plot(sim)
 }
 }
