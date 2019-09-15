@@ -2365,6 +2365,12 @@ upgradeParams <- function(params) {
         warning('The stock recruitment function has been set to "srrBevertonHolt".')
     }
     
+    if (.hasSlot(params, "initial_effort")) {
+        initial_effort <- params@initial_effort
+    } else {
+        initial_effort <- NULL
+    }
+    
     if (.hasSlot(params, "metab")) {
         metab <- params@metab
     } else {
