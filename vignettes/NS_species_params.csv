@@ -1,4 +1,4 @@
-species,w_inf,w_mat,beta,sigma,r_max,k_vb
+species,w_inf,w_mat,beta,sigma,R_max,k_vb
 Sprat,33,13,51076,0.8,738000000000,0.681
 Sandeel,36,4,398849,1.9,410000000000,1
 N.pout,100,23,22,1.5,10500000000000,0.849

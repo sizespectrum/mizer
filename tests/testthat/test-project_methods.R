@@ -21,7 +21,7 @@ params_r@initial_n_pp <- params@initial_n_pp * volume
 params_r@initial_B <- params@initial_B * volume
 params_r@species_params$gamma <- params@species_params$gamma / volume
 params_r <- setSearchVolume(params_r)
-params_r@species_params$r_max <- params_r@species_params$r_max * volume
+params_r@species_params$R_max <- params_r@species_params$R_max * volume
 
 # Random abundances
 set.seed(0)

@@ -10,7 +10,7 @@ srrBevertonHolt(rdi, species_params)
 \item{rdi}{Vector of egg production rates \eqn{R_p} for all species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
-r_max holding the maximum larvae production rate \eqn{R_{max}} for each
+R_max holding the maximum larvae production rate \eqn{R_{max}} for each
 species.}
 }
 \value{

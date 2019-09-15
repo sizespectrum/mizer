@@ -14,7 +14,7 @@
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
-#' \item{r_max}{Maximum recruitment}
+#' \item{R_max}{Maximum recruitment}
 #' \item{k_vb}{The von Bertalanffy k parameter}
 #' }
 #' @source{Blanchard et al.}
@@ -42,7 +42,7 @@ NULL
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
-#' \item{r_max}{Maximum recruitment}
+#' \item{R_max}{Maximum recruitment}
 #' \item{k_vb}{The von Bertalanffy k parameter}
 #' \item{gear}{Name of the fishing gear}
 #' }

@@ -7,6 +7,9 @@
     <loc>https://sizespectrum.org/mizer/reference/Baltic_params.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/Barents_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/Benguela_params.html</loc>
   </url>
   <url>
@@ -22,6 +25,9 @@
     <loc>https://sizespectrum.org/mizer/reference/MizerSim.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/NEUSCS_params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/NS_params.html</loc>
   </url>
   <url>
@@ -29,6 +35,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/NS_species_params_gears.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/NorthSea_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
@@ -269,6 +278,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/rescaleAbundance.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/rescaleSystem.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/retuneBackground.html</loc>

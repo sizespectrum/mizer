@@ -408,7 +408,7 @@ the density-independent rate of egg production through a "stock-recruitment"
 function. The result is returned by \code{\link{getRDD}}. The
 stock-recruitment function is specified by the \code{srr} argument. The
 default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
-requires an \code{r_max} column in the species_params data frame giving the
+requires an \code{R_max} column in the species_params data frame giving the
 maximum egg production rate. If this column does not exist, it is initialised
 to \code{Inf}, leading to no density-dependence. Other functions provided by
 mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
