@@ -42,13 +42,13 @@ Calls all the other rate functions in sequence and collects the results in a
 list.
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}},
-  \code{\link{getEReproAndGrowth}},
-  \code{\link{getERepro}}, \code{\link{getEncounter}},
-  \code{\link{getFMortGear}}, \code{\link{getFMort}},
-  \code{\link{getFeedingLevel}}, \code{\link{getMort}},
-  \code{\link{getPlanktonMort}}, \code{\link{getPredMort}},
-  \code{\link{getPredRate}}, \code{\link{getRDD}},
-  \code{\link{getRDI}}
+Other rate functions: \code{\link{getEGrowth}()},
+  \code{\link{getEReproAndGrowth}()},
+  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
+  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
+  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
+  \code{\link{getPlanktonMort}()},
+  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
+  \code{\link{getRDD}()}, \code{\link{getRDI}()}
 }
 \concept{rate functions}

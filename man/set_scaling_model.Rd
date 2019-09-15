@@ -157,8 +157,8 @@ plotSpectra(sim)
 \seealso{
 \linkS4class{MizerParams}
 
-Other functions for setting up models: \code{\link{set_community_model}},
-  \code{\link{set_multispecies_model}},
-  \code{\link{set_trait_model}}
+Other functions for setting up models: \code{\link{set_community_model}()},
+  \code{\link{set_multispecies_model}()},
+  \code{\link{set_trait_model}()}
 }
 \concept{functions for setting up models}

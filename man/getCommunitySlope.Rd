@@ -16,17 +16,18 @@ calculation.}
 \item{biomass}{Boolean. If TRUE (default), the abundance is based on biomass,
 if FALSE the abundance is based on numbers.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
 A data frame with slope, intercept and R2 values.
@@ -54,9 +55,9 @@ slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getMeanMaxWeight}},
-  \code{\link{getMeanWeight}},
-  \code{\link{getProportionOfLargeFish}}
+Other functions for calculating indicators: \code{\link{getMeanMaxWeight}()},
+  \code{\link{getMeanWeight}()},
+  \code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

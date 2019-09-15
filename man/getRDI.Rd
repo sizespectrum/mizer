@@ -47,13 +47,13 @@ getRDI(params,sim@n[21,,],sim@n_pp[21,])
 \seealso{
 \code{\link{getRDD}}
 
-Other rate functions: \code{\link{getEGrowth}},
-  \code{\link{getEReproAndGrowth}},
-  \code{\link{getERepro}}, \code{\link{getEncounter}},
-  \code{\link{getFMortGear}}, \code{\link{getFMort}},
-  \code{\link{getFeedingLevel}}, \code{\link{getMort}},
-  \code{\link{getPlanktonMort}}, \code{\link{getPredMort}},
-  \code{\link{getPredRate}}, \code{\link{getRDD}},
-  \code{\link{getRates}}
+Other rate functions: \code{\link{getEGrowth}()},
+  \code{\link{getEReproAndGrowth}()},
+  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
+  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
+  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
+  \code{\link{getPlanktonMort}()},
+  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
+  \code{\link{getRDD}()}, \code{\link{getRates}()}
 }
 \concept{rate functions}

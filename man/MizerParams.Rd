@@ -572,7 +572,7 @@ params <- set_multispecies_model(NS_species_params_gears, inter)
 \code{\link{project}}, \linkS4class{MizerSim},
   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
 
-Other functions for setting up models: \code{\link{set_community_model}},
-  \code{\link{set_scaling_model}},
-  \code{\link{set_trait_model}}
+Other functions for setting up models: \code{\link{set_community_model}()},
+  \code{\link{set_scaling_model}()},
+  \code{\link{set_trait_model}()}
 }

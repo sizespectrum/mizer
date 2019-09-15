@@ -35,19 +35,22 @@ fishing gears can be plotted against time. The yield is obtained with
 \code{\link{getYield}}.
 }
 \seealso{
-Other plotting functions: \code{\link{displayFrames}},
+Other plotting functions: \code{\link{displayFrames}()},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}},
+  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
+  \code{\link{plotFMort}()},
+  \code{\link{plotFeedingLevel}()},
+  \code{\link{plotGrowthCurves}()},
+  \code{\link{plotPredMort}()},
+  \code{\link{plotSpectra}()},
+  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
+  \code{\link{plotlyBiomass}()},
+  \code{\link{plotlyFMort}()},
+  \code{\link{plotlyFeedingLevel}()},
+  \code{\link{plotlyGrowthCurves}()},
+  \code{\link{plotlyPredMort}()},
+  \code{\link{plotlySpectra}()},
+  \code{\link{plotlyYieldGear}()},
   \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

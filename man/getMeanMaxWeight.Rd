@@ -15,17 +15,18 @@ calculation.}
 
 \item{measure}{The measure to return. Can be 'numbers', 'biomass' or 'both'}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
 A matrix or vector containing the mean maximum weight of the
@@ -52,9 +53,9 @@ getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getCommunitySlope}},
-  \code{\link{getMeanWeight}},
-  \code{\link{getProportionOfLargeFish}}
+Other functions for calculating indicators: \code{\link{getCommunitySlope}()},
+  \code{\link{getMeanWeight}()},
+  \code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

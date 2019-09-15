@@ -59,6 +59,6 @@ This avoids the stability problems that would arise if we used the Euler
 method to solve the equation numerically.
 }
 \seealso{
-Other resource dynamics functions: \code{\link{carrion_dynamics}}
+Other resource dynamics functions: \code{\link{carrion_dynamics}()}
 }
 \concept{resource dynamics functions}

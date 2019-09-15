@@ -45,12 +45,12 @@ getPlanktonMort(params,n,n_pp)
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}},
-  \code{\link{getEReproAndGrowth}},
-  \code{\link{getERepro}}, \code{\link{getEncounter}},
-  \code{\link{getFMortGear}}, \code{\link{getFMort}},
-  \code{\link{getFeedingLevel}}, \code{\link{getMort}},
-  \code{\link{getPredMort}}, \code{\link{getPredRate}},
-  \code{\link{getRDD}}, \code{\link{getRDI}},
-  \code{\link{getRates}}
+Other rate functions: \code{\link{getEGrowth}()},
+  \code{\link{getEReproAndGrowth}()},
+  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
+  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
+  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
+  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
+  \code{\link{getRDD}()}, \code{\link{getRDI}()},
+  \code{\link{getRates}()}
 }

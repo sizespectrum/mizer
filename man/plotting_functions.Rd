@@ -81,18 +81,22 @@ p
 \seealso{
 \code{\link{summary_functions}}
 
-Other plotting functions: \code{\link{displayFrames}},
+Other plotting functions: \code{\link{displayFrames}()},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}}, \code{\link{plotDiet}},
-  \code{\link{plotFMort}}, \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}}
+  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
+  \code{\link{plotFMort}()},
+  \code{\link{plotFeedingLevel}()},
+  \code{\link{plotGrowthCurves}()},
+  \code{\link{plotPredMort}()},
+  \code{\link{plotSpectra}()},
+  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
+  \code{\link{plotlyBiomass}()},
+  \code{\link{plotlyFMort}()},
+  \code{\link{plotlyFeedingLevel}()},
+  \code{\link{plotlyGrowthCurves}()},
+  \code{\link{plotlyPredMort}()},
+  \code{\link{plotlySpectra}()},
+  \code{\link{plotlyYieldGear}()},
+  \code{\link{plotlyYield}()}
 }
 \concept{plotting functions}

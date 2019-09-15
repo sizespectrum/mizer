@@ -39,7 +39,7 @@ plotted against time.
 \seealso{
 \code{\link{getSSB}}
 
-Other frame functions: \code{\link{displayFrames}},
-  \code{\link{getBiomassFrame}}
+Other frame functions: \code{\link{displayFrames}()},
+  \code{\link{getBiomassFrame}()}
 }
 \concept{frame functions}

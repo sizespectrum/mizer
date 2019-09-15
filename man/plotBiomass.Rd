@@ -37,17 +37,18 @@ Default is TRUE.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
 A ggplot2 object
@@ -74,19 +75,22 @@ plotBiomass(sim, y_ticks = 3)
 \seealso{
 \code{\link{plotting_functions}}, \code{\link{getBiomass}}
 
-Other plotting functions: \code{\link{displayFrames}},
+Other plotting functions: \code{\link{displayFrames}()},
   \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotDiet}}, \code{\link{plotFMort}},
-  \code{\link{plotFeedingLevel}},
-  \code{\link{plotGrowthCurves}},
-  \code{\link{plotPredMort}}, \code{\link{plotSpectra}},
-  \code{\link{plotYieldGear}}, \code{\link{plotYield}},
-  \code{\link{plotlyBiomass}}, \code{\link{plotlyFMort}},
-  \code{\link{plotlyFeedingLevel}},
-  \code{\link{plotlyGrowthCurves}},
-  \code{\link{plotlyPredMort}},
-  \code{\link{plotlySpectra}},
-  \code{\link{plotlyYieldGear}}, \code{\link{plotlyYield}},
+  \code{\link{plotDiet}()}, \code{\link{plotFMort}()},
+  \code{\link{plotFeedingLevel}()},
+  \code{\link{plotGrowthCurves}()},
+  \code{\link{plotPredMort}()},
+  \code{\link{plotSpectra}()},
+  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
+  \code{\link{plotlyBiomass}()},
+  \code{\link{plotlyFMort}()},
+  \code{\link{plotlyFeedingLevel}()},
+  \code{\link{plotlyGrowthCurves}()},
+  \code{\link{plotlyPredMort}()},
+  \code{\link{plotlySpectra}()},
+  \code{\link{plotlyYieldGear}()},
+  \code{\link{plotlyYield}()},
   \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

@@ -22,7 +22,7 @@ density-dependent rates \eqn{R} given as
 \deqn{R = R_p \exp{- b R_p}}
 }
 \seealso{
-Other stock-recruitment functions: \code{\link{srrBevertonHolt}},
-  \code{\link{srrNone}}, \code{\link{srrSheperd}}
+Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
+  \code{\link{srrNone}()}, \code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

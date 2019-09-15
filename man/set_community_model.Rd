@@ -110,8 +110,8 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
   Royal Society, 276, 109-114
 }
 \seealso{
-Other functions for setting up models: \code{\link{set_multispecies_model}},
-  \code{\link{set_scaling_model}},
-  \code{\link{set_trait_model}}
+Other functions for setting up models: \code{\link{set_multispecies_model}()},
+  \code{\link{set_scaling_model}()},
+  \code{\link{set_trait_model}()}
 }
 \concept{functions for setting up models}

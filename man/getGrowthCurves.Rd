@@ -36,9 +36,9 @@ getGrowthCurves(sim, max_age = 24)
 }
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getN}},
-  \code{\link{getSSB}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+Other summary functions: \code{\link{getBiomass}()},
+  \code{\link{getDiet}()}, \code{\link{getN}()},
+  \code{\link{getSSB}()}, \code{\link{getYieldGear}()},
+  \code{\link{getYield}()}
 }
 \concept{summary functions}

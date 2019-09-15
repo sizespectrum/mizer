@@ -35,14 +35,14 @@ Still need to document
 }
 
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}},
-  \code{\link{setFishing}}, \code{\link{setInitial}},
-  \code{\link{setIntakeMax}}, \code{\link{setInteraction}},
-  \code{\link{setMetab}}, \code{\link{setParams}},
-  \code{\link{setPredKernel}},
-  \code{\link{setReproduction}},
-  \code{\link{setResourceDynamics}},
-  \code{\link{setResourceEncounter}},
-  \code{\link{setSearchVolume}}
+Other functions for setting parameters: \code{\link{setBMort}()},
+  \code{\link{setFishing}()}, \code{\link{setInitial}()},
+  \code{\link{setIntakeMax}()},
+  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
+  \code{\link{setParams}()}, \code{\link{setPredKernel}()},
+  \code{\link{setReproduction}()},
+  \code{\link{setResourceDynamics}()},
+  \code{\link{setResourceEncounter}()},
+  \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

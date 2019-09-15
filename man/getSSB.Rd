@@ -28,10 +28,10 @@ getSSB(sim)
 }
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getN}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+Other summary functions: \code{\link{getBiomass}()},
+  \code{\link{getDiet}()}, \code{\link{getGrowthCurves}()},
+  \code{\link{getN}()}, \code{\link{getYieldGear}()},
+  \code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

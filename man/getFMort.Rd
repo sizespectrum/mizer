@@ -76,13 +76,14 @@ getFMort(sim, time_range = c(10,20))
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}},
-  \code{\link{getEReproAndGrowth}},
-  \code{\link{getERepro}}, \code{\link{getEncounter}},
-  \code{\link{getFMortGear}},
-  \code{\link{getFeedingLevel}}, \code{\link{getMort}},
-  \code{\link{getPlanktonMort}}, \code{\link{getPredMort}},
-  \code{\link{getPredRate}}, \code{\link{getRDD}},
-  \code{\link{getRDI}}, \code{\link{getRates}}
+Other rate functions: \code{\link{getEGrowth}()},
+  \code{\link{getEReproAndGrowth}()},
+  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
+  \code{\link{getFMortGear}()},
+  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
+  \code{\link{getPlanktonMort}()},
+  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
+  \code{\link{getRDD}()}, \code{\link{getRDI}()},
+  \code{\link{getRates}()}
 }
 \concept{rate functions}

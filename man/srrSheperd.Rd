@@ -22,7 +22,7 @@ density-dependent rates \eqn{R} as
 \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (B R_p)^c)}
 }
 \seealso{
-Other stock-recruitment functions: \code{\link{srrBevertonHolt}},
-  \code{\link{srrNone}}, \code{\link{srrRicker}}
+Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
+  \code{\link{srrNone}()}, \code{\link{srrRicker}()}
 }
 \concept{stock-recruitment functions}

@@ -28,10 +28,10 @@ y <- getYield(sim)
 \seealso{
 \code{\link{getYieldGear}}
 
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getN}}, \code{\link{getSSB}},
-  \code{\link{getYieldGear}}
+Other summary functions: \code{\link{getBiomass}()},
+  \code{\link{getDiet}()}, \code{\link{getGrowthCurves}()},
+  \code{\link{getN}()}, \code{\link{getSSB}()},
+  \code{\link{getYieldGear}()}
 }
 \concept{summary functions}
 \concept{summary_function}

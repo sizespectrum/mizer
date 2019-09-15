@@ -28,17 +28,18 @@ values below 1e-20 are always cut off.}
 \item{total}{A boolean value that determines whether the total biomass from
 all species is plotted as well. Default is FALSE.}
 
-\item{...}{Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
-\describe{
-  \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
+\item{...}{
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  \describe{
+    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
-  \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
+    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
 model.}
-  \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
+    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
 precedence over \code{min_w}.}
-  \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
+    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
-}}
+  }}
 }
 \value{
 A data frame that can be used in \code{\link{displayFrames}}
@@ -64,7 +65,7 @@ displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 \seealso{
 \code{\link{getBiomass}}, \code{\link{displayFrames}}
 
-Other frame functions: \code{\link{displayFrames}},
-  \code{\link{getSSBFrame}}
+Other frame functions: \code{\link{displayFrames}()},
+  \code{\link{getSSBFrame}()}
 }
 \concept{frame functions}

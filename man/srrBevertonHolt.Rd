@@ -31,7 +31,7 @@ density-dependent larvae production rates. Two other examples provided are
 see \code{\link{setReproduction}}.
 }
 \seealso{
-Other stock-recruitment functions: \code{\link{srrNone}},
-  \code{\link{srrRicker}}, \code{\link{srrSheperd}}
+Other stock-recruitment functions: \code{\link{srrNone}()},
+  \code{\link{srrRicker}()}, \code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

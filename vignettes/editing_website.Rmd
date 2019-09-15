@@ -20,10 +20,11 @@ knitr::opts_chunk$set(
 The mizer website at [https://sizespectrum.org/mizer/] is created
 programmatically from the documentation included in the mizer GitHub
 repository. Thus to edit the website just means editing this documentation.
-The website creation is performed by the 
+The website creation is performed by a slight modification of the 
 [`pkgdown`](https://pkgdown.r-lib.org/index.html) package. You can trigger
-a build in your local repository by issuing the command
+a build in your local repository by issuing the commands
 ```{r eval=FALSE}
+devtools::install_github("gustavdelius/pkgdown")
 pkgdown::build_site()
 ```
 This will convert all existing documentation into html files and put these

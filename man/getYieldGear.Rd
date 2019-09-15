@@ -29,10 +29,10 @@ getYieldGear(sim)
 \seealso{
 \code{\link{getYield}}
 
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getDiet}}, \code{\link{getGrowthCurves}},
-  \code{\link{getN}}, \code{\link{getSSB}},
-  \code{\link{getYield}}
+Other summary functions: \code{\link{getBiomass}()},
+  \code{\link{getDiet}()}, \code{\link{getGrowthCurves}()},
+  \code{\link{getN}()}, \code{\link{getSSB}()},
+  \code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

@@ -161,8 +161,8 @@ K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 \seealso{
 \linkS4class{MizerParams}
 
-Other functions for setting up models: \code{\link{set_community_model}},
-  \code{\link{set_multispecies_model}},
-  \code{\link{set_scaling_model}}
+Other functions for setting up models: \code{\link{set_community_model}()},
+  \code{\link{set_multispecies_model}()},
+  \code{\link{set_scaling_model}()}
 }
 \concept{functions for setting up models}

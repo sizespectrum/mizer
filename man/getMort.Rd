@@ -46,13 +46,14 @@ getMort(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
 \seealso{
 \code{\link{getPredMort}}, \code{\link{getFMort}}
 
-Other rate functions: \code{\link{getEGrowth}},
-  \code{\link{getEReproAndGrowth}},
-  \code{\link{getERepro}}, \code{\link{getEncounter}},
-  \code{\link{getFMortGear}}, \code{\link{getFMort}},
-  \code{\link{getFeedingLevel}},
-  \code{\link{getPlanktonMort}}, \code{\link{getPredMort}},
-  \code{\link{getPredRate}}, \code{\link{getRDD}},
-  \code{\link{getRDI}}, \code{\link{getRates}}
+Other rate functions: \code{\link{getEGrowth}()},
+  \code{\link{getEReproAndGrowth}()},
+  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
+  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
+  \code{\link{getFeedingLevel}()},
+  \code{\link{getPlanktonMort}()},
+  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
+  \code{\link{getRDD}()}, \code{\link{getRDI}()},
+  \code{\link{getRates}()}
 }
 \concept{rate functions}

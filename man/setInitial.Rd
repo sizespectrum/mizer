@@ -31,14 +31,14 @@ Sets the slots in the \code{MizerParams} object holding the initial
 abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}},
-  \code{\link{setFishing}}, \code{\link{setIntakeMax}},
-  \code{\link{setInteraction}}, \code{\link{setMetab}},
-  \code{\link{setParams}}, \code{\link{setPlankton}},
-  \code{\link{setPredKernel}},
-  \code{\link{setReproduction}},
-  \code{\link{setResourceDynamics}},
-  \code{\link{setResourceEncounter}},
-  \code{\link{setSearchVolume}}
+Other functions for setting parameters: \code{\link{setBMort}()},
+  \code{\link{setFishing}()}, \code{\link{setIntakeMax}()},
+  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
+  \code{\link{setParams}()}, \code{\link{setPlankton}()},
+  \code{\link{setPredKernel}()},
+  \code{\link{setReproduction}()},
+  \code{\link{setResourceDynamics}()},
+  \code{\link{setResourceEncounter}()},
+  \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

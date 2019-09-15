@@ -36,10 +36,10 @@ available biomass. Outside the range of sizes for a predator species the
 returned rate is zero.
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}},
-  \code{\link{getGrowthCurves}}, \code{\link{getN}},
-  \code{\link{getSSB}}, \code{\link{getYieldGear}},
-  \code{\link{getYield}}
+Other summary functions: \code{\link{getBiomass}()},
+  \code{\link{getGrowthCurves}()}, \code{\link{getN}()},
+  \code{\link{getSSB}()}, \code{\link{getYieldGear}()},
+  \code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}
