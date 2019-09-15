@@ -381,9 +381,9 @@ set_trait_model <- function(no_sp = 10,
     N0_max <- k0 * w_inf^(n*2-q-3+alpha_rec) * dw_winf  # Why * dw_winf, not / ? Ken confirms * in email
     # No need to include (1 - psi) in growth equation because allocation to reproduction at this size = 0, so 1 - psi = 1
     g0 <- (alpha * f0 * h * trait_params@w[1]^n - ks * trait_params@w[1]^p)
-    r_max <- N0_max * g0
+    R_max <- N0_max * g0
     
-    trait_params@species_params$r_max <- r_max
+    trait_params@species_params$R_max <- R_max
     
     return(trait_params)
 }
@@ -797,7 +797,7 @@ set_scaling_model <- function(no_sp = 11,
     # set rmax=fac*RDD
     # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
     # compensate for using a stock recruitment relationship.
-    params@species_params$r_max <-
+    params@species_params$R_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
 
     return(params)
@@ -1053,8 +1053,14 @@ rescaleSystem <- function(params, factor) {
     params <- setResourceEncounter(params, rho = params@rho / factor)
     
     # Rmax
+    # r_max is a deprecated spelling of R_max. Get rid of it.
     if ("r_max" %in% names(params@species_params)) {
-        params@species_params$r_max <- params@species_params$r_max * factor
+        params@species_params$R_max <- params@species_params$r_max
+        params@species_params$r_max <- NULL
+        message("The 'r_max' column has been renamed to 'R_max'.")
+    }
+    if ("R_max" %in% names(params@species_params)) {
+        params@species_params$R_max <- params@species_params$R_max * factor
     }
     
     # Search volume
@@ -1401,8 +1407,8 @@ setRmax <- function(params, rfac) {
     params@species_params$erepro <- 
         params@species_params$erepro / (1 - 1/rfac)
     
-    params@species_params$r_max <- params@species_params$w_inf
-    params@species_params$r_max <- (rfac - 1) * getRDI(params)
+    params@species_params$R_max <- params@species_params$w_inf
+    params@species_params$R_max <- (rfac - 1) * getRDI(params)
     
     return(setReproduction(params, srr = srrBevertonHolt))
 }

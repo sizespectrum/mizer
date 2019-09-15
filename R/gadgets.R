@@ -74,7 +74,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         rdi <- getRDI(p)
         rdd <- getRDD(p)
         p@species_params$erepro <- p@species_params$erepro * rdd / rdi
-        p@species_params$r_max <- Inf
+        p@species_params$R_max <- Inf
         return(p)
     }
     

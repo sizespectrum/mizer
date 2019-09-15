@@ -1111,7 +1111,7 @@ For each species in the model community there are certain parameters that are es
 There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame.
 A description of the columns of the species parameter data.frame and any default values can be seen Table~\ref{tab:species_params}.
 
-The essential columns of the species parameters data.frame that have no default values are: \args{species}, the names of the species in the community; \args{w\_inf}, the asymptotic mass of the species; \args{w\_mat}, the mass at maturation; \args{beta} and \args{sigma}, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation~\ref{eq:4}); stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a \args{r\_max} column must be provided - see Section~\ref{sec:srr} for more details).
+The essential columns of the species parameters data.frame that have no default values are: \args{species}, the names of the species in the community; \args{w\_inf}, the asymptotic mass of the species; \args{w\_mat}, the mass at maturation; \args{beta} and \args{sigma}, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see Equation~\ref{eq:4}); stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a \args{R\_max} column must be provided - see Section~\ref{sec:srr} for more details).
 
 Essential columns that have default values are: \args{k}, the activity coefficient (default = 0); \args{alpha}, the assimilation efficiency (default = 0.6); \args{erepro}, the reproductive efficiency (default value = 1); \args{w\_min}, the size of recruits (default value is the smallest size of the community size spectrum); \args{sel\_func}, the name of the fishing selectivity function (default value = "knife\_edge"); \args{gear}, the name of the fishing gear that catches the species (default value is the name of the species in the \args{species} column); \args{catchability}, the catchability of the fishing gear on that species (default value = 1). Additionally, columns that contain the selectivity function parameters are needed. As mentioned, the default selectivity function is a ``knife\_edge'' function. This has an argument \args{knife\_edge\_size} that determines the knife-edge position and has a default value of \args{w\_min}.
 If any of these columns are not included in the species parameter data.frame, the default values are used.
@@ -1272,7 +1272,7 @@ Without this density dependence, the realised recruitment flux to the smallest s
 The default SRR is a Beverton-Holt type function (see Equation~\ref{eq:R}).
 
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
-For example, the default stock-recruitment function has a second argument to it, \args{r\_max}. Therefore the species parameter data.frame must have an \args{r\_max} column.
+For example, the default stock-recruitment function has a second argument to it, \args{R\_max}. Therefore the species parameter data.frame must have an \args{R\_max} column.
 
 Users are able to write their own stock-recruitment function. The first argument to the function must be \args{rdi}, which is the density independent recruitment $R_{p.i}$, the second argument must be \args{species\_params}, the dataframe with the species parameters. This function should then be assigned to the \args{srr} slot of the MizerParams object.
 
@@ -1390,10 +1390,10 @@ The example data.frame can be inspected by entering the name of the object.
 params_data
 @
 
-You can see that there are \Sexpr{nrow(params_data)} species and \Sexpr{ncol(params_data)} columns of parameters: \args{species}, \args{w\_inf},\args{w\_mat},\args{beta},\args{sigma},\args{r\_max} and \args{k\_vb}.
+You can see that there are \Sexpr{nrow(params_data)} species and \Sexpr{ncol(params_data)} columns of parameters: \args{species}, \args{w\_inf},\args{w\_mat},\args{beta},\args{sigma},\args{R\_max} and \args{k\_vb}.
 
 Of these parameters, \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta} and \args{sigma} are essential and have no default values (as described in Section~\ref{sec:species_parameters_dataframe}).
-\args{r\_max} is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has \args{r\_max} as an argument (see Section~\ref{sec:srr}), making this column also essential.
+\args{R\_max} is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has \args{R\_max} as an argument (see Section~\ref{sec:srr}), making this column also essential.
 The final column, \args{k\_vb}, will be used to calculate values for \args{h} and then \args{gamma}. This column is only essential here because the \args{h} and \args{gamma} are not included in the data.frame. It would also have been possible to include \args{h} and \args{gamma} columns in the data.frame and not include the \args{k\_vb} column.
 
 The values of the non-essential species specific parameters \args{alpha}, \args{k}, \args{ks}, \args{z0}, \args{w\_min} and \args{erepro} are not included in the data.frame. This means that the default values will be automatically used when we create the \class{MizerParams} object.
@@ -2025,14 +2025,14 @@ inter <- as(read.csv("inter.csv", row.names=1),"matrix")
 @
 
 The species in the model are \Sexpr{paste(params_data[,"species"], collapse=", ")} which account for about 90\% of the total biomass of all species sampled by research trawl surveys in the North Sea. 
-The \args{params\_data} object is a data.frame with columns for \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta}, \args{sigma}, \args{r\_max} and \args{k\_vb}.
+The \args{params\_data} object is a data.frame with columns for \args{species}, \args{w\_inf}, \args{w\_mat}, \args{beta}, \args{sigma}, \args{R\_max} and \args{k\_vb}.
 % These don't work for some reason - maybe the underscore?
 %\Sexpr{cat(gsub("_","\\\\_",paste(colnames(params_data),collapse=", "), fixed=TRUE))}
 %\Sexpr{paste(colnames(params_data), collapse=", ")}
 We have seen before that only having these columns in the species data.frame is sufficient to make a \class{MizerParams} object. Any missing columns will be added by the default values and relationships in the \class{MizerParams} constructor.
 For example, the data.frame does not include columns for \args{h} or \args{gamma}. This means that they will be estimated using the \args{k\_vb} column (see Section~\ref{sec:species_parameters_dataframe}).
 
-We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\ref{sec:srr}, this requires a column \args{r\_max} in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the \args{params\_data} data.frame. The values for \args{r\_max} are taken from \citet{blanchard_multispecies_2014}.
+We will use the default stock-recruitment relationship, which is the Beverton-Holt shape. As we saw in Section~\ref{sec:srr}, this requires a column \args{R\_max} in the species data.frame which contains the maximum recruitment flux for each species. This column is already in the \args{params\_data} data.frame. The values for \args{R\_max} are taken from \citet{blanchard_multispecies_2014}.
 The values were found through a calibration process which is not covered here but will be added to a later version of this manual. 
 
 At the moment, the species data.frame does not contain any information on the selectivity of the species.
@@ -2112,7 +2112,7 @@ params_data$catchability <- as.numeric(f_history["1990",])
 @
 
 Considering the other model parameters, we will use default values for all of the other parameters apart from \args{kappa}, the carrying capacity of the resource spectrum (see Section~\ref{sec:parameters}).
-This was estimated along with the values \args{r\_max} as part of the calibration process described in \citet{blanchard_multispecies_2014}.
+This was estimated along with the values \args{R\_max} as part of the calibration process described in \citet{blanchard_multispecies_2014}.
 
 We now have all the information we need to create the \code{MizerParams} object using the species parameters data.frame.
 

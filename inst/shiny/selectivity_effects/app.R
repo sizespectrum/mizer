@@ -132,7 +132,7 @@ server <- function(input, output, session) {
         no_t <- dim(sim_old@n)[1]
         p@initial_n <- sim_old@n[no_t, , ]
         p@initial_n_pp <- sim_old@n_pp[no_t, ]
-        p@species_params$r_max <- Inf
+        p@species_params$R_max <- Inf
         
         # Retune the values of erepro so that we get the correct level of
         # recruitment without stock-recruitment relationship

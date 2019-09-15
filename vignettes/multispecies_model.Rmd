@@ -79,7 +79,7 @@ A description of the columns of the species parameter data.frame and any default
 -->
 
 
-The essential columns of the species parameters data.frame that have no default values are: `species`, the names of the species in the community; `w_inf`, the asymptotic mass of the species; `w_mat`, the mass at maturation; `beta` and `sigma`, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see [the section on predator/prey mass ratio](model_description.html#ppmr)) and the stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a `r_max` column must be provided - see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment) for more details).
+The essential columns of the species parameters data.frame that have no default values are: `species`, the names of the species in the community; `w_inf`, the asymptotic mass of the species; `w_mat`, the mass at maturation; `beta` and `sigma`, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see [the section on predator/prey mass ratio](model_description.html#ppmr)) and the stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a `R_max` column must be provided - see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment) for more details).
 
 
 
@@ -250,7 +250,7 @@ Without this density dependence, the realised recruitment flux to the smallest s
 The default SRR is a Beverton-Holt type function.
 
 Similar to the fishing selectivity functions, any parameter used in the stock-recruitment function, other than $R_{p.i}$, must be in the species parameter data.frame and the column must have the same name as the function argument.
-For example, the default stock-recruitment function has a second argument to it, `r_max`. Therefore the species parameter data.frame must have an `r_max` column.
+For example, the default stock-recruitment function has a second argument to it, `R_max`. Therefore the species parameter data.frame must have an `R_max` column.
 
 Users are able to write their own stock-recruitment function. The first argument to the function must be `rdi`, which is the density independent recruitment $R_{p.i}$, the second argument must be `species_params`, the dataframe with the species parameters. This function should then be assigned to the `srr` slot of the MizerParams object.
 
@@ -351,11 +351,11 @@ The example data.frame can be inspected by entering the name of the object.
 params_data
 ```
 
-You can see that there are $`r nrow(params_data)`$ species and $`r ncol(params_data)`$ columns of parameters: `species`, `w_inf`,`w_mat`,`beta`,`sigma`,`r_max` and `k_vb`.
+You can see that there are $`r nrow(params_data)`$ species and $`r ncol(params_data)`$ columns of parameters: `species`, `w_inf`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
 
 
 Of these parameters, `species`, `w_inf`, `w_mat`, `beta` and `sigma` are essential and have no default values (as described in [the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)).
-`r_max` is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has `r_max` as an argument (see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)), making this column also essential.
+`R_max` is a SRR parameter. We are going to use the default Beverton-Holt type SRR which has `R_max` as an argument (see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment)), making this column also essential.
 The final column, `k_vb`, will be used to calculate values for `h` and then `gamma`. This column is only essential here because the `h` and `gamma` are not included in the data.frame. It would also have been possible to include `h` and `gamma` columns in the data.frame and not include the `k_vb` column.
 
 The values of the non-essential species specific parameters `alpha`, `k`, `ks`, `z0`, `w_min` and `erepro` are not included in the data.frame. This means that the default values will be automatically used when we create the `MizerParams` object.
