@@ -187,6 +187,11 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     
+    # Should not have legacy r_max column (has been renamed to R_max)
+    if ("r_max" %in% names(object@species_params)) {
+        msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'upgradeParams()' to upgrade your params object."
+        errors <- c(errors, msg)
+    }
     # # species_params data.frame must have columns: 
     # # species, z0, alpha, eRepro
     # species_params_cols <- c("species","z0","alpha","erepro")
@@ -1653,7 +1658,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' function. The result is returned by \code{\link{getRDD}}. The
 #' stock-recruitment function is specified by the \code{srr} argument. The
 #' default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
-#' requires an \code{r_max} column in the species_params data frame giving the
+#' requires an \code{R_max} column in the species_params data frame giving the
 #' maximum egg production rate. If this column does not exist, it is initialised
 #' to \code{Inf}, leading to no density-dependence. Other functions provided by
 #' mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
@@ -1792,7 +1797,15 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     }
     params@srr <- srr
     if (identical(params@srr, srrBevertonHolt)) {
-        set_species_param_default(params, "r_max", Inf)
+        
+        # for legacy reasons (R_max used to be called r_max):
+        if ("r_max" %in% names(params@species_params)) {
+            params@species_params$R_max <- params@species_params$r_max
+            params@species_params$r_max <- NULL
+            message("The 'r_max' column has been renamed to 'R_max'.")
+        }
+        
+        set_species_param_default(params, "R_max", Inf)
     }
     
     return(params)
@@ -2327,6 +2340,13 @@ upgradeParams <- function(params) {
         resource_dynamics <- NULL
         resource_params <- NULL
     }
+    
+    if ("r_max" %in% names(params@species_params)) {
+        params@species_params$R_max <- params@species_params$r_max
+        params@species_params$r_max <- NULL
+        message("The 'r_max' column has been renamed to 'R_max'.")
+    }
+    
     # Does not yet deal with rr_pp and cc_pp slots because they will be 
     # changed anyway when multiple size-structured resources are introduced.
     
@@ -2382,17 +2402,17 @@ upgradeParams <- function(params) {
 #' 
 #' @param rdi Vector of egg production rates \eqn{R_p} for all species.
 #' @param species_params A species parameter dataframe. Must contain a column
-#'   r_max holding the maximum larvae production rate \eqn{R_{max}} for each
+#'   R_max holding the maximum larvae production rate \eqn{R_{max}} for each
 #'   species.
 #' 
 #' @return Vector of density-dependent larvae production rates.
 #' @export
 #' @family stock-recruitment functions
 srrBevertonHolt <- function(rdi, species_params) {
-    if (!("r_max" %in% names(species_params))) {
-        stop("The r_max column is missing in species_params")
+    if (!("R_max" %in% names(species_params))) {
+        stop("The R_max column is missing in species_params.")
     }
-    return(rdi / (1 + rdi/species_params$r_max))
+    return(rdi / (1 + rdi/species_params$R_max))
 }
 
 #' Ricker stock-recruitment function
