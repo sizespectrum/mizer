@@ -13,7 +13,8 @@ MizerParams(species_params, interaction = matrix(1, nrow =
   z0exp = n - 1, maturity = NULL, repro_prop = NULL,
   srr = "srrBevertonHolt", r_pp = 10, w_pp_cutoff = 10,
   plankton_dynamics = plankton_semichemostat,
-  resource_dynamics = list(), resource_params = list(), rho = NULL)
+  resource_dynamics = list(), resource_params = list(), rho = NULL,
+  initial_effort = NULL)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
@@ -114,6 +115,10 @@ needed.}
 \item{rho}{Optional. An array (species x resource x size)
 holding the rate at which a consumer of a particular size feeds on each
 resource. Described in the section "Setting resource encounter rate".}
+
+\item{initial_effort}{Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -480,8 +485,10 @@ parameter data frame. If it is not specified, it defaults to 1.
 
 \strong{Effort}
 
-Fishing effort is not stored in the \code{MizerParams} object. Instead, effort is
-set when the simulation is run with \code{project()} and can vary through time.
+The initial fishing effort is stored in the \code{MizerParams} object. If it is
+not supplied, it is set to zero. The initial effort can be overrruled when
+the simulation is run with \code{project()}, where it is also possible to specify
+an effort that varies through time.
 }
 
 \section{Setting plankton dynamics}{

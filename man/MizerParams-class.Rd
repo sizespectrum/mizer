@@ -117,6 +117,9 @@ each gear for species and size, \eqn{S_{g,i,w}}. Changed with
 each species by each gear, \eqn{Q_{g,i}}. Changed with 
 \code{\link{setFishing}}.}
 
+\item{\code{initial_effort}}{A vector containing the initial fishing effort for each
+gear. Changed with \code{\link{setFishing()}}.}
+
 \item{\code{initial_n}}{An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.}
 
