@@ -152,14 +152,10 @@ set_community_model <- function(max_w = 1e6,
         constant_recruitment = recruitment * rec_mult, # to be used in the SRR
         stringsAsFactors = FALSE
     )
-    # Set the recruitment function for constant recruitment
-    constant_recruitment <- function(rdi, species_params){
-        return(species_params$constant_recruitment)
-    }
     com_params <- set_multispecies_model(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
-    com_params@srr <- constant_recruitment
+    com_params@srr <- "srrConstant"
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
                           # due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used
@@ -1377,7 +1373,7 @@ retuneReproductionEfficiency <- function(params,
         }
     }
     params@species_params$erepro <- eff
-    return(setReproduction(params, srr = srrNone))
+    return(setReproduction(params, srr = "srrNone"))
 }
 
 #' Set maximum recruitment
@@ -1397,7 +1393,7 @@ setRmax <- function(params, rfac) {
                 is.numeric(rfac),
                 length(rfac) %in% c(1, nrow(params@species_params)),
                 all(rfac > 1))
-    if (params@srr != srrNone) {
+    if (params@srr != "srrNone") {
         stop("setRmax can only be applied to params objects using the identity",
              "stock-recruitment function.")
     }
@@ -1497,8 +1493,8 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
     }
     
     # Force the recruitment to stay at the current level
-    rdd <- getRDD(p)
-    p@srr <- function(rdi, species_params) {rdd}
+    p@species_params$constant_recruitment <- getRDD(p)
+    p@srr <- "srrConstant"
     old_rdi <- getRDI(p)
     # Force resources to stay at current level
     old_resource_dynamics <- p@resource_dynamics

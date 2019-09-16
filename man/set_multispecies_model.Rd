@@ -11,7 +11,7 @@ set_multispecies_model(species_params, interaction = matrix(1, nrow =
   f0 = 0.6, pred_kernel = NULL, search_vol = NULL,
   intake_max = NULL, metab = NULL, mu_b = NULL, z0pre = 0.6,
   z0exp = n - 1, maturity = NULL, repro_prop = NULL,
-  srr = srrBevertonHolt, r_pp = 10, w_pp_cutoff = 10,
+  srr = "srrBevertonHolt", r_pp = 10, w_pp_cutoff = 10,
   plankton_dynamics = plankton_semichemostat,
   resource_dynamics = list(), resource_params = list(), rho = NULL)
 }
@@ -90,7 +90,7 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{srr}{The stock recruitment function. Defaults to 
+\item{srr}{The name of the stock recruitment function. Defaults to 
 \code{\link{srrBevertonHolt}}.}
 
 \item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
@@ -411,7 +411,7 @@ already included in the other two sources of density dependence.
 
 To calculate the density-dependent rate of larvae production, mizer puts the
 the density-independent rate of egg production through a "stock-recruitment"
-function. The result is returned by \code{\link{getRDD}}. The
+function. The result is returned by \code{\link{getRDD}}. The name of the
 stock-recruitment function is specified by the \code{srr} argument. The
 default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
 requires an \code{R_max} column in the species_params data frame giving the
