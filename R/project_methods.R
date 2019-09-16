@@ -43,10 +43,10 @@ NULL
 #' list.
 #' 
 #' @param params A \linkS4class{MizerParams} object
-#' @param n A matrix of species abundances (species x size)
+#' @param n A matrix of species abundances (species x size).
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
-#' @param effort The effort for each fishing gear. Default 1.
+#' @param effort The effort for each fishing gear. 
 #' @param sex_ratio Proportion of the population that is female. Default value
 #'   is 0.5.
 #' 
@@ -69,7 +69,8 @@ NULL
 getRates <- function(params, n = params@initial_n, 
                      n_pp = params@initial_n_pp,
                      B = params@initial_B,
-                     effort = 1, sex_ratio = 0.5) {
+                     effort = params@initial_effort,
+                     sex_ratio = 0.5) {
     r <- list()
     
     # Calculate rate E_{e,i}(w) of encountered food
@@ -591,8 +592,7 @@ getM2Background <- getPlanktonMort
 #' Used by the \code{project} function to perform simulations.
 #' 
 #' @param object A \code{MizerParams} object or a \code{MizerSim} object.
-#' @param effort The effort of each fishing gear. Only needed if the object
-#'   argument is of class \code{MizerParams}. See notes below.
+#' @param effort The effort for each fishing gear. See notes below.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
@@ -611,7 +611,8 @@ getM2Background <- getPlanktonMort
 #' different effort that is constant in time), or a single numeric value (each
 #' gear has the same effort that is constant in time). The order of gears in the
 #' \code{effort} argument must be the same the same as in the \code{MizerParams}
-#' object.
+#' object. If the \code{effort} argument is not supplied, its value is taken
+#' from the `@initial_effort` slot in the params object.
 #' 
 #' If the object argument is of class \code{MizerSim} then the effort slot of
 #' the \code{MizerSim} object is used and the \code{effort} argument is not
@@ -643,7 +644,7 @@ getM2Background <- getPlanktonMort
 #' getFMortGear(sim, time_range=c(10,20))
 #' }
 #' 
-getFMortGear <- function(object, effort = 1, time_range) {
+getFMortGear <- function(object, effort, time_range) {
     if (is(object, "MizerSim")) {
         sim <- object
         if (missing(time_range)) {
@@ -654,6 +655,9 @@ getFMortGear <- function(object, effort = 1, time_range) {
         return(f_mort_gear[time_elements, , , , drop = FALSE])
     } else {
         params <- object
+        if (missing(effort)) {
+            effort <- params@initial_effort
+        }
         if (is(effort, "numeric")) {
             no_gear <- dim(params@catchability)[1]
             # If a single value, just repeat it for all gears
@@ -754,16 +758,13 @@ getFMortGear <- function(object, effort = 1, time_range) {
 getFMort <- function(object, effort, time_range, drop=TRUE){
     if (is(object, "MizerParams")) {
         params <- object
-        if (is(effort, "numeric")) {
-            f_mort_gear <- getFMortGear(params, effort)
+        f_mort_gear <- getFMortGear(params, effort)
+        if (length(dim(f_mort_gear)) == 3) {
             f_mort <- colSums(f_mort_gear)
-            return(f_mort)
-        } else {
-            #assuming effort is a matrix
-            f_mort_gear <- getFMortGear(params, effort)
+        } else { # assuming it is a 4-dim array
             f_mort <- apply(f_mort_gear, c(1, 3, 4), sum)
-            return(f_mort)
         }
+        return(f_mort)
     } else {
         #case where object is MizerSim, and we use effort from there
         sim <- object
@@ -786,7 +787,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 #' @param n_pp A vector of the plankton abundance by size
 #' @param B A vector of biomasses of unstructured resource components
 #' @param effort A numeric vector of the effort by gear or a single numeric
-#'   effort value which is used for all gears. Default 1.
+#'   effort value which is used for all gears. 
 #' @param m2 A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
 #'   calculated using the \code{\link{getPredMort}} function.
@@ -809,7 +810,7 @@ getFMort <- function(object, effort, time_range, drop=TRUE){
 getMort <- function(params, n = params@initial_n, 
                     n_pp = params@initial_n_pp,
                     B = params@initial_B,
-                    effort = 1, 
+                    effort = params@initial_effort, 
                     m2 = getPredMort(params, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(m2) == c(nrow(params@species_params), length(params@w)))) {
         stop("m2 argument must have dimensions: no. species (",

@@ -1164,7 +1164,6 @@ renameSpecies <- function(params, replace) {
 #'   new species. In the latter case all interaction between an old and a new
 #'   species are set to 1. If this argument is missing, all interactions 
 #'   involving a new species are set to 1.
-#' @param effort Fishing effort. Default value is 1.
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @seealso \code{\link{removeSpecies}}
@@ -1199,12 +1198,10 @@ renameSpecies <- function(params, replace) {
 #' sim <- project(params, t_max=50)
 #' plotBiomass(sim)
 #' }
-addSpecies <- function(params, species_params, interaction, effort = 1) {
+addSpecies <- function(params, species_params, interaction) {
     # check validity of parameters ----
     assert_that(is(params, "MizerParams"),
-                is.data.frame(species_params),
-                is.numeric(effort),
-                length(effort) %in% c(1, nrow(params@catchability)))
+                is.data.frame(species_params))
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")
     }
@@ -1283,7 +1280,7 @@ addSpecies <- function(params, species_params, interaction, effort = 1) {
     # Turn off self-interaction among the new species, so we can determine the
     # growth rates, and death rates induced upon them by the pre-existing species
     p@interaction[new_sp, new_sp] <- 0
-    mumu <- getMort(p, effort = effort)
+    mumu <- getMort(p)
     gg <- getEGrowth(p)
     
     # Compute solution for new species
@@ -1340,12 +1337,8 @@ addSpecies <- function(params, species_params, interaction, effort = 1) {
 #' @return A MizerParams object
 #' @export
 retuneReproductionEfficiency <- function(params, 
-                                         species = params@species_params$species,
-                                         effort = 1) {
-    assert_that(is(params, "MizerParams"),
-                is.numeric(effort),
-                length(effort) %in% c(1, nrow(params@catchability)),
-                all(effort >= 0))
+                                         species = params@species_params$species) {
+    assert_that(is(params, "MizerParams"))
 
     no_sp <- nrow(params@species_params)
     if (is.logical(species)) {
@@ -1359,7 +1352,7 @@ retuneReproductionEfficiency <- function(params,
             return(params)
         }
     }
-    mumu <- getMort(params, effort = effort)
+    mumu <- getMort(params)
     gg <- getEGrowth(params)
     rdi <- getRDI(params)
     eff <- params@species_params$erepro
@@ -1462,7 +1455,6 @@ markBackground <- function(object, species) {
 #' achieve that level of recruitment.
 #' 
 #' @param params A \linkS4class{MizerParams} object
-#' @param effort The fishing effort. Default is 1.
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of t_per years,
 #'   after each of which we check for convergence. Default value is 7.5. This
@@ -1486,7 +1478,7 @@ markBackground <- function(object, species) {
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
 #' }
-steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
+steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
                    dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
     p <- params
     
@@ -1517,11 +1509,9 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
         }
         if (return_sim) {
             sim <- project(sim, dt = dt, t_max = t_per, t_save = t_per,
-                           effort = effort,
                            initial_n = n, initial_n_pp = n_pp, initial_B = B)
         } else {
             sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
-                           effort = effort,
                            initial_n = n, initial_n_pp = n_pp, initial_B = B)
         }
         no_t <- dim(sim@n)[1]
@@ -1553,7 +1543,7 @@ steady <- function(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
     p@initial_B[] <- B
     
     # Set rates of external resource influx to keep resources at steady state
-    r <- getRates(p, effort = effort)
+    r <- getRates(p)
     for (res in names(p@resource_dynamics)) {
         res_external <- paste0(res, "_external")
         if (!res_external %in% names(p@resource_params)) {

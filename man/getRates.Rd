@@ -5,18 +5,19 @@
 \title{Get all rates}
 \usage{
 getRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, effort = 1, sex_ratio = 0.5)
+  B = params@initial_B, effort = params@initial_effort,
+  sex_ratio = 0.5)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
 \item{B}{A vector of biomasses of unstructured resource components}
 
-\item{effort}{The effort for each fishing gear. Default 1.}
+\item{effort}{The effort for each fishing gear.}
 
 \item{sex_ratio}{Proportion of the population that is female. Default value
 is 0.5.}

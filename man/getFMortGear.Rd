@@ -4,13 +4,12 @@
 \alias{getFMortGear}
 \title{Get the fishing mortality by time, gear, species and size}
 \usage{
-getFMortGear(object, effort = 1, time_range)
+getFMortGear(object, effort, time_range)
 }
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object.}
 
-\item{effort}{The effort of each fishing gear. Only needed if the object
-argument is of class \code{MizerParams}. See notes below.}
+\item{effort}{The effort for each fishing gear. See notes below.}
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time
 range is either a vector of values, a vector of min and max time, or a
@@ -38,7 +37,8 @@ gear), a vector of length equal to the number of gears (each gear has a
 different effort that is constant in time), or a single numeric value (each
 gear has the same effort that is constant in time). The order of gears in the
 \code{effort} argument must be the same the same as in the \code{MizerParams}
-object.
+object. If the \code{effort} argument is not supplied, its value is taken
+from the `@initial_effort` slot in the params object.
 
 If the object argument is of class \code{MizerSim} then the effort slot of
 the \code{MizerSim} object is used and the \code{effort} argument is not

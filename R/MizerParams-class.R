@@ -2263,17 +2263,15 @@ setInitial <- function(params,
 #' values.
 #' 
 #' @param params A MizerParams object
-#' @param effort Fishing effort. A numeric vector of the effort by gear or 
-#'   a single numeric effort value which is used for all gears.
 #'   
 #' @return The MizerParams object with updated \code{initial_n} and 
 #'   \code{initial_n_pp} slots.
 #' @export
-updateInitial <- function(params, effort = 1) {
+updateInitial <- function(params) {
     assert_that(is(params, "MizerParams"))
     # Calculate the rates in the current background
     plankton_mort <- getPlanktonMort(params)
-    mumu <- getMort(params, effort = effort)
+    mumu <- getMort(params)
     gg <- getEGrowth(params)
     # Recompute plankton
     params@initial_n_pp <- params@rr_pp * params@cc_pp / 
@@ -2295,7 +2293,7 @@ updateInitial <- function(params, effort = 1) {
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
-    mumu <- getMort(params, effort = effort)
+    mumu <- getMort(params)
     gg <- getEGrowth(params)
     rdd <- getRDD(params)
     # TODO: vectorise this
