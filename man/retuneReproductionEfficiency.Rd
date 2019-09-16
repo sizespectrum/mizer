@@ -5,7 +5,7 @@
 \title{Retune reproduction efficiency to maintain initial egg abundances}
 \usage{
 retuneReproductionEfficiency(params,
-  species = params@species_params$species, effort = 1)
+  species = params@species_params$species)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -13,8 +13,6 @@ retuneReproductionEfficiency(params,
 \item{species}{A vector of the names of the species to be affected or a
 boolean vector indicating for each species whether it is to be affected
 (TRUE) or not. By default all species are affected}
-
-\item{effort}{The fishing effort. Default is 1.}
 }
 \value{
 A MizerParams object

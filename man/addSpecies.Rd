@@ -4,7 +4,7 @@
 \alias{addSpecies}
 \title{Add new species}
 \usage{
-addSpecies(params, species_params, interaction, effort = 1)
+addSpecies(params, species_params, interaction)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -17,8 +17,6 @@ interaction coefficients between all species or only those between the
 new species. In the latter case all interaction between an old and a new
 species are set to 1. If this argument is missing, all interactions 
 involving a new species are set to 1.}
-
-\item{effort}{Fishing effort. Default value is 1.}
 }
 \value{
 An object of type \linkS4class{MizerParams}

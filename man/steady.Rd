@@ -4,13 +4,11 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, effort = 1, t_max = 100, t_per = 7.5, tol = 10^(-2),
-  dt = 0.1, return_sim = FALSE, progress_bar = TRUE)
+steady(params, t_max = 100, t_per = 7.5, tol = 10^(-2), dt = 0.1,
+  return_sim = FALSE, progress_bar = TRUE)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
-
-\item{effort}{The fishing effort. Default is 1.}
 
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
