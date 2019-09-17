@@ -20,6 +20,7 @@ Simply returns its \code{rdi} argument.
 }
 \seealso{
 Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
-  \code{\link{srrRicker}()}, \code{\link{srrSheperd}()}
+  \code{\link{srrConstant}()}, \code{\link{srrRicker}()},
+  \code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

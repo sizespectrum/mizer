@@ -23,6 +23,7 @@ density-dependent rates \eqn{R} given as
 }
 \seealso{
 Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
-  \code{\link{srrNone}()}, \code{\link{srrSheperd}()}
+  \code{\link{srrConstant}()}, \code{\link{srrNone}()},
+  \code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

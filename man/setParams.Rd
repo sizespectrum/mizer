@@ -70,7 +70,7 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{srr}{The stock recruitment function. Defaults to 
+\item{srr}{The name of the stock recruitment function. Defaults to 
 \code{\link{srrBevertonHolt}}.}
 
 \item{kappa}{Carrying capacity of the plankton spectrum.}
@@ -411,7 +411,7 @@ already included in the other two sources of density dependence.
 
 To calculate the density-dependent rate of larvae production, mizer puts the
 the density-independent rate of egg production through a "stock-recruitment"
-function. The result is returned by \code{\link{getRDD}}. The
+function. The result is returned by \code{\link{getRDD}}. The name of the
 stock-recruitment function is specified by the \code{srr} argument. The
 default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
 requires an \code{R_max} column in the species_params data frame giving the

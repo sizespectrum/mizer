@@ -201,8 +201,8 @@ test_that("Analytic steady-state solution is well approximated", {
     n_exact[] <- R * (w_min/w)^(mu0/hbar) / (hbar * w^n) * n_mult
     
     # Make sure that the rate of reproduction is R
-    params@srr <- function(rdi, species_params) {return(species_params$R)}
-    params@species_params$R <- R
+    params@srr <- "srrConstant"
+    params@species_params$constant_recruitment <- R
     # We use a step function for the maturity function
     params@psi[1,] <- (params@w / w_inf) ^ (1 - n)
     params@psi[1, params@w < w_mat] <- 0

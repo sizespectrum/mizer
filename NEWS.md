@@ -101,6 +101,8 @@ can graze. (#46)
 
 ## Other new features
 
+* New `upgradeParams()` can upgrade MizerParams objects from previous versions 
+  of mizer so they work with the new version.
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
 * New `getDiet()` calculates the diet of predators. (#43)
@@ -219,6 +221,8 @@ can graze. (#46)
     predator/prey ratio.
   + Added slot `plankton_dynamics` to allow user to specify alternative
     plankton dynamics.
+  + Changed slot `srr` to hold the name of the stock recruitment function rather
+    than the function itself, see #91.
   + Added slots `resource_dynamics` and `resource_params`.
   + Added slot `initial_B` for the initial biomasses of the resources.
 * Changes to MizerSim class:
@@ -243,6 +247,8 @@ can graze. (#46)
   `all.sizes = TRUE`.
 * When no gear is specified for a species, the default is `knife_edge_gear`
   rather than the species name.
+* The stock recruitment function is now specified by giving the name of the
+  function, rather than the function itself.
 
 
 # mizer 1.0.1
