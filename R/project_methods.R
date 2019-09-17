@@ -131,11 +131,11 @@ getRates <- function(params, n = params@initial_n,
 #' Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 #' \eqn{N_R(w)} is the abundance density of plankton.
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
-#' predator. It could be interpreted as a search volume and is changed with the
+#' predator. It could be interpreted as a search volume and is set with the
 #' \code{\link{setSearchVolume}} function. The predation kernel
-#' \eqn{\phi(w,w_p)} is changed with the \code{\link{setPredKernel}} function. The
+#' \eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
 #' species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-#' vector \eqn{\theta_{ip}} are changed with \code{\link{setInteraction}}.
+#' vector \eqn{\theta_{ip}} are set with \code{\link{setInteraction}}.
 #' 
 #' @section Resource encounter:
 #' In addition to the contribution from predation on fish prey and plankton,
@@ -145,7 +145,7 @@ getRates <- function(params, n = params@initial_n,
 #' where \eqn{B_d} is the biomass of the d-th unstructured resource component
 #' and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
 #' which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
-#' the d-th unstructured resource component. This is changed with
+#' the d-th unstructured resource component. This is set with
 #' \code{\link{setResourceEncounter}}.
 #' 
 #' @section Details:
@@ -250,13 +250,20 @@ getEncounter <- function(params, n = params@initial_n,
 
 #' Get feeding level
 #'
-#' Calculates the feeding level \eqn{f_i(w)} by predator size based on food
-#' availability, search volume and maximum intake. The feeding level is the
-#' proportion of the encountered food that is actually consumed. It is 
-#' defined in terms of the encounter rate \eqn{E_i} and the maximum intake 
-#' rate \eqn{h_i(w)} as
-#' \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}}{E_i(w)/(E_i(w)+h_i(w))}
-#' The feeding rate is used in \code{\link{getEReproAndGrowth}} and in
+#' Calculates the feeding level \eqn{f_i(w)}. The feeding level is the
+#' proportion of its maximum intake rate at which the predator is actually
+#' taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
+#' maximum intake rate \eqn{h_i(w)} as
+#' \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
+#' The encounter rate \eqn{E_i} is passed as an argument or calculated with
+#' \code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
+#' taken from the \code{params} object, and is set with 
+#' \code{\link{setIntakeMax}}.
+#' As a consequence of the above expression for the feeding level,
+#' \eqn{1-f_i(w)} is the proportion of the food available to it that the
+#' predator actually consumes.
+#'
+#' The feeding level is used in \code{\link{getEReproAndGrowth}} and in
 #' \code{\link{getPredRate}}.
 #' 
 #' @param object A \code{MizerParams} or \code{MizerSim} object
@@ -282,10 +289,9 @@ getEncounter <- function(params, n = params@initial_n,
 #'   If a \code{MizerSim} object is passed in, the function returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
-#'   If `drop = TRUE` then the dimension of length 1 will be removed from the
-#'   returned array.
-#'   
-#' @seealso \code{\link{getEncounter}}
+#'   If \code{drop = TRUE} then the dimension of length 1 will be removed from
+#'   the returned array.
+#' 
 #' @export
 #' @family rate functions
 #' @examples
@@ -831,7 +837,7 @@ getZ <- getMort
 
 #' Get energy rate available for reproduction and growth
 #'
-#' Calculates the energy rate (grams/year) available by species and size for
+#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
 #' reproduction and growth after metabolism and movement have been accounted
 #' for. 
 #' 
@@ -849,13 +855,24 @@ getZ <- getMort
 #' @return A two dimensional array (species x size) holding
 #' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
 #'                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-#'   E_{r.i}(w) = max(0, \alpha_i * (1 - feeding_level_i(w)) * 
+#'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
 #'                       encounter_i(w) - metab_i(w)).}
+#' Due to the form of the feeding level, calculated by
+#' \code{\link{getFeedingLevel}}, this can also be expressed as
+#' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
+#'                            h_i(w) - {\tt metab}_i(w))}{
+#'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
+#'                       h_i(w) - metab_i(w))}
+#' where \eqn{h_i} is the maximum intake rate, set with 
+#' \code{\link{setIntakeMax}}.
 #' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 #' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-#' \code{params}. 
+#' \code{params} and set with \code{\link{setMetab}}.
+#' 
 #' @export
-#' @seealso \code{\link{getERepro}} and \code{\link{getEGrowth}}
+#' @seealso The parts of this energy rate that is invested into growth is
+#'   calculated with \code{\link{getERepro}} and the part that is invested into
+#'   reproduction is calculated with \code{\link{getEGrowth}}.
 #' @family rate functions
 #' @examples
 #' \dontrun{
@@ -892,10 +909,8 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
 
 #' Get energy rate available for reproduction
 #'
-#' Calculates the energy rate (grams/year) available by species and size for
-#' reproduction after metabolism and movement have been accounted for:
-#' \eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} function for performing
-#' simulations.
+#' Calculates the energy rate (grams/year) available for reproduction after
+#' growth and metabolism have been accounted for.
 #' 
 #' @param params An \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
@@ -905,9 +920,14 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using \code{\link{getEReproAndGrowth}}.
 #'
-#' @return A two dimensional array (prey species x prey size) 
+#' @return A two dimensional array (prey species x prey size) holding
+#' \deqn{\psi_i(w)E_{r.i}(w)}
+#' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
+#' growth and reproduction, calculated with \code{\link{getEReproAndGrowth}},
+#' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
+#' reproduction. This proportion is taken from the \code{params} object and is
+#' set with \code{\link{setReproduction}}.
 #' @export
-#' @seealso \code{\link{getERepro}} and \code{\link{getEReproAndGrowth}}.
 #' @family rate functions
 #' @examples
 #' \dontrun{

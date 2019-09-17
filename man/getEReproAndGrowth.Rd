@@ -31,14 +31,22 @@ using the \code{\link{getFeedingLevel}} function.}
 A two dimensional array (species x size) holding
 \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
                            {\tt encounter}_i(w) - {\tt metab}_i(w)).}{
-  E_{r.i}(w) = max(0, \alpha_i * (1 - feeding_level_i(w)) * 
+  E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
                       encounter_i(w) - metab_i(w)).}
+Due to the form of the feeding level, calculated by
+\code{\link{getFeedingLevel}}, this can also be expressed as
+\deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
+                           h_i(w) - {\tt metab}_i(w))}{
+  E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
+                      h_i(w) - metab_i(w))}
+where \eqn{h_i} is the maximum intake rate, set with 
+\code{\link{setIntakeMax}}.
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-\code{params}.
+\code{params} and set with \code{\link{setMetab}}.
 }
 \description{
-Calculates the energy rate (grams/year) available by species and size for
+Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
 reproduction and growth after metabolism and movement have been accounted
 for.
 }
@@ -54,7 +62,9 @@ getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{getERepro}} and \code{\link{getEGrowth}}
+The parts of this energy rate that is invested into growth is
+  calculated with \code{\link{getERepro}} and the part that is invested into
+  reproduction is calculated with \code{\link{getEGrowth}}.
 
 Other rate functions: \code{\link{getEGrowth}()},
   \code{\link{getERepro}()}, \code{\link{getEncounter}()},

@@ -1449,7 +1449,7 @@ setSearchVolume <- function(params,
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
 #' @param n Scaling exponent of the intake rate.
-#' @return MizerParams
+#' @return A \code{MizerParams} object
 #' @export
 #' @family functions for setting parameters
 setIntakeMax <- function(params, 
@@ -2785,6 +2785,17 @@ get_ks_default <- function(params) {
 
 
 #' Check that an effort vector is specified correctly
+#' 
+#' Throws an error with an explanatory message when the supplied \code{effort}
+#' vector is not valid for the model described by \code{params}.
+#' 
+#' @param params A MizerParams object
+#' @param effort An effort vector
+#' 
+#' @return TRUE if \code{effort} is valid. Throws an error otherwise.
+#' @export
+#' @keywords internal
+#' @concept helper
 validate_effort_vector <- function(params, effort) {
     assert_that(is(params, "MizerParams"),
                 is.vector(effort),
@@ -2804,4 +2815,5 @@ validate_effort_vector <- function(params, effort) {
                     paste(gear_names, collapse = ", "), 
                     ") do not match those in the effort vector."))
     }
+    return(TRUE)
 }

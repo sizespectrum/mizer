@@ -22,13 +22,17 @@ matrix of size no. species x no. size bins. If not supplied, is calculated
 internally using \code{\link{getEReproAndGrowth}}.}
 }
 \value{
-A two dimensional array (prey species x prey size)
+A two dimensional array (prey species x prey size) holding
+\deqn{\psi_i(w)E_{r.i}(w)}
+where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
+growth and reproduction, calculated with \code{\link{getEReproAndGrowth}},
+and \eqn{\psi_i(w)} is the proportion of this energy that is used for
+reproduction. This proportion is taken from the \code{params} object and is
+set with \code{\link{setReproduction}}.
 }
 \description{
-Calculates the energy rate (grams/year) available by species and size for
-reproduction after metabolism and movement have been accounted for:
-\eqn{\psi_i(w)E_{r.i}(w)}. Used by the \code{project} function for performing
-simulations.
+Calculates the energy rate (grams/year) available for reproduction after
+growth and metabolism have been accounted for.
 }
 \examples{
 \dontrun{
@@ -42,8 +46,6 @@ getERepro(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{getERepro}} and \code{\link{getEReproAndGrowth}}.
-
 Other rate functions: \code{\link{getEGrowth}()},
   \code{\link{getEReproAndGrowth}()},
   \code{\link{getEncounter}()},

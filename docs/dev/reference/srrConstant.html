@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get energy rate available for reproduction — getERepro • mizer</title>
+<title>Set the recruitment function for constant recruitment — srrConstant • mizer</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,8 @@
 
 
 
-<meta property="og:title" content="Get energy rate available for reproduction — getERepro" />
-<meta property="og:description" content="Calculates the energy rate (grams/year) available for reproduction after
-growth and metabolism have been accounted for." />
+<meta property="og:title" content="Set the recruitment function for constant recruitment — srrConstant" />
+<meta property="og:description" content="Simply returns the value from `species_params$constant_recruitment`" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -88,8 +87,57 @@ growth and metabolism have been accounted for." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="../articles/index.html">Guides</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Guides
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">For the user</li>
+    <li class="dropdown-header">Installing Mizer</li>
+    <li>
+      <a href="../articles/installation.html"></a>
+    </li>
+    <li class="dropdown-header">The General Mizer Size-spectrum Model</li>
+    <li>
+      <a href="../articles/model_description.html"></a>
+    </li>
+    <li class="dropdown-header">The Community Model</li>
+    <li>
+      <a href="../articles/community_model.html"></a>
+    </li>
+    <li class="dropdown-header">The Trait-Based Model</li>
+    <li>
+      <a href="../articles/trait_model.html"></a>
+    </li>
+    <li class="dropdown-header">The Multi Species Model</li>
+    <li>
+      <a href="../articles/multispecies_model.html"></a>
+    </li>
+    <li class="dropdown-header">Running a simulation</li>
+    <li>
+      <a href="../articles/running_a_simulation.html"></a>
+    </li>
+    <li class="dropdown-header">Exploring the simulation results</li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html"></a>
+    </li>
+    <li class="dropdown-header">A multi-species model of the North Sea</li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html"></a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">For the developer</li>
+    <li class="dropdown-header">Developer guide</li>
+    <li>
+      <a href="../articles/developer_vignette.html"></a>
+    </li>
+    <li class="dropdown-header">Editing the mizer website</li>
+    <li>
+      <a href="../articles/editing_website.html"></a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -118,78 +166,40 @@ growth and metabolism have been accounted for." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get energy rate available for reproduction</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
-    <div class="hidden name"><code>getERepro.Rd</code></div>
+    <h1>Set the recruitment function for constant recruitment</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>srrConstant.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the energy rate (grams/year) available for reproduction after
-growth and metabolism have been accounted for.</p>
+    <p>Simply returns the value from `species_params$constant_recruitment`</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getERepro</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span>
-  <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>))</pre>
+    <pre class="usage"><span class='fu'>srrConstant</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <th>rdi</th>
+      <td><p>Vector of egg production rates \(R_p\) for all species.</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size)</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
-    </tr>
-    <tr>
-      <th>B</th>
-      <td><p>A vector of biomasses of unstructured resource components</p></td>
-    </tr>
-    <tr>
-      <th>e</th>
-      <td><p>The energy available for reproduction and growth (optional). A
-matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>.</p></td>
+      <th>species_params</th>
+      <td><p>A species parameter dataframe. Must contain a column
+`constant_recruitment`.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (prey species x prey size) holding
-$$\psi_i(w)E_{r.i}(w)$$
-where \(E_{r.i}(w)\) is the rate at which energy becomes available for
-growth and reproduction, calculated with <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>,
-and \(\psi_i(w)\) is the proportion of this energy that is used for
-reproduction. This proportion is taken from the <code>params</code> object and is
-set with <code><a href='setReproduction.html'>setReproduction</a></code>.</p>
+    <p>Vector `species_params$constant_recruitment`</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other rate functions: <code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-  <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-  <code><a href='getEncounter.html'>getEncounter</a>()</code>,
-  <code><a href='getFMortGear.html'>getFMortGear</a>()</code>, <code><a href='getFMort.html'>getFMort</a>()</code>,
-  <code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>, <code><a href='getMort.html'>getMort</a>()</code>,
-  <code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
-  <code><a href='getPredMort.html'>getPredMort</a>()</code>, <code><a href='getPredRate.html'>getPredRate</a>()</code>,
-  <code><a href='getRDD.html'>getRDD</a>()</code>, <code><a href='getRDI.html'>getRDI</a>()</code>,
-  <code><a href='getRates.html'>getRates</a>()</code></p></div>
+    <div class='dont-index'><p>Other stock-recruitment functions: <code><a href='srrBevertonHolt.html'>srrBevertonHolt</a>()</code>,
+  <code><a href='srrNone.html'>srrNone</a>()</code>, <code><a href='srrRicker.html'>srrRicker</a>()</code>,
+  <code><a href='srrSheperd.html'>srrSheperd</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='co'># Get the energy at a particular time step</span>
-<span class='fu'>getERepro</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,])
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -197,7 +207,6 @@ set with <code><a href='setReproduction.html'>setReproduction</a></code>.</p>
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
       <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

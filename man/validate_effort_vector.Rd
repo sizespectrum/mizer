@@ -6,6 +6,17 @@
 \usage{
 validate_effort_vector(params, effort)
 }
-\description{
-Check that an effort vector is specified correctly
+\arguments{
+\item{params}{A MizerParams object}
+
+\item{effort}{An effort vector}
 }
+\value{
+TRUE if \code{effort} is valid. Throws an error otherwise.
+}
+\description{
+Throws an error with an explanatory message when the supplied \code{effort}
+vector is not valid for the model described by \code{params}.
+}
+\concept{helper}
+\keyword{internal}

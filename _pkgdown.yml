@@ -135,6 +135,7 @@ reference:
   - power_law_pred_kernel
   - knife_edge
   - sigmoid_length
+  - sigmoid_weight
   - double_sigmoid_length
   - plankton_semichemostat
   - carrion_dynamics

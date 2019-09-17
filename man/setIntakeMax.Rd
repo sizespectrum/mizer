@@ -16,7 +16,7 @@ described in the section "Setting maximum intake rate".}
 \item{n}{Scaling exponent of the intake rate.}
 }
 \value{
-MizerParams
+A \code{MizerParams} object
 }
 \description{
 Set maximum intake rate

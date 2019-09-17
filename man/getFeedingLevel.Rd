@@ -37,17 +37,25 @@ If a \code{MizerParams} object is passed in, the function returns a two
   If a \code{MizerSim} object is passed in, the function returns a three
   dimensional array (time step x predator species x predator size) with the
   feeding level calculated at every time step in the simulation.
-  If `drop = TRUE` then the dimension of length 1 will be removed from the
-  returned array.
+  If \code{drop = TRUE} then the dimension of length 1 will be removed from
+  the returned array.
 }
 \description{
-Calculates the feeding level \eqn{f_i(w)} by predator size based on food
-availability, search volume and maximum intake. The feeding level is the
-proportion of the encountered food that is actually consumed. It is 
-defined in terms of the encounter rate \eqn{E_i} and the maximum intake 
-rate \eqn{h_i(w)} as
-\deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}}{E_i(w)/(E_i(w)+h_i(w))}
-The feeding rate is used in \code{\link{getEReproAndGrowth}} and in
+Calculates the feeding level \eqn{f_i(w)}. The feeding level is the
+proportion of its maximum intake rate at which the predator is actually
+taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
+maximum intake rate \eqn{h_i(w)} as
+\deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
+The encounter rate \eqn{E_i} is passed as an argument or calculated with
+\code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
+taken from the \code{params} object, and is set with 
+\code{\link{setIntakeMax}}.
+As a consequence of the above expression for the feeding level,
+\eqn{1-f_i(w)} is the proportion of the food available to it that the
+predator actually consumes.
+}
+\details{
+The feeding level is used in \code{\link{getEReproAndGrowth}} and in
 \code{\link{getPredRate}}.
 }
 \examples{
@@ -68,8 +76,6 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 }
 \seealso{
-\code{\link{getEncounter}}
-
 Other rate functions: \code{\link{getEGrowth}()},
   \code{\link{getEReproAndGrowth}()},
   \code{\link{getERepro}()}, \code{\link{getEncounter}()},
