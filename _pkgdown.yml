@@ -139,10 +139,7 @@ reference:
   - plankton_semichemostat
   - carrion_dynamics
   - detritus_dynamics
-  - srrBevertonHolt
-  - srrRicker
-  - srrSheperd
-  - srrNone
+  - starts_with("srr")
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper

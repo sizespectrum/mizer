@@ -104,7 +104,8 @@ getRates <- function(params, n = params@initial_n,
     r$rdi <- getRDI(params, n = n, n_pp = n_pp, B = B, 
                     e_repro = r$e_repro, sex_ratio = sex_ratio)
     # R_i
-    r$rdd <- params@srr(rdi = r$rdi, species_params = params@species_params)
+    r$rdd <- do.call(params@srr,
+                     list(rdi = r$rdi, species_params = params@species_params))
     
     return(r)
 }
@@ -1078,8 +1079,8 @@ getRDD <- function(params, n = params@initial_n,
                    n_pp = params@initial_n_pp,
                    B = params@initial_B, sex_ratio = 0.5,
                    rdi = getRDI(params, n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio)) {
-    rdd <- params@srr(rdi = rdi, species_params = params@species_params)
-    return(rdd)
+    return(do.call(params@srr,
+                   list(rdi = rdi, species_params = params@species_params)))
 }
 
 #' Get_time_elements

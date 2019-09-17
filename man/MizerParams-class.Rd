@@ -105,8 +105,9 @@ See \code{\link{set_multispecies_model}} for details.}
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
 Changed with \code{\link{setInteraction}}.}
 
-\item{\code{srr}}{Function to calculate the realised (density dependent) recruitment.
-Has two arguments which are rdi and species_params.}
+\item{\code{srr}}{String holding the name of the function to calculate the realised
+(density dependent) recruitment. The function should have two arguments
+which are rdi and species_params.}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
