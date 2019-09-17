@@ -24,7 +24,7 @@ The website creation is performed by a slight modification of the
 [`pkgdown`](https://pkgdown.r-lib.org/index.html) package. You can trigger
 a build in your local repository by issuing the commands
 ```{r eval=FALSE}
-devtools::install_github("gustavdelius/pkgdown")
+devtools::install_github("gustavdelius/pkgdown", ref = "mizer")
 pkgdown::build_site()
 ```
 This will convert all existing documentation into html files and put these
