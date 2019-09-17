@@ -5,8 +5,8 @@
 \title{Get total mortality rate}
 \usage{
 getMort(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, effort = 1, m2 = getPredMort(params, n = n,
-  n_pp = n_pp, B = B))
+  B = params@initial_B, effort = params@initial_effort,
+  m2 = getPredMort(params, n = n, n_pp = n_pp, B = B))
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -18,7 +18,7 @@ getMort(params, n = params@initial_n, n_pp = params@initial_n_pp,
 \item{B}{A vector of biomasses of unstructured resource components}
 
 \item{effort}{A numeric vector of the effort by gear or a single numeric
-effort value which is used for all gears. Default 1.}
+effort value which is used for all gears.}
 
 \item{m2}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is

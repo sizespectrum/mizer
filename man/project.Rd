@@ -4,10 +4,9 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(object, effort = 0, t_max = 100, dt = 0.1, t_save = 1,
-  t_start = 0, initial_n = params@initial_n,
-  initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  append = TRUE, progress_bar = TRUE, ...)
+project(object, effort, t_max = 100, dt = 0.1, t_save = 1,
+  t_start = 0, initial_n, initial_n_pp, initial_B, append = TRUE,
+  progress_bar = TRUE, ...)
 }
 \arguments{
 \item{object}{Either a \linkS4class{MizerParams} object or a 
@@ -66,9 +65,12 @@ The function returns an object of type
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during
-the simulation. It can be specified in three different ways: \itemize{ \item
-A single numeric value. This specifies the effort of all fishing gears which
-is constant through time (i.e. all the gears have the same constant effort). 
+the simulation. If it is not supplied, the initial effort stored in the params
+object is used. The effort can be specified in three different ways: 
+\itemize{ 
+\item A single numeric value. This specifies the effort of all fishing gears
+which is constant through time (i.e. all the gears have the same constant
+effort).
 \item A numerical vector which has the same length as the number of fishing
 gears. The vector must be named and the names must correspond to the gear
 names in the \code{MizerParams} object. The values in the vector specify the
@@ -79,7 +81,8 @@ fishing effort of each gear at each time step.  The first dimension, time,
 must be named numerically and contiguously. The second dimension of the array
 must be named and the names must correspond to the gear names in the
 \code{MizerParams} argument. The value for the effort for a particular time
-is used during the interval from that time to the next time in the array.}
+is used during the interval from that time to the next time in the array.
+}
 
 If effort is specified as an array then the smallest time in the array is 
 used as the initial time for the simulation. Otherwise the initial time is

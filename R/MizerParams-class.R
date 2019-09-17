@@ -311,6 +311,8 @@ validMizerParams <- function(object) {
 #' @slot catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}. Changed with 
 #'   \code{\link{setFishing}}.
+#' @slot initial_effort A vector containing the initial fishing effort for each
+#'   gear. Changed with \code{\link{setFishing()}}.
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
@@ -379,6 +381,7 @@ setClass(
         srr  = "character",
         selectivity = "array",
         catchability = "array",
+        initial_effort = "numeric",
         n = "numeric",
         p = "numeric",
         lambda = "numeric",
@@ -579,6 +582,9 @@ emptyParams <- function(species_params,
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp), 
                           dimnames = list(gear = gear_names, sp = species_names))
+    initial_effort <- rep(0, length(gear_names))
+    names(initial_effort) <- gear_names
+    
     interaction <- array(1, dim = c(no_sp, no_sp),
                          dimnames = list(predator = species_names,
                                          prey = species_names))
@@ -683,6 +689,7 @@ emptyParams <- function(species_params,
         pred_kernel = array(),
         selectivity = selectivity,
         catchability = catchability,
+        initial_effort = initial_effort,
         rr_pp = vec1,
         cc_pp = vec1,
         sc = w,
@@ -807,7 +814,9 @@ set_multispecies_model <- function(species_params,
                                    resource_dynamics = list(),
                                    resource_params = list(),
                                    # setResourceEncounter
-                                   rho = NULL) {
+                                   rho = NULL,
+                                   # setFishing
+                                   initial_effort = NULL) {
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
@@ -856,7 +865,9 @@ set_multispecies_model <- function(species_params,
                         resource_dynamics = resource_dynamics,
                         resource_params = resource_params,
                         # setResourceEncounter
-                        rho = rho)
+                        rho = rho,
+                        # setFishing
+                        initial_effort = initial_effort)
     
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp
@@ -1025,11 +1036,13 @@ setParams <- function(params,
                       resource_dynamics = params@resource_dynamics,
                       resource_params = params@resource_params,
                       # setResourceEncounter
-                      rho = NULL) {
+                      rho = NULL,
+                      # setFishing
+                      initial_effort = NULL) {
     validObject(params)
     params <- setInteraction(params,
                              interaction = interaction)
-    params <- setFishing(params)
+    params <- setFishing(params, initial_effort = initial_effort)
     params <- setPredKernel(params,
                             pred_kernel = pred_kernel)
     params <- setIntakeMax(params,
@@ -2127,16 +2140,21 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' 
 #' \strong{Effort}
 #' 
-#' Fishing effort is not stored in the `MizerParams` object. Instead, effort is
-#' set when the simulation is run with `project()` and can vary through time.
+#' The initial fishing effort is stored in the `MizerParams` object. If it is
+#' not supplied, it is set to zero. The initial effort can be overrruled when
+#' the simulation is run with `project()`, where it is also possible to specify
+#' an effort that varies through time.
 #' 
 #' @param params A MizerParams object
-#' 
+#' @param initial_effort Optional. A number or a named numeric vector specifying
+#'   the fishing effort. If a number, the same effort is used for all gears. If
+#'   a vector, must be named by gear.
+#'   
 #' @return MizerParams object
 #' @export
 #' @md
 #' @family functions for setting parameters
-setFishing <- function(params) {
+setFishing <- function(params, initial_effort = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)
@@ -2161,6 +2179,12 @@ setFishing <- function(params) {
     # If no catchability column in species_params, set to 1
     species_params <- set_species_param_default(species_params,
                                                 "catchability", 1)
+    
+    if (!is.null(initial_effort)) {
+        validate_effort_vector(params, initial_effort)
+        params@initial_effort <- initial_effort
+    }
+    
     # At the moment, each species is only caught by 1 gear so in species_params
     # there are the columns: gear_name and sel_func.
     # BEWARE! This routine assumes that each species has only one gear operating on it
@@ -2261,17 +2285,15 @@ setInitial <- function(params,
 #' values.
 #' 
 #' @param params A MizerParams object
-#' @param effort Fishing effort. A numeric vector of the effort by gear or 
-#'   a single numeric effort value which is used for all gears.
 #'   
 #' @return The MizerParams object with updated \code{initial_n} and 
 #'   \code{initial_n_pp} slots.
 #' @export
-updateInitial <- function(params, effort = 1) {
+updateInitial <- function(params) {
     assert_that(is(params, "MizerParams"))
     # Calculate the rates in the current background
     plankton_mort <- getPlanktonMort(params)
-    mumu <- getMort(params, effort = effort)
+    mumu <- getMort(params)
     gg <- getEGrowth(params)
     # Recompute plankton
     params@initial_n_pp <- params@rr_pp * params@cc_pp / 
@@ -2293,7 +2315,7 @@ updateInitial <- function(params, effort = 1) {
     
     # Retune the values of erepro so that we get the correct level of
     # recruitment
-    mumu <- getMort(params, effort = effort)
+    mumu <- getMort(params)
     gg <- getEGrowth(params)
     rdd <- getRDD(params)
     # TODO: vectorise this
@@ -2335,6 +2357,12 @@ upgradeParams <- function(params) {
     if (is.function(params@srr)) {
         params@srr <- "srrBevertonHolt"
         warning('The stock recruitment function has been set to "srrBevertonHolt".')
+    }
+    
+    if (.hasSlot(params, "initial_effort")) {
+        initial_effort <- params@initial_effort
+    } else {
+        initial_effort <- NULL
     }
     
     if (.hasSlot(params, "metab")) {
@@ -2402,7 +2430,8 @@ upgradeParams <- function(params) {
         resource_dynamics = resource_dynamics,
         resource_params = resource_params,
         rho = rho,
-        srr = params@srr)
+        srr = params@srr,
+        initial_effort = initial_effort)
     
     pnew@linecolour <- params@linecolour
     pnew@linetype <- params@linetype
@@ -2752,4 +2781,27 @@ get_ks_default <- function(params) {
              "parameter ks. Got:", params@species_params$ks))
     }
     return(params@species_params$ks)
+}
+
+
+#' Check that an effort vector is specified correctly
+validate_effort_vector <- function(params, effort) {
+    assert_that(is(params, "MizerParams"),
+                is.vector(effort),
+                is.numeric(effort))
+    no_gears <- dim(params@catchability)[1]
+    if ((length(effort) > 1) & (length(effort) != no_gears)) {
+        stop("Effort vector must be the same length as the number of fishing gears\n")
+    }
+    # If more than 1 gear need to check that gear names match
+    gear_names <- dimnames(params@catchability)[[1]]
+    effort_gear_names <- names(effort)
+    if (length(effort) == 1 & is.null(effort_gear_names)) {
+        effort_gear_names <- gear_names
+    }
+    if (!all(gear_names %in% effort_gear_names)) {
+        stop(paste0("Gear names in the MizerParams object (", 
+                    paste(gear_names, collapse = ", "), 
+                    ") do not match those in the effort vector."))
+    }
 }

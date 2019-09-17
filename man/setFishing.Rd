@@ -4,10 +4,14 @@
 \alias{setFishing}
 \title{Set fishing parameters}
 \usage{
-setFishing(params)
+setFishing(params, initial_effort = NULL)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{initial_effort}{Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.}
 }
 \value{
 MizerParams object
@@ -79,8 +83,10 @@ parameter data frame. If it is not specified, it defaults to 1.
 
 \strong{Effort}
 
-Fishing effort is not stored in the \code{MizerParams} object. Instead, effort is
-set when the simulation is run with \code{project()} and can vary through time.
+The initial fishing effort is stored in the \code{MizerParams} object. If it is
+not supplied, it is set to zero. The initial effort can be overrruled when
+the simulation is run with \code{project()}, where it is also possible to specify
+an effort that varies through time.
 }
 
 \seealso{

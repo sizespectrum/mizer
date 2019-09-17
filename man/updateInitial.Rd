@@ -4,13 +4,10 @@
 \alias{updateInitial}
 \title{Update the initial abundances}
 \usage{
-updateInitial(params, effort = 1)
+updateInitial(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
-
-\item{effort}{Fishing effort. A numeric vector of the effort by gear or 
-a single numeric effort value which is used for all gears.}
 }
 \value{
 The MizerParams object with updated \code{initial_n} and 

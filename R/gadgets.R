@@ -259,13 +259,13 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 
                 # Run to steady state
                 if (return_sim) {
-                    sim <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                    sim <- steady(p, t_max = 100, tol = 1e-2,
                                   return_sim = TRUE,
                                   progress_bar = progress)
                     sim_steady(sim)
                     p <- sim@params
                 } else {
-                    p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                    p <- steady(p, t_max = 100, tol = 1e-2,
                                 progress_bar = progress)
                 }
                 
@@ -295,13 +295,10 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$filename <- renderText("")
         
         # Reactive value to hold simulations from steady()
-        sim_steady <- reactiveVal(project(p, effort = 1, 
-                                          t_max = 0.2, t_save = 0.1))
+        sim_steady <- reactiveVal(project(p, t_max = 0.2, t_save = 0.1))
         
         # Define a reactive value for triggering an update of species sliders
         trigger_update <- reactiveVal(0)
-        # Fishing effort
-        effort <- reactiveVal(1)
         
         ## Handle upload of params object ####
         observeEvent(input$upload, {
@@ -359,7 +356,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             p <- isolate(params())
             sp <- p@species_params[input$sp, ]
             n0 <- p@initial_n[input$sp, p@w_min_idx[input$sp]]
-            eff <- isolate(effort())
+            # If there are several gears, we only use the effort for the first.
+            # If this is changed by the user, all efforts will be set the same.
+            eff <- p@initial_effort[[1]]
             
             l1 <- list(
                 tags$h3(tags$a(id = "biomass"), "Biomass"),
@@ -410,7 +409,11 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                          value = sp$catchability, 
                                          min = signif(max(0, sp$catchability / 2 - 1), 2), 
                                          max = signif(max(sp$catchability * 2, 2), 2), 
-                                         step = 0.01)))
+                                         step = 0.01),
+                             sliderInput("effort", "Effort",
+                                         value = eff, 
+                                         min = 0,
+                                         max = signif((eff + 1) * 1.5, 2))))
             
             if (sp$sel_func == "knife_edge") {
                 l1 <- c(l1, list(
@@ -513,14 +516,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$general_params <- renderUI({
             
             p <- isolate(params())
-            eff <- isolate(effort())
             
             l1 <- list(
                 tags$h3(tags$a(id = "general"), "General"),
-                sliderInput("effort", "Effort",
-                            value = eff, 
-                            min = 0,
-                            max = signif(eff * 1.5, 2)),
                 numericInput("p", "Exponent of metabolism",
                              value = p@p,
                              min = 0.6, max = 0.8, step = 0.005),
@@ -637,14 +635,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                               min = signif(n0 / 10, 3),
                               max = signif(n0 * 10, 3))
             updateSliderInput(session, "rescale", value = 1)
-        })
-        
-        ## Adjust effort ####
-        observe({
-            req(input$effort)
-            effort(input$effort)
-            updateSliderInput(session, "effort",
-                              max = signif(effort() * 1.5, 2))
         })
         
         ## Adjust von Bertalanffy ####
@@ -811,6 +801,8 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                   min = signif(max(input$catchability / 2 - 1, 0), 2),
                                   max = signif(max(input$catchability * 2, 2), 2))
                 p@species_params[sp, "catchability"]  <- input$catchability
+                updateSliderInput(session, "effort",
+                                  max = signif((input$effort + 1) * 1.5, 2))
                 
                 if (p@species_params[sp, "sel_func"] == "knife_edge") {
                     updateSliderInput(session, "knife_edge_size",
@@ -835,7 +827,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                       max = signif(input$l50_right / 10, 2))
                 }
                 
-                p <- setFishing(p)
+                p <- setFishing(p, input$effort)
                 update_species(sp, p)
             }
         })
@@ -850,7 +842,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 !is.na(p@species_params$catch_observed[sp]) &&
                 p@species_params$catch_observed[sp] > 0) {
                 total <- sum(p@initial_n[sp, ] * p@w * p@dw *
-                                 getFMort(p, effort = effort())[sp, ])
+                                 getFMort(p)[sp, ])
                 p@species_params$catchability[sp] <- 
                     p@species_params$catchability[sp] *
                     p@species_params$catch_observed[sp] / total
@@ -865,7 +857,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     on.exit(progress$close())
                     
                     # Run to steady state
-                    p <- steady(p, effort = effort(), t_max = 100, tol = 1e-2,
+                    p <- steady(p, t_max = 100, tol = 1e-2,
                                 progress_bar = progress)
                     
                     # Update the reactive params object
@@ -920,7 +912,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 # The spectrum for the changed species is calculated with new
                 # parameters but in the context of the original community
                 # Compute death rate for changed species
-                mumu <- getMort(p, effort = effort())[sp, ]
+                mumu <- getMort(p)[sp, ]
                 # compute growth rate for changed species
                 gg <- getEGrowth(p)[sp, ]
                 # Compute solution for changed species
@@ -950,7 +942,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 # Retune the value of erepro so that we get the correct level of
                 # recruitment
                 i <- which(p@species_params$species == sp)
-                rdd <- getRDD(p, p@initial_n, p@initial_n_pp)[i]
+                rdd <- getRDD(p)[i]
                 gg0 <- gg[p@w_min_idx[i]]
                 mumu0 <- mumu[p@w_min_idx[i]]
                 DW <- p@dw[p@w_min_idx[i]]
@@ -1369,7 +1361,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             w <- p@w[w_sel]
             l = (p@w[w_sel] / a) ^ (1 / b)
             
-            catch_w <- getFMort(p, effort = effort())[sp, w_sel] * 
+            catch_w <- getFMort(p)[sp, w_sel] * 
                 p@initial_n[sp, w_sel]
             # We just want the distribution, so we rescale the density so its area is 1
             if (sum(catch_w) > 0) catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
@@ -1451,7 +1443,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p@species_params$catch_observed <- 0
             }
             biomass <- sweep(p@initial_n, 2, p@w * p@dw, "*")
-            total <- rowSums(biomass * getFMort(p, effort = effort()))
+            total <- rowSums(biomass * getFMort(p))
             df <- rbind(
                 data.frame(Species = p@species_params$species[foreground],
                            Type = "Model",
@@ -1484,7 +1476,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             p <- params()
             sp <- which.max(p@species_params$species == input$sp)
             total <- sum(p@initial_n[sp, ] * p@w * p@dw *
-                             getFMort(p, effort = effort())[sp, ])
+                             getFMort(p)[sp, ])
             paste("Model catch:", total)
         })
         
@@ -1502,9 +1494,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             }
             sel <- p@w >= min_w & p@w <= max_w
             len <- sum(sel)
-            growth <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp,sel]
-            growth_and_repro <- getEReproAndGrowth(p, p@initial_n, p@initial_n_pp)[sp,sel]
-            metab <- p@metab[sp,sel]
+            growth <- getEGrowth(p)[sp, sel]
+            growth_and_repro <- getEReproAndGrowth(p)[sp, sel]
+            metab <- p@metab[sp, sel]
             income <- growth_and_repro + metab
             repro <- growth_and_repro - growth
             df <- data.frame(
@@ -1555,11 +1547,10 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                          rep("Predation", len),
                          rep("Fishing", len),
                          rep("Background", len)),
-                value = c(getMort(p, p@initial_n, p@initial_n_pp,
-                                  effort = effort())[sp,sel],
-                          getPredMort(p, p@initial_n, p@initial_n_pp)[sp, sel],
-                          getFMort(p, effort = effort())[sp, sel],
-                          p@mu_b[sp,sel])
+                value = c(getMort(p)[sp, sel],
+                          getPredMort(p)[sp, sel],
+                          getFMort(p)[sp, sel],
+                          p@mu_b[sp, sel])
             )
             pl <- ggplot(df, aes(x = w, y = value, color = Type)) + 
                 geom_line() + 
@@ -1648,8 +1639,8 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             fish_idx <- (p@w >= p@species_params[sp, "w_min"]) &
                 (p@w <= p@species_params[sp, "w_inf"])
             pred_rate <- p@interaction[, sp] * 
-                getPredRate(p, p@initial_n, p@initial_n_pp, p@initial_B)[, fish_idx_full]
-            fishing <- getFMort(p, effort = effort())[sp, fish_idx]
+                getPredRate(p)[, fish_idx_full]
+            fishing <- getFMort(p)[sp, fish_idx]
             total <- colSums(pred_rate) + p@mu_b[sp, fish_idx] + fishing
             ylab <- "Death rate [1/year]"
             background <- p@mu_b[sp, fish_idx]
