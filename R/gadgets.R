@@ -516,6 +516,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$general_params <- renderUI({
             
             p <- isolate(params())
+            log_r_pp <- log10(p@rr_pp[1] / p@w_full[1]^(p@n - 1))
             
             l1 <- list(
                 tags$h3(tags$a(id = "general"), "General"),
@@ -534,7 +535,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 numericInput("kappa", "Plankton coefficient kappa",
                              value = p@kappa),
                 sliderInput("log_r_pp", "log10 Plankton replenishment rate",
-                            value = 1, min = -1, max = 4, step = 0.05),
+                            value = log_r_pp, min = -1, max = 4, step = 0.05),
                 numericInput("w_pp_cutoff", "Largest plankton",
                              value = p@w_full[which.min(p@cc_pp > 0)],
                              min = 1e-10,
