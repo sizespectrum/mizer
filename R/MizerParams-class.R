@@ -1414,7 +1414,7 @@ setSearchVolume <- function(params,
             stop(paste0("You need to use the same ordering of species in the search_vol array as in the ",
                         "params object: ", toString(species_params$species)))
         }
-        assert_that(all(search_vol > 0))
+        assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
         return(params)
     }
@@ -1469,7 +1469,7 @@ setIntakeMax <- function(params,
             stop(paste0("You need to use the same ordering of species in the intake_max array as in the ",
                         "params object: ", toString(species_params$species)))
         }
-        assert_that(all(intake_max > 0))
+        assert_that(all(intake_max >= 0))
         params@intake_max[] <- intake_max
         return(params)
     }
@@ -1526,7 +1526,7 @@ setMetab <- function(params,
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(species_params$species)))
         }
-        assert_that(all(metab > 0))
+        assert_that(all(metab >= 0))
         params@metab[] <- metab
         return(params)
     }
@@ -2068,7 +2068,7 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
     if (length(params@w) != dim(rho)[3]) {
             stop("The third dimension of the rho array should have one entry for every consumer size.")
     }
-    assert_that(all(rho > 0))
+    assert_that(all(rho >= 0))
     params@rho[] <- rho
     
     return(params)
