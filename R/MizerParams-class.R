@@ -2660,8 +2660,15 @@ get_phi <- function(species_params, ppmr) {
 
 #' Get default value for h
 #' 
-#' Fills in any missing values for h according to the formula
+#' In old version, it filled in any missing values for \code{h} according to
+#' the formula
 #' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
+#' In the new version it sets \code{h} so that the species reaches maturity 
+#' size at the age predicted by the von Bertalannfy growth curve parameters
+#' \code{k_vb} and (optionally \code{t0}) taken from the species parameter
+#' data frame. Also needs the exponent \code{b} from the length-weight
+#' relationship \eqn{w = a l^b}. If this is not present in the species
+#' parameter data frame it is set to \code{b = 3}.
 #' @param params A MizerParams object
 #' @return A vector with the values of h for all species
 #' @export
@@ -2691,13 +2698,16 @@ get_h_default <- function(params) {
             (species_params$w_inf ^ (1/3))
         
         if (!is.null(getOption("mizer_new"))) {
+            species_params <- species_params %>% 
+                set_species_param_default("b", 3) %>% 
+                set_species_param_default("t0", 0)
             w_mat <- species_params$w_mat
             w_inf <- species_params$w_inf
             w_min <- species_params$w_min
             b <- species_params$b
             k_vb <- species_params$k_vb
             n <- params@n
-            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb
+            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
             h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
                 params@species_params$alpha / (params@f0 - 0.2)
         }
