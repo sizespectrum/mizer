@@ -2681,6 +2681,9 @@ get_h_default <- function(params) {
         if (!("k_vb" %in% colnames(species_params))) {
             stop("\tExcept I can't because there is no k_vb column in the species data frame")
         }
+        if (anyNA(species_params$k_vb[missing])) {
+            stop("Can not calculate defaults for h because some k_vb values are NA.")
+        }
         if (length(params@p) == 1 && params@n != params@p) {
             message("Note: Because you have n != p, the default value is not very good.")
         }
@@ -2697,13 +2700,10 @@ get_h_default <- function(params) {
             age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb
             h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
                 params@species_params$alpha / (params@f0 - 0.2)
-            if (any(h <= 0) || anyNA(h) || any(is.nan(h))) {
-                stop("Could not calculate default for h.")
-            }
         }
         
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
+        if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
+            stop("Could not calculate h.")
         }
         species_params$h[missing] <- h[missing]
     }
