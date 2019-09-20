@@ -1518,6 +1518,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         n_pp[] <- sim@n_pp[no_t, ]
         B[] <- sim@B[no_t, ]
         new_rdi <- getRDI(p, n, n_pp, B)
+        deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (any(new_rdi < rdi_limit)) {
             if (return_sim) {
                 message("One of the species is going extinct.")
@@ -1527,7 +1528,6 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
             stop(paste(extinct, collapse = ", "),
                  "are going extinct.")
         }
-        deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (deviation < tol) {
             break
         }
