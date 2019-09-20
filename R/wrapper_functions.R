@@ -1476,6 +1476,8 @@ markBackground <- function(object, species) {
 #' }
 steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
                    dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
+    assert_that(is(params, "MizerParams"),
+                noNA(getRDD(params)))
     p <- params
     
     if (is(progress_bar, "Progress")) {
@@ -1488,6 +1490,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     p@species_params$constant_recruitment <- getRDD(p)
     p@srr <- "srrConstant"
     old_rdi <- getRDI(p)
+    rdi_limit <- old_rdi / 1e7
     # Force resources to stay at current level
     old_resource_dynamics <- p@resource_dynamics
     for (res in names(p@resource_dynamics)) {
@@ -1515,6 +1518,15 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         n_pp[] <- sim@n_pp[no_t, ]
         B[] <- sim@B[no_t, ]
         new_rdi <- getRDI(p, n, n_pp, B)
+        if (any(new_rdi < rdi_limit)) {
+            if (return_sim) {
+                message("One of the species is going extinct.")
+                break
+            }
+            extinct <- p@species_params$species[new_rdi < rdi_limit]
+            stop(paste(extinct, collapse = ", "),
+                 "are going extinct.")
+        }
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (deviation < tol) {
             break
