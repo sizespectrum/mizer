@@ -308,11 +308,10 @@ getYield <- function(sim) {
 
 #' Get growth curves giving weight as a function of age
 #' 
-#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-#' time of a simulation to calculate the size at age. If given a
-#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
-#' 
-#' @param object MizerSim or MizerParams object
+#' @param object MizerSim or MizerParams object. If given a
+#'   \linkS4class{MizerSim} object, uses the growth rates at the final time of a
+#'   simulation to calculate the size at age. If given a
+#'   \linkS4class{MizerParams} object, uses the initial growth rates instead.
 #' @param species Name or vector of names of the species to be included. By
 #'   default all species are included.
 #' @param max_age The age up to which to run the growth curve. Default is 20.

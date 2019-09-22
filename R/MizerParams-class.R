@@ -828,6 +828,7 @@ set_multispecies_model <- function(species_params,
     
     ## Fill the slots ----
     params@n <- n
+    params@p <- p
     params@lambda <- lambda
     params@f0 <- f0
     params@kappa <- kappa
@@ -2659,14 +2660,22 @@ get_phi <- function(species_params, ppmr) {
 
 #' Get default value for h
 #' 
-#' Fills in any missing values for h according to the formula
+#' In old version, it filled in any missing values for \code{h} according to
+#' the formula
 #' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
+#' In the new version it sets \code{h} so that the species reaches maturity 
+#' size at the age predicted by the von Bertalannfy growth curve parameters
+#' \code{k_vb} and (optionally \code{t0}) taken from the species parameter
+#' data frame. Also needs the exponent \code{b} from the length-weight
+#' relationship \eqn{w = a l^b}. If this is not present in the species
+#' parameter data frame it is set to \code{b = 3}.
 #' @param params A MizerParams object
 #' @return A vector with the values of h for all species
 #' @export
 #' @keywords internal
 #' @concept helper
 get_h_default <- function(params) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     if (!("h" %in% colnames(species_params))) {
         species_params$h <- rep(NA, nrow(species_params))
@@ -2679,23 +2688,32 @@ get_h_default <- function(params) {
         if (!("k_vb" %in% colnames(species_params))) {
             stop("\tExcept I can't because there is no k_vb column in the species data frame")
         }
+        if (anyNA(species_params$k_vb[missing])) {
+            stop("Can not calculate defaults for h because some k_vb values are NA.")
+        }
+        if (length(params@p) == 1 && params@n != params@p) {
+            message("Note: Because you have n != p, the default value is not very good.")
+        }
         h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
             (species_params$w_inf ^ (1/3))
         
         if (!is.null(getOption("mizer_new"))) {
+            species_params <- species_params %>% 
+                set_species_param_default("b", 3) %>% 
+                set_species_param_default("t0", 0)
             w_mat <- species_params$w_mat
             w_inf <- species_params$w_inf
             w_min <- species_params$w_min
             b <- species_params$b
             k_vb <- species_params$k_vb
             n <- params@n
-            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb
+            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
             h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-                (params@species_params$alpha * params@f0 - 0.2) 
+                params@species_params$alpha / (params@f0 - 0.2)
         }
         
-        if (any(is.na(h[missing]))) {
-            stop("Could not calculate h, perhaps k_vb is missing?")
+        if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
+            stop("Could not calculate h.")
         }
         species_params$h[missing] <- h[missing]
     }
@@ -2719,6 +2737,7 @@ get_h_default <- function(params) {
 #' @keywords internal
 #' @concept helper
 get_gamma_default <- function(params) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
@@ -2757,8 +2776,8 @@ get_gamma_default <- function(params) {
 
 #' Get default value for ks
 #' 
-#' Fills in any missing values for ks according to the formula
-#' \eqn{ks_i = 0.2 h_i}.
+#' Fills in any missing values for ks so that the critical feeding level needed
+#' to sustain the species is \eqn{f_c = 0.2}.
 #' 
 #' @param params A MizerParams object
 #' @return A vector with the values of ks for all species
@@ -2766,15 +2785,20 @@ get_gamma_default <- function(params) {
 #' @keywords internal
 #' @concept helper
 get_ks_default <- function(params) {
-    species_params <- params@species_params
+    assert_that(is(params, "MizerParams"))
     if (!"h" %in% names(params@species_params) ||
         any(is.na(params@species_params$h))) {
         params@species_params$h <- get_h_default(params)
     }
-    message <- ("Note: No ks column in species data frame so using ks = h * 0.2.")
-    params <- set_species_param_default(params, "ks",
-                                        params@species_params$h * 0.2,
-                                        message)
+    sp <- params@species_params
+    if (!is.null(getOption("mizer_new"))) {
+        ks_default <- 0.2 * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
+    } else {
+        ks_default <- 0.2 * sp$h
+    }
+    
+    message <- ("Note: No ks column in species data frame so setting to default.")
+    params <- set_species_param_default(params, "ks", ks_default, message)
     if (any(is.na(params@species_params$ks) | 
             is.infinite(params@species_params$ks))) {
         stop(paste("Could not calculate default values for the missing species",

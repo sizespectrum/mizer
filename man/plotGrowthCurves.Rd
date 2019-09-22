@@ -8,7 +8,10 @@ plotGrowthCurves(object, species, max_age = 20, percentage = FALSE,
   highlight = NULL)
 }
 \arguments{
-\item{object}{MizerSim or MizerParams object}
+\item{object}{MizerSim or MizerParams object. If given a
+\linkS4class{MizerSim} object, uses the growth rates at the final time of a
+simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
 \item{species}{Name or vector of names of the species to be included. By
 default all species are included.}
@@ -24,16 +27,12 @@ of the maximal size.}
 A ggplot2 object
 }
 \description{
-If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-time of a simulation to calculate the size at age. If given a
-\linkS4class{MizerParams} object, uses the initial growth rates instead.
-}
-\details{
 When the growth curve for only a single species is plotted, horizontal
 lines are included that indicate the maturity size and the maximum size for 
 that species. If furthermore the species parameters contain the variables
 a and b for length to weight conversion and the von Bertalanffy parameter
-k_vb, then the von Bertalanffy growth curve is superimposed in black.
+k_vb (and optionally t0), then the von Bertalanffy growth curve is
+superimposed in black.
 }
 \examples{
 

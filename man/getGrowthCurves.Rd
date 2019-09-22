@@ -7,7 +7,10 @@
 getGrowthCurves(object, species, max_age = 20, percentage = FALSE)
 }
 \arguments{
-\item{object}{MizerSim or MizerParams object}
+\item{object}{MizerSim or MizerParams object. If given a
+\linkS4class{MizerSim} object, uses the growth rates at the final time of a
+simulation to calculate the size at age. If given a
+\linkS4class{MizerParams} object, uses the initial growth rates instead.}
 
 \item{species}{Name or vector of names of the species to be included. By
 default all species are included.}
@@ -21,9 +24,7 @@ of the maximal size.}
 An array (species x age) containing the weight in grams.
 }
 \description{
-If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-time of a simulation to calculate the size at age. If given a
-\linkS4class{MizerParams} object, uses the initial growth rates instead.
+Get growth curves giving weight as a function of age
 }
 \examples{
 \dontrun{
