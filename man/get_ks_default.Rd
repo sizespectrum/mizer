@@ -13,8 +13,8 @@ get_ks_default(params)
 A vector with the values of ks for all species
 }
 \description{
-Fills in any missing values for ks according to the formula
-\eqn{ks_i = 0.2 h_i}.
+Fills in any missing values for ks so that the critical feeding level needed
+to sustain the species is \eqn{f_c = 0.2}.
 }
 \concept{helper}
 \keyword{internal}

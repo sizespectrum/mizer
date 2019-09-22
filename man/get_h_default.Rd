@@ -13,8 +13,15 @@ get_h_default(params)
 A vector with the values of h for all species
 }
 \description{
-Fills in any missing values for h according to the formula
+In old version, it filled in any missing values for \code{h} according to
+the formula
 \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
+In the new version it sets \code{h} so that the species reaches maturity 
+size at the age predicted by the von Bertalannfy growth curve parameters
+\code{k_vb} and (optionally \code{t0}) taken from the species parameter
+data frame. Also needs the exponent \code{b} from the length-weight
+relationship \eqn{w = a l^b}. If this is not present in the species
+parameter data frame it is set to \code{b = 3}.
 }
 \concept{helper}
 \keyword{internal}

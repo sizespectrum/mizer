@@ -1104,15 +1104,12 @@ plotlyFMort <- function(object, species = NULL,
 
 #' Plot growth curves giving weight as a function of age
 #' 
-#' If given a \linkS4class{MizerSim} object, uses the growth rates at the final
-#' time of a simulation to calculate the size at age. If given a
-#' \linkS4class{MizerParams} object, uses the initial growth rates instead.
-#' 
 #' When the growth curve for only a single species is plotted, horizontal
 #' lines are included that indicate the maturity size and the maximum size for 
 #' that species. If furthermore the species parameters contain the variables
 #' a and b for length to weight conversion and the von Bertalanffy parameter
-#' k_vb, then the von Bertalanffy growth curve is superimposed in black.
+#' k_vb (and optionally t0), then the von Bertalanffy growth curve is
+#' superimposed in black.
 #' 
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
