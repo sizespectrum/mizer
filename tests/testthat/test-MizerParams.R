@@ -136,3 +136,28 @@ test_that("min_w_pp is being set correctly", {
     params <- set_multispecies_model(sp)
     expect_identical(params@w[1], params@w_full[1])
 })
+
+# Test default values ----
+test_that("default for gamma is correct", {
+    params <- NS_params
+    species_params <- NS_species_params
+    species_params$alpha <- 0.1
+    params@species_params <- species_params
+    gamma_default <- get_gamma_default(params)
+    # Compare to the analytic result
+    lm2 <- params@lambda - 2
+    ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
+        exp(lm2^2 * species_params$sigma^2 / 2) *
+        # The factor on the following lines takes into account the cutoff
+        # of the integral at 0 and at beta + 3 sigma
+        (pnorm(3 - lm2 * species_params$sigma) + 
+             pnorm(log(species_params$beta)/species_params$sigma + 
+                       lm2 * species_params$sigma) - 1)
+    if (!"h" %in% names(params@species_params) || 
+        any(is.na(species_params$h))) {
+        species_params$h <- get_h_default(params)
+    }
+    gamma_analytic <- (species_params$h / (params@kappa * ae)) * 
+        (params@f0 / (1 - params@f0))
+    expect_equal(gamma_default/ gamma_analytic, rep(1, length(gamma_default)))
+})

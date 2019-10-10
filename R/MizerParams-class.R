@@ -1056,6 +1056,8 @@ setParams <- function(params,
                        mu_b = mu_b,
                        z0pre = z0pre,
                        z0exp = z0exp)
+    # setSearchVolume() should be called only after 
+    # setIntakeMax() and setPredKernel()
     params <- setSearchVolume(params,
                               search_vol = search_vol,
                               q = q)
@@ -2683,7 +2685,8 @@ get_h_default <- function(params) {
     missing <- is.na(species_params$h)
     if (any(missing)) {
         assert_that(is.number(params@f0),
-                    noNA(species_params$alpha))
+                    noNA(species_params$alpha),
+                    !is.null(species_params$alpha))
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(species_params))) {
             stop("\tExcept I can't because there is no k_vb column in the species data frame")
@@ -2744,26 +2747,27 @@ get_gamma_default <- function(params) {
     }
     missing <- is.na(species_params$gamma)
     if (any(missing)) {
-        if (!all(params@species_params$pred_kernel_type == "lognormal")) {
-            stop("Calculation of a default for gamma has not yet been implemented for kernels that are not lognormal, so you will have to supply a gamma column in the species_params data frame.")
-        }
         assert_that(is.number(params@lambda),
                     is.number(params@kappa),
                     is.number(params@f0))
-        message("Note: Using f0, h, beta, sigma, lambda and kappa to calculate gamma.")
-        lm2 <- params@lambda - 2
-        ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
-            exp(lm2^2 * species_params$sigma^2 / 2) *
-            # The factor on the following lines takes into account the cutoff
-            # of the integral at 0 and at beta + 3 sigma
-            (pnorm(3 - lm2 * species_params$sigma) + 
-                 pnorm(log(species_params$beta)/species_params$sigma + 
-                           lm2 * species_params$sigma) - 1)
+        message("Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) || 
             any(is.na(species_params$h))) {
             species_params$h <- get_h_default(params)
         }
-        gamma_default <- (species_params$h / (params@kappa * ae)) * 
+        # Calculate available energy by setting search_volume
+        # coefficient to 1
+        params@species_params$gamma <- 1
+        params <- setSearchVolume(params)
+        # and setting a power-law prey spectrum
+        params@initial_n[] <- 0
+        params <- set_species_param_default(params, "interaction_p", 1)
+        params@initial_n_pp <- params@kappa * 
+            params@w_full^(-params@lambda)
+        avail_energy <- getEncounter(params)[, length(params@w)] /
+            params@w[length(params@w)]^params@n
+        # Now set gamma so that this available energy leads to f0
+        gamma_default <- (species_params$h / avail_energy) * 
             (params@f0 / (1 - params@f0))
         # Only overwrite missing gammas with calculated values
         if (any(is.na(gamma_default[missing]))) {
