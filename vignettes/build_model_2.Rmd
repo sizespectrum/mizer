@@ -65,7 +65,7 @@ higher growth rate. There is also a change in the size distributions of the
 other species, due to the increased predation from species 5.
 
 One thing that has not changed much is the number of small individuals. This may
-surpise you. Given that there is so much more spawning stock biomass for species
+surprise you. Given that there is so much more spawning stock biomass for species
 5, shouldn't there be many more eggs? Yes, and as a consequence species 5 would
 have led to the competitive exclusion of other, less fast-growing species. We
 however wanted a coexistence steady state. Therefore the `steady()` function
