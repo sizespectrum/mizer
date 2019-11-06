@@ -82,12 +82,8 @@ getRates <- function(params, n = params@initial_n,
     r$e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B,
                               encounter = r$encounter,
                               feeding_level = r$feeding_level)
-    # Calculate the energy for reproduction
-    r$e_repro <- getERepro(params, n = n, n_pp = n_pp, B = B, e = r$e)
-    # Calculate the growth rate g_i(w)
-    r$e_growth <- getEGrowth(params, n = n, n_pp = n_pp, B = B, 
-                             e_repro = r$e_repro, e = r$e)
     
+    ## Calculate all mortalities, before negative e values are turned into zero in getERepro() and getEGrowth() functions
     # Calculate the predation rate
     r$pred_rate <- getPredRate(params, n = n, n_pp = n_pp, B = B,
                                feeding_level = r$feeding_level)
@@ -95,7 +91,16 @@ getRates <- function(params, n = params@initial_n,
     r$pred_mort <- getPredMort(params, pred_rate = r$pred_rate)
     # Calculate total mortality \mu_i(w)
     r$mort <- getMort(params, n = n, n_pp = n_pp, B = B, 
-                      effort = effort, m2 = r$pred_mort)
+                      effort = effort, m2 = r$pred_mort)    
+    
+    ##Now calculate energy for growth and reproduction
+    # Calculate the energy for reproduction
+    r$e_repro <- getERepro(params, n = n, n_pp = n_pp, B = B, e = r$e)
+    # Calculate the growth rate g_i(w)
+    r$e_growth <- getEGrowth(params, n = n, n_pp = n_pp, B = B, 
+                             e_repro = r$e_repro, e = r$e)
+    
+
     # Calculate mortality on the plankton spectrum
     r$plankton_mort <- getPlanktonMort(params, n = n, n_pp = n_pp, B = B,
                                        pred_rate = r$pred_rate)
@@ -592,6 +597,42 @@ getPlanktonMort <-
 #' @export
 getM2Background <- getPlanktonMort
 
+#' Get starvation mortality 
+#' 
+#' Calculates starvation mortality based on the equation in the original mizer vingette. Starvation mortality is proportional to the energy defficiency and is inversely proportional to body weight (and
+#' therefore also lipid reserves). \eqn{\mu_S(w)} The weight proportionality constant is currently set
+#' to 0.1, but could be a separate parameter. The 0.1 constant means that the instantaneous starvation
+#' mortality is 1 when energy deficit is equal individual's body mass. 
+#' 
+#' @param object A \code{MizerParams} object.
+#' @param n A matrix of species abundance (species x size).
+#' @param n_pp A vector of the plankton abundance by size.
+#' @param e The energy available for reproduction and growth (optional). A
+#'   matrix of size no. species x no. size bins. If not supplied, is calculated
+#'   internally using the \code{getEReproAndGrowth()} method. 
+#'
+#' @return A two dimensional array of instantaneous starvation mortality (species x size). 
+getSMort <- function(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp = n_pp)){
+  
+  if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
+    stop("e argument must have dimensions: no. species (",
+         nrow(object@species_params), ") x no. size bins (",
+         length(object@w), ")")
+  }
+  
+  mu_S <- e # assign net energy to the initial starvation mortality matrix
+  
+  x <- t(t(mu_S)/(0.1*object@w)) # apply the mortality formula to the whole matrix
+  #remember, 0.1 is a parameter here, which is a scaling constant on how negative e translates to starvation mortality. For a 100g fish with a negative e of -1, it will give starvation value of 0.1. For a 10 g fish with e of -1, it will give mortality of 1. This seems reasonable for a start, but a more conmplex relationship could be explored in the future 
+  
+  mu_S[mu_S<0] <- x[x<0] # replace the negative values of e by the starvation mortality
+  mu_S[mu_S>0] <- 0 # replace the positive values of e by 0
+  mu_S = - mu_S # mu_S above returns negative mortality values, because negative e is divided by weight. So to get the actual mortality we turn them into positive values 
+
+    return(mu_S)
+}
+
+
 #' Get the fishing mortality by time, gear, species and size
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
@@ -824,7 +865,9 @@ getMort <- function(params, n = params@initial_n,
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-    return(m2 + params@mu_b + getFMort(params, effort = effort))
+## Add starvation mortality to the total mortality 
+     return(m2 + params@mu_b + getFMort(params, effort = effort) + setSMort(params, n=n, n_pp = n_pp))
+
 }
 
 #' Alias for getMort
@@ -902,7 +945,8 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
                params@species_params$alpha, "*", check.margin = FALSE)
     # Subtract metabolism
     e <- e - params@metab
-    e[e < 0] <- 0 # Do not allow negative growth
+    # in order to apply starvation mortality we need to return the actual positive or negative e here
+    #e[e < 0] <- 0 # Do not allow negative growth
     return(e)
 }
 
@@ -948,6 +992,8 @@ getERepro <- function(params, n = params@initial_n,
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
+   #Because getEReproAndGrowth now can return negative values, we add an extra line here 
+    e[e < 0] <- 0 # Do not allow negative growth
     e_repro <- params@psi * e
     return(e_repro)
 }
@@ -1009,6 +1055,8 @@ getEGrowth <- function(params, n = params@initial_n,
     }
     # Assimilated intake less activity and metabolism
     # energy for growth is intake - energy for reproduction
+    #Because getEReproAndGrowth now can return negative values, we add an extra line here 
+    e[e < 0] <- 0 # Do not allow negative growth
     e_growth <- e - e_repro
     return(e_growth)
 }
