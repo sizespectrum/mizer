@@ -610,8 +610,11 @@ getM2Background <- getPlanktonMort
 #' @param e The energy available for reproduction and growth (optional). A
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using the \code{getEReproAndGrowth()} method. 
-#'
-#' @return A two dimensional array of instantaneous starvation mortality (species x size). 
+#' @return A two dimensional array of instantaneous starvation mortality (species x size).  
+#' @note   The function currently uses 0.1 as a scaling constant on how negative e translates to starvation mortality. For a 100g fish with a negative e of -1, it will give instantaneous starvation mortality of 0.1/year. For a 10 g fish with e of -1, it will give mortality of 1. So the energy deficit equal to 10% of weight will result in 1/year starvation mortality at that time step. This seems reasonable for a start but it might make sense to turn 0.1 into a species specific parameter eventually. Using larger value (say, 0.2 instead of 0.1) will decrease the mortality rate for the same level of energy deficit (if the value is 0.2 then instantaneous mortality at 10% deficit is 0.5/year and not 1/year)
+#' @export
+#' @family rate functions
+#' 
 getSMort <- function(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp = n_pp)){
   
   if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
@@ -623,8 +626,7 @@ getSMort <- function(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp
   mu_S <- e # assign net energy to the initial starvation mortality matrix
   
   x <- t(t(mu_S)/(0.1*object@w)) # apply the mortality formula to the whole matrix
-  #remember, 0.1 is a parameter here, which is a scaling constant on how negative e translates to starvation mortality. For a 100g fish with a negative e of -1, it will give starvation value of 0.1. For a 10 g fish with e of -1, it will give mortality of 1. This seems reasonable for a start, but a more conmplex relationship could be explored in the future 
-  
+
   mu_S[mu_S<0] <- x[x<0] # replace the negative values of e by the starvation mortality
   mu_S[mu_S>0] <- 0 # replace the positive values of e by 0
   mu_S = - mu_S # mu_S above returns negative mortality values, because negative e is divided by weight. So to get the actual mortality we turn them into positive values 
@@ -866,7 +868,7 @@ getMort <- function(params, n = params@initial_n,
              length(params@w), ")")
     }
 ## Add starvation mortality to the total mortality 
-     return(m2 + params@mu_b + getFMort(params, effort = effort) + setSMort(params, n=n, n_pp = n_pp))
+     return(m2 + params@mu_b + getFMort(params, effort = effort) + getSMort(params, n=n, n_pp = n_pp))
 
 }
 
