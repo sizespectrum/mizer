@@ -286,6 +286,8 @@ project <- function(object, effort,
         r <- getRates(params, n = n, n_pp = n_pp, B = B,
                       effort = effort_dt[i_time,])
         
+        # Update time
+        t <- t + dt
         # Update unstructured resource biomasses
         B_current <- B  # So that the plankton dynamics can still use the 
                         # current value
@@ -298,6 +300,7 @@ project <- function(object, effort,
                         n_pp = n_pp,
                         B = B_current,
                         rates = r,
+                        t = t,
                         dt = dt
                     )
             }
@@ -305,7 +308,8 @@ project <- function(object, effort,
         
         # Update plankton
         n_pp <- params@plankton_dynamics(params, n = n, n_pp = n_pp, 
-                                         B = B_current, rates = r, dt = dt)
+                                         B = B_current, rates = r, 
+                                         t = t, dt = dt)
         
         # Iterate species one time step forward:
         # See Ken's PDF
@@ -337,8 +341,6 @@ project <- function(object, effort,
                                 A = a, B = b, S = S,
                                 w_min_idx = sim@params@w_min_idx)
         
-        # Update time
-        t <- t + dt
         # Store results only every t_step steps.
         store <- t_dimnames_index %in% (i_time + 1)
         if (any(store)) {
