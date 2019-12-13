@@ -78,7 +78,7 @@ abundance there is very little backreaction from the background species, and
 therefore we are in a regime where we understand the steady-state size
 distribution of the species analytically. Therefore mizer was able to find
 initial values for the size distributions that are close to steady state
-values. Wh see that little changes as we run the system to steady state:
+values. We see that little changes as we run the system to steady state:
 ```{r}
 params <- steady(params)
 plotSpectra(params, power = 2, total = TRUE, 

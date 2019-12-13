@@ -1452,19 +1452,19 @@ markBackground <- function(object, species) {
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
-#' @param t_per The simulation is broken up into shorter runs of t_per years,
+#' @param t_per The simulation is broken up into shorter runs of `t_per` years,
 #'   after each of which we check for convergence. Default value is 7.5. This
 #'   should be chosen as an odd multiple of the timestep `dt` in order to be
 #'   able to detect period 2 cycles.
 #' @param tol The simulation stops when the relative change in the egg
-#'   production RDI over t_per years is less than tol for every background
+#'   production RDI over `t_per years` is less than `tol` for every background
 #'   species. Default value is 1/100.
-#' @param dt The time step to use in `project()`
+#' @param dt The time step to use in `project()`.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
-#' @param progress_bar A shiny progress object to implement 
-#'   a progress bar in a shiny app. Default FALSE
+#' @param progress_bar A shiny progress object to implement
+#'   a progress bar in a shiny app. Default FALSE.
 #' @export
 #' @md
 #' @examples
