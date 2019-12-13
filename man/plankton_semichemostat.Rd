@@ -4,7 +4,7 @@
 \alias{plankton_semichemostat}
 \title{Project plankton using semichemostat model}
 \usage{
-plankton_semichemostat(params, n, n_pp, B, rates, dt, ...)
+plankton_semichemostat(params, n, n_pp, B, rates, t, dt, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -16,6 +16,8 @@ plankton_semichemostat(params, n, n_pp, B, rates, dt, ...)
 \item{B}{The biomass of detritus}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
+
+\item{t}{The current time}
 
 \item{dt}{Time step}
 
