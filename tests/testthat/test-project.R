@@ -191,6 +191,10 @@ test_that("time dimension is dealt with properly", {
                  length(seq(from = start_year, to = end_year, by = t_save)))
     expect_identical(dimnames(sim@effort)[[1]],
                      as.character(seq(from = start_year, to = end_year, by = t_save)))
+    
+    ## No effort argument but t_start
+    sim <- project(params, t_start = 2019, t_max = 2, dt = 1)
+    expect_equal(dimnames(sim@n)$time, c("2019", "2020", "2021"))
 })
 
 
