@@ -177,6 +177,12 @@ can graze. (#46)
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
 * The `ylim` argument is not handled correctly in plots.
 * `display_frame()` is now exported.
+* plotGrowthCurves() and getGrowthCurves() also works when there is only a 
+  single species
+* t_start argument in project() is used correctly
+* times are not truncated at 3 significant figures, because that would not allow
+  something like 2019.
+* get_initial_n() gets values for n and q from params object
   
 ## Under the hood
 
