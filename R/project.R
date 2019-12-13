@@ -134,7 +134,6 @@ project <- function(object, effort,
         if (missing(initial_n))       initial_n <- params@initial_n
         if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
         if (missing(initial_B))       initial_B <- params@initial_B
-        t_start <- 0
     }
     params@initial_n[] <- initial_n
     params@initial_n_pp[] <- initial_n_pp
@@ -174,9 +173,9 @@ project <- function(object, effort,
                         ") do not match those in the effort vector."))
         }
         # Set up the effort array transposed so we can use the recycling rules
-        time_dimnames <- signif(seq(from = t_start, 
-                                    to = t_start + t_max, 
-                                    by = dt), 3)
+        time_dimnames <- seq(from = t_start, 
+                             to = t_start + t_max, 
+                             by = dt)
         effort <- t(array(effort, dim = c(no_gears, length(time_dimnames)), 
                           dimnames = list(gear = effort_gear_names, 
                                           time = time_dimnames)))
@@ -407,8 +406,8 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     dimnames(initial_n) <- dimnames(params@intake_max)
     # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
     # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-    n <- (log(params@intake_max[,1] / params@species_params$h) / log(params@w[1]))[1]
-    q <- (log(params@search_vol[,1] / params@species_params$gamma) / log(params@w[1]))[1]
+    n <- params@n
+    q <- params@q
     # Guessing at a suitable n0 value based on kappa - this was figured out using trial and error and should be updated
     if (is.null(n0_mult)) {
         lambda <- 2 + q - n
