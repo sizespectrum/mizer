@@ -298,6 +298,13 @@ GitHub. To do that, you click on the "Push" button on the toolbar of
 the "Git" pane, the one that looks like an up arrow. A window will pop up that
 will confirm if that push worked alright. You can then close that window.
 
+After you have pushed your changes, you will be able to see them also on GitHub.
+If you go to the home page of your GitHub repository you will see a comment
+that you made a commit a little while ago:
+<center>
+![](images/recently_pushed.png){width=80%}
+</center>
+
 It may be that you have several computers on which you work an you can have a
 local repository on every one of them. In that scenario, it may be that you 
 have pushed changes onto your GitHub repository from another computer. You will
@@ -309,10 +316,6 @@ this will generally go smoothly. Only in the case where you have edited the
 same lines of the same file on different machines can you run into conflicts
 that git can not resolve automatically. In order to avoid such conflicts,
 you should pull and push frequently.
-
-After you have pushed your changes, you will be able to see them also on GitHub.
-If you go to the home page of your GitHub repository you will see a comment
-that you made a commit a little while ago.
 
 
 ## Making a pull request
