@@ -8,9 +8,9 @@ setParams(params, interaction = NULL, pred_kernel = NULL,
   search_vol = NULL, q = params@q, f0 = params@f0,
   intake_max = NULL, n = params@n, metab = NULL, p = params@p,
   mu_b = NULL, z0pre = 0.6, z0exp = n - 1, maturity = NULL,
-  repro_prop = NULL, srr = params@srr, kappa = params@kappa,
-  lambda = params@lambda, r_pp = 10, w_pp_cutoff = 10,
-  plankton_dynamics = NULL,
+  repro_prop = NULL, srr = params@srr, rr_pp = NULL, cc_pp = NULL,
+  r_pp = 10, kappa = params@kappa, lambda = params@lambda,
+  w_pp_cutoff = 10, plankton_dynamics = NULL,
   resource_dynamics = params@resource_dynamics,
   resource_params = params@resource_params, rho = NULL,
   initial_effort = NULL)
@@ -74,17 +74,21 @@ described in the section "Setting reproduction".}
 \item{srr}{The name of the stock recruitment function. Defaults to 
 \code{\link{srrBevertonHolt}}.}
 
-\item{kappa}{Carrying capacity of the plankton spectrum.}
+\item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
 
-\item{lambda}{Exponent of the plankton spectrum.}
+\item{cc_pp}{Optional. Vector of plankton intrinsic carrying capacity}
 
-\item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
+\item{r_pp}{Coefficient of the intrinsic growth rate}
+
+\item{kappa}{Coefficient of the intrinsic carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
 
-\item{plankton_dynamics}{Name of function that determines plankton dynamics
-by calculating the plankton spectrum at the next time step from the current
+\item{plankton_dynamics}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
 state.}
 
 \item{resource_dynamics}{A named list of functions that determine the
@@ -499,7 +503,27 @@ an effort that varies through time.
 
 \section{Setting plankton dynamics}{
 
-Still need to document
+By default, mizer uses a semichemostat model to describe the plankton
+dynamics in each size class independently. This semichemostat dynamics is implemented
+by the function \code{\link{plankton_semichemostat}}. You can change the
+plankton dynamics by writing your own function, modelled on
+\code{\link{plankton_semichemostat}}, and then passing the name of your
+function in the \code{plankton_dynamics} argument.
+
+The \code{rr_pp} argument is a vector specifying the intrinsic plankton
+growth rate for each size class. If it is not supplied, then the intrinsic growth
+rate \eqn{r_p(w)} at size \eqn{w}
+is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
+The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
+and \code{n} arguments.
+
+The \code{cc_pp} argument is a vector specifying the intrinsic plankton
+carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
+capacity \eqn{c_p(w)} at size \eqn{w}
+is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
+for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
+The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
+and \code{lambda} arguments.
 }
 
 \section{Setting resource dynamics}{
