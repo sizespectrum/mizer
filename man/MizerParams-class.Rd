@@ -83,7 +83,7 @@ growth rate of the plankton spectrum. Changed with \code{\link{setPlankton}}.}
 carrying capacity of the plankton spectrum. Changed with 
 \code{\link{setPlankton}}.}
 
-\item{\code{plankton_dynamics}}{A function for projecting the plankton abundance
+\item{\code{plankton_dynamics}}{Name of the function for projecting the plankton abundance
 density by one timestep. The default is 
 \code{\link{plankton_semichemostat}}. 
 Changed with \code{\link{setPlankton}}.}

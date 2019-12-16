@@ -7,12 +7,12 @@
 MizerParams(species_params, interaction = matrix(1, nrow =
   nrow(species_params), ncol = nrow(species_params)), no_w = 100,
   min_w = 0.001, max_w = NA, min_w_pp = NA, no_w_pp = NA,
-  n = 2/3, p = 0.7, q = 0.8, kappa = 1e+11, lambda = (2 + q - n),
-  f0 = 0.6, pred_kernel = NULL, search_vol = NULL,
-  intake_max = NULL, metab = NULL, mu_b = NULL, z0pre = 0.6,
-  z0exp = n - 1, maturity = NULL, repro_prop = NULL,
-  srr = "srrBevertonHolt", r_pp = 10, w_pp_cutoff = 10,
-  plankton_dynamics = plankton_semichemostat,
+  n = 2/3, p = 0.7, q = 0.8, f0 = 0.6, pred_kernel = NULL,
+  search_vol = NULL, intake_max = NULL, metab = NULL, mu_b = NULL,
+  z0pre = 0.6, z0exp = n - 1, maturity = NULL, repro_prop = NULL,
+  srr = "srrBevertonHolt", rr_pp = NULL, cc_pp = NULL, r_pp = 10,
+  kappa = 1e+11, lambda = (2 + q - n), w_pp_cutoff = 10,
+  plankton_dynamics = "plankton_semichemostat",
   resource_dynamics = list(), resource_params = list(), rho = NULL,
   initial_effort = NULL)
 }
@@ -44,10 +44,6 @@ be logarithmically equally spaced.}
 
 \item{q}{Exponent of the allometric search volume. Not needed if a
 \code{search_vol} array is specified.}
-
-\item{kappa}{Carrying capacity of the plankton spectrum.}
-
-\item{lambda}{Exponent of the plankton spectrum.}
 
 \item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
 if those are not columns in the species data frame. Also requires
@@ -94,7 +90,15 @@ described in the section "Setting reproduction".}
 \item{srr}{The name of the stock recruitment function. Defaults to 
 \code{\link{srrBevertonHolt}}.}
 
-\item{r_pp}{Growth rate of the primary productivity. Default is 10 g/year.}
+\item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
+
+\item{cc_pp}{Optional. Vector of plankton intrinsic carrying capacity}
+
+\item{r_pp}{Coefficient of the intrinsic growth rate}
+
+\item{kappa}{Coefficient of the intrinsic carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
@@ -493,7 +497,27 @@ an effort that varies through time.
 
 \section{Setting plankton dynamics}{
 
-Still need to document
+By default, mizer uses a semichemostat model to describe the plankton
+dynamics in each size class independently. This semichemostat dynamics is implemented
+by the function \code{\link{plankton_semichemostat}}. You can change the
+plankton dynamics by writing your own function, modelled on
+\code{\link{plankton_semichemostat}}, and then passing the name of your
+function in the \code{plankton_dynamics} argument.
+
+The \code{rr_pp} argument is a vector specifying the intrinsic plankton
+growth rate for each size class. If it is not supplied, then the intrinsic growth
+rate \eqn{r_p(w)} at size \eqn{w}
+is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
+The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
+and \code{n} arguments.
+
+The \code{cc_pp} argument is a vector specifying the intrinsic plankton
+carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
+capacity \eqn{c_p(w)} at size \eqn{w}
+is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
+for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
+The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
+and \code{lambda} arguments.
 }
 
 \section{Setting resource dynamics}{

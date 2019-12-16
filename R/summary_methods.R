@@ -451,8 +451,8 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     # Length of background? 
     cat("Plankton size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full)), "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full), "\n", sep = "")
+    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), "\n", sep = "")
+    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     # w range - min, max, number of w
     # w background min max
     # no species and names and wInf,  - not all these wMat, beta, sigma
