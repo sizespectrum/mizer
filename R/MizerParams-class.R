@@ -286,7 +286,7 @@ validMizerParams <- function(object) {
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum. Changed with 
 #'   \code{\link{setPlankton}}.
-#' @slot plankton_dynamics A function for projecting the plankton abundance
+#' @slot plankton_dynamics Name of the function for projecting the plankton abundance
 #'   density by one timestep. The default is 
 #'   \code{\link{plankton_semichemostat}}. 
 #'   Changed with \code{\link{setPlankton}}.
@@ -371,7 +371,7 @@ setClass(
         rr_pp = "numeric",
         cc_pp = "numeric",
         resource_dynamics = "list",
-        plankton_dynamics = "function",
+        plankton_dynamics = "character",
         resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -698,7 +698,7 @@ emptyParams <- function(species_params,
         interaction = interaction,
         srr = "srrBevertonHolt",
         resource_dynamics = list(),
-        plankton_dynamics = plankton_semichemostat,
+        plankton_dynamics = "plankton_semichemostat",
         resource_params = list(),
         initial_B = vector(mode = "numeric"),
         A = as.numeric(rep(NA, no_sp)),
@@ -787,8 +787,6 @@ set_multispecies_model <- function(species_params,
                                    n = 2 / 3,
                                    p = 0.7,
                                    q = 0.8,
-                                   kappa = 1e11,
-                                   lambda = (2 + q - n),
                                    f0 = 0.6,
                                    # setPredKernel()
                                    pred_kernel = NULL,
@@ -807,9 +805,13 @@ set_multispecies_model <- function(species_params,
                                    repro_prop = NULL,
                                    srr = "srrBevertonHolt",
                                    # setPlankton
+                                   rr_pp = NULL,
+                                   cc_pp = NULL,
                                    r_pp = 10,
+                                   kappa = 1e11,
+                                   lambda = (2 + q - n),
                                    w_pp_cutoff = 10,
-                                   plankton_dynamics = plankton_semichemostat,
+                                   plankton_dynamics = "plankton_semichemostat",
                                    # setResourceDynamics
                                    resource_dynamics = list(),
                                    resource_params = list(),
@@ -857,9 +859,11 @@ set_multispecies_model <- function(species_params,
                         repro_prop = repro_prop,
                         srr = srr,
                         # setPlankton
+                        rr_pp = rr_pp,
+                        cc_pp = cc_pp,
+                        r_pp = r_pp,
                         kappa = kappa,
                         lambda = lambda,
-                        r_pp = r_pp,
                         w_pp_cutoff = w_pp_cutoff,
                         plankton_dynamics = plankton_dynamics,
                         # setResourceDynamics
@@ -1028,9 +1032,11 @@ setParams <- function(params,
                       repro_prop = NULL,
                       srr = params@srr,
                       # setPlankton
+                      rr_pp = NULL,
+                      cc_pp = NULL,
+                      r_pp = 10,
                       kappa = params@kappa,
                       lambda = params@lambda,
-                      r_pp = 10,
                       w_pp_cutoff = 10,
                       plankton_dynamics = NULL,
                       # setResourceDynamics
@@ -1064,9 +1070,11 @@ setParams <- function(params,
                               repro_prop = repro_prop,
                               srr = srr)
     params <- setPlankton(params,
+                          rr_pp = rr_pp,
+                          cc_pp = cc_pp,
+                          r_pp = r_pp,
                           kappa = kappa,
                           lambda = lambda,
-                          r_pp = r_pp,
                           w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
     params <- setResourceDynamics(params,
@@ -1849,13 +1857,40 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
 
 #' Set up plankton
 #' 
+#' Sets the intrinsic plankton growth rate and the intrinsic plankton carrying
+#' capacity as well as the name of the function used to simulate the plankton
+#' dynamics
+#' 
 #' @section Setting plankton dynamics:
-#' Still need to document
+#' By default, mizer uses a semichemostat model to describe the plankton
+#' dynamics in each size class independently. This semichemostat dynamics is implemented
+#' by the function \code{\link{plankton_semichemostat}}. You can change the
+#' plankton dynamics by writing your own function, modelled on
+#' \code{\link{plankton_semichemostat}}, and then passing the name of your
+#' function in the \code{plankton_dynamics} argument.
+#' 
+#' The \code{rr_pp} argument is a vector specifying the intrinsic plankton
+#' growth rate for each size class. If it is not supplied, then the intrinsic growth
+#' rate \eqn{r_p(w)} at size \eqn{w}
+#' is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
+#' The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
+#' and \code{n} arguments.
+#' 
+#' The \code{cc_pp} argument is a vector specifying the intrinsic plankton
+#' carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
+#' capacity \eqn{c_p(w)} at size \eqn{w}
+#' is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
+#' for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
+#' The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
+#' and \code{lambda} arguments.
 #' 
 #' @param params A MizerParams object
-#' @param kappa Carrying capacity of the plankton spectrum.
-#' @param lambda Exponent of the plankton spectrum.
-#' @param r_pp Growth rate of the primary productivity. Default is 10 g/year.
+#' @param rr_pp Optional. Vector of plankton intrinsic growth rates
+#' @param cc_pp Optional. Vector of plankton intrinsic carrying capacity
+#' @param r_pp Coefficient of the intrinsic growth rate
+#' @param n Scaling exponent of the intrinsic growth rate
+#' @param kappa Coefficient of the intrinsic carrying capacity
+#' @param lambda Scaling exponent of the intrinsic carrying capacity
 #' @param w_pp_cutoff The upper cut off size of the plankton spectrum. 
 #'   Default is 10 g.
 #' @param plankton_dynamics Function that determines plankton dynamics by
@@ -1866,9 +1901,12 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
 #' @export
 #' @family functions for setting parameters
 setPlankton <- function(params,
+                        rr_pp = NULL,
+                        cc_pp = NULL,
+                        r_pp = 10,
+                        n = params@n,
                         kappa = params@kappa,
                         lambda = params@lambda,
-                        r_pp = 10, 
                         w_pp_cutoff = 10,
                         plankton_dynamics = NULL) {
     assert_that(is(params, "MizerParams"),
@@ -1880,12 +1918,27 @@ setPlankton <- function(params,
     params@kappa <- kappa
     params@lambda <- lambda
     # weight specific plankton growth rate
-    params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
+    if (!is.null(rr_pp)) {
+        assert_that(is.numeric(rr_pp),
+                    identical(length(rr_pp), length(params@rr_pp)))
+        params@rr_pp[] <- rr_pp
+    } else {
+        params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
+    }
     # the plankton carrying capacity
-    params@cc_pp[] <- kappa*params@w_full^(-lambda)
-    params@cc_pp[params@w_full > w_pp_cutoff] <- 0
+    if (!is.null(cc_pp)) {
+        assert_that(is.numeric(cc_pp),
+                    identical(length(cc_pp), length(params@cc_pp)))
+        params@cc_pp[] <- cc_pp
+    } else {
+        params@cc_pp[] <- kappa*params@w_full^(-lambda)
+        params@cc_pp[params@w_full > w_pp_cutoff] <- 0
+    }
     if (!is.null(plankton_dynamics)) {
-        assert_that(is.function(plankton_dynamics))
+        assert_that(is.character(plankton_dynamics))
+        if (!is.function(get0(plankton_dynamics))) {
+            error("The function ", plankton_dynamics, "is not defined.")
+        }
         params@plankton_dynamics <- plankton_dynamics
     }
     
@@ -2360,6 +2413,11 @@ upgradeParams <- function(params) {
         warning('The stock recruitment function has been set to "srrBevertonHolt".')
     }
     
+    if (is.function(params@plankton_dynamics)) {
+        params@plankton_dynamics <- "plankton_semichemostat"
+        warning('The plankton dynamics function has been set to "plankton_semichemostat".')
+    }
+    
     if (.hasSlot(params, "initial_effort")) {
         initial_effort <- params@initial_effort
     } else {
@@ -2404,9 +2462,6 @@ upgradeParams <- function(params) {
         message("The 'r_max' column has been renamed to 'R_max'.")
     }
     
-    # Does not yet deal with rr_pp and cc_pp slots because they will be 
-    # changed anyway when multiple size-structured resources are introduced.
-    
     pnew <- set_multispecies_model(
         params@species_params,
         interaction = params@interaction,
@@ -2418,6 +2473,8 @@ upgradeParams <- function(params) {
         n = params@n,
         p = params@p,
         q = params@q,
+        rr_pp = params@rr_pp,
+        cc_pp = params@cc_pp,
         kappa = params@kappa,
         lambda = params@lambda,
         f0 = params@f0,
