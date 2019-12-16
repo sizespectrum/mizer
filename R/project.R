@@ -246,6 +246,7 @@ project <- function(object, effort,
     no_sp <- nrow(sim@params@species_params) # number of species
     no_w <- length(sim@params@w) # number of fish size bins
     idx <- 2:no_w
+    plankton_dynamics_fn <- get(sim@params@plankton_dynamics)
     # Hacky shortcut to access the correct element of a 2D array using 1D notation
     # This references the egg size bracket for all species, so for example
     # n[w_minidx_array_ref] = n[,w_min_idx]
@@ -307,9 +308,9 @@ project <- function(object, effort,
         }
         
         # Update plankton
-        n_pp <- params@plankton_dynamics(params, n = n, n_pp = n_pp, 
-                                         B = B_current, rates = r, 
-                                         t = t, dt = dt)
+        n_pp <- plankton_dynamics_fn(params, n = n, n_pp = n_pp,
+                                     B = B_current, rates = r,
+                                     t = t, dt = dt)
         
         # Iterate species one time step forward:
         # See Ken's PDF

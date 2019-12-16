@@ -12,7 +12,7 @@ set_multispecies_model(species_params, interaction = matrix(1, nrow =
   intake_max = NULL, metab = NULL, mu_b = NULL, z0pre = 0.6,
   z0exp = n - 1, maturity = NULL, repro_prop = NULL,
   srr = "srrBevertonHolt", r_pp = 10, w_pp_cutoff = 10,
-  plankton_dynamics = plankton_semichemostat,
+  plankton_dynamics = "plankton_semichemostat",
   resource_dynamics = list(), resource_params = list(), rho = NULL,
   initial_effort = NULL)
 }
@@ -99,8 +99,8 @@ described in the section "Setting reproduction".}
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
 
-\item{plankton_dynamics}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+\item{plankton_dynamics}{Name of function that determines plankton dynamics
+by calculating the plankton spectrum at the next time step from the current
 state.}
 
 \item{resource_dynamics}{A named list of functions that determine the

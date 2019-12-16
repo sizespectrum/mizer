@@ -286,7 +286,7 @@ validMizerParams <- function(object) {
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
 #'   carrying capacity of the plankton spectrum. Changed with 
 #'   \code{\link{setPlankton}}.
-#' @slot plankton_dynamics A function for projecting the plankton abundance
+#' @slot plankton_dynamics Name of the function for projecting the plankton abundance
 #'   density by one timestep. The default is 
 #'   \code{\link{plankton_semichemostat}}. 
 #'   Changed with \code{\link{setPlankton}}.
@@ -371,7 +371,7 @@ setClass(
         rr_pp = "numeric",
         cc_pp = "numeric",
         resource_dynamics = "list",
-        plankton_dynamics = "function",
+        plankton_dynamics = "character",
         resource_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -698,7 +698,7 @@ emptyParams <- function(species_params,
         interaction = interaction,
         srr = "srrBevertonHolt",
         resource_dynamics = list(),
-        plankton_dynamics = plankton_semichemostat,
+        plankton_dynamics = "plankton_semichemostat",
         resource_params = list(),
         initial_B = vector(mode = "numeric"),
         A = as.numeric(rep(NA, no_sp)),
@@ -809,7 +809,7 @@ set_multispecies_model <- function(species_params,
                                    # setPlankton
                                    r_pp = 10,
                                    w_pp_cutoff = 10,
-                                   plankton_dynamics = plankton_semichemostat,
+                                   plankton_dynamics = "plankton_semichemostat",
                                    # setResourceDynamics
                                    resource_dynamics = list(),
                                    resource_params = list(),
@@ -1858,8 +1858,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
 #' @param r_pp Growth rate of the primary productivity. Default is 10 g/year.
 #' @param w_pp_cutoff The upper cut off size of the plankton spectrum. 
 #'   Default is 10 g.
-#' @param plankton_dynamics Function that determines plankton dynamics by
-#'   calculating the plankton spectrum at the next time step from the current
+#' @param plankton_dynamics Name of function that determines plankton dynamics
+#'   by calculating the plankton spectrum at the next time step from the current
 #'   state.
 #' 
 #' @return A MizerParams object
@@ -1885,7 +1885,10 @@ setPlankton <- function(params,
     params@cc_pp[] <- kappa*params@w_full^(-lambda)
     params@cc_pp[params@w_full > w_pp_cutoff] <- 0
     if (!is.null(plankton_dynamics)) {
-        assert_that(is.function(plankton_dynamics))
+        assert_that(is.character(plankton_dynamics))
+        if (!is.function(get0(plankton_dynamics))) {
+            error("The function ", plankton_dynamics, "is not defined.")
+        }
         params@plankton_dynamics <- plankton_dynamics
     }
     
@@ -2358,6 +2361,11 @@ upgradeParams <- function(params) {
     if (is.function(params@srr)) {
         params@srr <- "srrBevertonHolt"
         warning('The stock recruitment function has been set to "srrBevertonHolt".')
+    }
+    
+    if (is.function(params@plankton_dynamics)) {
+        params@plankton_dynamics <- "plankton_semichemostat"
+        warning('The plankton dynamics function has been set to "plankton_semichemostat".')
     }
     
     if (.hasSlot(params, "initial_effort")) {

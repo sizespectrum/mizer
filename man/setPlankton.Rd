@@ -19,8 +19,8 @@ setPlankton(params, kappa = params@kappa, lambda = params@lambda,
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
 
-\item{plankton_dynamics}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+\item{plankton_dynamics}{Name of function that determines plankton dynamics
+by calculating the plankton spectrum at the next time step from the current
 state.}
 }
 \value{
