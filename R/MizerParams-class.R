@@ -820,6 +820,12 @@ set_multispecies_model <- function(species_params,
                                    # setFishing
                                    initial_effort = NULL) {
     
+    ## For backwards compatibility, allow r_max instead of R_max
+    if (!("R_max" %in% names(species_params)) &&
+        "r_max" %in% names(species_params)) {
+        names(species_params)[names(species_params) == "r_max"] <- "R_max"
+    }
+    
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
                           no_w = no_w, 
