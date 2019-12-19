@@ -1526,7 +1526,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
             }
             extinct <- p@species_params$species[new_rdi < rdi_limit]
             stop(paste(extinct, collapse = ", "),
-                 "are going extinct.")
+                 " are going extinct.")
         }
         if (deviation < tol) {
             break
