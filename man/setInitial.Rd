@@ -9,7 +9,7 @@ setInitial(params, initial_n = params@initial_n,
   sim)
 }
 \arguments{
-\item{params}{A \code{MizerParams} object}
+\item{params}{A \code{\link{MizerParams}} object}
 
 \item{initial_n}{The initial abundances of species. A matrix with dimensions
 species x size. The order of species must be the same as in the MizerParams
@@ -26,9 +26,19 @@ supplied.}
 `initial_n_pp` and `initial_B` arguments are ignored and the information
 is taken from the last timestep of the simulation in `sim`.}
 }
+\value{
+A MizerParams object
+}
 \description{
 Sets the slots in the \code{MizerParams} object holding the initial
 abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
+}
+\examples{
+\dontrun{
+params <- NS_params
+sim <- project(params, t_max = 20, effort = 0.5)
+params <- setInitial(params, sim = sim)
+}
 }
 \seealso{
 Other functions for setting parameters: \code{\link{setBMort}()},

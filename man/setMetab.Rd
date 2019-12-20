@@ -40,6 +40,14 @@ coefficient of the maximum intake rate and is taken from the species
 parameter data frame in \code{params}.
 }
 
+\examples{
+\dontrun{
+params <- NS_params
+# Change activity coefficient for species 3
+params@species_params$k[3] <- 8
+params <- setMetab(params)
+}
+}
 \seealso{
 Other functions for setting parameters: \code{\link{setBMort}()},
   \code{\link{setFishing}()}, \code{\link{setInitial}()},

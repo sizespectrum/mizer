@@ -1467,6 +1467,12 @@ setSearchVolume <- function(params,
 #' @return A \code{MizerParams} object
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' \dontrun{
+#' params <- NS_params
+#' params@species_params$h[3] <- 35
+#' params <- setIntakeMax(params)
+#' }
 setIntakeMax <- function(params, 
                          intake_max = NULL, 
                          n = params@n) {
@@ -1526,6 +1532,13 @@ setIntakeMax <- function(params,
 #' @return MizerParams
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' \dontrun{
+#' params <- NS_params
+#' # Change activity coefficient for species 3
+#' params@species_params$k[3] <- 8
+#' params <- setMetab(params)
+#' }
 setMetab <- function(params, 
                      metab = NULL, 
                      p = params@p) {
@@ -1725,6 +1738,13 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
 #' @return The MizerParams object.
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' \dontrun{
+#' params <- NS_params
+#' # Change maturity size for species 3
+#' params@species_params$w_mat[3] <- 24
+#' params <- setReproduction(params)
+#' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
                             srr = params@srr) {
     assert_that(is(params, "MizerParams"),
@@ -2214,6 +2234,13 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' @export
 #' @md
 #' @family functions for setting parameters
+#' @examples
+#' \dontrun{
+#' params <- NS_params
+#' # Change knife edge size for species 1
+#' params@species_params$knife_edge_size[1] <- 15
+#' params <- setFishing(params)
+#' }
 setFishing <- function(params, initial_effort = NULL) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
@@ -2283,7 +2310,7 @@ setFishing <- function(params, initial_effort = NULL) {
 #' Sets the slots in the \code{MizerParams} object holding the initial
 #' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
 #'
-#' @param params A \code{MizerParams} object
+#' @param params A \code{\link{MizerParams}} object
 #' @param initial_n The initial abundances of species. A matrix with dimensions
 #'   species x size. The order of species must be the same as in the MizerParams
 #'   argument. Optional. Ignored if `sim` is supplied.
@@ -2295,8 +2322,16 @@ setFishing <- function(params, initial_effort = NULL) {
 #' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
 #'   `initial_n_pp` and `initial_B` arguments are ignored and the information
 #'   is taken from the last timestep of the simulation in `sim`.
+#'   
+#' @return A MizerParams object
 #' @export
 #' @family functions for setting parameters
+#' @examples
+#' \dontrun{
+#' params <- NS_params
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' params <- setInitial(params, sim = sim)
+#' }
 setInitial <- function(params,
                           initial_n = params@initial_n,
                           initial_n_pp = params@initial_n_pp,

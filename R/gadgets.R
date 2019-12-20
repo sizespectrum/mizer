@@ -276,7 +276,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             error = function(e) {
                 showModal(modalDialog(
                     title = "Invalid parameters",
-                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
+                    HTML(paste0("These parameter do not lead to an acceptable steady state. ",
                                 "Please choose other values.<br>",
                                 "The error message was:<br>", e)),
                     easyClose = TRUE

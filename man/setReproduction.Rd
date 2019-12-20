@@ -114,6 +114,14 @@ easily use these as models for writing your own functions.
 }
 }
 
+\examples{
+\dontrun{
+params <- NS_params
+# Change maturity size for species 3
+params@species_params$w_mat[3] <- 24
+params <- setReproduction(params)
+}
+}
 \seealso{
 Other functions for setting parameters: \code{\link{setBMort}()},
   \code{\link{setFishing}()}, \code{\link{setInitial}()},
