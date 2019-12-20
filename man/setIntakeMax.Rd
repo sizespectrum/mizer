@@ -39,6 +39,13 @@ column, if they are supplied.
 If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 }
 
+\examples{
+\dontrun{
+params <- NS_params
+params@species_params$h[3] <- 35
+params <- setIntakeMax(params)
+}
+}
 \seealso{
 Other functions for setting parameters: \code{\link{setBMort}()},
   \code{\link{setFishing}()}, \code{\link{setInitial}()},
