@@ -264,14 +264,10 @@ set_community_model <- function(max_w = 1e6,
         knife_is_min = knife_is_min,
         constant_recruitment = recruitment * rec_mult # to be used in the SRR
     )
-    # Set the recruitment function for constant recruitment
-    constant_recruitment <- function(rdi, species_params){
-        return(species_params$constant_recruitment)
-    }
-    com_params <- MizerParams(com_params_df, p=p, n=n,q=q, lambda = lambda, 
+    com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w, max_w = max_w, 
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
-    com_params@srr <- constant_recruitment
+    com_params@srr <- "srrConstant"
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
     # due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used
