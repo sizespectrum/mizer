@@ -34,11 +34,11 @@ relationships, the fishing selectivity functions and the parameters of the
 plankton spectrum.
 
 To avoid having to make a `MizerParams` object directly, the
-`set_community_model()` wrapper function, has been provided that conveniently
+`newCommunityParams()` wrapper function, has been provided that conveniently
 creates a `MizerParams` object specifically for a community model. The
 documentation for the function can be seen by entering:
-```{r label=help_set_community_model, eval=FALSE}
-?set_community_model
+```{r label=help_newCommunityParams, eval=FALSE}
+?newCommunityParams
 ```
 
 As can be seen in the help page, the function can take many arguments. We can
@@ -60,14 +60,14 @@ should be set so that the community spectrum is a continuation of the plankton
 spectrum. This can be done with trial and error.  A reasonable value for `alpha`
 is 0.2.
 
-The `set_community_model()` function is called by passing in the arguments by
+The `newCommunityParams()` function is called by passing in the arguments by
 name. Any parameter that is not passed in is set to the default value. For
 example, the following line sets up the parameters with `z0` = 0.1, `f0` = 0.7,
 `alpha` = 0.2 and `recruitment` = 4e7. All other parameters will have their
 default value:
 
 ```{r label=demo_comm_model_params}
-params <- set_community_model(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+params <- newCommunityParams(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
 ```
 
 Calling the function creates and returns an object of type `MizerParams`. We can
@@ -108,12 +108,12 @@ called *Community*, which has an asymptotic size of
 $`r params@species_params$w_inf[1]`$ and a preferred predator prey mass ratio of 
 $`r params@species_params$beta[1]`$. The `w_mat` parameter has been set to `NA` as
 it is not used when running a community model. These values have all been set by
-default using the `set_community_model()` function. If you want to set different
-values for these, you will need to call the `set_community_model()` function and
+default using the `newCommunityParams()` function. If you want to set different
+values for these, you will need to call the `newCommunityParams()` function and
 pass in the desired argument values.
 
 ## Running the community model {#sec:running_comm_model}
-By using the `set_community_model()` function we now have a `MizerParams` object
+By using the `newCommunityParams()` function we now have a `MizerParams` object
 that contains all the information we need about the model community. We can use
 this to perform a simulation and project the community through time. In the
 `mizer` package, projections are performed using the `project()` function. You can
@@ -160,13 +160,13 @@ is clearly a function of size, with the smallest sizes experiencing the
 highest levels of predation. The feeding level describes how satiated an
 individual is, with 0 being unfed, and 1 being full satiated. The feeding level
 at size will be strongly affected by the values of the `f0` and `alpha`
-arguments passed to the `set_community_model()` function. The plankton and
+arguments passed to the `newCommunityParams()` function. The plankton and
 community spectra are shown in the bottom panel of the plot (the plotted
 plankton spectrum has been truncated to make for a better plot, but really
 extends all the way back to $`r signif(params@w_full[1],3)`$ g). You can see
 that the community spectrum forms a continuum with the plankton spectrum. This
 is strongly affected by the level of fixed recruitment (the `recruitment`
-argument passed to `set_community_model()`).
+argument passed to `newCommunityParams()`).
 
 Note the hump in the biomass at the largest end of the community spectrum. This
 is because the size spectrum model can be broadly described as 'big things
@@ -214,7 +214,7 @@ It is possible to use the community model to simulate a trophic cascade.
 To do this we need to perform two simulations, one with fishing and one without.
 
 This means we need to consider how fishing is handled in `mizer`. The
-`set_community_model()` function automatically sets the fishing selectivity to
+`newCommunityParams()` function automatically sets the fishing selectivity to
 have a knife-edge shape, with only individuals larger than 1 kg selected (the
 size at the knife-edge can be changed by setting the `knife_edge_size`
 argument). Although it is possible to change the selectivity function, here we
@@ -222,7 +222,7 @@ will use the default knife-edge selectivity. We set up the parameter object
 exactly as before, but now we are explicitly setting the size at which
 individuals are selected by the fishing gear.
 ```{r label=set_comm_fishing}
-params_knife <- set_community_model(z0 = 0.1, recruitment = 4e7,
+params_knife <- newCommunityParams(z0 = 0.1, recruitment = 4e7,
     alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
 ```
 
@@ -280,12 +280,12 @@ The fishing pressure lowers the abundance of large fish (the decrease in relativ
 ## The impact of changing $\sigma$ {#sec:comm_model_change_sigma}
 
 As described above, the $\sigma$ parameter determines the width of the predator prey size preference. Here we take a look at how changing the value of $\sigma$ can affect the dynamics of the community.
-In the examples above, $\sigma$ is set in the `set_community_model()` function by default to a value of $`r params_knife@species_params$sigma[1]`$.
+In the examples above, $\sigma$ is set in the `newCommunityParams()` function by default to a value of $`r params_knife@species_params$sigma[1]`$.
 When projected through time, the community abundances converge to a stable equilibrium.
-What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into `set_community_model()`.
+What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into `newCommunityParams()`.
 
 ```{r label=comm_params_sigma1}
-params_sigma1 <- set_community_model(z0 = 0.1,
+params_sigma1 <- newCommunityParams(z0 = 0.1,
      f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
 ```
 

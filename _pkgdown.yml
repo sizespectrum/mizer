@@ -58,6 +58,8 @@ reference:
     for a description of these model types.
   contents:
   - newMultispeciesParams
+  - newCommunityParams
+  - newTraitParams
 - title: Interactively tuning a model
   contents:
   - tuneParams

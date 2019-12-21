@@ -346,8 +346,8 @@ validMizerParams <- function(object) {
 #'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #'   \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
-#'   \code{\link{set_community_model}}
-#'   \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
+#'   \code{\link{newCommunityParams}}
+#'   \code{\link{newTraitParams}} \code{\link{set_scaling_model}}
 #' @export
 setClass(
     "MizerParams",
@@ -771,7 +771,7 @@ emptyParams <- function(species_params,
 #' @inheritSection setResourceEncounter Setting resource encounter rate
 #'   
 #' @seealso \code{\link{project}}, \linkS4class{MizerSim},
-#'   \code{\link{set_community_model}}, \code{\link{set_trait_model}}
+#'   \code{\link{newCommunityParams}}, \code{\link{newTraitParams}}
 #' @export
 #' @family functions for setting up models
 #' @examples
@@ -1009,7 +1009,7 @@ newMultispeciesParams <- function(
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
-#' params <- set_trait_model()
+#' params <- newTraitParams()
 #' params@species_params$gamma[3] <- 1000
 #' params <- setParams(params)
 #' }
@@ -1128,7 +1128,7 @@ setParams <- function(params,
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
-#' params <- set_trait_model()
+#' params <- newTraitParams()
 #' interaction <- params@interaction
 #' interaction[1, 3] <- 0
 #' params <- setInteraction(params, interaction)
@@ -1410,7 +1410,7 @@ getPredKernel <- function(params) {
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
-#' params <- set_trait_model()
+#' params <- newTraitParams()
 #' params@species_params$gamma[3] <- 1000
 #' params <- setSearchVolume(params)
 #' }

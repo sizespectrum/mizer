@@ -8,8 +8,8 @@
 #' the mizer vignette where the corresponding model is described.
 #' \tabular{llll}{
 #'   Function name \tab Description \tab Section in vignette\cr
-#'   \code{\link{set_community_model}} \tab Community model \tab 5 \cr
-#'   \code{\link{set_trait_model}} \tab Trait-based model \tab 6 \cr
+#'   \code{\link{newCommunityParams}} \tab Community model \tab 5 \cr
+#'   \code{\link{newTraitParams}} \tab Trait-based model \tab 6 \cr
 #'   \code{\link{set_scaling_model}} \tab Scale-invariant Trait-based model 
 #'       \tab 7 \cr
 #' }
@@ -98,12 +98,12 @@ NULL
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+#' params <- newCommunityParams(f0=0.7, z0=0.2, recruitment=3e7)
 #' sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
 #' }
-set_community_model <- function(max_w = 1e6,
+newCommunityParams <- function(max_w = 1e6,
                                 min_w = 1e-3,
                                 z0 = 0.1,
                                 alpha = 0.2,
@@ -257,7 +257,7 @@ set_community_model <- function(max_w = 1e6,
 #'   Society V, Biological Sciences, 1682, 795-802.
 #' @examples
 #' \dontrun{
-#' trait_params <- set_trait_model(no_sp = 15)
+#' trait_params <- newTraitParams(no_sp = 15)
 #' init_pop <- get_initial_n(trait_params, n0_mult = 0.001)
 #' sim <- project(trait_params, effort = 0, t_max = 50, dt=0.2,
 #'     initial_n = init_pop, t_save = 1)
@@ -273,13 +273,13 @@ set_community_model <- function(max_w = 1e6,
 #' other_gears <- w_inf > 500
 #' gear_names <- rep("Industrial", no_sp)
 #' gear_names[other_gears] <- "Other"
-#' params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
+#' params_gear <- newTraitParams(no_sp = no_sp, min_w_inf = min_w_inf,
 #'     max_w_inf = max_w_inf, knife_edge_size = knife_edges, 
 #'     gear_names = gear_names)
 #' ## Only turn on Industrial fishery. Set effort of the Other gear to 0
 #' sim <- project(params_gear, t_max = 20, effort = c(Industrial = 1, Other = 0))
 #' }
-set_trait_model <- function(no_sp = 10,
+newTraitParams <- function(no_sp = 10,
                             min_w_inf = 10,
                             max_w_inf = 1e5,
                             no_w = 100,

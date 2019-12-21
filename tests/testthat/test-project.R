@@ -266,7 +266,7 @@ test_that("Gear checking and sorting is OK",{
     other_gears <- w_inf > 500
     gear_names <- rep("Industrial", no_sp)
     gear_names[other_gears] <- "Other"
-    params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+    params_gear <- newTraitParams(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
 	  gear_names <- dimnames(params_gear@catchability)[[1]]
     # Single vector of effort
   	sim <- project(params_gear, effort = 0.3, t_max = 10)

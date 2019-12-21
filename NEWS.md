@@ -42,7 +42,7 @@ parameters with the new functions
 * `setResourceEncounter()`
 
 The new function `setParams()` is a wrapper for all of the above functions
-and is also used when setting up a new model with `set_multispecies_model()`.
+and is also used when setting up a new model with `newMultispeciesParams()`.
 (#51)
 
 ## Modelling unstructured resources
@@ -236,23 +236,11 @@ can graze. (#46)
 
 ## Breaking changes
 
-* The default for `min_w_pp`, the smallest size of plankton, has changed in
-  `MizerParams()`, `set_trait_model()` and `set_community_model()`.
-  It used to be `w_min_pp = 1e-10`. Now the default is the smallest size at
-  which any of the species feeds. If your code relies on the old default, you
-  now need to supply the `w_min_pp = 1e-10` argument explicitly.
-* The default for `max_w`, the largest size in the model, has changed in
-  `MizerParams()` and `set_trait_model()`. It used to be 1.1 times the largest 
-  asymptotic size of any species in the model otherwise. The unnecessary factor
-  of 1.1 has now been removed. If your code relies on the old default, you now
-  need to set `w_max` explicitly.
 * Removed the `print_it` argument from plot functions.
 * plotFeedingLevel() now only plots the values within the size range of each
   species. If for some reason you want the old plots that show a feeding level
   also for sizes that the fish can never have, you need to supply an argument
   `all.sizes = TRUE`.
-* When no gear is specified for a species, the default is `knife_edge_gear`
-  rather than the species name.
 * The stock recruitment function is now specified by giving the name of the
   function, rather than the function itself.
 

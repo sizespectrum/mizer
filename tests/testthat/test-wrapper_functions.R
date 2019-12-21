@@ -10,10 +10,10 @@ test_that("Multiple gears work correctly in trait-based model", {
                     to = log10(max_w_inf), 
                     length = no_sp)
     knife_edges <- w_inf * 0.05
-    params <- set_trait_model(no_sp = no_sp, 
-                              min_w_inf = min_w_inf, 
-                              max_w_inf = max_w_inf, 
-                              knife_edge_size = knife_edges)
+    params <- newTraitParams(no_sp = no_sp, 
+                             min_w_inf = min_w_inf, 
+                             max_w_inf = max_w_inf, 
+                             knife_edge_size = knife_edges)
     expect_identical(params@species_params$knife_edge_size, 
                      knife_edges)
     # All gears fire
@@ -24,11 +24,11 @@ test_that("Multiple gears work correctly in trait-based model", {
         expect_true(all(fmg[10,1,i,params@w >= knife_edges[i]] == 1))
     }
     # Only the 4th gear fires
-    params <- set_trait_model(no_sp = no_sp, 
-                              min_w_inf = min_w_inf, 
-                              max_w_inf = max_w_inf, 
-                              knife_edge_size = knife_edges, 
-                              gear_names = 1:no_sp)
+    params <- newTraitParams(no_sp = no_sp, 
+                             min_w_inf = min_w_inf, 
+                             max_w_inf = max_w_inf, 
+                             knife_edge_size = knife_edges, 
+                             gear_names = 1:no_sp)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
     names(effort) = 1:no_sp
     sim2 <- project(params, t_max = 10, effort = effort)

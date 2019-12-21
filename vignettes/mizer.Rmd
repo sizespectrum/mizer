@@ -70,7 +70,7 @@ to specify explicitly. For example to set up a simple model (described
 more in the [Community Model](community_model.html) vignette) you can even let
 mizer choose all the parameters for you.
 ```{r}
-params <- set_community_model()
+params <- newCommunityParams()
 ```
 For a more complicated multi-species model you need to provide a data frame
 with some species parameters and an interaction matrix specifying which species

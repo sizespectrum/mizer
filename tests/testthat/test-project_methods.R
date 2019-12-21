@@ -469,7 +469,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
 
 # One species only ----
 test_that("project function returns objects of correct dimension when community only has one species",{
-    params <- set_community_model(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+    params <- newCommunityParams(z0 = 0.2, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
     t_max <- 50
     sim <- project(params, t_max = t_max, effort = 0)
     n <- array(sim@n[t_max + 1, , ], dim = dim(sim@n)[2:3])
