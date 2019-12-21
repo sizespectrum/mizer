@@ -140,9 +140,8 @@ test_that("min_w_pp is being set correctly", {
 # Test default values ----
 test_that("default for gamma is correct", {
     params <- NS_params
-    species_params <- NS_species_params
-    species_params$alpha <- 0.1
-    params@species_params <- species_params
+    params@species_params$alpha <- 0.1
+    species_params <- params@species_params
     gamma_default <- get_gamma_default(params)
     # Compare to the analytic result
     lm2 <- params@lambda - 2
