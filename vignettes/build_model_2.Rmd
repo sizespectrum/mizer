@@ -8,7 +8,6 @@ output: html_notebook
 knitr::opts_chunk$set(echo = TRUE)
 library("mizer")
 library("tidyverse")
-options("mizer_new" = TRUE)
 ```
 
 So far we have looked at a trait-based models where all species are identical

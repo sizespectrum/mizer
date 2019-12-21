@@ -43,11 +43,6 @@ make sure `mizer` is loaded. We also load `tidyverse`, because we find it conven
 library("mizer")
 library("tidyverse")
 ```
-We also set a global option 
-```{r}
-options("mizer_new" = TRUE)
-```
-to tell mizer to use new code in certain places.
 
 As you know, the specification of a mizer model is stored in an object of 
 class MizerParams, which has many slots holding the various rate functions
