@@ -66,7 +66,7 @@ years.
 library(mizer)
 data(NS_species_params)
 data(inter)
-params <- set_multispecies_model(NS_species_params, inter)
+params <- newMultispeciesParams(NS_species_params, inter)
 sim <- project(params, t_max = 10, effort = 0)
 ```
 

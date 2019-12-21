@@ -186,11 +186,11 @@ test_that("retuneReproductiveEfficiency works", {
 # renameSpecies ----
 test_that("renameSpecies works", {
     sp <- NS_species_params
-    p <- set_multispecies_model(sp)
+    p <- newMultispeciesParams(sp)
     sp$species <- tolower(sp$species)
     replace <- NS_species_params$species
     names(replace) <- sp$species
-    p2 <- set_multispecies_model(sp)
+    p2 <- newMultispeciesParams(sp)
     p2 <- renameSpecies(p2, replace)
     expect_identical(p, p2)
 })

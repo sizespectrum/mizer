@@ -8,7 +8,7 @@ set_multispecies_model <-
         interaction = matrix(1,
                              nrow = nrow(species_params),
                              ncol = nrow(species_params)),
-        w_min_pp = 1e-10,
+        min_w_pp = 1e-10,
         max_w = max(species_params$w_inf)*1.1,
         n = 2 / 3,
         q = 0.8,

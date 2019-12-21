@@ -18,7 +18,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
+params_gears <- newMultispeciesParams(params_data_gears, interaction = inter)
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
 effort_array <- array(NA, dim = c(length(times), length(gear_names)),
@@ -171,7 +171,7 @@ This was estimated along with the values `R_max` as part of the calibration proc
 We now have all the information we need to create the `MizerParams` object using the species parameters data.frame.
 
 ```{r label=make_ns_params, results='hide'}
-params <- set_multispecies_model(params_data, inter, kappa = 9.27e10)
+params <- newMultispeciesParams(params_data, inter, kappa = 9.27e10)
 ```
 
 ## Setting up and running the simulation

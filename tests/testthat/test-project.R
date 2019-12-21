@@ -2,7 +2,7 @@ context("project method")
 
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 # time dimension ----
 test_that("time dimension is dealt with properly", {
@@ -246,7 +246,7 @@ test_that("get_initial_n is working properly", {
 test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
-    params2 <- set_multispecies_model(NS_species_params_gears, inter)
+    params2 <- newMultispeciesParams(NS_species_params_gears, inter)
     sim <- project(params2, effort = 1, t_max = 5)
     expect_equivalent(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
                       rep(0, sim@params@w_min_idx[1] - 1))
@@ -348,7 +348,7 @@ test_that("Gear checking and sorting is OK",{
 
 # same numerical results as previously ----
 test_that("Simulation gives same numerical results as previously",{
-  params <- set_multispecies_model(NS_species_params_gears, inter)
+  params <- newMultispeciesParams(NS_species_params_gears, inter)
   sim <- project(params, t_max = 1)
   expect_known_value(sim@n[2, 3, ], "values/projectn")
   expect_known_value(sim@n_pp[2, ], "values/projectp")

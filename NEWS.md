@@ -126,7 +126,7 @@ can graze. (#46)
   argument then controls whether the new results are appended to the old.
 * New `getGrowthCurves()` calculates the growth curves (size at age).
 * Values for minimum plankton size, and minimum and maximum consumer sizes are
-  set automatically if not provided in `set_multispecies_model()`.
+  set automatically if not provided in `newMultispeciesParams()`.
 * Default values for species parameters are used for missing values within a 
   column in the species parameter data frame, not only if the column is missing 
   entirely.
@@ -147,7 +147,7 @@ can graze. (#46)
   for the latest released version and at <https://sizespectrum.org/mizer/dev>
   for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
-  example the help for `set_multispecies_model()`.
+  example the help for `newMultispeciesParams()`.
 * The vignette chapters are shown as pages on the website.
 * The html help pages for plotting functions now show example plots.
 * Clarified that mizer uses grams and years as size and time units and is 
