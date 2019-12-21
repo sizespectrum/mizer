@@ -96,7 +96,7 @@ NULL
 #' # Data set with different fishing gears
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' # With constant fishing effort which is different for each gear
@@ -397,7 +397,7 @@ project <- function(object, effort,
 #' @examples
 #' \dontrun{
 #' data(NS_species_params_gears)
-#' params <- set_multispecies_model(NS_species_params_gears)
+#' params <- newMultispeciesParams(NS_species_params_gears)
 #' init_n <- get_initial_n(params)
 #' }
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {

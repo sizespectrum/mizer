@@ -152,7 +152,7 @@ set_community_model <- function(max_w = 1e6,
         constant_recruitment = recruitment * rec_mult, # to be used in the SRR
         stringsAsFactors = FALSE
     )
-    com_params <- set_multispecies_model(com_params_df, p = p, n = n, q = q, lambda = lambda, 
+    com_params <- newMultispeciesParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@srr <- "srrConstant"
@@ -346,7 +346,7 @@ set_trait_model <- function(no_sp = 10,
     )
     # Make the MizerParams
     trait_params <-
-        set_multispecies_model(
+        newMultispeciesParams(
             trait_params_df,
             min_w = min_w,
             no_w = no_w,
@@ -634,7 +634,7 @@ set_scaling_model <- function(no_sp = 11,
         stringsAsFactors = FALSE
     )
     params <-
-        set_multispecies_model(
+        newMultispeciesParams(
             species_params,
             p = p,
             n = n,
@@ -1243,7 +1243,7 @@ addSpecies <- function(params, species_params, interaction) {
     # new params object ----
     # use dataframe and global settings from params to make a new MizerParams 
     # object.
-    p <- set_multispecies_model(
+    p <- newMultispeciesParams(
         combi_species_params,
         interaction = inter,
         p = params@p,
@@ -1422,7 +1422,7 @@ setRmax <- function(params, rfac) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 #' sim <- markBackground(sim, species = c("Sprat", "Sandeel", 
 #'                                        "N.pout", "Dab", "Saithe"))

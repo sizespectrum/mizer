@@ -15,7 +15,7 @@
 #'   \item \code{\link{set_community_model}}
 #'   \item \code{\link{set_trait_model}}
 #'   \item \code{\link{set_scaling_model}}
-#'   \item \code{\link{set_multispecies_model}}
+#'   \item \code{\link{newMultispeciesParams}}
 #' }
 #' \item Running a simulation. This is done by calling the
 #' \code{\link{project}} function with the model parameters. This produces an

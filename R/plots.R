@@ -65,7 +65,7 @@
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' 
 #' # Some example plots
@@ -147,7 +147,7 @@ log_breaks <- function(n = 6){
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
@@ -273,7 +273,7 @@ getSSBFrame <- function(sim,
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
@@ -338,7 +338,7 @@ getBiomassFrame <- function(sim,
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 #' 
 #' plotBiomass(sim)
@@ -434,7 +434,7 @@ plotlyBiomass <- function(sim,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim)
 #' plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -557,7 +557,7 @@ plotlyYield <- function(sim, sim2,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYieldGear(sim)
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -653,7 +653,7 @@ plotlyYieldGear <- function(sim,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
 #' plotSpectra(sim, wlim = c(1e-6, NA))
@@ -854,7 +854,7 @@ plotlySpectra <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
@@ -949,7 +949,7 @@ plotlyFeedingLevel <- function(object,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotPredMort(sim)
 #' plotPredMort(sim, time_range = 10:20)
@@ -1037,7 +1037,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
@@ -1122,7 +1122,7 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
@@ -1255,7 +1255,7 @@ plotDiet <- function(object, species) {
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots
@@ -1299,7 +1299,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' plot(params)
 #' plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 #' 

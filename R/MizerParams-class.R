@@ -299,7 +299,7 @@ validMizerParams <- function(object) {
 #'   \code{\link{setResourceDynamics}}.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
-#'   See \code{\link{set_multispecies_model}} for details.
+#'   See \code{\link{newMultispeciesParams}} for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with \code{\link{setInteraction}}.
 #' @slot srr String holding the name of the function to calculate the realised
@@ -345,7 +345,7 @@ validMizerParams <- function(object) {
 #'   abundances or harvest effort through time. These are held in
 #'   \linkS4class{MizerSim} objects.
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
-#'   \code{\link{emptyParams}} \code{\link{set_multispecies_model}}
+#'   \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
 #'   \code{\link{set_community_model}}
 #'   \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
 #' @export
@@ -404,7 +404,7 @@ remove(validMizerParams)
 #' initialised and given dimension names, but with some slots left empty. This
 #' function is to be used by other functions to set up full parameter objects.
 #' 
-#' See \code{\link{set_multispecies_model}} for a function that fills the
+#' See \code{\link{newMultispeciesParams}} for a function that fills the
 #' slots left empty by this function.
 #' 
 # Some code is commented out that would allow the user to 
@@ -726,6 +726,11 @@ emptyParams <- function(species_params,
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
 #' @inheritParams setParams
+#' @param version Old versions of mizer made choices for default values for
+#'   missing species parameters that were not ideal. However for backwards
+#'   compatibility these old defaults are still available by setting 
+#'   \code{version = 1}. Default is \code{version = 2} which corresponds to the
+#'   current version.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -773,52 +778,53 @@ emptyParams <- function(species_params,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' }
-set_multispecies_model <- function(species_params,
-                                   interaction = matrix(1,
-                                                        nrow = nrow(species_params),
-                                                        ncol = nrow(species_params)),
-                                   no_w = 100,
-                                   min_w = 0.001,
-                                   max_w = NA,
-                                   min_w_pp = NA,
-                                   no_w_pp = NA,
-                                   n = 2 / 3,
-                                   p = 0.7,
-                                   q = 0.8,
-                                   f0 = 0.6,
-                                   # setPredKernel()
-                                   pred_kernel = NULL,
-                                   # setSearchVolume()
-                                   search_vol = NULL,
-                                   # setIntakeMax()
-                                   intake_max = NULL,
-                                   # setMetab()
-                                   metab = NULL,
-                                   # setBMort
-                                   mu_b = NULL,
-                                   z0pre = 0.6,
-                                   z0exp = n - 1,
-                                   # setReproduction
-                                   maturity = NULL,
-                                   repro_prop = NULL,
-                                   srr = "srrBevertonHolt",
-                                   # setPlankton
-                                   rr_pp = NULL,
-                                   cc_pp = NULL,
-                                   r_pp = 10,
-                                   kappa = 1e11,
-                                   lambda = (2 + q - n),
-                                   w_pp_cutoff = 10,
-                                   plankton_dynamics = "plankton_semichemostat",
-                                   # setResourceDynamics
-                                   resource_dynamics = list(),
-                                   resource_params = list(),
-                                   # setResourceEncounter
-                                   rho = NULL,
-                                   # setFishing
-                                   initial_effort = NULL) {
+newMultispeciesParams <- function(
+    species_params,
+    interaction = matrix(1,
+                         nrow = nrow(species_params),
+                         ncol = nrow(species_params)),
+    no_w = 100,
+    min_w = 0.001,
+    max_w = NA,
+    min_w_pp = NA,
+    no_w_pp = NA,
+    n = 2 / 3,
+    p = 0.7,
+    q = 0.8,
+    f0 = 0.6,
+    # setPredKernel()
+    pred_kernel = NULL,
+    # setSearchVolume()
+    search_vol = NULL,
+    # setIntakeMax()
+    intake_max = NULL,
+    # setMetab()
+    metab = NULL,
+    # setBMort
+    mu_b = NULL,
+    z0pre = 0.6,
+    z0exp = n - 1,
+    # setReproduction
+    maturity = NULL,
+    repro_prop = NULL,
+    srr = "srrBevertonHolt",
+    # setPlankton
+    rr_pp = NULL,
+    cc_pp = NULL,
+    r_pp = 10,
+    kappa = 1e11,
+    lambda = (2 + q - n),
+    w_pp_cutoff = 10,
+    plankton_dynamics = "plankton_semichemostat",
+    # setResourceDynamics
+    resource_dynamics = list(),
+    resource_params = list(),
+    # setResourceEncounter
+    rho = NULL,
+    # setFishing
+    initial_effort = NULL) {
     
     ## For backwards compatibility, allow r_max instead of R_max
     if (!("R_max" %in% names(species_params)) &&
@@ -886,13 +892,6 @@ set_multispecies_model <- function(species_params,
     
     return(params)
 }
-
-#' Alias for set_multispecies_model
-#' 
-#' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit set_multispecies_model
-#' @export
-MizerParams <- set_multispecies_model
 
 #' Set or change any model parameters
 #' 
@@ -1255,7 +1254,7 @@ setInteraction <- function(params,
 #' ## Set up a MizerParams object
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
 #' # need to call setPredKernel
@@ -1603,7 +1602,7 @@ setMetab <- function(params,
 #' @examples
 #' \dontrun{
 #' data("NS_species_params")
-#' params <- set_multispecies_model(NS_species_params)
+#' params <- newMultispeciesParams(NS_species_params)
 #'
 #' #### Setting allometric death rate #######################
 #' 
@@ -2435,7 +2434,7 @@ updateInitial <- function(params) {
 #' the missing slots. This function adds the missing slots and fills them
 #' with default values.
 #' 
-#' Uses set_multispecies_model() to create a new MizerParams object using the
+#' Uses newMultispeciesParams() to create a new MizerParams object using the
 #' parameters extracted from the old MizerParams object.
 #' 
 #' If you only have a serialised version of the old object, for example
@@ -2505,7 +2504,7 @@ upgradeParams <- function(params) {
         message("The 'r_max' column has been renamed to 'R_max'.")
     }
     
-    pnew <- set_multispecies_model(
+    pnew <- newMultispeciesParams(
         params@species_params,
         interaction = params@interaction,
         no_w = length(params@w),
