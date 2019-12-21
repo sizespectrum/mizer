@@ -2794,23 +2794,18 @@ get_h_default <- function(params) {
         if (length(params@p) == 1 && params@n != params@p) {
             message("Note: Because you have n != p, the default value is not very good.")
         }
-        h <- ((3 * species_params$k_vb) / (species_params$alpha * params@f0)) * 
-            (species_params$w_inf ^ (1/3))
-        
-        if (!is.null(getOption("mizer_new"))) {
-            species_params <- species_params %>% 
-                set_species_param_default("b", 3) %>% 
-                set_species_param_default("t0", 0)
-            w_mat <- species_params$w_mat
-            w_inf <- species_params$w_inf
-            w_min <- species_params$w_min
-            b <- species_params$b
-            k_vb <- species_params$k_vb
-            n <- params@n
-            age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
-            h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-                params@species_params$alpha / (params@f0 - 0.2)
-        }
+        species_params <- species_params %>% 
+            set_species_param_default("b", 3) %>% 
+            set_species_param_default("t0", 0)
+        w_mat <- species_params$w_mat
+        w_inf <- species_params$w_inf
+        w_min <- species_params$w_min
+        b <- species_params$b
+        k_vb <- species_params$k_vb
+        n <- params@n
+        age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
+        h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
+            params@species_params$alpha / (params@f0 - 0.2)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
@@ -2889,11 +2884,7 @@ get_ks_default <- function(params) {
         params@species_params$h <- get_h_default(params)
     }
     sp <- params@species_params
-    if (!is.null(getOption("mizer_new"))) {
-        ks_default <- 0.2 * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
-    } else {
-        ks_default <- 0.2 * sp$h
-    }
+    ks_default <- 0.2 * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
     
     message <- ("Note: No ks column in species data frame so setting to default.")
     params <- set_species_param_default(params, "ks", ks_default, message)
