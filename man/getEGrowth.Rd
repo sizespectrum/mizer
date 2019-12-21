@@ -4,9 +4,14 @@
 \alias{getEGrowth}
 \title{Get energy rate available for growth}
 \usage{
-getEGrowth(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, e_repro = getERepro(params, n = n, n_pp = n_pp,
-  B = B), e = getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B))
+getEGrowth(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  e_repro = getERepro(params, n = n, n_pp = n_pp, B = B),
+  e = getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B)
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -39,7 +44,7 @@ accounted for. Used by \code{\link{project}} for performing simulations.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
@@ -49,13 +54,19 @@ getEGrowth(params,sim@n[21,,],sim@n_pp[21,])
 \seealso{
 \code{\link{getERepro}}, \code{\link{getEReproAndGrowth}}
 
-Other rate functions: \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()},
-  \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

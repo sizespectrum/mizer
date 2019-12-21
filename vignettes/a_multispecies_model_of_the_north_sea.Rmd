@@ -204,10 +204,10 @@ relative_effort <- rbind(initial_effort,relative_effort)
 We now have our parameter object and out matrix of efforts relative to 1990.
 This includes an initial 100 years of constant relative effort at the 1957 level, followed by the relative effort from 1957 to 2010.
 We use this effort matrix as the `effort` argument to the `project()` function.
-We use `dt` = 0.5 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.
+We use `dt` = 0.25 (the simulation will run faster than with the default value of 0.1, but tests show that the results are still stable) and save the results every year.
 
 ```{r label=project_ns_model}
-sim <- project(params, effort=relative_effort, dt = 0.5, t_save = 1)
+sim <- project(params, effort=relative_effort, dt = 0.25, t_save = 1)
 ```
 
 Plotting the results, we can see how the biomasses of the stocks change over time.
@@ -335,8 +335,8 @@ for (sp in dimnames(scenario2)[[2]]){
 Both of our new effort scenarios still include 100 years at the 1967 level to reduce the impact of the transient behaviour.
 We are now ready to project the two scenarios.
 ```{r label = project_ns_future_scenarios}
-sim1 <- project(params, effort = scenario1, dt = 0.5, t_save = 1)
-sim2 <- project(params, effort = scenario2, dt = 0.5, t_save = 1)
+sim1 <- project(params, effort = scenario1, dt = 0.25, t_save = 1)
+sim2 <- project(params, effort = scenario2, dt = 0.25, t_save = 1)
 ```
 
 We can now compare the projected SSB values in both scenarios to the biodiversity reference points.
@@ -378,4 +378,3 @@ p <- ggplot(ssb_all_df) +
 p + theme(legend.position = "none")
 ```
 
-In the next section we describe the [scale-invariant trait based model](scale_invariant_trait_based_model.html)

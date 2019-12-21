@@ -206,7 +206,7 @@ growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.ht
 carrying capacity of the plankton spectrum. Changed with 
 <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
 
-<dt><code>plankton_dynamics</code></dt><dd><p>A function for projecting the plankton abundance
+<dt><code>plankton_dynamics</code></dt><dd><p>Name of the function for projecting the plankton abundance
 density by one timestep. The default is 
 <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>. 
 Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
@@ -223,13 +223,14 @@ names of the list entries are the resource names. Changed with
 <dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
 
 <dt><code>species_params</code></dt><dd><p>A data.frame to hold the species specific parameters.
-See <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code> for details.</p></dd>
+See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for details.</p></dd>
 
 <dt><code>interaction</code></dt><dd><p>The species specific interaction matrix, \(\theta_{ij}\).
 Changed with <code><a href='setInteraction.html'>setInteraction</a></code>.</p></dd>
 
-<dt><code>srr</code></dt><dd><p>Function to calculate the realised (density dependent) recruitment.
-Has two arguments which are rdi and species_params.</p></dd>
+<dt><code>srr</code></dt><dd><p>String holding the name of the function to calculate the realised
+(density dependent) recruitment. The function should have two arguments
+which are rdi and species_params.</p></dd>
 
 <dt><code>selectivity</code></dt><dd><p>An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \(S_{g,i,w}\). Changed with 
@@ -238,6 +239,9 @@ each gear for species and size, \(S_{g,i,w}\). Changed with
 <dt><code>catchability</code></dt><dd><p>An array (gear x species) that holds the catchability of
 each species by each gear, \(Q_{g,i}\). Changed with 
 <code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
+
+<dt><code>initial_effort</code></dt><dd><p>A vector containing the initial fishing effort for each
+gear. Changed with <code><a href='setFishing.html'>setFishing()</a></code>.</p></dd>
 
 <dt><code>initial_n</code></dt><dd><p>An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.</p></dd>
@@ -285,9 +289,9 @@ Used to give consistent line types in plots.</p></dd>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='project.html'>project</a></code> <code><a href='MizerSim.html'>MizerSim</a></code>
-  <code><a href='emptyParams.html'>emptyParams</a></code> <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code>
-  <code><a href='set_community_model.html'>set_community_model</a></code>
-  <code><a href='set_trait_model.html'>set_trait_model</a></code> <code><a href='set_scaling_model.html'>set_scaling_model</a></code></p></div>
+  <code><a href='emptyParams.html'>emptyParams</a></code> <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code>
+  <code><a href='newCommunityParams.html'>newCommunityParams</a></code>
+  <code><a href='newTraitParams.html'>newTraitParams</a></code> <code><a href='set_scaling_model.html'>set_scaling_model</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -309,7 +313,7 @@ Used to give consistent line types in plots.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
 </div>
 
       </footer>

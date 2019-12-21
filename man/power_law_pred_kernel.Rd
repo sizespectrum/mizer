@@ -4,8 +4,14 @@
 \alias{power_law_pred_kernel}
 \title{Power-law predation kernel}
 \usage{
-power_law_pred_kernel(ppmr, kernel_exp, kernel_l_l, kernel_u_l, kernel_l_r,
-  kernel_u_r)
+power_law_pred_kernel(
+  ppmr,
+  kernel_exp,
+  kernel_l_l,
+  kernel_u_l,
+  kernel_l_r,
+  kernel_u_r
+)
 }
 \arguments{
 \item{ppmr}{A vector of predator/prey size ratios at which to evaluate the

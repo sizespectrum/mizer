@@ -4,9 +4,14 @@
 \alias{getRates}
 \title{Get all rates}
 \usage{
-getRates(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, effort = params@initial_effort,
-  sex_ratio = 0.5)
+getRates(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  effort = params@initial_effort,
+  sex_ratio = 0.5
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -43,13 +48,19 @@ Calls all the other rate functions in sequence and collects the results in a
 list.
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()}
 }
 \concept{rate functions}

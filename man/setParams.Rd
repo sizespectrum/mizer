@@ -4,16 +4,35 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(params, interaction = NULL, pred_kernel = NULL,
-  search_vol = NULL, q = params@q, f0 = params@f0,
-  intake_max = NULL, n = params@n, metab = NULL, p = params@p,
-  mu_b = NULL, z0pre = 0.6, z0exp = n - 1, maturity = NULL,
-  repro_prop = NULL, srr = params@srr, rr_pp = NULL, cc_pp = NULL,
-  r_pp = 10, kappa = params@kappa, lambda = params@lambda,
-  w_pp_cutoff = 10, plankton_dynamics = NULL,
+setParams(
+  params,
+  interaction = NULL,
+  pred_kernel = NULL,
+  search_vol = NULL,
+  q = params@q,
+  f0 = params@f0,
+  intake_max = NULL,
+  n = params@n,
+  metab = NULL,
+  p = params@p,
+  mu_b = NULL,
+  z0pre = 0.6,
+  z0exp = n - 1,
+  maturity = NULL,
+  repro_prop = NULL,
+  srr = params@srr,
+  rr_pp = NULL,
+  cc_pp = NULL,
+  r_pp = 10,
+  kappa = params@kappa,
+  lambda = params@lambda,
+  w_pp_cutoff = 10,
+  plankton_dynamics = NULL,
   resource_dynamics = params@resource_dynamics,
-  resource_params = params@resource_params, rho = NULL,
-  initial_effort = NULL)
+  resource_params = params@resource_params,
+  rho = NULL,
+  initial_effort = NULL
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -600,21 +619,24 @@ resource dynamics. The third dimension is the size dimension.
 
 \examples{
 \dontrun{
-params <- set_trait_model()
+params <- newTraitParams()
 params@species_params$gamma[3] <- 1000
 params <- setParams(params)
 }
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setInitial}()},
-  \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

@@ -196,6 +196,15 @@
     <loc>https://sizespectrum.org/mizer/reference/mizer.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/newMultispeciesParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/plankton_semichemostat.html</loc>
   </url>
   <url>
@@ -355,6 +364,9 @@
     <loc>https://sizespectrum.org/mizer/reference/srrBevertonHolt.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/srrConstant.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/srrNone.html</loc>
   </url>
   <url>
@@ -385,10 +397,22 @@
     <loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/validate_effort_vector.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/wrapper_functions.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/build_model_1.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/build_model_2.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/build_model_3.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/community_model.html</loc>
@@ -398,6 +422,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/estimating_feeding_kernel_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>

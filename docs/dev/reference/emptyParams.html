@@ -130,8 +130,14 @@ initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>emptyParams</span>(<span class='no'>species_params</span>, <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
+    <pre class="usage"><span class='fu'>emptyParams</span>(
+  <span class='no'>species_params</span>,
+  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
+  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -169,7 +175,7 @@ set to the largest w_inf specified in the species_params data frame.</p></td>
     <p>An empty but valid MizerParams object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>See <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code> for a function that fills the
+    <p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for a function that fills the
 slots left empty by this function.</p>
 <p>A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
@@ -204,7 +210,7 @@ following ways:</p><ul>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
 </div>
 
       </footer>

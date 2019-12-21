@@ -4,13 +4,31 @@
 \alias{set_scaling_model}
 \title{Sets up parameters for a scale free trait-based model}
 \usage{
-set_scaling_model(no_sp = 11, min_w_inf = 10, max_w_inf = 10^3,
-  min_egg = 10^(-4), min_w_mat = 10^(0.4),
-  no_w = log10(max_w_inf/min_egg) * 100 + 1, min_w_pp = NA,
-  w_pp_cutoff = min_w_inf, n = 2/3, q = 3/4, lambda = 2 + q - n,
-  r_pp = 0.1, kappa = 0.005, alpha = 0.4, ks = 4, h = 30,
-  beta = 100, sigma = 1.3, f0 = 0.6, bmort_prop = 0, rfac = Inf,
-  perfect = FALSE, ...)
+set_scaling_model(
+  no_sp = 11,
+  min_w_inf = 10,
+  max_w_inf = 10^3,
+  min_egg = 10^(-4),
+  min_w_mat = 10^(0.4),
+  no_w = log10(max_w_inf/min_egg) * 100 + 1,
+  min_w_pp = NA,
+  w_pp_cutoff = min_w_inf,
+  n = 2/3,
+  q = 3/4,
+  lambda = 2 + q - n,
+  r_pp = 0.1,
+  kappa = 0.005,
+  alpha = 0.4,
+  ks = 4,
+  h = 30,
+  beta = 100,
+  sigma = 1.3,
+  f0 = 0.6,
+  bmort_prop = 0,
+  rfac = Inf,
+  perfect = FALSE,
+  ...
+)
 }
 \arguments{
 \item{no_sp}{The number of species in the model. The default value is 11.}
@@ -157,8 +175,9 @@ plotSpectra(sim)
 \seealso{
 \linkS4class{MizerParams}
 
-Other functions for setting up models: \code{\link{set_community_model}()},
-  \code{\link{set_multispecies_model}()},
-  \code{\link{set_trait_model}()}
+Other functions for setting up models: 
+\code{\link{newCommunityParams}()},
+\code{\link{newMultispeciesParams}()},
+\code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

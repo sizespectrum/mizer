@@ -20,7 +20,7 @@ the missing slots. This function adds the missing slots and fills them
 with default values.
 }
 \details{
-Uses set_multispecies_model() to create a new MizerParams object using the
+Uses newMultispeciesParams() to create a new MizerParams object using the
 parameters extracted from the old MizerParams object.
 
 If you only have a serialised version of the old object, for example

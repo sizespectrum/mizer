@@ -24,9 +24,11 @@ plot(sim)
 }
 }
 \seealso{
-Other example parameter objects: \code{\link{Baltic_params}},
-  \code{\link{Barents_params}},
-  \code{\link{Benguela_params}},
-  \code{\link{NEUSCS_params}}, \code{\link{NS_params}}
+Other example parameter objects: 
+\code{\link{Baltic_params}},
+\code{\link{Barents_params}},
+\code{\link{Benguela_params}},
+\code{\link{NEUSCS_params}},
+\code{\link{NS_params}}
 }
 \concept{example parameter objects}

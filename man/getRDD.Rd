@@ -4,9 +4,14 @@
 \alias{getRDD}
 \title{Get density dependent rate of larvae production}
 \usage{
-getRDD(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, sex_ratio = 0.5, rdi = getRDI(params, n = n,
-  n_pp = n_pp, B = B, sex_ratio = sex_ratio))
+getRDD(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  sex_ratio = 0.5,
+  rdi = getRDI(params, n = n, n_pp = n_pp, B = B, sex_ratio = sex_ratio)
+)
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -39,7 +44,7 @@ density dependent "stock-recruitment" relationship function. See
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the rate at a particular time step
@@ -49,13 +54,19 @@ getRDD(params,sim@n[21,,],sim@n_pp[21,])
 \seealso{
 \code{\link{getRDI}}
 
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDI}()}, \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

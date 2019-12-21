@@ -19,8 +19,10 @@ Vector `species_params$constant_recruitment`
 Simply returns the value from `species_params$constant_recruitment`
 }
 \seealso{
-Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
-  \code{\link{srrNone}()}, \code{\link{srrRicker}()},
-  \code{\link{srrSheperd}()}
+Other stock-recruitment functions: 
+\code{\link{srrBevertonHolt}()},
+\code{\link{srrNone}()},
+\code{\link{srrRicker}()},
+\code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

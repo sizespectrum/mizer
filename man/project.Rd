@@ -4,9 +4,20 @@
 \alias{project}
 \title{Project size spectrum forward in time}
 \usage{
-project(object, effort, t_max = 100, dt = 0.1, t_save = 1,
-  t_start = 0, initial_n, initial_n_pp, initial_B, append = TRUE,
-  progress_bar = TRUE, ...)
+project(
+  object,
+  effort,
+  t_max = 100,
+  dt = 0.1,
+  t_save = 1,
+  t_start = 0,
+  initial_n,
+  initial_n_pp,
+  initial_B,
+  append = TRUE,
+  progress_bar = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{Either a \linkS4class{MizerParams} object or a 
@@ -101,7 +112,7 @@ be ignored.
 # Data set with different fishing gears
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # With constant fishing effort which is different for each gear

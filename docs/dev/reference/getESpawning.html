@@ -126,9 +126,13 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getESpawning</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>, <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span>
-  <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>))</pre>
+    <pre class="usage"><span class='fu'>getESpawning</span>(
+  <span class='no'>params</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
+  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
+  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
+  <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>)
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -168,21 +172,26 @@ reproduction. This proportion is taken from the <code>params</code> object and i
 set with <code><a href='setReproduction.html'>setReproduction</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other rate functions: <code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-  <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-  <code><a href='getEncounter.html'>getEncounter</a>()</code>,
-  <code><a href='getFMortGear.html'>getFMortGear</a>()</code>, <code><a href='getFMort.html'>getFMort</a>()</code>,
-  <code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>, <code><a href='getMort.html'>getMort</a>()</code>,
-  <code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
-  <code><a href='getPredMort.html'>getPredMort</a>()</code>, <code><a href='getPredRate.html'>getPredRate</a>()</code>,
-  <code><a href='getRDD.html'>getRDD</a>()</code>, <code><a href='getRDI.html'>getRDI</a>()</code>,
-  <code><a href='getRates.html'>getRates</a>()</code></p></div>
+    <div class='dont-index'><p>Other rate functions: 
+<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
+<code><a href='getEncounter.html'>getEncounter</a>()</code>,
+<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
+<code><a href='getFMort.html'>getFMort</a>()</code>,
+<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
+<code><a href='getMort.html'>getMort</a>()</code>,
+<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
+<code><a href='getPredMort.html'>getPredMort</a>()</code>,
+<code><a href='getPredRate.html'>getPredRate</a>()</code>,
+<code><a href='getRDD.html'>getRDD</a>()</code>,
+<code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get the energy at a particular time step</span>

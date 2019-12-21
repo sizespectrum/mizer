@@ -36,7 +36,7 @@ min_l and min_w are supplied, only min_l will be used)
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 getN(sim)
@@ -44,10 +44,13 @@ getN(sim, min_w = 10, max_w = 1000)
 }
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}()},
-  \code{\link{getDiet}()}, \code{\link{getGrowthCurves}()},
-  \code{\link{getSSB}()}, \code{\link{getYieldGear}()},
-  \code{\link{getYield}()}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}
