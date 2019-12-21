@@ -6,8 +6,10 @@ output: html_notebook
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  echo = TRUE,
   comment = "#>"
 )
+library(mizer)
 library(tidyverse)
 library(bbmle)
 ```
@@ -20,13 +22,13 @@ select <- c("Merluccius merluccius", "Aspitrigla cuculus")
 # Load data
 Here we will use the Barnes dataset. If you don't have it, you can download it
 with
-```{r}
+```{r eval=FALSE}
 download.file("http://esapubs.org/archive/ecol/E089/051/Predator_and_prey_body_sizes_in_marine_food_webs_vsn4.txt", destfile = "barnes.csv")
 ```
 
 We load the entire Barnes dataset and then select only the part we are
 interested in
-```{r}
+```{r message=FALSE}
 stomach_all <-
     read_tsv("barnes.csv",
              na = c("", "n/a"),
@@ -88,6 +90,7 @@ ggplot(stomach) +
     geom_line(aes(l, density), data = normaldens,
                   colour = "blue")
 ```
+
 Next we look at the biomass distribution. We plot the normal density arising
 from the above fits on top of the observed biomass distribution.
 ```{r}
@@ -107,13 +110,15 @@ ggplot(stomach) +
     geom_line(aes(l, density), data = shifted_normaldens,
                   colour = "red")
 ```
+
 If we are happy with the fits, then we would set the following species parameters:
 ```{r}
 lambda <- 2.05
 sp <- stomach %>% 
     group_by(Species) %>% 
     summarize(sigma = sd(l),
-              beta = mean(l) + (4/3 - lambda) * sigma^2)
+              beta = exp(mean(l) + (4/3 - lambda) * sigma^2),
+              mean = exp(mean(l)))
 sp
 ```
 
@@ -168,6 +173,8 @@ est <- stomach %>%
 est
 ```
 
+Even if convergence fails, the resulting fit may be good enough. Let's have a
+look:
 ```{r fig.height=15}
 grid = seq(-2, max(stomach$l), length.out = 200)
 texpdens <- plyr::ddply(est, "Species", function(df) {
@@ -181,13 +188,14 @@ texpdens <- plyr::ddply(est, "Species", function(df) {
 ggplot(binned_stomach) +
   geom_col(aes(l, Density, fill = Type)) +
   facet_grid(Species ~ Type, scales = "free_y") +
-    xlab("Log of predator/prey mass ratio") +
-    geom_line(aes(l, Density, colour = Type), data = texpdens)
+  xlab("Log of predator/prey mass ratio") +
+  geom_line(aes(l, Density, colour = Type), size = 3, data = texpdens)
 ```
 ```{r}
 est
 ```
 
+We now determine the kernel parameters:
 ```{r}
 lambda <- 2.05
 sp <- est %>% 
@@ -197,4 +205,20 @@ sp <- est %>%
               kernel_l_r = lr,
               kernel_u_r = ur)
 sp
+```
+
+Let's take a look at the resulting kernels
+```{r}
+grid = seq(-1, max(stomach$l) + 1, length.out = 200)
+phi <- plyr::ddply(est, "Species", function(df) {
+  data.frame(
+    l = grid,
+    y = power_law_pred_kernel(exp(grid), df$alpha, df$ll, df$ul, df$lr, df$ur)
+  )}) 
+
+ggplot(binned_stomach) +
+  facet_wrap(~Species, scales = "free_y") +
+  xlab("Log of predator/prey mass ratio") +
+  geom_line(aes(l, y), size = 3, data = phi) +
+  theme(strip.text = element_text(size = 12))
 ```
