@@ -869,11 +869,12 @@ plotFeedingLevel <- function(object,
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
         params <- object@params
+        feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     } else {
         assert_that(is(object, "MizerParams"))
         params <- object
+        feed <- getFeedingLevel(params, drop = FALSE)
     }
-    feed <- getFeedingLevel(params, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
