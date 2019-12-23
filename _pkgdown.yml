@@ -57,10 +57,9 @@ reference:
     https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
-  - set_multispecies_model
-  - set_community_model
-  - set_trait_model
-  - set_scaling_model
+  - newMultispeciesParams
+  - newCommunityParams
+  - newTraitParams
 - title: Interactively tuning a model
   contents:
   - tuneParams
@@ -170,10 +169,13 @@ reference:
   - NS_species_params
   - NS_species_params_gears
   - inter
-- title: Aliases
-  desc: These aliases are available for backwards compatibility with earlier
+- title: Deprecated
+  desc: These functions are available for backwards compatibility with earlier
         versions of mizer
   contents:
+  - set_multispecies_model
+  - set_community_model
+  - set_trait_model
   - MizerParams
   - getESpawning
   - getM2

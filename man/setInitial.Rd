@@ -4,9 +4,13 @@
 \alias{setInitial}
 \title{Set initial abundances}
 \usage{
-setInitial(params, initial_n = params@initial_n,
-  initial_n_pp = params@initial_n_pp, initial_B = params@initial_B,
-  sim)
+setInitial(
+  params,
+  initial_n = params@initial_n,
+  initial_n_pp = params@initial_n_pp,
+  initial_B = params@initial_B,
+  sim
+)
 }
 \arguments{
 \item{params}{A \code{\link{MizerParams}} object}
@@ -41,14 +45,18 @@ params <- setInitial(params, sim = sim)
 }
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

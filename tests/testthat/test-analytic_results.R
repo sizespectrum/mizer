@@ -3,7 +3,7 @@ context("Analytic results")
 # Initialise power law ----
 no_w = 100
 no_sp <- 2
-p <- set_scaling_model(no_sp = no_sp, perfect = TRUE, no_w = no_w)
+p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, no_w = no_w)
 n0 <- p@initial_n
 n0[] <- 0
 n_pp <- p@initial_n_pp
@@ -176,10 +176,10 @@ test_that("Analytic steady-state solution is well approximated", {
         knife_edge_size = 1000
     )
     
-    params <- set_multispecies_model(species_params, p = p, n = n, q = q, lambda = lambda,
-                                     f0 = f0, kappa = kappa, min_w = w_min, max_w = w_inf,
-                                     no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
-                                     r_pp = r_pp)
+    params <- newMultispeciesParams(species_params, p = p, n = n, q = q, lambda = lambda,
+                                    f0 = f0, kappa = kappa, min_w = w_min, max_w = w_inf,
+                                    no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
+                                    r_pp = r_pp)
     
     gamma <- params@species_params$gamma[1]
     w <- params@w

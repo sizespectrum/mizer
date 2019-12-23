@@ -172,6 +172,9 @@
     <loc>https://sizespectrum.org/mizer/reference/get_phi.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/get_required_recruitment.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/get_size_range_array.html</loc>
   </url>
   <url>
@@ -194,6 +197,15 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/mizer.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/newMultispeciesParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plankton_semichemostat.html</loc>
@@ -337,9 +349,6 @@
     <loc>https://sizespectrum.org/mizer/reference/set_multispecies_model.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/set_scaling_model.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/set_species_param_default.html</loc>
   </url>
   <url>
@@ -353,6 +362,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/srrBevertonHolt.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/srrConstant.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/srrNone.html</loc>
@@ -385,6 +397,9 @@
     <loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/validate_effort_vector.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/wrapper_functions.html</loc>
   </url>
   <url>
@@ -398,6 +413,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/estimating_feeding_kernel_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>

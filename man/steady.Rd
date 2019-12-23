@@ -4,8 +4,15 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, t_max = 100, t_per = 7.5, tol = 10^(-2), dt = 0.1,
-  return_sim = FALSE, progress_bar = TRUE)
+steady(
+  params,
+  t_max = 100,
+  t_per = 7.5,
+  tol = 10^(-2),
+  dt = 0.1,
+  return_sim = FALSE,
+  progress_bar = TRUE
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -38,7 +45,7 @@ achieve that level of recruitment.
 }
 \examples{
 \dontrun{
-params <- set_scaling_model()
+params <- newTraitParams()
 params@species_params$gamma[5] <- 3000
 params <- setSearchVolume(params)
 params <- steady(params)

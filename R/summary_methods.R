@@ -167,7 +167,7 @@ getDiet <- function(params,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
@@ -200,7 +200,7 @@ getSSB <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getBiomass(sim)
@@ -234,7 +234,7 @@ getBiomass <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getN(sim)
@@ -265,7 +265,7 @@ getN <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
@@ -295,7 +295,7 @@ getYieldGear <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
@@ -325,7 +325,7 @@ getYield <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' getGrowthCurves(params)
 #' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
 #' getGrowthCurves(sim, max_age = 24)
@@ -439,7 +439,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears,inter)
+#' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' summary(params)
 #' }
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
@@ -451,22 +451,20 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     # Length of background? 
     cat("Plankton size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), "\t(", length(object@w_full)," size bins in total)\n", sep = "")
-    # w range - min, max, number of w
-    # w background min max
-    # no species and names and wInf,  - not all these wMat, beta, sigma
-    # no gears, gear names catching what
+    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), 
+        "\n", sep = "")
+    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), 
+        "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
-    #cat("\tSpecies\t\tw_inf\n")
-    #	for (i in 1:nrow(object@species_params))
-    #	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep = "")
     print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
     cat("Fishing gear details:\n")
     cat("\tGear\t\t\tTarget species\n")
     for (i in 1:dim(object@catchability)[1]){
-        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
+        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",
+            dimnames(object@catchability)$sp[object@catchability[i,]>0], 
+            "\n", sep=" ") 
     }
+    return()
 })
 
 
@@ -482,7 +480,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears,inter)
+#' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
 #' }
@@ -491,9 +489,14 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("Parameters:\n")
     summary(object@params)
     cat("Simulation parameters:\n")
-    # Need to store t_max and dt in a description slot? Or just in simulation time parameters? Like a list?
-    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), "\n", sep = "")
-    cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    # Need to store t_max and dt in a description slot? Or just in simulation 
+    # time parameters? Like a list?
+    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), 
+        "\n", sep = "")
+    cat("\tOutput stored every ", 
+        as.numeric(dimnames(object@n)$time)[2] - 
+            as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    return()
 })
 
 
@@ -525,7 +528,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getProportionOfLargeFish(sim)
 #' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
@@ -579,7 +582,7 @@ getProportionOfLargeFish <- function(sim,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanWeight(sim)
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -618,7 +621,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanMaxWeight(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -664,7 +667,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
 #' slope_biomass <- getCommunitySlope(sim)

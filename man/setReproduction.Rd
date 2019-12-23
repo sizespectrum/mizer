@@ -4,8 +4,7 @@
 \alias{setReproduction}
 \title{Set reproduction parameters}
 \usage{
-setReproduction(params, maturity = NULL, repro_prop = NULL,
-  srr = params@srr)
+setReproduction(params, maturity = NULL, repro_prop = NULL, srr = params@srr)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -123,14 +122,18 @@ params <- setReproduction(params)
 }
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setInitial}()},
-  \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

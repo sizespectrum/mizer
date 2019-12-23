@@ -30,16 +30,19 @@ Get growth curves giving weight as a function of age
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 getGrowthCurves(params)
 sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
 getGrowthCurves(sim, max_age = 24)
 }
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}()},
-  \code{\link{getDiet}()}, \code{\link{getN}()},
-  \code{\link{getSSB}()}, \code{\link{getYieldGear}()},
-  \code{\link{getYield}()}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}

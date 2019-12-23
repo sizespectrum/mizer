@@ -8,7 +8,6 @@ output: html_notebook
 knitr::opts_chunk$set(echo = TRUE)
 library("mizer")
 library("tidyverse")
-options("mizer_new" = TRUE)
 ```
 
 We now consider the case where we know some life-history parameters of some

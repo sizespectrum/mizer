@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Sets up parameters for a community-type model — set_community_model • mizer</title>
+<title>Deprecated function for setting up parameters for a community-type model — set_community_model • mizer</title>
 
 
 <!-- jquery -->
@@ -35,19 +35,9 @@
 
 
 
-<meta property="og:title" content="Sets up parameters for a community-type model — set_community_model" />
-<meta property="og:description" content="This functions creates a MizerParams object so that
-community-type models can be easily set up and run. A community model has
-several features that distinguish it from the food-web type models. Only one
-'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
-spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot psi of the returned 
-MizerParams object) is set to 0. Standard metabolism has been turned 
-off (the parameter ks is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
-more details)." />
+<meta property="og:title" content="Deprecated function for setting up parameters for a community-type model — set_community_model" />
+<meta property="og:description" content="This function has been deprecated in favour of the function
+newCommunityParams that sets better default values." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -128,31 +118,37 @@ more details)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Sets up parameters for a community-type model</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
+    <h1>Deprecated function for setting up parameters for a community-type model</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/deprecated.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
     <div class="hidden name"><code>set_community_model.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This functions creates a <code><a href='MizerParams-class.html'>MizerParams</a></code> object so that
-community-type models can be easily set up and run. A community model has
-several features that distinguish it from the food-web type models. Only one
-'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
-spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot <code>psi</code> of the returned 
-<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
-off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
-more details).</p>
+    <p>This function has been deprecated in favour of the function
+<code><a href='newCommunityParams.html'>newCommunityParams</a></code> that sets better default values.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_community_model</span>(<span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1000</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>, <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>, <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>, <span class='kw'>knife_is_min</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>recruitment</span> <span class='kw'>=</span> <span class='no'>kappa</span> * <span class='no'>min_w</span>^-<span class='no'>lambda</span>, <span class='kw'>rec_mult</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>set_community_model</span>(
+  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>,
+  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
+  <span class='kw'>z0</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
+  <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
+  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
+  <span class='kw'>knife_is_min</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>recruitment</span> <span class='kw'>=</span> <span class='no'>kappa</span> * <span class='no'>min_w</span>^-<span class='no'>lambda</span>,
+  <span class='kw'>rec_mult</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -253,7 +249,19 @@ value is 1.</p></td>
     <p>An object of type <code><a href='MizerParams-class.html'>MizerParams</a></code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The function has many arguments, all of which have default values. The main 
+    <p>This functions creates a <code><a href='MizerParams-class.html'>MizerParams</a></code> object so that
+community-type models can be easily set up and run. A community model has
+several features that distinguish it from the food-web type models. Only one
+'species' is resolved, i.e. one 'species' is used to represent the whole
+community. The plankton spectrum only extends to the start of the community
+spectrum. Recruitment to the smallest size in the community spectrum is
+constant and set by the user. As recruitment is constant, the proportion of
+energy invested in reproduction (the slot <code>psi</code> of the returned 
+<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
+off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
+now determined solely by the assimilated food (see the package vignette for 
+more details).</p>
+<p>The function has many arguments, all of which have default values. The main 
 arguments that the users should be concerned with are <code>z0</code>, 
 <code>recruitment</code>, <code>alpha</code> and <code>f0</code> as these determine the average
 growth rate of the community.</p>
@@ -273,9 +281,9 @@ through time after the projection.</p>
   Royal Society, 276, 109-114</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting up models: <code><a href='set_multispecies_model.html'>set_multispecies_model</a></code>,
-  <code><a href='set_scaling_model.html'>set_scaling_model</a></code>,
-  <code><a href='set_trait_model.html'>set_trait_model</a></code></p></div>
+    <div class='dont-index'><p>Other deprecated functions: 
+<code><a href='set_multispecies_model.html'>set_multispecies_model</a>()</code>,
+<code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
@@ -306,7 +314,7 @@ through time after the projection.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
 </div>
 
       </footer>

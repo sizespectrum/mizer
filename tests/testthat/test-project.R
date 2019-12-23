@@ -2,7 +2,7 @@ context("project method")
 
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 # time dimension ----
 test_that("time dimension is dealt with properly", {
@@ -246,7 +246,7 @@ test_that("get_initial_n is working properly", {
 test_that("w_min array reference is working OK", {
     NS_species_params_gears$w_min <- 0.001
     NS_species_params_gears$w_min[1] <- 1
-    params2 <- set_multispecies_model(NS_species_params_gears, inter)
+    params2 <- newMultispeciesParams(NS_species_params_gears, inter)
     sim <- project(params2, effort = 1, t_max = 5)
     expect_equivalent(sim@n[6, 1, 1:(sim@params@w_min_idx[1] - 1)],
                       rep(0, sim@params@w_min_idx[1] - 1))
@@ -254,7 +254,7 @@ test_that("w_min array reference is working OK", {
 
 
 # Gear checking and sorting ----
-test_that("Gear checking and sorting is OK",{
+test_that("Gear checking and sorting is OK", {
     # Set up trait based model for easy testing ground
     no_sp <- 10
     min_w_inf <- 10
@@ -266,7 +266,11 @@ test_that("Gear checking and sorting is OK",{
     other_gears <- w_inf > 500
     gear_names <- rep("Industrial", no_sp)
     gear_names[other_gears] <- "Other"
-    params_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+    params_gear <- newTraitParams(no_sp = no_sp, 
+                                  min_w_inf = min_w_inf, 
+                                  max_w_inf = max_w_inf, 
+                                  knife_edge_size = knife_edges, 
+                                  gear_names = gear_names)
 	  gear_names <- dimnames(params_gear@catchability)[[1]]
     # Single vector of effort
   	sim <- project(params_gear, effort = 0.3, t_max = 10)
@@ -348,7 +352,7 @@ test_that("Gear checking and sorting is OK",{
 
 # same numerical results as previously ----
 test_that("Simulation gives same numerical results as previously",{
-  params <- set_multispecies_model(NS_species_params_gears, inter)
+  params <- newMultispeciesParams(NS_species_params_gears, inter)
   sim <- project(params, t_max = 1)
   expect_known_value(sim@n[2, 3, ], "values/projectn")
   expect_known_value(sim@n_pp[2, ], "values/projectp")

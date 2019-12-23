@@ -4,8 +4,14 @@
 \alias{emptyParams}
 \title{Create empty MizerParams object of the right size}
 \usage{
-emptyParams(species_params, no_w = 100, min_w = 0.001, max_w = NA,
-  min_w_pp = NA, no_w_pp = NA)
+emptyParams(
+  species_params,
+  no_w = 100,
+  min_w = 0.001,
+  max_w = NA,
+  min_w_pp = NA,
+  no_w_pp = NA
+)
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
@@ -31,7 +37,7 @@ initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects.
 }
 \details{
-See \code{\link{set_multispecies_model}} for a function that fills the
+See \code{\link{newMultispeciesParams}} for a function that fills the
 slots left empty by this function.
 
 A size grid is created so that

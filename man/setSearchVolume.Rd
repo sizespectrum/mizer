@@ -48,20 +48,24 @@ for predators of size \eqn{w = 1} gram is the value of the species parameter
 
 \examples{
 \dontrun{
-params <- set_trait_model()
+params <- newTraitParams()
 params@species_params$gamma[3] <- 1000
 params <- setSearchVolume(params)
 }
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setInitial}()},
-  \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()}
 }
 \concept{functions for setting parameters}

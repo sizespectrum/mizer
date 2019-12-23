@@ -4,9 +4,13 @@
 \alias{getESpawning}
 \title{Alias for getERepro}
 \usage{
-getESpawning(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, e = getEReproAndGrowth(params, n = n, n_pp =
-  n_pp, B = B))
+getESpawning(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  e = getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B)
+)
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -37,7 +41,7 @@ An alias provided for backward compatibility with mizer version <= 1.0
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the energy at a particular time step
@@ -45,13 +49,18 @@ getERepro(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()},
-  \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }

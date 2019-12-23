@@ -4,8 +4,13 @@
 \alias{plotlyGrowthCurves}
 \title{Plot growth curves giving weight as a function of age with plotly}
 \usage{
-plotlyGrowthCurves(object, species, max_age = 20, percentage = FALSE,
-  highlight = NULL)
+plotlyGrowthCurves(
+  object,
+  species,
+  max_age = 20,
+  percentage = FALSE,
+  highlight = NULL
+)
 }
 \arguments{
 \item{object}{MizerSim or MizerParams object. If given a
@@ -35,22 +40,25 @@ k_vb (and optionally t0), then the von Bertalanffy growth curve is
 superimposed in black.
 }
 \seealso{
-Other plotting functions: \code{\link{displayFrames}()},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
-  \code{\link{plotFMort}()},
-  \code{\link{plotFeedingLevel}()},
-  \code{\link{plotGrowthCurves}()},
-  \code{\link{plotPredMort}()},
-  \code{\link{plotSpectra}()},
-  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
-  \code{\link{plotlyBiomass}()},
-  \code{\link{plotlyFMort}()},
-  \code{\link{plotlyFeedingLevel}()},
-  \code{\link{plotlyPredMort}()},
-  \code{\link{plotlySpectra}()},
-  \code{\link{plotlyYieldGear}()},
-  \code{\link{plotlyYield}()},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{displayFrames}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotlyBiomass}()},
+\code{\link{plotlyFMort}()},
+\code{\link{plotlyFeedingLevel}()},
+\code{\link{plotlyPredMort}()},
+\code{\link{plotlySpectra}()},
+\code{\link{plotlyYieldGear}()},
+\code{\link{plotlyYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

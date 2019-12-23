@@ -4,8 +4,13 @@
 \alias{getDiet}
 \title{Get diet of predator at size, resolved by prey species}
 \usage{
-getDiet(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B, proportion = TRUE)
+getDiet(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  proportion = TRUE
+)
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -36,10 +41,13 @@ available biomass. Outside the range of sizes for a predator species the
 returned rate is zero.
 }
 \seealso{
-Other summary functions: \code{\link{getBiomass}()},
-  \code{\link{getGrowthCurves}()}, \code{\link{getN}()},
-  \code{\link{getSSB}()}, \code{\link{getYieldGear}()},
-  \code{\link{getYield}()}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getYieldGear}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

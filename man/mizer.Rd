@@ -19,10 +19,9 @@ life history parameters of each species, and the range of the size spectrum.
 There are several setup functions that help to create a MizerParams objects
 for particular types of models:
 \itemize{
-  \item \code{\link{set_community_model}}
-  \item \code{\link{set_trait_model}}
-  \item \code{\link{set_scaling_model}}
-  \item \code{\link{set_multispecies_model}}
+  \item \code{\link{newCommunityParams}}
+  \item \code{\link{newTraitParams}}
+  \item \code{\link{newMultispeciesParams}}
 }
 \item Running a simulation. This is done by calling the
 \code{\link{project}} function with the model parameters. This produces an

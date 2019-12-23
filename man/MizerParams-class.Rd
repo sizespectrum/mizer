@@ -100,7 +100,7 @@ names of the list entries are the resource names. Changed with
 \item{\code{sc}}{The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters.
-See \code{\link{set_multispecies_model}} for details.}
+See \code{\link{newMultispeciesParams}} for details.}
 
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
 Changed with \code{\link{setInteraction}}.}
@@ -118,7 +118,7 @@ each species by each gear, \eqn{Q_{g,i}}. Changed with
 \code{\link{setFishing}}.}
 
 \item{\code{initial_effort}}{A vector containing the initial fishing effort for each
-gear. Changed with \code{\link{setFishing()}}.}
+gear. Changed with \code{\link{setFishing}}.}
 
 \item{\code{initial_n}}{An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.}
@@ -167,7 +167,7 @@ The \linkS4class{MizerParams} class is fairly complex with a large number of
 }
 \seealso{
 \code{\link{project}} \code{\link{MizerSim}}
-  \code{\link{emptyParams}} \code{\link{set_multispecies_model}}
-  \code{\link{set_community_model}}
-  \code{\link{set_trait_model}} \code{\link{set_scaling_model}}
+  \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
+  \code{\link{newCommunityParams}}
+  \code{\link{newTraitParams}}
 }

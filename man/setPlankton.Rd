@@ -4,9 +4,17 @@
 \alias{setPlankton}
 \title{Set up plankton}
 \usage{
-setPlankton(params, rr_pp = NULL, cc_pp = NULL, r_pp = 10,
-  n = params@n, kappa = params@kappa, lambda = params@lambda,
-  w_pp_cutoff = 10, plankton_dynamics = NULL)
+setPlankton(
+  params,
+  rr_pp = NULL,
+  cc_pp = NULL,
+  r_pp = 10,
+  n = params@n,
+  kappa = params@kappa,
+  lambda = params@lambda,
+  w_pp_cutoff = 10,
+  plankton_dynamics = NULL
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -64,14 +72,18 @@ and \code{lambda} arguments.
 }
 
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setInitial}()},
-  \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

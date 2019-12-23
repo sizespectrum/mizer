@@ -33,7 +33,7 @@ single value for the time range can be used to plot a single time step).
 
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)
@@ -42,22 +42,25 @@ plotPredMort(sim, time_range = 10:20)
 \seealso{
 \code{\link{plotting_functions}},  \code{\link{getPredMort}}
 
-Other plotting functions: \code{\link{displayFrames}()},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
-  \code{\link{plotFMort}()},
-  \code{\link{plotFeedingLevel}()},
-  \code{\link{plotGrowthCurves}()},
-  \code{\link{plotSpectra}()},
-  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
-  \code{\link{plotlyBiomass}()},
-  \code{\link{plotlyFMort}()},
-  \code{\link{plotlyFeedingLevel}()},
-  \code{\link{plotlyGrowthCurves}()},
-  \code{\link{plotlyPredMort}()},
-  \code{\link{plotlySpectra}()},
-  \code{\link{plotlyYieldGear}()},
-  \code{\link{plotlyYield}()},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{displayFrames}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotlyBiomass}()},
+\code{\link{plotlyFMort}()},
+\code{\link{plotlyFeedingLevel}()},
+\code{\link{plotlyGrowthCurves}()},
+\code{\link{plotlyPredMort}()},
+\code{\link{plotlySpectra}()},
+\code{\link{plotlyYieldGear}()},
+\code{\link{plotlyYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

@@ -4,9 +4,17 @@
 \alias{detritus_dynamics}
 \title{Detritus dynamics}
 \usage{
-detritus_dynamics(params, n, n_pp, B, rates, dt,
+detritus_dynamics(
+  params,
+  n,
+  n_pp,
+  B,
+  rates,
+  dt,
   detritus_external = params@resource_params$detritus_external,
-  detritus_proportion = params@resource_params$detritus_proportion, ...)
+  detritus_proportion = params@resource_params$detritus_proportion,
+  ...
+)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -59,6 +67,7 @@ This avoids the stability problems that would arise if we used the Euler
 method to solve the equation numerically.
 }
 \seealso{
-Other resource dynamics functions: \code{\link{carrion_dynamics}()}
+Other resource dynamics functions: 
+\code{\link{carrion_dynamics}()}
 }
 \concept{resource dynamics functions}

@@ -62,7 +62,7 @@ The feeding level is used in \code{\link{getEReproAndGrowth}} and in
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get the feeding level at one time step
@@ -76,13 +76,19 @@ fl <- getFeedingLevel(sim, time_range = c(15,20))
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getMort}()}, \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()},
-  \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

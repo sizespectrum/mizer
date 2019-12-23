@@ -42,7 +42,7 @@ parameters with the new functions
 * `setResourceEncounter()`
 
 The new function `setParams()` is a wrapper for all of the above functions
-and is also used when setting up a new model with `set_multispecies_model()`.
+and is also used when setting up a new model with `newMultispeciesParams()`.
 (#51)
 
 ## Modelling unstructured resources
@@ -126,7 +126,7 @@ can graze. (#46)
   argument then controls whether the new results are appended to the old.
 * New `getGrowthCurves()` calculates the growth curves (size at age).
 * Values for minimum plankton size, and minimum and maximum consumer sizes are
-  set automatically if not provided in `set_multispecies_model()`.
+  set automatically if not provided in `newMultispeciesParams()`.
 * Default values for species parameters are used for missing values within a 
   column in the species parameter data frame, not only if the column is missing 
   entirely.
@@ -135,9 +135,9 @@ can graze. (#46)
 * Can set initial state with `setInitial()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
-* New `perfect` argument allows `set_scaling_model()` to produce a perfectly 
+* New `perfect_scaling` argument allows `newTraitParams()` to produce a perfectly 
   scale-invariant model.
-* A new `bmort_prop` argument in `set_scaling_model()` allows the inclusion of
+* A new `bmort_prop` argument in `newTraitParams()` allows the inclusion of
   background death.
 * Added a data file with the North Sea model MizerParams object.
   
@@ -147,7 +147,7 @@ can graze. (#46)
   for the latest released version and at <https://sizespectrum.org/mizer/dev>
   for the development version. (#48)
 * The help pages of mizer functions has been extended massively, see for
-  example the help for `set_multispecies_model()`.
+  example the help for `newMultispeciesParams()`.
 * The vignette chapters are shown as pages on the website.
 * The html help pages for plotting functions now show example plots.
 * Clarified that mizer uses grams and years as size and time units and is 
@@ -236,23 +236,11 @@ can graze. (#46)
 
 ## Breaking changes
 
-* The default for `min_w_pp`, the smallest size of plankton, has changed in
-  `MizerParams()`, `set_trait_model()` and `set_community_model()`.
-  It used to be `w_min_pp = 1e-10`. Now the default is the smallest size at
-  which any of the species feeds. If your code relies on the old default, you
-  now need to supply the `w_min_pp = 1e-10` argument explicitly.
-* The default for `max_w`, the largest size in the model, has changed in
-  `MizerParams()` and `set_trait_model()`. It used to be 1.1 times the largest 
-  asymptotic size of any species in the model otherwise. The unnecessary factor
-  of 1.1 has now been removed. If your code relies on the old default, you now
-  need to set `w_max` explicitly.
 * Removed the `print_it` argument from plot functions.
 * plotFeedingLevel() now only plots the values within the size range of each
   species. If for some reason you want the old plots that show a feeding level
   also for sizes that the fish can never have, you need to supply an argument
   `all.sizes = TRUE`.
-* When no gear is specified for a species, the default is `knife_edge_gear`
-  rather than the species name.
 * The stock recruitment function is now specified by giving the name of the
   function, rather than the function itself.
 

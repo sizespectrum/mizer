@@ -45,21 +45,25 @@ have to be numbers between 0 and 1. By default this column is set to all
 
 \examples{
 \dontrun{
-params <- set_trait_model()
+params <- newTraitParams()
 interaction <- params@interaction
 interaction[1, 3] <- 0
 params <- setInteraction(params, interaction)
 }
 }
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setFishing}()}, \code{\link{setInitial}()},
-  \code{\link{setIntakeMax}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

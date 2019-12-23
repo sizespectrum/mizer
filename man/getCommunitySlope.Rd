@@ -4,8 +4,12 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(sim, species = 1:nrow(sim@params@species_params),
-  biomass = TRUE, ...)
+getCommunitySlope(
+  sim,
+  species = 1:nrow(sim@params@species_params),
+  biomass = TRUE,
+  ...
+)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
@@ -41,7 +45,7 @@ You can also specify the species to be used in the calculation.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 # Slope based on biomass, using all species and sizes
 slope_biomass <- getCommunitySlope(sim)
@@ -55,9 +59,10 @@ slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getMeanMaxWeight}()},
-  \code{\link{getMeanWeight}()},
-  \code{\link{getProportionOfLargeFish}()}
+Other functions for calculating indicators: 
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

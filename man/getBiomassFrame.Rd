@@ -4,10 +4,15 @@
 \alias{getBiomassFrame}
 \title{Get data frame of biomass of species through time, ready for ggplot2}
 \usage{
-getBiomassFrame(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+getBiomassFrame(
+  sim,
+  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  ylim = c(NA, NA), total = FALSE, ...)
+  ylim = c(NA, NA),
+  total = FALSE,
+  ...
+)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -55,7 +60,7 @@ returns a dataframe that can be displayed with
 # Set up example MizerParams and MizerSim objects
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 
@@ -65,7 +70,8 @@ displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 \seealso{
 \code{\link{getBiomass}}, \code{\link{displayFrames}}
 
-Other frame functions: \code{\link{displayFrames}()},
-  \code{\link{getSSBFrame}()}
+Other frame functions: 
+\code{\link{displayFrames}()},
+\code{\link{getSSBFrame}()}
 }
 \concept{frame functions}

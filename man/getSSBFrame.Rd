@@ -5,10 +5,14 @@
 \title{Get data frame of spawning stock biomass of species through time, 
 ready for ggplot2}
 \usage{
-getSSBFrame(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+getSSBFrame(
+  sim,
+  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  ylim = c(NA, NA), total = FALSE)
+  ylim = c(NA, NA),
+  total = FALSE
+)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -39,7 +43,8 @@ plotted against time.
 \seealso{
 \code{\link{getSSB}}
 
-Other frame functions: \code{\link{displayFrames}()},
-  \code{\link{getBiomassFrame}()}
+Other frame functions: 
+\code{\link{displayFrames}()},
+\code{\link{getBiomassFrame}()}
 }
 \concept{frame functions}
