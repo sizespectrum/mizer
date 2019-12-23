@@ -20,9 +20,7 @@ newCommunityParams(
   r_pp = 10,
   gamma = NA,
   knife_edge_size = 1000,
-  knife_is_min = TRUE,
-  recruitment = kappa * min_w^-lambda,
-  rec_mult = 1,
+  recruitment,
   ...
 )
 }
@@ -45,7 +43,7 @@ default value is 1e6.}
 
 \item{q}{The search volume exponent. Default value is 0.8.}
 
-\item{n}{The scaling of the intake. Default value is 2/3.}
+\item{n}{The scaling exponent of the maximum intake rate. Default value is 2/3.}
 
 \item{kappa}{The carrying capacity of the plankton spectrum. Default value
 is 1000.}
@@ -65,16 +63,9 @@ spectrum. This value is used to calculate the search rate parameter
 \item{knife_edge_size}{The size at the edge of the knife-selectivity 
 function. Default value is 1000.}
 
-\item{knife_is_min}{Is the knife-edge selectivity function selecting above 
-(TRUE) or below (FALSE) the edge. Default is TRUE.}
-
 \item{recruitment}{The constant recruitment in the smallest size class of the
-community spectrum. This should be set so that the community spectrum 
-continues the plankton spectrum. Default value = \code{kappa} * 
-\code{min_w}^-\code{lambda}.}
-
-\item{rec_mult}{Additional multiplier for the constant recruitment. Default 
-value is 1.}
+community spectrum. By default this is set so that the community spectrum 
+continues the plankton spectrum.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
@@ -83,7 +74,10 @@ An object of type \code{\linkS4class{MizerParams}}
 }
 \description{
 This functions creates a \code{\linkS4class{MizerParams}} object so that
-community-type models can be easily set up and run. A community model has
+community-type models can be easily set up and run.
+}
+\details{
+A community model has
 several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
 community. The plankton spectrum only extends to the start of the community
@@ -94,12 +88,8 @@ energy invested in reproduction (the slot \code{psi} of the returned
 off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
 now determined solely by the assimilated food (see the package vignette for 
 more details).
-}
-\details{
-The function has many arguments, all of which have default values. The main 
-arguments that the users should be concerned with are \code{z0}, 
-\code{recruitment}, \code{alpha} and \code{f0} as these determine the average
-growth rate of the community.
+
+The function has many arguments, all of which have default values.
 
 Fishing selectivity is modelled as a knife-edge function with one parameter, 
 \code{knife_edge_size}, which determines the size at which species are 
@@ -128,7 +118,6 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
 \seealso{
 Other functions for setting up models: 
 \code{\link{newMultispeciesParams}()},
-\code{\link{newTraitParams}()},
-\code{\link{set_scaling_model}()}
+\code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

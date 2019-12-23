@@ -2,8 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{set_trait_model}
 \alias{set_trait_model}
-\title{Deprecated obsolete function for setting up parameters for a trait-based
-model}
+\title{Deprecated function for setting up parameters for a trait-based model}
 \usage{
 set_trait_model(
   no_sp = 10,
@@ -107,9 +106,58 @@ same length as the number of species. Default is 1 - no_sp.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
+\value{
+An object of type \code{MizerParams}
+}
 \description{
-Deprecated obsolete function for setting up parameters for a trait-based
-model
+This function has been deprecated in favour of the function
+\code{\link{newTraitParams}} that sets better default values.
+}
+\details{
+This functions creates a \code{MizerParams} object so that trait-based-type 
+models can be easily set up and run. The trait-based size spectrum model can
+be derived as a simplification of the general size-based model used in
+\code{mizer}. The species-specific parameters are the same for all species, 
+except for
+the asymptotic size, which is considered the most important trait
+characterizing a species. Other parameters are related to the asymptotic
+size. For example, the size at maturity is given by \code{w_inf * eta}, 
+where \code{eta} is
+the same for all species. For the trait-based model the number of species is
+not important. For applications of the trait-based model see Andersen &
+Pedersen (2010). See the \code{mizer} vignette for more details and examples
+of the trait-based model.
+
+The function has many arguments, all of which have default values. Of
+particular interest to the user are the number of species in the model and
+the minimum and maximum asymptotic sizes. The asymptotic sizes of the species
+are spread evenly on a logarithmic scale within this range.
+
+The stock recruitment relationship is the default Beverton-Holt style. The
+maximum recruitment is calculated using equilibrium theory (see Andersen &
+Pedersen, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
+get the spectra they want.
+
+The factor for the search volume, \code{gamma}, is calculated using the
+expected feeding level, \code{f0}.
+
+Fishing selectivity is modelled as a knife-edge function with one parameter,
+\code{knife_edge_size}, which is the size at which species are selected. Each
+species can either be fished by the same gear (\code{knife_edge_size} has a
+length of 1) or by a different gear (the length of \code{knife_edge_size} has
+the same length as the number of species and the order of selectivity size is
+that of the asymptotic size).
+
+The resulting \code{MizerParams} object can be projected forward using
+\code{project} like any other \code{MizerParams} object. When projecting
+the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
+any instabilities with the solver. You can check this by plotting the biomass
+or abundance through time after the projection.
+}
+\references{
+K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
+  driven by fishing in model marine ecosystems. Proceedings of the Royal
+  Society V, Biological Sciences, 1682, 795-802.
 }
 \seealso{
 Other deprecated functions: 

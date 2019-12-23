@@ -37,17 +37,7 @@
 
 <meta property="og:title" content="Sets up parameters for a community-type model — newCommunityParams" />
 <meta property="og:description" content="This functions creates a MizerParams object so that
-community-type models can be easily set up and run. A community model has
-several features that distinguish it from the food-web type models. Only one
-'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
-spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot psi of the returned 
-MizerParams object) is set to 0. Standard metabolism has been turned 
-off (the parameter ks is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
-more details)." />
+community-type models can be easily set up and run." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -135,17 +125,7 @@ more details)." />
 
     <div class="ref-description">
     <p>This functions creates a <code><a href='MizerParams-class.html'>MizerParams</a></code> object so that
-community-type models can be easily set up and run. A community model has
-several features that distinguish it from the food-web type models. Only one
-'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
-spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot <code>psi</code> of the returned 
-<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
-off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
-more details).</p>
+community-type models can be easily set up and run.</p>
     </div>
 
     <pre class="usage"><span class='fu'>newCommunityParams</span>(
@@ -164,9 +144,7 @@ more details).</p>
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>knife_is_min</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>recruitment</span> <span class='kw'>=</span> <span class='no'>kappa</span> * <span class='no'>min_w</span>^-<span class='no'>lambda</span>,
-  <span class='kw'>rec_mult</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='no'>recruitment</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -209,7 +187,7 @@ default value is 1e6.</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>The scaling of the intake. Default value is 2/3.</p></td>
+      <td><p>The scaling exponent of the maximum intake rate. Default value is 2/3.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
@@ -242,21 +220,10 @@ spectrum. This value is used to calculate the search rate parameter
 function. Default value is 1000.</p></td>
     </tr>
     <tr>
-      <th>knife_is_min</th>
-      <td><p>Is the knife-edge selectivity function selecting above 
-(TRUE) or below (FALSE) the edge. Default is TRUE.</p></td>
-    </tr>
-    <tr>
       <th>recruitment</th>
       <td><p>The constant recruitment in the smallest size class of the
-community spectrum. This should be set so that the community spectrum 
-continues the plankton spectrum. Default value = <code>kappa</code> * 
-<code>min_w</code>^-<code>lambda</code>.</p></td>
-    </tr>
-    <tr>
-      <th>rec_mult</th>
-      <td><p>Additional multiplier for the constant recruitment. Default 
-value is 1.</p></td>
+community spectrum. By default this is set so that the community spectrum 
+continues the plankton spectrum.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -269,10 +236,18 @@ value is 1.</p></td>
     <p>An object of type <code><a href='MizerParams-class.html'>MizerParams</a></code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The function has many arguments, all of which have default values. The main 
-arguments that the users should be concerned with are <code>z0</code>, 
-<code>recruitment</code>, <code>alpha</code> and <code>f0</code> as these determine the average
-growth rate of the community.</p>
+    <p>A community model has
+several features that distinguish it from the food-web type models. Only one
+'species' is resolved, i.e. one 'species' is used to represent the whole
+community. The plankton spectrum only extends to the start of the community
+spectrum. Recruitment to the smallest size in the community spectrum is
+constant and set by the user. As recruitment is constant, the proportion of
+energy invested in reproduction (the slot <code>psi</code> of the returned 
+<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
+off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
+now determined solely by the assimilated food (see the package vignette for 
+more details).</p>
+<p>The function has many arguments, all of which have default values.</p>
 <p>Fishing selectivity is modelled as a knife-edge function with one parameter, 
 <code>knife_edge_size</code>, which determines the size at which species are 
 selected.</p>
@@ -291,8 +266,7 @@ through time after the projection.</p>
 
     <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code>,
-<code><a href='newTraitParams.html'>newTraitParams</a>()</code>,
-<code><a href='set_scaling_model.html'>set_scaling_model</a>()</code></p></div>
+<code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

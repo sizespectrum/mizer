@@ -43,6 +43,8 @@ data frame.}
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 
 \item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+
+\item{...}{Unused}
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0

@@ -312,7 +312,7 @@ validMizerParams <- function(object) {
 #'   each species by each gear, \eqn{Q_{g,i}}. Changed with 
 #'   \code{\link{setFishing}}.
 #' @slot initial_effort A vector containing the initial fishing effort for each
-#'   gear. Changed with \code{\link{setFishing()}}.
+#'   gear. Changed with \code{\link{setFishing}}.
 #' @slot initial_n An array (species x size) that holds abundance of each species
 #'   at each weight at our candidate steady state solution.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
@@ -347,7 +347,7 @@ validMizerParams <- function(object) {
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #'   \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
 #'   \code{\link{newCommunityParams}}
-#'   \code{\link{newTraitParams}} \code{\link{set_scaling_model}}
+#'   \code{\link{newTraitParams}}
 #' @export
 setClass(
     "MizerParams",
@@ -726,11 +726,6 @@ emptyParams <- function(species_params,
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
 #' @inheritParams setParams
-#' @param version Old versions of mizer made choices for default values for
-#'   missing species parameters that were not ideal. However for backwards
-#'   compatibility these old defaults are still available by setting 
-#'   \code{version = 1}. Default is \code{version = 2} which corresponds to the
-#'   current version.
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -2895,7 +2890,6 @@ get_ks_default <- function(params) {
     }
     return(params@species_params$ks)
 }
-
 
 #' Check that an effort vector is specified correctly
 #' 

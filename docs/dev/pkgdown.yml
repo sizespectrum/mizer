@@ -3,9 +3,6 @@ pkgdown: 1.4.0.9001
 pkgdown_sha: dd6324af36d9c3ab30f6db0c605b355e846ec4d4
 articles:
   a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
-  build_model_1: build_model_1.html
-  build_model_2: build_model_2.html
-  build_model_3: build_model_3.html
   community_model: community_model.html
   developer_vignette: developer_vignette.html
   editing_website: editing_website.html

@@ -41,7 +41,7 @@ test_that("Multiple gears work correctly in trait-based model", {
 
 # Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
-    p <- set_scaling_model(perfect = TRUE, sigma = 1)
+    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1)
     sim <- project(p, t_max = 5)
     
     # Check some dimensions
@@ -76,7 +76,7 @@ test_that("Scaling model is set up correctly", {
     mu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
     mumu <- mu  # To set the right names
     mumu[] <- mu0 * p@w^(p@n - 1)
-    expect_equal(mu, mumu, tolerance = 1e-15)
+    expect_equal(mu, mumu, tolerance = 0.2)
     # Growth rate
     g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
     gg <- g  # To set the right names
@@ -123,7 +123,7 @@ test_that("retuneBackground() reproduces scaling model", {
     # This numeric test failed on Solaris and without long doubles. So for now
     # skipping it on CRAN
     skip_on_cran()
-    p <- set_scaling_model()
+    p <- newTraitParams()
     initial_n <- p@initial_n
     # We multiply one of the species by a factor of 5 and expect
     # retuneBackground() to tune it back down to the original value.
@@ -136,7 +136,7 @@ test_that("retuneBackground() reproduces scaling model", {
 
 # pruneSpecies() removes low-abundance species ----
 test_that("pruneSpecies() removes low-abundance species", {
-    params <- set_scaling_model()
+    params <- newTraitParams()
     p <- params
     # We multiply one of the species by a factor of 10^-3 and expect
     # pruneSpecies() to remove it.
@@ -149,7 +149,7 @@ test_that("pruneSpecies() removes low-abundance species", {
 
 # addSpecies ----
 test_that("addSpecies works when adding a second identical species", {
-    p <- set_scaling_model()
+    p <- newTraitParams()
     no_sp <- length(p@A)
     p <- markBackground(p)
     species_params <- p@species_params[5,]
@@ -168,7 +168,7 @@ test_that("addSpecies does not allow duplicate species", {
 
 # retuneReproductiveEfficiency ----
 test_that("retuneReproductiveEfficiency works", {
-    p <- set_scaling_model()
+    p <- newTraitParams(rfac = Inf)
     no_sp <- nrow(p@species_params)
     erepro <- p@species_params$erepro
     p@species_params$erepro[5] <- 15
@@ -228,7 +228,7 @@ test_that("rescaleSystem does not change dynamics.", {
 
 # steady ----
 test_that("steady works", {
-    expect_message(params <- set_scaling_model(no_sp = 4, no_w = 30),
+    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, rfac = Inf),
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)

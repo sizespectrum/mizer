@@ -118,7 +118,7 @@ each species by each gear, \eqn{Q_{g,i}}. Changed with
 \code{\link{setFishing}}.}
 
 \item{\code{initial_effort}}{A vector containing the initial fishing effort for each
-gear. Changed with \code{\link{setFishing()}}.}
+gear. Changed with \code{\link{setFishing}}.}
 
 \item{\code{initial_n}}{An array (species x size) that holds abundance of each species
 at each weight at our candidate steady state solution.}
@@ -169,5 +169,5 @@ The \linkS4class{MizerParams} class is fairly complex with a large number of
 \code{\link{project}} \code{\link{MizerSim}}
   \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
   \code{\link{newCommunityParams}}
-  \code{\link{newTraitParams}} \code{\link{set_scaling_model}}
+  \code{\link{newTraitParams}}
 }

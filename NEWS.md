@@ -135,9 +135,9 @@ can graze. (#46)
 * Can set initial state with `setInitial()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
-* New `perfect` argument allows `set_scaling_model()` to produce a perfectly 
+* New `perfect_scaling` argument allows `newTraitParams()` to produce a perfectly 
   scale-invariant model.
-* A new `bmort_prop` argument in `set_scaling_model()` allows the inclusion of
+* A new `bmort_prop` argument in `newTraitParams()` allows the inclusion of
   background death.
 * Added a data file with the North Sea model MizerParams object.
   

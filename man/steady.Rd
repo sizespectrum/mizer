@@ -45,7 +45,7 @@ achieve that level of recruitment.
 }
 \examples{
 \dontrun{
-params <- set_scaling_model()
+params <- newTraitParams()
 params@species_params$gamma[5] <- 3000
 params <- setSearchVolume(params)
 params <- steady(params)

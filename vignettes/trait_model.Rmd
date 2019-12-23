@@ -23,10 +23,10 @@ species. In a trait-based model the asymptotic size is considered to be the most
 important *trait* characterizing a species. All of the species-specific
 parameters, such as $\beta$ and $\sigma$, are the same for all species. Other
 model parameters are determined by the asymptotic size. For example, the weight
-at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number
+at maturation is a fixed fraction of the asymptotic size.  The number
 of species is not important and does not affect the general dynamics of the
-model. The asymptotic sizes of the species are spread evenly over the size range
-of the community.
+model. The asymptotic sizes of the species are spread evenly on a logarithmic
+scale.
 
 ## Setting up a trait-based model {#sec:set_up_trait_model}
 
@@ -34,7 +34,8 @@ To help set up a trait-based model, there is a wrapper function,
 `newTraitParams()`. Like the `newCommunityParams()` function described in the
 section on the [community model](community_model.html), this function can take
 many arguments. Most of them have default values so you don't need to worry
-about them for the moment. See the help page for more details.
+about them for the moment. See the help page for `newCommunityParams()` for more
+details.
 
 ```{r label=help_newTraitParams, eval=FALSE}
 ?newTraitParams
@@ -49,14 +50,12 @@ One of the key differences between the community type model and
 the trait-based model is that reproduction and egg production are considered. In
 the community model, recruitment is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
-model, the egg production is modeled using a *Beverton-Holt* type function (the
+model, the egg production is dependent on mature individuals investing part
+of their energy income into reproduction. The relationship between the energy
+invested into reproduction and the actual rate of egg production is modeled using a *Beverton-Holt* type function (the
 default in `mizer`, see [the section on stock-recruitment
-relationships](model_description.html#recruitment)) where the recruitment
-flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg
-production increases. The maximum recruitment flux is calculated using
-equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as
-an argument (`k0`) to the `newTraitParams()` function. `k0` has a default value
-of 50.
+relationships](model_description.html#recruitment)) where the egg
+flux $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 
@@ -64,15 +63,14 @@ Here we set up the model to have 10 species, with asymptotic sizes ranging from 
 params <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
 ```
 
-The output reminds the user that $\gamma$ was not specified, and so will be calculated using other parameters.
+The output reminds the user that $\gamma$ was not specified, and so will be
+calculated using other parameters.
 
-This function returns an object of type `MizerParams`, which holds all the model information, including species parameters.
-
-```{r label=class_trait_params}
-class(params)
-```
-
-This object can therefore be interrogated in the same way as described in [the section on the community model](community_model.html), either by inspecting the individual slots or by using the `summary()` function.
+This function returns an object of type `MizerParams`, which holds all the model
+information, including species parameters. This object can therefore be
+interrogated in the same way as described in [the section on the community
+model](community_model.html), either by inspecting the individual slots or by
+using the `summary()` function.
 
 ```{r label=summary_comm_params2}
 summary(params)
@@ -81,22 +79,22 @@ summary(params)
 
 The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from  
 $`r min(params@species_params$w_inf)`$
-to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
+to $`r max(params@species_params$w_inf)`$. The rather strange-looking values
+for the sizes is due to the fact that the size classes are equally spaced
+on a logarithmic scale. 
+
+The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}
 
-As with the community model described above, we can project the model through time using the `project()` function.
-Here we project the model for 75 time steps without any fishing (the `effort` argument is set to 0).
+As with the community model described above, we can project the model through time using the `project()` function. 
+Here we project the model for 75 years without any fishing (the `effort` argument is set to 0).
 We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see [the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
 
 
-
-
-
-
 ```{r label=trait_project_no_fishing}
-sim <- project(params, t_max=75, effort = 0)
+sim <- project(params, t_max = 75, effort = 0)
 ```
 
 This results in a `MizerSim` object which contains the abundances of the community and plankton spectra through time, as well as the original `MizerParams` object.

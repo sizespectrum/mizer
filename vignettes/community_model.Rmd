@@ -36,10 +36,8 @@ plankton spectrum.
 To avoid having to make a `MizerParams` object directly, the
 `newCommunityParams()` wrapper function, has been provided that conveniently
 creates a `MizerParams` object specifically for a community model. The
-documentation for the function can be seen by entering:
-```{r label=help_newCommunityParams, eval=FALSE}
-?newCommunityParams
-```
+documentation for the function can be seen by clicking on the function 
+name anywhere it appears on this page: `newCommunityParams()`.
 
 As can be seen in the help page, the function can take many arguments. We can
 ignore most of these for the moment as they almost all come with
@@ -47,27 +45,21 @@ default values.
 
 The arguments that you should pay attention to are: `z0` (the level of
 background mortality), `alpha` (the assimilation efficiency of the community),
-`f0` (the average feeding level of the community which is used to calculate
-$\gamma,$ as described in [the equation for
-gamma](model_description.html#eq:gamma) and `recruitment` (the level of constant
-recruitment).
+`f0` (the average feeding level of the community, which is used to calculate
+$\gamma$) and `h` (the coefficient of the maximum intake rate).
 
 Although default values for these parameters are provided, you are encouraged to
 explore how changing the values affects the simulated community. For example,
 the default value of `z0` is 0.1. Increasing this value effectively 'shortens'
-the length of the community spectrum. The value of the constant recruitment
-should be set so that the community spectrum is a continuation of the plankton
-spectrum. This can be done with trial and error.  A reasonable value for `alpha`
-is 0.2.
+the length of the community spectrum. 
 
 The `newCommunityParams()` function is called by passing in the arguments by
 name. Any parameter that is not passed in is set to the default value. For
-example, the following line sets up the parameters with `z0` = 0.1, `f0` = 0.7,
-`alpha` = 0.2 and `recruitment` = 4e7. All other parameters will have their
-default value:
+example, the following line sets up the parameters with `z0` = 0.05, `f0` = 0.5. 
+All other parameters will have their default value:
 
 ```{r label=demo_comm_model_params}
-params <- newCommunityParams(z0 = 0.1, f0 = 0.7, alpha = 0.2, recruitment = 4e7)
+params <- newCommunityParams(z0 = 0.05, f0 = 0.5)
 ```
 
 Calling the function creates and returns an object of type `MizerParams`. We can
@@ -87,7 +79,7 @@ slotNames(params)
 
 As you can see, the `params` object is made up of lots of slots. A quick
 description can be found in the [`MizerParams` help
-page](../reference/MizerParams-class.html) (run `class ? MizerParams`. The slots
+page](../reference/MizerParams-class.html). The slots
 of an object are accessed by using the `@` operator. For example, to access the
 `w` slot (which contains a vector of the size bins in the model) you would use
 ```{r label=demo_slot_accessor, results='hide'}
@@ -126,7 +118,7 @@ through time, and `t_max`, which is the length of the simulation. Initial
 population abundances are set automatically by the `get_initial_n()` function.
 It is possible to set your own initial abundances but we will not do this here.
 
-To run a projection for 50 time steps, with no fishing effort (i.e. we want to
+To run a projection for 50 years, with no fishing effort (i.e. we want to
 model an unexploited community) we run:
 ```{r label=demo_comm_run}
 sim <- project(params, t_max = 50, effort = 0)
@@ -141,13 +133,13 @@ After running the projection, it is possible to explore the results using a
 range of plots and analyses. These are described fully in [the section on
 exploring the simulation results.](exploring_the_simulation_results.html)
 
-To quickly look at the results of the projection you can call the generic
+To quickly look at the results of the projection you can call the
 `plot()` method. This plots the feeding level, predation mortality, fishing
 mortality and abundance by size in the last time step of the simulation, and the
-biomass through time. Each of the plots can be show individually if desired.
+biomass through time. Each of the plots can be shown individually if desired.
 
-```{r label=print_plot_comm_sim, fig.cap="Example plot of the community model."}
-plot(sim)
+```{r label=print_plot_comm_sim}
+plot(sim, power = 2)
 ```
 
 In the above plot there are several things going on that are worth talking
@@ -219,11 +211,9 @@ have a knife-edge shape, with only individuals larger than 1 kg selected (the
 size at the knife-edge can be changed by setting the `knife_edge_size`
 argument). Although it is possible to change the selectivity function, here we
 will use the default knife-edge selectivity. We set up the parameter object
-exactly as before, but now we are explicitly setting the size at which
-individuals are selected by the fishing gear.
+with default parameters:
 ```{r label=set_comm_fishing}
-params_knife <- newCommunityParams(z0 = 0.1, recruitment = 4e7,
-    alpha = 0.2, f0 = 0.7, knife_edge_size = 1000)
+params_knife <- newCommunityParams()
 ```
 
 First we perform a simulation without fishing in the same way we did above by
@@ -237,7 +227,7 @@ fishing mortality is calculated as the product of the fishing selectivity,
 effort and catchability (see [the section on fishing
 gears](multispecies_model.html#sec:fishing_gear) for more details). By default
 catchability is set to 1. This means that a fishing effort of 1 will result in a
-fishing mortality of 1 for fully selected sizes. Here we run a simulation with
+fishing mortality of 1/year for fully selected sizes. Here we run a simulation with
 fishing effort set to 1 for the duration of the simulation:
 
 ```{r label=sim_comm_with_fish}
@@ -247,7 +237,7 @@ sim1 <- project(params_knife, effort = 1, t_max = 50)
 You can compare the difference between these scenarios by using the `plot()` method as before. Of particular interest is the fishing mortality at size. The knife-edge selectivity at 1000 g can be clearly seen and an effort of 1 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
 ```{r label=print_plot_comm_fmort, fig.cap="Summary plot for the community model when fishing with knife-edge selectivity at size = 1000 g."}
-plot(sim1)
+plot(sim1, power = 2)
 ```
  
 To explore the presence of a trophic cascade, we are interested in looking at the relative change in abundance when the community is fished compared to when it is not fished. To do this we need to get the abundances at size from the simulation objects. The abundances are stored in the `n` slot of the `MizerSim` objects. The `n` slot contains a three dimensional array with dimensions time x species x size. Here we have 51 time steps (50 from the simulation plus one which stores the initial population), 1 species and 100 sizes:
@@ -259,7 +249,7 @@ dim(sim0@n)
 We want the abundances in the final time step, and we can use these to calculate the relative abundances:
 
 ```{r label='relative_comm_abundance'}
-relative_abundance <- sim1@n[51,,] / sim0@n[51,,]
+relative_abundance <- sim1@n[51, , ] / sim0@n[51, , ]
 ```
 
 This can then be plotted using basic R plotting commands.
@@ -270,7 +260,7 @@ The sizes are stored in the `params@w` slot (a slot of a slot!).
 plot(x = sim0@params@w, y = relative_abundance, log = "x", type = "n",
     xlab = "Size (g)", ylab = "Relative abundance")
 lines(x = sim0@params@w, y = relative_abundance)
-lines(x = c(min(sim0@params@w), max(sim0@params@w)), y = c(1,1), lty = 2)
+lines(x = c(min(sim0@params@w), max(sim0@params@w)), y = c(1, 1), lty = 2)
 ```
 
 
@@ -285,18 +275,18 @@ When projected through time, the community abundances converge to a stable equil
 What happens if we reduce the value of $\sigma$, for example by setting it to 1.0? We can do this by passing in the new value of $\sigma$ into `newCommunityParams()`.
 
 ```{r label=comm_params_sigma1}
-params_sigma1 <- newCommunityParams(z0 = 0.1,
-     f0 = 0.7, alpha = 0.2, recruitment = 4e7, sigma = 1)
+params_sigma1 <- newCommunityParams(sigma = 1)
 ```
 
 We want to project this new model through time using the `project()` function. Note that we have introduced a new argument: $dt$. This is the step size of the solver. It does not have anything to do with the biology in the model. It only affects the internal engine of `project()` that performs the projection. 
 
 As you can see in the underlying model equations in [the model description section](model_description.html), the model runs in continuous time. Therefore, to project it forward, `project()` must solve the system of equations using numerical methods. The quality of these methods is strongly affected by $dt$. 
 The default value of $dt$ is 0.1, which will be fine for most of the projections we run in this Vignette. Here it is necessary to reduce the value to 0.01 to avoid introducing any artefacts into the projected values. Decreasing $dt$ increases the time it takes to run a projection.
-Here we project the new parameters object for 50 time steps without fishing:
+Here we project the new parameter object for 50 time steps without fishing and
+save at intervals of 0.1 years (`t_save = 0.1`):
 
 ```{r label=comm_project_sigma1}
-sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt=0.01)
+sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt = 0.01, t_save = 0.1)
 ```
 
 Let's take a look at how the abundances change through time. We can do this with the `plotBiomass()` function:

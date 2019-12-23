@@ -254,7 +254,7 @@ test_that("w_min array reference is working OK", {
 
 
 # Gear checking and sorting ----
-test_that("Gear checking and sorting is OK",{
+test_that("Gear checking and sorting is OK", {
     # Set up trait based model for easy testing ground
     no_sp <- 10
     min_w_inf <- 10
@@ -266,7 +266,11 @@ test_that("Gear checking and sorting is OK",{
     other_gears <- w_inf > 500
     gear_names <- rep("Industrial", no_sp)
     gear_names[other_gears] <- "Other"
-    params_gear <- newTraitParams(no_sp = no_sp, min_w_inf = min_w_inf, max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
+    params_gear <- newTraitParams(no_sp = no_sp, 
+                                  min_w_inf = min_w_inf, 
+                                  max_w_inf = max_w_inf, 
+                                  knife_edge_size = knife_edges, 
+                                  gear_names = gear_names)
 	  gear_names <- dimnames(params_gear@catchability)[[1]]
     # Single vector of effort
   	sim <- project(params_gear, effort = 0.3, t_max = 10)

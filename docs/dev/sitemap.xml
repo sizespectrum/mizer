@@ -172,6 +172,9 @@
     <loc>https://sizespectrum.org/mizer/reference/get_phi.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/get_required_recruitment.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/get_size_range_array.html</loc>
   </url>
   <url>
@@ -346,9 +349,6 @@
     <loc>https://sizespectrum.org/mizer/reference/set_multispecies_model.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/set_scaling_model.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/set_species_param_default.html</loc>
   </url>
   <url>
@@ -404,15 +404,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/build_model_1.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/build_model_2.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/build_model_3.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/community_model.html</loc>

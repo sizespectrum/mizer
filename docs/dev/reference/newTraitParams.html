@@ -36,9 +36,9 @@
 
 
 <meta property="og:title" content="Sets up parameters for a trait-based model — newTraitParams" />
-<meta property="og:description" content="This functions creates a MizerParams object so that trait-based-type 
-models can be easily set up and run. The trait-based size spectrum model can
-be derived as a simplification of the general size-based model used in
+<meta property="og:description" content="This functions creates a MizerParams object so that trait-based
+models can be easily set up and run. A trait-based size spectrum model is
+a simplification of the general size-based model used in
 mizer. The species-specific parameters are the same for all species, 
 except for
 the asymptotic size, which is considered the most important trait
@@ -135,9 +135,9 @@ of the trait-based model." />
     </div>
 
     <div class="ref-description">
-    <p>This functions creates a <code>MizerParams</code> object so that trait-based-type 
-models can be easily set up and run. The trait-based size spectrum model can
-be derived as a simplification of the general size-based model used in
+    <p>This functions creates a <code>MizerParams</code> object so that trait-based
+models can be easily set up and run. A trait-based size spectrum model is
+a simplification of the general size-based model used in
 <code>mizer</code>. The species-specific parameters are the same for all species, 
 except for
 the asymptotic size, which is considered the most important trait
@@ -151,33 +151,35 @@ of the trait-based model.</p>
     </div>
 
     <pre class="usage"><span class='fu'>newTraitParams</span>(
-  <span class='kw'>no_sp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>no_sp</span> <span class='kw'>=</span> <span class='fl'>11</span>,
   <span class='kw'>min_w_inf</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>max_w_inf</span> <span class='kw'>=</span> <span class='fl'>1e+05</span>,
-  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>max_w_inf</span> <span class='kw'>=</span> <span class='fl'>10</span>^<span class='fl'>3</span>,
+  <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>4</span>),
+  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='no'>max_w_inf</span>,
+  <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>0.6</span>),
+  <span class='kw'>min_w_mat</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span> * <span class='no'>eta</span>,
+  <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>max_w_inf</span>/<span class='no'>min_w</span>) * <span class='fl'>50</span> + <span class='fl'>1</span>,
   <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>k0</span> <span class='kw'>=</span> <span class='fl'>50</span>,
+  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.75</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
-  <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>0.005</span>,
+  <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>n</span>,
+  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>3</span>/<span class='fl'>4</span>,
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>0.005</span>,
+  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
   <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>30</span>,
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>1.3</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
+  <span class='kw'>bmort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
+  <span class='kw'>egg_size_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>perfect_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -186,70 +188,76 @@ of the trait-based model.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>no_sp</th>
-      <td><p>The number of species in the model. The default value is 10. The
-more species, the longer takes to run.</p></td>
+      <td><p>The number of species in the model. The default value is 11.</p></td>
     </tr>
     <tr>
       <th>min_w_inf</th>
       <td><p>The asymptotic size of the smallest species in the
-community.</p></td>
+community. Default value is 10. This will be rounded to lie on a grid
+point.</p></td>
     </tr>
     <tr>
       <th>max_w_inf</th>
-      <td><p>The asymptotic size of the largest species in the community.</p></td>
-    </tr>
-    <tr>
-      <th>no_w</th>
-      <td><p>The number of size bins in the community spectrum.</p></td>
+      <td><p>The asymptotic size of the largest species in the community.
+Default value is 1000. This will be rounded to lie on a grid point.</p></td>
     </tr>
     <tr>
       <th>min_w</th>
-      <td><p>The smallest size of the community spectrum.</p></td>
+      <td><p>The size of the the egg of the smallest species. Default value
+is 10^(-4). This also defines the start of the community size spectrum.</p></td>
     </tr>
     <tr>
       <th>max_w</th>
-      <td><p>Obsolete argument because the maximum size of the consumer
-spectrum is set to max_w_inf.</p></td>
+      <td><p>The largest size in the model. By default this is set to
+the largest asymptotic size <code>max_w_inf</code>. Setting it to something
+larger only makes sense if you plan to add larger species to the model
+later.</p></td>
+    </tr>
+    <tr>
+      <th>eta</th>
+      <td><p>Ratio between maturity size and asymptotic size of a species.
+Ignored if <code>min_w_mat</code> is supplied. Default is 10^(-0.6), 
+approximately 1/4.</p></td>
+    </tr>
+    <tr>
+      <th>min_w_mat</th>
+      <td><p>The maturity size of the smallest species. Default value is
+<code>eta * min_w_inf</code>. This will be rounded to lie on a grid point.</p></td>
+    </tr>
+    <tr>
+      <th>no_w</th>
+      <td><p>The number of size bins in the community spectrum. These bins 
+will be equally spaced on a logarithmic scale. Default value
+is such that there are 50 bins for each factor of 10 in weight.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
-      <td><p>Obsolete argument because the smallest plankton size is set
-to the smallest size at which the consumers feed.</p></td>
-    </tr>
-    <tr>
-      <th>no_w_pp</th>
-      <td><p>Obsolete argument that is no longer used because the number
-of plankton size bins is determined because all size bins have to
-be logarithmically equally spaced.</p></td>
+      <td><p>The smallest size of the plankton spectrum. By default this
+is set to the smallest value at which any of the consumers can feed.</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
-      <td><p>The cut off size of the plankton spectrum. Default value
-is 1.</p></td>
-    </tr>
-    <tr>
-      <th>k0</th>
-      <td><p>Multiplier for the maximum recruitment. Default value is 50.</p></td>
+      <td><p>The largest size of the plankton spectrum. Default
+value is max_w_inf unless <code>perfect_scaling = TRUE</code> when it is Inf.</p></td>
     </tr>
     <tr>
       <th>n</th>
       <td><p>Scaling of the intake. Default value is 2/3.</p></td>
     </tr>
     <tr>
-      <th>p</th>
-      <td><p>Scaling of the standard metabolism. Default value is 0.75.</p></td>
-    </tr>
-    <tr>
       <th>q</th>
-      <td><p>Exponent of the search volume. Default value is 0.9.</p></td>
+      <td><p>Exponent of the search volume. Default value is 3/4 unless 
+<code>lambda</code> is provided, in which case this argument is ignored and
+q = lambda - 2 + n.</p></td>
     </tr>
     <tr>
-      <th>eta</th>
-      <td><p>Factor to calculate <code>w_mat</code> from asymptotic size.</p></td>
+      <th>lambda</th>
+      <td><p>Exponent of the abundance power law. If supplied, this 
+overrules the <code>q</code> argument. Otherwise the default value is 2+q-n.</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Growth rate parameter for the plankton spectrum. Default value is 4.</p></td>
+      <td><p>Growth rate parameter for the plankton spectrum. Default value is 0.1.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
@@ -257,22 +265,13 @@ is 1.</p></td>
 0.005.</p></td>
     </tr>
     <tr>
-      <th>lambda</th>
-      <td><p>Exponent of the abundance power law. Default value is (2+q-n).</p></td>
-    </tr>
-    <tr>
       <th>alpha</th>
       <td><p>The assimilation efficiency of the community. The default value
-is 0.6</p></td>
+is 0.4.</p></td>
     </tr>
     <tr>
       <th>ks</th>
       <td><p>Standard metabolism coefficient. Default value is 4.</p></td>
-    </tr>
-    <tr>
-      <th>z0pre</th>
-      <td><p>The coefficient of the background mortality of the community. z0
-= z0pre * w_inf ^ (n-1). The default value is 0.6.</p></td>
     </tr>
     <tr>
       <th>h</th>
@@ -289,12 +288,25 @@ is 0.6</p></td>
     <tr>
       <th>f0</th>
       <td><p>Expected average feeding level. Used to set <code>gamma</code>, the
-factor for the search volume. The default value is 0.5.</p></td>
+coefficient in the search rate. The default value is 0.6.</p></td>
+    </tr>
+    <tr>
+      <th>bmort_prop</th>
+      <td><p>The proportion of the total mortality that comes from
+background mortality, i.e., from sources other than predation or fishing. A
+number in the interval [0, 1). Default 0.</p></td>
+    </tr>
+    <tr>
+      <th>rfac</th>
+      <td><p>The factor such that <code>R_max = rfac * R</code>, where <code>R_max</code>
+is the maximum recruitment allowed and <code>R</code> is the steady-state
+recruitment. Thus the larger <code>rfac</code> the less the impact of the
+non-linear stock-recruitment curve. The default is <code>Inf</code>.</p></td>
     </tr>
     <tr>
       <th>gamma</th>
-      <td><p>Volumetric search rate. Estimated using <code>h</code>, <code>f0</code> and
-<code>kappa</code> if not supplied.</p></td>
+      <td><p>Volumetric search rate. If not provided, default is determined
+by <code><a href='get_gamma_default.html'>get_gamma_default</a></code>.</p></td>
     </tr>
     <tr>
       <th>knife_edge_size</th>
@@ -305,6 +317,19 @@ species. Must be of length 1 or no_sp.</p></td>
       <th>gear_names</th>
       <td><p>The names of the fishing gears. A character vector, the
 same length as the number of species. Default is 1 - no_sp.</p></td>
+    </tr>
+    <tr>
+      <th>egg_size_scaling</th>
+      <td><p>Boolean. Default FALSE. If TRUE, the egg size is a
+constant fraction of the maximum size of each species. This fraction is
+<code>min_w / min_w_inf</code>. If FALSE, all species have the egg size
+<code>w_min</code>.</p></td>
+    </tr>
+    <tr>
+      <th>perfect_scaling</th>
+      <td><p>Boolean. Default FALSE. If TRUE then parameters are set so
+that the community abundance, growth before reproduction and death are
+perfect power laws.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -319,61 +344,52 @@ same length as the number of species. Default is 1 - no_sp.</p></td>
 
     <p>The function has many arguments, all of which have default values. Of
 particular interest to the user are the number of species in the model and
-the minimum and maximum asymptotic sizes. The asymptotic sizes of the species
-are spread evenly on a logarithmic scale within this range.</p>
-<p>The stock recruitment relationship is the default Beverton-Holt style. The
-maximum recruitment is calculated using equilibrium theory (see Andersen &amp;
-Pedersen, 2010) and a multiplier, <code>k0</code>. Users should adjust <code>k0</code> to
-get the spectra they want.</p>
-<p>The factor for the search volume, <code>gamma</code>, is calculated using the
-expected feeding level, <code>f0</code>.</p>
-<p>Fishing selectivity is modelled as a knife-edge function with one parameter,
-<code>knife_edge_size</code>, which is the size at which species are selected. Each
-species can either be fished by the same gear (<code>knife_edge_size</code> has a
-length of 1) or by a different gear (the length of <code>knife_edge_size</code> has
-the same length as the number of species and the order of selectivity size is
-that of the asymptotic size).</p>
+the minimum and maximum asymptotic sizes.</p>
+<p>The characteristic weights of the smallest species are defined by
+<code>min_w</code> (egg size), <code>min_w_mat</code> (maturity size) and 
+<code>min_w_inf</code> (asymptotic size). The asymptotic sizes of 
+the <code>no_sp</code> species
+are logarithmically evenly spaced, ranging from <code>min_w_inf</code> to
+<code>max_w_inf</code>. 
+Similarly the maturity sizes of the species are logarithmically evenly
+spaced, so that the ratio <code>eta</code> between maturity size and asymptotic
+size is the same for all species. If <code>egg_size_scaling = TRUE</code> then also
+the ratio between asymptotic size and egg size is the same for all species.
+Otherwise all species have the same egg size.</p>
+<p>In addition to setting up the parameters, this function also sets up an
+initial condition that is close to steady state.</p>
+<p>Although the trait based model's steady state is often
+stable without imposing a stock recruitment relationship, the function can
+set a Beverton-Holt type stock recruitment relationship that imposes a
+maximal reproduction rate that is a multiple of the recruitment rate at
+steady state. That multiple is set by the argument <code>rfac</code>.</p>
+<p>The search rate coefficient <code>gamma</code> is calculated using the expected
+feeding level, <code>f0</code>.</p>
+<p>The option of including fishing is given, but the steady state may lose its
+natural stability if too much fishing is included. In such a case the user
+may wish to include stabilising effects (like <code>rfac</code>) to ensure the
+steady state is stable. Fishing selectivity is modelled as a knife-edge
+function with one parameter, <code>knife_edge_size</code>, which is the size at
+which species are selected. Each species can either be fished by the same
+gear (<code>knife_edge_size</code> has a length of 1) or by a different gear (the
+length of <code>knife_edge_size</code> has the same length as the number of species
+and the order of selectivity size is that of the asymptotic size).</p>
 <p>The resulting <code>MizerParams</code> object can be projected forward using
-<code>project</code> like any other <code>MizerParams</code> object. When projecting
-the community model it may be necessary to reduce <code>dt</code> to 0.1 to avoid
-any instabilities with the solver. You can check this by plotting the biomass
-or abundance through time after the projection.</p>
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p>K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
-  driven by fishing in model marine ecosystems. Proceedings of the Royal
-  Society V, Biological Sciences, 1682, 795-802.</p>
+<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting
+the model it may be necessary to reduce <code>dt</code> below 0.1 to avoid any
+instabilities with the solver. You can check this by plotting the biomass or
+abundance through time after the projection.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><a href='MizerParams-class.html'>MizerParams</a></p>
-<p>Other functions for setting up models: 
+    <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newCommunityParams.html'>newCommunityParams</a>()</code>,
-<code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code>,
-<code><a href='set_scaling_model.html'>set_scaling_model</a>()</code></p></div>
+<code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>trait_params</span> <span class='kw'>&lt;-</span> <span class='fu'>newTraitParams</span>(<span class='kw'>no_sp</span> <span class='kw'>=</span> <span class='fl'>15</span>)
-<span class='no'>init_pop</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='get_initial_n.html'>get_initial_n</a></span>(<span class='no'>trait_params</span>, <span class='kw'>n0_mult</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>trait_params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>dt</span><span class='kw'>=</span><span class='fl'>0.2</span>,
-    <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>init_pop</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>1</span>)
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>sim</span>)
-<span class='co'>## Set up industrial fishery that only fishes on species with w_inf &lt;= 500 g</span>
-<span class='co'>## And where the selectivity of the industrial fishery = w_inf * 0.05</span>
-<span class='no'>no_sp</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>
-<span class='no'>min_w_inf</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>
-<span class='no'>max_w_inf</span> <span class='kw'>&lt;-</span> <span class='fl'>1e5</span>
-<span class='no'>w_inf</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>^<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='kw'>from</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>min_w_inf</span>), <span class='kw'>to</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>max_w_inf</span>), <span class='kw'>length</span><span class='kw'>=</span><span class='no'>no_sp</span>)
-<span class='no'>knife_edges</span> <span class='kw'>&lt;-</span> <span class='no'>w_inf</span> * <span class='fl'>0.05</span>
-<span class='no'>industrial_gears</span> <span class='kw'>&lt;-</span> <span class='no'>w_inf</span> <span class='kw'>&lt;=</span> <span class='fl'>500</span>
-<span class='no'>other_gears</span> <span class='kw'>&lt;-</span> <span class='no'>w_inf</span> <span class='kw'>&gt;</span> <span class='fl'>500</span>
-<span class='no'>gear_names</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='st'>"Industrial"</span>, <span class='no'>no_sp</span>)
-<span class='no'>gear_names</span>[<span class='no'>other_gears</span>] <span class='kw'>&lt;-</span> <span class='st'>"Other"</span>
-<span class='no'>params_gear</span> <span class='kw'>&lt;-</span> <span class='fu'>newTraitParams</span>(<span class='kw'>no_sp</span> <span class='kw'>=</span> <span class='no'>no_sp</span>, <span class='kw'>min_w_inf</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span>,
-    <span class='kw'>max_w_inf</span> <span class='kw'>=</span> <span class='no'>max_w_inf</span>, <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='no'>knife_edges</span>,
-    <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='no'>gear_names</span>)
-<span class='co'>## Only turn on Industrial fishery. Set effort of the Other gear to 0</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params_gear</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>Industrial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Other</span> <span class='kw'>=</span> <span class='fl'>0</span>))
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newTraitParams</span>()
+<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -382,7 +398,6 @@ or abundance through time after the projection.</p>
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
-      <li><a href="#references">References</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

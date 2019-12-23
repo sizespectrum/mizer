@@ -146,12 +146,6 @@ resource. Described in the section "Setting resource encounter rate".}
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-
-\item{version}{Old versions of mizer made choices for default values for
-missing species parameters that were not ideal. However for backwards
-compatibility these old defaults are still available by setting 
-\code{version = 1}. Default is \code{version = 2} which corresponds to the
-current version.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -640,7 +634,6 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
-\code{\link{newTraitParams}()},
-\code{\link{set_scaling_model}()}
+\code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

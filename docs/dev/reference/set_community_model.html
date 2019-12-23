@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deprecated obsolete function for setting up parameters for a community
-model — set_community_model • mizer</title>
+<title>Deprecated function for setting up parameters for a community-type model — set_community_model • mizer</title>
 
 
 <!-- jquery -->
@@ -36,10 +35,9 @@ model — set_community_model • mizer</title>
 
 
 
-<meta property="og:title" content="Deprecated obsolete function for setting up parameters for a community
-model — set_community_model" />
-<meta property="og:description" content="Deprecated obsolete function for setting up parameters for a community
-model" />
+<meta property="og:title" content="Deprecated function for setting up parameters for a community-type model — set_community_model" />
+<meta property="og:description" content="This function has been deprecated in favour of the function
+newCommunityParams that sets better default values." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,15 +118,14 @@ model" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Deprecated obsolete function for setting up parameters for a community
-model</h1>
+    <h1>Deprecated function for setting up parameters for a community-type model</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/deprecated.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
     <div class="hidden name"><code>set_community_model.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Deprecated obsolete function for setting up parameters for a community
-model</p>
+    <p>This function has been deprecated in favour of the function
+<code><a href='newCommunityParams.html'>newCommunityParams</a></code> that sets better default values.</p>
     </div>
 
     <pre class="usage"><span class='fu'>set_community_model</span>(
@@ -247,18 +244,64 @@ value is 1.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>An object of type <code><a href='MizerParams-class.html'>MizerParams</a></code></p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This functions creates a <code><a href='MizerParams-class.html'>MizerParams</a></code> object so that
+community-type models can be easily set up and run. A community model has
+several features that distinguish it from the food-web type models. Only one
+'species' is resolved, i.e. one 'species' is used to represent the whole
+community. The plankton spectrum only extends to the start of the community
+spectrum. Recruitment to the smallest size in the community spectrum is
+constant and set by the user. As recruitment is constant, the proportion of
+energy invested in reproduction (the slot <code>psi</code> of the returned 
+<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
+off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
+now determined solely by the assimilated food (see the package vignette for 
+more details).</p>
+<p>The function has many arguments, all of which have default values. The main 
+arguments that the users should be concerned with are <code>z0</code>, 
+<code>recruitment</code>, <code>alpha</code> and <code>f0</code> as these determine the average
+growth rate of the community.</p>
+<p>Fishing selectivity is modelled as a knife-edge function with one parameter, 
+<code>knife_edge_size</code>, which determines the size at which species are 
+selected.</p>
+<p>The resulting <code>MizerParams</code> object can be projected forward using 
+<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting 
+the community model it may be necessary to keep a small time step size
+<code>dt</code> of around 0.1 to avoid any instabilities with the solver. You can
+check for these numerical instabilities by plotting the biomass or abundance
+through time after the projection.</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
+  individual efficiencies of size-structured communities, Proceedings of the 
+  Royal Society, 276, 109-114</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other deprecated functions: 
 <code><a href='set_multispecies_model.html'>set_multispecies_model</a>()</code>,
 <code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>set_community_model</span>(<span class='kw'>f0</span><span class='kw'>=</span><span class='fl'>0.7</span>, <span class='kw'>z0</span><span class='kw'>=</span><span class='fl'>0.2</span>, <span class='kw'>recruitment</span><span class='kw'>=</span><span class='fl'>3e7</span>)
+<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span><span class='kw'>=</span><span class='fl'>0.1</span>)
+<span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span>(<span class='no'>sim</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#see-also">See also</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

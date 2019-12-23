@@ -38,7 +38,7 @@ system is not run to steady state. You would have to call
 }
 \examples{
 \dontrun{
-params <- set_scaling_model(max_w_inf = 5000)
+params <- newTraitParams(max_w_inf = 5000)
 params <- markBackground(params)
 a_m <- 0.0085
 b_m <- 3.11

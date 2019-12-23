@@ -43,9 +43,12 @@ data frame.}
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 
 \item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+
+\item{...}{Unused}
 }
 \description{
-Deprecated obsolete function for setting up multispecies parameters
+This function has been deprecated in favour of the function
+\code{\link{newMultispeciesParams}} that sets better default values.
 }
 \seealso{
 Other deprecated functions: 

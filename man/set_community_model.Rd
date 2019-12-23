@@ -2,8 +2,7 @@
 % Please edit documentation in R/deprecated.R
 \name{set_community_model}
 \alias{set_community_model}
-\title{Deprecated obsolete function for setting up parameters for a community
-model}
+\title{Deprecated function for setting up parameters for a community-type model}
 \usage{
 set_community_model(
   max_w = 1e+06,
@@ -79,9 +78,55 @@ value is 1.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
 }
+\value{
+An object of type \code{\linkS4class{MizerParams}}
+}
 \description{
-Deprecated obsolete function for setting up parameters for a community
-model
+This function has been deprecated in favour of the function
+\code{\link{newCommunityParams}} that sets better default values.
+}
+\details{
+This functions creates a \code{\linkS4class{MizerParams}} object so that
+community-type models can be easily set up and run. A community model has
+several features that distinguish it from the food-web type models. Only one
+'species' is resolved, i.e. one 'species' is used to represent the whole
+community. The plankton spectrum only extends to the start of the community
+spectrum. Recruitment to the smallest size in the community spectrum is
+constant and set by the user. As recruitment is constant, the proportion of
+energy invested in reproduction (the slot \code{psi} of the returned 
+\code{MizerParams} object) is set to 0. Standard metabolism has been turned 
+off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
+now determined solely by the assimilated food (see the package vignette for 
+more details).
+
+The function has many arguments, all of which have default values. The main 
+arguments that the users should be concerned with are \code{z0}, 
+\code{recruitment}, \code{alpha} and \code{f0} as these determine the average
+growth rate of the community.
+
+Fishing selectivity is modelled as a knife-edge function with one parameter, 
+\code{knife_edge_size}, which determines the size at which species are 
+selected.
+
+The resulting \code{MizerParams} object can be projected forward using 
+\code{project()} like any other \code{MizerParams} object. When projecting 
+the community model it may be necessary to keep a small time step size
+\code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+check for these numerical instabilities by plotting the biomass or abundance
+through time after the projection.
+}
+\examples{
+\dontrun{
+params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
+sim <- project(params, effort = 0, t_max = 100, dt=0.1)
+plotBiomass(sim)
+plotSpectra(sim)
+}
+}
+\references{
+K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
+  individual efficiencies of size-structured communities, Proceedings of the 
+  Royal Society, 276, 109-114
 }
 \seealso{
 Other deprecated functions: 

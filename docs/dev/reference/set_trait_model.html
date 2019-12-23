@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deprecated obsolete function for setting up parameters for a trait-based
-model — set_trait_model • mizer</title>
+<title>Deprecated function for setting up parameters for a trait-based model — set_trait_model • mizer</title>
 
 
 <!-- jquery -->
@@ -36,10 +35,9 @@ model — set_trait_model • mizer</title>
 
 
 
-<meta property="og:title" content="Deprecated obsolete function for setting up parameters for a trait-based
-model — set_trait_model" />
-<meta property="og:description" content="Deprecated obsolete function for setting up parameters for a trait-based
-model" />
+<meta property="og:title" content="Deprecated function for setting up parameters for a trait-based model — set_trait_model" />
+<meta property="og:description" content="This function has been deprecated in favour of the function
+newTraitParams that sets better default values." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,15 +118,14 @@ model" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Deprecated obsolete function for setting up parameters for a trait-based
-model</h1>
+    <h1>Deprecated function for setting up parameters for a trait-based model</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/deprecated.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
     <div class="hidden name"><code>set_trait_model.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Deprecated obsolete function for setting up parameters for a trait-based
-model</p>
+    <p>This function has been deprecated in favour of the function
+<code><a href='newTraitParams.html'>newTraitParams</a></code> that sets better default values.</p>
     </div>
 
     <pre class="usage"><span class='fu'>set_trait_model</span>(
@@ -293,6 +290,50 @@ same length as the number of species. Default is 1 - no_sp.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>An object of type <code>MizerParams</code></p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This functions creates a <code>MizerParams</code> object so that trait-based-type 
+models can be easily set up and run. The trait-based size spectrum model can
+be derived as a simplification of the general size-based model used in
+<code>mizer</code>. The species-specific parameters are the same for all species, 
+except for
+the asymptotic size, which is considered the most important trait
+characterizing a species. Other parameters are related to the asymptotic
+size. For example, the size at maturity is given by <code>w_inf * eta</code>, 
+where <code>eta</code> is
+the same for all species. For the trait-based model the number of species is
+not important. For applications of the trait-based model see Andersen &amp;
+Pedersen (2010). See the <code>mizer</code> vignette for more details and examples
+of the trait-based model.</p>
+<p>The function has many arguments, all of which have default values. Of
+particular interest to the user are the number of species in the model and
+the minimum and maximum asymptotic sizes. The asymptotic sizes of the species
+are spread evenly on a logarithmic scale within this range.</p>
+<p>The stock recruitment relationship is the default Beverton-Holt style. The
+maximum recruitment is calculated using equilibrium theory (see Andersen &amp;
+Pedersen, 2010) and a multiplier, <code>k0</code>. Users should adjust <code>k0</code> to
+get the spectra they want.</p>
+<p>The factor for the search volume, <code>gamma</code>, is calculated using the
+expected feeding level, <code>f0</code>.</p>
+<p>Fishing selectivity is modelled as a knife-edge function with one parameter,
+<code>knife_edge_size</code>, which is the size at which species are selected. Each
+species can either be fished by the same gear (<code>knife_edge_size</code> has a
+length of 1) or by a different gear (the length of <code>knife_edge_size</code> has
+the same length as the number of species and the order of selectivity size is
+that of the asymptotic size).</p>
+<p>The resulting <code>MizerParams</code> object can be projected forward using
+<code>project</code> like any other <code>MizerParams</code> object. When projecting
+the community model it may be necessary to reduce <code>dt</code> to 0.1 to avoid
+any instabilities with the solver. You can check this by plotting the biomass
+or abundance through time after the projection.</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
+  driven by fishing in model marine ecosystems. Proceedings of the Royal
+  Society V, Biological Sciences, 1682, 795-802.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other deprecated functions: 
@@ -304,6 +345,9 @@ same length as the number of species. Default is 1 - no_sp.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

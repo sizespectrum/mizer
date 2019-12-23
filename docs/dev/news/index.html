@@ -237,8 +237,8 @@
 <li>New <code><a href="../reference/getRates.html">getRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
 <li>Can set initial state with <code><a href="../reference/setInitial.html">setInitial()</a></code>.</li>
 <li>Rate functions take defaults for their <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_B</code> arguments from the corresponding slot in the <code>params</code> argument.</li>
-<li>New <code>perfect</code> argument allows <code><a href="../reference/set_scaling_model.html">set_scaling_model()</a></code> to produce a perfectly scale-invariant model.</li>
-<li>A new <code>bmort_prop</code> argument in <code><a href="../reference/set_scaling_model.html">set_scaling_model()</a></code> allows the inclusion of background death.</li>
+<li>New <code>perfect_scaling</code> argument allows <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> to produce a perfectly scale-invariant model.</li>
+<li>A new <code>bmort_prop</code> argument in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> allows the inclusion of background death.</li>
 <li>Added a data file with the North Sea model MizerParams object.</li>
 </ul>
 </div>
@@ -367,7 +367,7 @@
 </h1>
 <ul>
 <li>Fixed bugs in how the start time of a simulation was handled. This leads to small corrections, so that the output of this version is slightly different from previous versions.</li>
-<li>Introduced a scale-invariant trait-based model, set up with <code><a href="../reference/set_scaling_model.html">set_scaling_model()</a></code>, see section 12 in the vignette.</li>
+<li>Introduced a scale-invariant trait-based model, set up with <code>set_scaling_model()</code>, see section 12 in the vignette.</li>
 <li>Added a function that adds news species to a scale-invariant background, and computes an approximately steady state close to the power law, see section 13 in the vignette.</li>
 <li>Created an example shiny app to allow people to use mizer through a web browser without having to install mizer. The app explores the effect of more selective fishing gear in a case study.</li>
 <li>Improvements to plots:

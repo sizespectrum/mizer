@@ -3,7 +3,7 @@ context("Analytic results")
 # Initialise power law ----
 no_w = 100
 no_sp <- 2
-p <- set_scaling_model(no_sp = no_sp, perfect = TRUE, no_w = no_w)
+p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, no_w = no_w)
 n0 <- p@initial_n
 n0[] <- 0
 n_pp <- p@initial_n_pp

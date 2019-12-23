@@ -119,10 +119,11 @@
 <p>With mizer it is possible to implement many different types of size-spectrum models using the same basic tools and methods.</p>
 <p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package. These make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> vignette) you can even let mizer choose all the parameters for you.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span>()</a></code></pre></div>
+<pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species how species predate on each other. An example of a North Sea model is provided with the package.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(NS_species_params)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(inter)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(NS_species_params, inter)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(NS_species_params)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(inter)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(NS_species_params, inter)</a></code></pre></div>
 <pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
 <pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
@@ -136,17 +137,17 @@
 <h2 class="hasAnchor">
 <a href="#running-a-simulation" class="anchor"></a>Running a simulation</h2>
 <p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function with the model parameters.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">effort =</span> <span class="dv">0</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">effort =</span> <span class="dv">0</span>)</a></code></pre></div>
 <p>This produces an object of class <code>MizerSim</code> which contains the results of the simulation. In this example we chose to set some parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we want to project 10 years into the future, under the assumption of zero fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for more details and it is described fully in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 </div>
 <div id="exploring-the-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#exploring-the-results" class="anchor"></a>Exploring the results</h2>
 <p>After a simulation has been run, the results can be examined using a range of <code>plotting_functions</code> and <code>summary functions</code>. The <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> function combines several of these plots into one:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</a></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(sim, <span class="dt">species =</span> <span class="st">"Herring"</span>, <span class="dt">threshold_w =</span> <span class="dv">50</span>, <span class="dt">biomass_proportion =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(sim, <span class="dt">species =</span> <span class="st">"Herring"</span>, <span class="dt">threshold_w =</span> <span class="dv">50</span>, <span class="dt">biomass_proportion =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>##         0         1         2         3         4         5         6         7 
 ## 0.8241807 0.1669737 0.7983688 0.7910394 0.1038461 0.1478222 0.2969257 0.3322011 
 ##         8         9        10 

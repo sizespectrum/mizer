@@ -451,22 +451,20 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     # Length of background? 
     cat("Plankton size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), "\t(", length(object@w_full)," size bins in total)\n", sep = "")
-    # w range - min, max, number of w
-    # w background min max
-    # no species and names and wInf,  - not all these wMat, beta, sigma
-    # no gears, gear names catching what
+    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), 
+        "\n", sep = "")
+    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), 
+        "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
-    #cat("\tSpecies\t\tw_inf\n")
-    #	for (i in 1:nrow(object@species_params))
-    #	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep = "")
     print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
     cat("Fishing gear details:\n")
     cat("\tGear\t\t\tTarget species\n")
     for (i in 1:dim(object@catchability)[1]){
-        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
+        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",
+            dimnames(object@catchability)$sp[object@catchability[i,]>0], 
+            "\n", sep=" ") 
     }
+    return()
 })
 
 
@@ -491,9 +489,14 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("Parameters:\n")
     summary(object@params)
     cat("Simulation parameters:\n")
-    # Need to store t_max and dt in a description slot? Or just in simulation time parameters? Like a list?
-    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), "\n", sep = "")
-    cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    # Need to store t_max and dt in a description slot? Or just in simulation 
+    # time parameters? Like a list?
+    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), 
+        "\n", sep = "")
+    cat("\tOutput stored every ", 
+        as.numeric(dimnames(object@n)$time)[2] - 
+            as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    return()
 })
 
 
