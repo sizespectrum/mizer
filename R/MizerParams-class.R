@@ -2447,12 +2447,12 @@ upgradeParams <- function(params) {
     
     if (is.function(params@srr)) {
         params@srr <- "srrBevertonHolt"
-        warning('The stock recruitment function has been set to "srrBevertonHolt".')
+        message('The stock recruitment function has been set to "srrBevertonHolt".')
     }
     
     if (is.function(params@plankton_dynamics)) {
         params@plankton_dynamics <- "plankton_semichemostat"
-        warning('The plankton dynamics function has been set to "plankton_semichemostat".')
+        message('The plankton dynamics function has been set to "plankton_semichemostat".')
     }
     
     if (.hasSlot(params, "initial_effort")) {
@@ -2781,7 +2781,7 @@ get_h_default <- function(params) {
                     !is.null(species_params$alpha))
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(species_params))) {
-            stop("\tExcept I can't because there is no k_vb column in the species data frame")
+            stop("Except I can't because there is no k_vb column in the species data frame")
         }
         if (anyNA(species_params$k_vb[missing])) {
             stop("Can not calculate defaults for h because some k_vb values are NA.")

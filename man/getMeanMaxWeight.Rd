@@ -33,8 +33,11 @@ over \code{max_w}.}
   }}
 }
 \value{
-A matrix or vector containing the mean maximum weight of the
-  community through time
+Depends on the \code{measure} argument. If \code{measure = “both”}
+  then you get a matrix with two columns, one with values by numbers, the
+  other with values by biomass at each saved time step. If \code{measure =
+  “numbers”} or \code{“biomass”} you get a vector of the respective values at
+  each saved time step.
 }
 \description{
 Calculates the mean maximum weight of the community through time. This can be

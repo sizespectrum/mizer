@@ -1345,11 +1345,11 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         old_rdi <- new_rdi
     }
     if (deviation >= tol) {
-        warning(paste(
-            "Simulation run in steady() did not converge after ", ti * t_per, 
-            "years. Residual relative rate of change = ", deviation))
+        warning("Simulation run in steady() did not converge after ", 
+                ti * t_per,
+                " years. Residual relative rate of change = ", deviation)
     } else {
-        message(paste("Steady state was reached before ", ti * t_per, "years."))
+        message("Steady state was reached before ", ti * t_per, " years.")
     }
     
     # Restore original stock-recruitment relationship and resource dynamics

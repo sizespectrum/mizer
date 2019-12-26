@@ -40,11 +40,11 @@ set_multispecies_model <-
         object$erepro <- 1
     # If no sel_func column in species_params, set to 'knife_edge'
     if (!("sel_func" %in% colnames(object))) {
-        message("\tNote: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
+        message("Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.")
         object$sel_func <- 'knife_edge'
         # Set default selectivity size
         if (!("knife_edge_size" %in% colnames(object))) {
-            message("Note: \tNo knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
+            message("Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.")
             object$knife_edge_size <- object$w_mat
         }
     }
@@ -54,27 +54,27 @@ set_multispecies_model <-
     # Sort out h column If not passed in directly, is calculated from f0 and
     # k_vb if they are also passed in
     if (!("h" %in% colnames(object))) {
-        message("Note: \tNo h column in species data frame so using f0 and k_vb to calculate it.")
+        message("Note: No h column in species data frame so using f0 and k_vb to calculate it.")
         if (!("k_vb" %in% colnames(object))) {
-            stop("\t\tExcept I can't because there is no k_vb column in the species data frame")
+            stop("Except I can't because there is no k_vb column in the species data frame")
         }
         object$h <- ((3 * object$k_vb) / (object$alpha * f0)) * (object$w_inf ^ (1/3))
     }
     # Sorting out gamma column
     if (!("gamma" %in% colnames(object))) {
-        message("Note: \tNo gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
+        message("Note: No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.")
         ae <- sqrt(2*pi) * object$sigma * object$beta^(lambda-2) * exp((lambda-2)^2 * object$sigma^2 / 2)
         object$gamma <- (object$h / (kappa * ae)) * (f0 / (1 - f0))
     }
     # Sort out ks column
     if (!("ks" %in% colnames(object))) {
-        message("Note: \tNo ks column in species data frame so using ks = h * 0.2.")
+        message("Note: No ks column in species data frame so using ks = h * 0.2.")
         object$ks <- object$h * 0.2
     }
     
     # The m column did not exist in the old version, set it to 1
     if (!("m" %in% colnames(object))) {
-        message("Note: \tNo m column in species data frame so using m = 1.")
+        message("Note: No m column in species data frame so using m = 1.")
         object$m <- 1
     }
     
