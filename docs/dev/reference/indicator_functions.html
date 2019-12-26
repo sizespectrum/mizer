@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deprecated obsolete function for setting up multispecies parameters — set_multispecies_model • mizer</title>
+<title>Description of indicator functions — indicator_functions • mizer</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,9 @@
 
 
 
-<meta property="og:title" content="Deprecated obsolete function for setting up multispecies parameters — set_multispecies_model" />
-<meta property="og:description" content="This function has been deprecated in favour of the function
-newMultispeciesParams that sets better default values." />
+<meta property="og:title" content="Description of indicator functions — indicator_functions" />
+<meta property="og:description" content="Mizer provides a range of functions to calculate indicators 
+from a MizerSim object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -118,93 +118,38 @@ newMultispeciesParams that sets better default values." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Deprecated obsolete function for setting up multispecies parameters</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/deprecated.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
-    <div class="hidden name"><code>set_multispecies_model.Rd</code></div>
+    <h1>Description of indicator functions</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/summary_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/summary_methods.R'><code>R/summary_methods.R</code></a></small>
+    <div class="hidden name"><code>indicator_functions.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function has been deprecated in favour of the function
-<code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> that sets better default values.</p>
+    <p>Mizer provides a range of functions to calculate indicators 
+from a MizerSim object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_multispecies_model</span>(
-  <span class='no'>species_params</span>,
-  <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>1</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>species_params</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>species_params</span>)),
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
-  <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='no'>species_params</span>$<span class='no'>w_inf</span>) * <span class='fl'>1.1</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1e+11</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
-  <span class='no'>...</span>
-)</pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>species_params</th>
-      <td><p>A data frame of species-specific parameter values.</p></td>
-    </tr>
-    <tr>
-      <th>interaction</th>
-      <td><p>Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.</p></td>
-    </tr>
-    <tr>
-      <th>min_w_pp</th>
-      <td><p>The smallest size of the plankton spectrum. By default this
-is set to the smallest value at which any of the consumers can feed.</p></td>
-    </tr>
-    <tr>
-      <th>max_w</th>
-      <td><p>The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>Scaling exponent of the intake rate.</p></td>
-    </tr>
-    <tr>
-      <th>q</th>
-      <td><p>Exponent of the allometric search volume. Not needed if a
-<code>search_vol</code> array is specified.</p></td>
-    </tr>
-    <tr>
-      <th>f0</th>
-      <td><p>Average feeding level. Used to calculated <code>h</code> and <code>gamma</code>
-if those are not columns in the species data frame. Also requires
-<code>k_vb</code> (the von Bertalanffy K parameter) to be a column in the species
-data frame.</p></td>
-    </tr>
-    <tr>
-      <th>kappa</th>
-      <td><p>Coefficient of the intrinsic carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Unused</p></td>
-    </tr>
-    </table>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>A list of available indicator functions for MizerSim objects is given in the table below</p><table class='table'>
+<tr><td>Function</td><td>Returns</td><td>Description</td></tr>
+<tr><td><code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a></code></td><td>A vector with values at each time step.</td><td>Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight.</td></tr>
+<tr><td><code><a href='getMeanWeight.html'>getMeanWeight</a></code></td><td>A vector with values at each saved time step.</td><td>The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance.</td></tr>
+<tr><td><code><a href='getMeanMaxWeight.html'>getMeanMaxWeight</a></code></td><td>Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step</td><td>The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details.</td></tr>
+<tr><td><code><a href='getCommunitySlope.html'>getCommunitySlope</a></code></td><td>A data.frame with four columns: time step, slope, intercept and the coefficient of determination.</td><td>Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size.</td></tr>
+</table>
+
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other deprecated functions: 
-<code><a href='set_community_model.html'>set_community_model</a>()</code>,
-<code><a href='set_trait_model.html'>set_trait_model</a>()</code></p></div>
+    <div class='dont-index'><p><code><a href='summary_functions.html'>summary_functions</a></code>, <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

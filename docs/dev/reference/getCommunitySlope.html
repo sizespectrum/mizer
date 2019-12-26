@@ -36,9 +36,13 @@
 
 
 <meta property="og:title" content="Calculate the slope of the community abundance — getCommunitySlope" />
-<meta property="og:description" content="Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
-You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation." />
+<meta property="og:description" content="Calculates the slope of the community abundance through time by performing a
+linear regression on the logged total numerical abundance at weight and
+logged weights (natural logs, not log to base 10, are used). You can specify
+minimum and maximum weight or length range for the species. Lengths take
+precedence over weights (i.e. if both min_l and min_w are supplied, only
+min_l will be used). You can also specify the species to be used in the
+calculation." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,9 +129,13 @@ You can also specify the species to be used in the calculation." />
     </div>
 
     <div class="ref-description">
-    <p>Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
-You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation.</p>
+    <p>Calculates the slope of the community abundance through time by performing a
+linear regression on the logged total numerical abundance at weight and
+logged weights (natural logs, not log to base 10, are used). You can specify
+minimum and maximum weight or length range for the species. Lengths take
+precedence over weights (i.e. if both min_l and min_w are supplied, only
+min_l will be used). You can also specify the species to be used in the
+calculation.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getCommunitySlope</span>(
@@ -172,7 +180,8 @@ over <code>max_w</code>.</p></dd>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with slope, intercept and R2 values.</p>
+    <p>A data.frame with four columns: time step, slope, intercept and the
+  coefficient of determination R^2.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for calculating indicators: 

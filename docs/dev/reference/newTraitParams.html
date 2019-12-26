@@ -174,7 +174,7 @@ of the trait-based model.</p>
   <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>1.3</span>,
   <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>bmort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
@@ -242,7 +242,12 @@ value is max_w_inf unless <code>perfect_scaling = TRUE</code> when it is Inf.</p
     </tr>
     <tr>
       <th>n</th>
-      <td><p>Scaling of the intake. Default value is 2/3.</p></td>
+      <td><p>Scaling exponent of the maximum intake rate. Default value is 2/3.</p></td>
+    </tr>
+    <tr>
+      <th>p</th>
+      <td><p>Scaling exponent of the standard metabolic rate. By default this is
+equal to the exponent <code>n</code>.</p></td>
     </tr>
     <tr>
       <th>q</th>
@@ -301,7 +306,7 @@ number in the interval [0, 1). Default 0.</p></td>
       <td><p>The factor such that <code>R_max = rfac * R</code>, where <code>R_max</code>
 is the maximum recruitment allowed and <code>R</code> is the steady-state
 recruitment. Thus the larger <code>rfac</code> the less the impact of the
-non-linear stock-recruitment curve. The default is <code>Inf</code>.</p></td>
+non-linear stock-recruitment curve. The default is 4.</p></td>
     </tr>
     <tr>
       <th>gamma</th>
