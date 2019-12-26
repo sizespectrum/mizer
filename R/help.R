@@ -29,10 +29,13 @@
 #' mizer and how the package can be used to perform size-based modelling.
 #'
 #' @import ggplot2 methods assertthat shiny dplyr
-#' @importFrom reshape2 melt
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @docType package
 #' @name mizer
 #' @aliases mizer-package
 NULL
+
+#' @importFrom reshape2 melt
+#' @export
+reshape2::melt
