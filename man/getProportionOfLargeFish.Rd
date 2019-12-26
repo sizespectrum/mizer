@@ -42,7 +42,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-An array containing the proportion of large fish through time
+A vector containing the proportion of large fish through time
 }
 \description{
 Calculates the proportion of large fish through time in the \code{MizerSim}

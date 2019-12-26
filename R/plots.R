@@ -58,7 +58,7 @@
 #' the same legend. This is made possible for some of the plots via the
 #' \code{\link{displayFrames}} function.
 #' 
-#' @seealso \code{\link{summary_functions}}
+#' @seealso \code{\link{summary_functions}}, \code{\link{indicator_functions}}
 #' @family plotting functions
 #' @name plotting_functions
 #' @examples

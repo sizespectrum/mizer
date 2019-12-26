@@ -79,7 +79,7 @@ p <- p + theme_bw()
 p
 }
 \seealso{
-\code{\link{summary_functions}}
+\code{\link{summary_functions}}, \code{\link{indicator_functions}}
 
 Other plotting functions: 
 \code{\link{displayFrames}()},

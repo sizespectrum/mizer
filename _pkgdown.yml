@@ -98,15 +98,18 @@ reference:
   - summary_functions
   - getDiet
   - getBiomass
-  - getCommunitySlope
-  - getMeanMaxWeight
-  - getMeanWeight
   - getN
-  - getProportionOfLargeFish
   - getSSB
   - getYield
   - getYieldGear
   - getGrowthCurves
+- title: Calculating indicators
+  contents:
+  - indicator_functions
+  - getProportionOfLargeFish
+  - getCommunitySlope
+  - getMeanWeight
+  - getMeanMaxWeight
 - title: Plotting results
   contents:
   - plotting_functions
