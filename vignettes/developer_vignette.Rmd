@@ -433,17 +433,15 @@ stored values is easy: Just go to the Git tab in RStudio, select the changed
 files in `tests/testthat/values` (select, not tick), then right-click and choose
 Revert.
 
-When a plot has changed, the error message from `testthat::expect_known_value()`
-is not particularly useful, because it compares two ggplot objects. In this 
-case you should carefully compare the plots by eye. To view the old plot you 
-have to first revert the file in `tests/testthat/values` and then load the plot
-from that file with `readRDS("tests/testthat/values/name_of_plot_function")`.
-
 It may be that the change in the result of a calculation is intended, perhaps
 because your new code is more accurate than the old code. If you are 100%
 certain of this, but only then, should you commit the changed files in
 tests/testthat/values, so that these new values form the basis of future
 comparison tests.
+
+Plots are tested with the [vdiffr](http://vdiffr.r-lib.org/) package. When a
+plot has changed, you should run vdiffr::manage_cases(), which will start a
+shiny gadget where you can view the changes in the plot.
 
 
 # Finding your way around the mizer code

@@ -6,7 +6,8 @@ context("Functions used in project")
 # North sea
 data(NS_species_params_gears)
 data(inter)
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter,
+                                n = 2/3, p = 0.7)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)
