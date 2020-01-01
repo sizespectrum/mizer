@@ -187,6 +187,7 @@ can graze. (#46)
 ## Under the hood
 
 * Increased regression test coverage from 67% to 86%.
+* Now using vdiffr package to test plots.
 * Converted all S4 methods to functions to decrease the learning curve for
   new developers.
 * The calculation of defaults is now handled by new `get_gamma_default()`,

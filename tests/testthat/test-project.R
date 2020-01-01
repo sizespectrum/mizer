@@ -352,7 +352,8 @@ test_that("Gear checking and sorting is OK", {
 
 # same numerical results as previously ----
 test_that("Simulation gives same numerical results as previously",{
-  params <- newMultispeciesParams(NS_species_params_gears, inter)
+  params <- newMultispeciesParams(NS_species_params_gears, inter,
+                                  n = 2/3, p = 0.7)
   sim <- project(params, t_max = 1)
   expect_known_value(sim@n[2, 3, ], "values/projectn")
   expect_known_value(sim@n_pp[2, ], "values/projectp")

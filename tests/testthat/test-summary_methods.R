@@ -3,7 +3,8 @@ context("Summary methods")
 ## Initialisation ----
 data(NS_species_params_gears)
 data(inter)
-params <- newMultispeciesParams(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter,
+                                n = 2/3, p = 0.7)
 sim <- project(params, effort = 1, t_max = 10)
 no_sp <- nrow(NS_species_params_gears)
 no_w <- length(params@w)
