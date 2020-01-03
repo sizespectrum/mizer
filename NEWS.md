@@ -101,6 +101,8 @@ can graze. (#46)
 
 ## Other new features
 
+* New wrapper function `newSheldonParams()` that sets up a single species in a
+  power-law background.
 * New `upgradeParams()` can upgrade MizerParams objects from previous versions 
   of mizer so they work with the new version.
 * `project()` now shows a progress bar while a simulation is running. Can be

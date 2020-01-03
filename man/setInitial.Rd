@@ -6,14 +6,18 @@
 \usage{
 setInitial(
   params,
+  sim,
   initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp,
-  initial_B = params@initial_B,
-  sim
+  initial_B = params@initial_B
 )
 }
 \arguments{
 \item{params}{A \code{\link{MizerParams}} object}
+
+\item{sim}{A \code{MizerSim} object. If supplied, the `initial_n`, 
+`initial_n_pp` and `initial_B` arguments are ignored and the information
+is taken from the last timestep of the simulation in `sim`.}
 
 \item{initial_n}{The initial abundances of species. A matrix with dimensions
 species x size. The order of species must be the same as in the MizerParams
@@ -25,10 +29,6 @@ Optional. Ignored if `sim` is supplied.}
 \item{initial_B}{The initial biomasses of the unstructured resources. A named
 vector with one entry for each resource. Optional. Ignored if `sim` is
 supplied.}
-
-\item{sim}{A \code{MizerSim} object. If supplied, the `initial_n`, 
-`initial_n_pp` and `initial_B` arguments are ignored and the information
-is taken from the last timestep of the simulation in `sim`.}
 }
 \value{
 A MizerParams object
@@ -41,7 +41,7 @@ abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
 \dontrun{
 params <- NS_params
 sim <- project(params, t_max = 20, effort = 0.5)
-params <- setInitial(params, sim = sim)
+params <- setInitial(params, sim)
 }
 }
 \seealso{
