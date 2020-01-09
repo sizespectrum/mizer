@@ -642,7 +642,7 @@ newSheldonParams <- function(w_inf = 100,
                              kappa = 0.005,
                              alpha = 0.4,
                              ks = 4,
-                             h = 30,
+                             k_vb = 1,
                              beta = 100,
                              sigma = 1.3,
                              f0 = 0.6,
@@ -694,8 +694,8 @@ newSheldonParams <- function(w_inf = 100,
         stop("The maturity size of the smallest species w_mat must be ",
              "smaller than its maximum size w_inf")
     }
-    if (!all(c(n, q, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
-        stop("The parameters n, q, kappa, alpha, h, beta, sigma, ks and ",
+    if (!all(c(n, q, kappa, alpha, k_vb, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, q, kappa, alpha, k_vb, beta, sigma, ks and ",
              "f0, if supplied, need to be positive.")
     }
     
@@ -707,7 +707,7 @@ newSheldonParams <- function(w_inf = 100,
         w_inf = w_inf,
         w_mat = w_mat,
         w_min_idx = 1,
-        h = h,
+        k_vb =  k_vb,
         ks = ks,
         beta = beta,
         sigma = sigma,
@@ -736,6 +736,7 @@ newSheldonParams <- function(w_inf = 100,
     
     w <- params@w
     dw <- params@dw
+    h <- params@species_params$h
     
     ## Construct steady state solution ----
     
