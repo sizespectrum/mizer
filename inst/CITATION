@@ -1,0 +1,21 @@
+citHeader("To cite the mizert package in publications, use:")
+
+citEntry(
+  entry = "Article",
+  author = personList(as.person("Finlay Scott"),
+                      as.person("Julia L. Blanchard"),
+                      as.person("Ken H. Andersen")),
+  title = "mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling",
+  journal = "Methods Ecol Evol",
+  year = 2014,
+  volume = 5,
+  pages = "1121-1125",
+  doi = "10.1111/2041-210X.12256",
+  textVersion = paste(
+    "F. Scott, J.L. Blanchard and K.H. Andersen.",
+    "mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling.",
+    "Methods in Ecology and Evolution 5(10) 1121-1125 (2014)."
+  )
+)
+
+citFooter("As mizer is continually evolving, you may want to cite its version number. Find it with 'help(package=mizer)'.")

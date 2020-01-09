@@ -3,17 +3,26 @@
 \docType{class}
 \name{MizerSim-class}
 \alias{MizerSim-class}
-\title{MizerSim}
+\title{A class to hold the results of a simulation}
 \description{
 A class that holds the results of projecting a \linkS4class{MizerParams}
-object through time.
+object through time using the \code{\link{project}} function.
 }
 \details{
-\linkS4class{MizerSim} objects are created by using the \code{\link{project}} method
-on an object of type \code{MizerParams}.
+A new \code{MizerSim} object can be created with the \code{\link{MizerSim}}
+constructor, but you will never have to do that because the object is
+created automatically by the \code{\link{project}} function when needed.
 
-There are several plotting methods available to explore the contents of a
-\code{MizerSim} object. See the package vignette for more details.
+The arrays all have named dimensions. The names of the "time" dimension are
+numeric and denote the time in years. The names of the "sp" dimension are
+the same as the species name in the order specified in the species_params
+data frame. The names of the "gear" and "res" dimension are the names of the 
+gears and resources respectively, in the same order as specified when setting
+up the \code{MizerParams} object.
+
+There are several \code{link{summary_functions}} and
+\code{\link{plotting_functions}} available to explore the contents of a
+\code{MizerSim} object.
 }
 \section{Slots}{
 
@@ -23,13 +32,13 @@ There are several plotting methods available to explore the contents of a
 \item{\code{n}}{Array that stores the projected community population abundances by
 time, species and size}
 
-\item{\code{effort}}{Array that stores the fishing effort through time by time and
-gear}
-
-\item{\code{n_pp}}{Array that stores the projected background population by time and
+\item{\code{n_pp}}{Array that stores the projected plankton abundance by time and
 size}
+
+\item{\code{B}}{Array that stores biomasses of unstructured resources by time and
+resource. Second dimension has length 0 if there are no unstructured
+resources.}
+
+\item{\code{effort}}{Array that stores the fishing effort by time and gear}
 }}
 
-\seealso{
-\code{\link{project}} \code{\link{MizerParams}}
-}

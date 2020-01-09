@@ -3,3 +3,14 @@
 language: R
 sudo: false
 cache: packages
+
+branches:
+  only:
+  - master
+
+after_success:
+  - Rscript -e 'covr::codecov(type = "all")'
+
+# Using travis to build mizer website according to
+# see https://www.r-bloggers.com/continuous-deployment-of-package-documentation-with-pkgdown-and-travis-ci/
+# did not work reliably.

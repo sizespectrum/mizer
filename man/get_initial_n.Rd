@@ -21,12 +21,12 @@ A matrix (species x size) of population abundances.
 This function uses the model parameters and other parameters to calculate 
 initial population abundances for the community populations. These initial 
 abundances should be reasonable guesses at the equilibrium values. The 
-returned population can be passed to the \code{project} method.
+returned population can be passed to the \code{project} function.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
-params <- MizerParams(NS_species_params_gears)
+params <- newMultispeciesParams(NS_species_params_gears)
 init_n <- get_initial_n(params)
 }
 }

@@ -3,7 +3,7 @@
 \docType{data}
 \name{NS_species_params}
 \alias{NS_species_params}
-\title{Example parameter set based on the North Sea}
+\title{Example species parameter set based on the North Sea}
 \format{A data frame with 12 rows and 7 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
@@ -11,7 +11,7 @@
 \item{w_mat}{Size at maturity}
 \item{beta}{Size preference ratio}
 \item{sigma}{Width of the size-preference}
-\item{r_max}{Maximum recruitment}
+\item{R_max}{Maximum recruitment}
 \item{k_vb}{The von Bertalanffy k parameter}
 }}
 \source{
@@ -23,4 +23,11 @@ It is a data.frame that contains all the necessary information to be used by the
 \code{\link{MizerParams}} constructor.
 As there is no gear column, each species is assumed to be fished by a
 separate gear.
+}
+\examples{
+\dontrun{
+params <- MizerParams(NS_species_params)
+sim = project(params)
+plot(sim)
+}
 }

@@ -22,7 +22,7 @@ server <- function(input, output, session) {
     sim_old <- readRDS(file="hake_mullet.RDS")
     # Therefore we do not need the following:
     # p_bg  <- reactive({
-    #     setBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
+    #     markBackground(set_scaling_model(no_sp = input$no_sp, no_w = 400,
     #                     min_w_inf = 10, max_w_inf = 1e5,
     #                     min_egg = 1e-4, min_w_mat = 10^(0.4),
     #                     knife_edge_size = Inf, kappa = 10000,
@@ -104,7 +104,7 @@ server <- function(input, output, session) {
     #     on.exit(progress$close())
     #     
     #     project(p(), t_max = 50, t_save = 5, effort = fixed_effort, 
-    #             shiny_progress = progress)
+    #             progress_bar = progress)
     # })
     
     # Data frame for yield plot
@@ -132,7 +132,7 @@ server <- function(input, output, session) {
         no_t <- dim(sim_old@n)[1]
         p@initial_n <- sim_old@n[no_t, , ]
         p@initial_n_pp <- sim_old@n_pp[no_t, ]
-        p@species_params$r_max <- Inf
+        p@species_params$R_max <- Inf
         
         # Retune the values of erepro so that we get the correct level of
         # recruitment without stock-recruitment relationship
@@ -140,11 +140,11 @@ server <- function(input, output, session) {
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)
         for (i in (1:no_sp)) {
-            gg0 <- gg[i, p@species_params$w_min_idx[i]]
-            mumu0 <- mumu[i, p@species_params$w_min_idx[i]]
-            DW <- p@dw[p@species_params$w_min_idx[i]]
+            gg0 <- gg[i, p@w_min_idx[i]]
+            mumu0 <- mumu[i, p@w_min_idx[i]]
+            DW <- p@dw[p@w_min_idx[i]]
             p@species_params$erepro[i] <- p@species_params$erepro[i] *
-                (p@initial_n[i, p@species_params$w_min_idx[i]] *
+                (p@initial_n[i, p@w_min_idx[i]] *
                      (gg0 + DW * mumu0)) / rdi[i]
         }
         
@@ -172,7 +172,7 @@ server <- function(input, output, session) {
         on.exit(progress$close())
         
         project(params(), t_max = 15, t_save = 0.1, effort = fixed_effort, 
-                shiny_progress = progress)
+                progress_bar = progress)
     })
     
     # Plot yield ####

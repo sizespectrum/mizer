@@ -67,7 +67,8 @@ trait_params <- set_trait_model(max_w=100e3, no_sp=10, min_w_inf=5, max_w_inf=10
                                 beta=100, sigma=1.3, # size selection parameters
                                 h=20, alpha=0.6, n=0.75, q=0.8, z0pre=2, f0=0.6, ks=2.4,
                                 r_pp=4, kappa=5, # resource parameters
-                                k0=5000) # recruitment parameters
+                                k0=5000, # recruitment parameters
+                                min_w_pp = 1e-10) 
 # k0 has been set so that the resource spectrum and the community spectra form a continuum (found through trial and error).
 # Project through time to equilibrium. The trait-based model is better behaved than the Community model so we don't need to project for so long.
 trait_time_sim <- 200
@@ -92,7 +93,8 @@ data(inter)
 NS_species_params$knife_edge_size <- 1000
 # Make the MizerParams object using the constructor
 ms_params <- MizerParams(NS_species_params, inter, # the species parameters and interaction matrix
-                         max_w=1e6, kappa=9.27e10, q=0.8, n=2/3, z0pre=0.6)
+                         max_w=1e6, kappa=9.27e10, q=0.8, n=2/3, z0pre=0.6,
+                         min_w_pp = 1e-10)
 # There are lots of note explaining that many parameters have been set to the default values
 # Project through time to equilibrium. The multispcies model is normally well behaved.
 ms_time_sim <- 150
@@ -165,7 +167,9 @@ ms_relative_abundance <-  ms1_n_total / ms0_n_total
 # It's in the same position for each model as each model has the same size range for the background spectrum
 cc_index <- which(comm_sim0@params@w_full == comm_sim0@params@w[1])
 comm_base <- (comm_sim0@params@w_full * comm_sim0@params@cc_pp)[cc_index]
+cc_index <- which(trait_sim0@params@w_full == trait_sim0@params@w[1])
 trait_base <- (trait_sim0@params@w_full * trait_sim0@params@cc_pp)[cc_index]
+cc_index <- which(ms_sim0@params@w_full == ms_sim0@params@w[1])
 ms_base <- (ms_sim0@params@w_full * ms_sim0@params@cc_pp)[cc_index]
 
 # Figure dimensions for printing
@@ -455,7 +459,7 @@ for (gear in gear_names){
     mtext(gear, side=4, line=1, cex=0.6)
     add_effort_lines()
         for (i in species_in_gear){
-            lines(x = 1:project_time, y=rescale_ssb[2:(project_time+1),i], col=species_col[i], lty=species_lty[i])
+            lines(x = 1:project_time, y=rescale_ssb[ ,i], col=species_col[i], lty=species_lty[i])
         }
 }
 

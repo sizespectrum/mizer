@@ -3,7 +3,7 @@
 \docType{data}
 \name{NS_species_params_gears}
 \alias{NS_species_params_gears}
-\title{Example parameter set based on the North Sea with different gears}
+\title{Example species parameter set based on the North Sea with different gears}
 \format{A data frame with 12 rows and 8 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
@@ -11,7 +11,7 @@
 \item{w_mat}{Size at maturity}
 \item{beta}{Size preference ratio}
 \item{sigma}{Width of the size-preference}
-\item{r_max}{Maximum recruitment}
+\item{R_max}{Maximum recruitment}
 \item{k_vb}{The von Bertalanffy k parameter}
 \item{gear}{Name of the fishing gear}
 }}
@@ -23,4 +23,11 @@ This data set is based on species in the North Sea (Blanchard et al.).
 It is similar to the data set \code{NS_species_params} except that
 this one has an additional column specifying the fishing gear that
 operates on each species.
+}
+\examples{
+\dontrun{
+params <- MizerParams(NS_species_params_gears)
+sim = project(params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+plot(sim)
+}
 }

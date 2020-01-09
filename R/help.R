@@ -6,28 +6,36 @@
 #' Using \pkg{mizer} is relatively simple.  There are three main stages: 
 #' \enumerate{
 #'
-#' \item Setting the model parameters. This is done by creating an object of 
-#' class \code{MizerParams}. This includes model parameters such as the life 
-#' history parameters of each species, and the range of the size spectrum.
+#' \item Setting the model parameters. This is done by creating an object of
+#' class \linkS4class{MizerParams}. This includes model parameters such as the
+#' life history parameters of each species, and the range of the size spectrum.
+#' There are several setup functions that help to create a MizerParams objects
+#' for particular types of models:
+#' \itemize{
+#'   \item \code{\link{newCommunityParams}}
+#'   \item \code{\link{newTraitParams}}
+#'   \item \code{\link{newMultispeciesParams}}
+#' }
+#' \item Running a simulation. This is done by calling the
+#' \code{\link{project}} function with the model parameters. This produces an
+#' object of \linkS4class{MizerSim} that contains the results of the simulation.
 #'
-#' \item Running a simulation. This is done by calling the \code{project()} 
-#' method on the model parameters. This produces an object of \code{MizerSim} 
-#' which contains the results of the simulation.
-#'
-#' \item Exploring results. After a simulation has been run, the results can be 
-#' explored using a range of plots and summaries. 
+#' \item Exploring results. After a simulation has been run, the results can be
+#' explored using a range of \code{\link{plotting_functions}} and
+#' \code{\link{summary_functions}}.
 #' }
 #'
-#' See the accompanying vignette for full details of the principles behind mizer
-#' and how the package can be used to perform size-based modelling.
+#' See the mizer website and vignettes for full details of the principles behind
+#' mizer and how the package can be used to perform size-based modelling.
 #'
-#' @import plyr ggplot2 methods
-#' @importFrom reshape2 melt
-#' @importFrom stats fft mvfft lm
-#' @importFrom deSolve ode
-#' @importFrom progress progress_bar
-#'
+#' @import ggplot2 methods assertthat shiny dplyr
+#' @importFrom plotly ggplotly plotlyOutput renderPlotly
+#' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @docType package
 #' @name mizer
-#' @aliases mizer, mizer-package
+#' @aliases mizer-package
 NULL
+
+#' @importFrom reshape2 melt
+#' @export
+reshape2::melt

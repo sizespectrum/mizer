@@ -4,18 +4,50 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, rfac = Inf, effort = 0)
+steady(
+  params,
+  t_max = 100,
+  t_per = 7.5,
+  tol = 10^(-2),
+  dt = 0.1,
+  return_sim = FALSE,
+  progress_bar = TRUE
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{rfac}{A number that determines the strength of the non-linearity in
-the Beverton-Holt stock-recruitment relationship. The maximal recruitment
-will be set to rfac times the normal steady-state recruitment.
-Default value is 10.}
+\item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
-\item{effort}{The fishing effort. Default is 0}
+\item{t_per}{The simulation is broken up into shorter runs of \code{t_per} years,
+after each of which we check for convergence. Default value is 7.5. This
+should be chosen as an odd multiple of the timestep \code{dt} in order to be
+able to detect period 2 cycles.}
+
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over \verb{t_per years} is less than \code{tol} for every background
+species. Default value is 1/100.}
+
+\item{dt}{The time step to use in \code{project()}.}
+
+\item{return_sim}{If TRUE, the function returns the MizerSim object holding
+the result of the simulation run. If FALSE (default) the function returns
+a MizerParams object with the "initial" slots set to the steady state.}
+
+\item{progress_bar}{A shiny progress object to implement
+a progress bar in a shiny app. Default FALSE.}
 }
 \description{
-Tune params object to be at steady state
+This is done by running the dynamics for a specified number of years while
+keeping recruitment and resources constant to reach steady state. Then the
+reproductive efficiencies and the external resource rates are retuned to
+achieve that level of recruitment.
+}
+\examples{
+\dontrun{
+params <- newTraitParams()
+params@species_params$gamma[5] <- 3000
+params <- setSearchVolume(params)
+params <- steady(params)
+}
 }
