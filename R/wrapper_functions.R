@@ -1168,6 +1168,7 @@ renameSpecies <- function(params, replace) {
 #'   new species. In the latter case all interaction between an old and a new
 #'   species are set to 1. If this argument is missing, all interactions 
 #'   involving a new species are set to 1.
+#' @inheritParams newTraitParams
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @seealso \code{\link{removeSpecies}}
@@ -1202,7 +1203,8 @@ renameSpecies <- function(params, replace) {
 #' sim <- project(params, t_max=50)
 #' plotBiomass(sim)
 #' }
-addSpecies <- function(params, species_params, interaction) {
+addSpecies <- function(params, species_params, interaction,
+                       initial_effort = NULL) {
     # check validity of parameters ----
     assert_that(is(params, "MizerParams"),
                 is.data.frame(species_params))
@@ -1265,7 +1267,8 @@ addSpecies <- function(params, species_params, interaction) {
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
         w_pp_cutoff = max(params@w_full),
-        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
+        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
+        initial_effort = initial_effort
     )
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
