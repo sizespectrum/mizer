@@ -2265,7 +2265,7 @@ setFishing <- function(params, initial_effort = NULL) {
     
     if (!is.null(initial_effort)) {
         validate_effort_vector(params, initial_effort)
-        params@initial_effort <- initial_effort
+        params@initial_effort[] <- initial_effort
     }
     
     # At the moment, each species is only caught by 1 gear so in species_params
