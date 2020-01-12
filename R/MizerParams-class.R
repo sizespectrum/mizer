@@ -2265,7 +2265,7 @@ setFishing <- function(params, initial_effort = NULL) {
     
     if (!is.null(initial_effort)) {
         validate_effort_vector(params, initial_effort)
-        params@initial_effort <- initial_effort
+        params@initial_effort[] <- initial_effort
     }
     
     # At the moment, each species is only caught by 1 gear so in species_params
@@ -2753,10 +2753,7 @@ get_phi <- function(species_params, ppmr) {
 
 #' Get default value for h
 #' 
-#' In old version, it filled in any missing values for \code{h} according to
-#' the formula
-#' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
-#' In the new version it sets \code{h} so that the species reaches maturity 
+#' Sets \code{h} so that the species reaches maturity 
 #' size at the age predicted by the von Bertalannfy growth curve parameters
 #' \code{k_vb} and (optionally \code{t0}) taken from the species parameter
 #' data frame. Also needs the exponent \code{b} from the length-weight
