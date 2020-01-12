@@ -634,6 +634,7 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
+\code{\link{newSheldonParams}()},
 \code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

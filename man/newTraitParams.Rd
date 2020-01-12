@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{newTraitParams}
 \alias{newTraitParams}
-\title{Sets up parameters for a trait-based model}
+\title{Set up parameters for a trait-based model}
 \usage{
 newTraitParams(
   no_sp = 11,
@@ -27,9 +27,9 @@ newTraitParams(
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
+  gamma = NA,
   bmort_prop = 0,
   rfac = 4,
-  gamma = NA,
   knife_edge_size = 1000,
   gear_names = "knife_edge_gear",
   egg_size_scaling = FALSE,
@@ -101,7 +101,11 @@ is 0.4.}
 \item{sigma}{Width of prey size preference. Default value is 1.3.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
-coefficient in the search rate. The default value is 0.6.}
+coefficient in the search rate. The default value is 0.6. Ignored if 
+\code{gamma} is given explicitly.}
+
+\item{gamma}{Volumetric search rate. If not provided, default is determined
+by \code{\link{get_gamma_default}} using the value of \code{f0}.}
 
 \item{bmort_prop}{The proportion of the total mortality that comes from
 background mortality, i.e., from sources other than predation or fishing. A
@@ -112,14 +116,11 @@ is the maximum recruitment allowed and \code{R} is the steady-state
 recruitment. Thus the larger \code{rfac} the less the impact of the
 non-linear stock-recruitment curve. The default is 4.}
 
-\item{gamma}{Volumetric search rate. If not provided, default is determined
-by \code{\link{get_gamma_default}}.}
-
 \item{knife_edge_size}{The minimum size at which the gear or gears select
-species. Must be of length 1 or no_sp.}
+fish. A vector with the length equal to the number of gears.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the number of species. Default is 1 - no_sp.}
+same length as the number of gears. Default is "knife_edge_gear".}
 
 \item{egg_size_scaling}{Boolean. Default FALSE. If TRUE, the egg size is a
 constant fraction of the maximum size of each species. This fraction is
@@ -205,6 +206,7 @@ plotSpectra(sim)
 \seealso{
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
-\code{\link{newMultispeciesParams}()}
+\code{\link{newMultispeciesParams}()},
+\code{\link{newSheldonParams}()}
 }
 \concept{functions for setting up models}

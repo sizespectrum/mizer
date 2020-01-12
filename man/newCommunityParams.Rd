@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{newCommunityParams}
 \alias{newCommunityParams}
-\title{Sets up parameters for a community-type model}
+\title{Set up parameters for a community-type model}
 \usage{
 newCommunityParams(
   max_w = 1e+06,
@@ -118,6 +118,7 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
 \seealso{
 Other functions for setting up models: 
 \code{\link{newMultispeciesParams}()},
+\code{\link{newSheldonParams}()},
 \code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}
