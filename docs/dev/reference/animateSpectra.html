@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tune params object to be at steady state — steady • mizer</title>
+<title>Animation of the abundance spectra — animateSpectra • mizer</title>
 
 
 <!-- jquery -->
@@ -35,11 +35,8 @@
 
 
 
-<meta property="og:title" content="Tune params object to be at steady state — steady" />
-<meta property="og:description" content="This is done by running the dynamics for a specified number of years while
-keeping recruitment and resources constant to reach steady state. Then the
-reproductive efficiencies and the external resource rates are retuned to
-achieve that level of recruitment." />
+<meta property="og:title" content="Animation of the abundance spectra — animateSpectra" />
+<meta property="og:description" content="Animation of the abundance spectra" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,83 +117,97 @@ achieve that level of recruitment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Tune params object to be at steady state</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>steady.Rd</code></div>
+    <h1>Animation of the abundance spectra</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
+    <div class="hidden name"><code>animateSpectra.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is done by running the dynamics for a specified number of years while
-keeping recruitment and resources constant to reach steady state. Then the
-reproductive efficiencies and the external resource rates are retuned to
-achieve that level of recruitment.</p>
+    <p>Animation of the abundance spectra</p>
     </div>
 
-    <pre class="usage"><span class='fu'>steady</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>7.5</span>,
-  <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
-  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>return_sim</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+    <pre class="usage"><span class='fu'>animateSpectra</span>(
+  <span class='no'>sim</span>,
+  <span class='no'>species</span>,
+  <span class='kw'>wlim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
+  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
+  <span class='kw'>power</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>plankton</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     <tr>
-      <th>t_max</th>
-      <td><p>The maximum number of years to run the simulation. Default is 100.</p></td>
+      <th>species</th>
+      <td><p>Name or vector of names of the species to be plotted. By
+default all species are plotted.</p></td>
     </tr>
     <tr>
-      <th>t_per</th>
-      <td><p>The simulation is broken up into shorter runs of <code>t_per</code> years,
-after each of which we check for convergence. Default value is 7.5. This
-should be chosen as an odd multiple of the timestep <code>dt</code> in order to be
-able to detect period 2 cycles.</p></td>
+      <th>wlim</th>
+      <td><p>A numeric vector of length two providing lower and upper limits
+for the w axis. Use NA to refer to the existing minimum or maximum.</p></td>
     </tr>
     <tr>
-      <th>tol</th>
-      <td><p>The simulation stops when the relative change in the egg
-production RDI over <code>t_per years</code> is less than <code>tol</code> for every background
-species. Default value is 1/100.</p></td>
+      <th>ylim</th>
+      <td><p>A numeric vector of length two providing lower and upper limits
+for the y axis. Use NA to refer to the existing minimum or maximum. Any
+values below 1e-20 are always cut off.</p></td>
     </tr>
     <tr>
-      <th>dt</th>
-      <td><p>The time step to use in <code><a href='project.html'>project()</a></code>.</p></td>
+      <th>power</th>
+      <td><p>The abundance is plotted as the number density times the weight
+raised to <code>power</code>. The default <code>power = 1</code> gives the biomass 
+density, whereas <code>power = 2</code> gives the biomass density with respect
+to logarithmic size bins.</p></td>
     </tr>
     <tr>
-      <th>return_sim</th>
-      <td><p>If TRUE, the function returns the MizerSim object holding
-the result of the simulation run. If FALSE (default) the function returns
-a MizerParams object with the "initial" slots set to the steady state.</p></td>
+      <th>total</th>
+      <td><p>A boolean value that determines whether the total over all
+species in the system is plotted as well. Default is FALSE</p></td>
     </tr>
     <tr>
-      <th>progress_bar</th>
-      <td><p>A shiny progress object to implement
-a progress bar in a shiny app. Default FALSE.</p></td>
+      <th>plankton</th>
+      <td><p>A boolean value that determines whether plankton is included.
+Default is TRUE.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>3000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setSearchVolume.html'>setSearchVolume</a></span>(<span class='no'>params</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>steady</span>(<span class='no'>params</span>)
-}</div></pre>
+    <div class='dont-index'><p>Other plotting functions: 
+<code><a href='displayFrames.html'>displayFrames</a>()</code>,
+<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
+<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
+<code><a href='plotDiet.html'>plotDiet</a>()</code>,
+<code><a href='plotFMort.html'>plotFMort</a>()</code>,
+<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
+<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
+<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
+<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
+<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
+<code><a href='plotYield.html'>plotYield</a>()</code>,
+<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
+<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
+<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
+<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
+<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
+<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
+<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
+<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
+<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

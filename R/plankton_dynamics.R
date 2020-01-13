@@ -33,9 +33,7 @@ plankton_semichemostat <- function(params, n, n_pp, B, rates, t, dt, ...) {
 #' \code{\link{plankton_semichemostat}} in order to keep the Plankton
 #' spectrum constant over time.
 #' 
-#' @param params A [MizerParams] object
-#' @param n A matrix of species abundances (species x size)
-#' @param n_pp A vector of the plankton abundance by size
+#' @inheritParams plankton_semichemostat
 #' @param ... Unused
 #'   
 #' @return Vector containing plankton spectrum at next timestep

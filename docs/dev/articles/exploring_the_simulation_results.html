@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Exploring the Simulation Results • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Exploring the Simulation Results">
 <meta property="og:description" content="">
@@ -158,55 +158,55 @@
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(ssb)</a></code></pre></div>
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring         Dab
-##    1     37330627 6.286137e+07     49927009     31751324    45597686
-##    2    655601016 3.092036e+11 224289998684   7898014068 23205526493
-##    3  10462467195 1.158145e+12 501255133065 283598708664 69654585715
-##    4  22791745933 1.292891e+12 135413530720 245622631115 24684919040
-##    5  99127597460 1.609338e+12 153536140171 118434501471 13455955823
-##    6 209982683397 1.938671e+12 136329051411 219750544457 19998911302
+##    1     37145900 6.265789e+07     49724174     31588079    45428510
+##    2    649854332 3.069951e+11 219491688331   7804879047 22937374925
+##    3   9660911447 9.901590e+11 374362245515 251741955374 61238715855
+##    4  19591492526 9.512596e+11  59883861415 190622507108 23176104787
+##    5  93588070471 1.274088e+12  38539061933  57592889682 13701286002
+##    6 254512267541 1.788708e+12  93481164035 112029765199 22451968661
 ##     sp
 ## time      Whiting         Sole     Gurnard     Plaice      Haddock          Cod
-##    1     43220315     42234166    41011462   38149738     37607179     23626422
-##    2   7303935378    843882304  1530394948   19971536  18753997919    300377042
-##    3 139655096508  31145595064 14480006309  319612841 636497587635 112905701678
-##    4 108049358909  87450285558  8211812569 1391890599 885185987751 701792708933
-##    5  76540823459  73745534741 16638558997 1041747041 465849975752 930236720817
-##    6 133067584401 103765743273 36209861009 4104199200 345239476919 865758142121
+##    1     43043944     42060666    40851880   37988807 3.536803e+07     28345640
+##    2   7406924739    825983667  1499368646   19845081 4.083360e+10    326671871
+##    3 107621805842  25704824030 10981875042  210903222 1.192851e+12  96671359545
+##    4  66571238026  86743605156  4524810136  926902801 1.398233e+12 439407840207
+##    5  40238957498  95288450409  3879617335  981262087 7.414113e+11 575255309269
+##    6 106058656388 127514523361 14736918951 2470921708 4.137453e+11 558355090689
 ##     sp
 ## time       Saithe
-##    1     30434566
-##    2     13537880
-##    3    476467103
-##    4   3144506566
-##    5  83894480994
-##    6 436087222397</code></pre>
+##    1     24147443
+##    2     23555882
+##    3   3353088134
+##    4  30115735719
+##    5 357947062711
+##    6 815131384023</code></pre>
 <p>As mentioned above, we can specify the size range for the <code><a href="../reference/getBiomass.html">getBiomass()</a></code> and <code><a href="../reference/getN.html">getN()</a></code> functions. For example, here we calculate the total biomass of each species but only include individuals that are larger than 10 g and smaller than 1000 g.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">biomass &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getBiomass.html">getBiomass</a></span>(sim, <span class="dt">min_w =</span> <span class="dv">10</span>, <span class="dt">max_w =</span> <span class="dv">1000</span>)</a>
 <a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(biomass)</a></code></pre></div>
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring         Dab
-##    1     42554538 4.993631e+07     57632569     45759365    47339276
-##    2   1035086406 5.326347e+10 456293257879 101442053293 37389406679
-##    3  14372943850 6.465649e+11 526451669328 686312961630 77611947807
-##    4  33338365514 8.247673e+11 185982276711 506883186958 27724380180
-##    5 141004930201 1.028834e+12 236812591438 623561674965 19027575721
-##    6 271517894164 1.342814e+12 215974400407 886043764145 25518638764
+##    1     42427756 4.978591e+07     57446413     45600174    47174589
+##    2   1032035126 5.338042e+10 444010334725  99905452906 37050590254
+##    3  13214841537 5.758722e+11 392346314185 554135026513 68612660046
+##    4  28283498522 6.127845e+11  68200026788 304171999392 25778002083
+##    5 135221811552 7.376412e+11  94409618395 353915424309 19410241105
+##    6 332492542845 1.175441e+12 184247239008 754101318277 28844600414
 ##     sp
-## time      Whiting         Sole      Gurnard      Plaice      Haddock
-##    1     38334656     45932152     43113074    13799922 1.156930e+07
-##    2  41424963587  17579159649  10338191376   941224575 2.059684e+11
-##    3 204349081315 160372665268  25896154555  6591540949 1.203657e+12
-##    4 144144650265 214073936204  26030294060  5401786555 1.002067e+12
-##    5 174038912357 205085938783  78007975394 23729320010 6.234377e+11
-##    6 236595817578 290662475604 106154434050 99198238906 5.729427e+11
+## time      Whiting         Sole     Gurnard      Plaice      Haddock
+##    1     38189288     45760073    42955464    13747591 9.075828e+06
+##    2  40917599430  17404096516 10152259154   927654655 4.024877e+11
+##    3 149797717286 148768526216 19301620947  5482908249 2.006985e+12
+##    4  77960383479 228565991399  8575593287  4338352190 1.404303e+12
+##    5 115962960302 238071533238 29212393472 12678284474 6.213501e+11
+##    6 224790915269 327883278460 70781020416 71209167449 4.974767e+11
 ##     sp
 ## time          Cod       Saithe
-##    1 7.572976e+05      1990173
-##    2 7.135764e+09    327116778
-##    3 1.297922e+11   5814633385
-##    4 7.956044e+10 111731512991
-##    5 3.629846e+10 379830804837
-##    6 4.926200e+10 332102254947</code></pre>
+##    1 7.585006e+05 7.626173e+05
+##    2 7.198811e+09 5.208404e+08
+##    3 9.069536e+10 4.231684e+10
+##    4 5.789932e+10 2.716875e+11
+##    5 2.715299e+10 3.736188e+11
+##    6 3.885907e+10 1.190077e+11</code></pre>
 </div>
 </div>
 <div id="functions-for-calculating-indicators" class="section level2">
@@ -243,12 +243,12 @@
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">slope &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span>(sim)</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(slope)</a></code></pre></div>
 <pre><code>##        slope intercept        r2
-## 1 -0.4859015  14.33755 0.7179142
-## 2 -1.2224925  23.00207 0.7717653
-## 3 -0.9473045  24.13094 0.6998725
-## 4 -0.7771675  24.46567 0.7240936
-## 5 -0.7093146  24.58582 0.7667729
-## 6 -0.6706569  24.67164 0.7903700</code></pre>
+## 1 -0.4988650  14.31361 0.7245952
+## 2 -1.2226352  23.05298 0.7659000
+## 3 -0.9191752  24.05260 0.7090157
+## 4 -0.7783669  24.35782 0.7346121
+## 5 -0.7110264  24.44726 0.7613921
+## 6 -0.6855140  24.54394 0.7799156</code></pre>
 <p>This gives the slope, intercept and <span class="math inline">\(R^2\)</span> value through time (see the help file for <code>getCommunitySlope</code> for more details).</p>
 <p>We can include only the species we want with the <code>species</code> argument. Below we only include demersal species. We also restrict the size range of the community that is used in the calculation to between 10 g and 5 kg. The <code>species</code> is a character vector of the names of the species that we want to include in the calculation.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">dem_species &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,</a>
@@ -257,12 +257,12 @@
 <a class="sourceLine" id="cb13-4" data-line-number="4">    <span class="dt">species =</span> dem_species)</a>
 <a class="sourceLine" id="cb13-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(slope)</a></code></pre></div>
 <pre><code>##        slope intercept        r2
-## 1 -0.6711480  15.36429 0.7200230
-## 2 -2.4657683  30.83616 0.9582833
-## 3 -1.1838930  27.02796 0.8710187
-## 4 -0.7914196  25.24374 0.9359897
-## 5 -0.9598292  26.20236 0.9806030
-## 6 -1.0060489  26.59472 0.9711774</code></pre>
+## 1 -0.6733372  15.35460 0.7275509
+## 2 -2.5219423  31.55009 0.9518538
+## 3 -1.1727432  27.08818 0.8037988
+## 4 -0.7412636  24.91191 0.8006912
+## 5 -0.7889196  25.16466 0.8742822
+## 6 -0.9600632  26.21020 0.8435564</code></pre>
 </div>
 </div>
 <div id="plotting-the-results" class="section level2">
@@ -325,7 +325,7 @@ Example output from using the summary plot() method.
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
         <div id="tocnav">
       <h2 class="hasAnchor">
@@ -361,7 +361,7 @@ Example output from using the summary plot() method.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

@@ -43,6 +43,9 @@
     <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/animateSpectra.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
   </url>
   <url>
@@ -181,6 +184,9 @@
     <loc>https://sizespectrum.org/mizer/reference/get_time_elements.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/indicator_functions.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/inter.html</loc>
   </url>
   <url>
@@ -205,7 +211,13 @@
     <loc>https://sizespectrum.org/mizer/reference/newMultispeciesParams.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/newSheldonParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/plankton_constant.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plankton_semichemostat.html</loc>
@@ -281,6 +293,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/pruneSpecies.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/removeSpecies.html</loc>
@@ -413,9 +428,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/editing_website.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/estimating_feeding_kernel_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>

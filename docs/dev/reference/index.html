@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -144,13 +144,19 @@
         <td>
           <p><code><a href="newCommunityParams.html">newCommunityParams()</a></code> </p>
         </td>
-        <td><p>Sets up parameters for a community-type model</p></td>
+        <td><p>Set up parameters for a community-type model</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="newTraitParams.html">newTraitParams()</a></code> </p>
         </td>
-        <td><p>Sets up parameters for a trait-based model</p></td>
+        <td><p>Set up parameters for a trait-based model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="newSheldonParams.html">newSheldonParams()</a></code> </p>
+        </td>
+        <td><p>Set up parameters for a single-species in a Sheldon power-law background</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -563,6 +569,12 @@ step.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="animateSpectra.html">animateSpectra()</a></code> </p>
+        </td>
+        <td><p>Animation of the abundance spectra</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getBiomassFrame.html">getBiomassFrame()</a></code> </p>
         </td>
         <td><p>Get data frame of biomass of species through time, ready for ggplot2</p></td>
@@ -737,6 +749,12 @@ and size.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="plankton_constant.html">plankton_constant()</a></code> </p>
+        </td>
+        <td><p>Keep plankton abundance constant</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="carrion_dynamics.html">carrion_dynamics()</a></code> </p>
         </td>
         <td><p>Carrion dynamics</p></td>
@@ -826,6 +844,12 @@ and size.</p></td>
           <p><code><a href="get_initial_n.html">get_initial_n()</a></code> </p>
         </td>
         <td><p>Calculate initial population abundances for the community populations</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_required_recruitment.html">get_required_recruitment()</a></code> </p>
+        </td>
+        <td><p>Determine recruitment rate needed for initial egg abundance</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -987,7 +1011,7 @@ and size.</p></td>
     </table>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-creating-a-new-model">Creating a new model</a></li>
@@ -1014,7 +1038,7 @@ and size.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

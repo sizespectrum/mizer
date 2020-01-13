@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Developer Guide • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Developer Guide">
 <meta property="og:description" content="">
@@ -294,8 +294,8 @@ git merge upstream/master</code></pre>
 <a href="#always-write-tests-for-your-code" class="anchor"></a>Always write tests for your code</h2>
 <p>We use <a href="http://testthat.r-lib.org/">testthat</a> and <a href="https://rstudio.github.io/shinytest/articles/shinytest.html">shinytest</a>. The test are in the directory <code>tests/testthat</code>.</p>
 <p>Some tests compare the results of calculations to the results the code gave in the past, using the <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> test. The past values are stored in tests/testthat/values. If one of the tests gives a value that is different from the stored value, then the test throws an error <em>and</em> overwrites the stored value with the new result. The second time the test is run, it then no longer fails. Luckily the original values will still be in the git repository. So after you think you have fixed the error that led to the wrong result, you should revert to the old stored values before re-running the test. Reverting to the old stored values is easy: Just go to the Git tab in RStudio, select the changed files in <code>tests/testthat/values</code> (select, not tick), then right-click and choose Revert.</p>
-<p>When a plot has changed, the error message from <code><a href="https://rdrr.io/pkg/testthat/man/expect_known_output.html">testthat::expect_known_value()</a></code> is not particularly useful, because it compares two ggplot objects. In this case you should carefully compare the plots by eye. To view the old plot you have to first revert the file in <code>tests/testthat/values</code> and then load the plot from that file with <code><a href="https://rdrr.io/r/base/readRDS.html">readRDS("tests/testthat/values/name_of_plot_function")</a></code>.</p>
 <p>It may be that the change in the result of a calculation is intended, perhaps because your new code is more accurate than the old code. If you are 100% certain of this, but only then, should you commit the changed files in tests/testthat/values, so that these new values form the basis of future comparison tests.</p>
+<p>Plots are tested with the <a href="http://vdiffr.r-lib.org/">vdiffr</a> package. When a plot has changed, you should run vdiffr::manage_cases(), which will start a shiny gadget where you can view the changes in the plot.</p>
 </div>
 </div>
 <div id="finding-your-way-around-the-mizer-code" class="section level1">
@@ -356,7 +356,7 @@ git merge upstream/master</code></pre>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
         <div id="tocnav">
       <h2 class="hasAnchor">
@@ -415,7 +415,7 @@ git merge upstream/master</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

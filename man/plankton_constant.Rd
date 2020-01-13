@@ -13,6 +13,14 @@ plankton_constant(params, n, n_pp, B, rates, t, dt, ...)
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
+\item{B}{The biomass of unstructured resources}
+
+\item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
+
+\item{t}{The current time}
+
+\item{dt}{Time step}
+
 \item{...}{Unused}
 }
 \value{

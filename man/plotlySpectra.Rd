@@ -75,6 +75,7 @@ object the initial abundance is plotted.
 }
 \seealso{
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

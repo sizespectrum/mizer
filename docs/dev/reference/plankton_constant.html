@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tune params object to be at steady state — steady • mizer</title>
+<title>Keep plankton abundance constant — plankton_constant • mizer</title>
 
 
 <!-- jquery -->
@@ -35,11 +35,10 @@
 
 
 
-<meta property="og:title" content="Tune params object to be at steady state — steady" />
-<meta property="og:description" content="This is done by running the dynamics for a specified number of years while
-keeping recruitment and resources constant to reach steady state. Then the
-reproductive efficiencies and the external resource rates are retuned to
-achieve that level of recruitment." />
+<meta property="og:title" content="Keep plankton abundance constant — plankton_constant" />
+<meta property="og:description" content="This function can be used instead of the standard
+plankton_semichemostat in order to keep the Plankton
+spectrum constant over time." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,82 +119,73 @@ achieve that level of recruitment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Tune params object to be at steady state</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>steady.Rd</code></div>
+    <h1>Keep plankton abundance constant</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plankton_dynamics.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plankton_dynamics.R'><code>R/plankton_dynamics.R</code></a></small>
+    <div class="hidden name"><code>plankton_constant.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is done by running the dynamics for a specified number of years while
-keeping recruitment and resources constant to reach steady state. Then the
-reproductive efficiencies and the external resource rates are retuned to
-achieve that level of recruitment.</p>
+    <p>This function can be used instead of the standard
+<code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code> in order to keep the Plankton
+spectrum constant over time.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>steady</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>t_per</span> <span class='kw'>=</span> <span class='fl'>7.5</span>,
-  <span class='kw'>tol</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>2</span>),
-  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>return_sim</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>plankton_constant</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>B</span>, <span class='no'>rates</span>, <span class='no'>t</span>, <span class='no'>dt</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A <a href='MizerParams.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
-      <th>t_max</th>
-      <td><p>The maximum number of years to run the simulation. Default is 100.</p></td>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size)</p></td>
     </tr>
     <tr>
-      <th>t_per</th>
-      <td><p>The simulation is broken up into shorter runs of <code>t_per</code> years,
-after each of which we check for convergence. Default value is 7.5. This
-should be chosen as an odd multiple of the timestep <code>dt</code> in order to be
-able to detect period 2 cycles.</p></td>
+      <th>n_pp</th>
+      <td><p>A vector of the plankton abundance by size</p></td>
     </tr>
     <tr>
-      <th>tol</th>
-      <td><p>The simulation stops when the relative change in the egg
-production RDI over <code>t_per years</code> is less than <code>tol</code> for every background
-species. Default value is 1/100.</p></td>
+      <th>B</th>
+      <td><p>The biomass of unstructured resources</p></td>
+    </tr>
+    <tr>
+      <th>rates</th>
+      <td><p>A list of rates as returned by <code><a href='getRates.html'>getRates()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>t</th>
+      <td><p>The current time</p></td>
     </tr>
     <tr>
       <th>dt</th>
-      <td><p>The time step to use in <code><a href='project.html'>project()</a></code>.</p></td>
+      <td><p>Time step</p></td>
     </tr>
     <tr>
-      <th>return_sim</th>
-      <td><p>If TRUE, the function returns the MizerSim object holding
-the result of the simulation run. If FALSE (default) the function returns
-a MizerParams object with the "initial" slots set to the steady state.</p></td>
-    </tr>
-    <tr>
-      <th>progress_bar</th>
-      <td><p>A shiny progress object to implement
-a progress bar in a shiny app. Default FALSE.</p></td>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Vector containing plankton spectrum at next timestep</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>3000</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setSearchVolume.html'>setSearchVolume</a></span>(<span class='no'>params</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>steady</span>(<span class='no'>params</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>,
+                                <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='st'>"plankton_constant"</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 
