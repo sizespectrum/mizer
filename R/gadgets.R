@@ -1127,7 +1127,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$plotGrowthCurve <- renderPlot({
             p <- params()
             if (input$all_growth == "All") {
-                gc <- getGrowthCurves(p)[foreground, ] %>% 
+                gc <- getGrowthCurves(p)[foreground, , drop = FALSE] %>% 
                     as.tbl_cube(met_name = "Size") %>% 
                     as_tibble() %>%
                     mutate(Legend = "Model",

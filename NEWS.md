@@ -101,6 +101,8 @@ can graze. (#46)
 
 ## Other new features
 
+* New wrapper function `newSheldonParams()` that sets up a single species in a
+  power-law background.
 * New `upgradeParams()` can upgrade MizerParams objects from previous versions 
   of mizer so they work with the new version.
 * `project()` now shows a progress bar while a simulation is running. Can be
@@ -187,6 +189,7 @@ can graze. (#46)
 ## Under the hood
 
 * Increased regression test coverage from 67% to 86%.
+* Now using vdiffr package to test plots.
 * Converted all S4 methods to functions to decrease the learning curve for
   new developers.
 * The calculation of defaults is now handled by new `get_gamma_default()`,

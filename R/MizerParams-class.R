@@ -2265,7 +2265,7 @@ setFishing <- function(params, initial_effort = NULL) {
     
     if (!is.null(initial_effort)) {
         validate_effort_vector(params, initial_effort)
-        params@initial_effort <- initial_effort
+        params@initial_effort[] <- initial_effort
     }
     
     # At the moment, each species is only caught by 1 gear so in species_params
@@ -2307,6 +2307,9 @@ setFishing <- function(params, initial_effort = NULL) {
 #' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
 #'
 #' @param params A \code{\link{MizerParams}} object
+#' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
+#'   `initial_n_pp` and `initial_B` arguments are ignored and the information
+#'   is taken from the last timestep of the simulation in `sim`.
 #' @param initial_n The initial abundances of species. A matrix with dimensions
 #'   species x size. The order of species must be the same as in the MizerParams
 #'   argument. Optional. Ignored if `sim` is supplied.
@@ -2315,9 +2318,6 @@ setFishing <- function(params, initial_effort = NULL) {
 #' @param initial_B The initial biomasses of the unstructured resources. A named
 #'   vector with one entry for each resource. Optional. Ignored if `sim` is
 #'   supplied.
-#' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
-#'   `initial_n_pp` and `initial_B` arguments are ignored and the information
-#'   is taken from the last timestep of the simulation in `sim`.
 #'   
 #' @return A MizerParams object
 #' @export
@@ -2326,13 +2326,12 @@ setFishing <- function(params, initial_effort = NULL) {
 #' \dontrun{
 #' params <- NS_params
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' params <- setInitial(params, sim = sim)
+#' params <- setInitial(params, sim)
 #' }
-setInitial <- function(params,
-                          initial_n = params@initial_n,
-                          initial_n_pp = params@initial_n_pp,
-                          initial_B = params@initial_B,
-                          sim) {
+setInitial <- function(params, sim,
+                       initial_n = params@initial_n,
+                       initial_n_pp = params@initial_n_pp,
+                       initial_B = params@initial_B) {
     if (!missing(sim)) {
         assert_that(is(sim, "MizerSim"))
         no_t <- dim(sim@n)[1]
@@ -2754,10 +2753,7 @@ get_phi <- function(species_params, ppmr) {
 
 #' Get default value for h
 #' 
-#' In old version, it filled in any missing values for \code{h} according to
-#' the formula
-#' \deqn{h = 3 k_{vb} w_{inf}^{1/3}/ (\alpha f_0)}.
-#' In the new version it sets \code{h} so that the species reaches maturity 
+#' Sets \code{h} so that the species reaches maturity 
 #' size at the age predicted by the von Bertalannfy growth curve parameters
 #' \code{k_vb} and (optionally \code{t0}) taken from the species parameter
 #' data frame. Also needs the exponent \code{b} from the length-weight

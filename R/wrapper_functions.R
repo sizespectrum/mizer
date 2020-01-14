@@ -25,7 +25,7 @@ NULL
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-#' Sets up parameters for a community-type model
+#' Set up parameters for a community-type model
 #' 
 #' This functions creates a \code{\linkS4class{MizerParams}} object so that
 #' community-type models can be easily set up and run. 
@@ -158,7 +158,7 @@ newCommunityParams <- function(max_w = 1e6,
     return(params)
 }
 
-#' Sets up parameters for a trait-based model
+#' Set up parameters for a trait-based model
 #' 
 #' This functions creates a \code{MizerParams} object so that trait-based
 #' models can be easily set up and run. A trait-based size spectrum model is
@@ -260,7 +260,10 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
 #' @param f0 Expected average feeding level. Used to set \code{gamma}, the
-#'   coefficient in the search rate. The default value is 0.6.
+#'   coefficient in the search rate. The default value is 0.6. Ignored if 
+#'   \code{gamma} is given explicitly.
+#' @param gamma Volumetric search rate. If not provided, default is determined
+#'   by \code{\link{get_gamma_default}} using the value of \code{f0}.
 #' @param bmort_prop The proportion of the total mortality that comes from
 #'   background mortality, i.e., from sources other than predation or fishing. A
 #'   number in the interval [0, 1). Default 0.
@@ -268,12 +271,10 @@ newCommunityParams <- function(max_w = 1e6,
 #'   is the maximum recruitment allowed and \code{R} is the steady-state
 #'   recruitment. Thus the larger \code{rfac} the less the impact of the
 #'   non-linear stock-recruitment curve. The default is 4.
-#' @param gamma Volumetric search rate. If not provided, default is determined
-#'   by \code{\link{get_gamma_default}}.
-#' @param knife_edge_size The minimum size at which the gear or gears select
-#'   species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the number of species. Default is 1 - no_sp.
+#'   same length as the number of gears. Default is "knife_edge_gear".
+#' @param knife_edge_size The minimum size at which the gear or gears select
+#'   fish. A vector with the length equal to the number of gears.
 #' @param egg_size_scaling Boolean. Default FALSE. If TRUE, the egg size is a
 #'   constant fraction of the maximum size of each species. This fraction is
 #'   \code{min_w / min_w_inf}. If FALSE, all species have the egg size
@@ -313,9 +314,9 @@ newTraitParams <- function(no_sp = 11,
                            beta = 100,
                            sigma = 1.3,
                            f0 = 0.6,
+                           gamma = NA,
                            bmort_prop = 0, 
                            rfac = 4,
-                           gamma = NA,
                            knife_edge_size = 1000,
                            gear_names = "knife_edge_gear",
                            egg_size_scaling = FALSE,
@@ -586,6 +587,223 @@ newTraitParams <- function(no_sp = 11,
     params@species_params$R_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
 
+    return(params)
+}
+
+#' Set up parameters for a single-species in a Sheldon power-law background
+#' 
+#' This functions creates a \code{MizerParams} object with a single 
+#' species. This species is embedded in a fixed power-law community spectrum 
+#' \deqn{N_c(w) = \kappa w^{-\lambda}} 
+#' This community provides the food income for the species. Cannibalism is
+#' switched off. The predation mortality arises only from the predators in the
+#' power-law community and it is assumed that the predators in the community
+#' have the same feeding parameters as the foreground species. The function has
+#' many arguments, all of which have default values.
+#'
+#' In addition to setting up the parameters, this function also sets up an
+#' initial condition that is close to steady state, under the assumption of
+#' no fishing.
+#'
+#' Although the steady state is often stable without imposing a stock
+#' recruitment relationship, the function can set a Beverton-Holt type stock
+#' recruitment relationship that imposes a maximal reproduction rate that is a
+#' multiple of the recruitment rate at steady state. That multiple is set by the
+#' argument \code{rfac}.
+#'
+#' @inheritParams newTraitParams
+#' @param w_inf Asymptotic size of species
+#' @param w_min Egg size of species
+#' @param eta Ratio between maturity size \code{w_mat} and asymptotic size
+#'   \code{w_inf}. Default is 10^(-0.6), approximately 1/4.. Ignored if
+#'   \code{w_mat} is supplied explicitly.
+#' @param w_mat Maturity size of speces. Default value is 
+#'   \code{eta * w_inf}.
+#' @param knife_edge_size The minimum size at which the gear selects fish.
+#' @param ... Other arguments to pass to the \code{MizerParams} constructor.
+#' @export
+#' @return An object of type \code{MizerParams}
+#' @family functions for setting up models
+#' @examples
+#' \dontrun{
+#' params <- newTraitParams()
+#' sim <- project(params, t_max = 5, effort = 0)
+#' plotSpectra(sim)
+#' }
+newSheldonParams <- function(w_inf = 100,
+                             w_min = 0.001,
+                             eta = 10^(-0.6),
+                             w_mat = w_inf * eta,
+                             no_w = log10(w_inf / w_min) * 50 + 1,
+                             n = 3/4,
+                             p = n,
+                             q = 0.8,
+                             lambda = 2 + q - n,
+                             kappa = 0.005,
+                             alpha = 0.4,
+                             ks = 4,
+                             k_vb = 1,
+                             beta = 100,
+                             sigma = 1.3,
+                             f0 = 0.6,
+                             gamma = NA,
+                             bmort_prop = 0, 
+                             rfac = 4,
+                             ...) {
+    no_sp <- 1
+    ## Much of the following code is copied from newTraitParams
+    
+    if ((!missing(lambda)) && (q != lambda - 2 + n)) {
+        q <- lambda - 2 + n
+        message("The search volume exponent q has been set to ", q,
+                " so as to lead to the desired community exponent lambda = ",
+                lambda, ".")
+    }
+    
+    ## Check validity of parameters ----
+    if (bmort_prop >= 1 || bmort_prop < 0) {
+        stop("bmort_prop can not take the value ", bmort_prop,
+             " because it should be the proportion of the total mortality",
+             " coming from sources other than predation.")
+    }
+    if (rfac <= 1) {
+        message("rfac needs to be larger than 1. Setting rfac=1.01")
+        rfac <- 1.01
+    }
+    no_w <- round(no_w)
+    if (no_w < 1) {
+        stop("The number of size bins no_w must be a positive integer")
+    }
+    if (no_w < log10(w_inf/w_min)*5) {
+        no_w <- round(log10(w_inf / w_min) * 5 + 1)
+        message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
+                      "for an interval from w and 10w."))
+    }
+    if (no_w > 10000) {
+        message("Running a simulation with ", no_w, 
+                " size bins is going to be very slow.")
+    }
+    if (w_min <= 0) {
+        stop("The smallest egg size w_min must be greater than zero.")
+    }
+    if (w_min >= w_mat) {
+        stop("The egg size of the smallest species w_min must be smaller than ",
+             "its maturity size w_mat")
+    }
+    if (w_mat >= w_inf) {
+        stop("The maturity size of the smallest species w_mat must be ",
+             "smaller than its maximum size w_inf")
+    }
+    if (!all(c(n, q, kappa, alpha, k_vb, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, q, kappa, alpha, k_vb, beta, sigma, ks and ",
+             "f0, if supplied, need to be positive.")
+    }
+    
+    ## Build Params Object ----
+    erepro <- 0.1  # Will be changed later to achieve coexistence
+    species_params <- data.frame(
+        species = as.factor(1),
+        w_min = w_min,
+        w_inf = w_inf,
+        w_mat = w_mat,
+        w_min_idx = 1,
+        k_vb =  k_vb,
+        ks = ks,
+        beta = beta,
+        sigma = sigma,
+        z0 = 0,
+        alpha = alpha,
+        erepro = erepro,
+        stringsAsFactors = FALSE
+    )
+    params <-
+        suppressMessages(newMultispeciesParams(
+            species_params,
+            p = p,
+            n = n,
+            q = q,
+            lambda = lambda,
+            f0 = f0,
+            kappa = kappa,
+            min_w = w_min,
+            no_w = no_w,
+            max_w = w_inf,
+            w_pp_cutoff = w_inf,
+            plankton_dynamics = "plankton_constant"
+        ))
+    # No cannibalism
+    params@interaction[] <- 0
+    
+    w <- params@w
+    dw <- params@dw
+    h <- params@species_params$h
+    
+    ## Construct steady state solution ----
+    
+    # Get constants for steady-state solution
+    # Predation mortality rate coefficient
+    mu0 <- get_power_law_mort(params)
+    # Add backgound mortality rate
+    mu0 <- mu0 / (1 - bmort_prop)
+    hbar <- alpha * h * f0 - ks
+    if (hbar < 0) {
+        stop("The feeding level is not sufficient to maintain the fish.")
+    }
+    pow <- mu0 / hbar / (1 - n)
+    if (pow < 1) {
+        message("The ratio of death rate to growth rate is too small, leading to
+                an accumulation of fish at their largest size.")
+    }
+    
+    initial_n <- params@psi  # get array with correct dimensions and names
+    initial_n[, ] <- 0
+    mumu <- mu0 * w^(n - 1)  # Death rate
+    params@mu_b[] <- mumu
+    i_inf <- sum(params@w <= w_inf)  # index of asymptotic size
+    idx <- 1:(i_inf - 1)
+    idxs <- 1:i_inf
+    gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
+    # Steady state solution of the upwind-difference scheme used in project
+    initial_n[1, idxs] <- c(1, cumprod(gg[idx] / ((gg + mumu * dw)[idx + 1])))
+    
+    # The plankton was already set up by newMultispeciesParams()
+    initial_n_pp <- params@initial_n_pp
+    
+    # Normalise abundance so that the maximum ratio between the species
+    # abundance and community abundance is 1/2
+    fish <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
+    imax <- which.max(initial_n[1, ] / initial_n_pp[fish]) # index in fish spectrum
+    pmax <- imax + length(params@w_full) - length(params@w) # corresponding plankton index
+    initial_n <- initial_n / initial_n[1, imax] * initial_n_pp[pmax] / 2
+    
+    ## Set erepro to meet boundary condition ----
+    rdi <- getRDI(params, initial_n, initial_n_pp)
+    gg <- getEGrowth(params, initial_n, initial_n_pp)
+    mumu <- getMort(params, initial_n, initial_n_pp)
+    erepro_final <- 1:no_sp  # set up vector of right dimension
+    for (i in (1:no_sp)) {
+        gg0 <- gg[i, params@w_min_idx[i]]
+        mumu0 <- mumu[i, params@w_min_idx[i]]
+        DW <- params@dw[params@w_min_idx[i]]
+        erepro_final[i] <- erepro * 
+            (initial_n[i, params@w_min_idx[i]] *
+                 (gg0 + DW * mumu0)) / rdi[i]
+    }
+    if (is.finite(rfac)) {
+        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+        # compensate for using a stock recruitment relationship.
+        erepro_final <- (rfac / (rfac - 1)) * erepro_final
+    }
+    params@species_params$erepro <- erepro_final
+    # Record abundance of fish and plankton at steady state, as slots.
+    params@initial_n <- initial_n
+    params@initial_n_pp <- initial_n_pp
+    # set rmax=fac*RDD
+    # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+    # compensate for using a stock recruitment relationship.
+    params@species_params$R_max <-
+        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
+    
     return(params)
 }
 
@@ -950,6 +1168,7 @@ renameSpecies <- function(params, replace) {
 #'   new species. In the latter case all interaction between an old and a new
 #'   species are set to 1. If this argument is missing, all interactions 
 #'   involving a new species are set to 1.
+#' @inheritParams newTraitParams
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @seealso \code{\link{removeSpecies}}
@@ -984,7 +1203,8 @@ renameSpecies <- function(params, replace) {
 #' sim <- project(params, t_max=50)
 #' plotBiomass(sim)
 #' }
-addSpecies <- function(params, species_params, interaction) {
+addSpecies <- function(params, species_params, interaction,
+                       initial_effort = NULL) {
     # check validity of parameters ----
     assert_that(is(params, "MizerParams"),
                 is.data.frame(species_params))
@@ -1047,7 +1267,8 @@ addSpecies <- function(params, species_params, interaction) {
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
         w_pp_cutoff = max(params@w_full),
-        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1]
+        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
+        initial_effort = initial_effort
     )
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
@@ -1395,7 +1616,8 @@ constant_resource <- function(resource_name) {
 
 
 # Helper function to calculate the coefficient of the death rate created by
-# a Sheldon spectrum of predators.
+# a Sheldon spectrum of predators, assuming they have the same predation 
+# parameters as the first species.
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
     params@interaction[1, 1] <- 1

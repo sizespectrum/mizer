@@ -41,7 +41,8 @@ test_that("Multiple gears work correctly in trait-based model", {
 
 # Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
-    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1)
+    p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
+                        n = 2/3, q = 3/4)
     sim <- project(p, t_max = 5)
     
     # Check some dimensions
@@ -123,7 +124,7 @@ test_that("retuneBackground() reproduces scaling model", {
     # This numeric test failed on Solaris and without long doubles. So for now
     # skipping it on CRAN
     skip_on_cran()
-    p <- newTraitParams()
+    p <- newTraitParams(n = 2/3, q = 3/4)
     initial_n <- p@initial_n
     # We multiply one of the species by a factor of 5 and expect
     # retuneBackground() to tune it back down to the original value.
@@ -228,7 +229,8 @@ test_that("rescaleSystem does not change dynamics.", {
 
 # steady ----
 test_that("steady works", {
-    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, rfac = Inf),
+    expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, rfac = Inf,
+                                            n = 2/3, q = 3/4),
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
@@ -238,4 +240,15 @@ test_that("steady works", {
     sim <- steady(params, t_per = 2, return_sim = TRUE)
     expect_is(sim, "MizerSim")
     expect_known_value(getRDI(sim@params), "values/steady")
+})
+
+# newSheldonParams ----
+test_that("newSheldonParams works", {
+    params <- newSheldonParams()
+    no_w <- length(params@w)
+    expect_equal(dim(params@initial_n), c(1, no_w))
+    expect_equal(params@w[1], params@species_params$w_min)
+    expect_equal(params@w[no_w], params@species_params$w_inf)
+    sim <- project(params, t_max = 1)
+    expect_equal(sim@n[1, 1, ], sim@n[2, 1, ])
 })

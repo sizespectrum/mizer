@@ -3,7 +3,7 @@
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
-#' @param B The biomass of detritus
+#' @param B The biomass of unstructured resources
 #' @param rates A list of rates as returned by [getRates()]
 #' @param t The current time
 #' @param dt Time step
@@ -17,11 +17,37 @@
 #' data(NS_species_params_gears)
 #' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter,
-#'                              plankton_dyn = plankton_semichemostat)
+#'                                 plankton_dynamics = "plankton_semichemostat")
 #' }
 plankton_semichemostat <- function(params, n, n_pp, B, rates, t, dt, ...) {
-    # Dynamics of plankton spectrum uses a semi-chemostat model (de Roos - ask Ken)
-    # We use the exact solution under the assumption of constant mortality during timestep
+    # We use the exact solution under the assumption of constant mortality 
+    # during timestep
     tmp <- params@rr_pp * params@cc_pp / (params@rr_pp + rates$plankton_mort)
     return(tmp - (tmp - n_pp) * exp(-(params@rr_pp + rates$plankton_mort) * dt))
+}
+
+
+#' Keep plankton abundance constant
+#' 
+#' This function can be used instead of the standard 
+#' \code{\link{plankton_semichemostat}} in order to keep the Plankton
+#' spectrum constant over time.
+#' 
+#' @param params A [MizerParams] object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the plankton abundance by size
+#' @param ... Unused
+#'   
+#' @return Vector containing plankton spectrum at next timestep
+#' @export
+#' @md
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter,
+#'                                 plankton_dynamics = "plankton_constant")
+#' }
+plankton_constant <- function(params, n, n_pp, B, rates, t, dt, ...) {
+    return(n_pp)
 }
