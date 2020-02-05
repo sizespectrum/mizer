@@ -830,17 +830,17 @@ retuneBackground <- function(params) {
     # over w, between our limits, is minimized, where  L is the set of all
     # retuneable species.
     
-    # deal with zero entries in params@sc
-    nonzero <- params@sc > 0
-    sc <- params@sc[nonzero]
+    # ignore zero entries in params@sc and only use region above the smallest w_mat
+    region <- params@sc > 0 & params@w > min(params@species_params$w_mat)
+    sc <- params@sc[region]
     # rho is the total abundance of all the non-tunable species
-    rho <- colSums(params@initial_n[!L, nonzero, drop = FALSE])
+    rho <- colSums(params@initial_n[!L, region, drop = FALSE])
     
     # Use Singular Value Decomposition to find optimal abundance multipliers.
     # See Numerical Recipes section 15.4.2
     #
     # Rescale by sc
-    A <- t(sweep(params@initial_n[L, nonzero, drop = FALSE], 2, sc, "/"))
+    A <- t(sweep(params@initial_n[L, region, drop = FALSE], 2, sc, "/"))
     b <- (sc - rho) / sc
     
     sv <- svd(A)
