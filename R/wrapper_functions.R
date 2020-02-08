@@ -1273,6 +1273,8 @@ addSpecies <- function(params, species_params, interaction,
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
+    # Preserve comment
+    comment(p) <- comment(params)
     
     # initial solution ----
     p@initial_n[old_sp, ] <- params@initial_n
