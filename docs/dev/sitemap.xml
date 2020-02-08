@@ -424,6 +424,9 @@
     <loc>https://sizespectrum.org/mizer/articles/community_model.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/articles/developer_FAQ.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/articles/developer_vignette.html</loc>
   </url>
   <url>
@@ -452,5 +455,8 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/trait_model.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/working_with_git.html</loc>
   </url>
 </urlset>

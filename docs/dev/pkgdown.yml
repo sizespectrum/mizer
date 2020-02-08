@@ -8,6 +8,7 @@ articles:
   _estimating_feeding_kernel_params: _estimating_feeding_kernel_params.html
   a_multispecies_model_of_the_north_sea: a_multispecies_model_of_the_north_sea.html
   community_model: community_model.html
+  developer_FAQ: developer_FAQ.html
   developer_vignette: developer_vignette.html
   editing_website: editing_website.html
   exploring_the_simulation_results: exploring_the_simulation_results.html
@@ -18,6 +19,7 @@ articles:
   publications: publications.html
   running_a_simulation: running_a_simulation.html
   trait_model: trait_model.html
+  working_with_git: working_with_git.html
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

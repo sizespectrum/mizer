@@ -47,6 +47,8 @@ articles:
 - title: For the developer
   contents:
   - developer_vignette
+  - working_with_git
+  - developer_FAQ
   - editing_website
 
 

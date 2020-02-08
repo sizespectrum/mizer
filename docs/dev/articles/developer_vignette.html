@@ -93,8 +93,8 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>This vignette is for you if you need to extend mizer to meet the needs of your research project. You will already have read the mizer model description in <code><a href="../articles/model_description.html">vignette("model_description")</a></code> and thus be familiar with what mizer can do out of the box. You now want to implement the extension or modification of the model required for your research, and for that you need to dive into the internal workings of mizer. This vignette is meant to make that as easy as possible.</p>
-<p>The first thing you should do, even before reading this vignette, is to go to <a href="https://github.com/sizespectrum/mizer/issues" class="uri">https://github.com/sizespectrum/mizer/issues</a> and create a new “issue”" to share your ideas and plans with the mizer community. You may get back valuable feedback and advice. Another way to get in touch with the mizer community is via the <a href="https://groups.google.com/forum/#!forum/size-spectrum-models">size-spectrum modelling Google group</a>.</p>
+<p>This guide is for you if you need to extend mizer to meet the needs of your research project. You will already have read the mizer model description in <code><a href="../articles/model_description.html">vignette("model_description")</a></code> and thus be familiar with what mizer can do out of the box. You now want to implement the extension or modification of the model required for your research, and for that you need to dive into the internal workings of mizer. This guide is meant to make that as easy as possible.</p>
+<p>The first thing you should do, even before reading this guide, is to go to <a href="https://github.com/sizespectrum/mizer/issues" class="uri">https://github.com/sizespectrum/mizer/issues</a> and create a new “issue”" to share your ideas and plans with the mizer community. You may get back valuable feedback and advice. Another way to get in touch with the mizer community is via the <a href="https://groups.google.com/forum/#!forum/size-spectrum-models">size-spectrum modelling Google group</a>.</p>
 </div>
 <div id="setting-up-working-environment" class="section level1">
 <h1 class="hasAnchor">
@@ -103,7 +103,7 @@
 <div id="installing-r-rstudio-and-git" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installing-r-rstudio-and-git" class="anchor"></a>Installing R, RStudio and Git</h2>
-<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This vignette was prepared with R version 3.6.2 (2019-12-12).</p>
+<p>Mizer is compatible with <strong>R</strong> versions 3.1 and later. If you still need to <a href="https://cran.r-project.org/">install R</a>, simply install the latest version. This guide was prepared with R version 3.6.2 (2019-12-12).</p>
 <p>This guide assumes that you will be using <strong>RStudio</strong> to work with R. There is really no reason not to use RStudio and it makes a lot of things much easier. RStudio develops rapidly and adds useful features all the time and so it pays to upgrade to the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest version</a> frequently. This guide was written with version 1.2.1268.</p>
 <p>Mizer is developed using the version control system <strong>Git</strong> and the code is hosted on GitHub. To contribute to the mizer code, you need to have the Git software installed on your system. On most Linux machines it will be installed already, but on other platforms you need to <a href="http://happygitwithr.com/install-git.html">install it</a>. You do not need to install any GUI for git because RStudio has <a href="https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN">built-in support for git</a>. A good place to learn about using Git and GitHub is <a href="http://r-pkgs.had.co.nz/git.html">this chapter</a> in the guide by Hadley on R package development.</p>
 </div>
@@ -185,100 +185,7 @@ This will automatically also install all the other packages that mizer depends o
 <li><p>You will want to be able to merge new developments made in mizer by others into your code base.</p></li>
 </ol>
 <p>This interaction is made possible with git and GitHub.</p>
-<p>It initially takes a bit of effort to get the hang of how this works. Therefore here we will take you through a little exercise that will see you create a feature branch, make a change to a mizer file, commit that file and push it to GitHub, and then make a pull request to contribute the change back to the core mizer code. The change that you will be making consists of adding your name to the list of people who have set up a fork of mizer.</p>
-<p>We assume that you have checked out your mizer fork to your local computer as described in the section <a href="#forking-mizer-from-github">Forking mizer from GitHub</a>.</p>
-<div id="creating-a-branch" class="section level2">
-<h2 class="hasAnchor">
-<a href="#creating-a-branch" class="anchor"></a>Creating a branch</h2>
-<p>At this point you will be on the “master” branch of your repository. The code in this branch of your repository is a perfect copy of the code in the master branch of the main mizer repository at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>. You should always keep it that way and not commit any changes to this branch.</p>
-<p>You should do all our development work in branches that have been branched off from the master branch. When you start working on a feature or on a bug fix, start a new branch with a name suggestive of the feature or fix. In this example, where you will be adding your info to the list of people who have set up a fork of mizer, let’s call the branch “add_my_info”.</p>
-To create the new branch, first make sure you have selected the master branch on the “Switch branch” dropdown in RStudio Git panel and then click the button to the left of that dropdown.
-<center>
-<img src="images/new_branch_button.png" style="width:30.0%">
-</center>
-<p>In the dialog box enter the name for your new branch: “add_my_info”. Leave the remote as “origin” and make sure the “Sync branch with remote” checkbox is ticked. This means that the new branch will be created not only on your local repository but also on your GitHub repository. Click “Create”. You are now on a new branch in your repository, but so far this branch contains only exactly the same content as the master branch that you have branched off from.</p>
-</div>
-<div id="editing-a-file" class="section level2">
-<h2 class="hasAnchor">
-<a href="#editing-a-file" class="anchor"></a>Editing a file</h2>
-<p>Next you will make an edit to a file. In the “Files” tab in RStudio, navigate to the “vignette” subdirectory and click on the name “developer_vignette.Rmd”. That will open that file in the Source editor pane. That file is the source file for this developer guide, written in <a href="https://rmarkdown.rstudio.com/">RMarkdown</a> format.</p>
-A good way to navigate within files is to use the document outline which will be displayed when you hit the right-most icon on the editor pane toolbar.
-<center>
-<img src="images/outline.png" style="width:30.0%">
-</center>
-<p>You will find the subheading “People with a mizer fork” towards the bottom of the outline. Clicking on it will move to the corresponding section of the file. You can now add another bullet point with your name and interests.</p>
-<p>This is an RMarkdown file, so you can compile it by clicking on the “Knit” button on the editor toolbar. This will also save your changes to the disk. After a short while the resulting html file will be displayed in an RStudio viewer which will allow you to check the formatting of your bullet point.</p>
-<p>If you had made changes to the actual R code of mizer, then you would of course also rebuild mizer from that new code by clicking “Install and Restart” on the “Build” pane of RStudio to test it, and would in particular run the automated unit tests by hitting Ctrl+Shift+T.</p>
-</div>
-<div id="commiting-your-changes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#commiting-your-changes" class="anchor"></a>Commiting your changes</h2>
-So far you have only saved your changes to your local disc, but have not yet committed it to your local repository. To do that you click on the “Commit” button on the toolbar in the “Git” pane in RStudio:
-<center>
-<img src="images/commit_button.png" style="width:40.0%">
-</center>
-This will pop up a screen like the following:
-<center>
-<img src="images/commit.png" style="width:70.0%">
-</center>
-<p>The blue M to the left of the file vignettes/developer_vignette.Rmd indicates that this file has been modified on your hard disc. The files with the question mark are files that are in the project directory but not part of the repository. You now tick the file that you want to commit to the repository. In the above screenshot the file vignettes/developer_vignette.Rmd has already been selected and as a consequence, the lower half of the pop-up window shows the modifications that have been made in the file. You should see your additions in green.</p>
-<p>At the top right of the pop-up window you enter the commit message that will allow you and others later to understand the purpose of this commit. It is really useful to put a meaningful message here. The first time you make a commit to a new branch, you may want to write an extended commit message that explains what the new branch is for.</p>
-<p>When you are happy with everything, hit the “Commit” button. Now your changes are forever saved in the history of your local repository.</p>
-</div>
-<div id="pushing-and-pulling" class="section level2">
-<h2 class="hasAnchor">
-<a href="#pushing-and-pulling" class="anchor"></a>Pushing and pulling</h2>
-<p>So far you have only committed your changes to the local repository on your computer. The changes have not yet been synchronised with your repository on GitHub. To do that, you click on the “Push” button on the toolbar of the “Git” pane, the one that looks like an up arrow. A window will pop up that will confirm if that push worked alright. You can then close that window.</p>
-After you have pushed your changes, you will be able to see them also on GitHub. If you go to the home page of your GitHub repository you will see a comment that you made a commit a little while ago:
-<center>
-<img src="images/recently_pushed.png" style="width:80.0%">
-</center>
-<p>It may be that you have several computers on which you work an you can have a local repository on every one of them. In that scenario, it may be that you have pushed changes onto your GitHub repository from another computer. You will then not be able to push your new changes from your current computer until you have pulled those changes onto your current computer. You do that by hitting the “Pull” button that looks like a down arrow right next to the “Push” button. That will incorporate any changes from GitHub into your local repository and this will generally go smoothly. Only in the case where you have edited the same lines of the same file on different machines can you run into conflicts that git can not resolve automatically. In order to avoid such conflicts, you should pull and push frequently.</p>
-</div>
-<div id="making-a-pull-request" class="section level2">
-<h2 class="hasAnchor">
-<a href="#making-a-pull-request" class="anchor"></a>Making a pull request</h2>
-<p>Once a feature is developed and tested, you will want to merge it into the master branch of the upstream repository at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>. You can however not push your changes directly to that repository. Instead you create a HitHub pull request. This will then get a code review from another mizer developer before one of the developers with write access to the main repository merges your changes.</p>
-<p>Due to this extra code review before any changes are integrated into the core mizer code, you do not have to be hesitant with making pull requests. In case there is anything wrong with your changes, you will get friendly feedback from other developers. You can then make more changes and commit them to the same branch and your pull request will automatically get updated.</p>
-<p>The pull request is easy to create using the github web interface:</p>
-<ol style="list-style-type: decimal">
-<li>Go to the home page of your forked repository on Github</li>
-<li>Select the branch via the “Branch” drop-down.</li>
-<li>Click the “New pull request” button next to that drop-down.</li>
-</ol>
-<p>Go ahead an create a pull request for your “add_my_info” branch.</p>
-<p>Once your pull request has been reviewed and accepted by a developer and your changes have thus been merged into the upstream master branch, you can delete your development branch. There is a delete button on github to delete a branch (for example on the page listing all your branches). You also need to delete the branch separately in your local repository by issuing</p>
-<pre><code>git branch -d add_my_info</code></pre>
-<p>from the terminal, where `add_my_info’ is the name of the development branch. In addition you may want to tell your local repository that the remote branch has disappeared as well:</p>
-<pre><code>git remote prune origin</code></pre>
-<p>Otherwise it will stay in RStudio’s list of remote branches.</p>
-</div>
-<div id="merging-from-upstream" class="section level2">
-<h2 class="hasAnchor">
-<a href="#merging-from-upstream" class="anchor"></a>Merging from upstream</h2>
-<p>Once your pull request, or any pull request by anyone else with a mizer fork, has been merged into the upstream repository, the master branch in your fork is no longer in sync with the upstream master branch. So you will want to merge those upstream changes into our master branch. To do that you can use the “Terminal” pane in RStudio, where you execute the following git commands:</p>
-<pre><code>git fetch upstream
-git checkout master
-git merge upstream/master</code></pre>
-<p>Again, unless you locally changed the same line in the same file that someone else changed in the upstream repository, the merging will be automatic. You should then push the merged master branch back to your GitHub repository with the “Push” button.</p>
-<p>If you get an error when attempting to fetch from upstream then the upstream repository may not yet have been set for your repository. You can check with</p>
-<pre><code>git remote -v</code></pre>
-<p>If that does not list an upstream, then execute the command</p>
-<pre><code>git remote add upstream https://github.com/sizespectrum/mizer.git</code></pre>
-<p>and then try the above again.</p>
-<p>The first time you go through all the above steps, you will think that you will never grow to like git. What a lot of fuss. What a circuitous route for your change to make it into the master branch of your GithHub repository:</p>
-<ol style="list-style-type: decimal">
-<li>from your editor to your harddrive</li>
-<li>from your harddrive into your development branch in your local repository via Commit</li>
-<li>from you local repository to your GitHub repository via Push</li>
-<li>from your GitHub repository to the main mizer repository via Pull Request</li>
-<li>from the main mizer repository to you local master branch via merge</li>
-<li>from your local master branch to the master branch of your GitHub repository via Push</li>
-</ol>
-<p>But this is the best system software developers have come up with to allow many people to collaborate on the same code.</p>
-<p>You may have more than one development branch because you may be working on several features at the same time or some of your features are still waiting to have their pull request merged. In that case, after merging the upstream changes into our master branch, you may also want to merge them from your master branch into some of your development branches. For that you just go to the development branch and do</p>
-<pre><code>git merge master</code></pre>
-</div>
+<p>It initially takes a bit of effort to get the hang of how this works. Therefore we have created a little tutorial “<a href="working_with_git.html">Working with git and GitHub</a>”with an exercise that will take you through all the necessary steps. Unless you are already very familiar with git and GitHub, it will be worthwhile for you to work through that tutorial now.</p>
 </div>
 <div id="contributor-guidelines" class="section level1">
 <h1 class="hasAnchor">
@@ -344,15 +251,6 @@ git merge upstream/master</code></pre>
 <p>We should try to avoid committing too many very large files to the git repository, because the larger the repository the longer it takes to download. Currently (September 2019) the repository is still at a manageable 110 MiB. The best way to check the size of the repository is with the git-sizer, see <a href="https://github.com/github/git-sizer/" class="uri">https://github.com/github/git-sizer/</a></p>
 <p>We are currently storing the mizer website in the mizer repository (in the docs subdirectory). That is convenient, partly because that is where pkgdown puts it by default and GitHub serves it from there. However in the future we might consider moving the website to its own repository.</p>
 </div>
-<div id="people-with-a-mizer-fork" class="section level2">
-<h2 class="hasAnchor">
-<a href="#people-with-a-mizer-fork" class="anchor"></a>People with a mizer fork</h2>
-<p>Here we information about the <a href="https://github.com/sizespectrum/mizer/network/members">people who have made a mizer fork</a>. If your name is not on the list below, please add it, together with a bit of info about your interests. How to make the edit and how to commit it and contribute it back is explained in the section <a href="#working-wit-git">Working with git</a>.</p>
-<ul>
-<li><p><a href="https://github.com/gustavdelius"><strong>Gustav Delius</strong></a> Maintainer of the mizer package. Interested in building a mizer community and developing the mizer code to be as user-friendly as possible while at the same time being sufficiently flexible and extendable for new research.</p></li>
-<li><p><a href="https://github.com/Mlla"><strong>Mariella Canales</strong></a> Interested in a multispecies size-based analysis for the pelagic fish community off Northern Chile.</p></li>
-</ul>
-</div>
 </div>
   </div>
 
@@ -371,16 +269,7 @@ git merge upstream/master</code></pre>
       <li><a href="#installing-mizer">Installing mizer</a></li>
       </ul>
 </li>
-      <li>
-<a href="#working-with-git">Working with git</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#creating-a-branch">Creating a branch</a></li>
-      <li><a href="#editing-a-file">Editing a file</a></li>
-      <li><a href="#commiting-your-changes">Commiting your changes</a></li>
-      <li><a href="#pushing-and-pulling">Pushing and pulling</a></li>
-      <li><a href="#making-a-pull-request">Making a pull request</a></li>
-      <li><a href="#merging-from-upstream">Merging from upstream</a></li>
-      </ul>
-</li>
+      <li><a href="#working-with-git">Working with git</a></li>
       <li>
 <a href="#contributor-guidelines">Contributor guidelines</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#coding-style">Coding style</a></li>
@@ -399,7 +288,6 @@ git merge upstream/master</code></pre>
       <li>
 <a href="#specialised-topics">Specialised topics</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#size-of-git-repo">Size of git repo</a></li>
-      <li><a href="#people-with-a-mizer-fork">People with a mizer fork</a></li>
       </ul>
 </li>
       </ul>
