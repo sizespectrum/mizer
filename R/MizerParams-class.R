@@ -953,11 +953,25 @@ newMultispeciesParams <- function(
 #' 
 #' This function will use the species parameters in the `params` object to reset
 #' the values of all the model functions that you do not specify explicitly when
-#' calling this function. If you have changed any of the model functions in the
+#' calling this function, unless you have protected the corresponding slots with
+#' a comment. If you have changed any of the model functions in the
 #' `params` object previously and now want to make changes to a different slot,
 #' you will want to call the appropriate change function individually. So in the
 #' above example you would have used `params <- setSearchVolume(params)`
-#' instead of `params <- setParams(params)`.
+#' instead of `params <- setParams(params)`. 
+#' 
+#' If you have adedd a comment to a slot of the params object, then setParams()
+#' and its subfunctions will not recalculate the value for that slot from the
+#' species parameters. For example after 
+#' ```
+#' comment(params@search_vol) <- "This should not change"
+#' params@species_params$gamma <- 10
+#' params <- setParams(params)
+#' ```
+#' will just issue a warning "The search volume has been commented and therefore
+#' will not be recalculated from the species parameters". You can remove the
+#' comment, and therefore allow recalculation of the slot, with
+#' `comment(params@search_vol) <- NULL`.
 #' 
 #' @section Units in mizer:
 #' Mizer uses grams to measure weight, centimetres to measure lengths, and
@@ -1296,6 +1310,12 @@ setPredKernel <- function(params,
         return(params)
     }
     
+    if (!is.null(comment(params@pred_kernel))) {
+        message("The predation kernel has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
+        return(params)
+    }
+    
     ## Set a pred kernel dependent on predator/prey size ratio only
     # If pred_kernel_type is not supplied use "lognormal"
     params@species_params <- set_species_param_default(params@species_params,
@@ -1427,8 +1447,16 @@ setSearchVolume <- function(params,
         }
         assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
+        comment(params@search_vol) <- comment(search_vol)
         return(params)
     }
+    
+    if (!is.null(comment(params@search_vol))) {
+        message("The search volume has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
+        return(params)
+    }
+    
     # Calculate default for any missing gammas
     params@species_params$gamma <- get_gamma_default(params)
     
@@ -1488,6 +1516,13 @@ setIntakeMax <- function(params,
         }
         assert_that(all(intake_max >= 0))
         params@intake_max[] <- intake_max
+        comment(params@intake_max) <- comment(intake_max)
+        return(params)
+    }
+    
+    if (!is.null(comment(params@intake_max))) {
+        message("The max intake rate has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
         return(params)
     }
     
@@ -1552,6 +1587,13 @@ setMetab <- function(params,
         }
         assert_that(all(metab >= 0))
         params@metab[] <- metab
+        comment(params@metab) <- comment(metab)
+        return(params)
+    }
+    
+    if (!is.null(comment(params@metab))) {
+        message("The metabolic rate has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
         return(params)
     }
     
@@ -1617,8 +1659,16 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
         assert_that(is.array(mu_b),
                     identical(dim(mu_b), dim(params@mu_b)))
         params@mu_b[] <- mu_b
+        comment(params@mu_b) <- comment(mu_b)
         return(params)
     }
+    
+    if (!is.null(comment(params@mu_b))) {
+        message("The background mortality rate has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
+        return(params)
+    }
+    
     assert_that(is.number(z0pre), z0pre >= 0,
                 is.number(z0exp))
     species_params <- params@species_params
@@ -1775,6 +1825,11 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             stop(paste0("You need to use the same ordering of species as in the ",
                         "params object: ", toString(species_params$species)))
         }
+        
+    } else if (!is.null(comment(params@maturity))) {
+        message("The maturity ogive has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
+        maturity <- params@maturity
     } else {
         # Check maturity sizes
         if (!("w_mat" %in% colnames(species_params))) {
@@ -1818,6 +1873,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     }
     assert_that(all(maturity >= 0 & maturity <= 1))
     params@maturity[] <- maturity
+    comment(params@maturity) <- comment(maturity)
     
     if (!is.null(repro_prop)) {
         assert_that(is.array(repro_prop),
@@ -1841,7 +1897,13 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             ), dim = c(nrow(species_params), length(params@w)))
     }
     
-    params@psi[] <- params@maturity * repro_prop
+    if (!is.null(comment(params@psi))) {
+        message("The reproductive proportion has been commented and therefore will ",
+                "not be recalculated from the species parameters.")
+    } else {
+        params@psi[] <- params@maturity * repro_prop
+        comment(params@psi) <- comment(repro_prop)
+    }
     
     # psi should never be larger than 1
     params@psi[params@psi > 1] <- 1
@@ -1944,22 +2006,35 @@ setPlankton <- function(params,
         assert_that(is.numeric(rr_pp),
                     identical(length(rr_pp), length(params@rr_pp)))
         params@rr_pp[] <- rr_pp
+        comment(params@rr_pp) <- comment(rr_pp)
     } else {
-        params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
+        if (!is.null(comment(params@rr_pp))) {
+            message("The plankton intrinsic growth rate has been commented and therefore will ",
+                    "not be recalculated from the species parameters.")
+        } else {
+            params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
+        }
     }
     # the plankton carrying capacity
     if (!is.null(cc_pp)) {
         assert_that(is.numeric(cc_pp),
                     identical(length(cc_pp), length(params@cc_pp)))
         params@cc_pp[] <- cc_pp
+        comment(params@cc_pp) <- comment(cc_pp)
     } else {
-        params@cc_pp[] <- kappa*params@w_full^(-lambda)
-        params@cc_pp[params@w_full > w_pp_cutoff] <- 0
+        if (!is.null(comment(params@cc_pp))) {
+            message("The plankton intrinsic growth rate has been commented and therefore will ",
+                    "not be recalculated from the species parameters.")
+        } else {
+            params@cc_pp[] <- kappa*params@w_full^(-lambda)
+            params@cc_pp[params@w_full > w_pp_cutoff] <- 0
+            comment(params@cc_pp) <- comment(cc_pp)
+        }
     }
     if (!is.null(plankton_dynamics)) {
         assert_that(is.character(plankton_dynamics))
         if (!is.function(get0(plankton_dynamics))) {
-            error("The function ", plankton_dynamics, "is not defined.")
+            stop("The function ", plankton_dynamics, "is not defined.")
         }
         params@plankton_dynamics <- plankton_dynamics
     }
@@ -2266,6 +2341,7 @@ setFishing <- function(params, initial_effort = NULL) {
     if (!is.null(initial_effort)) {
         validate_effort_vector(params, initial_effort)
         params@initial_effort[] <- initial_effort
+        comment(params@initial_effort) <- comment(initial_effort)
     }
     
     # At the moment, each species is only caught by 1 gear so in species_params
@@ -2291,11 +2367,20 @@ setFishing <- function(params, initial_effort = NULL) {
         # Call selectivity function with selectivity parameters
         par <- c(w = list(params@w), as.list(species_params[g, arg]))
         sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
-        # Dump Sel in the right place
-        params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+        if (!is.null(comment(params@selectivity))) {
+            message("The selectivity has been commented and therefore will ",
+                    "not be recalculated from the species parameters.")
+        } else {
+            params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+        }
         # Now do catchability
-        params@catchability[as.character(species_params[g,'gear']), g] <- 
-            species_params[g, "catchability"]
+        if (!is.null(comment(params@catchability))) {
+            message("The catchability has been commented and therefore will ",
+                    "not be recalculated from the species parameters.")
+        } else {
+            params@catchability[as.character(species_params[g,'gear']), g] <- 
+                species_params[g, "catchability"]
+        }
     }
     params@species_params <- species_params
     return(params)
@@ -2527,6 +2612,7 @@ upgradeParams <- function(params) {
         srr = params@srr,
         initial_effort = initial_effort)
     
+    comment(pnew) <- comment(params)
     pnew@linecolour <- params@linecolour
     pnew@linetype <- params@linetype
     pnew@initial_n <- params@initial_n

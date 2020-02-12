@@ -96,6 +96,14 @@ test_that("setPredKernel works", {
     expect_equivalent(p2@pred_kernel, pred_kernel)
     expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
+test_that("Comment works on pred kernel", {
+    pred_kernel <- getPredKernel(params)
+    comment(pred_kernel) <- "test"
+    params_c <- setPredKernel(params, pred_kernel = pred_kernel)
+    expect_identical(comment(params_c@pred_kernel), "test")
+    expect_message(setPredKernel(params_c),
+                   "has been commented")
+})
 
 ## setSearchVolume ----
 test_that("setSearchVolume works", {
@@ -103,6 +111,13 @@ test_that("setSearchVolume works", {
     params@species_params$gamma <- 2 * params@species_params$gamma
     p2 <- setSearchVolume(params)
     expect_identical(2 * params@search_vol, p2@search_vol)
+})
+test_that("Comment works on search volume", {
+    comment(params@search_vol) <- "test"
+    params <- setSearchVolume(params, search_vol = params@search_vol)
+    expect_identical(comment(params@search_vol), "test")
+    expect_message(setSearchVolume(params),
+                   "has been commented")
 })
 
 ## setIntakeMax ----
@@ -112,6 +127,13 @@ test_that("ssetIntakeMax works", {
     p2 <- setIntakeMax(params)
     expect_identical(2 * params@intake_max, p2@intake_max)
 })
+test_that("Comment works on intake_max", {
+    comment(params@intake_max) <- "test"
+    params <- setIntakeMax(params, intake_max = params@intake_max)
+    expect_identical(comment(params@intake_max), "test")
+    expect_message(setIntakeMax(params),
+                   "has been commented")
+})
 
 ## setMetab ----
 test_that("setMetab works", {
@@ -120,6 +142,13 @@ test_that("setMetab works", {
     p2 <- setMetab(params)
     expect_identical(2 * params@metab, p2@metab)
 })
+test_that("Comment works on metab", {
+    comment(params@metab) <- "test"
+    params <- setMetab(params, metab = params@metab)
+    expect_identical(comment(params@metab), "test")
+    expect_message(setMetab(params),
+                   "has been commented")
+})
 
 ## setBMort ----
 test_that("setBMort works", {
@@ -127,6 +156,13 @@ test_that("setBMort works", {
     params@species_params$z0 <- 2 * params@species_params$z0
     p2 <- setBMort(params)
     expect_identical(2 * params@mu_b, p2@mu_b)
+})
+test_that("Comment works on mu_b", {
+    comment(params@mu_b) <- "test"
+    params <- setBMort(params, mu_b = params@mu_b)
+    expect_identical(comment(params@mu_b), "test")
+    expect_message(setBMort(params),
+                   "has been commented")
 })
 
 ## setReproduction ----
@@ -151,6 +187,21 @@ test_that("setReproduction works", {
     p2@species_params$ricker_b <- 0
     expect_equal(getRDI(p2), getRDD(p2))
 })
+test_that("Comment works on maturity", {
+    comment(params@maturity) <- "test"
+    params <- setReproduction(params, maturity = params@maturity)
+    expect_identical(comment(params@maturity), "test")
+    expect_message(setReproduction(params),
+                   "maturity ogive has been commented")
+})
+test_that("Comment works on psi", {
+    repro_prop <- params@psi
+    comment(repro_prop) <- "test"
+    params <- setReproduction(params, repro_prop = repro_prop)
+    expect_identical(comment(params@psi), "test")
+    expect_message(setReproduction(params),
+                   "has been commented")
+})
 
 ## setResourceEncounter ----
 test_that("setResourceEncounter works", {
@@ -171,4 +222,8 @@ test_that("setParams can leave params unchanged", {
 ## upgradeParams ----
 test_that("upgradeParams leaves new params unchanged", {
     expect_equal(upgradeParams(params_res), params_res)
+})
+test_that("upgradeParams preserves comment", {
+    comment(params_res) <- "test"
+    expect_equal(comment(upgradeParams(params_res)), "test")
 })

@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -217,6 +217,7 @@
 <h2 class="hasAnchor">
 <a href="#other-new-features" class="anchor"></a>Other new features</h2>
 <ul>
+<li>New wrapper function <code><a href="../reference/newSheldonParams.html">newSheldonParams()</a></code> that sets up a single species in a power-law background.</li>
 <li>New <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> can upgrade MizerParams objects from previous versions of mizer so they work with the new version.</li>
 <li>
 <code><a href="../reference/project.html">project()</a></code> now shows a progress bar while a simulation is running. Can be turned off with <code>progress_bar = FALSE</code> argument.</li>
@@ -301,6 +302,7 @@
 <a href="#under-the-hood" class="anchor"></a>Under the hood</h2>
 <ul>
 <li>Increased regression test coverage from 67% to 86%.</li>
+<li>Now using vdiffr package to test plots.</li>
 <li>Converted all S4 methods to functions to decrease the learning curve for new developers.</li>
 <li>The calculation of defaults is now handled by new <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>, <code><a href="../reference/get_h_default.html">get_h_default()</a></code> and <code><a href="../reference/get_ks_default.html">get_ks_default()</a></code>, making it easier to change or extend these in the future.</li>
 <li>Helper function <code><a href="../reference/set_species_param_default.html">set_species_param_default()</a></code> makes it easier to set default values for species parameters.</li>
@@ -427,7 +429,7 @@
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
@@ -451,7 +453,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

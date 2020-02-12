@@ -17,7 +17,7 @@ newSheldonParams(
   kappa = 0.005,
   alpha = 0.4,
   ks = 4,
-  h = 30,
+  k_vb = 1,
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
@@ -63,8 +63,6 @@ is 0.4.}
 
 \item{ks}{Standard metabolism coefficient. Default value is 4.}
 
-\item{h}{Maximum food intake rate. Default value is 30.}
-
 \item{beta}{Preferred predator prey mass ratio. Default value is 100.}
 
 \item{sigma}{Width of prey size preference. Default value is 1.3.}
@@ -86,8 +84,6 @@ recruitment. Thus the larger \code{rfac} the less the impact of the
 non-linear stock-recruitment curve. The default is 4.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
-
-\item{knife_edge_size}{The minimum size at which the gear selects fish.}
 }
 \value{
 An object of type \code{MizerParams}

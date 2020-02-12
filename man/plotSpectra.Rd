@@ -90,6 +90,7 @@ plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

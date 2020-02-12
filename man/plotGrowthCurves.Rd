@@ -53,6 +53,7 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

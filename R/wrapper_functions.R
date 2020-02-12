@@ -619,7 +619,6 @@ newTraitParams <- function(no_sp = 11,
 #'   \code{w_mat} is supplied explicitly.
 #' @param w_mat Maturity size of speces. Default value is 
 #'   \code{eta * w_inf}.
-#' @param knife_edge_size The minimum size at which the gear selects fish.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{MizerParams}
@@ -1273,6 +1272,8 @@ addSpecies <- function(params, species_params, interaction,
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
+    # Preserve comment
+    comment(p) <- comment(params)
     
     # initial solution ----
     p@initial_n[old_sp, ] <- params@initial_n

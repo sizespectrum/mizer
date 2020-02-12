@@ -58,6 +58,7 @@ plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
@@ -79,6 +80,7 @@ Other plotting functions:
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},

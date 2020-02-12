@@ -10,9 +10,7 @@ output:
 
 ```{r include=FALSE}
 library(mizer)
-params_data <- read.csv("NS_species_params.csv")
-inter <- read.csv("inter.csv", row.names=1)
-inter <- as(inter, "matrix")
+params_data <- NS_species_params
 params_data_gears <- params_data
 params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",

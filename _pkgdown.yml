@@ -47,6 +47,8 @@ articles:
 - title: For the developer
   contents:
   - developer_vignette
+  - working_with_git
+  - developer_FAQ
   - editing_website
 
 
@@ -60,6 +62,7 @@ reference:
   - newMultispeciesParams
   - newCommunityParams
   - newTraitParams
+  - newSheldonParams
 - title: Interactively tuning a model
   contents:
   - tuneParams
@@ -114,6 +117,7 @@ reference:
   contents:
   - plotting_functions
   - starts_with("plot")
+  - animateSpectra
   - getBiomassFrame
   - getSSBFrame
   - displayFrames
@@ -144,6 +148,7 @@ reference:
   - sigmoid_weight
   - double_sigmoid_length
   - plankton_semichemostat
+  - plankton_constant
   - carrion_dynamics
   - detritus_dynamics
   - starts_with("srr")
@@ -159,6 +164,7 @@ reference:
   - get_phi
   - log_breaks
   - get_initial_n
+  - get_required_recruitment
 - title: Classes
   contents:
   - MizerParams-class

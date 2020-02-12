@@ -59,6 +59,7 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
 
 Other plotting functions: 
+\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

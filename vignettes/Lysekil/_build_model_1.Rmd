@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r}
 install.packages("devtools")
-devtools::install_github("sizespectrum/mizer")
+devtools::install_github("sizespectrum/mizer", ref = "Lysekill")
 ```
 
 The purpose of this course is for all of us to share our experiences and 
