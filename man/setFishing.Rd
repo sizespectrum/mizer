@@ -89,15 +89,27 @@ the simulation is run with \code{project()}, where it is also possible to specif
 an effort that varies through time.
 }
 
+\examples{
+\dontrun{
+params <- NS_params
+# Change knife edge size for species 1
+params@species_params$knife_edge_size[1] <- 15
+params <- setFishing(params)
+}
+}
 \seealso{
-Other functions for setting parameters: \code{\link{setBMort}()},
-  \code{\link{setInitial}()}, \code{\link{setIntakeMax}()},
-  \code{\link{setInteraction}()}, \code{\link{setMetab}()},
-  \code{\link{setParams}()}, \code{\link{setPlankton}()},
-  \code{\link{setPredKernel}()},
-  \code{\link{setReproduction}()},
-  \code{\link{setResourceDynamics}()},
-  \code{\link{setResourceEncounter}()},
-  \code{\link{setSearchVolume}()}
+Other functions for setting parameters: 
+\code{\link{setBMort}()},
+\code{\link{setInitial}()},
+\code{\link{setIntakeMax}()},
+\code{\link{setInteraction}()},
+\code{\link{setMetab}()},
+\code{\link{setParams}()},
+\code{\link{setPlankton}()},
+\code{\link{setPredKernel}()},
+\code{\link{setReproduction}()},
+\code{\link{setResourceDynamics}()},
+\code{\link{setResourceEncounter}()},
+\code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

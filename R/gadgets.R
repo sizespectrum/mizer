@@ -276,7 +276,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             error = function(e) {
                 showModal(modalDialog(
                     title = "Invalid parameters",
-                    HTML(paste0("These parameter do not lead to an acceptable steady state.",
+                    HTML(paste0("These parameter do not lead to an acceptable steady state. ",
                                 "Please choose other values.<br>",
                                 "The error message was:<br>", e)),
                     easyClose = TRUE
@@ -432,7 +432,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                              sliderInput("ldiff", "L50-L25",
                                          value = sp$l50 - sp$l25, 
                                          min = 0.1, 
-                                         max = signif(sp$l50 / 10, 2),
+                                         max = signif(sp$l50 / 4, 2),
                                          step = 0.1)))
             } else if (sp$sel_func == "double_sigmoid_length") {
                 l1 <- c(l1, list(
@@ -444,7 +444,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     sliderInput("ldiff", "L50-L25",
                                 value = sp$l50 - sp$l25, 
                                 min = 0.1, 
-                                max = signif(sp$l50 / 10, 2),
+                                max = signif(sp$l50 / 4, 2),
                                 step = 0.1),
                     sliderInput("l50_right", "L50 right",
                                 value = sp$l50_right, 
@@ -454,7 +454,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     sliderInput("ldiff_right", "L50-L25 right",
                                 value = sp$l25_right - sp$l50_right, 
                                 min = 0.1, 
-                                max = signif(sp$l50_right / 10, 2),
+                                max = signif(sp$l50_right / 4, 2),
                                 step = 0.1)
                 ))
             }
@@ -1127,7 +1127,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$plotGrowthCurve <- renderPlot({
             p <- params()
             if (input$all_growth == "All") {
-                gc <- getGrowthCurves(p)[foreground, ] %>% 
+                gc <- getGrowthCurves(p)[foreground, , drop = FALSE] %>% 
                     as.tbl_cube(met_name = "Size") %>% 
                     as_tibble() %>%
                     mutate(Legend = "Model",

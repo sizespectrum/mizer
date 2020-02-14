@@ -4,31 +4,38 @@
 \alias{steady}
 \title{Tune params object to be at steady state}
 \usage{
-steady(params, t_max = 100, t_per = 7.5, tol = 10^(-2), dt = 0.1,
-  return_sim = FALSE, progress_bar = TRUE)
+steady(
+  params,
+  t_max = 100,
+  t_per = 7.5,
+  tol = 10^(-2),
+  dt = 0.1,
+  return_sim = FALSE,
+  progress_bar = TRUE
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
-\item{t_per}{The simulation is broken up into shorter runs of t_per years,
+\item{t_per}{The simulation is broken up into shorter runs of \code{t_per} years,
 after each of which we check for convergence. Default value is 7.5. This
 should be chosen as an odd multiple of the timestep \code{dt} in order to be
 able to detect period 2 cycles.}
 
 \item{tol}{The simulation stops when the relative change in the egg
-production RDI over t_per years is less than tol for every background
+production RDI over \verb{t_per years} is less than \code{tol} for every background
 species. Default value is 1/100.}
 
-\item{dt}{The time step to use in \code{project()}}
+\item{dt}{The time step to use in \code{project()}.}
 
 \item{return_sim}{If TRUE, the function returns the MizerSim object holding
 the result of the simulation run. If FALSE (default) the function returns
 a MizerParams object with the "initial" slots set to the steady state.}
 
 \item{progress_bar}{A shiny progress object to implement
-a progress bar in a shiny app. Default FALSE}
+a progress bar in a shiny app. Default FALSE.}
 }
 \description{
 This is done by running the dynamics for a specified number of years while
@@ -38,7 +45,7 @@ achieve that level of recruitment.
 }
 \examples{
 \dontrun{
-params <- set_scaling_model()
+params <- newTraitParams()
 params@species_params$gamma[5] <- 3000
 params <- setSearchVolume(params)
 params <- steady(params)

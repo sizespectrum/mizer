@@ -4,8 +4,7 @@
 \alias{retuneReproductionEfficiency}
 \title{Retune reproduction efficiency to maintain initial egg abundances}
 \usage{
-retuneReproductionEfficiency(params,
-  species = params@species_params$species)
+retuneReproductionEfficiency(params, species = params@species_params$species)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

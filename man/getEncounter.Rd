@@ -4,8 +4,12 @@
 \alias{getEncounter}
 \title{Get encounter rate}
 \usage{
-getEncounter(params, n = params@initial_n, n_pp = params@initial_n_pp,
-  B = params@initial_B)
+getEncounter(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B
+)
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -78,7 +82,7 @@ species. These values should not be used, as they are meaningless.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Run simulation with constant fishing effort for all gears for 20 years
 sim <- project(params, t_max = 20, effort = 0.5)
 n <- sim@n[21, , ]
@@ -87,14 +91,19 @@ getEncounter(params, n, n_pp)
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getFMortGear}()},
-  \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPlanktonMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()},
-  \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPlanktonMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

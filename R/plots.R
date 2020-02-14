@@ -58,14 +58,14 @@
 #' the same legend. This is made possible for some of the plots via the
 #' \code{\link{displayFrames}} function.
 #' 
-#' @seealso \code{\link{summary_functions}}
+#' @seealso \code{\link{summary_functions}}, \code{\link{indicator_functions}}
 #' @family plotting functions
 #' @name plotting_functions
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' 
 #' # Some example plots
@@ -147,7 +147,7 @@ log_breaks <- function(n = 6){
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
@@ -273,7 +273,7 @@ getSSBFrame <- function(sim,
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
 #' 
@@ -338,7 +338,7 @@ getBiomassFrame <- function(sim,
 #' # Set up example MizerParams and MizerSim objects
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 #' 
 #' plotBiomass(sim)
@@ -434,7 +434,7 @@ plotlyBiomass <- function(sim,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim)
 #' plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -557,7 +557,7 @@ plotlyYield <- function(sim, sim2,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYieldGear(sim)
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -653,7 +653,7 @@ plotlyYieldGear <- function(sim,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
 #' plotSpectra(sim, wlim = c(1e-6, NA))
@@ -831,6 +831,83 @@ plotlySpectra <- function(object, species = NULL,
 }
 
 
+#' Animation of the abundance spectra
+#' 
+#' @param sim A MizerSim object
+#' @inheritParams plotSpectra
+#' @export
+#' @family plotting functions
+animateSpectra <- function(sim,
+                           species,
+                           wlim = c(NA, NA),
+                           ylim = c(NA, NA),
+                           power = 1,
+                           total = FALSE,
+                           plankton = TRUE) {
+    
+    # Select species ----
+    if (missing(species)) { 
+        # Set species to list of all non-background species
+        species <- dimnames(sim@params@initial_n)$sp[!is.na(sim@params@A)]
+    }
+    species <- as.character(species)
+    invalid_species <- 
+        !(species %in% as.character(dimnames(sim@n)$sp))
+    if (any(invalid_species)) {
+        warning(paste("The following species do not exist in the model and are ignored:",
+                      species[invalid_species]))
+    }
+    nf <- melt(sim@n[, as.character(dimnames(sim@n)$sp) %in% species, , drop = FALSE])
+    
+    # Add plankton ----
+    if (plankton) {
+        nf_pp <- melt(sim@n_pp)
+        nf_pp$sp <- "Plankton"
+        nf <- rbind(nf, nf_pp)
+    }
+     # Add total ----
+    if (total) {
+        # Calculate total community abundance
+        fish_idx <- (length(sim@params@w_full) - 
+                         length(sim@params@w) + 1):length(sim@params@w_full)
+        total_n <- sim@n_pp
+        total_n[, fish_idx] <- total_n[, fish_idx] + 
+            rowSums(aperm(sim@n, c(1, 3, 2)), dims = 2)
+        nf_total <- melt(total_n)
+        nf_total$sp <- "Total"
+        nf <- rbind(nf, nf_total)
+    }
+    
+    # Impose limits ----
+    if (is.na(wlim[1])) wlim[1] <- min(params@w) / 100
+    if (is.na(wlim[2])) wlim[2] <- max(params@w_full)
+    if (is.na(ylim[1])) ylim[1] <- 10^-20
+    if (is.na(ylim[2])) ylim[2] <- 10^20
+    nf <- nf %>% 
+        filter(value >= ylim[1],
+               value <= ylim[2],
+               w >= wlim[1],
+               w <= wlim[2])
+    
+    # Deal with power argument ----
+    if (power %in% c(0, 1, 2)) {
+        y_label <- c("Number density [1/g]", "Biomass density",
+                     "Biomass density [g]")[power + 1]
+    } else {
+        y_label <- paste0("Number density * w^", power)
+    }
+    nf <- mutate(nf, value = value * w^power)
+        
+    nf %>% 
+        plot_ly() %>% 
+        add_lines(x = ~w, y = ~value, 
+                  color = ~sp, colors = sim@params@linecolour,
+                  frame = ~time,
+                  line = list(simplify = FALSE)) %>% 
+        layout(xaxis = list(type = "log", exponentformat = "power"),
+               yaxis = list(type = "log", exponentformat = "power"))
+}
+
 #' Plot the feeding level of species by size
 #' 
 #' After running a projection, plot the feeding level of each species by size. 
@@ -854,7 +931,7 @@ plotlySpectra <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
@@ -869,11 +946,12 @@ plotFeedingLevel <- function(object,
             time_range  <- max(as.numeric(dimnames(object@n)$time))
         }
         params <- object@params
+        feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
     } else {
         assert_that(is(object, "MizerParams"))
         params <- object
+        feed <- getFeedingLevel(params, drop = FALSE)
     }
-    feed <- getFeedingLevel(params, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
@@ -949,7 +1027,7 @@ plotlyFeedingLevel <- function(object,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotPredMort(sim)
 #' plotPredMort(sim, time_range = 10:20)
@@ -1037,7 +1115,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
@@ -1122,7 +1200,7 @@ plotlyFMort <- function(object, species = NULL,
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
@@ -1135,7 +1213,7 @@ plotGrowthCurves <- function(object,
     if (is(object, "MizerSim")) {
         params <- object@params
         t <- dim(object@n)[1]
-        params@initial_n <- object@n[t, , ]
+        params@initial_n[] <- object@n[t, , ] # Designed to work also with single species
         params@initial_n_pp <- object@n_pp[t, ]
     } else if (is(object, "MizerParams")) {
         params <- object
@@ -1255,7 +1333,7 @@ plotDiet <- function(object, species) {
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots
@@ -1299,7 +1377,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' 
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' plot(params)
 #' plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 #' 

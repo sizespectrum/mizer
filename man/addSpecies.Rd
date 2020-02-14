@@ -4,7 +4,7 @@
 \alias{addSpecies}
 \title{Add new species}
 \usage{
-addSpecies(params, species_params, interaction)
+addSpecies(params, species_params, interaction, initial_effort = NULL)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -38,7 +38,7 @@ system is not run to steady state. You would have to call
 }
 \examples{
 \dontrun{
-params <- set_scaling_model(max_w_inf = 5000)
+params <- newTraitParams(max_w_inf = 5000)
 params <- markBackground(params)
 a_m <- 0.0085
 b_m <- 3.11

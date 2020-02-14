@@ -4,8 +4,14 @@
 \alias{get_size_range_array}
 \title{Get size range array}
 \usage{
-get_size_range_array(params, min_w = min(params@w),
-  max_w = max(params@w), min_l = NULL, max_l = NULL, ...)
+get_size_range_array(
+  params,
+  min_w = min(params@w),
+  max_w = max(params@w),
+  min_l = NULL,
+  max_l = NULL,
+  ...
+)
 }
 \arguments{
 \item{params}{MizerParams object}

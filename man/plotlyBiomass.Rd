@@ -4,11 +4,18 @@
 \alias{plotlyBiomass}
 \title{Plot the biomass of species against time with plotly}
 \usage{
-plotlyBiomass(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+plotlyBiomass(
+  sim,
+  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  y_ticks = 6, ylim = c(NA, NA), total = FALSE, background = TRUE,
-  highlight = NULL, ...)
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  ...
+)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -59,22 +66,26 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
 }
 \seealso{
-Other plotting functions: \code{\link{displayFrames}()},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
-  \code{\link{plotFMort}()},
-  \code{\link{plotFeedingLevel}()},
-  \code{\link{plotGrowthCurves}()},
-  \code{\link{plotPredMort}()},
-  \code{\link{plotSpectra}()},
-  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
-  \code{\link{plotlyFMort}()},
-  \code{\link{plotlyFeedingLevel}()},
-  \code{\link{plotlyGrowthCurves}()},
-  \code{\link{plotlyPredMort}()},
-  \code{\link{plotlySpectra}()},
-  \code{\link{plotlyYieldGear}()},
-  \code{\link{plotlyYield}()},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{displayFrames}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotlyFMort}()},
+\code{\link{plotlyFeedingLevel}()},
+\code{\link{plotlyGrowthCurves}()},
+\code{\link{plotlyPredMort}()},
+\code{\link{plotlySpectra}()},
+\code{\link{plotlyYieldGear}()},
+\code{\link{plotlyYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

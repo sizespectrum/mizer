@@ -4,8 +4,16 @@
 \alias{carrion_dynamics}
 \title{Carrion dynamics}
 \usage{
-carrion_dynamics(params, n, n_pp, B, rates, dt,
-  carrion_external = params@resource_params$carrion_external, ...)
+carrion_dynamics(
+  params,
+  n,
+  n_pp,
+  B,
+  rates,
+  dt,
+  carrion_external = params@resource_params$carrion_external,
+  ...
+)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -60,6 +68,7 @@ This avoids the stability problems that would arise if we used the Euler
 method to solve the equation numerically.
 }
 \seealso{
-Other resource dynamics functions: \code{\link{detritus_dynamics}()}
+Other resource dynamics functions: 
+\code{\link{detritus_dynamics}()}
 }
 \concept{resource dynamics functions}

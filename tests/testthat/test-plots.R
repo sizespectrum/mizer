@@ -3,7 +3,8 @@ context("Plotting methods")
 # Initialisation ----------------
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter, no_w = 30)
+params <- newMultispeciesParams(NS_species_params_gears, inter, no_w = 30,
+                                n = 2/3, p = 0.7)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c("Cod", "Haddock")
@@ -13,45 +14,36 @@ test_that("plots have not changed", {
 p <- plotBiomass(sim, species = species, total = TRUE,
                  start_time = 0, end_time = 2.8,
                  y_ticks = 4)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotBiomass")
+vdiffr::expect_doppelganger("Plot Biomass", p)
 
 p <- plotYield(sim, species = species, total = TRUE)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotYield")
+vdiffr::expect_doppelganger("Plot Yield", p)
 
 p <- plotYieldGear(sim, species = species)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotYieldGear")
+vdiffr::expect_doppelganger("Plot Yield by Gear", p)
 
 p <- plotSpectra(sim, species = species, total = TRUE,
                  time_range = 1:3, power = 2,
                  ylim = c(1e6, NA))
-p$plot_env <- NULL
-expect_known_value(p, "values/plotSpectra")
+vdiffr::expect_doppelganger("Plot Spectra", p)
 
 p <- plotFeedingLevel(sim, species = species, time_range = 1:3)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotFeedingLevel")
+vdiffr::expect_doppelganger("Plot Feeding Level", p)
 
 p <- plotPredMort(sim, species = species, time_range = 1:3)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotPredMort")
+vdiffr::expect_doppelganger("PlotPredation Mortality", p)
 
 p <- plotFMort(sim, species = species, time_range = 1:3)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotFMort")
+vdiffr::expect_doppelganger("PlotFishing Mortality", p)
 
 p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
                       max_age = 50)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotGrowthCurves")
+vdiffr::expect_doppelganger("Plot Growth Curves", p)
 
 sim@params@species_params$a <- 0.0058
 sim@params@species_params$b <- 3.13
 p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
-p$plot_env <- NULL
-expect_known_value(p, "values/plotGrowthCurvesSingle")
+vdiffr::expect_doppelganger("Plot Single Growth Curve", p)
 
 p <- displayFrames(getBiomassFrame(sim0, 
                                    species = species,
@@ -61,8 +53,7 @@ p <- displayFrames(getBiomassFrame(sim0,
                                    end_time = 3,
                                    ylim = c(1e12)),
                    params)
-p$plot_env <- NULL
-expect_known_value(p, "values/displayFrames")
+vdiffr::expect_doppelganger("Display Frames", p)
 
 expect_known_value(getSSBFrame(sim, species = "Cod", total = TRUE),
                    "values/getSSBFrame")

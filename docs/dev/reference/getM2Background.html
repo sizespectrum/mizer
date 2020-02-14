@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -126,9 +126,13 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getM2Background</span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>pred_rate</span> <span class='kw'>=</span> <span class='fu'><a href='getPredRate.html'>getPredRate</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>))</pre>
+    <pre class="usage"><span class='fu'>getM2Background</span>(
+  <span class='no'>params</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
+  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
+  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
+  <span class='kw'>pred_rate</span> <span class='kw'>=</span> <span class='fu'><a href='getPredRate.html'>getPredRate</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>)
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -166,20 +170,26 @@ it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> 
     <p>Used by the <code>project</code> function for running size based simulations.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other rate functions: <code><a href='getEGrowth.html'>getEGrowth</a></code>,
-  <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>,
-  <code><a href='getERepro.html'>getERepro</a></code>, <code><a href='getEncounter.html'>getEncounter</a></code>,
-  <code><a href='getFMortGear.html'>getFMortGear</a></code>, <code><a href='getFMort.html'>getFMort</a></code>,
-  <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>, <code><a href='getMort.html'>getMort</a></code>,
-  <code><a href='getPredMort.html'>getPredMort</a></code>, <code><a href='getPredRate.html'>getPredRate</a></code>,
-  <code><a href='getRDD.html'>getRDD</a></code>, <code><a href='getRDI.html'>getRDI</a></code>,
-  <code><a href='getRates.html'>getRates</a></code></p></div>
+    <div class='dont-index'><p>Other rate functions: 
+<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
+<code><a href='getERepro.html'>getERepro</a>()</code>,
+<code><a href='getEncounter.html'>getEncounter</a>()</code>,
+<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
+<code><a href='getFMort.html'>getFMort</a>()</code>,
+<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
+<code><a href='getMort.html'>getMort</a>()</code>,
+<code><a href='getPredMort.html'>getPredMort</a>()</code>,
+<code><a href='getPredRate.html'>getPredRate</a>()</code>,
+<code><a href='getRDD.html'>getRDD</a>()</code>,
+<code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getRates.html'>getRates</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># Get plankton mortality at one time step</span>
@@ -188,7 +198,7 @@ it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> 
 <span class='fu'><a href='getPlanktonMort.html'>getPlanktonMort</a></span>(<span class='no'>params</span>,<span class='no'>n</span>,<span class='no'>n_pp</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
@@ -208,7 +218,7 @@ it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> 
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

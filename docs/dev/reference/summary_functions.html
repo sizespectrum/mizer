@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -36,8 +36,7 @@
 
 
 <meta property="og:title" content="Description of summary functions — summary_functions" />
-<meta property="og:description" content="Mizer provides a range of functions to extract information about a simulation
-from a MizerSim object." />
+<meta property="og:description" content="Mizer provides a range of functions to summarise the results of a simulation." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,8 +123,7 @@ from a MizerSim object." />
     </div>
 
     <div class="ref-description">
-    <p>Mizer provides a range of functions to extract information about a simulation
-from a MizerSim object.</p>
+    <p>Mizer provides a range of functions to summarise the results of a simulation.</p>
     </div>
 
 
@@ -147,21 +145,12 @@ from a MizerSim object.</p>
 </table>
 
 
-<p>A list of available indicator functions for MizerSim objects is given in the table below</p><table class='table'>
-<tr><td>Function</td><td>Returns</td><td>Description</td></tr>
-<tr><td><code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a></code></td><td>A vector with values at each time step.</td><td>Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight.</td></tr>
-<tr><td><code><a href='getMeanWeight.html'>getMeanWeight</a></code></td><td>A vector with values at each saved time step.</td><td>The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance.</td></tr>
-<tr><td><code><a href='getMeanMaxWeight.html'>getMeanMaxWeight</a></code></td><td>Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step</td><td>The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details.</td></tr>
-<tr><td><code><a href='getCommunitySlope.html'>getCommunitySlope</a></code></td><td>A data.frame with four columns: time step, slope, intercept and the coefficient of determination.</td><td>Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size.</td></tr>
-</table>
-
-
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <div class='dont-index'><p><code><a href='indicator_functions.html'>indicator_functions</a></code>, <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#details">Details</a></li>
@@ -178,7 +167,7 @@ from a MizerSim object.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

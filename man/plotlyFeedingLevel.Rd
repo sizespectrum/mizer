@@ -4,8 +4,7 @@
 \alias{plotlyFeedingLevel}
 \title{Plot the feeding level of species by size with plotly}
 \usage{
-plotlyFeedingLevel(object, species = NULL, time_range,
-  highlight = NULL, ...)
+plotlyFeedingLevel(object, species = NULL, time_range, highlight = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -37,22 +36,26 @@ to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial feeding level is plotted.
 }
 \seealso{
-Other plotting functions: \code{\link{displayFrames}()},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotBiomass}()}, \code{\link{plotDiet}()},
-  \code{\link{plotFMort}()},
-  \code{\link{plotFeedingLevel}()},
-  \code{\link{plotGrowthCurves}()},
-  \code{\link{plotPredMort}()},
-  \code{\link{plotSpectra}()},
-  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
-  \code{\link{plotlyBiomass}()},
-  \code{\link{plotlyFMort}()},
-  \code{\link{plotlyGrowthCurves}()},
-  \code{\link{plotlyPredMort}()},
-  \code{\link{plotlySpectra}()},
-  \code{\link{plotlyYieldGear}()},
-  \code{\link{plotlyYield}()},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{displayFrames}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotBiomass}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotlyBiomass}()},
+\code{\link{plotlyFMort}()},
+\code{\link{plotlyGrowthCurves}()},
+\code{\link{plotlyPredMort}()},
+\code{\link{plotlySpectra}()},
+\code{\link{plotlyYieldGear}()},
+\code{\link{plotlyYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

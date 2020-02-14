@@ -23,21 +23,22 @@ species. In a trait-based model the asymptotic size is considered to be the most
 important *trait* characterizing a species. All of the species-specific
 parameters, such as $\beta$ and $\sigma$, are the same for all species. Other
 model parameters are determined by the asymptotic size. For example, the weight
-at maturation, $w_{m.i} = \eta w_{\infty.i}$, where $\eta = 0.25$.  The number
+at maturation is a fixed fraction of the asymptotic size.  The number
 of species is not important and does not affect the general dynamics of the
-model. The asymptotic sizes of the species are spread evenly over the size range
-of the community.
+model. The asymptotic sizes of the species are spread evenly on a logarithmic
+scale.
 
 ## Setting up a trait-based model {#sec:set_up_trait_model}
 
 To help set up a trait-based model, there is a wrapper function,
-`set_trait_model()`. Like the `set_community_model()` function described in the
+`newTraitParams()`. Like the `newCommunityParams()` function described in the
 section on the [community model](community_model.html), this function can take
 many arguments. Most of them have default values so you don't need to worry
-about them for the moment. See the help page for more details.
+about them for the moment. See the help page for `newCommunityParams()` for more
+details.
 
-```{r label=help_set_trait_model, eval=FALSE}
-?set_trait_model
+```{r label=help_newTraitParams, eval=FALSE}
+?newTraitParams
 ```
 
 The main parameters of interest are the number of the species in the model
@@ -49,30 +50,27 @@ One of the key differences between the community type model and
 the trait-based model is that reproduction and egg production are considered. In
 the community model, recruitment is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
-model, the egg production is modeled using a *Beverton-Holt* type function (the
+model, the egg production is dependent on mature individuals investing part
+of their energy income into reproduction. The relationship between the energy
+invested into reproduction and the actual rate of egg production is modeled using a *Beverton-Holt* type function (the
 default in `mizer`, see [the section on stock-recruitment
-relationships](model_description.html#recruitment)) where the recruitment
-flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg
-production increases. The maximum recruitment flux is calculated using
-equilibrium theory and a recruitment multiplier $k_0$, which can be passed in as
-an argument (`k0`) to the `set_trait_model()` function. `k0` has a default value
-of 50.
+relationships](model_description.html#recruitment)) where the egg
+flux $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
 Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
 
 ```{r label=demo_trait_model_params}
-params <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
+params <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)
 ```
 
-The output reminds the user that $\gamma$ was not specified, and so will be calculated using other parameters.
+The output reminds the user that $\gamma$ was not specified, and so will be
+calculated using other parameters.
 
-This function returns an object of type `MizerParams`, which holds all the model information, including species parameters.
-
-```{r label=class_trait_params}
-class(params)
-```
-
-This object can therefore be interrogated in the same way as described in [the section on the community model](community_model.html), either by inspecting the individual slots or by using the `summary()` function.
+This function returns an object of type `MizerParams`, which holds all the model
+information, including species parameters. This object can therefore be
+interrogated in the same way as described in [the section on the community
+model](community_model.html), either by inspecting the individual slots or by
+using the `summary()` function.
 
 ```{r label=summary_comm_params2}
 summary(params)
@@ -81,22 +79,22 @@ summary(params)
 
 The summary shows us that now we have 10 species in the model, with asymptotic sizes ranging from  
 $`r min(params@species_params$w_inf)`$
-to $`r max(params@species_params$w_inf)`$. The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
+to $`r max(params@species_params$w_inf)`$. The rather strange-looking values
+for the sizes is due to the fact that the size classes are equally spaced
+on a logarithmic scale. 
+
+The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each species has the same preferred predator-prey mass ratio parameter values (`beta` and `sigma`, see [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). There are $`r length(params@w)`$ size bins in the community and $`r length(params@w_full)`$ size bins including the plankton spectrum.
 Ignore the summary section on fishing gear for the moment. This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}
 
-As with the community model described above, we can project the model through time using the `project()` function.
-Here we project the model for 75 time steps without any fishing (the `effort` argument is set to 0).
+As with the community model described above, we can project the model through time using the `project()` function. 
+Here we project the model for 75 years without any fishing (the `effort` argument is set to 0).
 We use the default initial population abundances given by the `get_initial_n()` function so there is no need to pass in any initial population values (see [the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
 
 
-
-
-
-
 ```{r label=trait_project_no_fishing}
-sim <- project(params, t_max=75, effort = 0)
+sim <- project(params, t_max = 75, effort = 0)
 ```
 
 This results in a `MizerSim` object which contains the abundances of the community and plankton spectra through time, as well as the original `MizerParams` object.
@@ -115,17 +113,17 @@ The size-spectra show the abundances at size to be evenly spaced by asymptotic s
 ## Example of a trophic cascade with the trait-based model {#sec:trophic_cascade_trait_model}
 
 As with the community model, it is possible to use the trait-based model to simulate a trophic cascade.
-Again, we perform two simulations, one with fishing and one without. We therefore need to consider how fishing gears and selectivity have been set up by the `set_trait_model()` function. 
+Again, we perform two simulations, one with fishing and one without. We therefore need to consider how fishing gears and selectivity have been set up by the `newTraitParams()` function. 
 
 The default fishing selectivity function is a knife-edge function, which only selects individuals larger than 1000 g. There is also only one fishing gear in operation, and this selects all of the species. You can see this if you call the `summary()` method on the `params` argument we set up above. At the bottom of the summary there is a section on *Fishing gear details*. You can see that there is only one gear, called ``knife_edge_gear'' and that it selects species 1 to 10.
-To control the size at which individuals are selected there is a `knife_edge_size` argument to the `set_trait_model()` function. This has a default value of 1000 g.
+To control the size at which individuals are selected there is a `knife_edge_size` argument to the `newTraitParams()` function. This has a default value of 1000 g.
 
 In `mizer` it is possible to include more than one fishing gear in the model and for different species to be caught by different gears. We will ignore this for now, but will explore it further below when we introduce an industrial fishery to the trait-based model. 
 
 To set up the trait-based model to have fishing we set up the `MizerParams` object in exactly the same way as we did before but here the `knife_edge_size` argument is explicitly passed in for clarity:
 
 ```{r label=set_trait_fishing}
-params_knife <- set_trait_model(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
+params_knife <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5,
     knife_edge_size = 1000)
 ```
 
@@ -208,7 +206,7 @@ This requires us to look more closely at how fishing gears are handled in `mizer
 In `mizer` it is possible for a fishing gear to catch only a subset of the species in the model. This is useful because when running a simulation with `project()` you can specify the effort per gear and so you can turn gears on or off as you want. The shape of the selectivity function of each gear will be the same for all of the species it catches but the selectivity parameter values for each species may be different. For example, we can set up an *industrial* gear to catch only a subset of species. Each species it catches will be caught with knife-edge selectivity but they may have a different knife-edge positions.
 
 Using the trait-based model wrapper function it is only possible to have a knife-edge selectivity.
-Each species in the model must be given the position of the knife edge and the name of the fishing gear. This is done using the `knife_edge_size` argument and the `gear_names` argument of the `set_trait_model()` function.
+Each species in the model must be given the position of the knife edge and the name of the fishing gear. This is done using the `knife_edge_size` argument and the `gear_names` argument of the `newTraitParams()` function.
 In the previous examples, we passed in the `knife_edge_size` argument as a single value which was used for all the species. This effectively set up a single gear, that caught all species using the same selectivity pattern. The `gear_names` argument was not used.
 Now we are going to pass the `knife_edge_size` argument as a vector with the same length as the number of species in the model. The values in the vector will be the positions of the knife-edge for each species.
 We are also going to pass in a new argument, `gear_names` which is a vector of the names of the gears. The vector must have the same length as the number of species in the model.
@@ -217,7 +215,7 @@ We will set up the model to include two fishing gears: an *industrial* gear that
 The position of the knife-edge for both gears will occur at 0.05 x the asymptotic size i.e. the selectivity parameters will be different for each species and will depend on the asymptotic size.
 
 To start with we need to know what the asymptotic sizes of the species in the model are so we can determine the knife-edge positions for each species.
-As mentioned above, the `set_trait_model()` function spaces the asymptotic sizes equally on a logarithmic scale. This means we can calculate them by hand.
+As mentioned above, the `newTraitParams()` function spaces the asymptotic sizes equally on a logarithmic scale. This means we can calculate them by hand.
 
 ```{r label=calc_trait_winf}
 no_sp <- 10
@@ -244,7 +242,7 @@ gear_names[other_gears] <- "Other"
 Finally, we can create our `MizerParams` object by passing in the `knife_edge_sizes` and `gear_names` argument. All the other arguments are the same as before:
 
 ```{r label=set_trait_multiple_gears}
-params_multi_gear <- set_trait_model(no_sp = no_sp, min_w_inf = min_w_inf,
+params_multi_gear <- newTraitParams(no_sp = no_sp, min_w_inf = min_w_inf,
     max_w_inf = max_w_inf, knife_edge_size = knife_edges, gear_names = gear_names)
 ```
 

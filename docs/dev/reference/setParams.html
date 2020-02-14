@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -152,15 +152,35 @@ functions</p><ul>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>q</span>, <span class='kw'>f0</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>f0</span>,
-  <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>,
-  <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>srr</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>srr</span>, <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>kappa</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>lambda</span>, <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+    <pre class="usage"><span class='fu'>setParams</span>(
+  <span class='no'>params</span>,
+  <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>q</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>q</span>,
+  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>f0</span>,
+  <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span>,
+  <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>,
+  <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
+  <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>,
+  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>srr</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>srr</span>,
+  <span class='kw'>rr_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cc_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>kappa</span>,
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>lambda</span>,
+  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>resource_dynamics</span>,
-  <span class='kw'>resource_params</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>resource_params</span>, <span class='kw'>rho</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>resource_params</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>resource_params</span>,
+  <span class='kw'>rho</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -252,20 +272,28 @@ described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
       <th>srr</th>
-      <td><p>The stock recruitment function. Defaults to 
+      <td><p>The name of the stock recruitment function. Defaults to 
 <code><a href='srrBevertonHolt.html'>srrBevertonHolt</a></code>.</p></td>
     </tr>
     <tr>
-      <th>kappa</th>
-      <td><p>Carrying capacity of the plankton spectrum.</p></td>
+      <th>rr_pp</th>
+      <td><p>Optional. Vector of plankton intrinsic growth rates</p></td>
     </tr>
     <tr>
-      <th>lambda</th>
-      <td><p>Exponent of the plankton spectrum.</p></td>
+      <th>cc_pp</th>
+      <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Growth rate of the primary productivity. Default is 10 g/year.</p></td>
+      <td><p>Coefficient of the intrinsic growth rate</p></td>
+    </tr>
+    <tr>
+      <th>kappa</th>
+      <td><p>Coefficient of the intrinsic carrying capacity</p></td>
+    </tr>
+    <tr>
+      <th>lambda</th>
+      <td><p>Scaling exponent of the intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
@@ -296,6 +324,12 @@ needed.</p></td>
       <td><p>Optional. An array (species x resource x size)
 holding the rate at which a consumer of a particular size feeds on each
 resource. Described in the section "Setting resource encounter rate".</p></td>
+    </tr>
+    <tr>
+      <th>initial_effort</th>
+      <td><p>Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.</p></td>
     </tr>
     </table>
 
@@ -562,7 +596,7 @@ density dependence is used to encode all the density dependence that is not
 already included in the other two sources of density dependence.</p>
 <p>To calculate the density-dependent rate of larvae production, mizer puts the
 the density-independent rate of egg production through a "stock-recruitment"
-function. The result is returned by <code><a href='getRDD.html'>getRDD</a></code>. The
+function. The result is returned by <code><a href='getRDD.html'>getRDD</a></code>. The name of the
 stock-recruitment function is specified by the <code>srr</code> argument. The
 default is the Beverton-Holt function <code><a href='srrBevertonHolt.html'>srrBevertonHolt</a></code>, which
 requires an <code>R_max</code> column in the species_params data frame giving the
@@ -627,13 +661,33 @@ catchability matrix \(Q_{g,i}\) reduces to a catchability vector
 \(Q_{i}\), and this is given as a column <code>catchability</code> in the species
 parameter data frame. If it is not specified, it defaults to 1.</p>
 <p><strong>Effort</strong></p>
-<p>Fishing effort is not stored in the <code>MizerParams</code> object. Instead, effort is
-set when the simulation is run with <code><a href='project.html'>project()</a></code> and can vary through time.</p>
+<p>The initial fishing effort is stored in the <code>MizerParams</code> object. If it is
+not supplied, it is set to zero. The initial effort can be overrruled when
+the simulation is run with <code><a href='project.html'>project()</a></code>, where it is also possible to specify
+an effort that varies through time.</p>
     <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
 
     
 
-<p>Still need to document</p>
+<p>By default, mizer uses a semichemostat model to describe the plankton
+dynamics in each size class independently. This semichemostat dynamics is implemented
+by the function <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>. You can change the
+plankton dynamics by writing your own function, modelled on
+<code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>, and then passing the name of your
+function in the <code>plankton_dynamics</code> argument.</p>
+<p>The <code>rr_pp</code> argument is a vector specifying the intrinsic plankton
+growth rate for each size class. If it is not supplied, then the intrinsic growth
+rate \(r_p(w)\) at size \(w\)
+is set to $$r_p(w) = r_p\, w^{n-1}.$$
+The values of \(r_p\) and \(n\) are taken from the <code>r_pp</code>
+and <code>n</code> arguments.</p>
+<p>The <code>cc_pp</code> argument is a vector specifying the intrinsic plankton
+carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
+capacity \(c_p(w)\) at size \(w\)
+is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
+for all \(w\) less than <code>w_pp_cutoff</code> and zero for larger sizes.
+The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>
+and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     
@@ -700,24 +754,28 @@ resources in the second array dimension must be the same as in the list of
 resource dynamics. The third dimension is the size dimension.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting parameters: <code><a href='setBMort.html'>setBMort</a></code>,
-  <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setInitial.html'>setInitial</a></code>,
-  <code><a href='setIntakeMax.html'>setIntakeMax</a></code>, <code><a href='setInteraction.html'>setInteraction</a></code>,
-  <code><a href='setMetab.html'>setMetab</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code>,
-  <code><a href='setPredKernel.html'>setPredKernel</a></code>,
-  <code><a href='setReproduction.html'>setReproduction</a></code>,
-  <code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>,
-  <code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>,
-  <code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setFishing.html'>setFishing</a>()</code>,
+<code><a href='setInitial.html'>setInitial</a>()</code>,
+<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setInteraction.html'>setInteraction</a>()</code>,
+<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setPlankton.html'>setPlankton</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
+<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_trait_model.html'>set_trait_model</a></span>()
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
@@ -749,7 +807,7 @@ resource dynamics. The third dimension is the size dimension.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

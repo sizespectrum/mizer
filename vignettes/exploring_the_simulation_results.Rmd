@@ -10,15 +10,13 @@ output:
 
 ```{r include=FALSE}
 library(mizer)
-params_data <- read.csv("NS_species_params.csv")
-inter <- read.csv("inter.csv", row.names=1)
-inter <- as(inter, "matrix")
+params_data <- NS_species_params
 params_data_gears <- params_data
 params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
+params_gears <- newMultispeciesParams(params_data_gears, interaction = inter)
 gear_names <- c("Industrial","Pelagic","Beam","Otter")
 times <- seq(from = 1, to = 10, by = 1)
 effort_array <- array(NA, dim = c(length(times), length(gear_names)),

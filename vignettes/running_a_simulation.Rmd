@@ -18,7 +18,7 @@ params_data_gears$gear <- c("Industrial","Industrial","Industrial",
 		      "Pelagic","Beam","Otter",
 		      "Beam","Otter","Beam",
 		      "Otter","Otter","Otter")
-params_gears <- set_multispecies_model(params_data_gears, interaction = inter)
+params_gears <- newMultispeciesParams(params_data_gears, interaction = inter)
 ```
 
 
@@ -142,7 +142,7 @@ in which each species is caught by a separate gear.
 Here we make the object again:
 
 ```{r label = remaking_simple_ms_params, results='hide'}
-params <- set_multispecies_model(params_data, interaction = inter)
+params <- newMultispeciesParams(params_data, interaction = inter)
 ```
 
 As described above, effort is associated with fishing gears.

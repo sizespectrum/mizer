@@ -18,10 +18,7 @@ described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
 would lead to the feeding level \eqn{f_0}. Only for internal use.
 }
 \details{
-Currently this is implemented only for the lognormal predation kernel and uses
-an analytic expression for the encounter rate, but in future we can do this
-numerically for any predation kernel. Also currently feeding on unstructured
-resources is not taken into account.
+Currently feeding on unstructured resources is not taken into account.
 }
 \concept{helper}
 \keyword{internal}

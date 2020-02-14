@@ -1,0 +1,224 @@
+---
+title: "Estimating feeding kernel parameters"
+output: html_notebook
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = TRUE,
+  comment = "#>"
+)
+library(mizer)
+library(tidyverse)
+library(bbmle)
+```
+
+Specifying the species we are interested in:
+```{r}
+select <- c("Merluccius merluccius", "Aspitrigla cuculus")
+```
+
+# Load data
+Here we will use the Barnes dataset. If you don't have it, you can download it
+with
+```{r eval=FALSE}
+download.file("http://esapubs.org/archive/ecol/E089/051/Predator_and_prey_body_sizes_in_marine_food_webs_vsn4.txt", destfile = "barnes.csv")
+```
+
+We load the entire Barnes dataset and then select only the part we are
+interested in
+```{r message=FALSE}
+stomach_all <-
+    read_tsv("barnes.csv",
+             na = c("", "n/a"),
+             guess_max = 10000)
+
+stomach <- stomach_all %>% 
+    filter(Predator %in% select) %>% 
+    # you could alternatively select by common name
+    # filter(`Predator common name` %in% selected) %>% 
+    transmute(Species = Predator,
+              Nprey = 1,
+              wpredator = `SI predator mass`,
+              wprey = `SI prey mass`,
+              l = log(wpredator / wprey)) %>% 
+    # ignore prey that are larger than the predator
+    filter(l > 0) %>% 
+    group_by(Species) %>% 
+    mutate(weight_numbers = Nprey / sum(Nprey),
+           weight_biomass = Nprey * wprey / sum(Nprey * wprey))
+stomach
+```
+
+# Bin the data
+```{r}
+no_bins <- 30  # Number of bins
+binsize <- (max(stomach$l) - min(stomach$l)) / (no_bins - 1)
+breaks <- seq(min(stomach$l) - binsize/2,
+              by = binsize, length.out = no_bins + 1)
+binned_stomach <- stomach %>% 
+    # bin data
+    mutate(cut = cut(l, breaks = breaks, right = FALSE,
+                     labels = FALSE)) %>% 
+    group_by(Species, cut) %>% 
+    summarise(Numbers = sum(Nprey), 
+              Biomass = sum(Nprey * wprey)) %>% 
+    # normalise
+    mutate(Numbers = Numbers / sum(Numbers) / binsize,
+           Biomass = Biomass / sum(Biomass) / binsize)  %>%
+    # column for predator/prey size ratio
+    mutate(l = map_dbl(cut, function(idx) breaks[idx] + binsize/2)) %>% 
+    gather(key = "Type", value = "Density", Numbers, Biomass)
+```
+
+# Normal distribution
+Next we fit normal densities:
+```{r}
+grid <- seq(0, max(stomach$l), length = 100)
+normaldens <- plyr::ddply(stomach, "Species", function(df) {
+  data.frame( 
+    l = grid,
+    density = dnorm(grid, mean(df$l), sd(df$l))
+  )
+})
+
+ggplot(stomach) +
+    geom_density(aes(l, weight = weight_numbers), fill = "#00BFC4") +
+    facet_wrap(~Species, scales = "free_y", ncol = 4) +
+    xlab("Log of predator/prey mass ratio")  +
+    geom_line(aes(l, density), data = normaldens,
+                  colour = "blue")
+```
+
+Next we look at the biomass distribution. We plot the normal density arising
+from the above fits on top of the observed biomass distribution.
+```{r}
+grid <- seq(-2, max(stomach$l), length = 100)
+shifted_normaldens <- plyr::ddply(stomach, "Species", function(df) {
+  data.frame( 
+    l = grid,
+    density = dnorm(grid, mean(df$l) - sd(df$l)^2, sd(df$l))
+  )
+})
+
+ggplot(stomach) +
+    geom_density(aes(l, weight = weight_biomass), fill = "#F8766D") +
+    facet_wrap(~Species, scales = "free_y", ncol = 4) +
+    xlab("Log of predator/prey mass ratio") +
+    ylab("Biomass density") +
+    geom_line(aes(l, density), data = shifted_normaldens,
+                  colour = "red")
+```
+
+If we are happy with the fits, then we would set the following species parameters:
+```{r}
+lambda <- 2.05
+sp <- stomach %>% 
+    group_by(Species) %>% 
+    summarize(sigma = sd(l),
+              beta = exp(mean(l) + (4/3 - lambda) * sigma^2),
+              mean = exp(mean(l)))
+sp
+```
+
+
+
+# Truncated exponential
+We choose
+$$
+f_l(l) \propto \frac{\exp(\alpha\ l)}
+{\left(1+e^{u_l(l_l - l)}\right)
+\left(1+e^{u_r(l - l_r)}\right)}.
+$$
+```{r}
+fl <- function(l, alpha, ll, ul, lr, ur) {
+  dl <- ll - l
+  dr <- l - lr
+  fl <- exp(alpha * l) /
+    (1 + exp(ul * dl)) /
+    (1 + exp(ur * dr))
+}
+dtexp <- function(l, alpha, ll, ul, lr, ur) {
+  d <- fl(l, alpha, ll, ul, lr, ur) /
+    integrate(fl, 0, 30, alpha = alpha, 
+              ll = ll, ul = ul, lr = lr, ur = ur)$value
+  if (any(d <= 0)) {
+    stop("The density contains non-positive values when",
+         " alpha = ", alpha, " ll = ", ll, " ul = ", ul,
+         " lr = ", lr, " ur = ", ur)
+  }
+  return(d)
+}
+```
+We estimate the 5 parameters by maximum likelihood estimation, which in this
+case can only be done numerically.
+```{r}
+mle_texp <- function(df) {
+  loglik <- function(alpha, ll, ul, lr, ur) {
+    L <- dtexp(df$l, alpha, ll, ul, lr, ur)
+    - sum(log(L) * df$weight_numbers)
+  }
+  mle2(loglik, start = list(
+    alpha = -0.5,
+    ll = min(df$l),
+    lr = max(df$l),
+    ul = 5,
+    ur = 5))
+}
+est <- stomach %>% 
+  group_modify(~ broom::tidy(mle_texp(.x))) %>% 
+  select(Species, term, estimate) %>% 
+  spread(term, estimate)
+est
+```
+
+Even if convergence fails, the resulting fit may be good enough. Let's have a
+look:
+```{r fig.height=15}
+grid = seq(-2, max(stomach$l), length.out = 200)
+texpdens <- plyr::ddply(est, "Species", function(df) {
+  data.frame(
+    l = grid,
+    Numbers = dtexp(grid, df$alpha, df$ll, df$ul, df$lr, df$ur),
+    Biomass = dtexp(grid, df$alpha - 1, df$ll, df$ul, df$lr, df$ur)
+  )}) %>% 
+  gather(Type, Density, Numbers, Biomass)
+
+ggplot(binned_stomach) +
+  geom_col(aes(l, Density, fill = Type)) +
+  facet_grid(Species ~ Type, scales = "free_y") +
+  xlab("Log of predator/prey mass ratio") +
+  geom_line(aes(l, Density, colour = Type), size = 3, data = texpdens)
+```
+```{r}
+est
+```
+
+We now determine the kernel parameters:
+```{r}
+lambda <- 2.05
+sp <- est %>% 
+    transmute(kernel_exp = alpha + 4/3 - lambda,
+              kernel_l_l = ll,
+              kernel_u_l = ul,
+              kernel_l_r = lr,
+              kernel_u_r = ur)
+sp
+```
+
+Let's take a look at the resulting kernels
+```{r}
+grid = seq(-1, max(stomach$l) + 1, length.out = 200)
+phi <- plyr::ddply(est, "Species", function(df) {
+  data.frame(
+    l = grid,
+    y = power_law_pred_kernel(exp(grid), df$alpha, df$ll, df$ul, df$lr, df$ur)
+  )}) 
+
+ggplot(binned_stomach) +
+  facet_wrap(~Species, scales = "free_y") +
+  xlab("Log of predator/prey mass ratio") +
+  geom_line(aes(l, y), size = 3, data = phi) +
+  theme(strip.text = element_text(size = 12))
+```

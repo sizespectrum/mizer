@@ -1,4 +1,4 @@
-# Summary functions for mizer package
+# Summary and indicator functions for mizer package
 
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
@@ -10,10 +10,11 @@
 
 # Soundtrack: The Definitive Lead Belly
 
+# Summary functions ####
+
 #' Description of summary functions
 #' 
-#' Mizer provides a range of functions to extract information about a simulation
-#' from a MizerSim object.
+#' Mizer provides a range of functions to summarise the results of a simulation.
 #'
 #' A list of available summary functions is given in the table below.
 #' \tabular{lll}{
@@ -29,17 +30,8 @@
 #'   \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
 #'   \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
 #' }
-#' 
-#' A list of available indicator functions for MizerSim objects is given in the table below
-#' \tabular{lll}{
-#'   Function \tab Returns \tab Description \cr
-#'   \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
-#'   \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
-#'   \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
-#'   \code{\link{getCommunitySlope}} \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
-#' }
 #'
-#' @seealso \code{\link{plotting_functions}}
+#' @seealso \code{\link{indicator_functions}}, \code{\link{plotting_functions}}
 #' @name summary_functions
 NULL
 
@@ -167,7 +159,7 @@ getDiet <- function(params,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getSSB(sim)
@@ -200,7 +192,7 @@ getSSB <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getBiomass(sim)
@@ -234,7 +226,7 @@ getBiomass <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getN(sim)
@@ -265,7 +257,7 @@ getN <- function(sim, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' getYieldGear(sim)
@@ -295,7 +287,7 @@ getYieldGear <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
 #' }
@@ -325,7 +317,7 @@ getYield <- function(sim) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' getGrowthCurves(params)
 #' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
 #' getGrowthCurves(sim, max_age = 24)
@@ -439,7 +431,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears,inter)
+#' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' summary(params)
 #' }
 setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
@@ -451,22 +443,20 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     # Length of background? 
     cat("Plankton size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), "\t(", length(object@w_full)," size bins in total)\n", sep = "")
-    # w range - min, max, number of w
-    # w background min max
-    # no species and names and wInf,  - not all these wMat, beta, sigma
-    # no gears, gear names catching what
+    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), 
+        "\n", sep = "")
+    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), 
+        "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
-    #cat("\tSpecies\t\tw_inf\n")
-    #	for (i in 1:nrow(object@species_params))
-    #	    cat("\t",as.character(object@species_params$species)[i], "\t\t ",signif(object@species_params$w_inf[i],3), "\n", sep = "")
     print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
     cat("Fishing gear details:\n")
     cat("\tGear\t\t\tTarget species\n")
     for (i in 1:dim(object@catchability)[1]){
-        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",dimnames(object@catchability)$sp[object@catchability[i,]>0], "\n", sep=" ") 
+        cat("\t",dimnames(object@catchability)$gear[i], "\t\t",
+            dimnames(object@catchability)$sp[object@catchability[i,]>0], 
+            "\n", sep=" ") 
     }
+    return()
 })
 
 
@@ -482,7 +472,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears,inter)
+#' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
 #' }
@@ -491,10 +481,34 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("Parameters:\n")
     summary(object@params)
     cat("Simulation parameters:\n")
-    # Need to store t_max and dt in a description slot? Or just in simulation time parameters? Like a list?
-    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), "\n", sep = "")
-    cat("\tOutput stored every ", as.numeric(dimnames(object@n)$time)[2] - as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    # Need to store t_max and dt in a description slot? Or just in simulation 
+    # time parameters? Like a list?
+    cat("\tFinal time step: ", max(as.numeric(dimnames(object@n)$time)), 
+        "\n", sep = "")
+    cat("\tOutput stored every ", 
+        as.numeric(dimnames(object@n)$time)[2] - 
+            as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
+    return()
 })
+
+# Indicator functions ####
+#' Description of indicator functions
+#' 
+#' Mizer provides a range of functions to calculate indicators 
+#' from a MizerSim object.
+#' 
+#' A list of available indicator functions for MizerSim objects is given in the table below
+#' \tabular{lll}{
+#'   Function \tab Returns \tab Description \cr
+#'   \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
+#'   \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
+#'   \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
+#'   \code{\link{getCommunitySlope}} \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
+#' }
+#'
+#' @seealso \code{\link{summary_functions}}, \code{\link{plotting_functions}}
+#' @name indicator_functions
+NULL
 
 
 #' Calculate the proportion of large fish
@@ -517,7 +531,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #'   Default is TRUE.
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return An array containing the proportion of large fish through time
+#' @return A vector containing the proportion of large fish through time
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -525,7 +539,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getProportionOfLargeFish(sim)
 #' getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
@@ -579,7 +593,7 @@ getProportionOfLargeFish <- function(sim,
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanWeight(sim)
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -609,8 +623,11 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A matrix or vector containing the mean maximum weight of the
-#'   community through time
+#' @return Depends on the \code{measure} argument. If \code{measure = “both”}
+#'   then you get a matrix with two columns, one with values by numbers, the
+#'   other with values by biomass at each saved time step. If \code{measure =
+#'   “numbers”} or \code{“biomass”} you get a vector of the respective values at
+#'   each saved time step.
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -618,7 +635,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanMaxWeight(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -647,16 +664,21 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 
 #' Calculate the slope of the community abundance
 #'
-#' Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
-#' You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-#' You can also specify the species to be used in the calculation.
+#' Calculates the slope of the community abundance through time by performing a
+#' linear regression on the logged total numerical abundance at weight and
+#' logged weights (natural logs, not log to base 10, are used). You can specify
+#' minimum and maximum weight or length range for the species. Lengths take
+#' precedence over weights (i.e. if both min_l and min_w are supplied, only
+#' min_l will be used). You can also specify the species to be used in the
+#' calculation.
 #'
 #' @inheritParams getMeanWeight
 #' @param biomass Boolean. If TRUE (default), the abundance is based on biomass,
 #'   if FALSE the abundance is based on numbers.
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A data frame with slope, intercept and R2 values.
+#' @return A data.frame with four columns: time step, slope, intercept and the
+#'   coefficient of determination R^2.
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -664,7 +686,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' \dontrun{
 #' data(NS_species_params_gears)
 #' data(inter)
-#' params <- set_multispecies_model(NS_species_params_gears, inter)
+#' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes
 #' slope_biomass <- getCommunitySlope(sim)

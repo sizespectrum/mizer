@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -138,8 +138,12 @@ weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
 You can also specify the species to be used in the calculation.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getMeanMaxWeight</span>(<span class='no'>sim</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>species_params</span>),
-  <span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"both"</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>getMeanMaxWeight</span>(
+  <span class='no'>sim</span>,
+  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>species_params</span>),
+  <span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"both"</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,40 +164,45 @@ calculation.</p></td>
     <tr>
       <th>...</th>
       <td><p>Arguments passed on to <code><a href='get_size_range_array.html'>get_size_range_array</a></code></p><dl class='dl-horizontal'>
-  <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
+    <dt><code>min_w</code></dt><dd><p>Smallest weight in size range. Defaults to smallest weight in
 the model.</p></dd>
-  <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
+    <dt><code>max_w</code></dt><dd><p>Largest weight in size range. Defaults to largest weight in the
 model.</p></dd>
-  <dt><code>min_l</code></dt><dd><p>Smallest length in size range. If supplied, this takes
+    <dt><code>min_l</code></dt><dd><p>Smallest length in size range. If supplied, this takes
 precedence over <code>min_w</code>.</p></dd>
-  <dt><code>max_l</code></dt><dd><p>Largest length in size range. If supplied, this takes precedence
+    <dt><code>max_l</code></dt><dd><p>Largest length in size range. If supplied, this takes precedence
 over <code>max_w</code>.</p></dd>
+  
 </dl></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix or vector containing the mean maximum weight of the
-  community through time</p>
+    <p>Depends on the <code>measure</code> argument. If <code>measure = “both”</code>
+  then you get a matrix with two columns, one with values by numbers, the
+  other with values by biomass at each saved time step. If <code>measure =
+  “numbers”</code> or <code>“biomass”</code> you get a vector of the respective values at
+  each saved time step.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for calculating indicators: <code><a href='getCommunitySlope.html'>getCommunitySlope</a></code>,
-  <code><a href='getMeanWeight.html'>getMeanWeight</a></code>,
-  <code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a></code></p></div>
+    <div class='dont-index'><p>Other functions for calculating indicators: 
+<code><a href='getCommunitySlope.html'>getCommunitySlope</a>()</code>,
+<code><a href='getMeanWeight.html'>getMeanWeight</a>()</code>,
+<code><a href='getProportionOfLargeFish.html'>getProportionOfLargeFish</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>10</span>)
 <span class='fu'>getMeanMaxWeight</span>(<span class='no'>sim</span>)
 <span class='fu'>getMeanMaxWeight</span>(<span class='no'>sim</span>, <span class='kw'>species</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Herring"</span>,<span class='st'>"Sprat"</span>,<span class='st'>"N.pout"</span>))
 <span class='fu'>getMeanMaxWeight</span>(<span class='no'>sim</span>, <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>5000</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
@@ -212,7 +221,7 @@ over <code>max_w</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

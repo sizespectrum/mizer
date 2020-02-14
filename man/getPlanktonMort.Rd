@@ -4,9 +4,13 @@
 \alias{getPlanktonMort}
 \title{Get predation mortality rate for plankton}
 \usage{
-getPlanktonMort(params, n = params@initial_n,
-  n_pp = params@initial_n_pp, B = params@initial_B,
-  pred_rate = getPredRate(params, n = n, n_pp = n_pp, B = B))
+getPlanktonMort(
+  params,
+  n = params@initial_n,
+  n_pp = params@initial_n_pp,
+  B = params@initial_B,
+  pred_rate = getPredRate(params, n = n, n_pp = n_pp, B = B)
+)
 }
 \arguments{
 \item{params}{An \linkS4class{MizerParams} object}
@@ -36,7 +40,7 @@ Used by the \code{project} function for running size based simulations.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
 # Get plankton mortality at one time step
@@ -46,13 +50,19 @@ getPlanktonMort(params,n,n_pp)
 }
 }
 \seealso{
-Other rate functions: \code{\link{getEGrowth}()},
-  \code{\link{getEReproAndGrowth}()},
-  \code{\link{getERepro}()}, \code{\link{getEncounter}()},
-  \code{\link{getFMortGear}()}, \code{\link{getFMort}()},
-  \code{\link{getFeedingLevel}()}, \code{\link{getMort}()},
-  \code{\link{getPredMort}()}, \code{\link{getPredRate}()},
-  \code{\link{getRDD}()}, \code{\link{getRDI}()},
-  \code{\link{getRates}()}
+Other rate functions: 
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getERepro}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFMort}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()}
 }
 \concept{rate functions}

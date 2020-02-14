@@ -4,7 +4,7 @@
 \alias{plankton_semichemostat}
 \title{Project plankton using semichemostat model}
 \usage{
-plankton_semichemostat(params, n, n_pp, B, rates, dt, ...)
+plankton_semichemostat(params, n, n_pp, B, rates, t, dt, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -13,9 +13,11 @@ plankton_semichemostat(params, n, n_pp, B, rates, dt, ...)
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{The biomass of detritus}
+\item{B}{The biomass of unstructured resources}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
+
+\item{t}{The current time}
 
 \item{dt}{Time step}
 
@@ -31,7 +33,7 @@ Project plankton using semichemostat model
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter,
-                             plankton_dyn = plankton_semichemostat)
+params <- newMultispeciesParams(NS_species_params_gears, inter,
+                                plankton_dynamics = "plankton_semichemostat")
 }
 }

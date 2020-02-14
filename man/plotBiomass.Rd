@@ -4,11 +4,18 @@
 \alias{plotBiomass}
 \title{Plot the biomass of species through time}
 \usage{
-plotBiomass(sim, species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
+plotBiomass(
+  sim,
+  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
   end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-  y_ticks = 6, ylim = c(NA, NA), total = FALSE, background = TRUE,
-  highlight = NULL, ...)
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  ...
+)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}
@@ -62,7 +69,7 @@ against time. The biomass is calculated within user defined size limits
 # Set up example MizerParams and MizerSim objects
 data(NS_species_params_gears)
 data(inter)
-params <- suppressMessages(set_multispecies_model(NS_species_params_gears, inter))
+params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 
 plotBiomass(sim)
@@ -75,22 +82,26 @@ plotBiomass(sim, y_ticks = 3)
 \seealso{
 \code{\link{plotting_functions}}, \code{\link{getBiomass}}
 
-Other plotting functions: \code{\link{displayFrames}()},
-  \code{\link{plot,MizerSim,missing-method}},
-  \code{\link{plotDiet}()}, \code{\link{plotFMort}()},
-  \code{\link{plotFeedingLevel}()},
-  \code{\link{plotGrowthCurves}()},
-  \code{\link{plotPredMort}()},
-  \code{\link{plotSpectra}()},
-  \code{\link{plotYieldGear}()}, \code{\link{plotYield}()},
-  \code{\link{plotlyBiomass}()},
-  \code{\link{plotlyFMort}()},
-  \code{\link{plotlyFeedingLevel}()},
-  \code{\link{plotlyGrowthCurves}()},
-  \code{\link{plotlyPredMort}()},
-  \code{\link{plotlySpectra}()},
-  \code{\link{plotlyYieldGear}()},
-  \code{\link{plotlyYield}()},
-  \code{\link{plotting_functions}}
+Other plotting functions: 
+\code{\link{animateSpectra}()},
+\code{\link{displayFrames}()},
+\code{\link{plot,MizerSim,missing-method}},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
+\code{\link{plotPredMort}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotYieldGear}()},
+\code{\link{plotYield}()},
+\code{\link{plotlyBiomass}()},
+\code{\link{plotlyFMort}()},
+\code{\link{plotlyFeedingLevel}()},
+\code{\link{plotlyGrowthCurves}()},
+\code{\link{plotlyPredMort}()},
+\code{\link{plotlySpectra}()},
+\code{\link{plotlyYieldGear}()},
+\code{\link{plotlyYield}()},
+\code{\link{plotting_functions}}
 }
 \concept{plotting functions}

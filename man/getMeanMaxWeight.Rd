@@ -4,8 +4,12 @@
 \alias{getMeanMaxWeight}
 \title{Calculate the mean maximum weight of the community}
 \usage{
-getMeanMaxWeight(sim, species = 1:nrow(sim@params@species_params),
-  measure = "both", ...)
+getMeanMaxWeight(
+  sim,
+  species = 1:nrow(sim@params@species_params),
+  measure = "both",
+  ...
+)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
@@ -29,8 +33,11 @@ over \code{max_w}.}
   }}
 }
 \value{
-A matrix or vector containing the mean maximum weight of the
-  community through time
+Depends on the \code{measure} argument. If \code{measure = “both”}
+  then you get a matrix with two columns, one with values by numbers, the
+  other with values by biomass at each saved time step. If \code{measure =
+  “numbers”} or \code{“biomass”} you get a vector of the respective values at
+  each saved time step.
 }
 \description{
 Calculates the mean maximum weight of the community through time. This can be
@@ -45,7 +52,7 @@ You can also specify the species to be used in the calculation.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=10)
 getMeanMaxWeight(sim)
 getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
@@ -53,9 +60,10 @@ getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getCommunitySlope}()},
-  \code{\link{getMeanWeight}()},
-  \code{\link{getProportionOfLargeFish}()}
+Other functions for calculating indicators: 
+\code{\link{getCommunitySlope}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

@@ -4,8 +4,12 @@
 \alias{getCommunitySlope}
 \title{Calculate the slope of the community abundance}
 \usage{
-getCommunitySlope(sim, species = 1:nrow(sim@params@species_params),
-  biomass = TRUE, ...)
+getCommunitySlope(
+  sim,
+  species = 1:nrow(sim@params@species_params),
+  biomass = TRUE,
+  ...
+)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
@@ -30,18 +34,23 @@ over \code{max_w}.}
   }}
 }
 \value{
-A data frame with slope, intercept and R2 values.
+A data.frame with four columns: time step, slope, intercept and the
+  coefficient of determination R^2.
 }
 \description{
-Calculates the slope of the community abundance through time by performing a linear regression on the logged total numerical abundance at weight and logged weights (natural logs, not log to base 10, are used).
-You can specify minimum and maximum weight or length range for the species. Lengths take precedence over weights (i.e. if both min_l and min_w are supplied, only min_l will be used).
-You can also specify the species to be used in the calculation.
+Calculates the slope of the community abundance through time by performing a
+linear regression on the logged total numerical abundance at weight and
+logged weights (natural logs, not log to base 10, are used). You can specify
+minimum and maximum weight or length range for the species. Lengths take
+precedence over weights (i.e. if both min_l and min_w are supplied, only
+min_l will be used). You can also specify the species to be used in the
+calculation.
 }
 \examples{
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 # Slope based on biomass, using all species and sizes
 slope_biomass <- getCommunitySlope(sim)
@@ -55,9 +64,10 @@ slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getMeanMaxWeight}()},
-  \code{\link{getMeanWeight}()},
-  \code{\link{getProportionOfLargeFish}()}
+Other functions for calculating indicators: 
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

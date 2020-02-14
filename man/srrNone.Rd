@@ -19,8 +19,10 @@ Vector of density-dependent larvae production rates.
 Simply returns its \code{rdi} argument.
 }
 \seealso{
-Other stock-recruitment functions: \code{\link{srrBevertonHolt}()},
-  \code{\link{srrConstant}()}, \code{\link{srrRicker}()},
-  \code{\link{srrSheperd}()}
+Other stock-recruitment functions: 
+\code{\link{srrBevertonHolt}()},
+\code{\link{srrConstant}()},
+\code{\link{srrRicker}()},
+\code{\link{srrSheperd}()}
 }
 \concept{stock-recruitment functions}

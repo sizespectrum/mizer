@@ -17,17 +17,17 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This vignette is for you if you need to extend mizer 
+This guide is for you if you need to extend mizer 
 to meet the needs of your research project. 
 You will already have read the mizer model description in
 `vignette("model_description")`
 and thus be familiar with what mizer can do out of the box.
 You now want to implement the extension or modification of the
 model required for your research, and for that you need to dive into 
-the internal workings of mizer. This vignette is meant to make
+the internal workings of mizer. This guide is meant to make
 that as easy as possible.
 
-The first thing you should do, even before reading this vignette, is to
+The first thing you should do, even before reading this guide, is to
 go to https://github.com/sizespectrum/mizer/issues and create a new "issue""
 to share your ideas and plans with the mizer community. You may get back 
 valuable feedback and advice. Another way to get in touch with the
@@ -43,7 +43,7 @@ may already have in place, so feel free to skip ahead.
 
 Mizer is compatible with __R__ versions 3.1 and later.
 If you still need to [install R](https://cran.r-project.org/), simply install 
-the latest version. This vignette was prepared with
+the latest version. This guide was prepared with
 `r R.version.string`.
 
 This guide assumes that you will be using __RStudio__ to work with R. There is
@@ -55,7 +55,7 @@ frequently. This guide was written with version 1.2.1268.
 Mizer is developed using the version control system __Git__ and the code is hosted
 on GitHub. To contribute to the mizer code, you need to have the Git software
 installed on your system. On most Linux machines it will be installed already,
-but otherwise you need to
+but on other platforms you need to
 [install it](http://happygitwithr.com/install-git.html). You do not need to install
 any GUI for git because RStudio has 
 [built-in support for git](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN). 
@@ -139,13 +139,13 @@ To set things up, click on Build -> More -> Configure Build Tools.
 In the resulting dialog box, tick the checkboxes "Use devtools package functions if available" and "Generate documentation with roxygen" and then click on "Configure".
 
 <center>
-![](images/roxygen.png)
+![](images/roxygen.png){width=50%}
 </center>
 
 This will open another dialog box where you tick "Install and Restart".
 
 <center>
-![](images/tick.png)
+![](images/tick.png){width=40%}
 </center>
 
 Hit "OK". While you are on the Project Options dialog box, click on
@@ -153,7 +153,7 @@ Hit "OK". While you are on the Project Options dialog box, click on
 to 4, because that is the convention the mizer code follows.
 
 <center>
-![](images/tabs.png)
+![](images/tabs.png){width=50%}
 </center>
 
 ## Installing mizer
@@ -180,9 +180,30 @@ to load you freshly built mizer package.
 You will want to click "Install and Restart" whenever you have changed your
 local code.
 
-# Collaborating
+# Working with git
 
-To be written ....
+You will be making your code changes in your fork of the mizer code (we are
+using the so-called Fork & Pull model). From time to time you will want to
+interact with the main mizer repository in two ways:
+
+1. You will want to contribute some of your code back to the mizer project, so
+that it benefits others and also so that it gets automatically included in
+future releases.
+
+2. You will want to be able to merge new developments made in mizer by others
+into your code base.
+
+This interaction is made possible with git and GitHub. 
+
+It initially takes a bit of effort to get the hang of how this works. Therefore
+we have created a little tutorial "[Working with git and
+GitHub](working_with_git.html)"with an exercise that will take you through all
+the necessary steps. Unless you are already very familiar with git and GitHub,
+it will be worthwhile for you to work through that tutorial now.
+
+
+
+# Contributor guidelines
 
 ## Coding style
 [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
@@ -206,17 +227,15 @@ stored values is easy: Just go to the Git tab in RStudio, select the changed
 files in `tests/testthat/values` (select, not tick), then right-click and choose
 Revert.
 
-When a plot has changed, the error message from `testthat::expect_known_value()`
-is not particularly useful, because it compares two ggplot objects. In this 
-case you should carefully compare the plots by eye. To view the old plot you 
-have to first revert the file in `tests/testthat/values` and then load the plot
-from that file with `readRDS("tests/testthat/values/name_of_plot_function")`.
-
 It may be that the change in the result of a calculation is intended, perhaps
 because your new code is more accurate than the old code. If you are 100%
 certain of this, but only then, should you commit the changed files in
 tests/testthat/values, so that these new values form the basis of future
 comparison tests.
+
+Plots are tested with the [vdiffr](http://vdiffr.r-lib.org/) package. When a
+plot has changed, you should run vdiffr::manage_cases(), which will start a
+shiny gadget where you can view the changes in the plot.
 
 
 # Finding your way around the mizer code
@@ -291,4 +310,5 @@ We are currently storing the mizer website in the mizer repository (in the docs
 subdirectory). That is convenient, partly because that is where pkgdown puts it
 by default and GitHub serves it from there. However in the future we might
 consider moving the website to its own repository.
+
 

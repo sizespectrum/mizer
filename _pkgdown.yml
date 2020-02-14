@@ -47,6 +47,8 @@ articles:
 - title: For the developer
   contents:
   - developer_vignette
+  - working_with_git
+  - developer_FAQ
   - editing_website
 
 
@@ -57,10 +59,10 @@ reference:
     https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
-  - set_multispecies_model
-  - set_community_model
-  - set_trait_model
-  - set_scaling_model
+  - newMultispeciesParams
+  - newCommunityParams
+  - newTraitParams
+  - newSheldonParams
 - title: Interactively tuning a model
   contents:
   - tuneParams
@@ -99,19 +101,23 @@ reference:
   - summary_functions
   - getDiet
   - getBiomass
-  - getCommunitySlope
-  - getMeanMaxWeight
-  - getMeanWeight
   - getN
-  - getProportionOfLargeFish
   - getSSB
   - getYield
   - getYieldGear
   - getGrowthCurves
+- title: Calculating indicators
+  contents:
+  - indicator_functions
+  - getProportionOfLargeFish
+  - getCommunitySlope
+  - getMeanWeight
+  - getMeanMaxWeight
 - title: Plotting results
   contents:
   - plotting_functions
   - starts_with("plot")
+  - animateSpectra
   - getBiomassFrame
   - getSSBFrame
   - displayFrames
@@ -142,6 +148,7 @@ reference:
   - sigmoid_weight
   - double_sigmoid_length
   - plankton_semichemostat
+  - plankton_constant
   - carrion_dynamics
   - detritus_dynamics
   - starts_with("srr")
@@ -157,6 +164,7 @@ reference:
   - get_phi
   - log_breaks
   - get_initial_n
+  - get_required_recruitment
 - title: Classes
   contents:
   - MizerParams-class
@@ -170,10 +178,13 @@ reference:
   - NS_species_params
   - NS_species_params_gears
   - inter
-- title: Aliases
-  desc: These aliases are available for backwards compatibility with earlier
+- title: Deprecated
+  desc: These functions are available for backwards compatibility with earlier
         versions of mizer
   contents:
+  - set_multispecies_model
+  - set_community_model
+  - set_trait_model
   - MizerParams
   - getESpawning
   - getM2

@@ -4,9 +4,14 @@
 \alias{getProportionOfLargeFish}
 \title{Calculate the proportion of large fish}
 \usage{
-getProportionOfLargeFish(sim,
-  species = 1:nrow(sim@params@species_params), threshold_w = 100,
-  threshold_l = NULL, biomass_proportion = TRUE, ...)
+getProportionOfLargeFish(
+  sim,
+  species = 1:nrow(sim@params@species_params),
+  threshold_w = 100,
+  threshold_l = NULL,
+  biomass_proportion = TRUE,
+  ...
+)
 }
 \arguments{
 \item{sim}{A \linkS4class{MizerSim} object}
@@ -37,7 +42,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-An array containing the proportion of large fish through time
+A vector containing the proportion of large fish through time
 }
 \description{
 Calculates the proportion of large fish through time in the \code{MizerSim}
@@ -53,7 +58,7 @@ Fish Index. The proportion is based on either abundance or biomass.
 \dontrun{
 data(NS_species_params_gears)
 data(inter)
-params <- set_multispecies_model(NS_species_params_gears, inter)
+params <- newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=10)
 getProportionOfLargeFish(sim)
 getProportionOfLargeFish(sim, species=c("Herring","Sprat","N.pout"))
@@ -64,9 +69,10 @@ getProportionOfLargeFish(sim, min_w = 10, max_w = 5000,
 }
 }
 \seealso{
-Other functions for calculating indicators: \code{\link{getCommunitySlope}()},
-  \code{\link{getMeanMaxWeight}()},
-  \code{\link{getMeanWeight}()}
+Other functions for calculating indicators: 
+\code{\link{getCommunitySlope}()},
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getMeanWeight}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

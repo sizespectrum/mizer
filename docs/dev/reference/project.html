@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
@@ -132,10 +132,20 @@ The function returns an object of type
 <code><a href='summary_functions.html'>summary_functions</a></code> and <code><a href='plotting_functions.html'>plotting_functions</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>project</span>(<span class='no'>object</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>t_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>initial_n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>, <span class='kw'>initial_B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>append</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>project</span>(
+  <span class='no'>object</span>,
+  <span class='no'>effort</span>,
+  <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>dt</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>t_start</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='no'>initial_n</span>,
+  <span class='no'>initial_n_pp</span>,
+  <span class='no'>initial_B</span>,
+  <span class='kw'>append</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -217,9 +227,11 @@ a progress bar in a shiny app</p></td>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>The <code>effort</code> argument specifies the level of fishing effort during
-the simulation. It can be specified in three different ways:</p><ul>
-<li><p>A single numeric value. This specifies the effort of all fishing gears which
-is constant through time (i.e. all the gears have the same constant effort).</p></li>
+the simulation. If it is not supplied, the initial effort stored in the params
+object is used. The effort can be specified in three different ways:</p><ul>
+<li><p>A single numeric value. This specifies the effort of all fishing gears
+which is constant through time (i.e. all the gears have the same constant
+effort).</p></li>
 <li><p>A numerical vector which has the same length as the number of fishing
 gears. The vector must be named and the names must correspond to the gear
 names in the <code>MizerParams</code> object. The values in the vector specify the
@@ -253,7 +265,7 @@ be ignored.</p>
 <span class='co'># Data set with different fishing gears</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='set_multispecies_model.html'>set_multispecies_model</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'>project</span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
 <span class='co'># With constant fishing effort which is different for each gear</span>
@@ -271,7 +283,7 @@ be ignored.</p>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'>project</span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>effort_array</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
@@ -291,7 +303,7 @@ be ignored.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9101.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>

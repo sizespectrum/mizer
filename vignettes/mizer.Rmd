@@ -70,7 +70,7 @@ to specify explicitly. For example to set up a simple model (described
 more in the [Community Model](community_model.html) vignette) you can even let
 mizer choose all the parameters for you.
 ```{r}
-params <- set_community_model()
+params <- newCommunityParams()
 ```
 For a more complicated multi-species model you need to provide a data frame
 with some species parameters and an interaction matrix specifying which species
@@ -79,7 +79,7 @@ with the package.
 ```{r}
 data(NS_species_params)
 data(inter)
-params <- set_multispecies_model(NS_species_params, inter)
+params <- newMultispeciesParams(NS_species_params, inter)
 ```
 The notes printed out by the function show us that mizer calculated
 default values for many parameters that were not provided.
