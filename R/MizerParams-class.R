@@ -454,259 +454,264 @@ emptyParams <- function(species_params,
                         # w_full = NA,
                         max_w = NA,
                         min_w_pp = NA,
-                        no_w_pp = NA) {
-    if (!is.na(no_w_pp)) {
-        warning("New mizer code does not support the parameter no_w_pp")
+                        no_w_pp = NA,
+                        gear_inputs = NULL) {
+  if (!is.na(no_w_pp)) {
+    warning("New mizer code does not support the parameter no_w_pp")
+  }
+  assert_that(is.data.frame(species_params))
+  assert_that(no_w > 10)
+  
+  if (!("species" %in% colnames(species_params))) {
+    stop("The species params dataframe needs a column 'species' with the species names")
+  }
+  species_names <- as.character(species_params$species)
+  row.names(species_params) <- species_names
+  no_sp <- nrow(species_params)
+  
+  ## Set defaults ----
+  species_params <- set_species_param_default(species_params, "w_min", min_w)
+  min_w <- min(species_params$w_min)
+  
+  if (!("w_inf" %in% colnames(species_params))) {
+    species_params$w_inf <- rep(NA, no_sp)
+  }
+  missing <- is.na(species_params$w_inf)
+  if (any(missing)) {
+    stop("You need to specify maximum sizes for all species.")
+  }
+  if (is.na(max_w)) {
+    max_w <- max(species_params$w_inf)
+  } else {
+    if (max(species_params$w_inf) > max_w * (1 + 1e-9)) { # The fudge factor
+      # is there to avoid false alerts due to rounding errors.
+      too_large <- species_params$species[max_w < species_params$w_inf]
+      stop(paste0("Some of your species have an maximum size larger than max_w: ",
+                  toString(too_large)))
     }
-    assert_that(is.data.frame(species_params))
-    assert_that(no_w > 10)
-    
-    if (!("species" %in% colnames(species_params))) {
-        stop("The species params dataframe needs a column 'species' with the species names")
-    }
-    species_names <- as.character(species_params$species)
-    row.names(species_params) <- species_names
-    no_sp <- nrow(species_params)
-    
-    ## Set defaults ----
-    species_params <- set_species_param_default(species_params, "w_min", min_w)
-    min_w <- min(species_params$w_min)
-    
-    if (!("w_inf" %in% colnames(species_params))) {
-        species_params$w_inf <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$w_inf)
-    if (any(missing)) {
-        stop("You need to specify maximum sizes for all species.")
-    }
-    if (is.na(max_w)) {
-        max_w <- max(species_params$w_inf)
-    } else {
-        if (max(species_params$w_inf) > max_w * (1 + 1e-9)) { # The fudge factor
-            # is there to avoid false alerts due to rounding errors.
-            too_large <- species_params$species[max_w < species_params$w_inf]
-            stop(paste0("Some of your species have an maximum size larger than max_w: ",
-                        toString(too_large)))
-        }
-    }
-    
+  }
+  
+  if (is.null(gear_inputs)){
     # If no gear_name column in species_params, then set to knife_edge_gear
     species_params <- set_species_param_default(species_params,
                                                 "gear", "knife_edge_gear")
     gear_names <- unique(species_params$gear)
-    
-    # If no alpha (conversion efficiency), then set to 0.6
-    species_params <- set_species_param_default(species_params,
-                                                "alpha", 0.6)
-    
-    # Set up grids ----
-    # The following code anticipates that in future we might allow the user to 
-    # specify a grid with a non-constant log spacing. But we comment this out
-    # for now because of the fft.
-    # if (missing(w_full)) {
-        # set up logarithmic grids
-        dx <- log10(max_w / min_w) / (no_w - 1)
-        # Community grid
-        w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
-        # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
-        dw <- (10^dx - 1) * w
-        # To avoid issues due to numerical imprecission
-        min_w <- w[1]
-        
-        # If not provided, set min_w_pp so that all fish have their full feeding
-        # kernel inside plankton spectrum
-        ppmr <- 10^(seq(from = 0, by = dx, length.out = 3 * no_w))
-        phis <- get_phi(species_params, ppmr)
-        max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
-        min_w_feeding <- species_params$w_min / max_ppmr
-        species_params <- set_species_param_default(species_params,
-                                                    "interaction_p", 1)
-        if (any(species_params$interaction_p > 0)) {
-            min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
-        } else {
-            min_w_feeding <- min_w
-        }
-        if (is.na(min_w_pp)) {
-            min_w_pp <- min(min_w_feeding)
-        } else {
-            assert_that(min_w_pp <= min_w)
-            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
-            if (length(hungry_sp) > 0) {
-                message(paste(
-                    "Note: The following species have feeding kernels that extend",
-                    "below the smallest plankton size specified by min_w_pp:",
-                    toString(hungry_sp)))
-            }
-        }
-        # For fft methods we need a constant log bin size throughout. 
-        # Therefore we use as many steps as are necessary so that the first size
-        # class includes min_w_pp.
-        x_pp <- rev(seq(from = log10(min_w),
-                        to = log10(min_w_pp),
-                        by = -dx)) - dx
-        w_full <- c(10^x_pp, w)
-        # If min_w_pp happened to lie exactly on a grid point, we now added
-        # one grid point too much which we need to remove again
-        if (w_full[2] == min_w_pp) {
-            w_full <- w_full[2:length(w_full)]
-        }
-        no_w_full <- length(w_full)
-        dw_full <- (10^dx - 1) * w_full	
-    # } else {
-    #     # use supplied w_full
-    #     no_w_full <- length(w_full) - 1
-    #     dw_full <- diff(w_full)
-    #     w_full <- w_full[seq_along(dw_full)]
-    #     # Check that sizes are increasing
-    #     if (any(dw_full <= 0)) {
-    #         stop("w_full must be increasing.")
-    #     }
-    #     w_min_idx <- match(min_w, w_full)
-    #     if (is.na(w_min_idx)) {
-    #         stop("w_min must be contained in w_full.")
-    #     }
-    #     w <- w_full[w_min_idx:no_w_full]
-    #     dw <- dw_full[w_min_idx:no_w_full]
-    #     no_w <- length(w)
-    #     min_w_pp <- w_full[1]
-    # }
-    
-    # Basic arrays for templates ----
-    mat1 <- array(NA, dim = c(no_sp, no_w), 
-                  dimnames = list(sp = species_names, w = signif(w,3)))
-    ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
-                            dimnames = list(sp = species_names, k = 1:no_w_full))
-    
-    selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
-                         dimnames = list(gear = gear_names, sp = species_names, 
-                                         w = signif(w, 3)))
-    catchability <- array(0, dim = c(length(gear_names), no_sp), 
-                          dimnames = list(gear = gear_names, sp = species_names))
-    initial_effort <- rep(0, length(gear_names))
-    names(initial_effort) <- gear_names
-    
-    interaction <- array(1, dim = c(no_sp, no_sp),
-                         dimnames = list(predator = species_names,
-                                         prey = species_names))
-    
-    vec1 <- as.numeric(rep(NA, no_w_full))
-    names(vec1) <- signif(w_full, 3)
-    
-    # Round down w_min to lie on grid points and store the indices of these
-    # grid points in w_min_idx
-    w_min_idx <- as.vector(suppressWarnings(
-        tapply(species_params$w_min, 1:no_sp,
-               function(w_min, wx) max(which(wx <= w_min)), wx = w)))
-    # Due to rounding errors this might happen:
-    w_min_idx[w_min_idx == -Inf] <- 1
-    names(w_min_idx) = species_names
-    species_params$w_min <- w[w_min_idx]
-    
-    # Colour and linetype scales ----
-    # for use in plots
-    # Colour-blind-friendly palettes
-    # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
-    # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
-    #                 "#CC79A7", "#F0E442")
-    # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
-    # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
-    #                 "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-    # Random palette gemerated pm https://medialab.github.io/iwanthue/
-    colour_palette <- c("#815f00",
-                        "#6237e2",
-                        "#8da600",
-                        "#de53ff",
-                        "#0e4300",
-                        "#430079",
-                        "#6caa72",
-                        "#ee0053",
-                        "#007957",
-                        "#b42979",
-                        "#142300",
-                        "#a08dfb",
-                        "#644500",
-                        "#04004c",
-                        "#b79955",
-                        "#0060a8",
-                        "#dc8852",
-                        "#007ca9",
-                        "#ab003c",
-                        "#9796d9",
-                        "#472c00",
-                        "#b492b0",
-                        "#140000",
-                        "#dc8488",
-                        "#005c67",
-                        "#5c585a")
-    # type_palette <- c("solid", "dashed", "dotdash", "longdash", 
-    #                   "twodash")
-    type_palette <- c("solid")
-    
-    if ("linecolour" %in% names(species_params)) {
-        linecolour <- species_params$linecolour
-        # If any NA's first fill them with unused colours
-        linecolour[is.na(linecolour)] <- 
-            setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
-        # if there are still NAs, start from beginning of palette again
-        linecolour[is.na(linecolour)] <- 
-            colour_palette[1:sum(is.na(linecolour))]
-    } else {
-        linecolour <- rep(colour_palette, length.out = no_sp)
+  }else{
+    gear_names <- unique(gear_inputs$gear)
+  }
+  
+  # If no alpha (conversion efficiency), then set to 0.6
+  species_params <- set_species_param_default(species_params,
+                                              "alpha", 0.6)
+  
+  # Set up grids ----
+  # The following code anticipates that in future we might allow the user to 
+  # specify a grid with a non-constant log spacing. But we comment this out
+  # for now because of the fft.
+  # if (missing(w_full)) {
+  # set up logarithmic grids
+  dx <- log10(max_w / min_w) / (no_w - 1)
+  # Community grid
+  w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
+  # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
+  dw <- (10^dx - 1) * w
+  # To avoid issues due to numerical imprecission
+  min_w <- w[1]
+  
+  # If not provided, set min_w_pp so that all fish have their full feeding
+  # kernel inside plankton spectrum
+  ppmr <- 10^(seq(from = 0, by = dx, length.out = 3 * no_w))
+  phis <- get_phi(species_params, ppmr)
+  max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
+  min_w_feeding <- species_params$w_min / max_ppmr
+  species_params <- set_species_param_default(species_params,
+                                              "interaction_p", 1)
+  if (any(species_params$interaction_p > 0)) {
+    min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
+  } else {
+    min_w_feeding <- min_w
+  }
+  if (is.na(min_w_pp)) {
+    min_w_pp <- min(min_w_feeding)
+  } else {
+    assert_that(min_w_pp <= min_w)
+    hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
+    if (length(hungry_sp) > 0) {
+      message(paste(
+        "Note: The following species have feeding kernels that extend",
+        "below the smallest plankton size specified by min_w_pp:",
+        toString(hungry_sp)))
     }
-    names(linecolour) <- as.character(species_names)
-    linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
-                    "Background" = "grey", "Fishing" = "red")
-    
-    if ("linetype" %in% names(species_params)) {
-        linetype <- species_params$linetype
-        linetype[is.na(linetype)] <- "solid"
-    } else {
-        linetype <- rep(type_palette, length.out = no_sp)
-    }
-    names(linetype) <- as.character(species_names)
-    linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
-                  "Background" = "solid", "Fishing" = "solid")
-    
-    # Make object ----
-    # Should Z0, rrPP and ccPP have names (species names etc)?
-    params <- new(
-        "MizerParams",
-        w = w,
-        dw = dw,
-        w_full = w_full,
-        dw_full = dw_full,
-        w_min_idx = w_min_idx,
-        maturity = mat1,
-        psi = mat1,
-        initial_n = mat1,
-        intake_max = mat1,
-        search_vol = mat1,
-        rho = array(),
-        metab = mat1,
-        mu_b = mat1,
-        ft_pred_kernel_e = ft_pred_kernel,
-        ft_pred_kernel_p = ft_pred_kernel,
-        pred_kernel = array(),
-        selectivity = selectivity,
-        catchability = catchability,
-        initial_effort = initial_effort,
-        rr_pp = vec1,
-        cc_pp = vec1,
-        sc = w,
-        initial_n_pp = vec1,
-        species_params = species_params,
-        interaction = interaction,
-        srr = "srrBevertonHolt",
-        resource_dynamics = list(),
-        plankton_dynamics = "plankton_semichemostat",
-        resource_params = list(),
-        initial_B = vector(mode = "numeric"),
-        A = as.numeric(rep(NA, no_sp)),
-        linecolour = linecolour,
-        linetype = linetype
-    )
-    
-    return(params)
+  }
+  # For fft methods we need a constant log bin size throughout. 
+  # Therefore we use as many steps as are necessary so that the first size
+  # class includes min_w_pp.
+  x_pp <- rev(seq(from = log10(min_w),
+                  to = log10(min_w_pp),
+                  by = -dx)) - dx
+  w_full <- c(10^x_pp, w)
+  # If min_w_pp happened to lie exactly on a grid point, we now added
+  # one grid point too much which we need to remove again
+  if (w_full[2] == min_w_pp) {
+    w_full <- w_full[2:length(w_full)]
+  }
+  no_w_full <- length(w_full)
+  dw_full <- (10^dx - 1) * w_full	
+  # } else {
+  #     # use supplied w_full
+  #     no_w_full <- length(w_full) - 1
+  #     dw_full <- diff(w_full)
+  #     w_full <- w_full[seq_along(dw_full)]
+  #     # Check that sizes are increasing
+  #     if (any(dw_full <= 0)) {
+  #         stop("w_full must be increasing.")
+  #     }
+  #     w_min_idx <- match(min_w, w_full)
+  #     if (is.na(w_min_idx)) {
+  #         stop("w_min must be contained in w_full.")
+  #     }
+  #     w <- w_full[w_min_idx:no_w_full]
+  #     dw <- dw_full[w_min_idx:no_w_full]
+  #     no_w <- length(w)
+  #     min_w_pp <- w_full[1]
+  # }
+  
+  # Basic arrays for templates ----
+  mat1 <- array(NA, dim = c(no_sp, no_w), 
+                dimnames = list(sp = species_names, w = signif(w,3)))
+  ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
+                          dimnames = list(sp = species_names, k = 1:no_w_full))
+  
+  selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
+                       dimnames = list(gear = gear_names, sp = species_names, 
+                                       w = signif(w, 3)))
+  catchability <- array(0, dim = c(length(gear_names), no_sp), 
+                        dimnames = list(gear = gear_names, sp = species_names))
+  initial_effort <- rep(0, length(gear_names))
+  names(initial_effort) <- gear_names
+  
+  interaction <- array(1, dim = c(no_sp, no_sp),
+                       dimnames = list(predator = species_names,
+                                       prey = species_names))
+  
+  vec1 <- as.numeric(rep(NA, no_w_full))
+  names(vec1) <- signif(w_full, 3)
+  
+  # Round down w_min to lie on grid points and store the indices of these
+  # grid points in w_min_idx
+  w_min_idx <- as.vector(suppressWarnings(
+    tapply(species_params$w_min, 1:no_sp,
+           function(w_min, wx) max(which(wx <= w_min)), wx = w)))
+  # Due to rounding errors this might happen:
+  w_min_idx[w_min_idx == -Inf] <- 1
+  names(w_min_idx) = species_names
+  species_params$w_min <- w[w_min_idx]
+  
+  # Colour and linetype scales ----
+  # for use in plots
+  # Colour-blind-friendly palettes
+  # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+  # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
+  #                 "#CC79A7", "#F0E442")
+  # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+  # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", 
+  #                 "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+  # Random palette gemerated pm https://medialab.github.io/iwanthue/
+  colour_palette <- c("#815f00",
+                      "#6237e2",
+                      "#8da600",
+                      "#de53ff",
+                      "#0e4300",
+                      "#430079",
+                      "#6caa72",
+                      "#ee0053",
+                      "#007957",
+                      "#b42979",
+                      "#142300",
+                      "#a08dfb",
+                      "#644500",
+                      "#04004c",
+                      "#b79955",
+                      "#0060a8",
+                      "#dc8852",
+                      "#007ca9",
+                      "#ab003c",
+                      "#9796d9",
+                      "#472c00",
+                      "#b492b0",
+                      "#140000",
+                      "#dc8488",
+                      "#005c67",
+                      "#5c585a")
+  # type_palette <- c("solid", "dashed", "dotdash", "longdash", 
+  #                   "twodash")
+  type_palette <- c("solid")
+  
+  if ("linecolour" %in% names(species_params)) {
+    linecolour <- species_params$linecolour
+    # If any NA's first fill them with unused colours
+    linecolour[is.na(linecolour)] <- 
+      setdiff(colour_palette, linecolour)[1:sum(is.na(linecolour))]
+    # if there are still NAs, start from beginning of palette again
+    linecolour[is.na(linecolour)] <- 
+      colour_palette[1:sum(is.na(linecolour))]
+  } else {
+    linecolour <- rep(colour_palette, length.out = no_sp)
+  }
+  names(linecolour) <- as.character(species_names)
+  linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
+                  "Background" = "grey", "Fishing" = "red")
+  
+  if ("linetype" %in% names(species_params)) {
+    linetype <- species_params$linetype
+    linetype[is.na(linetype)] <- "solid"
+  } else {
+    linetype <- rep(type_palette, length.out = no_sp)
+  }
+  names(linetype) <- as.character(species_names)
+  linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
+                "Background" = "solid", "Fishing" = "solid")
+  
+  # Make object ----
+  # Should Z0, rrPP and ccPP have names (species names etc)?
+  params <- new(
+    "MizerParams",
+    w = w,
+    dw = dw,
+    w_full = w_full,
+    dw_full = dw_full,
+    w_min_idx = w_min_idx,
+    maturity = mat1,
+    psi = mat1,
+    initial_n = mat1,
+    intake_max = mat1,
+    search_vol = mat1,
+    rho = array(),
+    metab = mat1,
+    mu_b = mat1,
+    ft_pred_kernel_e = ft_pred_kernel,
+    ft_pred_kernel_p = ft_pred_kernel,
+    pred_kernel = array(),
+    selectivity = selectivity,
+    catchability = catchability,
+    initial_effort = initial_effort,
+    rr_pp = vec1,
+    cc_pp = vec1,
+    sc = w,
+    initial_n_pp = vec1,
+    species_params = species_params,
+    interaction = interaction,
+    srr = "srrBevertonHolt",
+    resource_dynamics = list(),
+    plankton_dynamics = "plankton_semichemostat",
+    resource_params = list(),
+    initial_B = vector(mode = "numeric"),
+    A = as.numeric(rep(NA, no_sp)),
+    linecolour = linecolour,
+    linetype = linetype
+  )
+  
+  return(params)
 }
 
 #' Construct MizerParams object for general multispecies model
@@ -726,7 +731,10 @@ emptyParams <- function(species_params,
 #'    of plankton size bins is determined because all size bins have to
 #'    be logarithmically equally spaced.
 #' @inheritParams setParams
-#'
+#' @param catchability_matrix Optional. A matrix (gear x species), with 
+#'    row names being the names of the gears in `gear_inputs` and column 
+#'    names being the names of the species in `species_params`, holding 
+#'    the catchability of each species by gear.  
 #' @return An object of type \linkS4class{MizerParams}
 #' 
 #' @section Species parameters:
@@ -776,116 +784,135 @@ emptyParams <- function(species_params,
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' }
 newMultispeciesParams <- function(
-    species_params,
-    interaction = matrix(1,
-                         nrow = nrow(species_params),
-                         ncol = nrow(species_params)),
-    no_w = 100,
-    min_w = 0.001,
-    max_w = NA,
-    min_w_pp = NA,
-    no_w_pp = NA,
-    n = 2 / 3,
-    p = 0.7,
-    q = 0.8,
-    f0 = 0.6,
-    # setPredKernel()
-    pred_kernel = NULL,
-    # setSearchVolume()
-    search_vol = NULL,
-    # setIntakeMax()
-    intake_max = NULL,
-    # setMetab()
-    metab = NULL,
-    # setBMort
-    mu_b = NULL,
-    z0pre = 0.6,
-    z0exp = n - 1,
-    # setReproduction
-    maturity = NULL,
-    repro_prop = NULL,
-    srr = "srrBevertonHolt",
-    # setPlankton
-    rr_pp = NULL,
-    cc_pp = NULL,
-    r_pp = 10,
-    kappa = 1e11,
-    lambda = (2 + q - n),
-    w_pp_cutoff = 10,
-    plankton_dynamics = "plankton_semichemostat",
-    # setResourceDynamics
-    resource_dynamics = list(),
-    resource_params = list(),
-    # setResourceEncounter
-    rho = NULL,
-    # setFishing
-    initial_effort = NULL) {
-    
-    ## For backwards compatibility, allow r_max instead of R_max
-    if (!("R_max" %in% names(species_params)) &&
-        "r_max" %in% names(species_params)) {
-        names(species_params)[names(species_params) == "r_max"] <- "R_max"
+  species_params,
+  interaction = matrix(1,
+                       nrow = nrow(species_params),
+                       ncol = nrow(species_params)),
+  no_w = 100,
+  min_w = 0.001,
+  max_w = NA,
+  min_w_pp = NA,
+  no_w_pp = NA,
+  n = 2 / 3,
+  p = 0.7,
+  q = 0.8,
+  f0 = 0.6,
+  # setPredKernel()
+  pred_kernel = NULL,
+  # setSearchVolume()
+  search_vol = NULL,
+  # setIntakeMax()
+  intake_max = NULL,
+  # setMetab()
+  metab = NULL,
+  # setBMort
+  mu_b = NULL,
+  z0pre = 0.6,
+  z0exp = n - 1,
+  # setReproduction
+  maturity = NULL,
+  repro_prop = NULL,
+  srr = "srrBevertonHolt",
+  # setPlankton
+  rr_pp = NULL,
+  cc_pp = NULL,
+  r_pp = 10,
+  kappa = 1e11,
+  lambda = (2 + q - n),
+  w_pp_cutoff = 10,
+  plankton_dynamics = "plankton_semichemostat",
+  # setResourceDynamics
+  resource_dynamics = list(),
+  resource_params = list(),
+  # setResourceEncounter
+  rho = NULL,
+  # setFishing
+  initial_effort = NULL,
+  gear_inputs = NULL,
+  catchability_matrix = NULL) {
+  
+  ## For backwards compatibility, allow r_max instead of R_max
+  if (!("R_max" %in% names(species_params)) &&
+      "r_max" %in% names(species_params)) {
+    names(species_params)[names(species_params) == "r_max"] <- "R_max"
+  }
+  
+  ## Create MizerParams object ----
+  params <- emptyParams(species_params,
+                        no_w = no_w, 
+                        min_w = min_w,  
+                        max_w = max_w, 
+                        min_w_pp = min_w_pp, 
+                        no_w_pp = NA,
+                        gear_inputs = gear_inputs) #### Cami check this line!!!!
+  
+  ## Fill the slots ----
+  params@n <- n
+  params@p <- p
+  params@lambda <- lambda
+  params@f0 <- f0
+  params@kappa <- kappa
+  
+  ######## Need to edit gear_inputs to include catchability_matrix CAMI TO CHECK
+  ###
+  if (!is.null(catchability_matrix)){
+    gear_inputs$catchability <- 1
+    for (i in 1:nrow(gear_inputs)){
+      gear_inputs$catchability[i] <- catchability_matrix[as.character(gear_inputs$gear[i]),as.character(gear_inputs$species[i])]
     }
     
-    ## Create MizerParams object ----
-    params <- emptyParams(species_params,
-                          no_w = no_w, 
-                          min_w = min_w,  
-                          max_w = max_w, 
-                          min_w_pp = min_w_pp, 
-                          no_w_pp = NA)
+    if (sum(catchability_matrix > 0, na.rm = TRUE) != nrow(gear_inputs)){
+      warning("Selectivity parameters are missing for some species and gear combinations. Check matches between gear_inputs and catchability_matrix")
+    }
     
-    ## Fill the slots ----
-    params@n <- n
-    params@p <- p
-    params@lambda <- lambda
-    params@f0 <- f0
-    params@kappa <- kappa
-    
-    params <- setParams(params,
-                        # setInteraction
-                        interaction = interaction,
-                        # setPredKernel()
-                        pred_kernel = pred_kernel,
-                        # setSearchVolume()
-                        search_vol = search_vol,
-                        q = q,
-                        f0 = f0,
-                        # setIntakeMax()
-                        intake_max = intake_max,
-                        n = n,
-                        # setMetab()
-                        metab = metab,
-                        p = p,
-                        # setBMort
-                        mu_b = mu_b,
-                        z0pre = z0pre,
-                        z0exp = z0exp,
-                        # setReproduction
-                        maturity = maturity,
-                        repro_prop = repro_prop,
-                        srr = srr,
-                        # setPlankton
-                        rr_pp = rr_pp,
-                        cc_pp = cc_pp,
-                        r_pp = r_pp,
-                        kappa = kappa,
-                        lambda = lambda,
-                        w_pp_cutoff = w_pp_cutoff,
-                        plankton_dynamics = plankton_dynamics,
-                        # setResourceDynamics
-                        resource_dynamics = resource_dynamics,
-                        resource_params = resource_params,
-                        # setResourceEncounter
-                        rho = rho,
-                        # setFishing
-                        initial_effort = initial_effort)
-    
-    params@initial_n <- get_initial_n(params)
-    params@initial_n_pp <- params@cc_pp
-    params@A <- rep(1, nrow(species_params))
-    
-    return(params)
+  }
+  ###
+  
+  params <- setParams(params,
+                      # setInteraction
+                      interaction = interaction,
+                      # setPredKernel()
+                      pred_kernel = pred_kernel,
+                      # setSearchVolume()
+                      search_vol = search_vol,
+                      q = q,
+                      f0 = f0,
+                      # setIntakeMax()
+                      intake_max = intake_max,
+                      n = n,
+                      # setMetab()
+                      metab = metab,
+                      p = p,
+                      # setBMort
+                      mu_b = mu_b,
+                      z0pre = z0pre,
+                      z0exp = z0exp,
+                      # setReproduction
+                      maturity = maturity,
+                      repro_prop = repro_prop,
+                      srr = srr,
+                      # setPlankton
+                      rr_pp = rr_pp,
+                      cc_pp = cc_pp,
+                      r_pp = r_pp,
+                      kappa = kappa,
+                      lambda = lambda,
+                      w_pp_cutoff = w_pp_cutoff,
+                      plankton_dynamics = plankton_dynamics,
+                      # setResourceDynamics
+                      resource_dynamics = resource_dynamics,
+                      resource_params = resource_params,
+                      # setResourceEncounter
+                      rho = rho,
+                      # setFishing
+                      initial_effort = initial_effort,
+                      gear_inputs = gear_inputs)
+  
+  params@initial_n <- get_initial_n(params)
+  params@initial_n_pp <- params@cc_pp
+  params@A <- rep(1, nrow(species_params))
+  
+  return(params)
 }
 
 #' Set or change any model parameters
@@ -1059,48 +1086,50 @@ setParams <- function(params,
                       # setResourceEncounter
                       rho = NULL,
                       # setFishing
-                      initial_effort = NULL) {
-    validObject(params)
-    params <- setInteraction(params,
-                             interaction = interaction)
-    params <- setFishing(params, initial_effort = initial_effort)
-    params <- setPredKernel(params,
-                            pred_kernel = pred_kernel)
-    params <- setIntakeMax(params,
-                           intake_max = intake_max,
-                           n = n)
-    params <- setMetab(params,
-                       metab = metab,
-                       p = p)
-    params <- setBMort(params,
-                       mu_b = mu_b,
-                       z0pre = z0pre,
-                       z0exp = z0exp)
-    # setSearchVolume() should be called only after 
-    # setIntakeMax() and setPredKernel()
-    params <- setSearchVolume(params,
-                              search_vol = search_vol,
-                              q = q)
-    params <- setReproduction(params,
-                              maturity = maturity,
-                              repro_prop = repro_prop,
-                              srr = srr)
-    params <- setPlankton(params,
-                          rr_pp = rr_pp,
-                          cc_pp = cc_pp,
-                          r_pp = r_pp,
-                          kappa = kappa,
-                          lambda = lambda,
-                          w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics)
-    params <- setResourceDynamics(params,
-                                  resource_dynamics = resource_dynamics,
-                                  resource_params = resource_params)
-    params <- setResourceEncounter(params,
-                                   rho = rho,
-                                   n = params@n)
-    return(params)
+                      initial_effort = NULL,
+                      gear_inputs = NULL) {
+  validObject(params)
+  params <- setInteraction(params,
+                           interaction = interaction)
+  params <- setFishing(params, initial_effort = initial_effort, gear_inputs = gear_inputs)
+  params <- setPredKernel(params,
+                          pred_kernel = pred_kernel)
+  params <- setIntakeMax(params,
+                         intake_max = intake_max,
+                         n = n)
+  params <- setMetab(params,
+                     metab = metab,
+                     p = p)
+  params <- setBMort(params,
+                     mu_b = mu_b,
+                     z0pre = z0pre,
+                     z0exp = z0exp)
+  # setSearchVolume() should be called only after 
+  # setIntakeMax() and setPredKernel()
+  params <- setSearchVolume(params,
+                            search_vol = search_vol,
+                            q = q)
+  params <- setReproduction(params,
+                            maturity = maturity,
+                            repro_prop = repro_prop,
+                            srr = srr)
+  params <- setPlankton(params,
+                        rr_pp = rr_pp,
+                        cc_pp = cc_pp,
+                        r_pp = r_pp,
+                        kappa = kappa,
+                        lambda = lambda,
+                        w_pp_cutoff = w_pp_cutoff,
+                        plankton_dynamics = plankton_dynamics)
+  params <- setResourceDynamics(params,
+                                resource_dynamics = resource_dynamics,
+                                resource_params = resource_params)
+  params <- setResourceEncounter(params,
+                                 rho = rho,
+                                 n = params@n)
+  return(params)
 }
+
 
 
 #' Set species interaction matrix
@@ -2300,6 +2329,10 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
+#' @param gear_inputs Optional. A data frame with columns `gear`, representing
+#'   the name of the gear, `species`, the name of the species caught, `sel_func`, 
+#'   the selectivity function, arguements to be used for every `sel_func` 
+#'   in the data frame and an optional arguement `catchability`.
 #'   
 #' @return MizerParams object
 #' @export
@@ -2312,78 +2345,126 @@ setResourceEncounter <- function(params, rho = NULL, n = params@n) {
 #' params@species_params$knife_edge_size[1] <- 15
 #' params <- setFishing(params)
 #' }
-setFishing <- function(params, initial_effort = NULL) {
-    assert_that(is(params, "MizerParams"))
-    species_params <- params@species_params
-    no_sp <- nrow(species_params)
+setFishing <- function(params, initial_effort = NULL,gear_inputs = NULL) {
+  assert_that(is(params, "MizerParams"))
+  
+  ### a temporary solution
+  if (!is.null(gear_inputs)){
     
-    # If no gear specified in species_params, then use `knife_edge_gear`
-    species_params <- set_species_param_default(
-        species_params, "gear", default = "knife_edge_gear")
-    
-    # If no sel_func column in species_params, set to 'knife_edge'
-    species_params <- set_species_param_default(
-        species_params, "sel_func", default = "knife_edge",
-        message = "Note: Setting missing selectivity function to be 'knife_edge'.")
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
 
-    # Provide default for knife_edge_size if needed
-    if ("knife_edge" %in% species_params$sel_func) {
-        species_params <- set_species_param_default(
-            species_params, "knife_edge_size", 
-            default = species_params$w_mat,
-            message = "Note: Setting missing knife edge selectivity equal to w_mat.")
-    }
+    initial_effort <- rep(0, length(unique(gear_inputs$gear)))
+    names(initial_effort) <- unique(gear_inputs$gear)
     
-    # If no catchability column in species_params, set to 1
-    species_params <- set_species_param_default(species_params,
-                                                "catchability", 1)
+    selectivity <- array(0, dim = c(length(unique(gear_inputs$gear)), no_sp, no_w),
+                         dimnames = list(gear = unique(gear_inputs$gear), sp = as.character(params@species_params$species),
+                                         w = signif(params@w, 3)))
+    catchability <- array(0, dim = c(length(unique(gear_inputs$gear)), no_sp),
+                          dimnames = list(gear = unique(gear_inputs$gear), sp = as.character(params@species_params$species)))
     
     if (!is.null(initial_effort)) {
-        validate_effort_vector(params, initial_effort)
-        params@initial_effort[] <- initial_effort
-        comment(params@initial_effort) <- comment(initial_effort)
+      validate_effort_vector(params, initial_effort)
+      params@initial_effort[] <- initial_effort
+      comment(params@initial_effort) <- comment(initial_effort)
     }
     
-    # At the moment, each species is only caught by 1 gear so in species_params
-    # there are the columns: gear_name and sel_func.
-    # BEWARE! This routine assumes that each species has only one gear operating on it
-    # So we can just go row by row through the species parameters
-    # However, I really hope we can do something better soon
-    for (g in 1:nrow(species_params)) {
-        # Do selectivity first
-        # get args
-        # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(species_params[g, 'sel_func'])))
-        # lop off w as that is always the first argument of the selectivity functions
-        arg <- arg[!(arg %in% "w")]
-        if (!all(arg %in% colnames(species_params))) {
-            stop("Some arguments needed for the selectivity function are ",
-                 "missing in the parameter dataframe.")
-        }
-        # Check that there are no missing values for selectivity parameters
-        if (any(is.na(as.list(species_params[g, arg])))) {
-            stop("Some selectivity parameters are NA.")
-        }
-        # Call selectivity function with selectivity parameters
-        par <- c(w = list(params@w), as.list(species_params[g, arg]))
-        sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
-        if (!is.null(comment(params@selectivity))) {
-            message("The selectivity has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
-        } else {
-            params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
-        }
-        # Now do catchability
-        if (!is.null(comment(params@catchability))) {
-            message("The catchability has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
-        } else {
-            params@catchability[as.character(species_params[g,'gear']), g] <- 
-                species_params[g, "catchability"]
-        }
+    for (g in 1:nrow(gear_inputs)) {
+      # Do selectivity first
+      # get args
+      # These as.characters are annoying - but factors everywhere
+      arg <- names(formals(as.character(gear_inputs[g, 'sel_func'])))
+      # lop off w as that is always the first argument of the selectivity functions
+      arg <- arg[!(arg %in% "w")]
+      if (!all(arg %in% colnames(gear_inputs))) {
+        stop("Some arguments needed for the selectivity function are ",
+             "missing in the gear_inputs dataframe.")
+      }
+      # Check that there are no missing values for selectivity parameters
+      if (any(is.na(as.list(gear_inputs[g, arg])))) {
+        stop("Some selectivity parameters are NA.")
+      }
+      # Call selectivity function with selectivity parameters
+      par <- c(w = list(params@w), as.list(gear_inputs[g, arg]))
+      sel <- do.call(as.character(gear_inputs[g, 'sel_func']), args = par)
+      params@selectivity[as.character(gear_inputs[g, 'gear']), as.character(gear_inputs[g, 'species']), ] <- sel
+      # Now do catchability
+      params@catchability[as.character(gear_inputs[g,'gear']), as.character(gear_inputs[g, 'species'])] <- 
+        gear_inputs[g, "catchability"]
     }
-    params@species_params <- species_params
     return(params)
+  }
+  
+  species_params <- params@species_params
+  no_sp <- nrow(species_params)
+  
+  # If no gear specified in species_params, then use `knife_edge_gear`
+  species_params <- set_species_param_default(
+    species_params, "gear", default = "knife_edge_gear")
+  
+  # If no sel_func column in species_params, set to 'knife_edge'
+  species_params <- set_species_param_default(
+    species_params, "sel_func", default = "knife_edge",
+    message = "Note: Setting missing selectivity function to be 'knife_edge'.")
+  
+  # Provide default for knife_edge_size if needed
+  if ("knife_edge" %in% species_params$sel_func) {
+    species_params <- set_species_param_default(
+      species_params, "knife_edge_size", 
+      default = species_params$w_mat,
+      message = "Note: Setting missing knife edge selectivity equal to w_mat.")
+  }
+  
+  # If no catchability column in species_params, set to 1
+  species_params <- set_species_param_default(species_params,
+                                              "catchability", 1)
+  
+  if (!is.null(initial_effort)) { #-- Moved earlier MS
+    validate_effort_vector(params, initial_effort)
+    params@initial_effort[] <- initial_effort
+    comment(params@initial_effort) <- comment(initial_effort)
+  }
+  
+  # At the moment, each species is only caught by 1 gear so in species_params
+  # there are the columns: gear_name and sel_func.
+  # BEWARE! This routine assumes that each species has only one gear operating on it
+  # So we can just go row by row through the species parameters
+  # However, I really hope we can do something better soon
+  for (g in 1:nrow(species_params)) {
+    # Do selectivity first
+    # get args
+    # These as.characters are annoying - but factors everywhere
+    arg <- names(formals(as.character(species_params[g, 'sel_func'])))
+    # lop off w as that is always the first argument of the selectivity functions
+    arg <- arg[!(arg %in% "w")]
+    if (!all(arg %in% colnames(species_params))) {
+      stop("Some arguments needed for the selectivity function are ",
+           "missing in the parameter dataframe.")
+    }
+    # Check that there are no missing values for selectivity parameters
+    if (any(is.na(as.list(species_params[g, arg])))) {
+      stop("Some selectivity parameters are NA.")
+    }
+    # Call selectivity function with selectivity parameters
+    par <- c(w = list(params@w), as.list(species_params[g, arg]))
+    sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
+    if (!is.null(comment(params@selectivity))) {
+      message("The selectivity has been commented and therefore will ",
+              "not be recalculated from the species parameters.")
+    } else {
+      params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+    }
+    # Now do catchability
+    if (!is.null(comment(params@catchability))) {
+      message("The catchability has been commented and therefore will ",
+              "not be recalculated from the species parameters.")
+    } else {
+      params@catchability[as.character(species_params[g,'gear']), g] <- 
+        species_params[g, "catchability"]
+    }
+  }
+  params@species_params <- species_params
+  return(params)
 }
 
 #' Set initial abundances
