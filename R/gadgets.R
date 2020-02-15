@@ -154,9 +154,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 tags$a("File", href = "#file"),
                 tags$br(),
                 tags$div(id = "params",
-                    uiOutput("sp_params"),
-                    uiOutput("general_params")
-                    ),
+                         uiOutput("sp_params"),
+                         uiOutput("general_params")
+                ),
                 tags$head(tags$style(
                     type = 'text/css',
                     '#params { max-height: 60vh; overflow-y: auto; }'
@@ -417,23 +417,23 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             
             if (sp$sel_func == "knife_edge") {
                 l1 <- c(l1, list(
-                             sliderInput("knife_edge_size", "knife_edge_size",
-                                         value = sp$knife_edge_size, 
-                                         min = 1, 
-                                         max = signif(sp$knife_edge_size * 2, 2),
-                                         step = 0.1)))
+                    sliderInput("knife_edge_size", "knife_edge_size",
+                                value = sp$knife_edge_size, 
+                                min = 1, 
+                                max = signif(sp$knife_edge_size * 2, 2),
+                                step = 0.1)))
             } else if (sp$sel_func == "sigmoid_length") {
                 l1 <- c(l1, list(
-                             sliderInput("l50", "L50",
-                                         value = sp$l50, 
-                                         min = 1, 
-                                         max = signif(sp$l50 * 2, 2),
-                                         step = 0.1),
-                             sliderInput("ldiff", "L50-L25",
-                                         value = sp$l50 - sp$l25, 
-                                         min = 0.1, 
+                    sliderInput("l50", "L50",
+                                value = sp$l50, 
+                                min = 1, 
+                                max = signif(sp$l50 * 2, 2),
+                                step = 0.1),
+                    sliderInput("ldiff", "L50-L25",
+                                value = sp$l50 - sp$l25, 
+                                min = 0.1, 
                                          max = signif(sp$l50 / 4, 2),
-                                         step = 0.1)))
+                                step = 0.1)))
             } else if (sp$sel_func == "double_sigmoid_length") {
                 l1 <- c(l1, list(
                     sliderInput("l50", "L50",
@@ -484,11 +484,11 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                          min = signif(sp$k / 2, 2),
                                          max = signif((sp$k + 0.1) * 1.5, 2),
                                          step = 0.01),
-                             # sliderInput("z0", "Mortality",
-                             #             value = sp$z0,
-                             #             min = signif(sp$z0 / 2, 2),
-                             #             max = signif((sp$z0 + 0.1) * 1.5, 2),
-                             #             step = 0.05),
+                             sliderInput("z0", "Mortality",
+                                         value = sp$z0,
+                                         min = signif(sp$z0 / 2, 2),
+                                         max = signif((sp$z0 + 0.1) * 1.5, 2),
+                                         step = 0.05),
                              sliderInput("alpha", "Assimilation efficiency alpha",
                                          value = sp$alpha,
                                          min = 0,
@@ -977,7 +977,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             species_params[sp, "alpha"] <- input$alpha
             species_params[sp, "ks"]    <- input$ks
             species_params[sp, "k"]     <- input$k
-            #species_params[sp, "z0"]     <- input$z0
+            species_params[sp, "z0"]    <- input$z0
             if (length(p@resource_dynamics) > 0) {
                 for (res in names(p@resource_dynamics)) {
                     res_var <- paste0("rho_", res)
@@ -1003,9 +1003,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 updateSliderInput(session, "k",
                                   min = signif(input$k / 2, 2),
                                   max = signif((input$k + 0.1) * 1.5, 2))
-                # updateSliderInput(session, "z0",
-                #                   min = signif(input$z0 / 2, 2),
-                #                   max = signif((input$z0 + 0.1) * 1.5, 2))
+                updateSliderInput(session, "z0",
+                                  min = signif(input$z0 / 2, 2),
+                                  max = signif((input$z0 + 0.1) * 1.5, 2))
                 
                 if (length(p@resource_dynamics) > 0) {
                     for (res in names(p@resource_dynamics)) {
@@ -1020,7 +1020,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p@species_params <- species_params
                 p <- setInteraction(p)
                 p <- setMetab(p)
-                #p <- setBMort(p)
+                p <- setBMort(p)
                 p <- setReproduction(p)
                 p <- setFishing(p)
                 p <- setResourceEncounter(p)
