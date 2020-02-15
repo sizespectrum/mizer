@@ -81,6 +81,7 @@ NULL
 #'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
+#' @inheritParams newTraitParams
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
@@ -98,6 +99,7 @@ NULL
 newCommunityParams <- function(max_w = 1e6,
                                 min_w = 1e-3,
                                 z0 = 0.1,
+                                starv_coef = 10,
                                 alpha = 0.2,
                                 h = 10,
                                 beta = 100,
@@ -124,11 +126,12 @@ newCommunityParams <- function(max_w = 1e6,
         w_mat = 1e12, # Has no affect as psi set to 0 but we set it to something 
                       # to help the constructor
         h = h, # max food intake
-        gamma = gamma,# vol. search rate,
-        ks = ks,# standard metabolism coefficient,
+        gamma = gamma, # vol. search rate,
+        ks = ks, # standard metabolism coefficient,
         beta = beta,
         sigma = sigma,
         z0 = z0, # background mortality
+        starv_coef = starv_coef, # coefficient of starvation mortality
         alpha = alpha,
         erepro = 1, # not used
         interaction_p = 1,
@@ -267,6 +270,10 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param bmort_prop The proportion of the total mortality that comes from
 #'   background mortality, i.e., from sources other than predation or fishing. A
 #'   number in the interval [0, 1). Default 0.
+#' @param starv_coef Proportionality constant for starvation mortality. When 
+#'   starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+#'   is 1 when energy deficit is 10% of body weight. When starv_coef = 0 there 
+#'   is no starvation mortality 
 #' @param rfac The factor such that \code{R_max = rfac * R}, where \code{R_max}
 #'   is the maximum recruitment allowed and \code{R} is the steady-state
 #'   recruitment. Thus the larger \code{rfac} the less the impact of the
@@ -316,6 +323,7 @@ newTraitParams <- function(no_sp = 11,
                            f0 = 0.6,
                            gamma = NA,
                            bmort_prop = 0, 
+                           starv_coef = 10,
                            rfac = 4,
                            knife_edge_size = 1000,
                            gear_names = "knife_edge_gear",
@@ -444,6 +452,7 @@ newTraitParams <- function(no_sp = 11,
         beta = beta,
         sigma = sigma,
         z0 = 0,
+        starv_coef = starv_coef,
         alpha = alpha,
         erepro = erepro,
         sel_func = "knife_edge",
@@ -647,6 +656,7 @@ newSheldonParams <- function(w_inf = 100,
                              f0 = 0.6,
                              gamma = NA,
                              bmort_prop = 0, 
+                             starv_coef = 10,
                              rfac = 4,
                              ...) {
     no_sp <- 1
@@ -711,6 +721,7 @@ newSheldonParams <- function(w_inf = 100,
         beta = beta,
         sigma = sigma,
         z0 = 0,
+        starv_coef = starv_coef,
         alpha = alpha,
         erepro = erepro,
         stringsAsFactors = FALSE
