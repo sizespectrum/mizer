@@ -317,14 +317,12 @@ test_that("getMort is independent of volume", {
 
 test_that("getEReproAndGrowth", {
     erg <- getEReproAndGrowth(params, n, n_full)
-    expect_true(all(erg >= 0))
     # test dim
     expect_identical(dim(erg), c(no_sp, no_w))
     # Check number in final prey size group
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
     e <- e - params@metab[1, ]
-    e[e < 0] <- 0 # Do not allow negative growth
     expect_identical(e, erg[1, ])
     # Adding feeding level gives the same result
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
@@ -338,6 +336,7 @@ test_that("getEReproAndGrowth", {
     params@intake_max[] <- Inf
     expect_true(!anyNA(getEReproAndGrowth(params, n = n, n_pp = n_full)))
     
+    erg[erg <= 0] <- 0
     expect_known_value(erg, "values/getEReproAndGrowth")
 })
 
@@ -356,9 +355,12 @@ test_that("getERepro", {
     expect_identical(dim(es), c(no_sp, no_w))
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     e_repro <- params@psi * e
+    e_repro[e_repro <= 0] <- 0
     expect_identical(es, e_repro)
     e_growth <- getEGrowth(params, n, n_full)
-    expect_identical(e_growth, e - es)
+    e_growth_man <- e - es
+    e_growth_man[e_growth_man <= 0] <- 0
+    expect_identical(e_growth, e_growth_man)
     # Including ESpawningAndGrowth gives the same
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     es2 <- getERepro(params, n, n_full, e = e)
@@ -425,7 +427,6 @@ test_that("getEGrowth is working", {
     eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
                       e_repro = e_repro)
     expect_identical(eg1, eg2)
-    expect_identical(e - e_repro, eg1)
     expect_known_value(eg1, "values/getEGrowth")
 })
 
