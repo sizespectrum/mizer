@@ -785,10 +785,6 @@ newMultispeciesParams <- function(
     max_w = NA,
     min_w_pp = NA,
     no_w_pp = NA,
-    n = 2 / 3,
-    p = 0.7,
-    q = 0.8,
-    f0 = 0.6,
     # setPredKernel()
     pred_kernel = NULL,
     # setSearchVolume()
@@ -836,10 +832,7 @@ newMultispeciesParams <- function(
                           no_w_pp = NA)
     
     ## Fill the slots ----
-    params@n <- n
-    params@p <- p
     params@lambda <- lambda
-    params@f0 <- f0
     params@kappa <- kappa
     
     params <- setParams(params,
@@ -849,14 +842,10 @@ newMultispeciesParams <- function(
                         pred_kernel = pred_kernel,
                         # setSearchVolume()
                         search_vol = search_vol,
-                        q = q,
-                        f0 = f0,
                         # setIntakeMax()
                         intake_max = intake_max,
-                        n = n,
                         # setMetab()
                         metab = metab,
-                        p = p,
                         # setBMort
                         mu_b = mu_b,
                         z0pre = z0pre,
@@ -908,10 +897,6 @@ newMultispeciesParams <- function(
 #' See the Details section below for a discussion of how to use this function.
 #' 
 #' @param params A \linkS4class{MizerParams} object
-#' @param f0 Average feeding level. Used to calculated \code{h} and \code{gamma}
-#'   if those are not columns in the species data frame. Also requires
-#'   \code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-#'   data frame. 
 #' @inheritParams setInteraction
 #' @inheritParams setPredKernel
 #' @inheritParams setSearchVolume
@@ -1029,14 +1014,10 @@ setParams <- function(params,
                       pred_kernel = NULL,
                       # setSearchVolume()
                       search_vol = NULL,
-                      q = params@q,
-                      f0 = params@f0,
                       # setIntakeMax()
                       intake_max = NULL,
-                      n = params@n,
                       # setMetab()
                       metab = NULL,
-                      p = params@p,
                       # setBMort
                       mu_b = NULL,
                       z0pre = 0.6,
@@ -1067,11 +1048,9 @@ setParams <- function(params,
     params <- setPredKernel(params,
                             pred_kernel = pred_kernel)
     params <- setIntakeMax(params,
-                           intake_max = intake_max,
-                           n = n)
+                           intake_max = intake_max)
     params <- setMetab(params,
-                       metab = metab,
-                       p = p)
+                       metab = metab)
     params <- setBMort(params,
                        mu_b = mu_b,
                        z0pre = z0pre,
@@ -1079,8 +1058,7 @@ setParams <- function(params,
     # setSearchVolume() should be called only after 
     # setIntakeMax() and setPredKernel()
     params <- setSearchVolume(params,
-                              search_vol = search_vol,
-                              q = q)
+                              search_vol = search_vol)
     params <- setReproduction(params,
                               maturity = maturity,
                               repro_prop = repro_prop,
@@ -1097,8 +1075,7 @@ setParams <- function(params,
                                   resource_dynamics = resource_dynamics,
                                   resource_params = resource_params)
     params <- setResourceEncounter(params,
-                                   rho = rho,
-                                   n = params@n)
+                                   rho = rho)
     return(params)
 }
 
@@ -1417,8 +1394,6 @@ getPredKernel <- function(params) {
 #' @param search_vol Optional. An array (species x size) holding the search volume
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume". 
-#' @param q Exponent of the allometric search volume. Not needed if a
-#'   \code{search_vol} array is specified.
 #' 
 #' @return MizerParams
 #' @export
@@ -1430,12 +1405,9 @@ getPredKernel <- function(params) {
 #' params <- setSearchVolume(params)
 #' }
 setSearchVolume <- function(params, 
-                            search_vol = NULL,
-                            q = params@q) {
-    assert_that(is(params, "MizerParams"),
-                is.number(q))
+                            search_vol = NULL) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
-    params@q <- q
     # If search_vol array is supplied, check it, store it and return
     if (!is.null(search_vol)) {
         assert_that(is.array(search_vol))
@@ -1487,7 +1459,6 @@ setSearchVolume <- function(params,
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
-#' @param n Scaling exponent of the intake rate.
 #' @return A \code{MizerParams} object
 #' @export
 #' @family functions for setting parameters
@@ -1498,12 +1469,9 @@ setSearchVolume <- function(params,
 #' params <- setIntakeMax(params)
 #' }
 setIntakeMax <- function(params, 
-                         intake_max = NULL, 
-                         n = params@n) {
-    assert_that(is(params, "MizerParams"),
-                is.number(n))
+                         intake_max = NULL) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
-    params@n <- n
     
     # If intake_max array is supplied, check it, store it and return
     if (!is.null(intake_max)) {
@@ -1571,12 +1539,9 @@ setIntakeMax <- function(params,
 #' params <- setMetab(params)
 #' }
 setMetab <- function(params, 
-                     metab = NULL, 
-                     p = params@p) {
-    assert_that(is(params, "MizerParams"),
-                is.number(p))
+                     metab = NULL) {
+    assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
-    params@p <- p
     if (!is.null(metab)) {
         assert_that(is.array(metab),
                     identical(dim(metab), dim(params@metab)))
@@ -1988,7 +1953,6 @@ setPlankton <- function(params,
                         rr_pp = NULL,
                         cc_pp = NULL,
                         r_pp = 10,
-                        n = params@n,
                         kappa = params@kappa,
                         lambda = params@lambda,
                         w_pp_cutoff = 10,
@@ -1997,8 +1961,7 @@ setPlankton <- function(params,
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
-                is.number(w_pp_cutoff),
-                is.number(params@n))
+                is.number(w_pp_cutoff))
     params@kappa <- kappa
     params@lambda <- lambda
     # weight specific plankton growth rate
@@ -2185,9 +2148,8 @@ setResourceDynamics <- function(params,
 #' @return A MizerParams object
 #' @export
 #' @family functions for setting parameters
-setResourceEncounter <- function(params, rho = NULL, n = params@n) {
-    assert_that(is(params, "MizerParams"),
-                is.number(n))
+setResourceEncounter <- function(params, rho = NULL) {
+    assert_that(is(params, "MizerParams"))
     params@n <- n
     if (is.null(rho)) {
         # Use columns in species_params
@@ -2583,6 +2545,18 @@ upgradeParams <- function(params) {
         message("The 'r_max' column has been renamed to 'R_max'.")
     }
     
+    if (.hasSlot(params, "p")) {
+        params@species_params$p <- params@p
+    }
+    if (.hasSlot(params, "q")) {
+        params@species_params$q <- params@q
+    }
+    if (.hasSlot(params, "n")) {
+        params@species_params$n <- params@n
+    }
+    if (.hasSlot(params, "f0")) {
+        params@species_params$f0 <- params@f0
+    }
     pnew <- newMultispeciesParams(
         params@species_params,
         interaction = params@interaction,
@@ -2591,14 +2565,10 @@ upgradeParams <- function(params) {
         max_w = params@w[length(params@w)],
         min_w_pp = params@w_full[1] + 1e-16, # To make
         # sure that we don't add an extra bracket.
-        n = params@n,
-        p = params@p,
-        q = params@q,
         rr_pp = params@rr_pp,
         cc_pp = params@cc_pp,
         kappa = params@kappa,
         lambda = params@lambda,
-        f0 = params@f0,
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,

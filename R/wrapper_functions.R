@@ -1255,18 +1255,14 @@ addSpecies <- function(params, species_params, interaction,
     p <- newMultispeciesParams(
         combi_species_params,
         interaction = inter,
-        p = params@p,
-        n = params@n,
-        q = params@q,
         lambda = params@lambda,
-        f0 = params@f0,
         kappa = params@kappa,
         min_w = min(params@w),
         max_w = max(params@w),
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
         w_pp_cutoff = max(params@w_full),
-        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
+            r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
         initial_effort = initial_effort
     )
     # Use the same plankton spectrum as params
