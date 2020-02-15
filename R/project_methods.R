@@ -600,7 +600,7 @@ getM2Background <- getPlanktonMort
 #' Get starvation mortality 
 #' 
 #' Calculates starvation mortality based on the equation in the original mizer vingette. Starvation mortality is proportional to the energy defficiency and is inversely proportional to body weight (and
-#' therefore also lipid reserves). \eqn{\mu_S(w)} The weight proportionality constant is currently set
+#' therefore also lipid reserves). \eqn{\mu_s(w)} The weight proportionality constant is currently set
 #' to 0.1, but could be a separate parameter. The 0.1 constant means that the instantaneous starvation
 #' mortality is 1 when energy deficit is equal individual's body mass. 
 #' 
@@ -611,27 +611,33 @@ getM2Background <- getPlanktonMort
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using the \code{getEReproAndGrowth()} method. 
 #' @return A two dimensional array of instantaneous starvation mortality (species x size).  
-#' @note   The function currently uses 0.1 as a scaling constant on how negative e translates to starvation mortality. For a 100g fish with a negative e of -1, it will give instantaneous starvation mortality of 0.1/year. For a 10 g fish with e of -1, it will give mortality of 1. So the energy deficit equal to 10% of weight will result in 1/year starvation mortality at that time step. This seems reasonable for a start but it might make sense to turn 0.1 into a species specific parameter eventually. Using larger value (say, 0.2 instead of 0.1) will decrease the mortality rate for the same level of energy deficit (if the value is 0.2 then instantaneous mortality at 10% deficit is 0.5/year and not 1/year)
+#' @note   The default value of starv_coef is 10, which scales how energy intake
+#'   deficit (e) translates to starvation mortality. When instanteneous energy
+#'   intake rate deficit per year is 10% of body weight it will give 
+#'   instantaneous starvation mortality rate of 1/year, i.e. an average
+#'   individual can survive for about a year. If starv_coef = 0, there is no
+#'   starvation mortality and negative intake just gets converted to 0 (there is
+#'   no cost to having negative energy intake, which is unrealistic!). If
+#'   starv_coef = 20, the cost of negative intake increases, and 10% energy
+#'   deficit will lead to instantaneous starvation mortality of 2/year.
 #' @export
 #' @family rate functions
 #' 
-getSMort <- function(object, n, n_pp, e = getEReproAndGrowth(object, n = n, n_pp = n_pp)){
-  
-  if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
-    stop("e argument must have dimensions: no. species (",
-         nrow(object@species_params), ") x no. size bins (",
-         length(object@w), ")")
-  }
-  
-  mu_S <- e # assign net energy to the initial starvation mortality matrix
-  
-  x <- t(t(mu_S)/(0.1*object@w)) # apply the mortality formula to the whole matrix
-
-  mu_S[mu_S<0] <- x[x<0] # replace the negative values of e by the starvation mortality
-  mu_S[mu_S>0] <- 0 # replace the positive values of e by 0
-  mu_S = - mu_S # mu_S above returns negative mortality values, because negative e is divided by weight. So to get the actual mortality we turn them into positive values 
-
-    return(mu_S)
+getSMort <- function(object, n, n_pp, 
+                     e = getEReproAndGrowth(object, n = n, n_pp = n_pp)){
+    
+    if (!all(dim(e) == c(nrow(object@species_params), length(object@w)))) {
+        stop("e argument must have dimensions: no. species (",
+             nrow(object@species_params), ") x no. size bins (",
+             length(object@w), ")")
+    }
+    
+    # apply the mortality formula to the whole matrix
+    mu_s <- -t(t(e * object@species_params$starv_coef) / object@w) 
+    
+    mu_s[e>0] <- 0 # replace the positive values of e by 0
+    
+    return(mu_s)
 }
 
 
@@ -867,8 +873,9 @@ getMort <- function(params, n = params@initial_n,
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-## Add starvation mortality to the total mortality 
-     return(m2 + params@mu_b + getFMort(params, effort = effort) + getSMort(params, n=n, n_pp = n_pp))
+    ## Add starvation mortality to the total mortality 
+    return(m2 + params@mu_b + getFMort(params, effort = effort) + 
+                getSMort(params, n=n, n_pp = n_pp))
 
 }
 
@@ -914,6 +921,9 @@ getZ <- getMort
 #' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
 #' \code{params} and set with \code{\link{setMetab}}.
 #' 
+#' The return value can be negative, which means that the energy intake does not
+#' cover the cost of metabolism and movement.
+#' 
 #' @export
 #' @seealso The parts of this energy rate that is invested into growth is
 #'   calculated with \code{\link{getERepro}} and the part that is invested into
@@ -947,8 +957,6 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
                params@species_params$alpha, "*", check.margin = FALSE)
     # Subtract metabolism
     e <- e - params@metab
-    # in order to apply starvation mortality we need to return the actual positive or negative e here
-    #e[e < 0] <- 0 # Do not allow negative growth
     return(e)
 }
 
@@ -994,10 +1002,11 @@ getERepro <- function(params, n = params@initial_n,
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-   #Because getEReproAndGrowth now can return negative values, we add an extra line here 
+    # Because getEReproAndGrowth can return negative values, 
+    # we add an extra line here 
     e[e < 0] <- 0 # Do not allow negative growth
-    e_repro <- params@psi * e
-    return(e_repro)
+    
+    return(params@psi * e)
 }
 
 #' Alias for getERepro
@@ -1013,6 +1022,7 @@ getESpawning <- getERepro
 #' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 #' size for growth after metabolism, movement and reproduction have been
 #' accounted for. Used by \code{\link{project}} for performing simulations.
+#' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
@@ -1044,7 +1054,7 @@ getEGrowth <- function(params, n = params@initial_n,
                        n_pp = params@initial_n_pp,
                        B = params@initial_B,
                        e_repro = getERepro(params, n = n, n_pp = n_pp, B = B),
-                       e=getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B)) {
+                       e = getEReproAndGrowth(params, n = n, n_pp = n_pp, B = B)) {
     if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
         stop("e_repro argument must have dimensions: no. species (",
              nrow(params@species_params), ") x no. size bins (",
