@@ -16,15 +16,6 @@ generic trait-based background has better support.
 * Setting of nonlinear stock-recruitment has been separated out into new
   function `setRmax()`.
 
-## Ecosystems
-Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
-* `data(Benguela_params)` with five species: Anchovy, Sardine, Kingklip, 
-  Shallow water hake, and Deep water hake.
-* `data(Baltic_params)` with three species: sprat, herring, and cod.
-* `data(Barents_params)` with six species.
-* `data(NEUSCS_params)` with 24 species.
-* `data(NorthSea_params)` with 10 species.
-
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
@@ -45,19 +36,10 @@ The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `newMultispeciesParams()`.
 (#51)
 
-## Modelling unstructured resources
-Besides the size-structured planktonic resource, mizer can now also model any
-number of unstructured resource components. Such unstructured components are
-appropriate whenever the predation on these components is not size based.
-Possible applications include the modelling of detritus as a resource for
-detritivores, carrion as a resource for scavengers, or macroflora on which fish
-can graze. (#46)
+## Extension mechanisms
 
-* Each unstructured resource component can have its own dynamics, with its own
-  parameters. These are set up with `setResourceDynamics()`.
-* Each species can be set to consume resources. The rates are set up with
- `setResourceEncounter()`.
-* Example dynamics are provided in `carrion_dynamics()` and `detritus_dynamics()`.
+* Mizer now has an extension mechanism that allows other R packages to be
+  written to generalise the mizer model. More documentation to follow.
 
 ## Plotting
 
@@ -165,6 +147,15 @@ can graze. (#46)
   + `getESpawning()` -> `getERepro()`
   + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
 
+## Ecosystems
+Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
+* `data(Benguela_params)` with five species: Anchovy, Sardine, Kingklip, 
+  Shallow water hake, and Deep water hake.
+* `data(Baltic_params)` with three species: sprat, herring, and cod.
+* `data(Barents_params)` with six species.
+* `data(NEUSCS_params)` with 24 species.
+* `data(NorthSea_params)` with 10 species.
+
 ## Bug fixes
 
 * In `getSSB()`, the calculation of the spawning stock biomass is done correctly
@@ -225,17 +216,12 @@ can graze. (#46)
   + Merged `std_metab` and `activity` slots into a single `metab` slot.
   + Moved `w_min_idx` out of `species_params` into its own slot.
   + Added slot `maturity` to hold the maturity ogive.
-  + Added slot `rho` to hold the resource encounter rates.
   + Added slot `pred_kernel` to hold predation kernel if it has variable
     predator/prey ratio.
   + Added slot `plankton_dynamics` to allow user to specify alternative
     plankton dynamics.
   + Changed slot `srr` to hold the name of the stock recruitment function rather
     than the function itself, see #91.
-  + Added slots `resource_dynamics` and `resource_params`.
-  + Added slot `initial_B` for the initial biomasses of the resources.
-* Changes to MizerSim class:
-  + Added slot `B` to hold resource biomasses over time
 
 ## Breaking changes
 

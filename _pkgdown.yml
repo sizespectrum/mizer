@@ -149,8 +149,6 @@ reference:
   - double_sigmoid_length
   - plankton_semichemostat
   - plankton_constant
-  - carrion_dynamics
-  - detritus_dynamics
   - starts_with("srr")
 - title: Internal helper functions
   contents:

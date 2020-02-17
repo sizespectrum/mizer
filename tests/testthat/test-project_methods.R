@@ -19,7 +19,10 @@ params_r <- params
 volume <- 1e-13
 params_r@initial_n <- params@initial_n * volume
 params_r@initial_n_pp <- params@initial_n_pp * volume
-params_r@initial_B <- params@initial_B * volume
+for (res in names(params@initial_n_other)) {
+    params_r@initial_n_other[[res]] <- params@initial_n_other[[res]] * volume
+}
+
 params_r@species_params$gamma <- params@species_params$gamma / volume
 params_r <- setSearchVolume(params_r)
 params_r@species_params$R_max <- params_r@species_params$R_max * volume
@@ -428,21 +431,6 @@ test_that("getEGrowth is working", {
                       e_repro = e_repro)
     expect_identical(eg1, eg2)
     expect_known_value(eg1, "values/getEGrowth")
-})
-
-# getRates with resources ----
-test_that("getRates works with resources", {
-    data("NS_species_params")
-    sp_res <- NS_species_params
-    resource_dynamics <-
-        list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
-             "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
-    sp_res$rho_detritus <- no_sp:1
-    sp_res$rho_carrion <- 1:no_sp
-    params_res <- MizerParams(sp_res, inter,
-                              resource_dynamics = resource_dynamics)
-    params_res@initial_B[] <- c(1, 1)
-    rates <- getRates(params_res)
 })
 
 

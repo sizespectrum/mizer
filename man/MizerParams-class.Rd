@@ -49,10 +49,6 @@ each species at size. Changed with \code{\link{setIntakeMax}}.}
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
 each species at size. Changed with \code{\link{setSearchVolume}}.}
 
-\item{\code{rho}}{A 3-dim array (species x resource x size) holding the encounter
-rates for unstructured resources. Changed with 
-\code{\link{setResourceEncounter}}.}
-
 \item{\code{metab}}{An array (species x size) that holds the metabolism
 for each species at size. Changed with \code{\link{setMetab}}.}
 
@@ -88,14 +84,14 @@ density by one timestep. The default is
 \code{\link{plankton_semichemostat}}. 
 Changed with \code{\link{setPlankton}}.}
 
-\item{\code{resource_dynamics}}{A named list of functions for projecting the
-biomasses in the unstructured resource components by one timestep. The
-names of the list entries are the resource names. Changed with 
-\code{\link{setResourceDynamics}}.}
+\item{\code{other_dynamics}}{A named list of functions for projecting the
+values of other dynamical components of the ecosystem that may be modelled
+by a mizer extensions you have installed. The names of the list entries
+are the names of those components.}
 
-\item{\code{resource_params}}{A list containing the parameters needed by the
-\code{resource_dynamics} functions.  Changed with 
-\code{\link{setResourceDynamics}}.}
+\item{\code{other_params}}{A list containing the parameters needed by any mizer
+extensions you may have installed to model other dynamical components of
+the ecosystem.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -120,15 +116,14 @@ each species by each gear, \eqn{Q_{g,i}}. Changed with
 \item{\code{initial_effort}}{A vector containing the initial fishing effort for each
 gear. Changed with \code{\link{setFishing}}.}
 
-\item{\code{initial_n}}{An array (species x size) that holds abundance of each species
-at each weight at our candidate steady state solution.}
+\item{\code{initial_n}}{An array (species x size) that holds the initial abundance of
+each species at each weight.}
 
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
-the plankton abundance at each weight.}
+the initial plankton abundance at each weight.}
 
-\item{\code{initial_B}}{A vector containing the biomasses of the unstructured
-resource components.
-Has length zero if there are no unstructured resources.}
+\item{\code{initial_n_other}}{A list with the initial abundances of all other
+ecosystem components. Has length zero if there are no other components.}
 
 \item{\code{n}}{Exponent of maximum intake rate. Changed with \code{\link{setIntakeMax}}.}
 
@@ -145,10 +140,10 @@ Changed with \code{\link{setSearchVolume}}.}
 
 \item{\code{A}}{Abundance multipliers.}
 
-\item{\code{linecolour}}{A named vector of colour values, named by species or 
-resources. Used to give consistent colours in plots.}
+\item{\code{linecolour}}{A named vector of colour values, named by species.
+Used to give consistent colours in plots.}
 
-\item{\code{linetype}}{A named vector of linetypes, named by species or resources. 
+\item{\code{linetype}}{A named vector of linetypes, named by species. 
 Used to give consistent line types in plots.}
 }}
 

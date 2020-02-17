@@ -8,20 +8,21 @@ getEReproAndGrowth(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B,
-  encounter = getEncounter(params, n = n, n_pp = n_pp, B = B),
-  feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, B = B, encounter =
-    encounter)
+  n_other = params@initial_n_other,
+  encounter = getEncounter(params, n = n, n_pp = n_pp, n_other = n_other),
+  feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other,
+    encounter = encounter)
 )
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{encounter}{The encounter rate matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
@@ -48,6 +49,9 @@ where \eqn{h_i} is the maximum intake rate, set with
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 data frame in \code{params}. The metabolic rate \code{metab} is taken from 
 \code{params} and set with \code{\link{setMetab}}.
+
+The return value can be negative, which means that the energy intake does not
+cover the cost of metabolism and movement.
 }
 \description{
 Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
@@ -83,6 +87,7 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

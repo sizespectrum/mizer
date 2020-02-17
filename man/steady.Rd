@@ -39,9 +39,9 @@ a progress bar in a shiny app. Default FALSE.}
 }
 \description{
 This is done by running the dynamics for a specified number of years while
-keeping recruitment and resources constant to reach steady state. Then the
-reproductive efficiencies and the external resource rates are retuned to
-achieve that level of recruitment.
+keeping recruitment and other components constant to reach steady state. Then
+the reproductive efficiencies are retuned to achieve that level of
+recruitment.
 }
 \examples{
 \dontrun{

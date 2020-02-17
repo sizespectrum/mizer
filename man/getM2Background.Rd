@@ -8,18 +8,19 @@ getM2Background(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B,
-  pred_rate = getPredRate(params, n = n, n_pp = n_pp, B = B)
+  n_other = params@initial_n_other,
+  pred_rate = getPredRate(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
@@ -62,5 +63,6 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }

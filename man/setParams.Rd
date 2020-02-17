@@ -28,9 +28,6 @@ setParams(
   lambda = params@lambda,
   w_pp_cutoff = 10,
   plankton_dynamics = NULL,
-  resource_dynamics = params@resource_dynamics,
-  resource_params = params@resource_params,
-  rho = NULL,
   initial_effort = NULL
 )
 }
@@ -110,19 +107,6 @@ Default is 10 g.}
 calculating the plankton spectrum at the next time step from the current
 state.}
 
-\item{resource_dynamics}{A named list of functions that determine the
-dynamics of the unstructured resources by calculating their biomasses at
-the next time step from the current state. An empty list if the model
-does not have unstructured resources.}
-
-\item{resource_params}{A named list of parameters needed by the
-\code{resource_dynamics} functions. An empty list if no parameters are
-needed.}
-
-\item{rho}{Optional. An array (species x resource x size)
-holding the rate at which a consumer of a particular size feeds on each
-resource. Described in the section "Setting resource encounter rate".}
-
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
@@ -143,8 +127,6 @@ functions
 \item \code{\link{setReproduction}}
 \item \code{\link{setFishing}}
 \item \code{\link{setPlankton}}
-\item \code{\link{setResourceDynamics}}
-\item \code{\link{setResourceEncounter}}
 }
 See the Details section below for a discussion of how to use this function.
 }
@@ -174,11 +156,24 @@ sections below discuss all the model functions that you can change this way.
 
 This function will use the species parameters in the \code{params} object to reset
 the values of all the model functions that you do not specify explicitly when
-calling this function. If you have changed any of the model functions in the
+calling this function, unless you have protected the corresponding slots with
+a comment. If you have changed any of the model functions in the
 \code{params} object previously and now want to make changes to a different slot,
 you will want to call the appropriate change function individually. So in the
 above example you would have used \code{params <- setSearchVolume(params)}
 instead of \code{params <- setParams(params)}.
+
+If you have adedd a comment to a slot of the params object, then setParams()
+and its subfunctions will not recalculate the value for that slot from the
+species parameters. For example after\preformatted{comment(params@search_vol) <- "This should not change"
+params@species_params$gamma <- 10
+params <- setParams(params)
+}
+
+will just issue a warning "The search volume has been commented and therefore
+will not be recalculated from the species parameters". You can remove the
+comment, and therefore allow recalculation of the slot, with
+\code{comment(params@search_vol) <- NULL}.
 }
 \section{Units in mizer}{
 
@@ -545,78 +540,6 @@ The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
 and \code{lambda} arguments.
 }
 
-\section{Setting resource dynamics}{
-
-Besides the size-structured planktonic resource, mizer can also model any number
-of unstructured resource components. Such unstructured components are
-appropriate whenever the predation on these components is not size based.
-Examples include detritus as a resource for detritivores, carrion as a
-resource for scavengers, or macroflora on which fish can graze.
-
-During a simulation using \code{\link[=project]{project()}}, the biomasses of the resources are
-updated at each time step by calling the functions specified in the
-\code{resource_dynamics} list, which has one named entry for each unstructured
-resource component. By default a model is set up without unstructured
-resource components, so you do not need to provide this list. But if you
-do want to use it, you can see an example of how to set up a
-\code{resource_dynamics} list in the Examples section of
-\code{setResourceDynamics()}.
-
-Mizer provides two functions that you can use to model resource dynamics:
-\code{\link[=detritus_dynamics]{detritus_dynamics()}} and \code{\link[=carrion_dynamics]{carrion_dynamics()}}, but you can easily implement
-others by following those templates.
-As you can see in the documentation of these functions, their arguments are:
-the \code{MizerParams} object \code{params}, the current fish size spectra \code{n}, the
-current plankton spectrum \code{n_pp}, the current resource biomasses \code{B} and the
-current rates calculated by the \code{\link[=getRates]{getRates()}} function.
-
-The other arguments to the resource dynamics functions are model parameters,
-like for example growth rates. These need to be provided in the
-\code{resource_params} argument which is a named list. One model parameter that
-should always be present in this list is the rate of change due to external
-causes. This should be given a name of the form \code{resource_external} where
-\code{resource} should be replaced by the name of the resource, see for example
-\code{detritus_external} in \code{\link[=detritus_dynamics]{detritus_dynamics()}}.
-
-When writing your own resource dynamics functions, you can choose any names
-for your other model parameters, but you must make sure not to use the same
-name in the function for another resource component. One way to ensure this
-is to prefix all parameter names with your resource name.
-
-The dynamics for a resource should always have a loss term accounting for
-the consumption of the resource. This should always have the form used in the
-example function \code{\link[=detritus_dynamics]{detritus_dynamics()}}, in order to be in agreement with the
-feeding by consumers that is set with \code{\link{setResourceEncounter}}.
-}
-
-\section{Setting resource encounter rate}{
-
-The resource encounter rate \eqn{\rho_{id}(w)} (units 1/year) determines the
-rate at which an individual of species \eqn{i} encounters biomass of resource
-\eqn{d}, so that the contribution from all unstructured resources to the
-total encounter rate is
-\deqn{E_{u.i}(w) = \sum_d\rho_{id}(w) B_d,} 
-where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-
-Resource consumption is subject to satiation in the same way as other food,
-so that a consumer only consumes a fraction \eqn{1-f_i(w)} of the encountered
-resource biomass, where \eqn{f_i(w)} is the feeding level.
-
-If the \code{rho} array is not supplied, then the resource encounter rate is
-set to a power law
-\deqn{\rho_{id}(w) = \rho_{id} w^n.}
-The coefficients \eqn{\rho_{id}} are parameters in the species_params dataframe.
-For example if there is a resource called "detritus" then the species_params
-data frame needs to have a column called \code{rho_detritus} and similarly
-for each other resource.
-
-If the \code{rho} array is supplied, the ordering of the entries in the array
-is important. The order of the species in the first array dimension needs to
-be the same as that in the species parameter dataframe. The order of the
-resources in the second array dimension must be the same as in the list of
-resource dynamics. The third dimension is the size dimension.
-}
-
 \examples{
 \dontrun{
 params <- newTraitParams()
@@ -635,8 +558,6 @@ Other functions for setting parameters:
 \code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResourceDynamics}()},
-\code{\link{setResourceEncounter}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

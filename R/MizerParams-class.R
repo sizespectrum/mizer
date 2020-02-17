@@ -9,10 +9,10 @@
 # Distributed under the GPL 3 or later 
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
-#Naming conventions:
-#S4 classes and constructors: AClass
-#functions aFunction
-
+# Naming conventions:
+# S4 classes and constructors: AClass
+# Functions: aFunction
+# Variables: a_variable
 
 # Validity function ---------------------------------------------------------
 # Not documented as removed later on
@@ -260,9 +260,6 @@ validMizerParams <- function(object) {
 #'   each species at size. Changed with \code{\link{setIntakeMax}}.
 #' @slot search_vol An array (species x size) that holds the search volume for
 #'   each species at size. Changed with \code{\link{setSearchVolume}}.
-#' @slot rho A 3-dim array (species x resource x size) holding the encounter
-#'   rates for unstructured resources. Changed with 
-#'   \code{\link{setResourceEncounter}}.
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with \code{\link{setMetab}}.
 #' @slot mu_b An array (species x size) that holds the background death 
@@ -290,13 +287,13 @@ validMizerParams <- function(object) {
 #'   density by one timestep. The default is 
 #'   \code{\link{plankton_semichemostat}}. 
 #'   Changed with \code{\link{setPlankton}}.
-#' @slot resource_dynamics A named list of functions for projecting the
-#'   biomasses in the unstructured resource components by one timestep. The
-#'   names of the list entries are the resource names. Changed with 
-#'   \code{\link{setResourceDynamics}}.
-#' @slot resource_params A list containing the parameters needed by the
-#'   \code{resource_dynamics} functions.  Changed with 
-#'   \code{\link{setResourceDynamics}}.
+#' @slot other_dynamics A named list of functions for projecting the
+#'   values of other dynamical components of the ecosystem that may be modelled
+#'   by a mizer extensions you have installed. The names of the list entries
+#'   are the names of those components.
+#' @slot other_params A list containing the parameters needed by any mizer
+#'   extensions you may have installed to model other dynamical components of
+#'   the ecosystem.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See \code{\link{newMultispeciesParams}} for details.
@@ -313,13 +310,12 @@ validMizerParams <- function(object) {
 #'   \code{\link{setFishing}}.
 #' @slot initial_effort A vector containing the initial fishing effort for each
 #'   gear. Changed with \code{\link{setFishing}}.
-#' @slot initial_n An array (species x size) that holds abundance of each species
-#'   at each weight at our candidate steady state solution.
+#' @slot initial_n An array (species x size) that holds the initial abundance of
+#'   each species at each weight.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
-#'   the plankton abundance at each weight.
-#' @slot initial_B A vector containing the biomasses of the unstructured
-#'   resource components.
-#'   Has length zero if there are no unstructured resources.
+#'   the initial plankton abundance at each weight.
+#' @slot initial_n_other A list with the initial abundances of all other
+#'   ecosystem components. Has length zero if there are no other components.
 #' @slot n Exponent of maximum intake rate. Changed with \code{\link{setIntakeMax}}.
 #' @slot p Exponent of metabolic cost. Changed with \code{\link{setMetab}}.
 #' @slot lambda Exponent of plankton spectrum. Changed with \code{\link{setPlankton}}.
@@ -328,9 +324,9 @@ validMizerParams <- function(object) {
 #'   Changed with \code{\link{setSearchVolume}}.
 #' @slot f0 Initial feeding level.
 #' @slot A Abundance multipliers.
-#' @slot linecolour A named vector of colour values, named by species or 
-#'   resources. Used to give consistent colours in plots.
-#' @slot linetype A named vector of linetypes, named by species or resources. 
+#' @slot linecolour A named vector of colour values, named by species.
+#'   Used to give consistent colours in plots.
+#' @slot linetype A named vector of linetypes, named by species. 
 #'   Used to give consistent line types in plots.
 
 #' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
@@ -362,7 +358,6 @@ setClass(
         initial_n = "array",
         intake_max = "array",
         search_vol = "array",
-        rho = "array",
         metab = "array",
         pred_kernel = "array",
         ft_pred_kernel_e = "array",
@@ -370,12 +365,12 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
-        resource_dynamics = "list",
         plankton_dynamics = "character",
-        resource_params = "list",
+        other_dynamics = "list",
+        other_params = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
-        initial_B = "numeric",
+        initial_n_other = "list",
         species_params = "data.frame",
         interaction = "array",
         srr  = "character",
@@ -685,7 +680,6 @@ emptyParams <- function(species_params,
         initial_n = mat1,
         intake_max = mat1,
         search_vol = mat1,
-        rho = array(),
         metab = mat1,
         mu_b = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
@@ -701,10 +695,10 @@ emptyParams <- function(species_params,
         species_params = species_params,
         interaction = interaction,
         srr = "srrBevertonHolt",
-        resource_dynamics = list(),
+        other_dynamics = list(),
         plankton_dynamics = "plankton_semichemostat",
-        resource_params = list(),
-        initial_B = vector(mode = "numeric"),
+        other_params = list(),
+        initial_n_other = list(),
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
         linetype = linetype
@@ -766,8 +760,6 @@ emptyParams <- function(species_params,
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
-#' @inheritSection setResourceDynamics Setting resource dynamics
-#' @inheritSection setResourceEncounter Setting resource encounter rate
 #'   
 #' @seealso \code{\link{project}}, \linkS4class{MizerSim},
 #'   \code{\link{newCommunityParams}}, \code{\link{newTraitParams}}
@@ -817,13 +809,11 @@ newMultispeciesParams <- function(
     lambda = (2 + q - n),
     w_pp_cutoff = 10,
     plankton_dynamics = "plankton_semichemostat",
-    # setResourceDynamics
-    resource_dynamics = list(),
-    resource_params = list(),
-    # setResourceEncounter
-    rho = NULL,
     # setFishing
-    initial_effort = NULL) {
+    initial_effort = NULL,
+    # other
+    other_dynamics = list(),
+    other_params = list()) {
     
     ## For backwards compatibility, allow r_max instead of R_max
     if (!("R_max" %in% names(species_params)) &&
@@ -845,6 +835,8 @@ newMultispeciesParams <- function(
     params@lambda <- lambda
     params@f0 <- f0
     params@kappa <- kappa
+    params@other_dynamics <- other_dynamics
+    params@other_params <- other_params
     
     params <- setParams(params,
                         # setInteraction
@@ -877,11 +869,6 @@ newMultispeciesParams <- function(
                         lambda = lambda,
                         w_pp_cutoff = w_pp_cutoff,
                         plankton_dynamics = plankton_dynamics,
-                        # setResourceDynamics
-                        resource_dynamics = resource_dynamics,
-                        resource_params = resource_params,
-                        # setResourceEncounter
-                        rho = rho,
                         # setFishing
                         initial_effort = initial_effort)
     
@@ -906,8 +893,6 @@ newMultispeciesParams <- function(
 #' \item \code{\link{setReproduction}}
 #' \item \code{\link{setFishing}}
 #' \item \code{\link{setPlankton}}
-#' \item \code{\link{setResourceDynamics}}
-#' \item \code{\link{setResourceEncounter}}
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #' 
@@ -925,8 +910,6 @@ newMultispeciesParams <- function(
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setPlankton
-#' @inheritParams setResourceDynamics
-#' @inheritParams setResourceEncounter
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -1015,8 +998,6 @@ newMultispeciesParams <- function(
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
-#' @inheritSection setResourceDynamics Setting resource dynamics
-#' @inheritSection setResourceEncounter Setting resource encounter rate
 #' @md
 #' @export
 #' @family functions for setting parameters
@@ -1057,11 +1038,6 @@ setParams <- function(params,
                       lambda = params@lambda,
                       w_pp_cutoff = 10,
                       plankton_dynamics = NULL,
-                      # setResourceDynamics
-                      resource_dynamics = params@resource_dynamics,
-                      resource_params = params@resource_params,
-                      # setResourceEncounter
-                      rho = NULL,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
@@ -1097,12 +1073,6 @@ setParams <- function(params,
                           lambda = lambda,
                           w_pp_cutoff = w_pp_cutoff,
                           plankton_dynamics = plankton_dynamics)
-    params <- setResourceDynamics(params,
-                                  resource_dynamics = resource_dynamics,
-                                  resource_params = resource_params)
-    params <- setResourceEncounter(params,
-                                   rho = rho,
-                                   n = params@n)
     return(params)
 }
 
@@ -2046,188 +2016,6 @@ setPlankton <- function(params,
     return(params)
 }
 
-#' Set resource dynamics
-#' 
-#' @section Setting resource dynamics:
-#' Besides the size-structured planktonic resource, mizer can also model any number
-#' of unstructured resource components. Such unstructured components are
-#' appropriate whenever the predation on these components is not size based.
-#' Examples include detritus as a resource for detritivores, carrion as a
-#' resource for scavengers, or macroflora on which fish can graze. 
-#' 
-#' During a simulation using [project()], the biomasses of the resources are
-#' updated at each time step by calling the functions specified in the
-#' `resource_dynamics` list, which has one named entry for each unstructured
-#' resource component. By default a model is set up without unstructured
-#' resource components, so you do not need to provide this list. But if you
-#' do want to use it, you can see an example of how to set up a
-#' `resource_dynamics` list in the Examples section of
-#' `setResourceDynamics()`.
-#' 
-#' Mizer provides two functions that you can use to model resource dynamics:
-#' [detritus_dynamics()] and [carrion_dynamics()], but you can easily implement
-#' others by following those templates.
-#' As you can see in the documentation of these functions, their arguments are:
-#' the `MizerParams` object `params`, the current fish size spectra `n`, the
-#' current plankton spectrum `n_pp`, the current resource biomasses `B` and the
-#' current rates calculated by the [getRates()] function.
-#' 
-#' The other arguments to the resource dynamics functions are model parameters,
-#' like for example growth rates. These need to be provided in the
-#' `resource_params` argument which is a named list. One model parameter that
-#' should always be present in this list is the rate of change due to external
-#' causes. This should be given a name of the form `resource_external` where
-#' `resource` should be replaced by the name of the resource, see for example
-#' `detritus_external` in [detritus_dynamics()].
-#' 
-#' When writing your own resource dynamics functions, you can choose any names
-#' for your other model parameters, but you must make sure not to use the same
-#' name in the function for another resource component. One way to ensure this
-#' is to prefix all parameter names with your resource name.
-#' 
-#' The dynamics for a resource should always have a loss term accounting for
-#' the consumption of the resource. This should always have the form used in the
-#' example function [detritus_dynamics()], in order to be in agreement with the
-#' feeding by consumers that is set with \code{\link{setResourceEncounter}}.
-#' 
-#' @param params A MizerParams object
-#' @param resource_dynamics A named list of functions that determine the
-#'   dynamics of the unstructured resources by calculating their biomasses at
-#'   the next time step from the current state. An empty list if the model
-#'   does not have unstructured resources.
-#' @param resource_params A named list of parameters needed by the
-#'   \code{resource_dynamics} functions. An empty list if no parameters are
-#'   needed.
-#' 
-#' @return A MizerParams object
-#' @export
-#' @md
-#' @family functions for setting parameters
-setResourceDynamics <- function(params,
-                         resource_dynamics = NULL,
-                         resource_params = NULL) {
-    assert_that(is(params, "MizerParams"))
-    if (!is.null(resource_dynamics)) {
-        assert_that(is.list(resource_dynamics))
-        no_res <- length(resource_dynamics)
-        resource_names = names(resource_dynamics)
-        if (no_res > 0  && is.null(resource_names)) {
-            stop("The resource_dynamics list must be a named list.")
-        }
-        params@resource_dynamics <- resource_dynamics
-        params@rho <- 
-            array(NA,
-                  dim = c(nrow(params@species_params),
-                          no_res,
-                          length(params@w)),
-                  dimnames = list(sp = params@species_params$species,
-                                  res = resource_names,
-                                  w = signif(params@w, 3)))
-        if (any(names(params@initial_B) != resource_names)) {
-            params@initial_B <- rep(0, no_res)
-            names(params@initial_B) <- resource_names
-        }
-        
-        # Set linecolour and linetype if necessary
-        # Colour-blind-friendly palette
-        # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
-        cbbPalette <- c("#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00", 
-                        "#CC79A7", "#F0E442")
-        unused <- setdiff(cbbPalette, params@linecolour)
-        colourless <- setdiff(resource_names, names(params@linecolour))
-        linecolour <- rep(unused, length.out = length(colourless))
-        names(linecolour) <- colourless
-        params@linecolour <- c(params@linecolour, linecolour)
-        
-        linetype <- rep(c("solid", "dashed", "dotted", "dotdash", "longdash", 
-                          "twodash"), length.out = length(colourless))
-        names(linetype) <- colourless
-        params@linetype <- c(params@linetype, linetype)
-    }
-    
-    if (!is.null(resource_params)) {
-        assert_that(is.list(resource_params))
-        params@resource_params <- resource_params
-    }
-    return(params)
-}
-
-#' Set resource encounter rate
-#' 
-#' @section Setting resource encounter rate:
-#' The resource encounter rate \eqn{\rho_{id}(w)} (units 1/year) determines the
-#' rate at which an individual of species \eqn{i} encounters biomass of resource
-#' \eqn{d}, so that the contribution from all unstructured resources to the
-#' total encounter rate is
-#' \deqn{E_{u.i}(w) = \sum_d\rho_{id}(w) B_d,} 
-#' where \eqn{B_d} is the biomass of the d-th unstructured resource component.
-#' 
-#' Resource consumption is subject to satiation in the same way as other food,
-#' so that a consumer only consumes a fraction \eqn{1-f_i(w)} of the encountered
-#' resource biomass, where \eqn{f_i(w)} is the feeding level.
-#' 
-#' If the \code{rho} array is not supplied, then the resource encounter rate is
-#' set to a power law
-#' \deqn{\rho_{id}(w) = \rho_{id} w^n.}
-#' The coefficients \eqn{\rho_{id}} are parameters in the species_params dataframe.
-#' For example if there is a resource called "detritus" then the species_params
-#' data frame needs to have a column called \code{rho_detritus} and similarly
-#' for each other resource.
-#' 
-#' If the \code{rho} array is supplied, the ordering of the entries in the array
-#' is important. The order of the species in the first array dimension needs to
-#' be the same as that in the species parameter dataframe. The order of the
-#' resources in the second array dimension must be the same as in the list of
-#' resource dynamics. The third dimension is the size dimension.
-#' 
-#' @param params A MizerParams object
-#' @param rho Optional. An array (species x resource x size)
-#'   holding the rate at which a consumer of a particular size feeds on each
-#'   resource. Described in the section "Setting resource encounter rate".
-#' @param n Scaling exponent of the intake rate.
-#' 
-#' @return A MizerParams object
-#' @export
-#' @family functions for setting parameters
-setResourceEncounter <- function(params, rho = NULL, n = params@n) {
-    assert_that(is(params, "MizerParams"),
-                is.number(n))
-    params@n <- n
-    if (is.null(rho)) {
-        # Use columns in species_params
-        for (res in names(params@resource_dynamics)) {
-            rho_var <- paste0("rho_", res)
-            if (!rho_var %in% names(params@species_params)) {
-                stop(paste("The species_params data frame needs a column ",
-                           rho_var))
-            }
-            params@rho[, res, ] <- 
-                outer(params@species_params[[rho_var]], params@w^n)
-        }
-        return(params)
-    }
-    # Check validity of arguments
-    assert_that(is.array(rho),
-                length(dim(rho)) == 3)
-    if (nrow(params@species_params) != dim(rho)[1]) {
-        stop("The first dimension of the rho argument should equal the number of species.")
-    }
-    no_res <- dim(rho)[2]
-    if (length(params@resource_dynamics) != no_res) {
-        stop("The second dimension of the rho argument should equal the number of resources.")
-    }
-    if (is.character(dimnames(rho)["res"])) {
-        assert_that(are_equal(dimnames(rho)["res"],
-                              names(params@resource_dynamics)))
-    }
-    if (length(params@w) != dim(rho)[3]) {
-            stop("The third dimension of the rho array should have one entry for every consumer size.")
-    }
-    assert_that(all(rho >= 0))
-    params@rho[] <- rho
-    
-    return(params)
-}
 
 
 #' Set fishing parameters
@@ -2393,20 +2181,20 @@ setFishing <- function(params, initial_effort = NULL) {
 #' Set initial abundances
 #'
 #' Sets the slots in the \code{MizerParams} object holding the initial
-#' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
+#' abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_n_other}.
 #'
 #' @param params A \code{\link{MizerParams}} object
 #' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
-#'   `initial_n_pp` and `initial_B` arguments are ignored and the information
+#'   `initial_n_pp` and `initial_n_pp` arguments are ignored and the information
 #'   is taken from the last timestep of the simulation in `sim`.
 #' @param initial_n The initial abundances of species. A matrix with dimensions
 #'   species x size. The order of species must be the same as in the MizerParams
 #'   argument. Optional. Ignored if `sim` is supplied.
 #' @param initial_n_pp The initial abundances of plankton. A numeric vector.
 #'   Optional. Ignored if `sim` is supplied.
-#' @param initial_B The initial biomasses of the unstructured resources. A named
-#'   vector with one entry for each resource. Optional. Ignored if `sim` is
-#'   supplied.
+#' @param initial_n_other The initial abundances of the other dynamic ecosystem
+#'   components. A named list with one entry for each component. Optional.
+#'   Ignored if `sim` is supplied.
 #'   
 #' @return A MizerParams object
 #' @export
@@ -2420,7 +2208,7 @@ setFishing <- function(params, initial_effort = NULL) {
 setInitial <- function(params, sim,
                        initial_n = params@initial_n,
                        initial_n_pp = params@initial_n_pp,
-                       initial_B = params@initial_B) {
+                       initial_n_other = params@initial_n_other) {
     if (!missing(sim)) {
         assert_that(is(sim, "MizerSim"))
         no_t <- dim(sim@n)[1]
@@ -2428,15 +2216,13 @@ setInitial <- function(params, sim,
         initial_n[] <- sim@n[no_t, , ]
         initial_n_pp < sim@params@initial_n_pp # Needed to get the right dimensions
         initial_n_pp[] <- sim@n_pp[no_t, ]
-        initial_B < sim@params@initial_B # Needed to get the right dimensions
-        initial_B[] <- sim@B[no_t, ]
+        initial_n_other < sim@n_other[[no_t]]
     }
     assert_that(identical(dim(initial_n), dim(params@initial_n)),
                 all(initial_n >= 0),
                 identical(dim(initial_n_pp), dim(params@initial_n_pp)),
                 all(initial_n_pp >= 0),
-                identical(dim(initial_B), dim(params@initial_B)),
-                all(initial_B >= 0))
+                identical(length(initial_n_other), length(params@initial_n_other)))
     if (!is.null(dimnames(initial_n)) &&
         !identical(dimnames(initial_n), dimnames(params@initial_n))) {
         warning("The dimnames of initial_n are not as expected. I will ignore them.")
@@ -2445,13 +2231,12 @@ setInitial <- function(params, sim,
         !identical(dimnames(initial_n_pp), dimnames(params@initial_n_pp))) {
         warning("The dimnames of initial_n_pp are not as expected. I will ignore them.")
     }
-    if (!is.null(dimnames(initial_B)) &&
-        !identical(dimnames(initial_B), dimnames(params@initial_B))) {
-        warning("The dimnames of initial_B are not as expected. I will ignore them.")
+    if (!identical(names(initial_n_other), names(params@initial_n_other))) {
+        stop("The names of initial_n_other do not match those in params.")
     }
     params@initial_n[] <- initial_n
     params@initial_n_pp[] <- initial_n_pp
-    params@initial_B[] <- initial_B
+    params@initial_n_other <- initial_n_other
     return(params)
 }
 
@@ -2569,16 +2354,12 @@ upgradeParams <- function(params) {
         repro_prop <- NULL
     }
     
-    if (.hasSlot(params, "rho")) {
-        rho <- params@rho
-    } else rho <- NULL
-    
-    if (.hasSlot(params, "resource_dynamics")) {
-        resource_dynamics <- params@resource_dynamics
-        resource_params <- params@resource_params
+    if (.hasSlot(params, "other_dynamics")) {
+        other_dynamics <- params@other_dynamics
+        other_params <- params@other_params
     } else {
-        resource_dynamics <- NULL
-        resource_params <- NULL
+        other_dynamics <- list()
+        other_params <- list()
     }
     
     if ("r_max" %in% names(params@species_params)) {
@@ -2610,9 +2391,8 @@ upgradeParams <- function(params) {
         mu_b = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
-        resource_dynamics = resource_dynamics,
-        resource_params = resource_params,
-        rho = rho,
+        other_dynamics = other_dynamics,
+        other_params = other_params,
         srr = params@srr,
         initial_effort = initial_effort)
     
@@ -2621,9 +2401,10 @@ upgradeParams <- function(params) {
     pnew@linetype <- params@linetype
     pnew@initial_n <- params@initial_n
     pnew@initial_n_pp <- params@initial_n_pp
-    if (.hasSlot(params, "resource_dynamics")) {
-        pnew@initial_B <- params@initial_B
+    if (.hasSlot(params, "initial_n_other")) {
+        pnew@initial_n_other <- params@initial_n_other
     }
+    
     return(pnew)
 }
 
@@ -2681,7 +2462,7 @@ srrRicker <- function(rdi, species_params) {
 #' 
 #' Takes the rates \eqn{R_p} of egg production and returns reduced,
 #' density-dependent rates \eqn{R} as
-#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (B R_p)^c)}
+#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
 #' 
 #' @param rdi Vector of density independent egg production rates \eqn{R_p} for
 #'   all species.
@@ -2903,7 +2684,6 @@ get_h_default <- function(params) {
 #' described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
 #' would lead to the feeding level \eqn{f_0}. Only for internal use.
 #' 
-#' Currently feeding on unstructured resources is not taken into account.
 #' @param params A MizerParams object
 #' @return A vector with the values of gamma for all species
 #' @export

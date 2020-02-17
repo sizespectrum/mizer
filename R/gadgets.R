@@ -137,8 +137,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 "->",
                 tags$a("Predation", href = "#predation"),
                 "->",
-                tags$a("Resources", href = "#resource"),
-                "->",
                 tags$a("Fishing", href = "#fishing"),
                 "->",
                 tags$a("Reproduction", href = "#reproduction"),
@@ -391,19 +389,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                             step = 0.05)
             )
             
-            if (length(p@resource_dynamics) > 0) {
-                l1 <- c(l1, list(tags$h3(tags$a(id = "resource"), "Resource encounter")))
-                for (res in names(p@resource_dynamics)) {
-                    res_var <- paste0("rho_", res)
-                    l1 <- c(l1, list(
-                        sliderInput(res_var, res,
-                                    value = sp[[res_var]],
-                                    min = signif(max(0, sp[[res_var]] - 0.1) / 2, 2),
-                                    max = signif((sp[[res_var]] + 0.1) * 1.5, 2),
-                                    step = 0.01)))
-                }
-            }
-            
             l1 <- c(l1, list(tags$h3(tags$a(id = "fishing"), "Fishing"),
                              sliderInput("catchability", "Catchability",
                                          value = sp$catchability, 
@@ -571,20 +556,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                               min = signif(h / 2, 2),
                               max = signif(h * 1.5, 2))
             
-            # change all rho so that encounter rate at maturity stays the same
-            for (res in names(p@resource_dynamics)) {
-                res_var <- paste0("rho_", res)
-                p@species_params[, res_var] <- p@species_params[, res_var] * 
-                    p@species_params$w_mat^(p@n - input$n)
-                new <- p@species_params[sp, res_var]
-                updateSliderInput(session, res_var,
-                                  value = new,
-                                  min = signif(max(0, new - 0.1) / 2, 2),
-                                  max = signif((new + 0.1) * 1.5, 2))
-            }
-            
             p <- setIntakeMax(p, n = input$n)
-            p <- setResourceEncounter(p, n = input$n)
             params(p)
         })
         
@@ -615,7 +587,10 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             # We want to rescale all abundances by the same factor
             p@initial_n <- p@initial_n * input$rescale
             p@initial_n_pp <- p@initial_n_pp * input$rescale
-            p@initial_B <- p@initial_B * input$rescale
+            for (res in names(p@initial_n_other)) {
+                p@initial_n_other[[res]] <- p@initial_n_other[[res]] * 
+                    input$rescale
+            }
             p@cc_pp <- p@cc_pp * input$rescale
             p@kappa <- p@kappa * input$rescale
             n0 <- n0 * input$rescale
@@ -978,12 +953,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             species_params[sp, "ks"]    <- input$ks
             species_params[sp, "k"]     <- input$k
             species_params[sp, "z0"]    <- input$z0
-            if (length(p@resource_dynamics) > 0) {
-                for (res in names(p@resource_dynamics)) {
-                    res_var <- paste0("rho_", res)
-                    species_params[sp, res_var] <- input[[res_var]]
-                }
-            }
             for (i in p@species_params$species) {
                 inter_var <- paste0("inter_", i)
                 p@interaction[sp, i] <- input[[inter_var]]
@@ -1007,14 +976,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                   min = signif(input$z0 / 2, 2),
                                   max = signif((input$z0 + 0.1) * 1.5, 2))
                 
-                if (length(p@resource_dynamics) > 0) {
-                    for (res in names(p@resource_dynamics)) {
-                        res_var <- paste0("rho_", res)
-                        updateSliderInput(session, res_var,
-                                          min = signif(max(0, input[[res_var]] - 0.1) / 2, 2),
-                                          max = signif((input[[res_var]] + 0.1) * 1.5, 2))
-                    }
-                }
                 # Create new params object identical to old one except for changed
                 # species params
                 p@species_params <- species_params
@@ -1023,7 +984,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p <- setBMort(p)
                 p <- setReproduction(p)
                 p <- setFishing(p)
-                p <- setResourceEncounter(p)
                 update_species(sp, p)
             }
         })

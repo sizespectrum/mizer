@@ -8,7 +8,8 @@ getRates(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B,
+  n_other = params@initial_n_other,
+  t = 0,
   effort = params@initial_effort,
   sex_ratio = 0.5
 )
@@ -20,7 +21,10 @@ getRates(
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
+
+\item{t}{The current time}
 
 \item{effort}{The effort for each fishing gear.}
 
@@ -61,6 +65,7 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

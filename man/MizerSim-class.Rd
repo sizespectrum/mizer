@@ -14,11 +14,10 @@ constructor, but you will never have to do that because the object is
 created automatically by the \code{\link{project}} function when needed.
 
 The arrays all have named dimensions. The names of the "time" dimension are
-numeric and denote the time in years. The names of the "sp" dimension are
-the same as the species name in the order specified in the species_params
-data frame. The names of the "gear" and "res" dimension are the names of the 
-gears and resources respectively, in the same order as specified when setting
-up the \code{MizerParams} object.
+numeric and denote the time in years. The names of the "sp" dimension are the
+same as the species name in the order specified in the species_params data
+frame. The names of the "gear" dimension are the names of the gears, in the
+same order as specified when setting up the \code{MizerParams} object.
 
 There are several \code{link{summary_functions}} and
 \code{\link{plotting_functions}} available to explore the contents of a
@@ -30,15 +29,14 @@ There are several \code{link{summary_functions}} and
 \item{\code{params}}{An object of type \linkS4class{MizerParams}.}
 
 \item{\code{n}}{Array that stores the projected community population abundances by
-time, species and size}
+time, species and size.}
 
 \item{\code{n_pp}}{Array that stores the projected plankton abundance by time and
-size}
+size.}
 
-\item{\code{B}}{Array that stores biomasses of unstructured resources by time and
-resource. Second dimension has length 0 if there are no unstructured
-resources.}
+\item{\code{n_other}}{List of lists where the outer list is named by time and the
+inner lists are named by the names of the other ecosystem components.}
 
-\item{\code{effort}}{Array that stores the fishing effort by time and gear}
+\item{\code{effort}}{Array that stores the fishing effort by time and gear.}
 }}
 

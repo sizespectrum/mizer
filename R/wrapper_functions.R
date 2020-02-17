@@ -956,9 +956,6 @@ removeSpecies <- function(params, species) {
     params@interaction <- params@interaction[keep, keep, drop = FALSE]
     params@selectivity <- params@selectivity[, keep, , drop = FALSE]
     params@catchability <- params@catchability[, keep, drop = FALSE]
-    if (length(dim(params@rho)) == 3) {
-        params@rho <- params@rho[keep, , , drop = FALSE]
-    }
     params@w_min_idx <- params@w_min_idx[keep]
     params@A <- params@A[keep]
     
@@ -1022,10 +1019,8 @@ rescaleAbundance <- function(params, factor) {
 #' following rescalings in the params object:
 #' \itemize{
 #' \item The initial abundances \code{initial_n}, \code{initial_n_pp} and
-#'   \code{initial_B} are rescaled by \eqn{c}.
+#'   \code{initial_n_other} are rescaled by \eqn{c}.
 #' \item The search volume is rescaled by \eqn{1/c}.
-#' \item The resource encounter rates are rescaled by \eqn{1/c}.
-#' \item The external influx rates for resources are rescaled by \eqn{c}.
 #' \item The plankton carrying capacity is rescaled by \eqn{c}
 #' \item The maximum recruitment rate \eqn{R_{max}}, if used, is rescaled by 
 #'   \eqn{c}.
@@ -1036,7 +1031,7 @@ rescaleAbundance <- function(params, factor) {
 #' \code{project} or whether one first runs a simulation and then rescales the
 #' resulting abundances.
 #' 
-#' Note that if you use non-standard resource or plankton dynamics then you
+#' Note that if you use non-standard plankton dynamics or other components then you
 #' may need to rescale additional parameters that appear in those dynamics.
 #' 
 #' @param params A mizer params object
@@ -1053,18 +1048,6 @@ rescaleSystem <- function(params, factor) {
     # Plankton replenishment rate
     params@cc_pp <- params@cc_pp * factor
     params@kappa <- params@kappa * factor
-    
-    # Resource external influx rates
-    resources <- names(params@resource_dynamics)
-    for (resource in resources) {
-        param <- paste0(resource, "_external")
-        if (!(param %in% names(params@resource_params))) {
-            stop("The parameter ", param, "is missing in the params object.")
-        }
-        params@resource_params[param] <- params@resource_params[param] * factor
-    }
-    params <- setResourceDynamics(params)
-    params <- setResourceEncounter(params, rho = params@rho / factor)
     
     # Rmax
     # r_max is a deprecated spelling of R_max. Get rid of it.
@@ -1084,10 +1067,14 @@ rescaleSystem <- function(params, factor) {
     }
     
     # Initial values
+    initial_n_other <- params@initial_n_other
+    for (res in names(initial_n_other)) {
+        initial_n_other[[res]] <- initial_n_other[[res]] * factor
+    }
     params <- setInitial(params,
                          initial_n = params@initial_n * factor,
                          initial_n_pp = params@initial_n_pp * factor,
-                         initial_B = params@initial_B * factor)
+                         initial_n_other = initial_n_other)
     
     return(params)
 }
@@ -1146,9 +1133,6 @@ renameSpecies <- function(params, replace) {
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species
     dimnames(params@catchability)$sp <- species
-    if (length(dim(params@rho)) == 3) {
-        dimnames(params@rho)$sp <- species
-    }
     
     validObject(params)
     return(params)
@@ -1490,9 +1474,9 @@ markBackground <- function(object, species) {
 #' Tune params object to be at steady state
 #' 
 #' This is done by running the dynamics for a specified number of years while
-#' keeping recruitment and resources constant to reach steady state. Then the
-#' reproductive efficiencies and the external resource rates are retuned to
-#' achieve that level of recruitment.
+#' keeping recruitment and other components constant to reach steady state. Then
+#' the reproductive efficiencies are retuned to achieve that level of
+#' recruitment.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
@@ -1536,14 +1520,14 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     old_rdi <- getRDI(p)
     rdi_limit <- old_rdi / 1e7
     # Force resources to stay at current level
-    old_resource_dynamics <- p@resource_dynamics
-    for (res in names(p@resource_dynamics)) {
-        p@resource_dynamics[[res]] <- constant_resource(res)
+    old_other_dynamics <- p@other_dynamics
+    for (res in names(p@other_dynamics)) {
+        p@other_dynamics[[res]] <- constant_other(res)
     }
     
     n <- p@initial_n
     n_pp <- p@initial_n_pp
-    B <- p@initial_B
+    n_other <- p@initial_n_other
     sim <- p
     for (ti in (1:ceiling(t_max/t_per))) {
         # advance shiny progress bar
@@ -1552,16 +1536,18 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         }
         if (return_sim) {
             sim <- project(sim, dt = dt, t_max = t_per, t_save = t_per,
-                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
+                           initial_n = n, initial_n_pp = n_pp, 
+                           initial_n_other = n_other)
         } else {
             sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
-                           initial_n = n, initial_n_pp = n_pp, initial_B = B)
+                           initial_n = n, initial_n_pp = n_pp, 
+                           initial_n_other = n_other)
         }
         no_t <- dim(sim@n)[1]
         n[] <- sim@n[no_t, , ]
         n_pp[] <- sim@n_pp[no_t, ]
-        B[] <- sim@B[no_t, ]
-        new_rdi <- getRDI(p, n, n_pp, B)
+        n_other <- sim@n_other[[no_t]]
+        new_rdi <- getRDI(p, n, n_pp, n_other)
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (any(new_rdi < rdi_limit)) {
             if (return_sim) {
@@ -1585,29 +1571,15 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         message("Steady state was reached before ", ti * t_per, " years.")
     }
     
-    # Restore original stock-recruitment relationship and resource dynamics
+    # Restore original stock-recruitment relationship and other dynamics
     p@srr <- params@srr
-    p@resource_dynamics <- old_resource_dynamics
+    p@other_dynamics <- old_other_dynamics
     
     no_sp <- length(p@species_params$species)
     p@initial_n[] <- n
     p@initial_n_pp[] <- n_pp
-    p@initial_B[] <- B
-    
-    # Set rates of external resource influx to keep resources at steady state
-    r <- getRates(p)
-    for (res in names(p@resource_dynamics)) {
-        res_external <- paste0(res, "_external")
-        if (!res_external %in% names(p@resource_params)) {
-            stop(paste("The parameter", res_external, "is missing from resource_params."))
-        }
-        p@resource_params$res_external <- 
-            p@resource_params$res_external +
-            (B[res] - p@resource_dynamics[[res]](p, p@initial_n, p@initial_n_pp,
-                                                 p@initial_B, rates = r, 
-                                                 dt = dt)) / dt
-    }
-    
+    p@initial_n_other[] <- n_other
+
     # Retune the values of erepro so that we get the correct level of
     # recruitment
     p <- retuneReproductionEfficiency(p)
@@ -1620,13 +1592,6 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     }
 }
 
-# Helper function to create constant resource dynamics
-constant_resource <- function(resource_name) {
-    force(resource_name)
-    function(params, n, n_pp, B, rates, dt, ...) B[resource_name]
-}
-
-
 # Helper function to calculate the coefficient of the death rate created by
 # a Sheldon spectrum of predators, assuming they have the same predation 
 # parameters as the first species.
@@ -1637,4 +1602,11 @@ get_power_law_mort <- function(params) {
         params@w^(-params@lambda)
     return(getPredMort(params)[1, 1] / 
                params@w[1] ^ (1 + params@q - params@lambda))
+}
+
+
+# Helper function to keep other components constant
+constant_other <- function(other_name) {
+    force(other_name)
+    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[other_name]
 }
