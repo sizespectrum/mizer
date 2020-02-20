@@ -491,12 +491,14 @@ emptyParams <- function(species_params,
     gear_names <- unique(species_params$gear)
     
     # If no alpha (conversion efficiency), then set to 0.6
-    species_params <- set_species_param_default(species_params,
-                                                "alpha", 0.6, message = "Assimilation efficiency not provided in species parameters, so it is set to 0.6")
+    species_params <- set_species_param_default(
+        species_params, "alpha", 0.6, 
+        message = "Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.")
     
     # If no starvation mortality coefficient is provided, then set to 10
-    species_params <- set_species_param_default(species_params,
-                                                "starv_coef", 10, message = "Starvation mortality coefficient not provided in species parameters, so it is set to 10")
+    species_params <- set_species_param_default(
+        species_params, "starv_coef", 10, 
+        message = "Starvation mortality coefficient `starv_coef` is not provided in species parameters, so it is set to 10.")
     
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
