@@ -83,6 +83,9 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
 
 ## Other new features
 
+* The critical feeding level `fc` can now be specified as a species parameter 
+  and will be used to calculate the metabolic rate parameter `ks` if it is not
+  supplied.
 * New wrapper function `newSheldonParams()` that sets up a single species in a
   power-law background.
 * New `upgradeParams()` can upgrade MizerParams objects from previous versions 

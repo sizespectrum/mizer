@@ -1516,17 +1516,18 @@ setIntakeMax <- function(params,
 #' the rate at which energy is available for growth and reproduction, see
 #' \code{\link{getEReproAndGrowth}}. It is measured in grams/year.
 #' 
-#' If the \code{metab} argument is not supplied, then the metabolic
-#' rate \eqn{k_i(w)} for an individual of species \eqn{i} and size \eqn{w}
-#' is set to \deqn{k_i(w) = ks_i\, w^p + k_i\, w,}{k_i(w) = ks_i w^p + k_i w}
-#' where \eqn{ks_i w^p} represents the rate of standard metabolism and 
-#' \eqn{k_i w} is the rate at which energy is expended on activity and movement.
-#' The values of \eqn{ks_i} and \eqn{k_i} are taken from the \code{ks} and
-#' \code{k} columns in the
-#' species parameter dataframe. If these parameters are not supplied, the
-#' defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0}, where \eqn{h_i} is the
-#' coefficient of the maximum intake rate and is taken from the species
-#' parameter data frame in \code{params}.
+#' If the \code{metab} argument is not supplied, then for each species the
+#' metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
+#' \deqn{k(w) = ks w^p + k w,}
+#' where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+#' is the rate at which energy is expended on activity and movement. The values
+#' of \eqn{ks} and \eqn{k} are taken from the \code{ks} and \code{k} columns in
+#' the species parameter dataframe. If these parameters are not supplied, the
+#' defaults are \eqn{k = 0} and
+#' \deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+#' where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
+#' in the species parameter data frame in \code{params}. If the critical feeding
+#' level is not specified, a default of \eqn{f_c = 0.2} is used.
 #' 
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
@@ -2658,7 +2659,8 @@ get_h_default <- function(params) {
         }
         species_params <- species_params %>% 
             set_species_param_default("b", 3) %>% 
-            set_species_param_default("t0", 0)
+            set_species_param_default("t0", 0) %>% 
+            set_species_param_default("fc", 0.2)
         w_mat <- species_params$w_mat
         w_inf <- species_params$w_inf
         w_min <- species_params$w_min
@@ -2667,7 +2669,7 @@ get_h_default <- function(params) {
         n <- params@n
         age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-            params@species_params$alpha / (params@f0 - 0.2)
+            params@species_params$alpha / (params@f0 - species_params$fc)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
@@ -2731,7 +2733,9 @@ get_gamma_default <- function(params) {
 #' Get default value for ks
 #' 
 #' Fills in any missing values for ks so that the critical feeding level needed
-#' to sustain the species is \eqn{f_c = 0.2}.
+#' to sustain the species is as specified in the `fc` column in the species
+#' parameter data frame. If that column is not provided the default critical
+#' feeding level \eqn{f_c = 0.2} is used.
 #' 
 #' @param params A MizerParams object
 #' @return A vector with the values of ks for all species
@@ -2744,10 +2748,11 @@ get_ks_default <- function(params) {
         any(is.na(params@species_params$h))) {
         params@species_params$h <- get_h_default(params)
     }
+    params <- set_species_param_default(params, "fc", 0.2)
     sp <- params@species_params
-    ks_default <- 0.2 * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
+    ks_default <- sp$fc * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
     
-    message <- ("Note: No ks column in species data frame so setting to default.")
+    message <- ("Note: No ks column so calculating from critical feeding level.")
     params <- set_species_param_default(params, "ks", ks_default, message)
     if (any(is.na(params@species_params$ks) | 
             is.infinite(params@species_params$ks))) {
