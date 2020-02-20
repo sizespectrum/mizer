@@ -33,9 +33,7 @@ newMultispeciesParams(
   lambda = (2 + q - n),
   w_pp_cutoff = 10,
   plankton_dynamics = "plankton_semichemostat",
-  initial_effort = NULL,
-  other_dynamics = list(),
-  other_params = list()
+  initial_effort = NULL
 )
 }
 \arguments{

@@ -89,6 +89,9 @@ values of other dynamical components of the ecosystem that may be modelled
 by a mizer extensions you have installed. The names of the list entries
 are the names of those components.}
 
+\item{\code{other_encounter}}{A named list of functions for calculating the 
+contribution to the encounter rate from each other dynamical component.}
+
 \item{\code{other_params}}{A list containing the parameters needed by any mizer
 extensions you may have installed to model other dynamical components of
 the ecosystem.}

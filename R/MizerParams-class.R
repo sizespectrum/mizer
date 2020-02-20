@@ -291,6 +291,8 @@ validMizerParams <- function(object) {
 #'   values of other dynamical components of the ecosystem that may be modelled
 #'   by a mizer extensions you have installed. The names of the list entries
 #'   are the names of those components.
+#' @slot other_encounter A named list of functions for calculating the 
+#'   contribution to the encounter rate from each other dynamical component.
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
@@ -368,6 +370,7 @@ setClass(
         plankton_dynamics = "character",
         other_dynamics = "list",
         other_params = "list",
+        other_encounter = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
         initial_n_other = "list",
@@ -698,6 +701,7 @@ emptyParams <- function(species_params,
         interaction = interaction,
         srr = "srrBevertonHolt",
         other_dynamics = list(),
+        other_encounter = list(),
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -812,10 +816,7 @@ newMultispeciesParams <- function(
     w_pp_cutoff = 10,
     plankton_dynamics = "plankton_semichemostat",
     # setFishing
-    initial_effort = NULL,
-    # other
-    other_dynamics = list(),
-    other_params = list()) {
+    initial_effort = NULL) {
     
     ## For backwards compatibility, allow r_max instead of R_max
     if (!("R_max" %in% names(species_params)) &&
@@ -837,8 +838,6 @@ newMultispeciesParams <- function(
     params@lambda <- lambda
     params@f0 <- f0
     params@kappa <- kappa
-    params@other_dynamics <- other_dynamics
-    params@other_params <- other_params
     
     params <- setParams(params,
                         # setInteraction
@@ -2357,14 +2356,6 @@ upgradeParams <- function(params) {
         repro_prop <- NULL
     }
     
-    if (.hasSlot(params, "other_dynamics")) {
-        other_dynamics <- params@other_dynamics
-        other_params <- params@other_params
-    } else {
-        other_dynamics <- list()
-        other_params <- list()
-    }
-    
     if ("r_max" %in% names(params@species_params)) {
         params@species_params$R_max <- params@species_params$r_max
         params@species_params$r_max <- NULL
@@ -2394,8 +2385,6 @@ upgradeParams <- function(params) {
         mu_b = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
-        other_dynamics = other_dynamics,
-        other_params = other_params,
         srr = params@srr,
         initial_effort = initial_effort)
     
@@ -2406,6 +2395,14 @@ upgradeParams <- function(params) {
     pnew@initial_n_pp <- params@initial_n_pp
     if (.hasSlot(params, "initial_n_other")) {
         pnew@initial_n_other <- params@initial_n_other
+    }
+    
+    if (.hasSlot(params, "other_dynamics")) {
+        pnew@other_dynamics <- params@other_dynamics
+        pnew@other_params <- params@other_params
+    }
+    if (.hasSlot(params, "other_encounter")) {
+        pnew@other_encounter <- params@other_encounter
     }
     
     return(pnew)

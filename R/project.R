@@ -297,7 +297,7 @@ project <- function(object, effort,
                                     # use the current value
         for (res in other_names) {
             n_other[[res]] <-
-                other_dynamics_funs[[res]](
+                other_dynamics_fns[[res]](
                     params,
                     n = n,
                     n_pp = n_pp,
