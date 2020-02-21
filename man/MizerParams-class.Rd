@@ -92,6 +92,10 @@ are the names of those components.}
 \item{\code{other_encounter}}{A named list of functions for calculating the 
 contribution to the encounter rate from each other dynamical component.}
 
+\item{\code{other_pred_mort}}{A named list of functions for calculating the 
+contribution to the predation mortality rate from each other dynamical 
+component.}
+
 \item{\code{other_params}}{A list containing the parameters needed by any mizer
 extensions you may have installed to model other dynamical components of
 the ecosystem.}

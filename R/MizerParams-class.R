@@ -293,6 +293,9 @@ validMizerParams <- function(object) {
 #'   are the names of those components.
 #' @slot other_encounter A named list of functions for calculating the 
 #'   contribution to the encounter rate from each other dynamical component.
+#' @slot other_pred_mort A named list of functions for calculating the 
+#'   contribution to the predation mortality rate from each other dynamical 
+#'   component.
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
@@ -371,6 +374,7 @@ setClass(
         other_dynamics = "list",
         other_params = "list",
         other_encounter = "list",
+        other_pred_mort = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
         initial_n_other = "list",
@@ -702,6 +706,7 @@ emptyParams <- function(species_params,
         srr = "srrBevertonHolt",
         other_dynamics = list(),
         other_encounter = list(),
+        other_pred_mort = list(),
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -2403,6 +2408,9 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "other_encounter")) {
         pnew@other_encounter <- params@other_encounter
+    }
+    if (.hasSlot(params, "other_pred_mort")) {
+        pnew@other_pred_mort <- params@other_pred_mort
     }
     
     return(pnew)

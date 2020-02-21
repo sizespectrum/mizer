@@ -236,6 +236,14 @@ getEncounter <- function(params, n = params@initial_n,
     }
     dimnames(encounter) <- dimnames(params@metab)
     
+    # Add contributions from other components
+    for (fun_name in params@other_encounter) {
+        encounter <- encounter + 
+            do.call(fun_name, 
+                    list(params = params,
+                         n = n, n_pp = n_pp, n_other = n_other))
+    }
+    
     return(encounter)
 }
 
@@ -477,6 +485,14 @@ getPredMort <- function(object, n, n_pp, n_other,
                        length(params@w) + 1):length(params@w_full)
 
         m2 <- (t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE]
+        
+        # Add contributions from other components
+        for (fun_name in params@other_pred_mort) {
+            m2 <- m2 + 
+                do.call(fun_name, 
+                        list(params = params,
+                             n = n, n_pp = n_pp, n_other = n_other))
+        }
         return(m2)
     } else {
         sim <- object
@@ -488,8 +504,16 @@ getPredMort <- function(object, n, n_pp, n_other,
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[[x]]
+            n_pp <- sim@n_pp[x, ]
             m2 <- getPredMort(sim@params, n = n, 
-                              n_pp = sim@n_pp[x, ], n_other = n_other)
+                              n_pp = n_pp, n_other = n_other)
+            # Add contributions from other components
+            for (fun_name in sim@params@other_pred_mort) {
+                m2 <- m2 + 
+                    do.call(fun_name, 
+                            list(params = sim@params,
+                                 n = n, n_pp = n_pp, n_other = n_other))
+            }
             return(m2)
         }, .drop = drop)
         return(m2_time)
