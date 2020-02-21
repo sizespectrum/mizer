@@ -251,6 +251,7 @@ project <- function(object, effort,
     idx <- 2:no_w
     plankton_dynamics_fn <- get(sim@params@plankton_dynamics)
     other_dynamics_fns <- lapply(sim@params@other_dynamics, get)
+    get_rates <- get(sim@params@rates_func)
     # Hacky shortcut to access the correct element of a 2D array using 1D notation
     # This references the egg size bracket for all species, so for example
     # n[w_minidx_array_ref] = n[,w_min_idx]
@@ -287,8 +288,8 @@ project <- function(object, effort,
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        r <- getRates(params, n = n, n_pp = n_pp, n_other = n_other,
-                      t = t, effort = effort_dt[i_time,])
+        r <- get_rates(params, n = n, n_pp = n_pp, n_other = n_other,
+                       t = t, effort = effort_dt[i_time,])
         
         # Update time
         t <- t + dt

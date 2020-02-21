@@ -299,6 +299,9 @@ validMizerParams <- function(object) {
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
+#' @slot rates_func A string with the name of the function that should be used to
+#'   calculate the rates needed by `project()`. By default this will be set to
+#'   "getRates" so that the built-in `getRates()` function is used.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See \code{\link{newMultispeciesParams}} for details.
@@ -375,6 +378,7 @@ setClass(
         other_params = "list",
         other_encounter = "list",
         other_pred_mort = "list",
+        rates_func = "character",
         sc = "numeric",
         initial_n_pp = "numeric",
         initial_n_other = "list",
@@ -707,6 +711,7 @@ emptyParams <- function(species_params,
         other_dynamics = list(),
         other_encounter = list(),
         other_pred_mort = list(),
+        rates_func = "getRates",
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -2411,6 +2416,9 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "other_pred_mort")) {
         pnew@other_pred_mort <- params@other_pred_mort
+    }
+    if (.hasSlot(params, "rates_func")) {
+        pnew@rates_func <- params@rates_func
     }
     
     return(pnew)

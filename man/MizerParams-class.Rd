@@ -100,6 +100,10 @@ component.}
 extensions you may have installed to model other dynamical components of
 the ecosystem.}
 
+\item{\code{rates_func}}{A string with the name of the function that should be used to
+calculate the rates needed by `project()`. By default this will be set to
+"getRates" so that the built-in `getRates()` function is used.}
+
 \item{\code{sc}}{The community abundance of the scaling community}
 
 \item{\code{species_params}}{A data.frame to hold the species specific parameters.
