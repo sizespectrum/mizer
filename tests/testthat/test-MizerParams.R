@@ -144,7 +144,7 @@ test_that("default for gamma is correct", {
     species_params <- params@species_params
     gamma_default <- get_gamma_default(params)
     # Compare to the analytic result
-    lm2 <- params@lambda - 2
+    lm2 <- params@plankton_params$lambda - 2
     ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
         exp(lm2^2 * species_params$sigma^2 / 2) *
         # The factor on the following lines takes into account the cutoff
@@ -156,8 +156,8 @@ test_that("default for gamma is correct", {
         any(is.na(species_params$h))) {
         species_params$h <- get_h_default(params)
     }
-    gamma_analytic <- (species_params$h / (params@kappa * ae)) * 
-        (params@f0 / (1 - params@f0))
+    gamma_analytic <- (species_params$h / (params@plankton_params$kappa * ae)) * 
+        (species_params@f0 / (1 - species_params@f0))
     # TODO: reduce the tolerance below
     expect_equal(gamma_default/ gamma_analytic, 
                  rep(1, length(gamma_default)),

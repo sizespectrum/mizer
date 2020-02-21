@@ -4,7 +4,7 @@
 \alias{setIntakeMax}
 \title{Set maximum intake rate}
 \usage{
-setIntakeMax(params, intake_max = NULL, n = params@n)
+setIntakeMax(params, intake_max = NULL)
 }
 \arguments{
 \item{params}{MizerParams}
@@ -12,8 +12,6 @@ setIntakeMax(params, intake_max = NULL, n = params@n)
 \item{intake_max}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
-
-\item{n}{Scaling exponent of the intake rate.}
 }
 \value{
 A \code{MizerParams} object

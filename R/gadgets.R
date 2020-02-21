@@ -509,16 +509,17 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                              value = p@p,
                              min = 0.6, max = 0.8, step = 0.005),
                 numericInput("q", "Exponent of search volume",
-                             value = p@q,
+                             value = p@species_paramsq,
                              min = 0.6, max = 0.8, step = 0.005),
                 numericInput("n", "Exponent of feeding rate",
                              value = p@n,
                              min = 0.6, max = 0.8, step = 0.005),
                 tags$h3(tags$a(id = "plankton"), "Plankton"),
                 numericInput("lambda", "Sheldon exponent lambda",
-                             value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
+                             value = p@plankton_params$lambda, 
+                             min = 1.9, max = 2.2, step = 0.005),
                 numericInput("kappa", "Plankton coefficient kappa",
-                             value = p@kappa),
+                             value = p@plankton_params$kappa),
                 sliderInput("log_r_pp", "log10 Plankton replenishment rate",
                             value = log_r_pp, min = -1, max = 4, step = 0.05),
                 numericInput("w_pp_cutoff", "Largest plankton",
@@ -593,7 +594,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     input$rescale
             }
             p@cc_pp <- p@cc_pp * input$rescale
-            p@kappa <- p@kappa * input$rescale
+            p@plankton_params$kappa <- p@plankton_params$kappa * input$rescale
             n0 <- n0 * input$rescale
             # To keep the same per-capity behaviour, we have to scale down the
             # search volume

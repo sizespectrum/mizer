@@ -9,10 +9,10 @@ setPlankton(
   rr_pp = NULL,
   cc_pp = NULL,
   r_pp = 10,
-  n = params@n,
-  kappa = params@kappa,
-  lambda = params@lambda,
-  w_pp_cutoff = 10,
+  kappa = params@plankton_params$kappa,
+  lambda = params@plankton_params$lambda,
+  n = params@plankton_params$n,
+  w_pp_cutoff = plankton_params$w_pp_cutoff,
   plankton_dynamics = NULL
 )
 }
@@ -25,11 +25,11 @@ setPlankton(
 
 \item{r_pp}{Coefficient of the intrinsic growth rate}
 
-\item{n}{Scaling exponent of the intrinsic growth rate}
-
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 
 \item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+
+\item{n}{Scaling exponent of the intrinsic growth rate}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}

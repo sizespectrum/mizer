@@ -324,13 +324,7 @@ validMizerParams <- function(object) {
 #'   the initial plankton abundance at each weight.
 #' @slot initial_n_other A list with the initial abundances of all other
 #'   ecosystem components. Has length zero if there are no other components.
-#' @slot n Exponent of maximum intake rate. Changed with \code{\link{setIntakeMax}}.
-#' @slot p Exponent of metabolic cost. Changed with \code{\link{setMetab}}.
-#' @slot lambda Exponent of plankton spectrum. Changed with \code{\link{setPlankton}}.
-#' @slot kappa Magnitude of plankton spectrum. Changed with \code{\link{setPlankton}}.
-#' @slot q Exponent for volumetric search rate. 
-#'   Changed with \code{\link{setSearchVolume}}.
-#' @slot f0 Initial feeding level.
+#' @slot plankton_params Parameters for plankton. See \code{\link{setPlankton}}.
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species.
 #'   Used to give consistent colours in plots.
@@ -808,7 +802,7 @@ newMultispeciesParams <- function(
     # setBMort
     mu_b = NULL,
     z0pre = 0.6,
-    z0exp = n - 1,
+    z0exp = -1/4,
     # setReproduction
     maturity = NULL,
     repro_prop = NULL,
@@ -839,8 +833,8 @@ newMultispeciesParams <- function(
                           no_w_pp = NA)
     
     ## Fill the slots ----
-    params@lambda <- lambda
-    params@kappa <- kappa
+    params@plankton_params$lambda <- lambda
+    params@plankton_params$kappa <- kappa
     
     params <- setParams(params,
                         # setInteraction
@@ -1026,8 +1020,8 @@ setParams <- function(params,
                       rr_pp = NULL,
                       cc_pp = NULL,
                       r_pp = 10,
-                      kappa = params@kappa,
-                      lambda = params@lambda,
+                      kappa = params@plankton_params$kappa,
+                      lambda = params@plankton_params$lambda,
                       w_pp_cutoff = 10,
                       plankton_dynamics = NULL,
                       # setFishing
@@ -1482,7 +1476,10 @@ setIntakeMax <- function(params,
     
     params@species_params$h <- get_h_default(params)
     
-    params@intake_max[] <- outer(params@species_params$h, params@w^params@n)
+    params@intake_max[] <- sweep(outer(params@species_params$n, 
+                                       params@w, function(x, y) y^x),
+                                 1, params@species_params$h, "*") 
+    
     return(params)
 }
 
@@ -1605,7 +1602,7 @@ setMetab <- function(params,
 #' # Change the background death in the params object
 #' params <- setBMort(params, mu_b = mu_b)
 #' }
-setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1) {
+setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = -1/4) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(mu_b)) {
         assert_that(is.array(mu_b),
@@ -1844,7 +1841,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
                 tapply(params@w, 1:length(params@w),
                        function(wx, w_inf, mn) (wx / w_inf)^(mn),
                        w_inf = params@species_params$w_inf,
-                       mn = params@species_params$m - params@n
+                       mn = params@species_params$m - params@species_params$n
                 )
             ), dim = c(nrow(species_params), length(params@w)))
     }
@@ -1940,8 +1937,9 @@ setPlankton <- function(params,
                         rr_pp = NULL,
                         cc_pp = NULL,
                         r_pp = 10,
-                        kappa = params@kappa,
-                        lambda = params@lambda,
+                        kappa = params@plankton_params$kappa,
+                        lambda = params@plankton_params$lambda,
+                        n = params@plankton_params$n,
                         w_pp_cutoff = 10,
                         plankton_dynamics = NULL) {
     assert_that(is(params, "MizerParams"),
@@ -1949,8 +1947,8 @@ setPlankton <- function(params,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
                 is.number(w_pp_cutoff))
-    params@kappa <- kappa
-    params@lambda <- lambda
+    params@plankton_params$kappa <- kappa
+    params@plankton_params$lambda <- lambda
     # weight specific plankton growth rate
     if (!is.null(rr_pp)) {
         assert_that(is.numeric(rr_pp),
@@ -1962,7 +1960,7 @@ setPlankton <- function(params,
             message("The plankton intrinsic growth rate has been commented and therefore will ",
                     "not be recalculated from the species parameters.")
         } else {
-            params@rr_pp[] <- r_pp * params@w_full^(params@n - 1)
+            params@rr_pp[] <- r_pp * params@w_full^(n - 1)
         }
     }
     # the plankton carrying capacity
@@ -2358,8 +2356,6 @@ upgradeParams <- function(params) {
         # sure that we don't add an extra bracket.
         rr_pp = params@rr_pp,
         cc_pp = params@cc_pp,
-        kappa = params@kappa,
-        lambda = params@lambda,
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,
@@ -2391,6 +2387,9 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "rates_func")) {
         pnew@rates_func <- params@rates_func
+    }
+    if (.hasSlot(params, "plankton_params")) {
+        pnew@plankton_params <- params@plankton_params
     }
     
     return(pnew)
@@ -2631,7 +2630,7 @@ get_h_default <- function(params) {
     }
     missing <- is.na(species_params$h)
     if (any(missing)) {
-        assert_that(is.number(params@f0),
+        assert_that(is.number(species_params$f0),
                     noNA(species_params$alpha),
                     !is.null(species_params$alpha))
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
@@ -2641,7 +2640,7 @@ get_h_default <- function(params) {
         if (anyNA(species_params$k_vb[missing])) {
             stop("Can not calculate defaults for h because some k_vb values are NA.")
         }
-        if (length(params@p) == 1 && params@n != params@p) {
+        if (species_params$n[missing] != species_params$p[missing]) {
             message("Note: Because you have n != p, the default value is not very good.")
         }
         species_params <- species_params %>% 
@@ -2653,10 +2652,10 @@ get_h_default <- function(params) {
         w_min <- species_params$w_min
         b <- species_params$b
         k_vb <- species_params$k_vb
-        n <- params@n
+        n <- species_params$n
         age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-            params@species_params$alpha / (params@f0 - species_params$fc)
+            params@species_params$alpha / (species_params@f0 - species_params$fc)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
@@ -2686,9 +2685,9 @@ get_gamma_default <- function(params) {
     }
     missing <- is.na(species_params$gamma)
     if (any(missing)) {
-        assert_that(is.number(params@lambda),
-                    is.number(params@kappa),
-                    is.number(params@f0))
+        assert_that(is.number(params@plankton_params$lambda),
+                    is.number(params@plankton_params$kappa),
+                    is.number(species_params@f0))
         message("Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) || 
             any(is.na(species_params$h))) {
@@ -2701,13 +2700,14 @@ get_gamma_default <- function(params) {
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
         params@species_params$interaction_p <- 1
-        params@initial_n_pp[] <- params@kappa * 
-            params@w_full^(-params@lambda)
+        params@initial_n_pp[] <- params@plankton_params$kappa * 
+            params@w_full^(-params@plankton_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
-            params@w[length(params@w)]^(2+params@q-params@lambda)
+            params@w[length(params@w)] ^ 
+            (2 + params@species_params$q - params@plankton_params$lambda)
         # Now set gamma so that this available energy leads to f0
         gamma_default <- (species_params$h / avail_energy) * 
-            (params@f0 / (1 - params@f0))
+            (species_params$f0 / (1 - species_params$f0))
         # Only overwrite missing gammas with calculated values
         if (any(is.na(gamma_default[missing]))) {
             stop("Could not calculate gamma.")
@@ -2737,7 +2737,7 @@ get_ks_default <- function(params) {
     }
     params <- set_species_param_default(params, "fc", 0.2)
     sp <- params@species_params
-    ks_default <- sp$fc * sp$alpha * sp$h * sp$w_mat^(params@n - params@p)
+    ks_default <- sp$fc * sp$alpha * sp$h * sp$w_mat^(sp$n - sp$p)
     
     message <- ("Note: No ks column so calculating from critical feeding level.")
     params <- set_species_param_default(params, "ks", ks_default, message)

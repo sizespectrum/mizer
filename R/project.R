@@ -412,9 +412,10 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     dimnames(initial_n) <- dimnames(params@intake_max)
     # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
     # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
-    n <- params@n
-    q <- params@q
-    # Guessing at a suitable n0 value based on kappa - this was figured out using trial and error and should be updated
+    n <- params@species_params$n[[1]]
+    q <- params@species_params$q[[1]]
+    # Guessing at a suitable n0 value based on kappa - this was figured out 
+    # using trial and error and should be updated
     if (is.null(n0_mult)) {
         lambda <- 2 + q - n
         kappa <- params@cc_pp[1] / (params@w_full[1]^(-lambda))

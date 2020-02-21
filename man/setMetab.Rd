@@ -4,7 +4,7 @@
 \alias{setMetab}
 \title{Set metabolic rate}
 \usage{
-setMetab(params, metab = NULL, p = params@p)
+setMetab(params, metab = NULL)
 }
 \arguments{
 \item{params}{MizerParams}

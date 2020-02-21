@@ -9,12 +9,8 @@ setParams(
   interaction = NULL,
   pred_kernel = NULL,
   search_vol = NULL,
-  q = params@q,
-  f0 = params@f0,
   intake_max = NULL,
-  n = params@n,
   metab = NULL,
-  p = params@p,
   mu_b = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
@@ -24,8 +20,8 @@ setParams(
   rr_pp = NULL,
   cc_pp = NULL,
   r_pp = 10,
-  kappa = params@kappa,
-  lambda = params@lambda,
+  kappa = params@plankton_params$kappa,
+  lambda = params@plankton_params$lambda,
   w_pp_cutoff = 10,
   plankton_dynamics = NULL,
   initial_effort = NULL
@@ -47,25 +43,13 @@ predation kernel".}
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
-
-\item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
-if those are not columns in the species data frame. Also requires
-\code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-data frame.}
-
 \item{intake_max}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
 
-\item{n}{Scaling exponent of the intake rate.}
-
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-
-\item{p}{Scaling exponent of the standard metabolic rate.}
 
 \item{mu_b}{Optional. An array (species x size) holding the background
 mortality rate.}

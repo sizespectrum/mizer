@@ -12,10 +12,6 @@ newMultispeciesParams(
   max_w = NA,
   min_w_pp = NA,
   no_w_pp = NA,
-  n = 2/3,
-  p = 0.7,
-  q = 0.8,
-  f0 = 0.6,
   pred_kernel = NULL,
   search_vol = NULL,
   intake_max = NULL,
@@ -57,18 +53,6 @@ is set to the smallest value at which any of the consumers can feed.}
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
-
-\item{n}{Scaling exponent of the intake rate.}
-
-\item{p}{Scaling exponent of the standard metabolic rate.}
-
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
-
-\item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
-if those are not columns in the species data frame. Also requires
-\code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-data frame.}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey

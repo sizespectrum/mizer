@@ -463,16 +463,13 @@ newTraitParams <- function(no_sp = 11,
     params <-
         newMultispeciesParams(
             species_params,
-            p = p,
-            n = n,
-            q = q,
-            lambda = lambda,
-            f0 = f0,
-            kappa = kappa,
             min_w = min_w,
             no_w = no_w,
             max_w = max_w,
             w_pp_cutoff = max_w,
+            lambda = lambda,
+            kappa = kappa,
+            n = n,
             min_w_pp = min_w_pp,
             r_pp = r_pp
         )
@@ -729,15 +726,12 @@ newSheldonParams <- function(w_inf = 100,
     params <-
         suppressMessages(newMultispeciesParams(
             species_params,
-            p = p,
-            n = n,
-            q = q,
-            lambda = lambda,
-            f0 = f0,
-            kappa = kappa,
             min_w = w_min,
             no_w = no_w,
             max_w = w_inf,
+            lambda = lambda,
+            kappa = kappa,
+            n = n,
             w_pp_cutoff = w_inf,
             plankton_dynamics = "plankton_constant"
         ))
@@ -1047,7 +1041,7 @@ rescaleSystem <- function(params, factor) {
     
     # Plankton replenishment rate
     params@cc_pp <- params@cc_pp * factor
-    params@kappa <- params@kappa * factor
+    params@plankton_params$kappa <- params@plankton_params$kappa * factor
     
     # Rmax
     # r_max is a deprecated spelling of R_max. Get rid of it.
@@ -1250,19 +1244,18 @@ addSpecies <- function(params, species_params, interaction,
     p <- newMultispeciesParams(
         combi_species_params,
         interaction = inter,
-        lambda = params@lambda,
-        kappa = params@kappa,
         min_w = min(params@w),
         max_w = max(params@w),
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
-        w_pp_cutoff = max(params@w_full),
-            r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
         initial_effort = initial_effort
     )
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
+    p@rr_pp <- params@rr_pp
+    p@plankton_dynamics <- params@plankton_dynamics
+    p@plankton_params <- params@plankton_params
     # Preserve comment
     comment(p) <- comment(params)
     
@@ -1301,9 +1294,9 @@ addSpecies <- function(params, species_params, interaction,
         # Sheldon spectrum.
         # We look at the maximum of abundance times w^lambda
         # because that is always an increasing function at small size.
-        idx <- which.max(p@initial_n[i, ] * p@w^p@lambda)
+        idx <- which.max(p@initial_n[i, ] * p@w^p@plankton_params$lambda)
         p@initial_n[i, ] <- p@initial_n[i, ] *
-            p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[i, idx] / 100
+            p@plankton_params$kappa * p@w[idx]^(-p@plankton_params$lambda) / p@initial_n[i, idx] / 100
         p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
     }
     
@@ -1594,10 +1587,11 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
     params@interaction[1, 1] <- 1
-    params@initial_n[1, ] <- params@kappa * 
-        params@w^(-params@lambda)
+    params@initial_n[1, ] <- params@plankton_params$kappa * 
+        params@w^(-params@plankton_params$lambda)
     return(getPredMort(params)[1, 1] / 
-               params@w[1] ^ (1 + params@q - params@lambda))
+               params@w[[1]] ^ (1 + params@species_params$q[[1]] - 
+                                    params@plankton_params$lambda))
 }
 
 

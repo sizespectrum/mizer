@@ -4,7 +4,7 @@
 \alias{setSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, search_vol = NULL, q = params@q)
+setSearchVolume(params, search_vol = NULL)
 }
 \arguments{
 \item{params}{MizerParams}
@@ -12,9 +12,6 @@ setSearchVolume(params, search_vol = NULL, q = params@q)
 \item{search_vol}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
-
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
 }
 \value{
 MizerParams
