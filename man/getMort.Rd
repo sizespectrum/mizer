@@ -8,19 +8,21 @@ getMort(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B,
+  n_other = params@initial_n_other,
   effort = params@initial_effort,
-  m2 = getPredMort(params, n = n, n_pp = n_pp, B = B)
+  m2 = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other),
+  starv_mort = getStarvMort(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{effort}{A numeric vector of the effort by gear or a single numeric
 effort value which is used for all gears.}
@@ -64,6 +66,7 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

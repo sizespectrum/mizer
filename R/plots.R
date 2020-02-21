@@ -1255,8 +1255,8 @@ plotGrowthCurves <- function(object,
             annotate("text", 0, w_mat, vjust = -1, label = "Maturity")
         if (all(c("a", "b", "k_vb") %in% names(params@species_params))) {
             age <- as.numeric(dimnames(ws)$Age)
-            a <- params@species_params$a[idx]
-            b <- params@species_params$b[idx]
+            a <- params@species_params[["a"]][idx]
+            b <- params@species_params[["b"]][idx]
             k_vb <- params@species_params$k_vb[idx]
             t0 <- params@species_params$t0[idx]
             if (is.null(t0)) {t0 <- 0}

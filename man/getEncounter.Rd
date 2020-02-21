@@ -8,17 +8,18 @@ getEncounter(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B
+  n_other = params@initial_n_other
 )
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 }
 \value{
 A two dimensional array (predator species x predator size)
@@ -29,10 +30,10 @@ weight \eqn{w} encounters food (grams/year).
 }
 \section{Predation encounter}{
 
-The encounter rate has contributions from the encounter of fish prey, of
-plankton, and of other resources. The contribution from fish and plankton
-is determined by summing over all prey species and the resource spectrum and
-then integrating over all prey sizes \eqn{w_p}, weighted by predation kernel 
+The encounter rate has contributions from the encounter of fish prey and of
+plankton. This is determined by summing over all prey species and the
+plankton spectrum and then integrating over all prey sizes \eqn{w_p},
+weighted by predation kernel
 \eqn{\phi(w,w_p)}:
 \deqn{
 E_{e.i}(w) = \gamma_i(w) \int 
@@ -51,24 +52,7 @@ species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
 vector \eqn{\theta_{ip}} are set with \code{\link{setInteraction}}.
 }
 
-\section{Resource encounter}{
-
-In addition to the contribution from predation on fish prey and plankton,
-the food encounter rate may have a contribution from unstructured resource
-components. This takes the form
-\deqn{E_{u.i} = \sum_d \rho_{id}(w) B_d.}
-where \eqn{B_d} is the biomass of the d-th unstructured resource component
-and \eqn{\rho_{id}(w)} is a parameter that therefore determines the rate at
-which a predator of species \eqn{i} and size \eqn{w} encounters biomass from
-the d-th unstructured resource component. This is set with
-\code{\link{setResourceEncounter}}.
-}
-
 \section{Details}{
-
-The total encounter rate is the sum of the contribution from fish and
-plankton and the contribution from unstructured resources, if any:
-\deqn{E_i(w)=E_{e.i}(w)+E_{u.i}(w).}
 
 The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
 where \eqn{f_0} is the feeding level calculated with \code{\link{getFeedingLevel}}.
@@ -104,6 +88,7 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

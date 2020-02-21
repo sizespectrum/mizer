@@ -364,7 +364,7 @@ test_that("Final result the same when called with sim or params", {
   sim <- project(params, t_max = 1)
   params@initial_n[] <- sim@n[2, , ]
   params@initial_n_pp[] <- sim@n_pp[2, ]
-  params@initial_B[] <- sim@B[2, ]
+  params@initial_n_other <- sim@n_other[[2]]
   sim1 <- project(params, t_max = 1)
   sim2 <- project(sim, t_max = 1)
   expect_identical(sim1@n[2, 3, ], sim2@n[3, 3, ])

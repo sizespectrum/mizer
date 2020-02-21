@@ -13,7 +13,7 @@ project(
   t_start = 0,
   initial_n,
   initial_n_pp,
-  initial_B,
+  initial_n_other,
   append = TRUE,
   progress_bar = TRUE,
   ...
@@ -50,10 +50,11 @@ Ignored if the \code{object} argument is a MizerSim object, but overrules
 the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
 object.}
 
-\item{initial_B}{The initial biomasses of the unstructured resources. It
-should be a named vector with one entry for each resource. Ignored if the
-\code{object} argument is a MizerSim object, but overrules the
-\code{initial_B} slot if \code{object} is a \code{MizerParams} object.}
+\item{initial_n_other}{The initial abundances of the other dynamical
+ecosystem components. It should be a named list with one entry for each
+component. Ignored if the \code{object} argument is a MizerSim object, but
+overrules the \code{initial_n_other} slot if \code{object} is a
+\code{MizerParams} object.}
 
 \item{append}{A boolean that determines whether the new simulation results
 are appended to the previous ones. Only relevant if \code{object} is a

@@ -6,13 +6,6 @@ data(inter)
 no_sp <- nrow(NS_species_params)
 params <- MizerParams(NS_species_params, inter)
 
-resource_dynamics <-
-    list("detritus" = function(params, n, n_pp, B, rates, dt, ...) B["detritus"],
-         "carrion" = function(params, n, n_pp, B, rates, dt, ...) B["carrion"])
-NS_species_params$rho_detritus <- no_sp:1
-NS_species_params$rho_carrion <- 1:no_sp
-params_res <- MizerParams(NS_species_params, inter,
-                          resource_dynamics = resource_dynamics)
 
 ## set_species_param_default ----
 test_that("set_species_param_default sets default correctly", {
@@ -203,27 +196,16 @@ test_that("Comment works on psi", {
                    "has been commented")
 })
 
-## setResourceEncounter ----
-test_that("setResourceEncounter works", {
-    species_params <- NS_species_params
-    species_params$rho_detritus <- 1:no_sp
-    species_params$rho_carrion <- no_sp:1
-    params <- MizerParams(species_params, resource_dynamics = resource_dynamics)
-    expect_equal(params@rho[2, 1, 1], 2 * params@w[1]^params@n)
-    expect_equal(params@rho[2, 2, 1], (no_sp - 1) * params@w[1]^params@n)
-    expect_identical(setResourceEncounter(params, params@rho), params)
-})
-
 ## setParams ----
 test_that("setParams can leave params unchanged", {
-    expect_equal(setParams(params_res), params_res)
+    expect_equal(setParams(params), params)
 })
 
 ## upgradeParams ----
 test_that("upgradeParams leaves new params unchanged", {
-    expect_equal(upgradeParams(params_res), params_res)
+    expect_equal(upgradeParams(params), params)
 })
 test_that("upgradeParams preserves comment", {
-    comment(params_res) <- "test"
-    expect_equal(comment(upgradeParams(params_res)), "test")
+    comment(params) <- "test"
+    expect_equal(comment(upgradeParams(params)), "test")
 })

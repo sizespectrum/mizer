@@ -64,8 +64,6 @@ Other functions for setting parameters:
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
-\code{\link{setReproduction}()},
-\code{\link{setResourceDynamics}()},
-\code{\link{setResourceEncounter}()}
+\code{\link{setReproduction}()}
 }
 \concept{functions for setting parameters}

@@ -49,7 +49,7 @@ sim <- project(params_gears, effort = effort_array, dt = 0.1, t_save = 1)
 We have seen in previous sections that a `MizerSim` object is made up of various
 *slots* that contain the original parameters (`species_params`), the population
 abundances (`n`), the abundance of the plankton spectrum (`n_pp`), possibly the
-biomasses of unstructured resources (`B`), and the fishing effort (`effort`).
+abundances of other components (`n_other`), and the fishing effort (`effort`).
 
 The projected species abundances at size through time can be seen in the `n`
 slot.  This is a three-dimensional array (time x species x size). Consequently,

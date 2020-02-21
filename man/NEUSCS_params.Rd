@@ -3,7 +3,7 @@
 \docType{data}
 \name{NEUSCS_params}
 \alias{NEUSCS_params}
-\title{Example MizerParams object for the North East US Continential Shelf (NEUSCS) with 24 species.}
+\title{Example MizerParams object for the North East US Continental Shelf (NEUSCS) with 24 species.}
 \format{A MizerParams object}
 \source{
 {N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 

@@ -19,7 +19,7 @@ Vector of density-dependent larvae production rates.
 \description{
 Takes the rates \eqn{R_p} of egg production and returns reduced,
 density-dependent rates \eqn{R} as
-\deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (B R_p)^c)}
+\deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
 }
 \seealso{
 Other stock-recruitment functions: 

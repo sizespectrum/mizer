@@ -84,7 +84,7 @@ parameter data frame. If it is not specified, it defaults to 1.
 \strong{Effort}
 
 The initial fishing effort is stored in the \code{MizerParams} object. If it is
-not supplied, it is set to zero. The initial effort can be overrruled when
+not supplied, it is set to zero. The initial effort can be overruled when
 the simulation is run with \code{project()}, where it is also possible to specify
 an effort that varies through time.
 }
@@ -108,8 +108,6 @@ Other functions for setting parameters:
 \code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResourceDynamics}()},
-\code{\link{setResourceEncounter}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

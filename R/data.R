@@ -154,7 +154,7 @@ NULL
 NULL
 
 # North-East US ----
-#' Example MizerParams object for the North East US Continential Shelf (NEUSCS) with 24 species.
+#' Example MizerParams object for the North East US Continental Shelf (NEUSCS) with 24 species.
 #' 
 #' Created with purely size-based predation, i.e., no species-specific
 #' interactions. Set up with three fishing gears targeting small, medium and

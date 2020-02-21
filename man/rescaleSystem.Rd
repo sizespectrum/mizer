@@ -27,10 +27,8 @@ If you rescale the system by a factor \eqn{c} then this function makes the
 following rescalings in the params object:
 \itemize{
 \item The initial abundances \code{initial_n}, \code{initial_n_pp} and
-  \code{initial_B} are rescaled by \eqn{c}.
+  \code{initial_n_other} are rescaled by \eqn{c}.
 \item The search volume is rescaled by \eqn{1/c}.
-\item The resource encounter rates are rescaled by \eqn{1/c}.
-\item The external influx rates for resources are rescaled by \eqn{c}.
 \item The plankton carrying capacity is rescaled by \eqn{c}
 \item The maximum recruitment rate \eqn{R_{max}}, if used, is rescaled by 
   \eqn{c}.
@@ -41,6 +39,6 @@ one first calls \code{rescaleSystem} and then runs a simulation with
 \code{project} or whether one first runs a simulation and then rescales the
 resulting abundances.
 
-Note that if you use non-standard resource or plankton dynamics then you
+Note that if you use non-standard plankton dynamics or other components then you
 may need to rescale additional parameters that appear in those dynamics.
 }

@@ -87,8 +87,6 @@ reference:
   - setReproduction
   - setFishing
   - setPlankton
-  - setResourceDynamics
-  - setResourceEncounter
   - setInitial
   - upgradeParams
   - removeSpecies
@@ -149,8 +147,6 @@ reference:
   - double_sigmoid_length
   - plankton_semichemostat
   - plankton_constant
-  - carrion_dynamics
-  - detritus_dynamics
   - starts_with("srr")
 - title: Internal helper functions
   contents:
