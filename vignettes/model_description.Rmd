@@ -118,14 +118,14 @@ the rate of change of the number of individuals in the smallest size bin:
 
 </details>
 
-## Resource size spectrum
+## Plankton size spectrum
 
-Besides the fish spectrum there is also a resource spectrum $N_R(w)$,
+Besides the fish spectrum there is also a plankton spectrum $N_R(w)$,
 representing for example the phytoplankton. This spectrum starts at a smaller
 size than the fish spectrum, in order to provide food also for the smallest
 individuals (larvae) of the fish spectrum.
 
-By default the time evolution of the resource spectrum is described by a 
+By default the time evolution of the plankton spectrum is described by a 
 semi-chemostat equation:
 \begin{equation}
   \label{eq:nb}
@@ -145,7 +145,7 @@ described in the subsection [Plankton mortality].
 Because the plankton spectrum spans a different range of sizes these sizes
 are discretized into a different vector of weights
 `w_full`. The last entries of `w_full` have to coincide with the entries
-of `w`. The resource spectrum is then stored in a vector `n_pp` such that
+of `w`. The plankton spectrum is then stored in a vector `n_pp` such that
 `n_pp[c]` =$N_R($`w_full[c]`$)$.
 
 The plankton regeneration rate is stored as a vector
@@ -161,7 +161,7 @@ is stored as a vector
 
 The rate at which a predator of species $i$ and weight $w$ encounters food 
 (mass per time) is
-determined by summing over all prey species and the resource spectrum and
+determined by summing over all prey species and the plankton spectrum and
 integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 \begin{equation}
   \label{eq:1}

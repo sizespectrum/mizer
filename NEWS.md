@@ -29,8 +29,6 @@ parameters with the new functions
 * `setReproduction()`
 * `setFishing()`
 * `setPlankton()`
-* `setResourceDynamics()`
-* `setResourceEncounter()`
 
 The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `newMultispeciesParams()`.
@@ -197,8 +195,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
 * Using `@family' to group function documentation pages.
 * The helper functions are now documented and exported.
 * `getPhiPrey()` is replaced by `getEncounter()` which now returns the full
-  encounter rate, including the contribution from unstructured resources. Even
-  in the absence of unstructured resources, `getEncounter()` differs from the
+  encounter rate, including the contribution from other components. Even
+  in the absence of other components, `getEncounter()` differs from the
   old `getPhiPrey()` because it includes the search volume factor.
 * Changed naming convention: user-facing function names are now in camelCase.
 * Consistently use `params` to refer to an argument of class MizerParams, `sim`

@@ -1519,7 +1519,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     p@srr <- "srrConstant"
     old_rdi <- getRDI(p)
     rdi_limit <- old_rdi / 1e7
-    # Force resources to stay at current level
+    # Force other componens to stay at current level
     old_other_dynamics <- p@other_dynamics
     for (res in names(p@other_dynamics)) {
         p@other_dynamics[[res]] <- constant_other(res)

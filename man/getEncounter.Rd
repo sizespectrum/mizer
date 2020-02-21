@@ -32,7 +32,7 @@ weight \eqn{w} encounters food (grams/year).
 
 The encounter rate has contributions from the encounter of fish prey and of
 plankton. This is determined by summing over all prey species and the
-resource spectrum and then integrating over all prey sizes \eqn{w_p},
+plankton spectrum and then integrating over all prey sizes \eqn{w_p},
 weighted by predation kernel
 \eqn{\phi(w,w_p)}:
 \deqn{
