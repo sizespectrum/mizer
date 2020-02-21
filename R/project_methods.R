@@ -87,7 +87,8 @@ getRates <- function(params, n = params@initial_n,
                               encounter = r$encounter,
                               feeding_level = r$feeding_level)
     
-    ## Calculate all mortalities, before negative e values are turned into zero in getERepro() and getEGrowth() functions
+    ## Calculate all mortalities, before negative e values are turned into zero
+    #  in getERepro() and getEGrowth() functions
     # Calculate the predation rate
     r$pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
                                feeding_level = r$feeding_level)
@@ -558,20 +559,24 @@ getM2Background <- getPlanktonMort
 
 #' Get starvation mortality 
 #' 
-#' Calculates starvation mortality based on the equation in the original mizer vingette. Starvation mortality is proportional to the energy defficiency and is inversely proportional to body weight (and
-#' therefore also lipid reserves). \eqn{\mu_s(w)} The weight proportionality constant is currently set
-#' to 0.1, but could be a separate parameter. The 0.1 constant means that the instantaneous starvation
-#' mortality is 1 when energy deficit is equal individual's body mass. 
+#' Calculates starvation mortality based on the equation in the original mizer
+#' vignette. Starvation mortality is proportional to the energy deficiency and
+#' is inversely proportional to body weight (and therefore also lipid reserves).
+#' \eqn{\mu_s(w)} The weight proportionality constant is currently set to 0.1,
+#' but could be a separate parameter. The 0.1 constant means that the
+#' instantaneous starvation mortality is 1 when energy deficit is equal
+#' individual's body mass.
 #' 
 #' @inheritParams getFeedingLevel
 #' @param e The energy available for reproduction and growth (optional). A
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
 #'   internally using the \code{getEReproAndGrowth()} method.
 #'   
-#' @return A two dimensional array of instantaneous starvation mortality (species x size).  
+#' @return A two dimensional array of instantaneous starvation mortality
+#'   (species x size).
 #' @note   The default value of starv_coef is 10, which scales how energy intake
-#'   deficit (e) translates to starvation mortality. When instanteneous energy
-#'   intake rate deficit per year is 10% of body weight it will give 
+#'   deficit (e) translates to starvation mortality. When instantaneous energy
+#'   intake rate deficit per year is 10% of body weight it will give
 #'   instantaneous starvation mortality rate of 1/year, i.e. an average
 #'   individual can survive for about a year. If starv_coef = 0, there is no
 #'   starvation mortality and negative intake just gets converted to 0 (there is

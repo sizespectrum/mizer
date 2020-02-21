@@ -948,7 +948,7 @@ newMultispeciesParams <- function(
 #' above example you would have used `params <- setSearchVolume(params)`
 #' instead of `params <- setParams(params)`. 
 #' 
-#' If you have adedd a comment to a slot of the params object, then setParams()
+#' If you have added a comment to a slot of the params object, then setParams()
 #' and its subfunctions will not recalculate the value for that slot from the
 #' species parameters. For example after 
 #' ```
@@ -2086,7 +2086,7 @@ setPlankton <- function(params,
 #' \strong{Effort}
 #' 
 #' The initial fishing effort is stored in the `MizerParams` object. If it is
-#' not supplied, it is set to zero. The initial effort can be overrruled when
+#' not supplied, it is set to zero. The initial effort can be overruled when
 #' the simulation is run with `project()`, where it is also possible to specify
 #' an effort that varies through time.
 #' 
@@ -2625,7 +2625,7 @@ get_phi <- function(species_params, ppmr) {
 #' Get default value for h
 #' 
 #' Sets \code{h} so that the species reaches maturity 
-#' size at the age predicted by the von Bertalannfy growth curve parameters
+#' size at the age predicted by the von Bertalanffy growth curve parameters
 #' \code{k_vb} and (optionally \code{t0}) taken from the species parameter
 #' data frame. Also needs the exponent \code{b} from the length-weight
 #' relationship \eqn{w = a l^b}. If this is not present in the species

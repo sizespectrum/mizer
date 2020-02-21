@@ -163,7 +163,7 @@ you will want to call the appropriate change function individually. So in the
 above example you would have used \code{params <- setSearchVolume(params)}
 instead of \code{params <- setParams(params)}.
 
-If you have adedd a comment to a slot of the params object, then setParams()
+If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
 species parameters. For example after\preformatted{comment(params@search_vol) <- "This should not change"
 params@species_params$gamma <- 10
@@ -511,7 +511,7 @@ parameter data frame. If it is not specified, it defaults to 1.
 \strong{Effort}
 
 The initial fishing effort is stored in the \code{MizerParams} object. If it is
-not supplied, it is set to zero. The initial effort can be overrruled when
+not supplied, it is set to zero. The initial effort can be overruled when
 the simulation is run with \code{project()}, where it is also possible to specify
 an effort that varies through time.
 }

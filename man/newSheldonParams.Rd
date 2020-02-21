@@ -37,7 +37,7 @@ newSheldonParams(
 \code{w_inf}. Default is 10^(-0.6), approximately 1/4.. Ignored if
 \code{w_mat} is supplied explicitly.}
 
-\item{w_mat}{Maturity size of speces. Default value is 
+\item{w_mat}{Maturity size of species. Default value is 
 \code{eta * w_inf}.}
 
 \item{no_w}{The number of size bins in the community spectrum. These bins 

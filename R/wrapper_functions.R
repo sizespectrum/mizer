@@ -626,7 +626,7 @@ newTraitParams <- function(no_sp = 11,
 #' @param eta Ratio between maturity size \code{w_mat} and asymptotic size
 #'   \code{w_inf}. Default is 10^(-0.6), approximately 1/4.. Ignored if
 #'   \code{w_mat} is supplied explicitly.
-#' @param w_mat Maturity size of speces. Default value is 
+#' @param w_mat Maturity size of species. Default value is 
 #'   \code{eta * w_inf}.
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
