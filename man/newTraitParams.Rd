@@ -29,6 +29,7 @@ newTraitParams(
   f0 = 0.6,
   gamma = NA,
   bmort_prop = 0,
+  starv_coef = 10,
   rfac = 4,
   knife_edge_size = 1000,
   gear_names = "knife_edge_gear",
@@ -110,6 +111,11 @@ by \code{\link{get_gamma_default}} using the value of \code{f0}.}
 \item{bmort_prop}{The proportion of the total mortality that comes from
 background mortality, i.e., from sources other than predation or fishing. A
 number in the interval [0, 1). Default 0.}
+
+\item{starv_coef}{Proportionality constant for starvation mortality. When 
+starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+is 1 when energy deficit is 10% of body weight. When starv_coef = 0 there 
+is no starvation mortality}
 
 \item{rfac}{The factor such that \code{R_max = rfac * R}, where \code{R_max}
 is the maximum recruitment allowed and \code{R} is the steady-state

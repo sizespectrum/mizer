@@ -38,7 +38,7 @@ NULL
 #' Get diet of predator at size, resolved by prey species
 #'
 #' Calculates the rate at which a predator of a particular species and size
-#' consumes biomass of each prey species, plankton and resources.
+#' consumes biomass of each prey species and plankton.
 #' 
 #' This function performs the same integration as
 #' \code{\link{getEncounter}} but does not aggregate over prey species, and
@@ -46,41 +46,35 @@ NULL
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
 #'
-#' @inheritParams getEncounter
+#' @inheritParams getFeedingLevel
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the 
 #'   consumption rate in grams.
 #' 
 #' @return An array (predator species  x predator size x 
-#'   (prey species + plankton + resources) )
+#'   (prey species + plankton) )
 #' @export
 #' @family summary functions
 #' @concept summary_function
 getDiet <- function(params, 
                     n = params@initial_n, 
                     n_pp = params@initial_n_pp,
-                    B = params@initial_B,
                     proportion = TRUE) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
                 is.array(n),
-                is.vector(n_pp),
-                is.vector(B))
+                is.vector(n_pp))
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    no_res <- length(params@resource_dynamics)
-    resource_names <- names(params@resource_dynamics)
     assert_that(identical(dim(n), c(no_sp, no_w)),
-                length(n_pp) == no_w_full,
-                length(B) == no_res)
-    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1 + no_res),
+                length(n_pp) == no_w_full)
+    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
                                   "prey" = c(as.character(species), 
-                                             "Plankton", 
-                                             resource_names)))
+                                             "Plankton")))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -125,11 +119,7 @@ getDiet <- function(params,
     diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
                                            c(1, 3), inter, "*"), 
                                      c(1, 2), params@search_vol, "*")
-    # Add diet from resources
-    if (no_res > 0) {
-        diet[, , (no_sp + 2):(no_sp + 1 + no_res)] <- 
-            aperm(sweep(params@rho, 2, B, "*"), c(1, 3, 2))
-    }
+
     # Correct for satiation and keep only entries corresponding to fish sizes
     f <- getFeedingLevel(params, n, n_pp)
     fish_mask <- n > 0
@@ -402,10 +392,12 @@ get_size_range_array <- function(params, min_w = min(params@w),
         if (any(!c("a","b") %in% names(params@species_params)))
             stop("species_params slot must have columns 'a' and 'b' for length-weight conversion")
     if (!is.null(min_l))
-        min_w <- params@species_params$a * min_l ^ params@species_params$b
+        min_w <- params@species_params[["a"]] * 
+            min_l ^ params@species_params[["b"]]
     else min_w <- rep(min_w,no_sp)
     if (!is.null(max_l))
-        max_w <- params@species_params$a * max_l ^ params@species_params$b
+        max_w <- params@species_params[["a"]] *
+            max_l ^ params@species_params[["b"]]
     else max_w <- rep(max_w,no_sp)
     if (!all(min_w < max_w))
         stop("min_w must be less than max_w")

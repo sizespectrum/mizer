@@ -8,6 +8,7 @@ newCommunityParams(
   max_w = 1e+06,
   min_w = 0.001,
   z0 = 0.1,
+  starv_coef = 10,
   alpha = 0.2,
   h = 10,
   beta = 100,
@@ -32,6 +33,11 @@ default value is 1e6.}
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
 
 \item{z0}{The background mortality of the community. Default value is 0.1.}
+
+\item{starv_coef}{Proportionality constant for starvation mortality. When 
+starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+is 1 when energy deficit is 10% of body weight. When starv_coef = 0 there 
+is no starvation mortality}
 
 \item{alpha}{The assimilation efficiency of the community. Default value 0.2}
 

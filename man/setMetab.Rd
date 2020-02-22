@@ -27,17 +27,18 @@ The metabolic rate is subtracted from the energy income rate to calculate
 the rate at which energy is available for growth and reproduction, see
 \code{\link{getEReproAndGrowth}}. It is measured in grams/year.
 
-If the \code{metab} argument is not supplied, then the metabolic
-rate \eqn{k_i(w)} for an individual of species \eqn{i} and size \eqn{w}
-is set to \deqn{k_i(w) = ks_i\, w^p + k_i\, w,}{k_i(w) = ks_i w^p + k_i w}
-where \eqn{ks_i w^p} represents the rate of standard metabolism and 
-\eqn{k_i w} is the rate at which energy is expended on activity and movement.
-The values of \eqn{ks_i} and \eqn{k_i} are taken from the \code{ks} and
-\code{k} columns in the
-species parameter dataframe. If these parameters are not supplied, the
-defaults are \eqn{ks_i = 0.2 h_i} and \eqn{k_i = 0}, where \eqn{h_i} is the
-coefficient of the maximum intake rate and is taken from the species
-parameter data frame in \code{params}.
+If the \code{metab} argument is not supplied, then for each species the
+metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
+\deqn{k(w) = ks w^p + k w,}
+where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
+is the rate at which energy is expended on activity and movement. The values
+of \eqn{ks} and \eqn{k} are taken from the \code{ks} and \code{k} columns in
+the species parameter dataframe. If these parameters are not supplied, the
+defaults are \eqn{k = 0} and
+\deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
+where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
+in the species parameter data frame in \code{params}. If the critical feeding
+level is not specified, a default of \eqn{f_c = 0.2} is used.
 }
 
 \examples{
@@ -59,8 +60,6 @@ Other functions for setting parameters:
 \code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResourceDynamics}()},
-\code{\link{setResourceEncounter}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

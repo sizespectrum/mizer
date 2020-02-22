@@ -4,7 +4,7 @@
 \alias{plankton_semichemostat}
 \title{Project plankton using semichemostat model}
 \usage{
-plankton_semichemostat(params, n, n_pp, B, rates, t, dt, ...)
+plankton_semichemostat(params, n, n_pp, n_other, rates, t, dt, ...)
 }
 \arguments{
 \item{params}{A \link{MizerParams} object}
@@ -13,7 +13,7 @@ plankton_semichemostat(params, n, n_pp, B, rates, t, dt, ...)
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{The biomass of unstructured resources}
+\item{n_other}{A list with the abundances of other components}
 
 \item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
 

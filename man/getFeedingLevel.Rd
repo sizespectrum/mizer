@@ -4,31 +4,13 @@
 \alias{getFeedingLevel}
 \title{Get feeding level}
 \usage{
-getFeedingLevel(object, n, n_pp, B, encounter, time_range, drop = FALSE)
+getFeedingLevel(object, n, n_pp, n_other, encounter, time_range, drop = FALSE)
 }
 \arguments{
-\item{object}{A \code{MizerParams} or \code{MizerSim} object}
-
-\item{n}{A matrix of species abundance (species x size). Only used if
-\code{object} argument is of type \code{MizerParams}.}
-
-\item{n_pp}{A vector of the plankton abundance by size. Only used if
-\code{object} argument is of type \code{MizerParams}.}
-
-\item{B}{A vector of biomasses of unstructured resource components}
-
 \item{encounter}{The encounter rate matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
 using \code{\link{getEncounter}}. Only used if \code{object}
 argument is of type \code{MizerParams}.}
-
-\item{time_range}{Subset the returned fishing mortalities by time. The time
-range is either a vector of values, a vector of min and max time, or a
-single value. Default is the whole time range. Only used if the
-\code{object} argument is of type \code{MizerSim}.}
-
-\item{drop}{should extra dimensions of length 1 in the output be dropped,
-simplifying the output. Defaults to FALSE.}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
@@ -89,6 +71,7 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

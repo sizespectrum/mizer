@@ -8,19 +8,20 @@ getRDI(
   params,
   n = params@initial_n,
   n_pp = params@initial_n_pp,
-  B = params@initial_B,
-  e_repro = getERepro(params, n = n, n_pp = n_pp, B = B),
+  n_other = params@initial_n_other,
+  e_repro = getERepro(params, n = n, n_pp = n_pp, n_other = n_other),
   sex_ratio = 0.5
 )
 }
 \arguments{
-\item{params}{An \linkS4class{MizerParams} object}
+\item{params}{A \linkS4class{MizerParams} object}
 
-\item{n}{A matrix of species abundances (species x size)}
+\item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
 
-\item{B}{A vector of biomasses of unstructured resource components}
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
@@ -65,6 +66,7 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

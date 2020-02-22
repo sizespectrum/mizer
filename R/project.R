@@ -42,10 +42,11 @@ NULL
 #'   Ignored if the \code{object} argument is a MizerSim object, but overrules
 #'   the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
 #'   object.
-#' @param initial_B The initial biomasses of the unstructured resources. It
-#'   should be a named vector with one entry for each resource. Ignored if the
-#'   \code{object} argument is a MizerSim object, but overrules the
-#'   \code{initial_B} slot if \code{object} is a \code{MizerParams} object.
+#' @param initial_n_other The initial abundances of the other dynamical
+#'   ecosystem components. It should be a named list with one entry for each
+#'   component. Ignored if the \code{object} argument is a MizerSim object, but
+#'   overrules the \code{initial_n_other} slot if \code{object} is a
+#'   \code{MizerParams} object.
 #' @param append A boolean that determines whether the new simulation results
 #'   are appended to the previous ones. Only relevant if \code{object} is a
 #'   \code{MizerSim} object. Default = TRUE.
@@ -115,41 +116,43 @@ NULL
 #' }
 project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
-                    initial_n, initial_n_pp, initial_B,
+                    initial_n, initial_n_pp, initial_n_other,
                     append = TRUE,
                     progress_bar = TRUE, ...) {
     validObject(object)
     if (is(object, "MizerSim")) {
         params <- object@params
-        no_t <- dim(object@B)[1]
+        no_t <- dim(object@n)[[1]]
         initial_n <- params@initial_n # Needed to get the right dimensions
         initial_n[] <- object@n[no_t, , ]
         initial_n_pp <- params@initial_n_pp # Needed to get the right dimensions
         initial_n_pp[] <- object@n_pp[no_t, ]
-        initial_B <- params@initial_B # Needed to get the right dimensions
-        initial_B[] <- object@B[no_t, ]
-        t_start <- as.numeric(dimnames(object@n)[[1]][no_t])
+        initial_n_other <- object@n_other[[no_t]]
+        t_start <- as.numeric(dimnames(object@n)[[1]][[no_t]])
     } else {
         params <- object
         if (missing(initial_n))       initial_n <- params@initial_n
         if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
-        if (missing(initial_B))       initial_B <- params@initial_B
+        if (missing(initial_n_other)) initial_n_other <- params@initial_n_other
     }
     params@initial_n[] <- initial_n
     params@initial_n_pp[] <- initial_n_pp
-    params@initial_B[] <- initial_B
+    params@initial_n_other <- initial_n_other
     
     no_sp <- length(params@w_min_idx)
     assert_that(is.array(initial_n),
                 are_equal(dim(initial_n), c(no_sp, length(params@w))))
     assert_that(is.vector(initial_n_pp),
                 length(initial_n_pp) == length(params@w_full))
-    if (length(params@resource_dynamics) > 0) {
-        if (!is.character(names(initial_B))) {
-            stop("The initial_B needs to be a named vector")
+    
+    assert_that(is.null(initial_n_other) || is.list(initial_n_other))
+    other_names <- names(params@other_dynamics)
+    if (length(other_names) > 0) {
+        if (is.null(names(initial_n_other))) {
+            stop("The initial_n_other needs to be a named list")
         }
-        if (!setequal(names(initial_B), names(params@resource_dynamics))) {
-            stop("The names of the entries in initial_B do not match the names of the unstructured resource components of the model.")
+        if (!setequal(names(initial_n_other), other_names)) {
+            stop("The names of the entries in initial_n_other do not match the names of the other components of the model.")
         }
     }
     
@@ -240,13 +243,15 @@ project <- function(object, effort,
     # Set initial population
     sim@n[1, , ] <- initial_n 
     sim@n_pp[1, ] <- initial_n_pp
-    sim@B[1, ] <- initial_B
+    sim@n_other[[1]] <- initial_n_other
     
     # Handy things
     no_sp <- nrow(sim@params@species_params) # number of species
     no_w <- length(sim@params@w) # number of fish size bins
     idx <- 2:no_w
     plankton_dynamics_fn <- get(sim@params@plankton_dynamics)
+    other_dynamics_fns <- lapply(sim@params@other_dynamics, get)
+    get_rates <- get(sim@params@rates_func)
     # Hacky shortcut to access the correct element of a 2D array using 1D notation
     # This references the egg size bracket for all species, so for example
     # n[w_minidx_array_ref] = n[,w_min_idx]
@@ -260,13 +265,12 @@ project <- function(object, effort,
     b <- matrix(0, nrow = no_sp, ncol = no_w)
     S <- matrix(0, nrow = no_sp, ncol = no_w)
     
-    # initialise n n_pp and B
+    # initialise n n_pp and n_other
     # We want the first time step only but cannot use drop as there may only 
     # be a single species
-    n <- array(sim@n[1, , ], dim = dim(sim@n)[2:3])
-    dimnames(n) <- dimnames(sim@n)[2:3]
-    n_pp <- sim@n_pp[1, ]
-    B <- initial_B
+    n <- initial_n
+    n_pp <- initial_n_pp
+    n_other <- initial_n_other
     
     # Set up progress bar
     if (progress_bar == TRUE) {
@@ -284,32 +288,30 @@ project <- function(object, effort,
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        r <- getRates(params, n = n, n_pp = n_pp, B = B,
-                      effort = effort_dt[i_time,])
+        r <- get_rates(params, n = n, n_pp = n_pp, n_other = n_other,
+                       t = t, effort = effort_dt[i_time,])
         
         # Update time
         t <- t + dt
-        # Update unstructured resource biomasses
-        B_current <- B  # So that the plankton dynamics can still use the 
-                        # current value
-        if (length(params@resource_dynamics) > 0) {
-            for (res in names(params@resource_dynamics)) {
-                B[res] <-
-                    params@resource_dynamics[[res]](
-                        params,
-                        n = n,
-                        n_pp = n_pp,
-                        B = B_current,
-                        rates = r,
-                        t = t,
-                        dt = dt
-                    )
-            }
+        # Update other components
+        n_other_current <- n_other  # So that the plankton dynamics can still 
+                                    # use the current value
+        for (res in other_names) {
+            n_other[[res]] <-
+                other_dynamics_fns[[res]](
+                    params,
+                    n = n,
+                    n_pp = n_pp,
+                    n_other = n_other_current,
+                    rates = r,
+                    t = t,
+                    dt = dt
+                )
         }
         
         # Update plankton
         n_pp <- plankton_dynamics_fn(params, n = n, n_pp = n_pp,
-                                     B = B_current, rates = r,
+                                     n_other = n_other_current, rates = r,
                                      t = t, dt = dt)
         
         # Iterate species one time step forward:
@@ -353,9 +355,10 @@ project <- function(object, effort,
                 pb$tick()
             }
             # Store result
-            sim@n[which(store), , ] <- n
-            sim@n_pp[which(store), ] <- n_pp
-            sim@B[which(store), ] <- B
+            t_idx <- which(store)
+            sim@n[t_idx, , ] <- n
+            sim@n_pp[t_idx, ] <- n_pp
+            sim@n_other[[t_idx]] <- n_other
         }
     }
     if (is(object, "MizerSim") && append) {
@@ -371,8 +374,8 @@ project <- function(object, effort,
         new_sim@n[new_indices, , ]  <- sim@n[2:no_t, , ]
         new_sim@n_pp[old_indices, ] <- object@n_pp
         new_sim@n_pp[new_indices, ] <- sim@n_pp[2:no_t, ]
-        new_sim@B[old_indices, ]    <- object@B
-        new_sim@B[new_indices, ]    <- sim@B[2:no_t, ]
+        new_sim@n_other[old_indices]  <- object@n_other
+        new_sim@n_other[new_indices]  <- sim@n_other[2:no_t]
         new_sim@effort[old_indices, ] <- object@effort
         new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
         return(new_sim)

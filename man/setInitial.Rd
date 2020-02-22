@@ -9,14 +9,14 @@ setInitial(
   sim,
   initial_n = params@initial_n,
   initial_n_pp = params@initial_n_pp,
-  initial_B = params@initial_B
+  initial_n_other = params@initial_n_other
 )
 }
 \arguments{
 \item{params}{A \code{\link{MizerParams}} object}
 
 \item{sim}{A \code{MizerSim} object. If supplied, the `initial_n`, 
-`initial_n_pp` and `initial_B` arguments are ignored and the information
+`initial_n_pp` and `initial_n_pp` arguments are ignored and the information
 is taken from the last timestep of the simulation in `sim`.}
 
 \item{initial_n}{The initial abundances of species. A matrix with dimensions
@@ -26,16 +26,16 @@ argument. Optional. Ignored if `sim` is supplied.}
 \item{initial_n_pp}{The initial abundances of plankton. A numeric vector.
 Optional. Ignored if `sim` is supplied.}
 
-\item{initial_B}{The initial biomasses of the unstructured resources. A named
-vector with one entry for each resource. Optional. Ignored if `sim` is
-supplied.}
+\item{initial_n_other}{The initial abundances of the other dynamic ecosystem
+components. A named list with one entry for each component. Optional.
+Ignored if `sim` is supplied.}
 }
 \value{
 A MizerParams object
 }
 \description{
 Sets the slots in the \code{MizerParams} object holding the initial
-abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_B}.
+abundances, \code{initial_n}, \code{initial_n_pp} and \code{initial_n_other}.
 }
 \examples{
 \dontrun{
@@ -55,8 +55,6 @@ Other functions for setting parameters:
 \code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
-\code{\link{setResourceDynamics}()},
-\code{\link{setResourceEncounter}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

@@ -25,22 +25,17 @@ valid_MizerSim <- function(object) {
 	msg <- "n_pp slot must have two dimensions"
 	errors <- c(errors, msg)
     }
-    if (length(dim(object@B)) != 2) {
-        msg <- "B slot must have two dimensions"
-        errors <- c(errors, msg)
-    }
     # Check time dimension is good - size, dim name, and names
     if (!all(c(dim(object@n)[1], 
                dim(object@n_pp)[1],
-               dim(object@B)[1]) == dim(object@effort)[1])) {
-	msg <- "First dimension of effort, n, n_pp and B slots must be the same length"
+               length(object@n_other)) == dim(object@effort)[1])) {
+	msg <- "First dimension of effort, n, n_pp and n_other slots must be the same length."
 	errors <- c(errors, msg)
     }
     if (!all(c(names(dimnames(object@n))[1],
                names(dimnames(object@n_pp))[1],
-               names(dimnames(object@B))[1],
                names(dimnames(object@effort))[1]) == "time")) {
-	msg <- "First dimension of effort, n, n_pp and B slots must be called 'time'"
+	msg <- "First dimension of effort, n and n_pp slots must be called 'time'."
 	errors <- c(errors, msg)
     }
     # species dimension of n
@@ -82,19 +77,7 @@ valid_MizerSim <- function(object) {
 	msg <- "Second dimension of n_pp slot must have same size names as rr_pp in the params slot"
 	errors <- c(errors, msg)
     }
-    # resource dimension of B
-    if (dim(object@B)[2] != length(object@params@resource_dynamics)) {
-        msg <- "Second dimension of B slot must have same length as resource_dynamics in the params slot"
-        errors <- c(errors, msg)
-    }
-    if (names(dimnames(object@B))[2] != "res") {
-        msg <- "Second dimension of B slot must be called 'res'"
-        errors <- c(errors, msg)
-    }
-    if (!all(dimnames(object@B)$w == names(object@params@resource_dynamics))) {
-        msg <- "Second dimension of B slot must have same size names as resource_dynamics in the params slot"
-        errors <- c(errors, msg)
-    }
+    
     # gear dimension of effort
     if (dim(object@effort)[2] != dim(object@params@catchability)[1]) {
 	msg <- "Second dimension of effort slot must have same number of gears as in the params slot"
@@ -123,11 +106,10 @@ valid_MizerSim <- function(object) {
 #' created automatically by the \code{\link{project}} function when needed.
 #' 
 #' The arrays all have named dimensions. The names of the "time" dimension are
-#' numeric and denote the time in years. The names of the "sp" dimension are
-#' the same as the species name in the order specified in the species_params
-#' data frame. The names of the "gear" and "res" dimension are the names of the 
-#' gears and resources respectively, in the same order as specified when setting
-#' up the \code{MizerParams} object.
+#' numeric and denote the time in years. The names of the "sp" dimension are the
+#' same as the species name in the order specified in the species_params data
+#' frame. The names of the "gear" dimension are the names of the gears, in the
+#' same order as specified when setting up the \code{MizerParams} object.
 #' 
 #' There are several \code{link{summary_functions}} and
 #' \code{\link{plotting_functions}} available to explore the contents of a
@@ -135,13 +117,12 @@ valid_MizerSim <- function(object) {
 #' 
 #' @slot params An object of type \linkS4class{MizerParams}.
 #' @slot n Array that stores the projected community population abundances by
-#'   time, species and size
+#'   time, species and size.
 #' @slot n_pp Array that stores the projected plankton abundance by time and
-#'   size
-#' @slot B Array that stores biomasses of unstructured resources by time and
-#'   resource. Second dimension has length 0 if there are no unstructured
-#'   resources.
-#' @slot effort Array that stores the fishing effort by time and gear
+#'   size.
+#' @slot n_other List of lists where the outer list is named by time and the
+#'   inner lists are named by the names of the other ecosystem components.
+#' @slot effort Array that stores the fishing effort by time and gear.
 #' 
 #' @export
 setClass(
@@ -151,7 +132,7 @@ setClass(
         n = "array",
         effort = "array",
         n_pp = "array",
-        B = "array"
+        n_other = "list"
     )
 )
 
@@ -191,8 +172,6 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     species_names <- dimnames(params@psi)$sp
     no_w <- length(params@w)
     w_names <- dimnames(params@psi)$w
-    resource_names <- dimnames(params@rho)$res
-    no_res <- length(resource_names)
     no_t <- length(t_dimnames)
     array_n <- array(NA, dim = c(no_t, no_sp, no_w), 
                      dimnames = list(time = t_dimnames, 
@@ -209,15 +188,19 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     array_n_pp <- array(NA, dim = c(no_t, no_w_full), 
                         dimnames = list(time = t_dimnames, 
                                         w = w_full_names))
-    array_B <- array(NA, dim = c(no_t, no_res), 
-                        dimnames = list(time = t_dimnames, 
-                                        res = resource_names))
+    
+    other_names <- names(params@other_dynamics)
+    no_other <- length(other_names)
+    other <- rep(list(NA), no_other)
+    names(other) <- other_names
+    list_n_other <- rep(list(other), no_t)
+    names(list_n_other) <- t_dimnames
     
     sim <- new('MizerSim',
                params = params,
                n = array_n,
                n_pp = array_n_pp,
-               B = array_B,
+               n_other = list_n_other,
                effort = array_effort)
     return(sim)
 }

@@ -4,33 +4,13 @@
 \alias{getPredMort}
 \title{Get total predation mortality rate}
 \usage{
-getPredMort(object, n, n_pp, B, pred_rate, time_range, drop = TRUE)
+getPredMort(object, n, n_pp, n_other, pred_rate, time_range, drop = TRUE)
 }
 \arguments{
-\item{object}{A \code{MizerParams} or \code{MizerSim} object.}
-
-\item{n}{A matrix of species abundance (species x size). Only used if
-\code{object} argument is of type \code{MizerParams}.}
-
-\item{n_pp}{A vector of the plankton abundance by size. Only used if
-\code{object} argument is of type \code{MizerParams}.}
-
-\item{B}{A vector of biomasses of unstructured resource components. Only used
-if \code{object} argument is of type \code{MizerParams}.}
-
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{\link{getPredRate}} function.}
-
-\item{time_range}{Subset the returned fishing mortalities by time. The time
-range is either a vector of values, a vector of min and max time, or a
-single value. Default is the whole time range. Only used if the
-\code{object} argument is of type \code{MizerSim}.}
-
-\item{drop}{Only used when object is of type \code{MizerSim}. Should
-dimensions of length 1 in the output be dropped, simplifying the output.
-Defaults to TRUE}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
@@ -77,6 +57,7 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()}
+\code{\link{getRates}()},
+\code{\link{getStarvMort}()}
 }
 \concept{rate functions}

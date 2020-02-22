@@ -17,8 +17,5 @@ Fills in any missing values for gamma so that if the prey abundance was
 described by the power law \eqn{\kappa w^{-\lambda}} then the encounter rate
 would lead to the feeding level \eqn{f_0}. Only for internal use.
 }
-\details{
-Currently feeding on unstructured resources is not taken into account.
-}
 \concept{helper}
 \keyword{internal}
