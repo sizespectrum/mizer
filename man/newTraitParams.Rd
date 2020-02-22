@@ -17,8 +17,7 @@ newTraitParams(
   w_pp_cutoff = min_w_inf,
   n = 2/3,
   p = n,
-  q = 3/4,
-  lambda = 2 + q - n,
+  lambda = 2.05,
   r_pp = 0.1,
   kappa = 0.005,
   alpha = 0.4,
@@ -78,12 +77,7 @@ value is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
 \item{p}{Scaling exponent of the standard metabolic rate. By default this is
 equal to the exponent \code{n}.}
 
-\item{q}{Exponent of the search volume. Default value is 3/4 unless 
-\code{lambda} is provided, in which case this argument is ignored and
-q = lambda - 2 + n.}
-
-\item{lambda}{Exponent of the abundance power law. If supplied, this 
-overrules the \code{q} argument. Otherwise the default value is 2+q-n.}
+\item{lambda}{Exponent of the abundance power law.}
 
 \item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 0.1.}
 

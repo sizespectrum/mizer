@@ -21,6 +21,7 @@ set_multispecies_model <-
         kappa = 1e11,
         lambda = 2 + q - n,
         ...) {
+    species_params[["q"]] <- q
     object <- species_params
     # old code from MizerParams() in version 1.0.1
     
@@ -75,13 +76,12 @@ set_multispecies_model <-
     # The m column did not exist in the old version, set it to 1
     if (!("m" %in% colnames(object))) {
         message("Note: No m column in species data frame so using m = 1.")
-        object$m <- 1
+        object[["m"]] <- 1
     }
     
     return(newMultispeciesParams(object,
                                  interaction = interaction,
                                  n = n,
-                                 q = q,
                                  f0 = f0,
                                  kappa = kappa,
                                  lambda = lambda,

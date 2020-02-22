@@ -12,13 +12,16 @@ newMultispeciesParams(
   max_w = NA,
   min_w_pp = NA,
   no_w_pp = NA,
+  n = 2/3,
+  p = 0.7,
+  f0 = 0.6,
   pred_kernel = NULL,
   search_vol = NULL,
   intake_max = NULL,
   metab = NULL,
   mu_b = NULL,
   z0pre = 0.6,
-  z0exp = n - 1,
+  z0exp = -1/4,
   maturity = NULL,
   repro_prop = NULL,
   srr = "srrBevertonHolt",
@@ -26,7 +29,7 @@ newMultispeciesParams(
   cc_pp = NULL,
   r_pp = 10,
   kappa = 1e+11,
-  lambda = (2 + q - n),
+  lambda = 2.05,
   w_pp_cutoff = 10,
   plankton_dynamics = "plankton_semichemostat",
   initial_effort = NULL
@@ -53,6 +56,8 @@ is set to the smallest value at which any of the consumers can feed.}
 \item{no_w_pp}{Obsolete argument that is no longer used because the number
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
+
+\item{n}{Scaling exponent of the intrinsic growth rate}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey

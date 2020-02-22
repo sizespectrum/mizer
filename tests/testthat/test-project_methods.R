@@ -7,7 +7,7 @@ context("Functions used in project")
 data(NS_species_params_gears)
 data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter,
-                                n = 2/3, p = 0.7)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 no_gear <- dim(params@catchability)[1]
 no_sp <- dim(params@catchability)[2]
 no_w <- length(params@w)

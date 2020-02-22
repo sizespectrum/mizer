@@ -13,10 +13,9 @@ newCommunityParams(
   h = 10,
   beta = 100,
   sigma = 2,
-  q = 0.8,
   n = 2/3,
   kappa = 1000,
-  lambda = 2 + q - n,
+  lambda = 2.05,
   f0 = 0.7,
   r_pp = 10,
   gamma = NA,
@@ -47,15 +46,12 @@ is no starvation mortality}
 
 \item{sigma}{The width of the prey preference. Default value is 2.0.}
 
-\item{q}{The search volume exponent. Default value is 0.8.}
-
 \item{n}{The scaling exponent of the maximum intake rate. Default value is 2/3.}
 
 \item{kappa}{The carrying capacity of the plankton spectrum. Default value
 is 1000.}
 
-\item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
-- n.}
+\item{lambda}{The exponent of the plankton spectrum. Default value is 2.05.}
 
 \item{f0}{The average feeding level of individuals who feed on a power-law 
 spectrum. This value is used to calculate the search rate parameter 

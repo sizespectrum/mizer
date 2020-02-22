@@ -569,7 +569,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             # change all ks so that metabolic rate at maturity stays the same
             p@species_params$ks <- p@species_params$ks * 
                 p@species_params$w_mat^(p@species_params$p - input$p)
-            p@species_params$p <- input$p
+            p@species_params[["p"]] <- input$p
             p <- setMetab(p)
             params(p)
             ks <- p@species_params[sp, "ks"]

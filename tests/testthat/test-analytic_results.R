@@ -13,6 +13,7 @@ sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 gamma <- p@species_params$gamma[sp]
 q <- p@species_params$q[sp]
+n <- p@species_params$n[sp]
 lm2 <- p@plankton_params$lambda - 2
 
 # getEncounter ----
@@ -90,7 +91,7 @@ test_that("getPredRate approximates analytic result", {
     f0 <- 0.6
     f <- matrix(f0, nrow = 2, ncol = no_w)
     # Calculate the coefficient of the power law
-    pr <- getPredRate(p, feeding_level = f)[sp, ] * p@w_full^(1 - p@n)
+    pr <- getPredRate(p, feeding_level = f)[sp, ] * p@w_full^(1 - n)
     # Check that this is constant in the feeding range of the predator
     sel <- (p@w_full > min(p@w) / beta * exp(3 * sigma)) &
         (p@w_full < max(p@w) / beta / exp(3 * sigma))
@@ -100,7 +101,7 @@ test_that("getPredRate approximates analytic result", {
     pr <- pr[4:length(pr)]
     expect_equivalent(pr, rep(pr[1], length(pr)))
     # Check that it agrees with analytic result
-    n1 <- p@n - 1
+    n1 <- n - 1
     Dx <- p@w[2] / p@w[1] - 1
     dx <- log(p@w[2] / p@w[1])
     pred_rate_analytic <- p@plankton_params$kappa * gamma * (1 - f0) *
@@ -125,10 +126,10 @@ test_that("getPredRate approximates analytic result", {
     # The following corresponds to the right Riemann sum because the sum
     # goes all the way to the right limit of j == i
     for (j in i:(i + jj)) {
-        pra <- pra + p@w_full[j]^(p@n - 1) * 
+        pra <- pra + p@w_full[j]^(n - 1) * 
             exp(-(x_full[j] - x_full[i] - Beta)^2 / (2 * sigma^2))
     }
-    pra <- pra * (1 - f0) * p@plankton_params$kappa * gamma * p@w_full[i]^(1 - p@n) * dx
+    pra <- pra * (1 - f0) * p@plankton_params$kappa * gamma * p@w_full[i]^(1 - n) * dx
     # TODO: Still need to understand this
     # expect_equal(unname(pr[1]), pra, tolerance = 1e-14)
 })
@@ -177,7 +178,7 @@ test_that("Analytic steady-state solution is well approximated", {
         knife_edge_size = 1000
     )
     
-    params <- newMultispeciesParams(species_params, p = p, n = n, q = q, lambda = lambda,
+    params <- newMultispeciesParams(species_params, p = p, n = n, lambda = lambda,
                                     f0 = f0, kappa = kappa, min_w = w_min, max_w = w_inf,
                                     no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
                                     r_pp = r_pp)

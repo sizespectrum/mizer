@@ -80,12 +80,12 @@ test_that("Scaling model is set up correctly", {
     # Death rate
     mu <- getMort(p, p@initial_n, p@initial_n_pp, effort = 0)[sp, ]
     mumu <- mu  # To set the right names
-    mumu[] <- mu0 * p@w^(p@n - 1)
+    mumu[] <- mu0 * p@w^(p@species_params$n[[sp]] - 1)
     expect_equal(mu, mumu, tolerance = 0.2)
     # Growth rate
     g <- getEGrowth(p, p@initial_n, p@initial_n_pp)[sp, ]
     gg <- g  # To set the right names
-    gg[] <- hbar * p@w^p@n * (1 - p@psi[sp, ])
+    gg[] <- hbar * p@w^p@species_params$n[[sp]] * (1 - p@psi[sp, ])
     # TODO: not precise enough yet
     # expect_equal(g, gg, tolerance = 1e-4)
     

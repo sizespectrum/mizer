@@ -8,11 +8,11 @@ setPlankton(
   params,
   rr_pp = NULL,
   cc_pp = NULL,
-  r_pp = 10,
-  kappa = params@plankton_params$kappa,
-  lambda = params@plankton_params$lambda,
-  n = params@plankton_params$n,
-  w_pp_cutoff = plankton_params$w_pp_cutoff,
+  r_pp = params@plankton_params[["r_pp"]],
+  kappa = params@plankton_params[["kappa"]],
+  lambda = params@plankton_params[["lambda"]],
+  n = params@plankton_params[["n"]],
+  w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
   plankton_dynamics = NULL
 )
 }

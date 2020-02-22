@@ -157,7 +157,7 @@ test_that("default for gamma is correct", {
         species_params$h <- get_h_default(params)
     }
     gamma_analytic <- (species_params$h / (params@plankton_params$kappa * ae)) * 
-        (species_params@f0 / (1 - species_params@f0))
+        (species_params$f0 / (1 - species_params$f0))
     # TODO: reduce the tolerance below
     expect_equal(gamma_default/ gamma_analytic, 
                  rep(1, length(gamma_default)),

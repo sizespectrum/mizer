@@ -368,6 +368,7 @@ setClass(
         rr_pp = "numeric",
         cc_pp = "numeric",
         plankton_dynamics = "character",
+        plankton_params = "list",
         other_dynamics = "list",
         other_params = "list",
         other_encounter = "list",
@@ -382,12 +383,6 @@ setClass(
         selectivity = "array",
         catchability = "array",
         initial_effort = "numeric",
-        n = "numeric",
-        p = "numeric",
-        lambda = "numeric",
-        q = "numeric",
-        f0 = "numeric",
-        kappa = "numeric",
         A = "numeric",
         linecolour = "character",
         linetype = "character"
@@ -791,6 +786,9 @@ newMultispeciesParams <- function(
     max_w = NA,
     min_w_pp = NA,
     no_w_pp = NA,
+    n = 2 / 3,
+    p = 0.7,
+    f0 = 0.6,
     # setPredKernel()
     pred_kernel = NULL,
     # setSearchVolume()
@@ -812,7 +810,7 @@ newMultispeciesParams <- function(
     cc_pp = NULL,
     r_pp = 10,
     kappa = 1e11,
-    lambda = (2 + q - n),
+    lambda = 2.05,
     w_pp_cutoff = 10,
     plankton_dynamics = "plankton_semichemostat",
     # setFishing
@@ -833,38 +831,43 @@ newMultispeciesParams <- function(
                           no_w_pp = NA)
     
     ## Fill the slots ----
-    params@plankton_params$lambda <- lambda
-    params@plankton_params$kappa <- kappa
-    
-    params <- setParams(params,
-                        # setInteraction
-                        interaction = interaction,
-                        # setPredKernel()
-                        pred_kernel = pred_kernel,
-                        # setSearchVolume()
-                        search_vol = search_vol,
-                        # setIntakeMax()
-                        intake_max = intake_max,
-                        # setMetab()
-                        metab = metab,
-                        # setBMort
-                        mu_b = mu_b,
-                        z0pre = z0pre,
-                        z0exp = z0exp,
-                        # setReproduction
-                        maturity = maturity,
-                        repro_prop = repro_prop,
-                        srr = srr,
-                        # setPlankton
-                        rr_pp = rr_pp,
-                        cc_pp = cc_pp,
-                        r_pp = r_pp,
-                        kappa = kappa,
-                        lambda = lambda,
-                        w_pp_cutoff = w_pp_cutoff,
-                        plankton_dynamics = plankton_dynamics,
-                        # setFishing
-                        initial_effort = initial_effort)
+    params <- params %>% 
+        set_species_param_default("n", n) %>% 
+        set_species_param_default("p", p) %>%
+        set_species_param_default("f0", f0)
+    params <- set_species_param_default(params, "q", 
+                                        lambda - 2 + params@species_params$n)
+    params <-
+        setParams(params,
+                  # setInteraction
+                  interaction = interaction,
+                  # setPredKernel()
+                  pred_kernel = pred_kernel,
+                  # setSearchVolume()
+                  search_vol = search_vol,
+                  # setIntakeMax()
+                  intake_max = intake_max,
+                  # setMetab()
+                  metab = metab,
+                  # setBMort
+                  mu_b = mu_b,
+                  z0pre = z0pre,
+                  z0exp = z0exp,
+                  # setReproduction
+                  maturity = maturity,
+                  repro_prop = repro_prop,
+                  srr = srr,
+                  # setPlankton
+                  rr_pp = rr_pp,
+                  cc_pp = cc_pp,
+                  r_pp = r_pp,
+                  kappa = kappa,
+                  lambda = lambda,
+                  n = n,
+                  w_pp_cutoff = w_pp_cutoff,
+                  plankton_dynamics = plankton_dynamics,
+                  # setFishing
+                  initial_effort = initial_effort)
     
     params@initial_n <- get_initial_n(params)
     params@initial_n_pp <- params@cc_pp
@@ -998,6 +1001,15 @@ newMultispeciesParams <- function(
 #' params <- setParams(params)
 #' }
 setParams <- function(params,
+                      # setPlankton
+                      rr_pp = NULL,
+                      cc_pp = NULL,
+                      r_pp = params@plankton_params[["r_pp"]],
+                      kappa = params@plankton_params[["kappa"]],
+                      lambda = params@plankton_params[["lambda"]],
+                      n = params@plankton_params[["n"]],
+                      w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
+                      plankton_dynamics = NULL,
                       # setInteraction()
                       interaction = NULL,
                       # setPredKernel()
@@ -1016,17 +1028,18 @@ setParams <- function(params,
                       maturity = NULL,
                       repro_prop = NULL,
                       srr = params@srr,
-                      # setPlankton
-                      rr_pp = NULL,
-                      cc_pp = NULL,
-                      r_pp = 10,
-                      kappa = params@plankton_params$kappa,
-                      lambda = params@plankton_params$lambda,
-                      w_pp_cutoff = 10,
-                      plankton_dynamics = NULL,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
+    params <- setPlankton(params,
+                          rr_pp = rr_pp,
+                          cc_pp = cc_pp,
+                          r_pp = r_pp,
+                          kappa = kappa,
+                          lambda = lambda,
+                          n = n,
+                          w_pp_cutoff = w_pp_cutoff,
+                          plankton_dynamics = plankton_dynamics)
     params <- setInteraction(params,
                              interaction = interaction)
     params <- setFishing(params, initial_effort = initial_effort)
@@ -1048,14 +1061,6 @@ setParams <- function(params,
                               maturity = maturity,
                               repro_prop = repro_prop,
                               srr = srr)
-    params <- setPlankton(params,
-                          rr_pp = rr_pp,
-                          cc_pp = cc_pp,
-                          r_pp = r_pp,
-                          kappa = kappa,
-                          lambda = lambda,
-                          w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics)
     return(params)
 }
 
@@ -1412,7 +1417,11 @@ setSearchVolume <- function(params,
     # Calculate default for any missing gammas
     params@species_params$gamma <- get_gamma_default(params)
     
-    params@search_vol[] <- outer(params@species_params$gamma, params@w^q)
+    params@search_vol[] <- 
+        sweep(outer(params@species_params[["q"]], params@w,
+                    function(x, y) y ^ x),
+              1, params@species_params$gamma, "*")
+    
     return(params)
 }
 
@@ -1476,9 +1485,9 @@ setIntakeMax <- function(params,
     
     params@species_params$h <- get_h_default(params)
     
-    params@intake_max[] <- sweep(outer(params@species_params$n, 
+    params@intake_max[] <- sweep(outer(params@species_params[["n"]], 
                                        params@w, function(x, y) y^x),
-                                 1, params@species_params$h, "*") 
+                                 1, params@species_params[["h"]], "*") 
     
     return(params)
 }
@@ -1549,7 +1558,9 @@ setMetab <- function(params,
     params <- set_species_param_default(params, "k", 0)
     params@species_params$ks <- get_ks_default(params)
     params@metab[] <- 
-        outer(params@species_params$ks, params@w^p) +
+        sweep(outer(params@species_params$p, params@w,
+                    function(x, y) y ^ x),
+              1, params@species_params$ks, "*") +
         outer(params@species_params$k, params@w)
     return(params)
 }
@@ -1936,19 +1947,23 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
 setPlankton <- function(params,
                         rr_pp = NULL,
                         cc_pp = NULL,
-                        r_pp = 10,
-                        kappa = params@plankton_params$kappa,
-                        lambda = params@plankton_params$lambda,
-                        n = params@plankton_params$n,
-                        w_pp_cutoff = 10,
+                        r_pp = params@plankton_params[["r_pp"]],
+                        kappa = params@plankton_params[["kappa"]],
+                        lambda = params@plankton_params[["lambda"]],
+                        n = params@plankton_params[["n"]],
+                        w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
                         plankton_dynamics = NULL) {
     assert_that(is(params, "MizerParams"),
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
                 is.number(r_pp), r_pp > 0,
-                is.number(w_pp_cutoff))
-    params@plankton_params$kappa <- kappa
-    params@plankton_params$lambda <- lambda
+                is.number(w_pp_cutoff),
+                is.number(n))
+    params@plankton_params[["kappa"]] <- kappa
+    params@plankton_params[["lambda"]] <- lambda
+    params@plankton_params[["r_pp"]] <- r_pp
+    params@plankton_params[["n"]] <- n
+    params@plankton_params[["w_pp_cutoff"]] <- w_pp_cutoff
     # weight specific plankton growth rate
     if (!is.null(rr_pp)) {
         assert_that(is.numeric(rr_pp),
@@ -2335,16 +2350,16 @@ upgradeParams <- function(params) {
     }
     
     if (.hasSlot(params, "p")) {
-        params@species_params$p <- params@p
+        params@species_params[["p"]] <- params@p
     }
     if (.hasSlot(params, "q")) {
-        params@species_params$q <- params@q
+        params@species_params[["q"]] <- params@q
     }
     if (.hasSlot(params, "n")) {
-        params@species_params$n <- params@n
+        params@species_params[["n"]] <- params@n
     }
     if (.hasSlot(params, "f0")) {
-        params@species_params$f0 <- params@f0
+        params@species_params[["f0"]] <- params@f0
     }
     pnew <- newMultispeciesParams(
         params@species_params,
@@ -2390,6 +2405,12 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "plankton_params")) {
         pnew@plankton_params <- params@plankton_params
+    }
+    if (.hasSlot(params, "lambda")) {
+        pnew@plankton_params[["lambda"]] <- params@lambda
+        pnew@plankton_params[["kappa"]] <- params@kappa
+        pnew@plankton_params[["n"]] <- params@n
+        pnew@plankton_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
     }
     
     return(pnew)
@@ -2630,7 +2651,7 @@ get_h_default <- function(params) {
     }
     missing <- is.na(species_params$h)
     if (any(missing)) {
-        assert_that(is.number(species_params$f0),
+        assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     !is.null(species_params$alpha))
         message("Note: No h provided for some species, so using f0 and k_vb to calculate it.")
@@ -2640,7 +2661,7 @@ get_h_default <- function(params) {
         if (anyNA(species_params$k_vb[missing])) {
             stop("Can not calculate defaults for h because some k_vb values are NA.")
         }
-        if (species_params$n[missing] != species_params$p[missing]) {
+        if (any(species_params$n[missing] != species_params$p[missing])) {
             message("Note: Because you have n != p, the default value is not very good.")
         }
         species_params <- species_params %>% 
@@ -2655,7 +2676,7 @@ get_h_default <- function(params) {
         n <- species_params$n
         age_mat <- -log(1 - (w_mat/w_inf)^(1/b)) / k_vb + species_params$t0
         h <- (w_mat^(1 - n) - w_min^(1 - n)) / age_mat / (1 - n) / 
-            params@species_params$alpha / (species_params@f0 - species_params$fc)
+            params@species_params$alpha / (species_params$f0 - species_params$fc)
         
         if (any(is.na(h[missing])) || any(h[missing] <= 0)) {
             stop("Could not calculate h.")
@@ -2687,7 +2708,7 @@ get_gamma_default <- function(params) {
     if (any(missing)) {
         assert_that(is.number(params@plankton_params$lambda),
                     is.number(params@plankton_params$kappa),
-                    is.number(species_params@f0))
+                    is.numeric(species_params$f0))
         message("Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) || 
             any(is.na(species_params$h))) {
