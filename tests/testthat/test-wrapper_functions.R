@@ -42,7 +42,7 @@ test_that("Multiple gears work correctly in trait-based model", {
 # Scaling model is set up correctly ----
 test_that("Scaling model is set up correctly", {
     p <- newTraitParams(perfect_scaling = TRUE, sigma = 1,
-                        n = 2/3, q = 3/4)
+                        n = 2/3, lambda = 2 + 3/4 - 2/3)
     sim <- project(p, t_max = 5)
     
     # Check some dimensions

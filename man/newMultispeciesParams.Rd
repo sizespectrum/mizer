@@ -21,7 +21,7 @@ newMultispeciesParams(
   metab = NULL,
   mu_b = NULL,
   z0pre = 0.6,
-  z0exp = -1/4,
+  z0exp = n - 1,
   maturity = NULL,
   repro_prop = NULL,
   srr = "srrBevertonHolt",
