@@ -2390,6 +2390,9 @@ upgradeParams <- function(params) {
         pnew@initial_n_other <- params@initial_n_other
     }
     
+    if (.hasSlot(params, "sc")) {
+        pnew@sc <- params@sc
+    }
     if (.hasSlot(params, "other_dynamics")) {
         pnew@other_dynamics <- params@other_dynamics
         pnew@other_params <- params@other_params
