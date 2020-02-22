@@ -456,6 +456,7 @@ newTraitParams <- function(no_sp = 11,
             lambda = lambda,
             kappa = kappa,
             n = n,
+            p = p,
             min_w_pp = min_w_pp,
             r_pp = r_pp
         )
@@ -710,6 +711,7 @@ newSheldonParams <- function(w_inf = 100,
             lambda = lambda,
             kappa = kappa,
             n = n,
+            p = p,
             w_pp_cutoff = w_inf,
             plankton_dynamics = "plankton_constant"
         ))

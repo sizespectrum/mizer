@@ -234,7 +234,7 @@ test_that("rescaleSystem does not change dynamics.", {
 # steady ----
 test_that("steady works", {
     expect_message(params <- newTraitParams(no_sp = 4, no_w = 30, rfac = Inf,
-                                            n = 2/3, q = 3/4),
+                                            n = 2/3, lambda = 2 + 3/4 - 2/3),
                    "Increased no_w to 36")
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
