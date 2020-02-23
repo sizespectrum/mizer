@@ -163,8 +163,7 @@ of the trait-based model.</p>
   <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
   <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>n</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>3</span>/<span class='fl'>4</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>0.005</span>,
   <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
@@ -175,6 +174,7 @@ of the trait-based model.</p>
   <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>bmort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>starv_coef</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
@@ -250,15 +250,8 @@ value is max_w_inf unless <code>perfect_scaling = TRUE</code> when it is Inf.</p
 equal to the exponent <code>n</code>.</p></td>
     </tr>
     <tr>
-      <th>q</th>
-      <td><p>Exponent of the search volume. Default value is 3/4 unless 
-<code>lambda</code> is provided, in which case this argument is ignored and
-q = lambda - 2 + n.</p></td>
-    </tr>
-    <tr>
       <th>lambda</th>
-      <td><p>Exponent of the abundance power law. If supplied, this 
-overrules the <code>q</code> argument. Otherwise the default value is 2+q-n.</p></td>
+      <td><p>Exponent of the abundance power law.</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
@@ -306,6 +299,13 @@ by <code><a href='get_gamma_default.html'>get_gamma_default</a></code> using the
       <td><p>The proportion of the total mortality that comes from
 background mortality, i.e., from sources other than predation or fishing. A
 number in the interval [0, 1). Default 0.</p></td>
+    </tr>
+    <tr>
+      <th>starv_coef</th>
+      <td><p>Proportionality constant for starvation mortality. When 
+starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+is 1 when energy deficit is 10<!-- % of body weight. When starv_coef = 0 there  -->
+is no starvation mortality</p></td>
     </tr>
     <tr>
       <th>rfac</th>

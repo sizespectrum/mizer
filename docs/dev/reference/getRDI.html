@@ -136,8 +136,8 @@ See <code><a href='setReproduction.html'>setReproduction</a></code> for more det
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>e_repro</span> <span class='kw'>=</span> <span class='fu'><a href='getERepro.html'>getERepro</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>),
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
+  <span class='kw'>e_repro</span> <span class='kw'>=</span> <span class='fu'><a href='getERepro.html'>getERepro</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>),
   <span class='kw'>sex_ratio</span> <span class='kw'>=</span> <span class='fl'>0.5</span>
 )</pre>
 
@@ -146,19 +146,20 @@ See <code><a href='setReproduction.html'>setReproduction</a></code> for more det
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>A matrix of species abundances (species x size)</p></td>
+      <td><p>A matrix of species abundances (species x size).</p></td>
     </tr>
     <tr>
       <th>n_pp</th>
       <td><p>A vector of the plankton abundance by size</p></td>
     </tr>
     <tr>
-      <th>B</th>
-      <td><p>A vector of biomasses of unstructured resource components</p></td>
+      <th>n_other</th>
+      <td><p>A list of abundances for other dynamical components of the
+ecosystem</p></td>
     </tr>
     <tr>
       <th>e_repro</th>
@@ -192,7 +193,8 @@ is 0.5.</p></td>
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code></p></div>
+<code><a href='getRates.html'>getRates</a>()</code>,
+<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

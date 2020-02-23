@@ -141,14 +141,39 @@ information from log files left over from aborted previous runs.</p></td>
     <tr>
       <th>catch</th>
       <td><p>Data frame holding binned observed catch data. The data can
-be binned either into length bins or weight bins. In the former the data
+be binned either into length bins or weight bins. In the former case the data
 frame should have columns <code>length</code> and <code>dl</code> holding the start of
 the size bins in cm and the width of the size bins in cm respectively. In
 the latter case the data frame should have columns <code>weight</code> and
 <code>dw</code> holding the start of the size bins in grams and the width of the
 size bins in grams. The data frame also needs to have the columns
 <code>species</code> (the name of the species), <code>catch</code> (the number of
-individuals of a particular species caught in a size bin).</p></td>
+individuals of a particular species caught in a size bin).</p>
+<p>This gadget is meant for tuning a model to steady state. It is not meant for
+tuning the dynamics of the model. That should be done in a second step using
+functions like <code><a href='setRmax.html'>setRmax()</a></code> or <code>changePlankton()</code>.</p>
+<p>The function opens a shiny gadget, an interactive web page. This page has
+a side panel with controls for various model parameters and a main panel
+with tabs for various diagnostic plots.</p>
+<p>After you click the "Done" button in the side panel, the function will return
+the parameter object in the state at that time, with <code>Rmax</code> set to <code>Inf</code>
+and <code>erepro</code> set to the value it had after the last run to steady state.</p>
+<p>The gadget keeps a log of all steady states you create while working with
+the gadget. You can go back to the last steady state by hitting the "Undo"
+button. You can go back an arbitrary number of states and also go forward
+again. There is also a button to go right back to the initial steady state.
+When you leave the gadget by hitting the "Done" button, this log is cleared.
+If you stop the gadget from RStudio by hitting the "Stop" button, then the
+log is left behind. You can then restart the gadget by calling <code>tuneParams()</code>
+without a <code>params</code> argument and it will re-instate the states from the log.</p>
+<p>At any time the gadget allows the user to download the current params object
+as an .rds file via the "Download" button in the "File" section, or to
+upload a params object from an .rds file.</p>
+<p>There are currently several restrictions on what the gadget can do:</p>
+<p>The gadget currently assumes that each species is selected by only one gear.
+It allows the user to change the parameters for that gear. It also enforces
+the same effort for all gears. It sets all efforts to that for the first
+gear and then allows the user to change that single effort value.</p></td>
     </tr>
     </table>
 

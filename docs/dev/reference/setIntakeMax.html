@@ -126,7 +126,7 @@
     <p>Set maximum intake rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setIntakeMax</span>(<span class='no'>params</span>, <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span>)</pre>
+    <pre class="usage"><span class='fu'>setIntakeMax</span>(<span class='no'>params</span>, <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,10 +141,6 @@
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".</p></td>
     </tr>
-    <tr>
-      <th>n</th>
-      <td><p>Scaling exponent of the intake rate.</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -158,13 +154,13 @@ described in the section "Setting maximum intake rate".</p></td>
 weight \(w\) determines the feeding level, calculated with
 <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>. It is measured in grams/year.</p>
 <p>If the <code>intake_max</code> argument is not supplied, then the maximum intake
-rate is set to $$h_i(w) = h_i w^n.$$ 
-The values of \(h_i\) (the maximum intake rate of an individual of size
-1 gram) are taken from the <code>h</code> column in the
-species parameter dataframe. If the <code>h</code> column is not supplied in the
-species parameter dataframe, it is calculated by the 
-<code><a href='get_h_default.html'>get_h_default</a></code> function, using <code>f0</code> and the <code>k_vb</code>
-column, if they are supplied.</p>
+rate is set to $$h_i(w) = h_i w^n_i.$$ 
+The values of \(h_i\) (the maximum intake rate of an individual of size 1
+gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
+from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
+the <code>h</code> column is not supplied in the species parameter dataframe, it is
+calculated by the <code><a href='get_h_default.html'>get_h_default</a></code> function, using <code>f0</code> and
+the <code>k_vb</code> column, if they are supplied.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish will consume all encountered food.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -178,8 +174,6 @@ column, if they are supplied.</p>
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

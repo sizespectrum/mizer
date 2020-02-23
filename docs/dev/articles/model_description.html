@@ -100,9 +100,9 @@ And clicking again will hide the details again.
 <p>The model framework builds on two central assumption and a number of lesser standard assumption.</p>
 <p>The first central assumption is that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_egg =</span> <span class="fl">1e-3</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_egg =</span> <span class="fl">1e-3</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</span></code></pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big.</p>
 <p>The weight grid is set up to be logarithmically spaced, so that <code>w[j]=w[1]*exp(j*dx)</code> for some fixed <code>dx</code>. This grid is set up automatically when creating a MizerParams object.</p>
@@ -124,23 +124,23 @@ And clicking again will hide the details again.
 \end{equation}\]</span></p>
 </details>
 </div>
-<div id="resource-size-spectrum" class="section level2">
+<div id="plankton-size-spectrum" class="section level2">
 <h2 class="hasAnchor">
-<a href="#resource-size-spectrum" class="anchor"></a>Resource size spectrum</h2>
-<p>Besides the fish spectrum there is also a resource spectrum <span class="math inline">\(N_R(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum.</p>
-<p>By default the time evolution of the resource spectrum is described by a semi-chemostat equation: <span class="math display">\[\begin{equation}
+<a href="#plankton-size-spectrum" class="anchor"></a>Plankton size spectrum</h2>
+<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(N_R(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum.</p>
+<p>By default the time evolution of the plankton spectrum is described by a semi-chemostat equation: <span class="math display">\[\begin{equation}
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} 
   = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
 \end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
-<details><p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The resource spectrum is then stored in a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
+<details><p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The plankton spectrum is then stored in a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 <p>The plankton regeneration rate is stored as a vector <code>params@rr_pp[c]</code><span class="math inline">\(=r_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>, and the carrying capacity is stored as a vector <code>params@cc_pp[c]</code><span class="math inline">\(=c_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
 </div>
 <div id="sec:pref" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:pref" class="anchor"></a>Predator-prey encounter rate</h2>
-<p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the resource spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
+<p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the plankton spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
    \theta_{ip} N_R(w_p) + \right) 
@@ -257,7 +257,7 @@ And clicking again will hide the details again.
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#consumer-size-spectra">Consumer size spectra</a></li>
-      <li><a href="#resource-size-spectrum">Resource size spectrum</a></li>
+      <li><a href="#plankton-size-spectrum">Plankton size spectrum</a></li>
       <li><a href="#sec:pref">Predator-prey encounter rate</a></li>
       <li><a href="#consumption">Consumption</a></li>
       <li><a href="#metabolic-losses">Metabolic losses</a></li>

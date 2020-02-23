@@ -132,7 +132,8 @@ list.</p>
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
+  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_effort</span>,
   <span class='kw'>sex_ratio</span> <span class='kw'>=</span> <span class='fl'>0.5</span>
 )</pre>
@@ -153,8 +154,13 @@ list.</p>
       <td><p>A vector of the plankton abundance by size</p></td>
     </tr>
     <tr>
-      <th>B</th>
-      <td><p>A vector of biomasses of unstructured resource components</p></td>
+      <th>n_other</th>
+      <td><p>A list of abundances for other dynamical components of the
+ecosystem</p></td>
+    </tr>
+    <tr>
+      <th>t</th>
+      <td><p>The current time</p></td>
     </tr>
     <tr>
       <th>effort</th>
@@ -198,7 +204,8 @@ is 0.5.</p></td>
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

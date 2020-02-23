@@ -158,10 +158,8 @@ the abundances are given.</p></td>
     <p>If you rescale the system by a factor \(c\) then this function makes the
 following rescalings in the params object:</p><ul>
 <li><p>The initial abundances <code>initial_n</code>, <code>initial_n_pp</code> and
-  <code>initial_B</code> are rescaled by \(c\).</p></li>
+  <code>initial_n_other</code> are rescaled by \(c\).</p></li>
 <li><p>The search volume is rescaled by \(1/c\).</p></li>
-<li><p>The resource encounter rates are rescaled by \(1/c\).</p></li>
-<li><p>The external influx rates for resources are rescaled by \(c\).</p></li>
 <li><p>The plankton carrying capacity is rescaled by \(c\)</p></li>
 <li><p>The maximum recruitment rate \(R_{max}\), if used, is rescaled by 
   \(c\).</p></li>
@@ -170,7 +168,7 @@ to those of the unscaled system, in the sense that it does not matter whether
 one first calls <code>rescaleSystem</code> and then runs a simulation with
 <code>project</code> or whether one first runs a simulation and then rescales the
 resulting abundances.</p>
-<p>Note that if you use non-standard resource or plankton dynamics then you
+<p>Note that if you use non-standard plankton dynamics or other components then you
 may need to rescale additional parameters that appear in those dynamics.</p>
 
   </div>

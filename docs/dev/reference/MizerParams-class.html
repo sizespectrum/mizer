@@ -172,10 +172,6 @@ each species at size. Changed with <code><a href='setIntakeMax.html'>setIntakeMa
 <dt><code>search_vol</code></dt><dd><p>An array (species x size) that holds the search volume for
 each species at size. Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
 
-<dt><code>rho</code></dt><dd><p>A 3-dim array (species x resource x size) holding the encounter
-rates for unstructured resources. Changed with 
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a></code>.</p></dd>
-
 <dt><code>metab</code></dt><dd><p>An array (species x size) that holds the metabolism
 for each species at size. Changed with <code><a href='setMetab.html'>setMetab</a></code>.</p></dd>
 
@@ -211,14 +207,25 @@ density by one timestep. The default is
 <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>. 
 Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
 
-<dt><code>resource_dynamics</code></dt><dd><p>A named list of functions for projecting the
-biomasses in the unstructured resource components by one timestep. The
-names of the list entries are the resource names. Changed with 
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>.</p></dd>
+<dt><code>other_dynamics</code></dt><dd><p>A named list of functions for projecting the
+values of other dynamical components of the ecosystem that may be modelled
+by a mizer extensions you have installed. The names of the list entries
+are the names of those components.</p></dd>
 
-<dt><code>resource_params</code></dt><dd><p>A list containing the parameters needed by the
-<code>resource_dynamics</code> functions.  Changed with 
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a></code>.</p></dd>
+<dt><code>other_encounter</code></dt><dd><p>A named list of functions for calculating the 
+contribution to the encounter rate from each other dynamical component.</p></dd>
+
+<dt><code>other_pred_mort</code></dt><dd><p>A named list of functions for calculating the 
+contribution to the predation mortality rate from each other dynamical 
+component.</p></dd>
+
+<dt><code>other_params</code></dt><dd><p>A list containing the parameters needed by any mizer
+extensions you may have installed to model other dynamical components of
+the ecosystem.</p></dd>
+
+<dt><code>rates_func</code></dt><dd><p>A string with the name of the function that should be used to
+calculate the rates needed by `project()`. By default this will be set to
+"getRates" so that the built-in `getRates()` function is used.</p></dd>
 
 <dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
 
@@ -243,35 +250,23 @@ each species by each gear, \(Q_{g,i}\). Changed with
 <dt><code>initial_effort</code></dt><dd><p>A vector containing the initial fishing effort for each
 gear. Changed with <code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
 
-<dt><code>initial_n</code></dt><dd><p>An array (species x size) that holds abundance of each species
-at each weight at our candidate steady state solution.</p></dd>
+<dt><code>initial_n</code></dt><dd><p>An array (species x size) that holds the initial abundance of
+each species at each weight.</p></dd>
 
 <dt><code>initial_n_pp</code></dt><dd><p>A vector the same length as the w_full slot that describes
-the plankton abundance at each weight.</p></dd>
+the initial plankton abundance at each weight.</p></dd>
 
-<dt><code>initial_B</code></dt><dd><p>A vector containing the biomasses of the unstructured
-resource components.
-Has length zero if there are no unstructured resources.</p></dd>
+<dt><code>initial_n_other</code></dt><dd><p>A list with the initial abundances of all other
+ecosystem components. Has length zero if there are no other components.</p></dd>
 
-<dt><code>n</code></dt><dd><p>Exponent of maximum intake rate. Changed with <code><a href='setIntakeMax.html'>setIntakeMax</a></code>.</p></dd>
-
-<dt><code>p</code></dt><dd><p>Exponent of metabolic cost. Changed with <code><a href='setMetab.html'>setMetab</a></code>.</p></dd>
-
-<dt><code>lambda</code></dt><dd><p>Exponent of plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
-
-<dt><code>kappa</code></dt><dd><p>Magnitude of plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
-
-<dt><code>q</code></dt><dd><p>Exponent for volumetric search rate. 
-Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
-
-<dt><code>f0</code></dt><dd><p>Initial feeding level.</p></dd>
+<dt><code>plankton_params</code></dt><dd><p>Parameters for plankton. See <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
 
 <dt><code>A</code></dt><dd><p>Abundance multipliers.</p></dd>
 
-<dt><code>linecolour</code></dt><dd><p>A named vector of colour values, named by species or 
-resources. Used to give consistent colours in plots.</p></dd>
+<dt><code>linecolour</code></dt><dd><p>A named vector of colour values, named by species.
+Used to give consistent colours in plots.</p></dd>
 
-<dt><code>linetype</code></dt><dd><p>A named vector of linetypes, named by species or resources. 
+<dt><code>linetype</code></dt><dd><p>A named vector of linetypes, named by species. 
 Used to give consistent line types in plots.</p></dd>
 
 </dl>

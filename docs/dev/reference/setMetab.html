@@ -126,7 +126,7 @@
     <p>Sets the rate at which energy is used for metabolism and activity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setMetab</span>(<span class='no'>params</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>p</span>)</pre>
+    <pre class="usage"><span class='fu'>setMetab</span>(<span class='no'>params</span>, <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,17 +157,18 @@ the section "Setting metabolic rate".</p></td>
 <p>The metabolic rate is subtracted from the energy income rate to calculate
 the rate at which energy is available for growth and reproduction, see
 <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>. It is measured in grams/year.</p>
-<p>If the <code>metab</code> argument is not supplied, then the metabolic
-rate \(k_i(w)\) for an individual of species \(i\) and size \(w\)
-is set to $$k_i(w) = ks_i\, w^p + k_i\, w,$$
-where \(ks_i w^p\) represents the rate of standard metabolism and 
-\(k_i w\) is the rate at which energy is expended on activity and movement.
-The values of \(ks_i\) and \(k_i\) are taken from the <code>ks</code> and
-<code>k</code> columns in the
-species parameter dataframe. If these parameters are not supplied, the
-defaults are \(ks_i = 0.2 h_i\) and \(k_i = 0\), where \(h_i\) is the
-coefficient of the maximum intake rate and is taken from the species
-parameter data frame in <code>params</code>.</p>
+<p>If the <code>metab</code> argument is not supplied, then for each species the
+metabolic rate \(k(w)\) for an individual of size \(w\) is set to
+$$k(w) = ks w^p + k w,$$
+where \(ks w^p\) represents the rate of standard metabolism and \(k w\)
+is the rate at which energy is expended on activity and movement. The values
+of \(ks\), \(p\) and \(k\) are taken from the <code>ks</code>, <code>p</code> and
+<code>k</code> columns in the species parameter dataframe. If any of these
+parameters are not supplied, the defaults are \(k = 0\), \(p = n\) and
+$$ks = f_c h \alpha w_{mat}^{n-p},$$
+where \(f_c\) is the critical feeding level taken from the <code>fc</code> column
+in the species parameter data frame. If the critical feeding level is not
+specified, a default of \(f_c = 0.2\) is used.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
@@ -180,8 +181,6 @@ parameter data frame in <code>params</code>.</p>
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

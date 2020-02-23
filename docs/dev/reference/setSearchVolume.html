@@ -126,7 +126,7 @@
     <p>Set search volume</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>q</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>q</span>)</pre>
+    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,11 +140,6 @@
       <td><p>Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></td>
-    </tr>
-    <tr>
-      <th>q</th>
-      <td><p>Exponent of the allometric search volume. Not needed if a
-<code>search_vol</code> array is specified.</p></td>
     </tr>
     </table>
 
@@ -166,9 +161,12 @@ If you have chose to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.</p>
-<p>If the <code>search_vol</code> argument is not supplied, then the search volume is set to
-$$\gamma_i(w) = \gamma_i w^q.$$ The values of \(\gamma_i\) are taken from
-the <code>gamma</code> column in the species parameter dataframe. If the <code>gamma</code>
+<p>If the <code>search_vol</code> argument is not supplied, then the search volume is 
+set to
+$$\gamma_i(w) = \gamma_i w^q_i.$$ 
+The values of \(\gamma_i\) (the search volume at 1g) and \(q_i\) (the
+allometric exponent of the search volume) are taken from the <code>gamma</code> and
+<code>q</code> columns in the species parameter dataframe. If the <code>gamma</code>
 column is not supplied in the species parameter dataframe, a default is
 calculated by the <code><a href='get_gamma_default.html'>get_gamma_default</a></code> function. Note that only
 for predators of size \(w = 1\) gram is the value of the species parameter
@@ -185,9 +183,7 @@ for predators of size \(w = 1\) gram is the value of the species parameter
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
-<code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code></p></div>
+<code><a href='setReproduction.html'>setReproduction</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

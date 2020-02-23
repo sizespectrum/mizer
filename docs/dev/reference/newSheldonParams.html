@@ -148,8 +148,7 @@ many arguments, all of which have default values.</p>
   <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>w_inf</span>/<span class='no'>w_min</span>) * <span class='fl'>50</span> + <span class='fl'>1</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>3</span>/<span class='fl'>4</span>,
   <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>n</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>0.005</span>,
   <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
   <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>4</span>,
@@ -159,6 +158,7 @@ many arguments, all of which have default values.</p>
   <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>bmort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>starv_coef</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='no'>...</span>
 )</pre>
@@ -182,7 +182,7 @@ many arguments, all of which have default values.</p>
     </tr>
     <tr>
       <th>w_mat</th>
-      <td><p>Maturity size of speces. Default value is 
+      <td><p>Maturity size of species. Default value is 
 <code>eta * w_inf</code>.</p></td>
     </tr>
     <tr>
@@ -201,15 +201,8 @@ is such that there are 50 bins for each factor of 10 in weight.</p></td>
 equal to the exponent <code>n</code>.</p></td>
     </tr>
     <tr>
-      <th>q</th>
-      <td><p>Exponent of the search volume. Default value is 3/4 unless 
-<code>lambda</code> is provided, in which case this argument is ignored and
-q = lambda - 2 + n.</p></td>
-    </tr>
-    <tr>
       <th>lambda</th>
-      <td><p>Exponent of the abundance power law. If supplied, this 
-overrules the <code>q</code> argument. Otherwise the default value is 2+q-n.</p></td>
+      <td><p>Exponent of the abundance power law.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
@@ -249,6 +242,13 @@ by <code><a href='get_gamma_default.html'>get_gamma_default</a></code> using the
       <td><p>The proportion of the total mortality that comes from
 background mortality, i.e., from sources other than predation or fishing. A
 number in the interval [0, 1). Default 0.</p></td>
+    </tr>
+    <tr>
+      <th>starv_coef</th>
+      <td><p>Proportionality constant for starvation mortality. When 
+starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+is 1 when energy deficit is 10<!-- % of body weight. When starv_coef = 0 there  -->
+is no starvation mortality</p></td>
     </tr>
     <tr>
       <th>rfac</th>

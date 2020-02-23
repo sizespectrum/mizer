@@ -119,9 +119,9 @@
       <small><a href='https://github.com/sizespectrum/mizer/edit/master/NEWS.md'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-1-0-1-9000" class="section level1">
+    <div id="mizer-1019000" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-1-0-1-9000" class="anchor"></a>mizer 1.0.1.9000<small> Unreleased </small>
+<a href="#mizer-1019000" class="anchor"></a>mizer 1.0.1.9000<small> Unreleased </small>
 </h1>
 <div id="model-building" class="section level2">
 <h2 class="hasAnchor">
@@ -135,23 +135,6 @@
 <li>New functions <code><a href="../reference/pruneSpecies.html">pruneSpecies()</a></code>, <code><a href="../reference/renameSpecies.html">renameSpecies()</a></code>, <code><a href="../reference/rescaleAbundance.html">rescaleAbundance()</a></code>, <code><a href="../reference/retuneReproductionEfficiency.html">retuneReproductionEfficiency()</a></code>.</li>
 <li>In <code><a href="../reference/retuneBackground.html">retuneBackground()</a></code>, Singular Value Decomposition is used to retune background species to keep the community close to power law. Background species with very low abundances are automatically removed.</li>
 <li>Setting of nonlinear stock-recruitment has been separated out into new function <code><a href="../reference/setRmax.html">setRmax()</a></code>.</li>
-</ul>
-</div>
-<div id="ecosystems" class="section level2">
-<h2 class="hasAnchor">
-<a href="#ecosystems" class="anchor"></a>Ecosystems</h2>
-<p>Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. <a href="doi:10.1111/faf.12171" class="uri">doi:10.1111/faf.12171</a>:</p>
-<ul>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Benguela_params)</a></code> with five species: Anchovy, Sardine, Kingklip, Shallow water hake, and Deep water hake.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Baltic_params)</a></code> with three species: sprat, herring, and cod.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Barents_params)</a></code> with six species.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(NEUSCS_params)</a></code> with 24 species.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(NorthSea_params)</a></code> with 10 species.</li>
 </ul>
 </div>
 <div id="setting-model-parameters" class="section level2">
@@ -168,19 +151,14 @@
 <li><code><a href="../reference/setReproduction.html">setReproduction()</a></code></li>
 <li><code><a href="../reference/setFishing.html">setFishing()</a></code></li>
 <li><code><a href="../reference/setPlankton.html">setPlankton()</a></code></li>
-<li><code><a href="../reference/setResourceDynamics.html">setResourceDynamics()</a></code></li>
-<li><code><a href="../reference/setResourceEncounter.html">setResourceEncounter()</a></code></li>
 </ul>
 <p>The new function <code><a href="../reference/setParams.html">setParams()</a></code> is a wrapper for all of the above functions and is also used when setting up a new model with <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>. (<a href='https://github.com/sizespectrum/mizer/issues/51'>#51</a>)</p>
 </div>
-<div id="modelling-unstructured-resources" class="section level2">
+<div id="extension-mechanisms" class="section level2">
 <h2 class="hasAnchor">
-<a href="#modelling-unstructured-resources" class="anchor"></a>Modelling unstructured resources</h2>
-<p>Besides the size-structured planktonic resource, mizer can now also model any number of unstructured resource components. Such unstructured components are appropriate whenever the predation on these components is not size based. Possible applications include the modelling of detritus as a resource for detritivores, carrion as a resource for scavengers, or macroflora on which fish can graze. (<a href='https://github.com/sizespectrum/mizer/issues/46'>#46</a>)</p>
+<a href="#extension-mechanisms" class="anchor"></a>Extension mechanisms</h2>
 <ul>
-<li>Each unstructured resource component can have its own dynamics, with its own parameters. These are set up with <code><a href="../reference/setResourceDynamics.html">setResourceDynamics()</a></code>.</li>
-<li>Each species can be set to consume resources. The rates are set up with <code><a href="../reference/setResourceEncounter.html">setResourceEncounter()</a></code>.</li>
-<li>Example dynamics are provided in <code><a href="../reference/carrion_dynamics.html">carrion_dynamics()</a></code> and <code><a href="../reference/detritus_dynamics.html">detritus_dynamics()</a></code>.</li>
+<li>Mizer now has an extension mechanism that allows other R packages to be written to generalise the mizer model. More documentation to follow.</li>
 </ul>
 </div>
 <div id="plotting" class="section level2">
@@ -217,6 +195,7 @@
 <h2 class="hasAnchor">
 <a href="#other-new-features" class="anchor"></a>Other new features</h2>
 <ul>
+<li>The critical feeding level <code>fc</code> can now be specified as a species parameter and will be used to calculate the metabolic rate parameter <code>ks</code> if it is not supplied.</li>
 <li>New wrapper function <code><a href="../reference/newSheldonParams.html">newSheldonParams()</a></code> that sets up a single species in a power-law background.</li>
 <li>New <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> can upgrade MizerParams objects from previous versions of mizer so they work with the new version.</li>
 <li>
@@ -277,6 +256,23 @@
 </li>
 </ul>
 </div>
+<div id="ecosystems" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ecosystems" class="anchor"></a>Ecosystems</h2>
+<p>Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. <a href="doi:10.1111/faf.12171" class="uri">doi:10.1111/faf.12171</a>:</p>
+<ul>
+<li>
+<code><a href="https://rdrr.io/r/utils/data.html">data(Benguela_params)</a></code> with five species: Anchovy, Sardine, Kingklip, Shallow water hake, and Deep water hake.</li>
+<li>
+<code><a href="https://rdrr.io/r/utils/data.html">data(Baltic_params)</a></code> with three species: sprat, herring, and cod.</li>
+<li>
+<code><a href="https://rdrr.io/r/utils/data.html">data(Barents_params)</a></code> with six species.</li>
+<li>
+<code><a href="https://rdrr.io/r/utils/data.html">data(NEUSCS_params)</a></code> with 24 species.</li>
+<li>
+<code><a href="https://rdrr.io/r/utils/data.html">data(NorthSea_params)</a></code> with 10 species.</li>
+</ul>
+</div>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
@@ -311,7 +307,7 @@
 <li>Using `@family’ to group function documentation pages.</li>
 <li>The helper functions are now documented and exported.</li>
 <li>
-<code>getPhiPrey()</code> is replaced by <code><a href="../reference/getEncounter.html">getEncounter()</a></code> which now returns the full encounter rate, including the contribution from unstructured resources. Even in the absence of unstructured resources, <code><a href="../reference/getEncounter.html">getEncounter()</a></code> differs from the old <code>getPhiPrey()</code> because it includes the search volume factor.</li>
+<code>getPhiPrey()</code> is replaced by <code><a href="../reference/getEncounter.html">getEncounter()</a></code> which now returns the full encounter rate, including the contribution from other components. Even in the absence of other components, <code><a href="../reference/getEncounter.html">getEncounter()</a></code> differs from the old <code>getPhiPrey()</code> because it includes the search volume factor.</li>
 <li>Changed naming convention: user-facing function names are now in camelCase.</li>
 <li>Consistently use <code>params</code> to refer to an argument of class MizerParams, <code>sim</code> to refer to an argument of class MizerSim, and <code>object</code> to an argument that can be either.</li>
 <li>Updated the calls to <code>setClass()</code> to follow the new guidelines, replacing <code>representation</code> by <code>class</code> and removing <code>prototype</code> and <code>validity</code>.</li>
@@ -328,17 +324,9 @@
 <li>Merged <code>std_metab</code> and <code>activity</code> slots into a single <code>metab</code> slot.</li>
 <li>Moved <code>w_min_idx</code> out of <code>species_params</code> into its own slot.</li>
 <li>Added slot <code>maturity</code> to hold the maturity ogive.</li>
-<li>Added slot <code>rho</code> to hold the resource encounter rates.</li>
 <li>Added slot <code>pred_kernel</code> to hold predation kernel if it has variable predator/prey ratio.</li>
 <li>Added slot <code>plankton_dynamics</code> to allow user to specify alternative plankton dynamics.</li>
 <li>Changed slot <code>srr</code> to hold the name of the stock recruitment function rather than the function itself, see <a href='https://github.com/sizespectrum/mizer/issues/91'>#91</a>.</li>
-<li>Added slots <code>resource_dynamics</code> and <code>resource_params</code>.</li>
-<li>Added slot <code>initial_B</code> for the initial biomasses of the resources.</li>
-</ul>
-</li>
-<li>Changes to MizerSim class:
-<ul>
-<li>Added slot <code>B</code> to hold resource biomasses over time</li>
 </ul>
 </li>
 </ul>
@@ -353,9 +341,9 @@
 </ul>
 </div>
 </div>
-    <div id="mizer-1-0-1" class="section level1">
+    <div id="mizer-101" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-1-0-1" class="anchor"></a>mizer 1.0.1<small> 2019-01-27 </small>
+<a href="#mizer-101" class="anchor"></a>mizer 1.0.1<small> 2019-01-27 </small>
 </h1>
 <ul>
 <li>Now compatible with older versions of R &gt; 3.1.0.</li>
@@ -363,9 +351,9 @@
 <li>Fixing minor typos in documentation.</li>
 </ul>
 </div>
-    <div id="mizer-1-0" class="section level1">
+    <div id="mizer-10" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-1-0" class="anchor"></a>mizer 1.0<small> 2018-05-01 </small>
+<a href="#mizer-10" class="anchor"></a>mizer 1.0<small> 2018-05-01 </small>
 </h1>
 <ul>
 <li>Fixed bugs in how the start time of a simulation was handled. This leads to small corrections, so that the output of this version is slightly different from previous versions.</li>
@@ -391,9 +379,9 @@
 <li>Add a test of the numeric solution against an analytic solution.</li>
 </ul>
 </div>
-    <div id="mizer-0-4" class="section level1">
+    <div id="mizer-04" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-0-4" class="anchor"></a>mizer 0.4<small> 2017-12-14 </small>
+<a href="#mizer-04" class="anchor"></a>mizer 0.4<small> 2017-12-14 </small>
 </h1>
 <ul>
 <li>Improvements made to the speed by evaluating convolution sums via fft, removing the bottlenecks in <code>getPhiPrey()</code> and <code><a href="../reference/getPredRate.html">getPredRate()</a></code>.</li>
@@ -401,9 +389,9 @@
 <li>Minor corrections to vignette and documentation to bring them into alignment and to document the new home on GitHub and new maintainers.</li>
 </ul>
 </div>
-    <div id="mizer-0-3" class="section level1">
+    <div id="mizer-03" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-0-3" class="anchor"></a>mizer 0.3<small> Unreleased </small>
+<a href="#mizer-03" class="anchor"></a>mizer 0.3<small> Unreleased </small>
 </h1>
 <ul>
 <li>Improvements made to the speed of the simulations. Remaining bottle necks are the sweep statements in <code>getPhiPrey()</code> and <code><a href="../reference/getPredRate.html">getPredRate()</a></code>.</li>
@@ -411,17 +399,17 @@
 <li>Minor changes to documentation to pass new check requirements.</li>
 </ul>
 </div>
-    <div id="mizer-0-2" class="section level1">
+    <div id="mizer-02" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-0-2" class="anchor"></a>mizer 0.2<small> 2014-04-16 </small>
+<a href="#mizer-02" class="anchor"></a>mizer 0.2<small> 2014-04-16 </small>
 </h1>
 <ul>
 <li>Release to coincide with the submission of the MEE paper. No major changes. Just minor bug fixes.</li>
 </ul>
 </div>
-    <div id="mizer-0-1" class="section level1">
+    <div id="mizer-01" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-0-1" class="anchor"></a>mizer 0.1<small> 2013-10-08 </small>
+<a href="#mizer-01" class="anchor"></a>mizer 0.1<small> 2013-10-08 </small>
 </h1>
 <ul>
 <li>Beta release - just about works but still some gremlins to sort out. There are a number of features I’d like to add in the coming releases.</li>
@@ -433,13 +421,13 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#mizer-1-0-1-9000">1.0.1.9000</a></li>
-        <li><a href="#mizer-1-0-1">1.0.1</a></li>
-        <li><a href="#mizer-1-0">1.0</a></li>
-        <li><a href="#mizer-0-4">0.4</a></li>
-        <li><a href="#mizer-0-3">0.3</a></li>
-        <li><a href="#mizer-0-2">0.2</a></li>
-        <li><a href="#mizer-0-1">0.1</a></li>
+        <li><a href="#mizer-1019000">1.0.1.9000</a></li>
+        <li><a href="#mizer-101">1.0.1</a></li>
+        <li><a href="#mizer-10">1.0</a></li>
+        <li><a href="#mizer-04">0.4</a></li>
+        <li><a href="#mizer-03">0.3</a></li>
+        <li><a href="#mizer-02">0.2</a></li>
+        <li><a href="#mizer-01">0.1</a></li>
       </ul>
     </div>
   </div>

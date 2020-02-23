@@ -8,7 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "docs/dev/reference/figures/"
+  fig.path = "reference/figures/"
 )
 ```
 
@@ -49,7 +49,7 @@ https://groups.google.com/forum/#!forum/size-spectrum-models
 ## Installation
 
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and therefore
-available from R's build-it package manager.
+available from R's build-in package manager.
 ```{r, eval = FALSE}
 # Install release version from CRAN
 install.packages("mizer")

@@ -126,49 +126,17 @@
     <p>An alias provided for backward compatibility with mizer version &lt;= 1.0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getM2</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>B</span>, <span class='no'>pred_rate</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>getM2</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>pred_rate</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>object</th>
-      <td><p>A <code>MizerParams</code> or <code>MizerSim</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundance (species x size). Only used if
-<code>object</code> argument is of type <code>MizerParams</code>.</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size. Only used if
-<code>object</code> argument is of type <code>MizerParams</code>.</p></td>
-    </tr>
-    <tr>
-      <th>B</th>
-      <td><p>A vector of biomasses of unstructured resource components. Only used
-if <code>object</code> argument is of type <code>MizerParams</code>.</p></td>
-    </tr>
     <tr>
       <th>pred_rate</th>
       <td><p>An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> function.</p></td>
-    </tr>
-    <tr>
-      <th>time_range</th>
-      <td><p>Subset the returned fishing mortalities by time. The time
-range is either a vector of values, a vector of min and max time, or a
-single value. Default is the whole time range. Only used if the
-<code>object</code> argument is of type <code>MizerSim</code>.</p></td>
-    </tr>
-    <tr>
-      <th>drop</th>
-      <td><p>Only used when object is of type <code>MizerSim</code>. Should
-dimensions of length 1 in the output be dropped, simplifying the output.
-Defaults to TRUE</p></td>
     </tr>
     </table>
 
@@ -195,7 +163,8 @@ Defaults to TRUE</p></td>
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code></p></div>
+<code><a href='getRates.html'>getRates</a>()</code>,
+<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

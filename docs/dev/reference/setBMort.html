@@ -126,7 +126,7 @@
     <p>Set background mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span> - <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>setBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,7 +171,8 @@ is assumed to depend only on the asymptotic size of the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
 constant \(z_0\) for each species is taken from the <code>z0</code> column of the
 species_params data frame, if that column exists. Otherwise it is calculated
-as $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
+as 
+$$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
@@ -184,8 +185,6 @@ as $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

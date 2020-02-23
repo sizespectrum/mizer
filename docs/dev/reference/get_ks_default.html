@@ -37,7 +37,9 @@
 
 <meta property="og:title" content="Get default value for ks — get_ks_default" />
 <meta property="og:description" content="Fills in any missing values for ks so that the critical feeding level needed
-to sustain the species is \(f_c = 0.2\)." />
+to sustain the species is as specified in the `fc` column in the species
+parameter data frame. If that column is not provided the default critical
+feeding level \(f_c = 0.2\) is used." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,7 +127,9 @@ to sustain the species is \(f_c = 0.2\)." />
 
     <div class="ref-description">
     <p>Fills in any missing values for ks so that the critical feeding level needed
-to sustain the species is \(f_c = 0.2\).</p>
+to sustain the species is as specified in the `fc` column in the species
+parameter data frame. If that column is not provided the default critical
+feeding level \(f_c = 0.2\) is used.</p>
     </div>
 
     <pre class="usage"><span class='fu'>get_ks_default</span>(<span class='no'>params</span>)</pre>

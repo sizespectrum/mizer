@@ -49,12 +49,6 @@
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/carrion_dynamics.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/detritus_dynamics.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/displayFrames.html</loc>
   </url>
   <url>
@@ -149,6 +143,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getSSBFrame.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getStarvMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getYield.html</loc>
@@ -344,12 +341,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setReproduction.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/setResourceDynamics.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/setResourceEncounter.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setRmax.html</loc>

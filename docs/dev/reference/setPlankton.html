@@ -134,11 +134,11 @@ dynamics</p>
   <span class='no'>params</span>,
   <span class='kw'>rr_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cc_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>n</span>,
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>kappa</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>lambda</span>,
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"kappa"</span>]],
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"lambda"</span>]],
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"n"</span>]],
+  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
   <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
@@ -162,16 +162,16 @@ dynamics</p>
       <td><p>Coefficient of the intrinsic growth rate</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>Scaling exponent of the intrinsic growth rate</p></td>
-    </tr>
-    <tr>
       <th>kappa</th>
       <td><p>Coefficient of the intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
       <td><p>Scaling exponent of the intrinsic carrying capacity</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>Scaling exponent of the intrinsic growth rate</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
@@ -224,8 +224,6 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
   </div>

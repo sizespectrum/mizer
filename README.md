@@ -45,7 +45,7 @@ You can also join our Google Discussion group here:
 ## Installation
 
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and
-therefore available from R’s build-it package manager.
+therefore available from R’s build-in package manager.
 
 ``` r
 # Install release version from CRAN
@@ -77,9 +77,7 @@ plots:
 plot(sim)
 ```
 
-![](docs/dev/reference/figures/unnamed-chunk-4-1.png)<!-- -->
+![](reference/figures/unnamed-chunk-4-1.png)<!-- -->
 
-See the accompanying [Get
-started](https://sizespectrum.org/mizer/dev/articles/mizer.html)
-page for more details on how the package works, including detailed
-examples.
+See the accompanying [Get started](articles/mizer.html) page for more
+details on how the package works, including detailed examples.

@@ -134,10 +134,10 @@ for.</p>
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>,
-  <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='fu'><a href='getEncounter.html'>getEncounter</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>),
-  <span class='kw'>feeding_level</span> <span class='kw'>=</span> <span class='fu'><a href='getFeedingLevel.html'>getFeedingLevel</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>B</span> <span class='kw'>=</span> <span class='no'>B</span>, <span class='kw'>encounter</span> <span class='kw'>=</span>
-    <span class='no'>encounter</span>)
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
+  <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='fu'><a href='getEncounter.html'>getEncounter</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>),
+  <span class='kw'>feeding_level</span> <span class='kw'>=</span> <span class='fu'><a href='getFeedingLevel.html'>getFeedingLevel</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>,
+    <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='no'>encounter</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -145,19 +145,20 @@ for.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>A matrix of species abundances (species x size)</p></td>
+      <td><p>A matrix of species abundances (species x size).</p></td>
     </tr>
     <tr>
       <th>n_pp</th>
       <td><p>A vector of the plankton abundance by size</p></td>
     </tr>
     <tr>
-      <th>B</th>
-      <td><p>A vector of biomasses of unstructured resource components</p></td>
+      <th>n_other</th>
+      <td><p>A list of abundances for other dynamical components of the
+ecosystem</p></td>
     </tr>
     <tr>
       <th>encounter</th>
@@ -187,6 +188,8 @@ where \(h_i\) is the maximum intake rate, set with
 The assimilation rate \(\alpha_i\) is taken from the species parameter
 data frame in <code>params</code>. The metabolic rate <code>metab</code> is taken from 
 <code>params</code> and set with <code><a href='setMetab.html'>setMetab</a></code>.</p>
+<p>The return value can be negative, which means that the energy intake does not
+cover the cost of metabolism and movement.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>The parts of this energy rate that is invested into growth is
@@ -205,7 +208,8 @@ data frame in <code>params</code>. The metabolic rate <code>metab</code> is take
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
 <code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code></p></div>
+<code><a href='getRates.html'>getRates</a>()</code>,
+<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

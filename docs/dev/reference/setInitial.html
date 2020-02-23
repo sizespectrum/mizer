@@ -37,7 +37,7 @@
 
 <meta property="og:title" content="Set initial abundances — setInitial" />
 <meta property="og:description" content="Sets the slots in the MizerParams object holding the initial
-abundances, initial_n, initial_n_pp and initial_B." />
+abundances, initial_n, initial_n_pp and initial_n_other." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,7 +125,7 @@ abundances, initial_n, initial_n_pp and initial_B." />
 
     <div class="ref-description">
     <p>Sets the slots in the <code>MizerParams</code> object holding the initial
-abundances, <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_B</code>.</p>
+abundances, <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_n_other</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setInitial</span>(
@@ -133,7 +133,7 @@ abundances, <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_
   <span class='no'>sim</span>,
   <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>initial_n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>initial_B</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_B</span>
+  <span class='kw'>initial_n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -146,7 +146,7 @@ abundances, <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_
     <tr>
       <th>sim</th>
       <td><p>A <code>MizerSim</code> object. If supplied, the `initial_n`, 
-`initial_n_pp` and `initial_B` arguments are ignored and the information
+`initial_n_pp` and `initial_n_pp` arguments are ignored and the information
 is taken from the last timestep of the simulation in `sim`.</p></td>
     </tr>
     <tr>
@@ -161,10 +161,10 @@ argument. Optional. Ignored if `sim` is supplied.</p></td>
 Optional. Ignored if `sim` is supplied.</p></td>
     </tr>
     <tr>
-      <th>initial_B</th>
-      <td><p>The initial biomasses of the unstructured resources. A named
-vector with one entry for each resource. Optional. Ignored if `sim` is
-supplied.</p></td>
+      <th>initial_n_other</th>
+      <td><p>The initial abundances of the other dynamic ecosystem
+components. A named list with one entry for each component. Optional.
+Ignored if `sim` is supplied.</p></td>
     </tr>
     </table>
 
@@ -183,8 +183,6 @@ supplied.</p></td>
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setResourceDynamics.html'>setResourceDynamics</a>()</code>,
-<code><a href='setResourceEncounter.html'>setResourceEncounter</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

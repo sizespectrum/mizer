@@ -132,14 +132,14 @@ community-type models can be easily set up and run.</p>
   <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>,
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
   <span class='kw'>z0</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>starv_coef</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>q</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2</span> + <span class='no'>q</span> - <span class='no'>n</span>,
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
   <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
@@ -166,6 +166,13 @@ default value is 1e6.</p></td>
       <td><p>The background mortality of the community. Default value is 0.1.</p></td>
     </tr>
     <tr>
+      <th>starv_coef</th>
+      <td><p>Proportionality constant for starvation mortality. When 
+starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
+is 1 when energy deficit is 10<!-- % of body weight. When starv_coef = 0 there  -->
+is no starvation mortality</p></td>
+    </tr>
+    <tr>
       <th>alpha</th>
       <td><p>The assimilation efficiency of the community. Default value 0.2</p></td>
     </tr>
@@ -182,10 +189,6 @@ default value is 1e6.</p></td>
       <td><p>The width of the prey preference. Default value is 2.0.</p></td>
     </tr>
     <tr>
-      <th>q</th>
-      <td><p>The search volume exponent. Default value is 0.8.</p></td>
-    </tr>
-    <tr>
       <th>n</th>
       <td><p>The scaling exponent of the maximum intake rate. Default value is 2/3.</p></td>
     </tr>
@@ -196,8 +199,7 @@ is 1000.</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>The exponent of the plankton spectrum. Default value is 2 + q
-- n.</p></td>
+      <td><p>The exponent of the plankton spectrum. Default value is 2.05.</p></td>
     </tr>
     <tr>
       <th>f0</th>
