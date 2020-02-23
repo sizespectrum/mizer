@@ -1367,9 +1367,12 @@ getPredKernel <- function(params) {
 #' of m^2/year. If you have chosen to work with abundances per m^3 then it has
 #' units of m^3/year.
 #' 
-#' If the \code{search_vol} argument is not supplied, then the search volume is set to
-#' \deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
-#' the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
+#' If the \code{search_vol} argument is not supplied, then the search volume is 
+#' set to
+#' \deqn{\gamma_i(w) = \gamma_i w^q_i.} 
+#' The values of \eqn{\gamma_i} (the search volume at 1g) and \eqn{q_i} (the
+#' allometric exponent of the search volume) are taken from the \code{gamma} and
+#' \code{q} columns in the species parameter dataframe. If the \code{gamma}
 #' column is not supplied in the species parameter dataframe, a default is
 #' calculated by the \code{\link{get_gamma_default}} function. Note that only
 #' for predators of size \eqn{w = 1} gram is the value of the species parameter
@@ -1434,13 +1437,13 @@ setSearchVolume <- function(params,
 #' \code{\link{getFeedingLevel}}. It is measured in grams/year.
 #'
 #' If the \code{intake_max} argument is not supplied, then the maximum intake
-#' rate is set to \deqn{h_i(w) = h_i w^n.} 
-#' The values of \eqn{h_i} (the maximum intake rate of an individual of size
-#' 1 gram) are taken from the \code{h} column in the
-#' species parameter dataframe. If the \code{h} column is not supplied in the
-#' species parameter dataframe, it is calculated by the 
-#' \code{\link{get_h_default}} function, using \code{f0} and the \code{k_vb}
-#' column, if they are supplied.
+#' rate is set to \deqn{h_i(w) = h_i w^n_i.} 
+#' The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
+#' gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
+#' from the \code{h} and \code{n} columns in the species parameter dataframe. If
+#' the \code{h} column is not supplied in the species parameter dataframe, it is
+#' calculated by the \code{\link{get_h_default}} function, using \code{f0} and
+#' the \code{k_vb} column, if they are supplied.
 #' 
 #' If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 #'
@@ -1507,13 +1510,13 @@ setIntakeMax <- function(params,
 #' \deqn{k(w) = ks w^p + k w,}
 #' where \eqn{ks w^p} represents the rate of standard metabolism and \eqn{k w}
 #' is the rate at which energy is expended on activity and movement. The values
-#' of \eqn{ks} and \eqn{k} are taken from the \code{ks} and \code{k} columns in
-#' the species parameter dataframe. If these parameters are not supplied, the
-#' defaults are \eqn{k = 0} and
+#' of \eqn{ks}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
+#' \code{k} columns in the species parameter dataframe. If any of these
+#' parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
 #' \deqn{ks = f_c h \alpha w_{mat}^{n-p},}{ks = f_c * h * alpha * w_mat^(n - p),}
 #' where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
-#' in the species parameter data frame in \code{params}. If the critical feeding
-#' level is not specified, a default of \eqn{f_c = 0.2} is used.
+#' in the species parameter data frame. If the critical feeding level is not
+#' specified, a default of \eqn{f_c = 0.2} is used.
 #' 
 #' @param params MizerParams
 #' @param metab Optional. An array (species x size) holding the metabolic rate
@@ -1581,7 +1584,8 @@ setMetab <- function(params,
 #' size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
 #' constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 #' species_params data frame, if that column exists. Otherwise it is calculated
-#' as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+#' as 
+#' \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 #' 
 #' @param params MizerParams
 #' @param mu_b Optional. An array (species x size) holding the background
