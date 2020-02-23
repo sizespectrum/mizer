@@ -6,33 +6,49 @@
 \usage{
 setParams(
   params,
+  rr_pp = NULL,
+  cc_pp = NULL,
+  r_pp = params@plankton_params[["r_pp"]],
+  kappa = params@plankton_params[["kappa"]],
+  lambda = params@plankton_params[["lambda"]],
+  n = params@plankton_params[["n"]],
+  w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
+  plankton_dynamics = NULL,
   interaction = NULL,
   pred_kernel = NULL,
   search_vol = NULL,
-  q = params@q,
-  f0 = params@f0,
   intake_max = NULL,
-  n = params@n,
   metab = NULL,
-  p = params@p,
   mu_b = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
   maturity = NULL,
   repro_prop = NULL,
   srr = params@srr,
-  rr_pp = NULL,
-  cc_pp = NULL,
-  r_pp = 10,
-  kappa = params@kappa,
-  lambda = params@lambda,
-  w_pp_cutoff = 10,
-  plankton_dynamics = NULL,
   initial_effort = NULL
 )
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
+
+\item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
+
+\item{cc_pp}{Optional. Vector of plankton intrinsic carrying capacity}
+
+\item{r_pp}{Coefficient of the intrinsic growth rate}
+
+\item{kappa}{Coefficient of the intrinsic carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+
+\item{n}{Scaling exponent of the intrinsic growth rate}
+
+\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
+Default is 10 g.}
+
+\item{plankton_dynamics}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.}
 
 \item{interaction}{Interaction matrix of the species (predator by prey).
 Entries should be numbers between 0 and 1. See "Setting interactions"
@@ -47,25 +63,13 @@ predation kernel".}
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
-
-\item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
-if those are not columns in the species data frame. Also requires
-\code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-data frame.}
-
 \item{intake_max}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
 
-\item{n}{Scaling exponent of the intake rate.}
-
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-
-\item{p}{Scaling exponent of the standard metabolic rate.}
 
 \item{mu_b}{Optional. An array (species x size) holding the background
 mortality rate.}
@@ -89,23 +93,6 @@ described in the section "Setting reproduction".}
 
 \item{srr}{The name of the stock recruitment function. Defaults to 
 \code{\link{srrBevertonHolt}}.}
-
-\item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
-
-\item{cc_pp}{Optional. Vector of plankton intrinsic carrying capacity}
-
-\item{r_pp}{Coefficient of the intrinsic growth rate}
-
-\item{kappa}{Coefficient of the intrinsic carrying capacity}
-
-\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
-
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
-Default is 10 g.}
-
-\item{plankton_dynamics}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If

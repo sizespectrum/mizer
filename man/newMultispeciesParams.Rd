@@ -14,7 +14,6 @@ newMultispeciesParams(
   no_w_pp = NA,
   n = 2/3,
   p = 0.7,
-  q = 0.8,
   f0 = 0.6,
   pred_kernel = NULL,
   search_vol = NULL,
@@ -30,7 +29,7 @@ newMultispeciesParams(
   cc_pp = NULL,
   r_pp = 10,
   kappa = 1e+11,
-  lambda = (2 + q - n),
+  lambda = 2.05,
   w_pp_cutoff = 10,
   plankton_dynamics = "plankton_semichemostat",
   initial_effort = NULL
@@ -58,17 +57,7 @@ is set to the smallest value at which any of the consumers can feed.}
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
 
-\item{n}{Scaling exponent of the intake rate.}
-
-\item{p}{Scaling exponent of the standard metabolic rate.}
-
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
-
-\item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
-if those are not columns in the species data frame. Also requires
-\code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-data frame.}
+\item{n}{Scaling exponent of the intrinsic growth rate}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey

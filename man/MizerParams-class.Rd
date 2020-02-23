@@ -136,18 +136,7 @@ the initial plankton abundance at each weight.}
 \item{\code{initial_n_other}}{A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.}
 
-\item{\code{n}}{Exponent of maximum intake rate. Changed with \code{\link{setIntakeMax}}.}
-
-\item{\code{p}}{Exponent of metabolic cost. Changed with \code{\link{setMetab}}.}
-
-\item{\code{lambda}}{Exponent of plankton spectrum. Changed with \code{\link{setPlankton}}.}
-
-\item{\code{kappa}}{Magnitude of plankton spectrum. Changed with \code{\link{setPlankton}}.}
-
-\item{\code{q}}{Exponent for volumetric search rate. 
-Changed with \code{\link{setSearchVolume}}.}
-
-\item{\code{f0}}{Initial feeding level.}
+\item{\code{plankton_params}}{Parameters for plankton. See \code{\link{setPlankton}}.}
 
 \item{\code{A}}{Abundance multipliers.}
 

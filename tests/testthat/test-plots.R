@@ -4,7 +4,7 @@ context("Plotting methods")
 data(NS_species_params_gears)
 data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter, no_w = 30,
-                                n = 2/3, p = 0.7)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c("Cod", "Haddock")
@@ -40,8 +40,8 @@ p <- plotGrowthCurves(sim, species = species, percentage = TRUE,
                       max_age = 50)
 vdiffr::expect_doppelganger("Plot Growth Curves", p)
 
-sim@params@species_params$a <- 0.0058
-sim@params@species_params$b <- 3.13
+sim@params@species_params[["a"]] <- 0.0058
+sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
 vdiffr::expect_doppelganger("Plot Single Growth Curve", p)
 

@@ -7,7 +7,7 @@
 #' @param p MizerParams object to tune. If missing, the gadget tries to recover
 #'   information from log files left over from aborted previous runs.
 #' @param catch Data frame holding binned observed catch data. The data can
-#'   be binned either into length bins or weight bins. In the former the data
+#'   be binned either into length bins or weight bins. In the former case the data
 #'   frame should have columns \code{length} and \code{dl} holding the start of
 #'   the size bins in cm and the width of the size bins in cm respectively. In
 #'   the latter case the data frame should have columns \code{weight} and
@@ -26,7 +26,40 @@
 # #'   frame then there should be a column \code{Nprey} saying how many prey 
 # #'   items have been aggregated in each row.
 #' 
+#' This gadget is meant for tuning a model to steady state. It is not meant for
+#' tuning the dynamics of the model. That should be done in a second step using
+#' functions like `setRmax()` or `changePlankton()`.
+#' 
+#' The function opens a shiny gadget, an interactive web page. This page has
+#' a side panel with controls for various model parameters and a main panel
+#' with tabs for various diagnostic plots.
+#' 
+#' After you click the "Done" button in the side panel, the function will return
+#' the parameter object in the state at that time, with `Rmax` set to `Inf`
+#' and `erepro` set to the value it had after the last run to steady state.
+#' 
+#' The gadget keeps a log of all steady states you create while working with 
+#' the gadget. You can go back to the last steady state by hitting the "Undo"
+#' button. You can go back an arbitrary number of states and also go forward
+#' again. There is also a button to go right back to the initial steady state.
+#' When you leave the gadget by hitting the "Done" button, this log is cleared.
+#' If you stop the gadget from RStudio by hitting the "Stop" button, then the
+#' log is left behind. You can then restart the gadget by calling `tuneParams()`
+#' without a `params` argument and it will re-instate the states from the log.
+#' 
+#' At any time the gadget allows the user to download the current params object
+#' as an .rds file via the "Download" button in the "File" section, or to
+#' upload a params object from an .rds file.
+#' 
+#' There are currently several restrictions on what the gadget can do:
+#' 
+#' The gadget currently assumes that each species is selected by only one gear.
+#' It allows the user to change the parameters for that gear. It also enforces
+#' the same effort for all gears. It sets all efforts to that for the first 
+#' gear and then allows the user to change that single effort value.
+#' 
 #' @return The tuned MizerParams object
+#' @md
 #' @export
 tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
     stomach <- NULL
@@ -118,7 +151,6 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
     # User interface ----
     ui <- fluidPage(
         shinyjs::useShinyjs(),
-        # titlePanel("Humboldt current ecosystem"),
         
         sidebarLayout(
             
@@ -248,6 +280,8 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             shinyjs::disable("retune_background")
         }
         
+        # Define function that runs to steady state using `steady()` and
+        # then adds the new steady state to the logs
         run_steady <- function(p, return_sim = FALSE) {
             
             tryCatch({
@@ -257,6 +291,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 
                 # Run to steady state
                 if (return_sim) {
+                    # This is for the "Steady" tab where we want to show the
+                    # evolution of biomass over time during the run to steady
+                    # to diagnose eventual problems.
                     sim <- steady(p, t_max = 100, tol = 1e-2,
                                   return_sim = TRUE,
                                   progress_bar = progress)
@@ -284,15 +321,18 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         
         ## Store params object as a reactive value ####
         params <- reactiveVal(p)
-        add_to_logs(p)
+        add_to_logs(p)  # This allows us to get back to the initial state
         if (log_idx == length(logs)) shinyjs::disable("redo")
         if (log_idx <= 1) {
             shinyjs::disable("undo")
             shinyjs::disable("undo_all")
         }
-        output$filename <- renderText("")
+        
+        # The file name will be empty until the user uploads a params file
+        output$filename <- renderText("")  
         
         # Reactive value to hold simulations from steady()
+        # Needed for being able to show biomass over time on the "Steady" tab.
         sim_steady <- reactiveVal(project(p, t_max = 0.2, t_save = 0.1))
         
         # Define a reactive value for triggering an update of species sliders
@@ -327,6 +367,8 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         })
         
         ## Done ####
+        # When the user hits the "Done" button we want to clear the logs and
+        # return with the latest params object
         observeEvent(input$done, {
             file.remove(logs)
             stopApp(params())
@@ -340,18 +382,22 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             })
         
         ## UI for side bar ####
+        # Drop-down menu for selecting active species
         output$sp_sel <- renderUI({
             p <- isolate(params())
             species <- as.character(p@species_params$species[foreground])
             selectInput("sp", "Species:", species) 
         })
+        # Sliders for the species parameters
         output$sp_params <- renderUI({
-            # The parameter sliders get updated whenever the species selector changes
+            # The parameter sliders get updated whenever the species selector 
+            # changes
             req(input$sp)
             # or when the trigger is set somewhere
             trigger_update()
-            
+            # but not each time the params change
             p <- isolate(params())
+            
             sp <- p@species_params[input$sp, ]
             n0 <- p@initial_n[input$sp, p@w_min_idx[input$sp]]
             # If there are several gears, we only use the effort for the first.
@@ -378,6 +424,12 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                             value = sp$h,
                             min = signif(sp$h / 2, 2),
                             max = signif(sp$h * 1.5, 2)),
+                numericInput("q", "Exponent of search volume",
+                             value = sp$q,
+                             min = 0.6, max = 0.8, step = 0.005),
+                numericInput("n", "Exponent of max feeding rate",
+                             value = sp$n,
+                             min = 0.6, max = 0.8, step = 0.005),
                 sliderInput("beta", "Preferred predator-prey mass ratio beta",
                             value = sp$beta,
                             min = signif(sp$beta / 2, 2),
@@ -464,6 +516,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                          min = signif(sp$ks / 2, 2),
                                          max = signif((sp$ks + 0.1) * 1.5, 2),
                                          step = 0.05),
+                             numericInput("p", "Exponent of metabolism",
+                                          value = sp$p,
+                                          min = 0.6, max = 0.8, step = 0.005),
                              sliderInput("k", "Coefficient of activity k",
                                          value = sp$k,
                                          min = signif(sp$k / 2, 2),
@@ -501,28 +556,22 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         output$general_params <- renderUI({
             
             p <- isolate(params())
-            log_r_pp <- log10(p@rr_pp[1] / p@w_full[1]^(p@n - 1))
+            log_r_pp <- log10(p@plankton_params$r_pp)
             
             l1 <- list(
-                tags$h3(tags$a(id = "general"), "General"),
-                numericInput("p", "Exponent of metabolism",
-                             value = p@p,
-                             min = 0.6, max = 0.8, step = 0.005),
-                numericInput("q", "Exponent of search volume",
-                             value = p@q,
-                             min = 0.6, max = 0.8, step = 0.005),
-                numericInput("n", "Exponent of feeding rate",
-                             value = p@n,
-                             min = 0.6, max = 0.8, step = 0.005),
                 tags$h3(tags$a(id = "plankton"), "Plankton"),
                 numericInput("lambda", "Sheldon exponent lambda",
-                             value = p@lambda, min = 1.9, max = 2.2, step = 0.005),
+                             value = p@plankton_params$lambda, 
+                             min = 1.9, max = 2.2, step = 0.005),
                 numericInput("kappa", "Plankton coefficient kappa",
-                             value = p@kappa),
+                             value = p@plankton_params$kappa),
                 sliderInput("log_r_pp", "log10 Plankton replenishment rate",
                             value = log_r_pp, min = -1, max = 4, step = 0.05),
+                numericInput("n_plankton", "Exponent of replenishment rate",
+                             value = p@plankton_params$n,
+                             min = 0.6, max = 0.8, step = 0.005),
                 numericInput("w_pp_cutoff", "Largest plankton",
-                             value = p@w_full[which.min(p@cc_pp > 0)],
+                             value = p@plankton_params$w_pp_cutoff,
                              min = 1e-10,
                              max = 1e3),
                 tags$h3(tags$a(id = "file"), "File management"),
@@ -547,16 +596,18 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             p <- isolate(params())
             sp <- isolate(input$sp)
             
-            # change all h so that max intake rate at maturity stays the same
-            p@species_params$h <- p@species_params$h * 
-                p@species_params$w_mat^(p@n - input$n)
-            h <- p@species_params[sp, "h"]
+            # change h so that max intake rate at maturity stays the same
+            p@species_params[[sp, "h"]] <- p@species_params[[sp, "h"]] * 
+                p@species_params[[sp, "w_mat"]] ^
+                (p@species_params[[sp, "n"]] - input$n)
+            p@species_params[[sp, "n"]] <- input$n
+            h <- p@species_params[[sp, "h"]]
             updateSliderInput(session, "h",
                               value = h,
                               min = signif(h / 2, 2),
                               max = signif(h * 1.5, 2))
             
-            p <- setIntakeMax(p, n = input$n)
+            p <- setIntakeMax(p)
             params(p)
         })
         
@@ -565,12 +616,14 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             req(input$p)
             p <- isolate(params())
             sp <- isolate(input$sp)
-            # change all ks so that metabolic rate at maturity stays the same
-            p@species_params$ks <- p@species_params$ks * 
-                p@species_params$w_mat^(p@p - input$p)
-            p <- setMetab(p, p = input$p)
+            # change ks so that metabolic rate at maturity stays the same
+            p@species_params[[sp, "ks"]] <- p@species_params[[sp, "ks"]] * 
+                p@species_params[[sp, "w_mat"]] ^
+                (p@species_params[[sp, "p"]] - input$p)
+            p@species_params[[sp, "p"]] <- input$p
+            p <- setMetab(p)
             params(p)
-            ks <- p@species_params[sp, "ks"]
+            ks <- p@species_params[[sp, "ks"]]
             updateSliderInput(session, "ks",
                               value = ks,
                               min = signif(ks / 2, 2),
@@ -592,7 +645,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     input$rescale
             }
             p@cc_pp <- p@cc_pp * input$rescale
-            p@kappa <- p@kappa * input$rescale
+            p@plankton_params$kappa <- p@plankton_params$kappa * input$rescale
             n0 <- n0 * input$rescale
             # To keep the same per-capity behaviour, we have to scale down the
             # search volume
@@ -696,13 +749,15 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             req(input$kappa,
                 input$lambda,
                 input$log_r_pp,
-                input$w_pp_cutoff)
+                input$w_pp_cutoff,
+                input$n_plankton)
             p <- isolate(params())
             p <- setPlankton(p, 
                              kappa = input$kappa, 
                              lambda = input$lambda,
                              r_pp = 10^input$log_r_pp,
-                             w_pp_cutoff = input$w_pp_cutoff)
+                             w_pp_cutoff = input$w_pp_cutoff,
+                             n = input$n_plankton)
             params(p)
         })
         
@@ -755,7 +810,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                   max = signif(input$h * 1.5, 2))
                 p@species_params[sp, "gamma"] <- input$gamma
                 p@species_params[sp, "h"]     <- input$h
-                p@q <- input$q
+                p@species_params[sp, "q"]     <- input$q
                 p <- setSearchVolume(p)
                 p <- setIntakeMax(p)
                 update_species(sp, p)

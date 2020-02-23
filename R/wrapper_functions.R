@@ -63,12 +63,10 @@ NULL
 #' @param h The maximum food intake rate. Default value is 10.
 #' @param beta The preferred predator prey mass ratio. Default value is 100.
 #' @param sigma The width of the prey preference. Default value is 2.0.
-#' @param q The search volume exponent. Default value is 0.8.
 #' @param n The scaling exponent of the maximum intake rate. Default value is 2/3.
 #' @param kappa The carrying capacity of the plankton spectrum. Default value
 #'   is 1000.
-#' @param lambda The exponent of the plankton spectrum. Default value is 2 + q
-#'   - n.
+#' @param lambda The exponent of the plankton spectrum. Default value is 2.05.
 #' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 10.
 #' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 #'   \code{kappa} if not supplied.
@@ -104,10 +102,9 @@ newCommunityParams <- function(max_w = 1e6,
                                 h = 10,
                                 beta = 100,
                                 sigma = 2.0,
-                                q = 0.8,
                                 n = 2/3,
                                 kappa = 1000,
-                                lambda = 2 + q - n,
+                                lambda = 2.05,
                                 f0 = 0.7,
                                 r_pp = 10,
                                 gamma = NA,
@@ -141,7 +138,7 @@ newCommunityParams <- function(max_w = 1e6,
     )
     params <- 
         newMultispeciesParams(species_params, f0 = f0,
-                              p = p, n = n, q = q, lambda = lambda, 
+                              p = p, n = n, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     
@@ -248,11 +245,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param n Scaling exponent of the maximum intake rate. Default value is 2/3.
 #' @param p Scaling exponent of the standard metabolic rate. By default this is
 #'   equal to the exponent \code{n}.
-#' @param q Exponent of the search volume. Default value is 3/4 unless 
-#'   \code{lambda} is provided, in which case this argument is ignored and
-#'   q = lambda - 2 + n.
-#' @param lambda Exponent of the abundance power law. If supplied, this 
-#'   overrules the \code{q} argument. Otherwise the default value is 2+q-n.
+#' @param lambda Exponent of the abundance power law.
 #' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 0.1.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
@@ -311,8 +304,7 @@ newTraitParams <- function(no_sp = 11,
                            w_pp_cutoff = min_w_inf,
                            n = 2 / 3,
                            p = n,
-                           q = 3 / 4,
-                           lambda = 2 + q - n,
+                           lambda = 2.05,
                            r_pp = 0.1,
                            kappa = 0.005,
                            alpha = 0.4,
@@ -330,12 +322,6 @@ newTraitParams <- function(no_sp = 11,
                            egg_size_scaling = FALSE,
                            perfect_scaling = FALSE,
                            ...) {
-    if ((!missing(lambda)) && (q != lambda - 2 + n)) {
-        q <- lambda - 2 + n
-        message("The search volume exponent q has been set to ", q,
-                " so as to lead to the desired community exponent lambda = ",
-                lambda, ".")
-    }
     
     ## Check validity of parameters ----
     assert_that(is.logical(egg_size_scaling),
@@ -381,9 +367,9 @@ newTraitParams <- function(no_sp = 11,
     if (no_sp < 2) {
         stop("The number of species must be at least 2.")
     }
-    if (!all(c(n, q, r_pp, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
-        stop("The parameters n, q, r_pp, kappa, alpha, h, beta, sigma, ks and ",
-             "f0, if supplied, need to be positive.")
+    if (!all(c(n, r_pp, lambda, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, lambda, r_pp, kappa, alpha, h, beta, sigma, ks ",
+             "and f0, if supplied, need to be positive.")
     }    
     # Check gears
     if (length(knife_edge_size) > no_sp) {
@@ -463,16 +449,14 @@ newTraitParams <- function(no_sp = 11,
     params <-
         newMultispeciesParams(
             species_params,
-            p = p,
-            n = n,
-            q = q,
-            lambda = lambda,
-            f0 = f0,
-            kappa = kappa,
             min_w = min_w,
             no_w = no_w,
             max_w = max_w,
             w_pp_cutoff = max_w,
+            lambda = lambda,
+            kappa = kappa,
+            n = n,
+            p = p,
             min_w_pp = min_w_pp,
             r_pp = r_pp
         )
@@ -645,8 +629,7 @@ newSheldonParams <- function(w_inf = 100,
                              no_w = log10(w_inf / w_min) * 50 + 1,
                              n = 3/4,
                              p = n,
-                             q = 0.8,
-                             lambda = 2 + q - n,
+                             lambda = 2.05,
                              kappa = 0.005,
                              alpha = 0.4,
                              ks = 4,
@@ -661,13 +644,6 @@ newSheldonParams <- function(w_inf = 100,
                              ...) {
     no_sp <- 1
     ## Much of the following code is copied from newTraitParams
-    
-    if ((!missing(lambda)) && (q != lambda - 2 + n)) {
-        q <- lambda - 2 + n
-        message("The search volume exponent q has been set to ", q,
-                " so as to lead to the desired community exponent lambda = ",
-                lambda, ".")
-    }
     
     ## Check validity of parameters ----
     if (bmort_prop >= 1 || bmort_prop < 0) {
@@ -703,8 +679,8 @@ newSheldonParams <- function(w_inf = 100,
         stop("The maturity size of the smallest species w_mat must be ",
              "smaller than its maximum size w_inf")
     }
-    if (!all(c(n, q, kappa, alpha, k_vb, beta, sigma, ks, f0) > 0)) {
-        stop("The parameters n, q, kappa, alpha, k_vb, beta, sigma, ks and ",
+    if (!all(c(n, lambda, kappa, alpha, k_vb, beta, sigma, ks, f0) > 0)) {
+        stop("The parameters n, lambda, kappa, alpha, k_vb, beta, sigma, ks and ",
              "f0, if supplied, need to be positive.")
     }
     
@@ -729,15 +705,13 @@ newSheldonParams <- function(w_inf = 100,
     params <-
         suppressMessages(newMultispeciesParams(
             species_params,
-            p = p,
-            n = n,
-            q = q,
-            lambda = lambda,
-            f0 = f0,
-            kappa = kappa,
             min_w = w_min,
             no_w = no_w,
             max_w = w_inf,
+            lambda = lambda,
+            kappa = kappa,
+            n = n,
+            p = p,
             w_pp_cutoff = w_inf,
             plankton_dynamics = "plankton_constant"
         ))
@@ -840,17 +814,17 @@ retuneBackground <- function(params) {
     # over w, between our limits, is minimized, where  L is the set of all
     # retuneable species.
     
-    # deal with zero entries in params@sc
-    nonzero <- params@sc > 0
-    sc <- params@sc[nonzero]
+    # ignore zero entries in params@sc and only use region above the smallest w_mat
+    region <- params@sc > 0 & params@w > min(params@species_params$w_mat)
+    sc <- params@sc[region]
     # rho is the total abundance of all the non-tunable species
-    rho <- colSums(params@initial_n[!L, nonzero, drop = FALSE])
+    rho <- colSums(params@initial_n[!L, region, drop = FALSE])
     
     # Use Singular Value Decomposition to find optimal abundance multipliers.
     # See Numerical Recipes section 15.4.2
     #
     # Rescale by sc
-    A <- t(sweep(params@initial_n[L, nonzero, drop = FALSE], 2, sc, "/"))
+    A <- t(sweep(params@initial_n[L, region, drop = FALSE], 2, sc, "/"))
     b <- (sc - rho) / sc
     
     sv <- svd(A)
@@ -1047,7 +1021,7 @@ rescaleSystem <- function(params, factor) {
     
     # Plankton replenishment rate
     params@cc_pp <- params@cc_pp * factor
-    params@kappa <- params@kappa * factor
+    params@plankton_params$kappa <- params@plankton_params$kappa * factor
     
     # Rmax
     # r_max is a deprecated spelling of R_max. Get rid of it.
@@ -1250,23 +1224,18 @@ addSpecies <- function(params, species_params, interaction,
     p <- newMultispeciesParams(
         combi_species_params,
         interaction = inter,
-        p = params@p,
-        n = params@n,
-        q = params@q,
-        lambda = params@lambda,
-        f0 = params@f0,
-        kappa = params@kappa,
         min_w = min(params@w),
         max_w = max(params@w),
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
-        w_pp_cutoff = max(params@w_full),
-        r_pp = (params@rr_pp / (params@w_full ^ (params@p - 1)))[1],
         initial_effort = initial_effort
     )
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
     p@cc_pp <- params@cc_pp
+    p@rr_pp <- params@rr_pp
+    p@plankton_dynamics <- params@plankton_dynamics
+    p@plankton_params <- params@plankton_params
     # Preserve comment
     comment(p) <- comment(params)
     
@@ -1305,9 +1274,9 @@ addSpecies <- function(params, species_params, interaction,
         # Sheldon spectrum.
         # We look at the maximum of abundance times w^lambda
         # because that is always an increasing function at small size.
-        idx <- which.max(p@initial_n[i, ] * p@w^p@lambda)
+        idx <- which.max(p@initial_n[i, ] * p@w^p@plankton_params$lambda)
         p@initial_n[i, ] <- p@initial_n[i, ] *
-            p@kappa * p@w[idx]^(-p@lambda) / p@initial_n[i, idx] / 100
+            p@plankton_params$kappa * p@w[idx]^(-p@plankton_params$lambda) / p@initial_n[i, idx] / 100
         p@A[i] <- sum(p@initial_n[i, ] * p@w * p@dw * p@maturity[i, ])
     }
     
@@ -1598,10 +1567,11 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
     params@interaction[1, 1] <- 1
-    params@initial_n[1, ] <- params@kappa * 
-        params@w^(-params@lambda)
+    params@initial_n[1, ] <- params@plankton_params$kappa * 
+        params@w^(-params@plankton_params$lambda)
     return(getPredMort(params)[1, 1] / 
-               params@w[1] ^ (1 + params@q - params@lambda))
+               params@w[[1]] ^ (1 + params@species_params$q[[1]] - 
+                                    params@plankton_params$lambda))
 }
 
 

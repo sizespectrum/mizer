@@ -12,8 +12,7 @@ newSheldonParams(
   no_w = log10(w_inf/w_min) * 50 + 1,
   n = 3/4,
   p = n,
-  q = 0.8,
-  lambda = 2 + q - n,
+  lambda = 2.05,
   kappa = 0.005,
   alpha = 0.4,
   ks = 4,
@@ -49,12 +48,7 @@ is such that there are 50 bins for each factor of 10 in weight.}
 \item{p}{Scaling exponent of the standard metabolic rate. By default this is
 equal to the exponent \code{n}.}
 
-\item{q}{Exponent of the search volume. Default value is 3/4 unless 
-\code{lambda} is provided, in which case this argument is ignored and
-q = lambda - 2 + n.}
-
-\item{lambda}{Exponent of the abundance power law. If supplied, this 
-overrules the \code{q} argument. Otherwise the default value is 2+q-n.}
+\item{lambda}{Exponent of the abundance power law.}
 
 \item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}

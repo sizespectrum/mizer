@@ -4,7 +4,7 @@ context("Summary methods")
 data(NS_species_params_gears)
 data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter,
-                                n = 2/3, p = 0.7)
+                                n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 10)
 no_sp <- nrow(NS_species_params_gears)
 no_w <- length(params@w)
@@ -16,8 +16,8 @@ n_pp <- abs(rnorm(length(params@w_full)))
 
 ## get_size_range_array ----
 test_that("get_size_range_array",{
-    NS_species_params_gears$a <- 0.01
-    NS_species_params_gears$b <- 3
+    NS_species_params_gears[["a"]] <- 0.01
+    NS_species_params_gears[["b"]] <- 3
     params <- newMultispeciesParams(NS_species_params_gears, inter)
     size_n <- get_size_range_array(params)
     expect_true(all(size_n))

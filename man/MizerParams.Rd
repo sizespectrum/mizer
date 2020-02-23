@@ -30,15 +30,7 @@ is set to the smallest value at which any of the consumers can feed.}
 \item{max_w}{The largest size of the consumer spectrum. By default this is
 set to the largest w_inf specified in the species_params data frame.}
 
-\item{n}{Scaling exponent of the intake rate.}
-
-\item{q}{Exponent of the allometric search volume. Not needed if a
-\code{search_vol} array is specified.}
-
-\item{f0}{Average feeding level. Used to calculated \code{h} and \code{gamma}
-if those are not columns in the species data frame. Also requires
-\code{k_vb} (the von Bertalanffy K parameter) to be a column in the species
-data frame.}
+\item{n}{Scaling exponent of the intrinsic growth rate}
 
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 

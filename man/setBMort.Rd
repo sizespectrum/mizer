@@ -4,7 +4,7 @@
 \alias{setBMort}
 \title{Set background mortality rate}
 \usage{
-setBMort(params, mu_b = NULL, z0pre = 0.6, z0exp = params@n - 1)
+setBMort(params, mu_b = NULL, z0pre = 0.6, z0exp = -1/4)
 }
 \arguments{
 \item{params}{MizerParams}
