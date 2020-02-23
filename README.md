@@ -45,7 +45,7 @@ You can also join our Google Discussion group here:
 ## Installation
 
 The package is on [CRAN](https://cran.r-project.org/package=mizer) and
-therefore available from R’s build-in package manager.
+therefore available from R’s built-in package manager.
 
 ``` r
 # Install release version from CRAN
