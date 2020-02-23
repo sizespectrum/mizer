@@ -26,13 +26,13 @@ weight \eqn{w} determines the feeding level, calculated with
 \code{\link{getFeedingLevel}}. It is measured in grams/year.
 
 If the \code{intake_max} argument is not supplied, then the maximum intake
-rate is set to \deqn{h_i(w) = h_i w^n.} 
-The values of \eqn{h_i} (the maximum intake rate of an individual of size
-1 gram) are taken from the \code{h} column in the
-species parameter dataframe. If the \code{h} column is not supplied in the
-species parameter dataframe, it is calculated by the 
-\code{\link{get_h_default}} function, using \code{f0} and the \code{k_vb}
-column, if they are supplied.
+rate is set to \deqn{h_i(w) = h_i w^n_i.} 
+The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
+gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
+from the \code{h} and \code{n} columns in the species parameter dataframe. If
+the \code{h} column is not supplied in the species parameter dataframe, it is
+calculated by the \code{\link{get_h_default}} function, using \code{f0} and
+the \code{k_vb} column, if they are supplied.
 
 If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 }

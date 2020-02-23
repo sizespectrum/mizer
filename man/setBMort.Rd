@@ -40,7 +40,8 @@ is assumed to depend only on the asymptotic size of the species, not on the
 size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 species_params data frame, if that column exists. Otherwise it is calculated
-as \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+as 
+\deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 
 \examples{

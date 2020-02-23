@@ -34,9 +34,12 @@ If you have chose to work with total abundances, then it is a rate with units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.
 
-If the \code{search_vol} argument is not supplied, then the search volume is set to
-\deqn{\gamma_i(w) = \gamma_i w^q.} The values of \eqn{\gamma_i} are taken from
-the \code{gamma} column in the species parameter dataframe. If the \code{gamma}
+If the \code{search_vol} argument is not supplied, then the search volume is 
+set to
+\deqn{\gamma_i(w) = \gamma_i w^q_i.} 
+The values of \eqn{\gamma_i} (the search volume at 1g) and \eqn{q_i} (the
+allometric exponent of the search volume) are taken from the \code{gamma} and
+\code{q} columns in the species parameter dataframe. If the \code{gamma}
 column is not supplied in the species parameter dataframe, a default is
 calculated by the \code{\link{get_gamma_default}} function. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
