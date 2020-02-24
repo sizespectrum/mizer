@@ -10,8 +10,7 @@ getMort(
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
   effort = params@initial_effort,
-  m2 = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other),
-  starv_mort = getStarvMort(params, n = n, n_pp = n_pp, n_other = n_other)
+  m2 = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
@@ -66,7 +65,6 @@ Other rate functions:
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
 \code{\link{getRDI}()},
-\code{\link{getRates}()},
-\code{\link{getStarvMort}()}
+\code{\link{getRates}()}
 }
 \concept{rate functions}
