@@ -293,9 +293,8 @@ validMizerParams <- function(object) {
 #'   are the names of those components.
 #' @slot other_encounter A named list of functions for calculating the 
 #'   contribution to the encounter rate from each other dynamical component.
-#' @slot other_pred_mort A named list of functions for calculating the 
-#'   contribution to the predation mortality rate from each other dynamical 
-#'   component.
+#' @slot other_mort A named list of functions for calculating the 
+#'   contribution to the mortality rate from each other dynamical components.
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
@@ -372,7 +371,7 @@ setClass(
         other_dynamics = "list",
         other_params = "list",
         other_encounter = "list",
-        other_pred_mort = "list",
+        other_mort = "list",
         rates_func = "character",
         sc = "numeric",
         initial_n_pp = "numeric",
@@ -494,11 +493,6 @@ emptyParams <- function(species_params,
     species_params <- set_species_param_default(
         species_params, "alpha", 0.6, 
         message = "Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.")
-    
-    # If no starvation mortality coefficient is provided, then set to 10
-    species_params <- set_species_param_default(
-        species_params, "starv_coef", 10, 
-        message = "Starvation mortality coefficient `starv_coef` is not provided in species parameters, so it is set to 10.")
     
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
@@ -699,7 +693,7 @@ emptyParams <- function(species_params,
         srr = "srrBevertonHolt",
         other_dynamics = list(),
         other_encounter = list(),
-        other_pred_mort = list(),
+        other_mort = list(),
         rates_func = "getRates",
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
@@ -2405,7 +2399,7 @@ upgradeParams <- function(params) {
         pnew@other_encounter <- params@other_encounter
     }
     if (.hasSlot(params, "other_pred_mort")) {
-        pnew@other_pred_mort <- params@other_pred_mort
+        pnew@other_mort <- params@other_pred_mort
     }
     if (.hasSlot(params, "rates_func")) {
         pnew@rates_func <- params@rates_func

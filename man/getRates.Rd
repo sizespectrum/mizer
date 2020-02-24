@@ -65,7 +65,6 @@ Other rate functions:
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()},
-\code{\link{getStarvMort}()}
+\code{\link{getRDI}()}
 }
 \concept{rate functions}

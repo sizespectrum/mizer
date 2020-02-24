@@ -94,13 +94,9 @@ getRates <- function(params, n = params@initial_n,
                                feeding_level = r$feeding_level)
     # Calculate predation mortality on fish \mu_{p,i}(w)
     r$pred_mort <- getPredMort(params, pred_rate = r$pred_rate)
-    # Calculate starvation mortality \mu_{s,i}(w)
-    r$starv_mort <- getStarvMort(params, n = n, n_pp = n_pp, n_other = n_other,
-                                 e = r$e)
     # Calculate total mortality \mu_i(w)
     r$mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other,
-                      effort = effort, m2 = r$pred_mort, 
-                      starv_mort = r$starv_mort)    
+                      effort = effort, m2 = r$pred_mort)    
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
@@ -266,7 +262,7 @@ getEncounter <- function(params, n = params@initial_n,
 #' The feeding level is used in \code{\link{getEReproAndGrowth}} and in
 #' \code{\link{getPredRate}}.
 #' 
-#' @inheritParams getFeedingLevel
+#' @inheritParams getRates
 #' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
 #'   using \code{\link{getEncounter}}. Only used if \code{object}
@@ -435,7 +431,7 @@ getPredRate <- function(params, n = params@initial_n,
 #' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 #' 
-#' @inheritParams getFeedingLevel
+#' @inheritParams getRates
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
@@ -484,16 +480,7 @@ getPredMort <- function(object, n, n_pp, n_other,
         idx_sp <- (length(params@w_full) - 
                        length(params@w) + 1):length(params@w_full)
 
-        m2 <- (t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE]
-        
-        # Add contributions from other components
-        for (fun_name in params@other_pred_mort) {
-            m2 <- m2 + 
-                do.call(fun_name, 
-                        list(params = params,
-                             n = n, n_pp = n_pp, n_other = n_other))
-        }
-        return(m2)
+        return((t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
     } else {
         sim <- object
         if (missing(time_range)) {
@@ -505,16 +492,8 @@ getPredMort <- function(object, n, n_pp, n_other,
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[[x]]
             n_pp <- sim@n_pp[x, ]
-            m2 <- getPredMort(sim@params, n = n, 
-                              n_pp = n_pp, n_other = n_other)
-            # Add contributions from other components
-            for (fun_name in sim@params@other_pred_mort) {
-                m2 <- m2 + 
-                    do.call(fun_name, 
-                            list(params = sim@params,
-                                 n = n, n_pp = n_pp, n_other = n_other))
-            }
-            return(m2)
+            return(getPredMort(sim@params, n = n, 
+                               n_pp = n_pp, n_other = n_other))
         }, .drop = drop)
         return(m2_time)
     }
@@ -580,49 +559,6 @@ getPlanktonMort <-
 #' @inherit getPlanktonMort
 #' @export
 getM2Background <- getPlanktonMort
-
-#' Get starvation mortality 
-#' 
-#' Calculates starvation mortality based on the equation in the original mizer
-#' vignette. Starvation mortality is proportional to the energy deficiency and
-#' is inversely proportional to body weight (and therefore also lipid reserves).
-#' \eqn{\mu_s(w)} The weight proportionality constant is currently set to 0.1,
-#' but could be a separate parameter. The 0.1 constant means that the
-#' instantaneous starvation mortality is 1 when energy deficit is equal
-#' individual's body mass.
-#' 
-#' @inheritParams getFeedingLevel
-#' @param e The energy available for reproduction and growth (optional). A
-#'   matrix of size no. species x no. size bins. If not supplied, is calculated
-#'   internally using the \code{getEReproAndGrowth()} method.
-#'   
-#' @return A two dimensional array of instantaneous starvation mortality
-#'   (species x size).
-#' @note   The default value of starv_coef is 10, which scales how energy intake
-#'   deficit (e) translates to starvation mortality. When instantaneous energy
-#'   intake rate deficit per year is 10% of body weight it will give
-#'   instantaneous starvation mortality rate of 1/year, i.e. an average
-#'   individual can survive for about a year. If starv_coef = 0, there is no
-#'   starvation mortality and negative intake just gets converted to 0 (there is
-#'   no cost to having negative energy intake, which is unrealistic!). If
-#'   starv_coef = 20, the cost of negative intake increases, and 10% energy
-#'   deficit will lead to instantaneous starvation mortality of 2/year.
-#' @export
-#' @family rate functions
-#' 
-getStarvMort <- function(params, n = params@initial_n, 
-                     n_pp = params@initial_n_pp, 
-                     n_other = params@initial_n_other,
-                     e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
-                                            n_other)) {
-    
-    # apply the mortality formula to the whole matrix
-    mu_s <- -t(t(e * params@species_params$starv_coef) / params@w) 
-    
-    mu_s[e > 0] <- 0  # No mortality when e > 0
-    
-    return(mu_s)
-}
 
 
 #' Get the fishing mortality by time, gear, species and size
@@ -849,18 +785,22 @@ getMort <- function(params, n = params@initial_n,
                     n_other = params@initial_n_other,
                     effort = params@initial_effort, 
                     m2 = getPredMort(params, n = n, n_pp = n_pp, 
-                                     n_other = n_other),
-                    starv_mort = getStarvMort(params, n=n, n_pp = n_pp, 
-                                          n_other = n_other)){
+                                     n_other = n_other)){
     if (!all(dim(m2) == c(nrow(params@species_params), length(params@w)))) {
         stop("m2 argument must have dimensions: no. species (",
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-    ## Add starvation mortality to the total mortality 
-    return(m2 + params@mu_b + getFMort(params, effort = effort) + 
-               starv_mort)
-
+    
+    m2 <- m2 + params@mu_b + getFMort(params, effort = effort)
+    # Add contributions from other components
+    for (fun_name in params@other_mort) {
+        m2 <- m2 + 
+            do.call(fun_name, 
+                    list(params = params,
+                         n = n, n_pp = n_pp, n_other = n_other))
+    }
+    return(m2)
 }
 
 #' Alias for getMort
