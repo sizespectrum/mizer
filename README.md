@@ -77,7 +77,7 @@ plots:
 plot(sim)
 ```
 
-![](reference/figures/unnamed-chunk-4-1.png)<!-- -->
+![](man/figures/unnamed-chunk-4-1.png)<!-- -->
 
 See the accompanying [Get started](articles/mizer.html) page for more
 details on how the package works, including detailed examples.
