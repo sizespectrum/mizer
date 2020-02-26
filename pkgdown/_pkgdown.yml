@@ -60,11 +60,11 @@ reference:
     https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models
     for a description of these model types.
   contents:
-  - newMultispeciesParams
   - newCommunityParams
-  - newTraitParams
   - newSheldonParams
-- title: Interactively tuning a model
+  - newTraitParams
+  - newMultispeciesParams
+- title: Interactively tuning a multispecies model
   contents:
   - tuneParams
   - markBackground
