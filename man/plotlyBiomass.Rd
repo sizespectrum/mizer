@@ -67,7 +67,6 @@ against time. The biomass is calculated within user defined size limits
 }
 \seealso{
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

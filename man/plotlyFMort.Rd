@@ -31,7 +31,6 @@ single value for the time range can be used to plot a single time step).
 }
 \seealso{
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

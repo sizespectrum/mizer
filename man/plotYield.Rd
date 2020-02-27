@@ -59,7 +59,6 @@ plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 \code{\link{plotting_functions}},  \code{\link{getYield}}
 
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
