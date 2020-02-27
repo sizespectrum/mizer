@@ -1,7 +1,4 @@
 context("MizerParams constructor dimension checks")
-data(NS_species_params_gears)
-data(NS_species_params)
-data(inter)
 no_sp <- nrow(NS_species_params)
 params <- newMultispeciesParams(NS_species_params, inter)
 

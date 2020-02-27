@@ -64,8 +64,6 @@ in the North Sea that comes as an example with the package, sets up the
 parameters for the mizer model, and runs a simulation for 10 years.
 ```{r, message = FALSE}
 library(mizer)
-data(NS_species_params)
-data(inter)
 params <- newMultispeciesParams(NS_species_params, inter)
 sim <- project(params, t_max = 10, effort = 0)
 ```

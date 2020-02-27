@@ -1,6 +1,4 @@
 context("MizerSim constructor dimension checks")
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 test_that("basic constructor sets dimensions properly",{

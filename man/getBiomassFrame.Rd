@@ -58,8 +58,6 @@ returns a dataframe that can be displayed with
 }
 \examples{
 # Set up example MizerParams and MizerSim objects
-data(NS_species_params_gears)
-data(inter)
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)

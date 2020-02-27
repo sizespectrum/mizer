@@ -63,8 +63,6 @@
 #' @name plotting_functions
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' 
@@ -145,8 +143,6 @@ log_breaks <- function(n = 6){
 #'   \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
@@ -271,8 +267,6 @@ getSSBFrame <- function(sim,
 #' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}}
 #' @examples 
 #' # Set up example MizerParams and MizerSim objects
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
 #' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
@@ -336,8 +330,6 @@ getBiomassFrame <- function(sim,
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getBiomass}}
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
 #' 
@@ -432,8 +424,6 @@ plotlyBiomass <- function(sim,
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getYield}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim)
@@ -555,8 +545,6 @@ plotlyYield <- function(sim, sim2,
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getYieldGear}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYieldGear(sim)
@@ -651,8 +639,6 @@ plotlyYieldGear <- function(sim,
 #' @seealso \code{\link{plotting_functions}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
@@ -851,8 +837,6 @@ plotlySpectra <- function(object, species = NULL,
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
@@ -947,8 +931,6 @@ plotlyFeedingLevel <- function(object,
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getPredMort}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotPredMort(sim)
@@ -1035,8 +1017,6 @@ plotlyPredMort <- function(object, species = NULL,
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getFMort}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
@@ -1120,8 +1100,6 @@ plotlyFMort <- function(object, species = NULL,
 #' @seealso \code{\link{plotting_functions}}
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
@@ -1253,8 +1231,6 @@ plotDiet <- function(object, species) {
 #' @rdname plotMizerSim
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
@@ -1297,8 +1273,6 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @rdname plotMizerSim
 #' @examples
 #' 
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' plot(params)
 #' plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot

@@ -77,8 +77,6 @@ with some species parameters and an interaction matrix specifying which species
 how species predate on each other. An example of a North Sea model is provided
 with the package.
 ```{r}
-data(NS_species_params)
-data(inter)
 params <- newMultispeciesParams(NS_species_params, inter)
 ```
 The notes printed out by the function show us that mizer calculated

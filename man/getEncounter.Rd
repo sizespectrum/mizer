@@ -64,8 +64,6 @@ species. These values should not be used, as they are meaningless.
 
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Run simulation with constant fishing effort for all gears for 20 years
 sim <- project(params, t_max = 20, effort = 0.5)

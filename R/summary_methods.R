@@ -147,8 +147,6 @@ getDiet <- function(params,
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -180,8 +178,6 @@ getSSB <- function(sim) {
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -214,8 +210,6 @@ getBiomass <- function(sim, ...) {
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -245,8 +239,6 @@ getN <- function(sim, ...) {
 #' @seealso \code{\link{getYield}}
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
@@ -275,8 +267,6 @@ getYieldGear <- function(sim) {
 #' @seealso \code{\link{getYieldGear}}
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' y <- getYield(sim)
@@ -305,8 +295,6 @@ getYield <- function(sim) {
 #' @family summary functions
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' getGrowthCurves(params)
 #' sim <- project(params, effort=1, t_max = 20, t_save = 2, progress_bar = FALSE)
@@ -421,8 +409,6 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' summary(params)
 #' }
@@ -462,8 +448,6 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears,inter)
 #' sim <- project(params, effort=1, t_max=5)
 #' summary(sim)
@@ -529,8 +513,6 @@ NULL
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getProportionOfLargeFish(sim)
@@ -583,8 +565,6 @@ getProportionOfLargeFish <- function(sim,
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanWeight(sim)
@@ -625,8 +605,6 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=10)
 #' getMeanMaxWeight(sim)
@@ -676,8 +654,6 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' @concept summary_function
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 #' # Slope based on biomass, using all species and sizes

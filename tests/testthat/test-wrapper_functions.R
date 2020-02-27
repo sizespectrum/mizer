@@ -108,7 +108,6 @@ test_that("Scaling model is set up correctly", {
 
 # removeSpecies ----
 test_that("removeSpecies works", {
-    data("NS_species_params")
     remove <- NS_species_params$species[2:11]
     reduced <- NS_species_params[!(NS_species_params$species %in% remove), ]
     params <- MizerParams(NS_species_params, no_w = 20, 

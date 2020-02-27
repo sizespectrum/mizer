@@ -80,8 +80,6 @@ different.
 \examples{
 \dontrun{
 ## Set up a MizerParams object
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 ## If you change predation kernel parameters after setting up a model, you

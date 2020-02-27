@@ -36,8 +36,6 @@ uses the other plotting functions and puts them all in one window.
 }
 \examples{
 
-data(NS_species_params_gears)
-data(inter)
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plot(sim)
@@ -45,8 +43,6 @@ plot(sim, time_range = 10:20) # change time period for size-based plots
 plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
 
 
-data(NS_species_params_gears)
-data(inter)
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 plot(params)
 plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot

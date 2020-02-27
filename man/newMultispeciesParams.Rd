@@ -529,8 +529,6 @@ and \code{lambda} arguments.
 
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 }
 }

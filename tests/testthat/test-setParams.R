@@ -1,8 +1,5 @@
 context("Setting parameters")
 ## Initialise ----
-data(NS_species_params_gears)
-data(NS_species_params)
-data(inter)
 no_sp <- nrow(NS_species_params)
 params <- MizerParams(NS_species_params, inter)
 

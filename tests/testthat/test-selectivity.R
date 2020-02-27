@@ -1,13 +1,11 @@
 context("Selectivity functions")
 
 test_that("knife-edge selectivity function is working properly",{
-    data(NS_species_params_gears)
     NS_species_params_gears$sel_func <- "knife_edge"
     NS_species_params_gears$knife_edge_size <- 1000
     NS_species_params_gears$knife_edge_size[NS_species_params_gears$gear == "Industrial"] <- 500
     # Chop off l25, l50, a and b columns - the trawl selectivity
     NS_species_params_gears <- NS_species_params_gears[,!(colnames(NS_species_params_gears) %in% c("l25","l50","a","b"))]
-    data(inter)
     params <- newMultispeciesParams(NS_species_params_gears, inter)
     industrial_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Industrial"])
     pelagic_species <- as.character(NS_species_params_gears$species[NS_species_params_gears$gear == "Pelagic"])

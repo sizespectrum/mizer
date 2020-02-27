@@ -766,8 +766,6 @@ emptyParams <- function(species_params,
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' }
 newMultispeciesParams <- function(
@@ -1217,8 +1215,6 @@ setInteraction <- function(params,
 #' @examples
 #' \dontrun{
 #' ## Set up a MizerParams object
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
@@ -1596,7 +1592,6 @@ setMetab <- function(params,
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
-#' data("NS_species_params")
 #' params <- newMultispeciesParams(NS_species_params)
 #'
 #' #### Setting allometric death rate #######################

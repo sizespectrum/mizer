@@ -31,8 +31,6 @@ single value for the time range can be used to plot a single time step).
 }
 \examples{
 
-data(NS_species_params_gears)
-data(inter)
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)

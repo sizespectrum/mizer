@@ -31,8 +31,6 @@ Project plankton using semichemostat model
 }
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter,
                                 plankton_dynamics = "plankton_semichemostat")
 }

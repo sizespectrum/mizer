@@ -16,8 +16,6 @@ Outputs a general summary of the structure and content of the object
 }
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears,inter)
 sim <- project(params, effort=1, t_max=5)
 summary(sim)

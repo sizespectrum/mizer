@@ -46,7 +46,6 @@ as
 
 \examples{
 \dontrun{
-data("NS_species_params")
 params <- newMultispeciesParams(NS_species_params)
 
 #### Setting allometric death rate #######################

@@ -55,8 +55,6 @@ the same legend. This is made possible for some of the plots via the
 }
 \examples{
 # Set up example MizerParams and MizerSim objects
-data(NS_species_params_gears)
-data(inter)
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 

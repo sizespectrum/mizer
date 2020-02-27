@@ -14,8 +14,6 @@
 #' @md
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter,
 #'                                 plankton_dynamics = "plankton_semichemostat")
 #' }
@@ -41,8 +39,6 @@ plankton_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #' @md
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter,
 #'                                 plankton_dynamics = "plankton_constant")
 #' }

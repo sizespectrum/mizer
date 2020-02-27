@@ -1407,8 +1407,6 @@ setRmax <- function(params, rfac) {
 #' @export
 #' @examples
 #' \dontrun{
-#' data(NS_species_params_gears)
-#' data(inter)
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2)
 #' sim <- markBackground(sim, species = c("Sprat", "Sandeel", 

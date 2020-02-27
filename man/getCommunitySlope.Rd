@@ -48,8 +48,6 @@ calculation.
 }
 \examples{
 \dontrun{
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 sim <- project(params, effort=1, t_max=40, dt = 1, t_save = 1)
 # Slope based on biomass, using all species and sizes

@@ -1,8 +1,6 @@
 context("Summary methods")
 
 ## Initialisation ----
-data(NS_species_params_gears)
-data(inter)
 params <- newMultispeciesParams(NS_species_params_gears, inter,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 10)
