@@ -43,7 +43,6 @@ fishing gears can be plotted against time. The yield is obtained with
 }
 \seealso{
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

@@ -3,7 +3,6 @@
 export(MizerParams)
 export(MizerSim)
 export(addSpecies)
-export(animateSpectra)
 export(box_pred_kernel)
 export(displayFrames)
 export(double_sigmoid_length)

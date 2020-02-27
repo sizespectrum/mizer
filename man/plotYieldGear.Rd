@@ -52,7 +52,6 @@ plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 \code{\link{plotting_functions}},  \code{\link{getYieldGear}}
 
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},

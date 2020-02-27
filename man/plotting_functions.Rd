@@ -82,7 +82,6 @@ p
 \code{\link{summary_functions}}, \code{\link{indicator_functions}}
 
 Other plotting functions: 
-\code{\link{animateSpectra}()},
 \code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
