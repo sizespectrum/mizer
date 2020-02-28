@@ -827,6 +827,12 @@ plotlySpectra <- function(object, species = NULL,
 #' to plot a single time step). When called with a \linkS4class{MizerParams}
 #' object the initial feeding level is plotted.
 #' 
+#' If `include_critical = TRUE` then the critical feeding level (the feeding
+#' level at which the intake just covers the metabolic cost) is also plotted,
+#' with a thinner line. This line should always stay below the line of the
+#' actual feeding level, because the species would stop growing at any point
+#' where the feeding level drops to the critical feeding level.
+#' 
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then feeding level is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
@@ -940,7 +946,8 @@ plotFeedingLevel <- function(object,
 plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
-                             highlight = NULL, ...) {
+                             highlight = NULL, 
+                             include_critical, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotFeedingLevel", argg))
 }
