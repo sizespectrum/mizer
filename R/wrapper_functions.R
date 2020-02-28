@@ -79,7 +79,6 @@ NULL
 #'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
-#' @inheritParams newTraitParams
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
