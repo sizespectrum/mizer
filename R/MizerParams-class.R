@@ -2799,3 +2799,11 @@ validate_effort_vector <- function(params, effort) {
     }
     return(TRUE)
 }
+
+#' Get critical feeding level
+#' 
+#' @param params A MizerParams object
+#' @return A matrix (species x size) with the critical feeding level
+getCriticalFeedingLevel <- function(params) {
+    params@metab/params@intake_max/params@species_params$alpha
+}

@@ -1201,10 +1201,12 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
         ## Plot feeding level ####
         output$plot_feeding_level <- renderPlotly({
             if (input$all_growth == "All") {
-                plotFeedingLevel(params(), highlight = input$sp) + 
+                plotFeedingLevel(params(), highlight = input$sp,
+                                 include_critical = TRUE) + 
                     theme_grey(base_size = base_size)
             } else {
-                plotFeedingLevel(params(), species = input$sp) + 
+                plotFeedingLevel(params(), species = input$sp,
+                                 include_critical = TRUE) + 
                     theme_grey(base_size = base_size)
             }
         })

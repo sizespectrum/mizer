@@ -830,6 +830,8 @@ plotlySpectra <- function(object, species = NULL,
 #' @inheritParams plotSpectra
 #' @param all.sizes If TRUE, then feeding level is plotted also for sizes
 #'   outside a species' size range. Default FALSE.
+#' @param include_critical If TRUE, then the critical feeding level is also
+#'   plotted. Default FALSE.
 #'
 #' @return A ggplot2 object
 #' @export
@@ -846,7 +848,8 @@ plotFeedingLevel <- function(object,
             species = NULL,
             time_range,
             highlight = NULL,
-            all.sizes = FALSE, ...) {
+            all.sizes = FALSE,
+            include_critical = FALSE, ...) {
     if (is(object, "MizerSim")) {
         if (missing(time_range)) {
             time_range  <- max(as.numeric(dimnames(object@n)$time))
@@ -887,9 +890,10 @@ plotFeedingLevel <- function(object,
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
     
-    p <- ggplot(plot_dat) +
+    p <- ggplot() +
             geom_line(aes(x = w, y = value, colour = Species, 
-                          linetype = Species, size = Species))
+                          linetype = Species, size = Species),
+                      data = plot_dat)
 
     linesize <- rep(0.8, length(params@linetype))
     names(linesize) <- names(params@linetype)
@@ -900,6 +904,31 @@ plotFeedingLevel <- function(object,
         scale_colour_manual(values = params@linecolour) +
         scale_linetype_manual(values = params@linetype) +
         scale_size_manual(values = linesize)
+    
+    if (include_critical) {
+        feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
+        plot_dat_crit <- data.frame(
+            value = c(feed_crit),
+            Species = factor(dimnames(feed)$sp, 
+                             levels = dimnames(feed)$sp),
+            w = rep(params@w, each = length(species)))
+        
+        if (!all.sizes) {
+            # Remove feeding level for sizes outside a species' size range
+            for (sp in species) {
+                plot_dat_crit$value[
+                    plot_dat_crit$Species == sp &
+                        (plot_dat_crit$w < params@species_params[sp, "w_min"] |
+                             plot_dat_crit$w > params@species_params[sp, "w_inf"])] <- NA
+            }
+            plot_dat_crit <- plot_dat_crit[complete.cases(plot_dat_crit), ]
+        }
+        p <- p +
+            geom_line(aes(x = w, y = value, colour = Species, 
+                          linetype = Species),
+                      data = plot_dat_crit)
+    }
+    
     return(p)
 }
 
