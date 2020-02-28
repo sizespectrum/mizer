@@ -461,6 +461,9 @@ emptyParams <- function(species_params,
     species_names <- as.character(species_params$species)
     row.names(species_params) <- species_names
     no_sp <- nrow(species_params)
+    if (length(unique(species_names)) != no_sp) {
+        stop("The species parameter data frame has multiple rows for the same species")
+    }
     
     ## Set defaults ----
     species_params <- set_species_param_default(species_params, "w_min", min_w)
