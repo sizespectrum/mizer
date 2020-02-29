@@ -2402,6 +2402,9 @@ upgradeParams <- function(params) {
     if (.hasSlot(params, "rates_func")) {
         pnew@rates_func <- params@rates_func
     }
+    if (.hasSlot(params, "plankton_dynamics")) {
+        pnew@plankton_dynamics <- params@plankton_dynamics
+    }
     if (.hasSlot(params, "plankton_params")) {
         pnew@plankton_params <- params@plankton_params
     }
