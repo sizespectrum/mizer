@@ -40,11 +40,11 @@ validMizerParams <- function(object) {
     }
     
     # Check that the last entries of w_full and dw_full agree with w and dw
-    if (!identical(object@w, object@w_full[w_idx])) {
+    if (any(object@w[] != object@w_full[w_idx])) {
         msg <- "The later entries of w_full should be equal to those of w."
         errors <- c(errors, msg)
     }
-    if (!identical(object@dw, object@dw_full[w_idx])) {
+    if (any(object@dw[] != object@dw_full[w_idx])) {
         msg <- "The later entries of dw_full should be equal to those of dw."
         errors <- c(errors, msg)
     }
@@ -2377,7 +2377,6 @@ upgradeParams <- function(params) {
         srr = params@srr,
         initial_effort = initial_effort)
     
-    comment(pnew) <- comment(params)
     pnew@linecolour <- params@linecolour
     pnew@linetype <- params@linetype
     pnew@initial_n <- params@initial_n
@@ -2410,6 +2409,16 @@ upgradeParams <- function(params) {
         pnew@plankton_params[["kappa"]] <- params@kappa
         pnew@plankton_params[["n"]] <- params@n
         pnew@plankton_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
+    }
+    
+    if (.hasSlot(params, "A")) {
+        pnew@A <- params@A
+    }
+    
+    # Copy over all comments
+    comment(pnew) <- comment(params)
+    for (slot in (intersect(slotNames(params), slotNames(pnew)))) {
+        comment(slot(pnew, slot)) <- comment(slot(params, slot))
     }
     
     return(pnew)

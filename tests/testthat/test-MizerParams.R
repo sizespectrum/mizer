@@ -160,3 +160,13 @@ test_that("default for gamma is correct", {
                  rep(1, length(gamma_default)),
                  tolerance = 0.1)
 })
+
+test_that("Slots are allowed to have comments", {
+    params <- NS_params
+    comment(params) <- "All slots are given comments"
+    for (slot in (slotNames(params))) {
+        comment(slot(params, slot)) <- slot
+    }
+    expect_error(validObject(params), NA)
+    expect_error(project(params, t_max = 0.1), NA)
+})

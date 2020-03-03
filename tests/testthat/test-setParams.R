@@ -200,9 +200,12 @@ test_that("setParams can leave params unchanged", {
 
 ## upgradeParams ----
 test_that("upgradeParams leaves new params unchanged", {
-    expect_equal(upgradeParams(params), params)
+    expect_identical(upgradeParams(params), params)
 })
-test_that("upgradeParams preserves comment", {
+test_that("upgradeParams preserves comments", {
     comment(params) <- "test"
-    expect_equal(comment(upgradeParams(params)), "test")
+    for (slot in (slotNames(params))) {
+        comment(slot(params, slot)) <- slot
+    }
+    expect_identical(upgradeParams(params), params)
 })
