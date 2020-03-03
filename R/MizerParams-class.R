@@ -2783,7 +2783,6 @@ get_ks_default <- function(params) {
 #' @concept helper
 validate_effort_vector <- function(params, effort) {
     assert_that(is(params, "MizerParams"),
-                is.vector(effort),
                 is.numeric(effort))
     no_gears <- dim(params@catchability)[1]
     if ((length(effort) > 1) & (length(effort) != no_gears)) {

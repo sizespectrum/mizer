@@ -139,8 +139,9 @@ project <- function(object, effort,
     
     no_sp <- length(params@w_min_idx)
     assert_that(is.array(initial_n),
+                is.numeric(initial_n),
                 are_equal(dim(initial_n), c(no_sp, length(params@w))))
-    assert_that(is.vector(initial_n_pp),
+    assert_that(is.numeric(initial_n_pp),
                 length(initial_n_pp) == length(params@w_full))
     
     assert_that(is.null(initial_n_other) || is.list(initial_n_other))
@@ -157,7 +158,7 @@ project <- function(object, effort,
     # Create effort array ----
     if (missing(effort)) effort <- params@initial_effort
     # Do we need to create an effort array?
-    if (is.vector(effort)) {
+    if (is.null(dim(effort))) {
         no_gears <- dim(params@catchability)[1]
         if ((length(effort) > 1) & (length(effort) != no_gears)) {
             stop("Effort vector must be the same length as the number of fishing gears\n")

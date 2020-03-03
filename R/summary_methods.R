@@ -63,7 +63,8 @@ getDiet <- function(params,
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
                 is.array(n),
-                is.vector(n_pp))
+                is.numeric(n),
+                is.numeric(n_pp))
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
