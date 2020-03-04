@@ -24,7 +24,8 @@ validMizerParams <- function(object) {
     no_w_full <- length(object@w_full)
     w_idx <- (no_w_full - no_w + 1):no_w_full
     
-    # Check dw and dw_full are correct length
+    # Check weight grids ----
+    # Check dw and dw_full are correct length 
     if (length(object@dw) != no_w) {
         msg <- paste("dw is length ", length(object@dw),
                      " and w is length ", no_w,
@@ -49,7 +50,7 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
-    # Check the array dimensions are good
+    # Check the array dimensions are good ----
     # 2D arrays
     if (!all(c(length(dim(object@psi)),
                length(dim(object@intake_max)),
@@ -97,7 +98,7 @@ validMizerParams <- function(object) {
         msg <- "The number of fishing gears must be consistent across the catchability and selectivity (dim 1) slots"
         errors <- c(errors, msg)
     }
-    # Check names of dimnames of arrays
+    # Check names of dimnames of arrays ----
     # sp dimension
     if (!all(c(
         names(dimnames(object@psi))[1],
@@ -170,7 +171,7 @@ validMizerParams <- function(object) {
         msg <- "The gear names of selectivity and catchability must all be the same"
         errors <- c(errors, msg)
     }
-    # Check the vector slots
+    # Check the vector slots ----
     if (length(object@rr_pp) != length(object@w_full)) {
         msg <- "rr_pp must be the same length as w_full"
         errors <- c(errors, msg)
@@ -180,7 +181,7 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     
-    # SRR
+    # SRR ----
     if (!is.string(object@srr)) {
         msg <- "srr needs to be specified as a string giving the name of the function"
         errors <- c(errors, msg)
@@ -221,6 +222,14 @@ validMizerParams <- function(object) {
     
     # species_params
     # Column check done in constructor
+    
+    # check value ranges ----
+    if (any(object@intake_max <= 0)) {
+        msg <- "The intake rate must be positive and non-zero everywhere."
+        error <- c(error, msg)
+    }
+    # TODO: add more checks here
+    
     # If everything is OK
     if (length(errors) == 0) TRUE else errors
 }
@@ -2812,4 +2821,18 @@ validate_effort_vector <- function(params, effort) {
                     ") do not match those in the effort vector."))
     }
     return(TRUE)
+}
+
+#' Get critical feeding level
+#' 
+#' The critical feeding level is the feeding level at which the food intake is
+#' just high enough to cover the metabolic costs, with nothing left over for
+#' growth or reproduction. 
+#' 
+#' @param params A MizerParams object
+#' @return A matrix (species x size) with the critical feeding level
+#' @export
+getCriticalFeedingLevel <- function(params) {
+    validObject(params)
+    params@metab/params@intake_max/params@species_params$alpha
 }

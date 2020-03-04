@@ -10,6 +10,7 @@ plotFeedingLevel(
   time_range,
   highlight = NULL,
   all.sizes = FALSE,
+  include_critical = FALSE,
   ...
 )
 }
@@ -29,6 +30,9 @@ object.}
 \item{all.sizes}{If TRUE, then feeding level is plotted also for sizes
 outside a species' size range. Default FALSE.}
 
+\item{include_critical}{If TRUE, then the critical feeding level is also
+plotted. Default FALSE.}
+
 \item{...}{Other arguments (currently unused)}
 }
 \value{
@@ -44,6 +48,12 @@ When called with a \linkS4class{MizerSim} object, the feeding level is averaged
 over the specified time range (a single value for the time range can be used
 to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial feeding level is plotted.
+
+If `include_critical = TRUE` then the critical feeding level (the feeding
+level at which the intake just covers the metabolic cost) is also plotted,
+with a thinner line. This line should always stay below the line of the
+actual feeding level, because the species would stop growing at any point
+where the feeding level drops to the critical feeding level.
 }
 \examples{
 
