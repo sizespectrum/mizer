@@ -1139,7 +1139,7 @@ setInteraction <- function(params,
     # Check that all values of interaction vector are 0 - 1.
     if (!all((species_params$interaction_p >= 0) & 
              (species_params$interaction_p <= 1))) {
-        stop("Values in the plantkon interaction vector should be between 0 and 1")
+        stop("Values in the plankton interaction vector should be between 0 and 1")
     }
     params@species_params$interaction_p <- species_params$interaction_p
     
