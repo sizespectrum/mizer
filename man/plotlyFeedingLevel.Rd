@@ -4,7 +4,14 @@
 \alias{plotlyFeedingLevel}
 \title{Plot the feeding level of species by size with plotly}
 \usage{
-plotlyFeedingLevel(object, species = NULL, time_range, highlight = NULL, ...)
+plotlyFeedingLevel(
+  object,
+  species = NULL,
+  time_range,
+  highlight = NULL,
+  include_critical,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
@@ -18,6 +25,9 @@ the final time step. Ignored when called with a \linkS4class{MizerParams}
 object.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
+
+\item{include_critical}{If TRUE, then the critical feeding level is also
+plotted. Default FALSE.}
 
 \item{...}{Other arguments (currently unused)}
 }
@@ -34,6 +44,12 @@ When called with a \linkS4class{MizerSim} object, the feeding level is averaged
 over the specified time range (a single value for the time range can be used
 to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial feeding level is plotted.
+
+If `include_critical = TRUE` then the critical feeding level (the feeding
+level at which the intake just covers the metabolic cost) is also plotted,
+with a thinner line. This line should always stay below the line of the
+actual feeding level, because the species would stop growing at any point
+where the feeding level drops to the critical feeding level.
 }
 \seealso{
 Other plotting functions: 
