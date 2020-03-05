@@ -233,6 +233,7 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
   `all.sizes = TRUE`.
 * The stock recruitment function is now specified by giving the name of the
   function, rather than the function itself.
+* The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
 
 
 # mizer 1.0.1
