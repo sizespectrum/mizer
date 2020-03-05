@@ -27,8 +27,8 @@ params_r@species_params$R_max <- params_r@species_params$R_max * volume
 
 # Random abundances
 set.seed(0)
-n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w)))
-n_full <- abs(rnorm(no_w_full))
+n <- abs(array(rnorm(no_w * no_sp), dim = c(no_sp, no_w))) * 1e9
+n_full <- abs(rnorm(no_w_full)) * 1e9
 
 
 # getEncounter --------------------------------------------------------------
@@ -324,7 +324,7 @@ test_that("getEReproAndGrowth", {
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
     e <- e - params@metab[1, ]
-    expect_identical(e, erg[1, ])
+    expect_equal(e, erg[1, ])
     # Adding feeding level gives the same result
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     erg2 <- getEReproAndGrowth(params, n, n_full, feeding_level = f)
