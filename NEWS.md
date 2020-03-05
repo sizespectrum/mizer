@@ -58,7 +58,6 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
   the `print_it` argument in plot functions to `FALSE`.
 * New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
   argument to limit the w range in the plot.
-* New arguments `xlab` and `ylab` for `displayFrames()`.
 * Use colour and linetype for plots irrespective of the number of species.
 * Plot background species in the colour specified in the `linecolour` slot.
 * The default line type is `solid` but this can be changed via the `linetype`
@@ -234,6 +233,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
 * The stock recruitment function is now specified by giving the name of the
   function, rather than the function itself.
 * The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
+* The `displayFrames()` function has been moved to the "mizerExperimental"
+  package.
 
 
 # mizer 1.0.1

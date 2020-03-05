@@ -42,19 +42,6 @@ sim@params@species_params[["a"]] <- 0.0058
 sim@params@species_params[["b"]] <- 3.13
 p <- plotGrowthCurves(sim, species = "Haddock", max_age = 50)
 vdiffr::expect_doppelganger("Plot Single Growth Curve", p)
-
-p <- displayFrames(getBiomassFrame(sim0, 
-                                   species = species,
-                                   start_time = 1,
-                                   total = TRUE), 
-                   getBiomassFrame(sim,
-                                   end_time = 3,
-                                   ylim = c(1e12)),
-                   params)
-vdiffr::expect_doppelganger("Display Frames", p)
-
-expect_known_value(getSSBFrame(sim, species = "Cod", total = TRUE),
-                   "values/getSSBFrame")
 })
 
 test_that("plot function do not throw error", {

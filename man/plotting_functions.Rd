@@ -48,10 +48,6 @@ specified as a vector in the \code{species} argument to the plot function.
 
 The ordering of the species in the legend is the same as the ordering in
 the species parameter data frame.
-
-Sometimes one wants to show two plots side-by-side with the same axes and
-the same legend. This is made possible for some of the plots via the
-\code{\link{displayFrames}} function.
 }
 \examples{
 # Set up example MizerParams and MizerSim objects

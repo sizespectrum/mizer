@@ -116,10 +116,6 @@ reference:
   contents:
   - plotting_functions
   - starts_with("plot")
-  - animateSpectra
-  - getBiomassFrame
-  - getSSBFrame
-  - displayFrames
 - title: Calculating rates used in the model
   contents:
   - getRates

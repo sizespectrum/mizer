@@ -54,10 +54,6 @@
 #' The ordering of the species in the legend is the same as the ordering in
 #' the species parameter data frame.
 #' 
-#' Sometimes one wants to show two plots side-by-side with the same axes and
-#' the same legend. This is made possible for some of the plots via the
-#' \code{\link{displayFrames}} function.
-#' 
 #' @seealso \code{\link{summary_functions}}, \code{\link{indicator_functions}}
 #' @family plotting functions
 #' @name plotting_functions
@@ -136,7 +132,6 @@ log_breaks <- function(n = 6){
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' 
 #' @return ggplot2 object
-#' @export
 #' @family frame functions
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}},
@@ -182,63 +177,6 @@ displayFrames <- function(f1, f2, params,
     return(p)
 }
 
-
-#' Get data frame of spawning stock biomass of species through time, 
-#' ready for ggplot2
-#'
-#' After running a projection, the spawning stock biomass of each species can be
-#' plotted against time.
-#' 
-#' @param sim An object of class \linkS4class{MizerSim}
-#' @param species Name or vector of names of the species to be plotted. By
-#'   default all foreground species are plotted.
-#' @param start_time The first time to be plotted. Default is the beginning
-#'   of the time series.
-#' @param end_time The last time to be plotted. Default is the end of the
-#'   time series.
-#' @param ylim A numeric vector of length two providing limits of for the
-#'   y axis. Use NA to refer to the existing minimum or maximum. Any values
-#'   below 1e-20 are always cut off.
-#' @param total A boolean value that determines whether the total SSB from
-#'   all species is plotted as well. Default is FALSE
-#'   
-#' @return A data frame that can be used in \code{\link{displayFrames}}
-#' @export
-#' @family frame functions
-#' @seealso \code{\link{getSSB}}
-getSSBFrame <- function(sim,
-            species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
-            start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-            end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            ylim = c(NA, NA), total = FALSE){
-    b <- getSSB(sim)
-    if (start_time >= end_time) {
-        stop("start_time must be less than end_time")
-    }
-    # Select time range
-    b <- b[(as.numeric(dimnames(b)[[1]]) >= start_time) &
-               (as.numeric(dimnames(b)[[1]]) <= end_time), , drop = FALSE]
-    b_total <- rowSums(b)
-    # Include total
-    if (total) {
-        b <- cbind(b, Total = b_total)
-    }
-    bm <- reshape2::melt(b)
-    # Implement ylim and a minimal cutoff
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), ]
-    names(bm) <- c("Year", "Species", "SSB")
-    # Force Species column to be a factor (otherwise if numeric labels are
-    # used they may be interpreted as integer and hence continuous)
-    bm$Species <- as.factor(bm$Species)
-    # Select species
-    bm <- bm[bm$Species %in% species, ]
-    return(bm)
-}
-
-
 #' Get data frame of biomass of species through time, ready for ggplot2
 #'
 #' After running a projection, the biomass of each species can be plotted
@@ -262,7 +200,6 @@ getSSBFrame <- function(sim,
 #' @inheritDotParams get_size_range_array -params
 #'   
 #' @return A data frame that can be used in \code{\link{displayFrames}}
-#' @export
 #' @family frame functions
 #' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}}
 #' @examples 
