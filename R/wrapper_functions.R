@@ -609,7 +609,7 @@ newTraitParams <- function(no_sp = 11,
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' params <- newTraitParams()
+#' params <- newSheldonParams()
 #' sim <- project(params, t_max = 5, effort = 0)
 #' plotSpectra(sim)
 #' }
