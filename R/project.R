@@ -256,9 +256,6 @@ project <- function(object, effort,
     # n[w_minidx_array_ref] = n[,w_min_idx]
     w_min_idx_array_ref <- (sim@params@w_min_idx - 1) * no_sp + (1:no_sp)
     
-    # sex ratio - DO SOMETHING LATER WITH THIS
-    sex_ratio <- 0.5
-    
     # Matrices for solver
     a <- matrix(0, nrow = no_sp, ncol = no_w)
     b <- matrix(0, nrow = no_sp, ncol = no_w)

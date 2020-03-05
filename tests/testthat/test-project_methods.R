@@ -373,8 +373,8 @@ test_that("getERepro", {
 # getRDI ------------------------------------------------------------------
 
 test_that("getRDI", {
-    sex_ratio <- 0.4
-    rdi <- getRDI(params, n, n_full, sex_ratio = sex_ratio)
+    sex_ratio <- 0.5
+    rdi <- getRDI(params, n, n_full)
     # test dim
     expect_length(rdi, no_sp)
     # test values
@@ -385,8 +385,7 @@ test_that("getRDI", {
     expect_equal(rdix, rdi, tolerance = 1e-15, check.names = FALSE)
     # Including ESpawning is the same
     e_repro <- getERepro(params, n = n, n_pp = n_full)
-    rdi2 <- getRDI(params, n, n_full, sex_ratio = sex_ratio, 
-                   e_repro = e_repro)
+    rdi2 <- getRDI(params, n, n_full, e_repro = e_repro)
     expect_identical(rdi, rdi2)
     expect_known_value(rdi, "values/getRDI")
 })

@@ -10,8 +10,7 @@ getRates(
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
   t = 0,
-  effort = params@initial_effort,
-  sex_ratio = 0.5
+  effort = params@initial_effort
 )
 }
 \arguments{
@@ -27,9 +26,6 @@ ecosystem}
 \item{t}{The current time}
 
 \item{effort}{The effort for each fishing gear.}
-
-\item{sex_ratio}{Proportion of the population that is female. Default value
-is 0.5.}
 }
 \value{
 A list with the following components:

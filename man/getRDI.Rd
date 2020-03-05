@@ -9,8 +9,7 @@ getRDI(
   n = params@initial_n,
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
-  e_repro = getERepro(params, n = n, n_pp = n_pp, n_other = n_other),
-  sex_ratio = 0.5
+  e_repro = getERepro(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
@@ -26,9 +25,6 @@ ecosystem}
 \item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
 using \code{\link{getERepro}}.}
-
-\item{sex_ratio}{Proportion of the population that is female. Default value
-is 0.5.}
 }
 \value{
 A numeric vector the length of the number of species

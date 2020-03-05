@@ -48,9 +48,7 @@ NULL
 #' @param n_other A list of abundances for other dynamical components of the
 #'   ecosystem
 #' @param t The current time
-#' @param effort The effort for each fishing gear. 
-#' @param sex_ratio Proportion of the population that is female. Default value
-#'   is 0.5.
+#' @param effort The effort for each fishing gear.
 #' 
 #' @return A list with the following components:
 #'   \itemize{
@@ -72,8 +70,7 @@ getRates <- function(params, n = params@initial_n,
                      n_pp = params@initial_n_pp,
                      n_other = params@initial_n_other,
                      t = 0,
-                     effort = params@initial_effort,
-                     sex_ratio = 0.5) {
+                     effort = params@initial_effort) {
     r <- list()
     
     # Calculate rate E_{e,i}(w) of encountered food
@@ -114,7 +111,7 @@ getRates <- function(params, n = params@initial_n,
     
     # R_{p,i}
     r$rdi <- getRDI(params, n = n, n_pp = n_pp, n_other = n_other,
-                    e_repro = r$e_repro, sex_ratio = sex_ratio)
+                    e_repro = r$e_repro)
     # R_i
     r$rdd <- do.call(params@srr,
                      list(rdi = r$rdi, species_params = params@species_params))
@@ -983,8 +980,6 @@ getEGrowth <- function(params, n = params@initial_n,
 #' @param e_repro The energy available for reproduction (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
 #'   using \code{\link{getERepro}}.
-#' @param sex_ratio Proportion of the population that is female. Default value
-#'   is 0.5.
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
@@ -1002,13 +997,13 @@ getRDI <- function(params, n = params@initial_n,
                    n_pp = params@initial_n_pp,
                    n_other = params@initial_n_other,
                    e_repro = getERepro(params, n = n, n_pp = n_pp, 
-                                       n_other = n_other),
-                   sex_ratio = 0.5) {
+                                       n_other = n_other)) {
     if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
         stop("e_repro argument must have dimensions: no. species (",
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
+    sex_ratio <- 0.5
     e_repro_pop <- drop( (e_repro * n) %*% params@dw)
     rdi <- sex_ratio * (e_repro_pop * params@species_params$erepro) /
         params@w[params@w_min_idx]
@@ -1026,8 +1021,6 @@ getRDI <- function(params, n = params@initial_n,
 #' \code{\link{setReproduction}} for more details.
 #' 
 #' @inheritParams getRates
-#' @param sex_ratio Proportion of the population that is female. Default value
-#'   is 0.5.
 #' @param rdi A vector of density independent recruitment for each species. 
 #'   If not specified rdi is calculated internally using
 #'   \code{\link{getRDI}}.
@@ -1046,10 +1039,9 @@ getRDI <- function(params, n = params@initial_n,
 #' }
 getRDD <- function(params, n = params@initial_n, 
                    n_pp = params@initial_n_pp,
-                   n_other = params@initial_n_other, sex_ratio = 0.5,
+                   n_other = params@initial_n_other,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
-                                n_other = n_other,
-                                sex_ratio = sex_ratio)) {
+                                n_other = n_other)) {
     return(do.call(params@srr,
                    list(rdi = rdi, species_params = params@species_params)))
 }

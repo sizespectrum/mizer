@@ -9,8 +9,7 @@ getRDD(
   n = params@initial_n,
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
-  sex_ratio = 0.5,
-  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other, sex_ratio = sex_ratio)
+  rdi = getRDI(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
@@ -22,9 +21,6 @@ getRDD(
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
-
-\item{sex_ratio}{Proportion of the population that is female. Default value
-is 0.5.}
 
 \item{rdi}{A vector of density independent recruitment for each species. 
 If not specified rdi is calculated internally using
