@@ -223,13 +223,6 @@ validMizerParams <- function(object) {
     # species_params
     # Column check done in constructor
     
-    # check value ranges ----
-    if (any(object@intake_max <= 0)) {
-        msg <- "The intake rate must be positive and non-zero everywhere."
-        error <- c(error, msg)
-    }
-    # TODO: add more checks here
-    
     # If everything is OK
     if (length(errors) == 0) TRUE else errors
 }
