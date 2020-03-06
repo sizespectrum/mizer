@@ -434,7 +434,7 @@ set_community_model <- function(max_w = 1e6,
     com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w, max_w = max_w, 
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
-    com_params@srr <- "srrConstant"
+    com_params@rates_funcs$getRDD <- "srrConstant"
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
     # due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used

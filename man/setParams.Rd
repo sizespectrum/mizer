@@ -24,7 +24,7 @@ setParams(
   z0exp = n - 1,
   maturity = NULL,
   repro_prop = NULL,
-  srr = params@srr,
+  srr = params@rates_funcs$getRDD,
   initial_effort = NULL
 )
 }
@@ -92,7 +92,7 @@ reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
 \item{srr}{The name of the stock recruitment function. Defaults to 
-\code{\link{srrBevertonHolt}}.}
+"\code{\link{srrBevertonHolt}}".}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If

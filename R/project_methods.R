@@ -48,7 +48,9 @@ NULL
 #' @param n_other A list of abundances for other dynamical components of the
 #'   ecosystem
 #' @param t The current time
-#' @param effort The effort for each fishing gear.
+#' @param effort The effort for each fishing gear
+#' @param rates_fns Named list of the functions to call to calculate the rates.
+#'   Note that this list holds the functions themselves, not their names.
 #' 
 #' @return A list with the following components:
 #'   \itemize{
@@ -66,55 +68,60 @@ NULL
 #'   }
 #' @export
 #' @family rate functions
-getRates <- function(params, n = params@initial_n, 
+getRates <- function(params,
+                     n = params@initial_n, 
                      n_pp = params@initial_n_pp,
                      n_other = params@initial_n_other,
                      t = 0,
-                     effort = params@initial_effort) {
+                     effort = params@initial_effort,
+                     rates_fns = lapply(params@rates_funcs, get)) {
     r <- list()
     
     # Calculate rate E_{e,i}(w) of encountered food
-    r$encounter <- getEncounter(params, n = n, n_pp = n_pp, n_other = n_other)
+    r$encounter <- rates_fns$getEncounter(
+        params, n = n, n_pp = n_pp, n_other = n_other)
     # Calculate feeding level f_i(w)
-    r$feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp, 
-                                       n_other = n_other,
-                                       encounter = r$encounter)
+    r$feeding_level <- rates_fns$getFeedingLevel(
+        params, n = n, n_pp = n_pp, n_other = n_other, encounter = r$encounter)
     # Calculate the energy available for reproduction and growth
-    r$e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
-                              encounter = r$encounter,
-                              feeding_level = r$feeding_level)
+    r$e <- rates_fns$getEReproAndGrowth(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        encounter = r$encounter, feeding_level = r$feeding_level)
     
     ## Calculate all mortalities, before negative e values are turned into zero
     #  in getERepro() and getEGrowth() functions
     # Calculate the predation rate
-    r$pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
-                               feeding_level = r$feeding_level)
+    r$pred_rate <- rates_fns$getPredRate(
+        params, n = n, n_pp = n_pp, n_other = n_other, 
+        feeding_level = r$feeding_level)
     # Calculate predation mortality on fish \mu_{p,i}(w)
-    r$pred_mort <- getPredMort(params, pred_rate = r$pred_rate)
+    r$pred_mort <- rates_fns$getPredMort(params, pred_rate = r$pred_rate)
     # Calculate total mortality \mu_i(w)
-    r$mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other,
-                      effort = effort, m2 = r$pred_mort)    
+    r$mort <- rates_fns$getMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        effort = effort, m2 = r$pred_mort)    
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
-    r$e_repro <- getERepro(params, n = n, n_pp = n_pp, 
-                           n_other = n_other, e = r$e)
+    r$e_repro <- rates_fns$getERepro(
+        params, n = n, n_pp = n_pp, n_other = n_other, e = r$e)
     # Calculate the growth rate g_i(w)
-    r$e_growth <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, 
-                             e_repro = r$e_repro, e = r$e)
+    r$e_growth <- rates_fns$getEGrowth(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        e_repro = r$e_repro, e = r$e)
     
 
     # Calculate mortality on the plankton spectrum
-    r$plankton_mort <- getPlanktonMort(params, n = n, n_pp = n_pp, 
-                                       n_other = n_other,
-                                       pred_rate = r$pred_rate)
+    r$plankton_mort <- rates_fns$getPlanktonMort(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        pred_rate = r$pred_rate)
     
     # R_{p,i}
-    r$rdi <- getRDI(params, n = n, n_pp = n_pp, n_other = n_other,
+    r$rdi <- rates_fns$getRDI(params, n = n, n_pp = n_pp, n_other = n_other,
                     e_repro = r$e_repro)
     # R_i
-    r$rdd <- do.call(params@srr,
-                     list(rdi = r$rdi, species_params = params@species_params))
+    r$rdd <- rates_fns$getRDD(
+        rdi = r$rdi, species_params = params@species_params)
     
     return(r)
 }
@@ -1042,7 +1049,12 @@ getRDD <- function(params, n = params@initial_n,
                    n_other = params@initial_n_other,
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other)) {
-    return(do.call(params@srr,
+    # Avoid getting into infinite loops
+    if (params@rates_funcs$getRDD == "getRDD") {
+        stop('"getRDD" is not a valid name for the function giving the density',
+             'dependent reproductive rate.')
+    }
+    return(do.call(params@rates_funcs$getRDD,
                    list(rdi = rdi, species_params = params@species_params)))
 }
 

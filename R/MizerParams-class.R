@@ -181,30 +181,31 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
     
-    # SRR ----
-    if (!is.string(object@srr)) {
-        msg <- "srr needs to be specified as a string giving the name of the function"
-        errors <- c(errors, msg)
-    } else {
-        if (!exists(object@srr)) {
-            msg <- paste0("The stock-recruitment function ",
-                          object@srr,
-                          "does not exist.")
-            errors <- c(errors, msg)
-        } else {
-            srr <- get(object@srr)
-            if (!is.function(srr)) {
-                msg <- "The specified srr is not a function."
-                errors <- c(errors, msg)
-            } else {
-                # Must have two arguments: rdi amd species_params
-                if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
-                    msg <- "Arguments of srr function must be 'rdi' and 'species_params'"
-                    errors <- c(errors, msg)
-                }
-            }
-        }
-    }
+    # TODO: Rewrite the following into a test of the @rates_funcs slot ----
+    # SRR 
+    # if (!is.string(object@srr)) {
+    #     msg <- "srr needs to be specified as a string giving the name of the function"
+    #     errors <- c(errors, msg)
+    # } else {
+    #     if (!exists(object@srr)) {
+    #         msg <- paste0("The stock-recruitment function ",
+    #                       object@srr,
+    #                       "does not exist.")
+    #         errors <- c(errors, msg)
+    #     } else {
+    #         srr <- get(object@srr)
+    #         if (!is.function(srr)) {
+    #             msg <- "The specified srr is not a function."
+    #             errors <- c(errors, msg)
+    #         } else {
+    #             # Must have two arguments: rdi amd species_params
+    #             if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
+    #                 msg <- "Arguments of srr function must be 'rdi' and 'species_params'"
+    #                 errors <- c(errors, msg)
+    #             }
+    #         }
+    #     }
+    # }
     
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(object@species_params)) {
@@ -218,7 +219,7 @@ validMizerParams <- function(object) {
     #     msg <- "species_params data.frame must have 'species', 'z0', 'alpha' and 'erepro' columms"
     #     errors <- c(errors,msg)
     # }
-    # must also have SRR params but sorted out yet
+    # must also have SRR params but not sorted out yet
     
     # species_params
     # Column check done in constructor
@@ -300,17 +301,14 @@ validMizerParams <- function(object) {
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
-#' @slot rates_func A string with the name of the function that should be used to
-#'   calculate the rates needed by `project()`. By default this will be set to
-#'   "getRates" so that the built-in `getRates()` function is used.
+#' @slot rates_funcs A named list with the names of the functions that should be
+#'   used to calculate the rates needed by `project()`. By default this will be
+#'   set to the names of the built-in rate functions.
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See \code{\link{newMultispeciesParams}} for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with \code{\link{setInteraction}}.
-#' @slot srr String holding the name of the function to calculate the realised
-#'   (density dependent) recruitment. The function should have two arguments
-#'   which are rdi and species_params.
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
 #'   each gear for species and size, \eqn{S_{g,i,w}}. Changed with 
 #'   \code{\link{setFishing}}.
@@ -374,13 +372,12 @@ setClass(
         other_params = "list",
         other_encounter = "list",
         other_mort = "list",
-        rates_func = "character",
+        rates_funcs = "list",
         sc = "numeric",
         initial_n_pp = "numeric",
         initial_n_other = "list",
         species_params = "data.frame",
         interaction = "array",
-        srr  = "character",
         selectivity = "array",
         catchability = "array",
         initial_effort = "numeric",
@@ -695,11 +692,22 @@ emptyParams <- function(species_params,
         initial_n_pp = vec1,
         species_params = species_params,
         interaction = interaction,
-        srr = "srrBevertonHolt",
         other_dynamics = list(),
         other_encounter = list(),
         other_mort = list(),
-        rates_func = "getRates",
+        rates_funcs = list(
+            getRates = "getRates",
+            getEncounter = "getEncounter",
+            getFeedingLevel = "getFeedingLevel",
+            getEReproAndGrowth = "getEReproAndGrowth",
+            getPredRate = "getPredRate",
+            getPredMort = "getPredMort",
+            getMort = "getMort",
+            getERepro = "getERepro",
+            getEGrowth = "getEGrowth",
+            getPlanktonMort = "getPlanktonMort",
+            getRDI = "getRDI",
+            getRDD = "srrBevertonHolt"),
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -1024,7 +1032,7 @@ setParams <- function(params,
                       # setReproduction
                       maturity = NULL,
                       repro_prop = NULL,
-                      srr = params@srr,
+                      srr = params@rates_funcs$getRDD,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
@@ -1737,7 +1745,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = -1/4) {
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
 #' @param srr The name of the stock recruitment function. Defaults to 
-#'   \code{\link{srrBevertonHolt}}.
+#'   "\code{\link{srrBevertonHolt}}".
 #' 
 #' @return The MizerParams object.
 #' @export
@@ -1750,7 +1758,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = -1/4) {
 #' params <- setReproduction(params)
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                            srr = params@srr) {
+                            srr = params@rates_funcs$getRDD) {
     assert_that(is(params, "MizerParams"),
                 is.string(srr),
                 exists(srr),
@@ -1881,8 +1889,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
         stop("Arguments of srr function must be 'rdi' and 'species_params'")
     }
-    params@srr <- srr
-    if (identical(params@srr, "srrBevertonHolt")) {
+    params@rates_funcs$getRDD <- srr
+    if (identical(params@rates_funcs$getRDD, "srrBevertonHolt")) {
         
         # for legacy reasons (R_max used to be called r_max):
         if ("r_max" %in% names(params@species_params)) {
@@ -2305,9 +2313,15 @@ updateInitial <- function(params) {
 #' @export
 upgradeParams <- function(params) {
     
-    if (is.function(params@srr)) {
-        params@srr <- "srrBevertonHolt"
-        message('The stock recruitment function has been set to "srrBevertonHolt".')
+    if (.hasSlot(params, "srr")) {
+        if (is.function(params@srr)) {
+            srr <- "srrBevertonHolt"
+            message('The density-dependent reproduction rate function has been set to "srrBevertonHolt".')
+        } else {
+            srr <- params@srr
+        }
+    } else {
+        srr <- "srrBevertonHolt"
     }
     
     if (is.function(params@plankton_dynamics)) {
@@ -2376,7 +2390,7 @@ upgradeParams <- function(params) {
         mu_b = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
-        srr = params@srr,
+        srr = srr,
         initial_effort = initial_effort)
     
     pnew@linecolour <- params@linecolour
@@ -2400,9 +2414,6 @@ upgradeParams <- function(params) {
     if (.hasSlot(params, "other_pred_mort")) {
         pnew@other_mort <- params@other_pred_mort
     }
-    if (.hasSlot(params, "rates_func")) {
-        pnew@rates_func <- params@rates_func
-    }
     if (.hasSlot(params, "plankton_dynamics")) {
         pnew@plankton_dynamics <- params@plankton_dynamics
     }
@@ -2420,10 +2431,16 @@ upgradeParams <- function(params) {
         pnew@A <- params@A
     }
     
+    if (.hasSlot(params, "rates_func")) {
+        pnew@rates_funcs$getRates <- params@rates_func
+    }
+    
     # Copy over all comments
     comment(pnew) <- comment(params)
-    for (slot in (intersect(slotNames(params), slotNames(pnew)))) {
-        comment(slot(pnew, slot)) <- comment(slot(params, slot))
+    for (slot in slotNames(pnew)) {
+        if (.hasSlot(params, slot)) {
+            comment(slot(pnew, slot)) <- comment(slot(params, slot))
+        }
     }
     
     return(pnew)

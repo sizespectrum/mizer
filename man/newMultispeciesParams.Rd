@@ -97,7 +97,7 @@ reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
 \item{srr}{The name of the stock recruitment function. Defaults to 
-\code{\link{srrBevertonHolt}}.}
+"\code{\link{srrBevertonHolt}}".}
 
 \item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
 

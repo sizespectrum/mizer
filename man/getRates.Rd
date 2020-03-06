@@ -10,7 +10,8 @@ getRates(
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
   t = 0,
-  effort = params@initial_effort
+  effort = params@initial_effort,
+  rates_fns = lapply(params@rates_funcs, get)
 )
 }
 \arguments{
@@ -25,7 +26,10 @@ ecosystem}
 
 \item{t}{The current time}
 
-\item{effort}{The effort for each fishing gear.}
+\item{effort}{The effort for each fishing gear}
+
+\item{rates_fns}{Named list of the functions to call to calculate the rates.
+Note that this list holds the functions themselves, not their names.}
 }
 \value{
 A list with the following components:
