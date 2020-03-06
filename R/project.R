@@ -284,7 +284,7 @@ project <- function(object, effort,
     t <- 0  # keep track of time
     t_steps <- dim(effort_dt)[1] - 1
     for (i_time in 1:t_steps) {
-        r <- rates_fns$getRates(
+        r <- rates_fns$Rates(
             params, n = n, n_pp = n_pp, n_other = n_other,
             t = t, effort = effort_dt[i_time,], rates_fns = rates_fns)
         

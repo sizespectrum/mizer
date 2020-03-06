@@ -696,18 +696,19 @@ emptyParams <- function(species_params,
         other_encounter = list(),
         other_mort = list(),
         rates_funcs = list(
-            getRates = "getRates",
-            getEncounter = "getEncounter",
-            getFeedingLevel = "getFeedingLevel",
-            getEReproAndGrowth = "getEReproAndGrowth",
-            getPredRate = "getPredRate",
-            getPredMort = "getPredMort",
-            getMort = "getMort",
-            getERepro = "getERepro",
-            getEGrowth = "getEGrowth",
-            getPlanktonMort = "getPlanktonMort",
-            getRDI = "getRDI",
-            getRDD = "srrBevertonHolt"),
+            Rates = "mizerRates",
+            Encounter = "mizerEncounter",
+            FeedingLevel = "mizerFeedingLevel",
+            EReproAndGrowth = "mizerEReproAndGrowth",
+            PredRate = "mizerPredRate",
+            PredMort = "mizerPredMort",
+            FMort = "mizerFMort",
+            Mort = "mizerMort",
+            ERepro = "mizerERepro",
+            EGrowth = "mizerEGrowth",
+            PlanktonMort = "mizerPlanktonMort",
+            RDI = "mizerRDI",
+            RDD = "srrBevertonHolt"),
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -1032,7 +1033,7 @@ setParams <- function(params,
                       # setReproduction
                       maturity = NULL,
                       repro_prop = NULL,
-                      srr = params@rates_funcs$getRDD,
+                      srr = params@rates_funcs$RDD,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
@@ -1758,7 +1759,7 @@ setBMort <- function(params, mu_b = NULL, z0pre = 0.6, z0exp = -1/4) {
 #' params <- setReproduction(params)
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                            srr = params@rates_funcs$getRDD) {
+                            srr = params@rates_funcs$RDD) {
     assert_that(is(params, "MizerParams"),
                 is.string(srr),
                 exists(srr),
@@ -1889,8 +1890,8 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
         stop("Arguments of srr function must be 'rdi' and 'species_params'")
     }
-    params@rates_funcs$getRDD <- srr
-    if (identical(params@rates_funcs$getRDD, "srrBevertonHolt")) {
+    params@rates_funcs$RDD <- srr
+    if (identical(params@rates_funcs$RDD, "srrBevertonHolt")) {
         
         # for legacy reasons (R_max used to be called r_max):
         if ("r_max" %in% names(params@species_params)) {

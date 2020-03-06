@@ -143,7 +143,7 @@ newCommunityParams <- function(max_w = 1e6,
                        dim = c(1, length(params@w)))
     params <- setInitial(params, initial_n = initial_n)
 
-    params@rates_funcs$getRDD <- "srrConstant"
+    params@rates_funcs$RDD <- "srrConstant"
     if (missing(recruitment)) {
         recruitment <- get_required_recruitment(params)
     }
@@ -1372,7 +1372,7 @@ setRmax <- function(params, rfac) {
                 is.numeric(rfac),
                 length(rfac) %in% c(1, nrow(params@species_params)),
                 all(rfac > 1))
-    if (params@rates_funcs$getRDD != "srrNone") {
+    if (params@rates_funcs$RDD != "srrNone") {
         stop("setRmax can only be applied to params objects using the identity",
              " stock-recruitment function.")
     }
@@ -1472,7 +1472,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     
     # Force the recruitment to stay at the current level
     p@species_params$constant_recruitment <- getRDD(p)
-    p@rates_funcs$getRDD <- "srrConstant"
+    p@rates_funcs$RDD <- "srrConstant"
     old_rdi <- getRDI(p)
     rdi_limit <- old_rdi / 1e7
     # Force other componens to stay at current level
@@ -1528,7 +1528,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     }
     
     # Restore original stock-recruitment relationship and other dynamics
-    p@rates_funcs$getRDD <- params@rates_funcs$getRDD
+    p@rates_funcs$RDD <- params@rates_funcs$RDD
     p@other_dynamics <- old_other_dynamics
     
     no_sp <- length(p@species_params$species)

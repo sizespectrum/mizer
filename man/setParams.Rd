@@ -24,7 +24,7 @@ setParams(
   z0exp = n - 1,
   maturity = NULL,
   repro_prop = NULL,
-  srr = params@rates_funcs$getRDD,
+  srr = params@rates_funcs$RDD,
   initial_effort = NULL
 )
 }

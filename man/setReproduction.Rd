@@ -8,7 +8,7 @@ setReproduction(
   params,
   maturity = NULL,
   repro_prop = NULL,
-  srr = params@rates_funcs$getRDD
+  srr = params@rates_funcs$RDD
 )
 }
 \arguments{
