@@ -50,8 +50,7 @@ displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
   \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
 
 Other frame functions: 
-\code{\link{getBiomassFrame}()},
-\code{\link{getSSBFrame}()}
+\code{\link{getBiomassFrame}()}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

@@ -69,7 +69,6 @@ displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 \code{\link{getBiomass}}, \code{\link{displayFrames}}
 
 Other frame functions: 
-\code{\link{displayFrames}()},
-\code{\link{getSSBFrame}()}
+\code{\link{displayFrames}()}
 }
 \concept{frame functions}

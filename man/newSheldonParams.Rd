@@ -105,7 +105,7 @@ argument \code{rfac}.
 }
 \examples{
 \dontrun{
-params <- newTraitParams()
+params <- newSheldonParams()
 sim <- project(params, t_max = 5, effort = 0)
 plotSpectra(sim)
 }
