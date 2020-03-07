@@ -47,7 +47,7 @@ intake rate $h_5(w)$ that is stored in the params object. We need to instruct
 mizer to recalculate the size-dependent rate $h_5(w)$ using the information from
 the species_params data frame.
 ```{r}
-params <- setIntakeMax(params)
+params <- setMaxIntakeRate(params)
 ```
 Now the maximum intake rate has changed. As a consequence the steady-state
 will have changed. Let's calculate the new steady state.

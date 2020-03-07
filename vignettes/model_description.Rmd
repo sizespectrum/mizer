@@ -179,7 +179,7 @@ The $\theta$ matrix sets the interaction strength between predators and the
 various prey species and plankton. It is changed with `setInteraction()`.
 
 The size selectivity is encoded in the predation kernel $\phi_i(w,w_p)$. This is
-changed with `setPredKernel()`.
+changed with `setPredationKernel()`.
 
 <details>
 An important simplification occurs when the predation kernel $\phi_i(w,w_p)$
@@ -226,7 +226,7 @@ encountered food that is consumed. The feeding level is given by
 \end{equation}
 
 where $h_i(w)$ is the maximum consumption rate. This is changed with
-`setIntakeMax()`. By default mizer assumes an allometric form
+`setMaxIntakeRate()`. By default mizer assumes an allometric form
 $h_i(w) = h_i\, w^n.$
 The feeding level is calculated with the function `getFeedingLevel()`.
 
@@ -242,7 +242,7 @@ activity and movement, at a rate ${\tt metab}_i(w)$. By default
 this is made up out of standard metabolism, scaling with exponent $p$, and
 loss due to activity and movement, scaling with exponent $1$:
 \[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]
-See the help page for `setMetab()`. 
+See the help page for `setMetabolicRate()`. 
 
 The remaining rate, if any, is assimilated with an efficiency $\alpha_i$ and 
 is then available for growth and reproduction. So the rate at which energy
@@ -337,15 +337,15 @@ The mortality rate due to predation is then obtained as
 \end{equation}
 This predation mortality rate is calculated by the function `getPredMort()`.
 
-Background mortality $\mu_{b .i}(w)$ is independent of the abundances and is
-changed with `setBMort()`. By default mizer assumes an allometric form
-\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]
+External mortality $z0_i(w)$ is independent of the abundances and is
+changed with `setExtMortality()`. By default mizer assumes an allometric form
+\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]
 where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
 Fishing mortality $\mu_{f.i}(w)$ will be discussed in section [Fishing].
 
 The total mortality rate
-\[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{f.i}(w)\]
+\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]
 is calculated with the function `getMort()`.
 
 

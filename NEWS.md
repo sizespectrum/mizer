@@ -20,12 +20,12 @@ generic trait-based background has better support.
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
 
-* `setPredKernel()`
+* `setPredationKernel()`
 * `setSearchVolume()`
 * `setInteraction()`
-* `setIntakeMax()`
-* `setMetab()`
-* `setBMort()`
+* `setMaxIntakeRate()`
+* `setMetabolicRate()`
+* `setExtMortality()`
 * `setReproduction()`
 * `setFishing()`
 * `setPlankton()`
@@ -73,9 +73,9 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
 * New `power_law_pred_kernel()` implements a power-law kernel with sigmoidal
   cutoffs at both ends. This is suitable for filter feeders.
 * Users can sets a predation kernel that has a predator-size-dependent
-  predator/prey mass ration (via `setPredKernel()`). Mizer automatically
+  predator/prey mass ration (via `setPredationKernel()`). Mizer automatically
   falls back on the old non-FFT code to handle this. (#41)
-* New `getPredKernel()` returns the full 3-dimensional predation kernel array,
+* New `getPredationKernel()` returns the full 3-dimensional predation kernel array,
   even when this is not stored in MizerParams object.
 
 ## Other new features
@@ -116,7 +116,7 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
   entirely.
 * New `getRates()` calculates all the rates needed in the model and collects
   them in a list.
-* Can set initial state with `setInitial()`.
+* Can set initial state with `setInitialValues()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
 * New `perfect_scaling` argument allows `newTraitParams()` to produce a perfectly 

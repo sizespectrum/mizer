@@ -39,7 +39,7 @@ getEncounter <- function(params, n = params@initial_n,
 #' The encounter rate \eqn{E_i} is passed as an argument or calculated with
 #' \code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
 #' taken from the \code{params} object, and is set with 
-#' \code{\link{setIntakeMax}}.
+#' \code{\link{setMaxIntakeRate}}.
 #' As a consequence of the above expression for the feeding level,
 #' \eqn{1-f_i(w)} is the proportion of the food available to it that the
 #' predator actually consumes.
@@ -590,10 +590,10 @@ getZ <- getMort
 #'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
 #'                       h_i(w) - metab_i(w))}
 #' where \eqn{h_i} is the maximum intake rate, set with 
-#' \code{\link{setIntakeMax}}.
+#' \code{\link{setMaxIntakeRate}}.
 #' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 #' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-#' \code{params} and set with \code{\link{setMetab}}.
+#' \code{params} and set with \code{\link{setMetabolicRate}}.
 #' 
 #' The return value can be negative, which means that the energy intake does not
 #' cover the cost of metabolism and movement.

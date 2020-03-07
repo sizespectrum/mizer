@@ -38,7 +38,7 @@ maximum intake rate \eqn{h_i(w)} as
 The encounter rate \eqn{E_i} is passed as an argument or calculated with
 \code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
 taken from the \code{params} object, and is set with 
-\code{\link{setIntakeMax}}.
+\code{\link{setMaxIntakeRate}}.
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.

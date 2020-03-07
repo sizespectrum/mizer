@@ -2,9 +2,12 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setInteraction}
 \alias{setInteraction}
+\alias{getInteraction}
 \title{Set species interaction matrix}
 \usage{
 setInteraction(params, interaction = NULL)
+
+getInteraction(params)
 }
 \arguments{
 \item{params}{MizerParams object}
@@ -14,7 +17,11 @@ Entries should be numbers between 0 and 1. See "Setting interactions"
 section below.}
 }
 \value{
-MizerParams object
+MizerParams object with updated interaction matrix. Because of the
+way the R language works, \code{setInteraction()} does not make the changes to
+the params object that you pass to it but instead returns a new params
+object. So to affect the change you call the function in the form
+\code{params <- setInteraction(params, ...)}.
 }
 \description{
 Set species interaction matrix
@@ -22,25 +29,25 @@ Set species interaction matrix
 \section{Setting interactions}{
 
 
-The species interaction matrix \eqn{\theta_{ij}}, is used when calculating the
-food encounter rate in \code{\link{getEncounter}} and the predation mortality rate in
-\code{\link{getPredMort}}. Its entries are dimensionless numbers between
-0 and 1 that characterise the strength at which predator species \eqn{i}
-predates on prey species \eqn{j}. 
+The species interaction matrix \eqn{\theta_{ij}}, is used when calculating
+the food encounter rate in \code{\link{getEncounter}} and the predation
+mortality rate in \code{\link{getPredMort}}. Its entries are dimensionless
+numbers between 0 and 1 that characterise the strength at which predator
+species \eqn{i} predates on prey species \eqn{j}.
 
-This function checks that the supplied interaction
-matrix is valid and then stores it in the \code{interaction} slot of the
-params object before returning that object.
+This function checks that the supplied interaction matrix is valid and then
+stores it in the \code{interaction} slot of the params object before
+returning that object.
 
-The order of the columns and rows of the \code{interaction} argument should be the 
-same as the order in the species params dataframe in the \code{params} object.
-If you supply a named array then the function will check the order and warn 
-if it is different.
+The order of the columns and rows of the \code{interaction} argument should
+be the same as the order in the species params dataframe in the
+\code{params} object. If you supply a named array then the function will
+check the order and warn if it is different.
 
 The interaction of the species with the plankton are set via a column
-\code{interaction_p} in the \code{species_params} data frame. Again the entries
-have to be numbers between 0 and 1. By default this column is set to all
-1s.
+\code{interaction_p} in the \code{species_params} data frame. Again the
+entries have to be numbers between 0 and 1. By default this column is set
+to all 1s.
 }
 
 \examples{
@@ -53,14 +60,14 @@ params <- setInteraction(params, interaction)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setBMort}()},
+\code{\link{setExtMortality}()},
 \code{\link{setFishing}()},
-\code{\link{setInitial}()},
-\code{\link{setIntakeMax}()},
-\code{\link{setMetab}()},
+\code{\link{setInitialValues}()},
+\code{\link{setMaxIntakeRate}()},
+\code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredKernel}()},
+\code{\link{setPredationKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setSearchVolume}()}
 }

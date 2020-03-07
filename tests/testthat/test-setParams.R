@@ -64,34 +64,34 @@ test_that("setInteraction works", {
                  "Values in the plankton interaction vector should be between 0 and 1")
 })
 
-## setPredKernel ----
-test_that("setPredKernel works", {
-    expect_identical(setPredKernel(params), params)
-    expect_identical(setPredKernel(params, pred_kernel = NULL), 
+## setPredationKernel ----
+test_that("setPredationKernel works", {
+    expect_identical(setPredationKernel(params), params)
+    expect_identical(setPredationKernel(params, pred_kernel = NULL), 
                      params)
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 2
-    expect_error(setPredKernel(params), 
+    expect_error(setPredationKernel(params), 
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
-    p2 <- setPredKernel(params)
-    pred_kernel <- getPredKernel(params)
-    expect_error(setPredKernel(params, pred_kernel[1:2, ]),
+    p2 <- setPredationKernel(params)
+    pred_kernel <- getPredationKernel(params)
+    expect_error(setPredationKernel(params, pred_kernel[1:2, ]),
                  "incorrect number of dimensions")
-    expect_error(setPredKernel(params, pred_kernel - 1),
+    expect_error(setPredationKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
-    p2 <- setPredKernel(params, pred_kernel)
+    p2 <- setPredationKernel(params, pred_kernel)
     expect_equal(p2@ft_pred_kernel_e, array())
     expect_equal(p2@ft_pred_kernel_p, array())
     expect_equivalent(p2@pred_kernel, pred_kernel)
-    expect_identical(p2@pred_kernel, getPredKernel(p2))
+    expect_identical(p2@pred_kernel, getPredationKernel(p2))
 })
 test_that("Comment works on pred kernel", {
-    pred_kernel <- getPredKernel(params)
+    pred_kernel <- getPredationKernel(params)
     comment(pred_kernel) <- "test"
-    params_c <- setPredKernel(params, pred_kernel = pred_kernel)
+    params_c <- setPredationKernel(params, pred_kernel = pred_kernel)
     expect_identical(comment(params_c@pred_kernel), "test")
-    expect_message(setPredKernel(params_c),
+    expect_message(setPredationKernel(params_c),
                    "has been commented")
 })
 
@@ -110,48 +110,48 @@ test_that("Comment works on search volume", {
                    "has been commented")
 })
 
-## setIntakeMax ----
-test_that("ssetIntakeMax works", {
-    expect_identical(setIntakeMax(params, params@intake_max), params)
+## setMaxIntakeRate ----
+test_that("ssetMaxIntakeRate works", {
+    expect_identical(setMaxIntakeRate(params, params@intake_max), params)
     params@species_params$h <- 2 * params@species_params$h
-    p2 <- setIntakeMax(params)
+    p2 <- setMaxIntakeRate(params)
     expect_identical(2 * params@intake_max, p2@intake_max)
 })
 test_that("Comment works on intake_max", {
     comment(params@intake_max) <- "test"
-    params <- setIntakeMax(params, intake_max = params@intake_max)
+    params <- setMaxIntakeRate(params, intake_max = params@intake_max)
     expect_identical(comment(params@intake_max), "test")
-    expect_message(setIntakeMax(params),
+    expect_message(setMaxIntakeRate(params),
                    "has been commented")
 })
 
-## setMetab ----
-test_that("setMetab works", {
-    expect_identical(setMetab(params, params@metab), params)
+## setMetabolicRate ----
+test_that("setMetabolicRate works", {
+    expect_identical(setMetabolicRate(params, params@metab), params)
     params@species_params$ks <- 2 * params@species_params$ks
-    p2 <- setMetab(params)
+    p2 <- setMetabolicRate(params)
     expect_identical(2 * params@metab, p2@metab)
 })
 test_that("Comment works on metab", {
     comment(params@metab) <- "test"
-    params <- setMetab(params, metab = params@metab)
+    params <- setMetabolicRate(params, metab = params@metab)
     expect_identical(comment(params@metab), "test")
-    expect_message(setMetab(params),
+    expect_message(setMetabolicRate(params),
                    "has been commented")
 })
 
-## setBMort ----
-test_that("setBMort works", {
-    expect_identical(setBMort(params, params@mu_b), params)
+## setExtMortality ----
+test_that("setExtMortality works", {
+    expect_identical(setExtMortality(params, params@mu_b), params)
     params@species_params$z0 <- 2 * params@species_params$z0
-    p2 <- setBMort(params)
+    p2 <- setExtMortality(params)
     expect_identical(2 * params@mu_b, p2@mu_b)
 })
 test_that("Comment works on mu_b", {
     comment(params@mu_b) <- "test"
-    params <- setBMort(params, mu_b = params@mu_b)
+    params <- setExtMortality(params, z0 = params@mu_b)
     expect_identical(comment(params@mu_b), "test")
-    expect_message(setBMort(params),
+    expect_message(setExtMortality(params),
                    "has been commented")
 })
 

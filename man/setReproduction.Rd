@@ -2,6 +2,8 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setReproduction}
 \alias{setReproduction}
+\alias{getMaturityProportion}
+\alias{getReproductionProportion}
 \title{Set reproduction parameters}
 \usage{
 setReproduction(
@@ -10,6 +12,10 @@ setReproduction(
   repro_prop = NULL,
   srr = params@rates_funcs$RDD
 )
+
+getMaturityProportion(params)
+
+getReproductionProportion(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -27,7 +33,11 @@ described in the section "Setting reproduction".}
 "\code{\link{srrBevertonHolt}}".}
 }
 \value{
-The MizerParams object.
+The updatec MizerParams object. Because of the way the R language
+  works, `setReproduction()` does not make the changes to the params object
+  that you pass to it but instead returns a new params object. So to affect
+  the change you call the function in the form
+  `params <- setReproduction(params, ...)`.
 }
 \description{
 Sets the proportion of the total energy available for reproduction and growth
@@ -128,15 +138,15 @@ params <- setReproduction(params)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setBMort}()},
+\code{\link{setExtMortality}()},
 \code{\link{setFishing}()},
-\code{\link{setInitial}()},
-\code{\link{setIntakeMax}()},
+\code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
-\code{\link{setMetab}()},
+\code{\link{setMaxIntakeRate}()},
+\code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredKernel}()},
+\code{\link{setPredationKernel}()},
 \code{\link{setSearchVolume}()}
 }
 \concept{functions for setting parameters}

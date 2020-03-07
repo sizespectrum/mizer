@@ -106,7 +106,7 @@ The `gamma` column is calculated using [the equation for volumetric search rate.
 This calculation requires that the `h` column is available, either included in the species parameter data.frame, or calculated internally using the `k_vb` column as described above. This means that if you include a `k_vb` column in the data.frame, `h` and `gamma` will be calculated from it.
 
 
-The `z0` column (mortality from other sources) is calculated using the equation $\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n}.$ The values `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $w_\infty$ is raised to) can be passed as arguments to the `newMultispeciesParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
+The `z0` column (mortality from other sources) is calculated using the equation ${\tt z0}_i(w) = {\tt z0pre }\  w_{\infty.i}^{\tt{z0exp}}.$ The values `z0pre` (equivalent to $\mu_0$) and `z0exp` (the power that $w_\infty$ is raised to) can be passed as arguments to the `newMultispeciesParams()` constructor and have default values of 0.6 and `n-1` (where `n` has a default value of 2/3) respectively.
 
 The `ks` column is calculated as 20\% of `h`, i.e. the standard metabolism coefficient is 20\% of the maximum consumption.
 Standard metabolism is used in calculation of the growth of individuals as $k_{s.i}  w_i^p$ (see [the section on allometric rates](model_description.html#sec:allo)). The species parameter information is stored as a data.frame which hold the information described in [the MizerParams help page.](../reference/newMultispeciesParams.html#note)

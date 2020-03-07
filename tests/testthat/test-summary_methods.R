@@ -259,7 +259,7 @@ test_that("getDiet works with proportion = FALSE", {
     feeding_level <- getFeedingLevel(params, n, n_pp)
     expect_equivalent(consumption, encounter * (1 - feeding_level))
     # Check that using pred kernel instead of FFT gives the same result
-    params <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params <- setPredationKernel(params, pred_kernel = getPredationKernel(params))
     expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE))
 })
 

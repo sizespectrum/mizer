@@ -141,7 +141,7 @@ newCommunityParams <- function(max_w = 1e6,
     
     initial_n <- array(kappa * params@w ^ (-lambda), 
                        dim = c(1, length(params@w)))
-    params <- setInitial(params, initial_n = initial_n)
+    params <- setInitialValues(params, initial_n = initial_n)
 
     params@rates_funcs$RDD <- "srrConstant"
     if (missing(recruitment)) {
@@ -1034,7 +1034,7 @@ rescaleSystem <- function(params, factor) {
     for (res in names(initial_n_other)) {
         initial_n_other[[res]] <- initial_n_other[[res]] * factor
     }
-    params <- setInitial(params,
+    params <- setInitialValues(params,
                          initial_n = params@initial_n * factor,
                          initial_n_pp = params@initial_n_pp * factor,
                          initial_n_other = initial_n_other)
@@ -1427,12 +1427,12 @@ markBackground <- function(object, species) {
     return(object)
 }
 
-#' Tune params object to be at steady state
+#' Find a steady state for the model
 #' 
-#' This is done by running the dynamics for a specified number of years while
-#' keeping recruitment and other components constant to reach steady state. Then
-#' the reproductive efficiencies are retuned to achieve that level of
-#' recruitment.
+#' This is done by running the dynamics while keeping recruitment and other
+#' components constant until the size spectra no longer change (or until time
+#' `t_max` is reached if earlier) Then the reproductive efficiencies are set to
+#' the values that give the level of recruitment observed in that steady state.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
@@ -1441,14 +1441,14 @@ markBackground <- function(object, species) {
 #'   should be chosen as an odd multiple of the timestep `dt` in order to be
 #'   able to detect period 2 cycles.
 #' @param tol The simulation stops when the relative change in the egg
-#'   production RDI over `t_per years` is less than `tol` for every background
-#'   species. Default value is 1/100.
+#'   production RDI over `t_per` years is less than `tol` for every species.
+#'   Default value is 1/100.
 #' @param dt The time step to use in `project()`.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
-#' @param progress_bar A shiny progress object to implement
-#'   a progress bar in a shiny app. Default FALSE.
+#' @param progress_bar A shiny progress object to implement a progress bar in a
+#'   shiny app. Default FALSE.
 #' @export
 #' @md
 #' @examples
@@ -1457,6 +1457,7 @@ markBackground <- function(object, species) {
 #' params@species_params$gamma[5] <- 3000
 #' params <- setSearchVolume(params)
 #' params <- steady(params)
+#' plotSpectra(params)
 #' }
 steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
                    dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{newMultispeciesParams}
 \alias{newMultispeciesParams}
-\title{Construct MizerParams object for general multispecies model}
+\title{Set up parameters for a general multispecies model}
 \usage{
 newMultispeciesParams(
   species_params,
@@ -19,14 +19,14 @@ newMultispeciesParams(
   search_vol = NULL,
   intake_max = NULL,
   metab = NULL,
-  mu_b = NULL,
+  z0 = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
   maturity = NULL,
   repro_prop = NULL,
   srr = "srrBevertonHolt",
-  rr_pp = NULL,
-  cc_pp = NULL,
+  rate = NULL,
+  capacity = NULL,
   r_pp = 10,
   kappa = 1e+11,
   lambda = 2.05,
@@ -57,7 +57,7 @@ is set to the smallest value at which any of the consumers can feed.}
 of plankton size bins is determined because all size bins have to
 be logarithmically equally spaced.}
 
-\item{n}{Scaling exponent of the intrinsic growth rate}
+\item{n}{Scaling exponent of the intrinsic birth rate}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
@@ -76,7 +76,7 @@ described in the section "Setting maximum intake rate".}
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
 
-\item{mu_b}{Optional. An array (species x size) holding the background
+\item{z0}{Optional. An array (species x size) holding the external
 mortality rate.}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
@@ -99,11 +99,11 @@ described in the section "Setting reproduction".}
 \item{srr}{The name of the stock recruitment function. Defaults to 
 "\code{\link{srrBevertonHolt}}".}
 
-\item{rr_pp}{Optional. Vector of plankton intrinsic growth rates}
+\item{rate}{Optional. Vector of plankton intrinsic birth rates}
 
-\item{cc_pp}{Optional. Vector of plankton intrinsic carrying capacity}
+\item{capacity}{Optional. Vector of plankton intrinsic carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic growth rate}
+\item{r_pp}{Coefficient of the intrinsic birth rate}
 
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 
@@ -193,25 +193,25 @@ of the productive layer. In that respect, case 2 is a bit cumbersome.
 \section{Setting interactions}{
 
 
-The species interaction matrix \eqn{\theta_{ij}}, is used when calculating the
-food encounter rate in \code{\link{getEncounter}} and the predation mortality rate in
-\code{\link{getPredMort}}. Its entries are dimensionless numbers between
-0 and 1 that characterise the strength at which predator species \eqn{i}
-predates on prey species \eqn{j}. 
+The species interaction matrix \eqn{\theta_{ij}}, is used when calculating
+the food encounter rate in \code{\link{getEncounter}} and the predation
+mortality rate in \code{\link{getPredMort}}. Its entries are dimensionless
+numbers between 0 and 1 that characterise the strength at which predator
+species \eqn{i} predates on prey species \eqn{j}.
 
-This function checks that the supplied interaction
-matrix is valid and then stores it in the \code{interaction} slot of the
-params object before returning that object.
+This function checks that the supplied interaction matrix is valid and then
+stores it in the \code{interaction} slot of the params object before
+returning that object.
 
-The order of the columns and rows of the \code{interaction} argument should be the 
-same as the order in the species params dataframe in the \code{params} object.
-If you supply a named array then the function will check the order and warn 
-if it is different.
+The order of the columns and rows of the \code{interaction} argument should
+be the same as the order in the species params dataframe in the
+\code{params} object. If you supply a named array then the function will
+check the order and warn if it is different.
 
 The interaction of the species with the plankton are set via a column
-\code{interaction_p} in the \code{species_params} data frame. Again the entries
-have to be numbers between 0 and 1. By default this column is set to all
-1s.
+\code{interaction_p} in the \code{species_params} data frame. Again the
+entries have to be numbers between 0 and 1. By default this column is set
+to all 1s.
 }
 
 \section{Setting predation kernel}{
@@ -225,14 +225,15 @@ determined by the \code{pred_kernel_type} column in species_params.
 
 The default pred_kernel_type is "lognormal". This will call the function
 \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
-An alternative pred_kernel type is "box", implemented by the functions
-\code{\link{box_pred_kernel}}. These functions require certain species
+An alternative pred_kernel type is "box", implemented by the function
+\code{\link{box_pred_kernel}}, and "power_law", implemented by the function
+\code{\link{power_law_kernel}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
-are \code{beta} and \code{sigma}, for the box kernel they are
-\code{ppmr_min} and \code{ppmr_max}. They are explained in the help pages
-for the kernel functions. No defaults are set for these parameters. If they
-are missing from the species_params data frame then mizer will issue an
-error message.
+are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
+and \code{ppmr_max}. They are explained in the help pages for the kernel
+functions. Except for \code{beta} and \code{sigma}, no defaults are set for
+these parameters. If they are missing from the species_params data frame then
+mizer will issue an error message.
 
 You can use any other string as the type. If for example you choose "my" then
 you need to define a function \code{my_pred_kernel} that you can model on the
@@ -245,14 +246,13 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link{getPredKernel}} function.
+\code{\link{getPredationKernel}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 
 If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
 three-dimensional array (predator species x predator size x prey size).
-The dimensions are thus (no_sp, no_w, no_w_full). 
 
 You should use this option only if a kernel dependent only on the
 predator/prey mass ratio is not appropriate. Using a kernel dependent on
@@ -330,17 +330,20 @@ in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
 }
 
-\section{Setting background mortality rate}{
+\section{Setting external mortality rate}{
 
-The background mortality is all the mortality that is not due to either
-predation or fishing. It is a rate with units 1/year.
+The external mortality is all the mortality that is not due to fishing or
+predation by predators included in the model. The external mortality could be
+due to predation by predators that are not explicitly included in the model
+(e.g. mammals or seabirds) or due to other causes like illness. It is a rate
+with units 1/year.
 
-The \code{mu_b} argument allows you to specify a background mortality rate
+The \code{z0} argument allows you to specify an exteral mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for \code{\link{setBMort}}.
+the Examples section of the help page for \code{\link{setExtMortality}}.
 
-If the \code{mu_b} argument is not supplied, then the background mortality
-is assumed to depend only on the asymptotic size of the species, not on the
+If the \code{z0} argument is not supplied, then the external mortality
+is assumed to depend only on the species, not on the
 size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 species_params data frame, if that column exists. Otherwise it is calculated
@@ -511,14 +514,14 @@ plankton dynamics by writing your own function, modelled on
 \code{\link{plankton_semichemostat}}, and then passing the name of your
 function in the \code{plankton_dynamics} argument.
 
-The \code{rr_pp} argument is a vector specifying the intrinsic plankton
+The \code{rate} argument is a vector specifying the intrinsic plankton
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \eqn{r_p(w)} at size \eqn{w}
 is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
 The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
 and \code{n} arguments.
 
-The \code{cc_pp} argument is a vector specifying the intrinsic plankton
+The \code{capacity} argument is a vector specifying the intrinsic plankton
 carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
 capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}

@@ -607,7 +607,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                               min = signif(h / 2, 2),
                               max = signif(h * 1.5, 2))
             
-            p <- setIntakeMax(p)
+            p <- setMaxIntakeRate(p)
             params(p)
         })
         
@@ -621,7 +621,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p@species_params[[sp, "w_mat"]] ^
                 (p@species_params[[sp, "p"]] - input$p)
             p@species_params[[sp, "p"]] <- input$p
-            p <- setMetab(p)
+            p <- setMetabolicRate(p)
             params(p)
             ks <- p@species_params[[sp, "ks"]]
             updateSliderInput(session, "ks",
@@ -783,7 +783,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                   max = signif(input$sigma * 1.5, 2))
                 p@species_params[sp, "beta"]  <- input$beta
                 p@species_params[sp, "sigma"] <- input$sigma
-                p <- setPredKernel(p)
+                p <- setPredationKernel(p)
                 update_species(sp, p)
             }
         })
@@ -812,7 +812,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p@species_params[sp, "h"]     <- input$h
                 p@species_params[sp, "q"]     <- input$q
                 p <- setSearchVolume(p)
-                p <- setIntakeMax(p)
+                p <- setMaxIntakeRate(p)
                 update_species(sp, p)
             }
         })
@@ -1035,8 +1035,8 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 # species params
                 p@species_params <- species_params
                 p <- setInteraction(p)
-                p <- setMetab(p)
-                p <- setBMort(p)
+                p <- setMetabolicRate(p)
+                p <- setExtMortality(p)
                 p <- setReproduction(p)
                 p <- setFishing(p)
                 update_species(sp, p)
@@ -1620,7 +1620,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 p@interaction[sp, ] %*% p@initial_n
             totalx <- total_n * p@w_full
             #totalx <- totalx / sum(totalx * dx)
-            phix <- getPredKernel(p)[sp, wp_idx, ]
+            phix <- getPredationKernel(p)[sp, wp_idx, ]
             pr <- totalx * phix
             br <- pr * p@w_full
             # convert to proportions

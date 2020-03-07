@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrapper_functions.R
 \name{steady}
 \alias{steady}
-\title{Tune params object to be at steady state}
+\title{Find a steady state for the model}
 \usage{
 steady(
   params,
@@ -25,8 +25,8 @@ should be chosen as an odd multiple of the timestep \code{dt} in order to be
 able to detect period 2 cycles.}
 
 \item{tol}{The simulation stops when the relative change in the egg
-production RDI over \verb{t_per years} is less than \code{tol} for every background
-species. Default value is 1/100.}
+production RDI over \code{t_per} years is less than \code{tol} for every species.
+Default value is 1/100.}
 
 \item{dt}{The time step to use in \code{project()}.}
 
@@ -34,14 +34,14 @@ species. Default value is 1/100.}
 the result of the simulation run. If FALSE (default) the function returns
 a MizerParams object with the "initial" slots set to the steady state.}
 
-\item{progress_bar}{A shiny progress object to implement
-a progress bar in a shiny app. Default FALSE.}
+\item{progress_bar}{A shiny progress object to implement a progress bar in a
+shiny app. Default FALSE.}
 }
 \description{
-This is done by running the dynamics for a specified number of years while
-keeping recruitment and other components constant to reach steady state. Then
-the reproductive efficiencies are retuned to achieve that level of
-recruitment.
+This is done by running the dynamics while keeping recruitment and other
+components constant until the size spectra no longer change (or until time
+\code{t_max} is reached if earlier) Then the reproductive efficiencies are set to
+the values that give the level of recruitment observed in that steady state.
 }
 \examples{
 \dontrun{
@@ -49,5 +49,6 @@ params <- newTraitParams()
 params@species_params$gamma[5] <- 3000
 params <- setSearchVolume(params)
 params <- steady(params)
+plotSpectra(params)
 }
 }

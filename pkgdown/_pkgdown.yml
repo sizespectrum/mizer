@@ -64,37 +64,38 @@ reference:
   - newSheldonParams
   - newTraitParams
   - newMultispeciesParams
+- title: Setting or changing model parameters
+  contents:
+  - setPredationKernel
+  - setSearchVolume
+  - setInteraction
+  - setMaxIntakeRate
+  - setMetabolicRate
+  - setExtMortality
+  - setReproduction
+  - setFishing
+  - setPlankton
+  - setInitialValues
+  - setParams
+  - upgradeParams
 - title: Interactively tuning a multispecies model
   contents:
   - tuneParams
   - markBackground
   - addSpecies
-  - steady
+  - removeSpecies
+  - renameSpecies
   - retuneBackground
   - rescaleAbundance
   - rescaleSystem
+  - updateInitialValues
   - retuneReproductionEfficiency
   - pruneSpecies
   - setRmax
-- title: Setting or changing model parameters
-  contents:
-  - setParams
-  - setPredKernel
-  - setSearchVolume
-  - setInteraction
-  - setIntakeMax
-  - setMetab
-  - setBMort
-  - setReproduction
-  - setFishing
-  - setPlankton
-  - setInitial
-  - upgradeParams
-  - removeSpecies
-  - renameSpecies
 - title: Running simulations
   contents:
   - project
+  - steady
 - title: Analysing results
   contents:
   - summary_functions
@@ -116,7 +117,9 @@ reference:
   contents:
   - plotting_functions
   - starts_with("plot")
-- title: Calculating rates used in the model
+  - setColours
+  - setLinetypes
+- title: Calculating rates
   contents:
   - getEncounter
   - getEGrowth
@@ -125,16 +128,19 @@ reference:
   - getFMort
   - getFMortGear
   - getFeedingLevel
+  - getCriticalFeedingLevel
   - getMort
   - getPlanktonMort
   - getPredMort
   - getPredRate
   - getRDD
   - getRDI
-  - getPredKernel
-- title: Functions used in the model
+  - getPredationKernel
+- title: Rate functions used by `project()`
   contents:
   - starts_with("mizer")
+- title: Functions used in the model
+  contents:
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel
@@ -150,6 +156,7 @@ reference:
 # The following should list all functions with @concept helper
 # but instead lists all functions. A bug in pkgdown?
 #  - has_concept("helper")
+  - validSpeciesParams
   - set_species_param_default
   - get_h_default
   - get_gamma_default

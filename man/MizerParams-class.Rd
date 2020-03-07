@@ -44,33 +44,33 @@ for each species at size, \eqn{\psi_i(w)}. Changed with
 \code{\link{setReproduction}}.}
 
 \item{\code{intake_max}}{An array (species x size) that holds the maximum intake for
-each species at size. Changed with \code{\link{setIntakeMax}}.}
+each species at size. Changed with \code{\link{setMaxIntakeRate}}.}
 
 \item{\code{search_vol}}{An array (species x size) that holds the search volume for
 each species at size. Changed with \code{\link{setSearchVolume}}.}
 
 \item{\code{metab}}{An array (species x size) that holds the metabolism
-for each species at size. Changed with \code{\link{setMetab}}.}
+for each species at size. Changed with \code{\link{setMetabolicRate}}.}
 
-\item{\code{mu_b}}{An array (species x size) that holds the background death 
-\eqn{\mu_{b.i}(w)}. Changed with \code{\link{setBMort}}.}
+\item{\code{mu_b}}{An array (species x size) that holds the external mortality rate
+\eqn{\mu_{b.i}(w)}. Changed with \code{\link{setExtMortality}}.}
 
 \item{\code{pred_kernel}}{An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
 this is NA then the following two slots will be used. Changed with 
-\code{\link{setPredKernel}}.}
+\code{\link{setPredationKernel}}.}
 
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
 then the \code{pred_kernel} will be used to calculate the available 
-energy integral. Changed with \code{\link{setPredKernel}}.}
+energy integral. Changed with \code{\link{setPredationKernel}}.}
 
 \item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the \code{pred_kernel} will be used to calculate the integral.
-Changed with \code{\link{setPredKernel}}.}
+Changed with \code{\link{setPredationKernel}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
 growth rate of the plankton spectrum. Changed with \code{\link{setPlankton}}.}

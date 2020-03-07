@@ -2,9 +2,12 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setSearchVolume}
 \alias{setSearchVolume}
+\alias{getSearchVolume}
 \title{Set search volume}
 \usage{
 setSearchVolume(params, search_vol = NULL)
+
+getSearchVolume(params)
 }
 \arguments{
 \item{params}{MizerParams}
@@ -14,7 +17,11 @@ for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
 }
 \value{
-MizerParams
+MizerParams with updated search volume. Because of the way the R
+  language works, `setSearchVolume()` does not make the changes to the params
+  object that you pass to it but instead returns a new params object. So to
+  affect the change you call the function in the form
+  `params <- setSearchVolume(params, ...)`.
 }
 \description{
 Set search volume
@@ -55,15 +62,15 @@ params <- setSearchVolume(params)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setBMort}()},
+\code{\link{setExtMortality}()},
 \code{\link{setFishing}()},
-\code{\link{setInitial}()},
-\code{\link{setIntakeMax}()},
+\code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
-\code{\link{setMetab}()},
+\code{\link{setMaxIntakeRate}()},
+\code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredKernel}()},
+\code{\link{setPredationKernel}()},
 \code{\link{setReproduction}()}
 }
 \concept{functions for setting parameters}

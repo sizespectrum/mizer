@@ -2,9 +2,15 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setFishing}
 \alias{setFishing}
+\alias{getCatchability}
+\alias{getSelectivity}
 \title{Set fishing parameters}
 \usage{
 setFishing(params, initial_effort = NULL)
+
+getCatchability(params)
+
+getSelectivity(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -14,7 +20,11 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 }
 \value{
-MizerParams object
+MizerParams object with updated catchability and selectivity. Because
+of the way the R language works, \code{setFishing()} does not make the changes
+to the params object that you pass to it but instead returns a new params
+object. So to affect the change you call the function in the form
+\code{params <- setFishing(params, ...)}.
 }
 \description{
 Set fishing parameters
@@ -99,14 +109,14 @@ params <- setFishing(params)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setBMort}()},
-\code{\link{setInitial}()},
-\code{\link{setIntakeMax}()},
+\code{\link{setExtMortality}()},
+\code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
-\code{\link{setMetab}()},
+\code{\link{setMaxIntakeRate}()},
+\code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredKernel}()},
+\code{\link{setPredationKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setSearchVolume}()}
 }

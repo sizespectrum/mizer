@@ -48,7 +48,7 @@ Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
 \code{\link{setSearchVolume}} function. The predation kernel
-\eqn{\phi(w,w_p)} is set with the \code{\link{setPredKernel}} function. The
+\eqn{\phi(w,w_p)} is set with the \code{\link{setPredationKernel}} function. The
 species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
 vector \eqn{\theta_{ip}} are set with \code{\link{setInteraction}}.
 }

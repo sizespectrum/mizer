@@ -46,10 +46,10 @@ Due to the form of the feeding level, calculated by
   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
                       h_i(w) - metab_i(w))}
 where \eqn{h_i} is the maximum intake rate, set with
-\code{\link{setIntakeMax}}.
+\code{\link{setMaxIntakeRate}}.
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
 data frame in \code{params}. The metabolic rate \code{metab} is taken from
-\code{params} and set with \code{\link{setMetab}}.
+\code{params} and set with \code{\link{setMetabolicRate}}.
 
 The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.
