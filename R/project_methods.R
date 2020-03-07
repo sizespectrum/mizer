@@ -81,52 +81,58 @@ mizerRates <- function(params,
     
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- rates_fns$Encounter(
-        params, n = n, n_pp = n_pp, n_other = n_other)
+        params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     # Calculate feeding level f_i(w)
     r$feeding_level <- rates_fns$FeedingLevel(
-        params, n = n, n_pp = n_pp, n_other = n_other, encounter = r$encounter)
+        params, n = n, n_pp = n_pp, n_other = n_other, 
+        encounter = r$encounter, t = t)
     # Calculate the energy available for reproduction and growth
     r$e <- rates_fns$EReproAndGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        encounter = r$encounter, feeding_level = r$feeding_level)
+        encounter = r$encounter, feeding_level = r$feeding_level, t = t)
     
     ## Calculate all mortalities, before negative e values are turned into zero
     #  in getERepro() and getEGrowth() functions
     # Calculate the predation rate
     r$pred_rate <- rates_fns$PredRate(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        feeding_level = r$feeding_level)
+        feeding_level = r$feeding_level, t = t)
     # Calculate predation mortality on fish \mu_{p,i}(w)
-    r$pred_mort <- rates_fns$PredMort(params, pred_rate = r$pred_rate)
+    r$pred_mort <- rates_fns$PredMort(
+        params, n = n, n_pp = n_pp, n_other = n_other, 
+        pred_rate = r$pred_rate, t = t)
     # Calculate fishing mortality
     r$fishing_mort <- rates_fns$FMort(
-        params, n = n, n_pp = n_pp, n_other = n_other, effort = effort)
+        params, n = n, n_pp = n_pp, n_other = n_other, 
+        effort = effort, t = t)
     # Calculate total mortality \mu_i(w)
     r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        fishing_mort = r$fishing_mort, m2 = r$pred_mort)    
+        fishing_mort = r$fishing_mort, m2 = r$pred_mort, t = t)    
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
     r$e_repro <- rates_fns$ERepro(
-        params, n = n, n_pp = n_pp, n_other = n_other, e = r$e)
+        params, n = n, n_pp = n_pp, n_other = n_other, 
+        e = r$e, t = t)
     # Calculate the growth rate g_i(w)
     r$e_growth <- rates_fns$EGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        e_repro = r$e_repro, e = r$e)
+        e_repro = r$e_repro, e = r$e, t = t)
     
 
     # Calculate mortality on the plankton spectrum
     r$plankton_mort <- rates_fns$PlanktonMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        pred_rate = r$pred_rate)
+        pred_rate = r$pred_rate, t = t)
     
     # R_{p,i}
-    r$rdi <- rates_fns$RDI(params, n = n, n_pp = n_pp, n_other = n_other,
-                    e_repro = r$e_repro)
+    r$rdi <- rates_fns$RDI(
+        params, n = n, n_pp = n_pp, n_other = n_other,
+        e_repro = r$e_repro, t = t)
     # R_i
     r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params)
+        rdi = r$rdi, species_params = params@species_params, t = t)
     
     return(r)
 }
@@ -615,3 +621,108 @@ mizerRDI <- function(params,
     return(rdi)
 }
 
+#' Beverton Holt stock-recruitment function
+#' 
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent larvae production rates \eqn{R} given as
+#' \deqn{R = R_p \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})}
+#' where \eqn{R_{max}} are the maximum possible larvae production rates that
+#' must be specified in a column in the species parameter dataframe.
+#' 
+#' This is only one example of a stock-recruitment function. You can write
+#' your own function based on this example, returning different
+#' density-dependent larvae production rates. Two other examples provided are
+#' \code{\link{srrRicker}} and \code{\link{srrSheperd}}. For more explanation
+#' see \code{\link{setReproduction}}.
+#' 
+#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   R_max holding the maximum larvae production rate \eqn{R_{max}} for each
+#'   species.
+#' @param ... Unused
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrBevertonHolt <- function(rdi, species_params, ...) {
+    if (!("R_max" %in% names(species_params))) {
+        stop("The R_max column is missing in species_params.")
+    }
+    return(rdi / (1 + rdi/species_params$R_max))
+}
+
+#' Ricker stock-recruitment function
+#' 
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent rates \eqn{R} given as
+#' \deqn{R = R_p \exp{- b R_p}}
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   \code{ricker_b} holding the coefficients b.
+#' @param ... Unused
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrRicker <- function(rdi, species_params, ...) {
+    if (!("ricker_b" %in% names(species_params))) {
+        stop("The ricker_b column is missing in species_params")
+    }
+    return(rdi * exp(-species_params$ricker_b * rdi))
+}
+
+#' Sheperd stock-recruitment function
+#' 
+#' Takes the rates \eqn{R_p} of egg production and returns reduced,
+#' density-dependent rates \eqn{R} as
+#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param species_params A species parameter dataframe. Must contain columns
+#'   \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.
+#' @param ... Unused
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrSheperd <- function(rdi, species_params, ...) {
+    if (!all(c("sheperd_b", "sheperd_c") %in% names(species_params))) {
+        stop("The species_params dataframe must contain columns sheperd_b and sheperd_c.")
+    }
+    return(rdi / (1 + (species_params$sheperd_b * rdi)^species_params$sheperd_c))
+}
+
+#' Identity stock-recruitment function
+#' 
+#' Simply returns its \code{rdi} argument.
+#' 
+#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#'   all species.
+#' @param ... Not used.
+#' 
+#' @return Vector of density-dependent larvae production rates.
+#' @export
+#' @family stock-recruitment functions
+srrNone <- function(rdi, ...) {
+    return(rdi)
+}
+
+
+#' Set the recruitment function for constant recruitment
+#' 
+#' Simply returns the value from `species_params$constant_recruitment`
+#' 
+#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   `constant_recruitment`.
+#' @param ... Unused
+#'   
+#' @return Vector `species_params$constant_recruitment`
+#' @export
+#' @family stock-recruitment functions
+srrConstant <- function(rdi, species_params, ...){
+    return(species_params$constant_recruitment)
+}

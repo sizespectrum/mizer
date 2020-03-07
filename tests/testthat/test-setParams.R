@@ -163,8 +163,10 @@ test_that("setReproduction works", {
     expect_equal(p2, setReproduction(p2, maturity = maturity,
                                      repro_prop = p2@psi))
     expect_equal(params, setReproduction(params, repro_prop = p2@psi))
+    expect_error(setReproduction(params, srr = "str"),
+                 "Arguments of srr function can only contain 'rdi', 'species_params' and `t`.")
     expect_error(setReproduction(params, srr = "sum"),
-                 "Arguments of srr function must be 'rdi' and 'species_params'")
+                 "The srr function needs to have at least arguments `rdi` and `...`.")
     params@species_params$erepro[1] <- NA
     p2 <- setReproduction(params, srr = "srrSheperd")
     expect_equal(p2@species_params$erepro[1], 1)

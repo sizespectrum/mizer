@@ -1885,10 +1885,13 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     params <- set_species_param_default(params, "erepro", 1)
     assert_that(all(params@species_params$erepro > 0))
     
-    # srr function must have two arguments: rdi amd species_params
+    # srr function is currently called only with three arguments
     srr_fn <- get(srr)
-    if (!isTRUE(all.equal(names(formals(srr)), c("rdi", "species_params")))) {
-        stop("Arguments of srr function must be 'rdi' and 'species_params'")
+    if (!all(names(formals(srr)) %in%  c("rdi", "species_params", "t", "..."))) {
+        stop("Arguments of srr function can only contain 'rdi', 'species_params' and `t`.")
+    }
+    if (!all(c("rdi", "...") %in% names(formals(srr)))) {
+        stop("The srr function needs to have at least arguments `rdi` and `...`.")
     }
     params@rates_funcs$RDD <- srr
     if (identical(params@rates_funcs$RDD, "srrBevertonHolt")) {
@@ -2447,107 +2450,7 @@ upgradeParams <- function(params) {
     return(pnew)
 }
 
-#' Beverton Holt stock-recruitment function
-#' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent larvae production rates \eqn{R} given as
-#' \deqn{R = R_p \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})}
-#' where \eqn{R_{max}} are the maximum possible larvae production rates that
-#' must be specified in a column in the species parameter dataframe.
-#' 
-#' This is only one example of a stock-recruitment function. You can write
-#' your own function based on this example, returning different
-#' density-dependent larvae production rates. Two other examples provided are
-#' \code{\link{srrRicker}} and \code{\link{srrSheperd}}. For more explanation
-#' see \code{\link{setReproduction}}.
-#' 
-#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
-#' @param species_params A species parameter dataframe. Must contain a column
-#'   R_max holding the maximum larvae production rate \eqn{R_{max}} for each
-#'   species.
-#' 
-#' @return Vector of density-dependent larvae production rates.
-#' @export
-#' @family stock-recruitment functions
-srrBevertonHolt <- function(rdi, species_params) {
-    if (!("R_max" %in% names(species_params))) {
-        stop("The R_max column is missing in species_params.")
-    }
-    return(rdi / (1 + rdi/species_params$R_max))
-}
 
-#' Ricker stock-recruitment function
-#' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent rates \eqn{R} given as
-#' \deqn{R = R_p \exp{- b R_p}}
-#' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
-#'   all species.
-#' @param species_params A species parameter dataframe. Must contain a column
-#'   \code{ricker_b} holding the coefficients b.
-#' 
-#' @return Vector of density-dependent larvae production rates.
-#' @export
-#' @family stock-recruitment functions
-srrRicker <- function(rdi, species_params) {
-    if (!("ricker_b" %in% names(species_params))) {
-        stop("The ricker_b column is missing in species_params")
-    }
-    return(rdi * exp(-species_params$ricker_b * rdi))
-}
-
-#' Sheperd stock-recruitment function
-#' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent rates \eqn{R} as
-#' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
-#' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
-#'   all species.
-#' @param species_params A species parameter dataframe. Must contain columns
-#'   \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.
-#' 
-#' @return Vector of density-dependent larvae production rates.
-#' @export
-#' @family stock-recruitment functions
-srrSheperd <- function(rdi, species_params) {
-    if (!all(c("sheperd_b", "sheperd_c") %in% names(species_params))) {
-        stop("The species_params dataframe must contain columns sheperd_b and sheperd_c.")
-    }
-    return(rdi / (1 + (species_params$sheperd_b * rdi)^species_params$sheperd_c))
-}
-
-#' Identity stock-recruitment function
-#' 
-#' Simply returns its \code{rdi} argument.
-#' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
-#'   all species.
-#' @param species_params A species parameter dataframe. Not used.
-#' 
-#' @return Vector of density-dependent larvae production rates.
-#' @export
-#' @family stock-recruitment functions
-srrNone <- function(rdi, species_params) {
-    return(rdi)
-}
-
-
-#' Set the recruitment function for constant recruitment
-#' 
-#' Simply returns the value from `species_params$constant_recruitment`
-#' 
-#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
-#' @param species_params A species parameter dataframe. Must contain a column
-#'   `constant_recruitment`.
-#'   
-#' @return Vector `species_params$constant_recruitment`
-#' @export
-#' @family stock-recruitment functions
-srrConstant <- function(rdi, species_params){
-    return(species_params$constant_recruitment)
-}
 
 #' Set a species parameter to a default value
 #'
