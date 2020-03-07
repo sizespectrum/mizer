@@ -454,30 +454,14 @@ emptyParams <- function(species_params,
     if (!is.na(no_w_pp)) {
         warning("New mizer code does not support the parameter no_w_pp")
     }
-    assert_that(is.data.frame(species_params))
     assert_that(no_w > 10)
-    
-    if (!("species" %in% colnames(species_params))) {
-        stop("The species params dataframe needs a column 'species' with the species names")
-    }
-    species_names <- as.character(species_params$species)
-    row.names(species_params) <- species_names
-    no_sp <- nrow(species_params)
-    if (length(unique(species_names)) != no_sp) {
-        stop("The species parameter data frame has multiple rows for the same species")
-    }
     
     ## Set defaults ----
     species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
-    if (!("w_inf" %in% colnames(species_params))) {
-        species_params$w_inf <- rep(NA, no_sp)
-    }
-    missing <- is.na(species_params$w_inf)
-    if (any(missing)) {
-        stop("You need to specify maximum sizes for all species.")
-    }
+    species_params <- validSpeciesParams(species_params)
+    
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
     } else {
@@ -488,16 +472,6 @@ emptyParams <- function(species_params,
                         toString(too_large)))
         }
     }
-    
-    # If no gear_name column in species_params, then set to knife_edge_gear
-    species_params <- set_species_param_default(species_params,
-                                                "gear", "knife_edge_gear")
-    gear_names <- unique(species_params$gear)
-    
-    # If no alpha (conversion efficiency), then set to 0.6
-    species_params <- set_species_param_default(
-        species_params, "alpha", 0.6, 
-        message = "Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.")
     
     # Set up grids ----
     # The following code anticipates that in future we might allow the user to 
@@ -519,8 +493,6 @@ emptyParams <- function(species_params,
         phis <- get_phi(species_params, ppmr)
         max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
         min_w_feeding <- species_params$w_min / max_ppmr
-        species_params <- set_species_param_default(species_params,
-                                                    "interaction_p", 1)
         if (any(species_params$interaction_p > 0)) {
             min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
         } else {
@@ -572,6 +544,9 @@ emptyParams <- function(species_params,
     # }
     
     # Basic arrays for templates ----
+    no_sp <- nrow(species_params)
+    species_names <- as.character(species_params$species)
+    gear_names <- unique(species_params$gear)
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
@@ -1039,7 +1014,6 @@ setParams <- function(params,
                           plankton_dynamics = plankton_dynamics)
     params <- setInteraction(params,
                              interaction = interaction)
-    params <- setFishing(params, initial_effort = initial_effort)
     params <- setPredKernel(params,
                             pred_kernel = pred_kernel)
     params <- setIntakeMax(params,
@@ -1058,6 +1032,7 @@ setParams <- function(params,
                               maturity = maturity,
                               repro_prop = repro_prop,
                               srr = srr)
+    params <- setFishing(params, initial_effort = initial_effort)
     return(params)
 }
 
@@ -1274,10 +1249,10 @@ setPredKernel <- function(params,
     }
     
     ## Set a pred kernel dependent on predator/prey size ratio only
+    
     # If pred_kernel_type is not supplied use "lognormal"
-    params@species_params <- set_species_param_default(params@species_params,
-                                                       "pred_kernel_type",
-                                                       "lognormal")
+    params <- default_pred_kernel_params(params)
+    
     species_params <- params@species_params
     pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
@@ -1318,9 +1293,7 @@ getPredKernel <- function(params) {
     if (length(dim(params@pred_kernel)) > 1) {
         return(params@pred_kernel)
     }
-    species_params <- set_species_param_default(params@species_params,
-                                                "pred_kernel_type",
-                                                "lognormal")
+    species_params <- default_pred_kernel_params(params@species_params)
     pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
@@ -2586,6 +2559,45 @@ set_species_param_default <- function(object, parname, default,
     }
 }
 
+#' Set defaults for predation kernel parameters
+#'
+#' If the predation kernel type has not been specified for a species, then it
+#' is set to "lognormal" and the default values are set for the parameters
+#' `beta` and `sigma`.
+#' @param object Either a MizerParams object or a species parameter data frame
+#' @return The `object` with updated columns in the species params data frame.
+#' @export
+#' @keywords internal
+#' @concept helper
+default_pred_kernel_params <- function(object) {
+    if (is(object, "MizerParams")) {
+        # Nothing to do if full pred kernel has been specified
+        if (length(dim(object@pred_kernel)) > 1) {
+            return(params@object)
+        }
+        species_params <- object@species_params
+    } else {
+        species_params <- object
+    }
+    
+    species_params <- set_species_param_default(species_params,
+                                                "pred_kernel_type",
+                                                "lognormal")
+    # For species where the pred_kernel_type is lognormal, set defaults for
+    # sigma and beta if none are supplied
+    if (any(species_params$pred_kernel_type == "lognormal")) {
+        species_params <- set_species_param_default(species_params,
+                                                    "beta", 30)
+        species_params <- set_species_param_default(species_params,
+                                                    "sigma", 2)
+    }
+    if  (is(object, "MizerParams")) {
+        object@species_params <- species_params
+        return(object)
+    } else {
+        return(species_params)
+    }
+}
 
 #' Get values from feeding kernel function
 #' 
@@ -2605,9 +2617,7 @@ set_species_param_default <- function(object, parname, default,
 get_phi <- function(species_params, ppmr) {
     assert_that(is.data.frame(species_params))
     no_sp <- nrow(species_params)
-    species_params <- set_species_param_default(species_params, 
-                                                "pred_kernel_type",
-                                                "lognormal")
+    species_params <- default_pred_kernel_params(species_params)
     phis <- array(dim = c(no_sp, length(ppmr)))
     for (i in 1:no_sp) {
         pred_kernel_func_name <- paste0(species_params$pred_kernel_type[i],
@@ -2814,6 +2824,40 @@ validate_effort_vector <- function(params, effort) {
                     ") do not match those in the effort vector."))
     }
     return(TRUE)
+}
+
+#' Check validity of species parameters and set defaults for missing but
+#' required parameters
+#' 
+#' @param species_params The user-supplied species parameter data frame
+#' @return A valid species parameter data frame
+validSpeciesParams <- function(species_params) {
+    assert_that(is.data.frame(species_params))
+    
+    if (!("species" %in% colnames(species_params))) {
+        stop("The species params dataframe needs a column 'species' with the species names")
+    }
+    species_names <- as.character(species_params$species)
+    row.names(species_params) <- species_names
+    no_sp <- nrow(species_params)
+    if (length(unique(species_names)) != no_sp) {
+        stop("The species parameter data frame has multiple rows for the same species")
+    }
+    
+    if (!("w_inf" %in% colnames(species_params))) {
+        species_params$w_inf <- rep(NA, no_sp)
+    }
+    missing <- is.na(species_params$w_inf)
+    if (any(missing)) {
+        stop("You need to specify maximum sizes for all species.")
+    }
+    
+    species_params <- species_params %>% 
+        set_species_param_default("w_mat", species_params$w_inf / 4) %>% 
+        set_species_param_default("w_min", 0.001) %>% 
+        set_species_param_default("gear", "knife_edge_gear") %>% 
+        set_species_param_default("alpha", 0.6) %>% 
+        set_species_param_default("interaction_p", 1)
 }
 
 #' Get critical feeding level
