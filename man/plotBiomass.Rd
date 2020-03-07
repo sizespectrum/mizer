@@ -2,9 +2,23 @@
 % Please edit documentation in R/plots.R
 \name{plotBiomass}
 \alias{plotBiomass}
+\alias{plotlyBiomass}
 \title{Plot the biomass of species through time}
 \usage{
 plotBiomass(
+  sim,
+  species,
+  start_time,
+  end_time,
+  y_ticks = 6,
+  ylim = c(NA, NA),
+  total = FALSE,
+  background = TRUE,
+  highlight = NULL,
+  ...
+)
+
+plotlyBiomass(
   sim,
   species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
   start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -58,7 +72,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-A ggplot2 object
+A plot
 }
 \description{
 After running a projection, the biomass of each species can be plotted
@@ -81,7 +95,6 @@ plotBiomass(sim, y_ticks = 3)
 \code{\link{plotting_functions}}, \code{\link{getBiomass}}
 
 Other plotting functions: 
-\code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotDiet}()},
 \code{\link{plotFMort}()},
@@ -91,14 +104,6 @@ Other plotting functions:
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
-\code{\link{plotlyBiomass}()},
-\code{\link{plotlyFMort}()},
-\code{\link{plotlyFeedingLevel}()},
-\code{\link{plotlyGrowthCurves}()},
-\code{\link{plotlyPredMort}()},
-\code{\link{plotlySpectra}()},
-\code{\link{plotlyYieldGear}()},
-\code{\link{plotlyYield}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

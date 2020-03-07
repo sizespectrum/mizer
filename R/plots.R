@@ -133,7 +133,6 @@ log_breaks <- function(n = 6){
 #' 
 #' @return ggplot2 object
 #' @family frame functions
-#' @family plotting functions
 #' @seealso \code{\link{plotting_functions}},
 #'   \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
 #' @examples 
@@ -261,7 +260,7 @@ getBiomassFrame <- function(sim,
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getBiomass}}
@@ -276,13 +275,12 @@ getBiomassFrame <- function(sim,
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
 #' 
-plotBiomass <- function(sim,
-            species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
-            start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-            end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
-            y_ticks = 6,
-            ylim = c(NA, NA),
-            total = FALSE, background = TRUE, highlight = NULL, ...) {
+plotBiomass <- function(sim, species, start_time, end_time, y_ticks = 6,
+            ylim = c(NA, NA), total = FALSE, background = TRUE, 
+            highlight = NULL, ...) {
+    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
+    if (missing(start_time)) start_time <- as.numeric(dimnames(sim@n)[[1]][1])
+    if (missing(end_time)) end_time <- as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]])
     # First we get the data frame for all species, including the background
     bm <- getBiomassFrame(sim, species = dimnames(sim@n)$sp,
                           start_time = start_time,
@@ -319,12 +317,8 @@ plotBiomass <- function(sim,
     return(p)
 }
 
-#' Plot the biomass of species against time with plotly
-#' 
-#' @inherit plotBiomass params return description details seealso
-#' @inheritDotParams get_size_range_array -params
+#' @rdname plotBiomass
 #' @export
-#' @family plotting functions
 plotlyBiomass <- function(sim,
              species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
              start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -355,7 +349,7 @@ plotlyBiomass <- function(sim,
 #' @param log Boolean whether yield should be plotted on a logarithmic axis. 
 #'   Defaults to true.
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getYield}}
@@ -450,10 +444,8 @@ plotYield <- function(sim, sim2,
     }
 }
 
-#' Plot the total yield of species through time with plotly
-#' @inherit plotYield params return description details seealso
+#' @rdname plotYield
 #' @export
-#' @family plotting functions
 plotlyYield <- function(sim, sim2,
                         species = dimnames(sim@n)$sp,
                         total = FALSE, log = TRUE,
@@ -476,7 +468,7 @@ plotlyYield <- function(sim, sim2,
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getYieldGear}}
@@ -520,10 +512,8 @@ plotYieldGear <- function(sim,
     return(p)
 }
 
-#' Plot the total yield of each species by gear through time with plotly
-#' @inherit plotYieldGear params return description details seealso
+#' @rdname plotYieldGear
 #' @export
-#' @family plotting functions
 plotlyYieldGear <- function(sim,
                             species = dimnames(sim@n)$sp,
                             total = FALSE, highlight = NULL, ...) {
@@ -570,7 +560,7 @@ plotlyYieldGear <- function(sim,
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param ... Other arguments (currently unused)
 #'   
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}
@@ -738,10 +728,8 @@ plot_spectra <- function(params, n, n_pp,
     return(p)
 }
 
-#' Plotly plot of the abundance spectra
-#' @inherit plotSpectra params return description details seealso
+#' @rdname plotSpectra
 #' @export
-#' @family plotting functions
 plotlySpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
@@ -776,7 +764,7 @@ plotlySpectra <- function(object, species = NULL,
 #' @param include_critical If TRUE, then the critical feeding level is also
 #'   plotted. Default FALSE.
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
@@ -875,11 +863,8 @@ plotFeedingLevel <- function(object,
     return(p)
 }
 
-#' Plot the feeding level of species by size with plotly
-#' 
-#' @inherit plotFeedingLevel params return description details seealso
+#' @rdname plotFeedingLevel
 #' @export
-#' @family plotting functions
 plotlyFeedingLevel <- function(object,
                              species = NULL,
                              time_range,
@@ -898,7 +883,7 @@ plotlyFeedingLevel <- function(object,
 #' 
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}},  \code{\link{getPredMort}}
@@ -964,10 +949,8 @@ plotPredMort <- function(object, species = NULL,
 #' @export
 plotM2 <- plotPredMort
 
-#' Plot predation mortality rate of each species against size with plotly
-#' @inherit plotPredMort params return description details seealso
+#' @rdname plotPredMort
 #' @export
-#' @family plotting functions
 plotlyPredMort <- function(object, species = NULL,
                            time_range,
                            highlight = NULL, ...) {
@@ -984,7 +967,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' 
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}, \code{\link{getFMort}}
@@ -1043,10 +1026,8 @@ plotFMort <- function(object, species = NULL,
     return(p)
 }
 
-#' Plot total fishing mortality of each species by size with plotly
-#' @inherit plotPredMort params return description details seealso
+#' @rdname plotFMort
 #' @export
-#' @family plotting functions
 plotlyFMort <- function(object, species = NULL,
                         time_range,
                         highlight = NULL, ...) {
@@ -1067,7 +1048,7 @@ plotlyFMort <- function(object, species = NULL,
 #' @inheritParams getGrowthCurves
 #' @inheritParams plotSpectra
 #' 
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 #' @seealso \code{\link{plotting_functions}}
@@ -1142,10 +1123,8 @@ plotGrowthCurves <- function(object,
     return(p)
 }
 
-#' Plot growth curves giving weight as a function of age with plotly
-#' @inherit plotGrowthCurves params return description details seealso
+#' @rdname plotGrowthCurves
 #' @export
-#' @family plotting functions
 plotlyGrowthCurves <- function(object, species,
                              max_age = 20,
                              percentage = FALSE,
@@ -1159,7 +1138,7 @@ plotlyGrowthCurves <- function(object, species,
 #' 
 #' @inheritParams plotSpectra
 #'
-#' @return A ggplot2 object
+#' @return A plot
 #' @export
 #' @family plotting functions
 plotDiet <- function(object, species) {

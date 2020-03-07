@@ -2,9 +2,18 @@
 % Please edit documentation in R/plots.R
 \name{plotGrowthCurves}
 \alias{plotGrowthCurves}
+\alias{plotlyGrowthCurves}
 \title{Plot growth curves giving weight as a function of age}
 \usage{
 plotGrowthCurves(
+  object,
+  species,
+  max_age = 20,
+  percentage = FALSE,
+  highlight = NULL
+)
+
+plotlyGrowthCurves(
   object,
   species,
   max_age = 20,
@@ -29,7 +38,7 @@ of the maximal size.}
 \item{highlight}{Name or vector of names of the species to be highlighted.}
 }
 \value{
-A ggplot2 object
+A plot
 }
 \description{
 When the growth curve for only a single species is plotted, horizontal
@@ -51,7 +60,6 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
-\code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
@@ -61,14 +69,6 @@ Other plotting functions:
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
-\code{\link{plotlyBiomass}()},
-\code{\link{plotlyFMort}()},
-\code{\link{plotlyFeedingLevel}()},
-\code{\link{plotlyGrowthCurves}()},
-\code{\link{plotlyPredMort}()},
-\code{\link{plotlySpectra}()},
-\code{\link{plotlyYieldGear}()},
-\code{\link{plotlyYield}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

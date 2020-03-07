@@ -2,6 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plotFeedingLevel}
 \alias{plotFeedingLevel}
+\alias{plotlyFeedingLevel}
 \title{Plot the feeding level of species by size}
 \usage{
 plotFeedingLevel(
@@ -11,6 +12,15 @@ plotFeedingLevel(
   highlight = NULL,
   all.sizes = FALSE,
   include_critical = FALSE,
+  ...
+)
+
+plotlyFeedingLevel(
+  object,
+  species = NULL,
+  time_range,
+  highlight = NULL,
+  include_critical,
   ...
 )
 }
@@ -36,7 +46,7 @@ plotted. Default FALSE.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A plot
 }
 \description{
 After running a projection, plot the feeding level of each species by size. 
@@ -67,7 +77,6 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
 
 Other plotting functions: 
-\code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
@@ -77,14 +86,6 @@ Other plotting functions:
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
-\code{\link{plotlyBiomass}()},
-\code{\link{plotlyFMort}()},
-\code{\link{plotlyFeedingLevel}()},
-\code{\link{plotlyGrowthCurves}()},
-\code{\link{plotlyPredMort}()},
-\code{\link{plotlySpectra}()},
-\code{\link{plotlyYieldGear}()},
-\code{\link{plotlyYield}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

@@ -2,9 +2,25 @@
 % Please edit documentation in R/plots.R
 \name{plotSpectra}
 \alias{plotSpectra}
+\alias{plotlySpectra}
 \title{Plot the abundance spectra}
 \usage{
 plotSpectra(
+  object,
+  species = NULL,
+  time_range,
+  wlim = c(NA, NA),
+  ylim = c(NA, NA),
+  power = 1,
+  biomass = TRUE,
+  total = FALSE,
+  plankton = TRUE,
+  background = TRUE,
+  highlight = NULL,
+  ...
+)
+
+plotlySpectra(
   object,
   species = NULL,
   time_range,
@@ -61,7 +77,7 @@ Default is TRUE.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A plot
 }
 \description{
 Plots the number density multiplied by a power of the weight, with the power
@@ -88,7 +104,6 @@ plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 \code{\link{plotting_functions}}
 
 Other plotting functions: 
-\code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
@@ -98,14 +113,6 @@ Other plotting functions:
 \code{\link{plotPredMort}()},
 \code{\link{plotYieldGear}()},
 \code{\link{plotYield}()},
-\code{\link{plotlyBiomass}()},
-\code{\link{plotlyFMort}()},
-\code{\link{plotlyFeedingLevel}()},
-\code{\link{plotlyGrowthCurves}()},
-\code{\link{plotlyPredMort}()},
-\code{\link{plotlySpectra}()},
-\code{\link{plotlyYieldGear}()},
-\code{\link{plotlyYield}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

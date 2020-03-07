@@ -2,9 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{plotYield}
 \alias{plotYield}
+\alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
 plotYield(
+  sim,
+  sim2,
+  species = dimnames(sim@n)$sp,
+  total = FALSE,
+  log = TRUE,
+  highlight = NULL,
+  ...
+)
+
+plotlyYield(
   sim,
   sim2,
   species = dimnames(sim@n)$sp,
@@ -34,7 +45,7 @@ Defaults to true.}
 \item{...}{Other arguments (currently unused)}
 }
 \value{
-A ggplot2 object
+A plot
 }
 \description{
 After running a projection, the total yield of each species across all 
@@ -57,7 +68,6 @@ plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 \code{\link{plotting_functions}},  \code{\link{getYield}}
 
 Other plotting functions: 
-\code{\link{displayFrames}()},
 \code{\link{plot,MizerSim,missing-method}},
 \code{\link{plotBiomass}()},
 \code{\link{plotDiet}()},
@@ -67,14 +77,6 @@ Other plotting functions:
 \code{\link{plotPredMort}()},
 \code{\link{plotSpectra}()},
 \code{\link{plotYieldGear}()},
-\code{\link{plotlyBiomass}()},
-\code{\link{plotlyFMort}()},
-\code{\link{plotlyFeedingLevel}()},
-\code{\link{plotlyGrowthCurves}()},
-\code{\link{plotlyPredMort}()},
-\code{\link{plotlySpectra}()},
-\code{\link{plotlyYieldGear}()},
-\code{\link{plotlyYield}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}
