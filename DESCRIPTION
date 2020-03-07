@@ -58,6 +58,7 @@ Collate:
     'project.R'
     'help.R'
     'project_methods.R'
+    'rate_functions.R'
     'summary_methods.R'
     'plots.R'
     'wrapper_functions.R'

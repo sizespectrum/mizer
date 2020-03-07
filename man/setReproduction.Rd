@@ -4,7 +4,12 @@
 \alias{setReproduction}
 \title{Set reproduction parameters}
 \usage{
-setReproduction(params, maturity = NULL, repro_prop = NULL, srr = params@srr)
+setReproduction(
+  params,
+  maturity = NULL,
+  repro_prop = NULL,
+  srr = params@rates_funcs$RDD
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,7 +24,7 @@ reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
 \item{srr}{The name of the stock recruitment function. Defaults to 
-\code{\link{srrBevertonHolt}}.}
+"\code{\link{srrBevertonHolt}}".}
 }
 \value{
 The MizerParams object.

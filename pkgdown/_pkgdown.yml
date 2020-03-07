@@ -118,7 +118,6 @@ reference:
   - starts_with("plot")
 - title: Calculating rates used in the model
   contents:
-  - getRates
   - getEncounter
   - getEGrowth
   - getERepro
@@ -135,6 +134,7 @@ reference:
   - getPredKernel
 - title: Functions used in the model
   contents:
+  - starts_with("mizer")
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel

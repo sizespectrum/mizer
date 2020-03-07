@@ -99,9 +99,9 @@ contribution to the mortality rate from each other dynamical components.}
 extensions you may have installed to model other dynamical components of
 the ecosystem.}
 
-\item{\code{rates_func}}{A string with the name of the function that should be used to
-calculate the rates needed by `project()`. By default this will be set to
-"getRates" so that the built-in `getRates()` function is used.}
+\item{\code{rates_funcs}}{A named list with the names of the functions that should be
+used to calculate the rates needed by `project()`. By default this will be
+set to the names of the built-in rate functions.}
 
 \item{\code{sc}}{The community abundance of the scaling community}
 
@@ -110,10 +110,6 @@ See \code{\link{newMultispeciesParams}} for details.}
 
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
 Changed with \code{\link{setInteraction}}.}
-
-\item{\code{srr}}{String holding the name of the function to calculate the realised
-(density dependent) recruitment. The function should have two arguments
-which are rdi and species_params.}
 
 \item{\code{selectivity}}{An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \eqn{S_{g,i,w}}. Changed with 

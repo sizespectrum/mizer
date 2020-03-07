@@ -405,7 +405,7 @@ test_that("getRDD", {
     rdi <- getRDI(params, n, n_full)
     rdd2 <- getRDD(params, n, n_full, rdi = rdi)
     expect_identical(rdd, rdd2)
-    rdd2 <- do.call(params@srr,
+    rdd2 <- do.call(params@rates_funcs$RDD,
                     list(rdi = rdi, species_params = params@species_params))
     expect_identical(rdd, rdd2)
     expect_known_value(rdd, "values/getRDD")
