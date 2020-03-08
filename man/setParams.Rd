@@ -232,7 +232,7 @@ The default pred_kernel_type is "lognormal". This will call the function
 \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link{box_pred_kernel}}, and "power_law", implemented by the function
-\code{\link{power_law_kernel}}. These functions require certain species
+\code{\link{power_law_pred_kernel}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
 are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
 and \code{ppmr_max}. They are explained in the help pages for the kernel
@@ -343,7 +343,7 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an exteral mortality rate
+The \code{z0} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link{setExtMortality}}.
 

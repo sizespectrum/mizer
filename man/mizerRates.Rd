@@ -48,7 +48,7 @@ A list with the following components:
     \item e_repro from \code{\link{mizerERepro}}
     \item e_growth from \code{\link{mizerEGrowth}}
     \item rdi from \code{\link{mizerRDI}}
-    \item rdd from \code{\link{mizerRDD}}
+    \item rdd 
   }
 }
 \description{

@@ -56,18 +56,7 @@ against time. The biomass is calculated within user defined size limits
 returns a dataframe that can be displayed with 
 \code{\link{displayFrames}}.
 }
-\examples{
-# Set up example MizerParams and MizerSim objects
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
-sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
-
-# Display biomass from each simulation next to each other
-displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
-}
 \seealso{
-\code{\link{getBiomass}}, \code{\link{displayFrames}}
-
 Other frame functions: 
 \code{\link{displayFrames}()}
 }

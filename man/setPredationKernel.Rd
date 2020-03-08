@@ -43,7 +43,7 @@ The default pred_kernel_type is "lognormal". This will call the function
 \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
 \code{\link{box_pred_kernel}}, and "power_law", implemented by the function
-\code{\link{power_law_kernel}}. These functions require certain species
+\code{\link{power_law_pred_kernel}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
 are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
 and \code{ppmr_max}. They are explained in the help pages for the kernel

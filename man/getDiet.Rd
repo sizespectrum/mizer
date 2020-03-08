@@ -12,6 +12,8 @@ getDiet(
 )
 }
 \arguments{
+\item{params}{A MizerParams object}
+
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}

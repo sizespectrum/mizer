@@ -32,6 +32,12 @@ set to the largest w_inf specified in the species_params data frame.}
 
 \item{n}{Scaling exponent of the intrinsic birth rate}
 
+\item{q}{Allometric exponent of search volume}
+
+\item{f0}{Expected average feeding level. Used to set \code{gamma}, the
+coefficient in the search rate. The default value is 0.6. Ignored if 
+\code{gamma} is given explicitly.}
+
 \item{kappa}{Coefficient of the intrinsic carrying capacity}
 
 \item{lambda}{Scaling exponent of the intrinsic carrying capacity}

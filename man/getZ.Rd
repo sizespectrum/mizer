@@ -27,6 +27,10 @@ ecosystem}
 \item{effort}{A numeric vector of the effort by gear or a single numeric
 effort value which is used for all gears.}
 
+\item{fishing_mort}{A two dimensional array (species x size) of predation mortality
+(optional).If not supplied is calculated using the \code{\link{getFMort}}
+function.}
+
 \item{m2}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
 calculated using the \code{\link{getPredMort}} function.}

@@ -9,7 +9,6 @@
 #' the mizer vignette.
 #' \tabular{llll}{
 #'   Function \tab Expression \tab Description \tab Section in vignette\cr
-#'   \code{\link{getRates}} \tab \tab All of the below \cr
 #'   \code{\link{getEncounter}} \tab \eqn{E_{e.i}(w)} \tab Encounter rate \tab 3.2 \cr
 #'   \code{\link{getFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   \code{\link{getPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
@@ -65,7 +64,7 @@ NULL
 #'     \item e_repro from \code{\link{mizerERepro}}
 #'     \item e_growth from \code{\link{mizerEGrowth}}
 #'     \item rdi from \code{\link{mizerRDI}}
-#'     \item rdd from \code{\link{mizerRDD}}
+#'     \item rdd 
 #'   }
 #' @export
 #' @family mizer rate functions

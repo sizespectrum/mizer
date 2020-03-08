@@ -2,20 +2,23 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setLinetypes}
 \alias{setLinetypes}
-\title{Set colours to be used in mizer plots}
+\alias{getLinetypes}
+\title{Set linetypes to be used in mizer plots}
 \usage{
 setLinetypes(params, linetypes)
+
+getLinetypes(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{colours}{A named list or named vector of linetypes.}
+\item{linetypes}{A named list or named vector of linetypes.}
 }
 \value{
 The MizerParams object with updated linetypes
 }
 \description{
-Set colours to be used in mizer plots
+Set linetypes to be used in mizer plots
 }
 \examples{
 params <- NS_params

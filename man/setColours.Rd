@@ -2,14 +2,17 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setColours}
 \alias{setColours}
+\alias{getColours}
 \title{Set line colours to be used in mizer plots}
 \usage{
 setColours(params, colours)
+
+getColours(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{line_colours}{A named list or named vector of line colours.}
+\item{colours}{A named list or named vector of line colours.}
 }
 \value{
 The MizerParams object with updated line colours

@@ -5,21 +5,9 @@
 \alias{plotlyYieldGear}
 \title{Plot the total yield of each species by gear through time}
 \usage{
-plotYieldGear(
-  sim,
-  species = dimnames(sim@n)$sp,
-  total = FALSE,
-  highlight = NULL,
-  ...
-)
+plotYieldGear(sim, species, total = FALSE, highlight = NULL, ...)
 
-plotlyYieldGear(
-  sim,
-  species = dimnames(sim@n)$sp,
-  total = FALSE,
-  highlight = NULL,
-  ...
-)
+plotlyYieldGear(sim, species, total = FALSE, highlight = NULL, ...)
 }
 \arguments{
 \item{sim}{An object of class \linkS4class{MizerSim}}

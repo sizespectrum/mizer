@@ -7,6 +7,8 @@
 getFeedingLevel(object, n, n_pp, n_other, encounter, time_range, drop = FALSE)
 }
 \arguments{
+\item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
+
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
@@ -18,6 +20,11 @@ ecosystem}
 species x no. size bins. If not passed in, it is calculated internally
 using \code{\link{getEncounter}}. Only used if \code{object}
 argument is of type \code{MizerParams}.}
+
+\item{time_range}{The time_range can be character or numeric.}
+
+\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
+from the returned array.}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two

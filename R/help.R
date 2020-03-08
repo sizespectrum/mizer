@@ -31,6 +31,8 @@
 #' @import ggplot2 methods assertthat shiny dplyr
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
+#' @importFrom grDevices col2rgb
+#' @importFrom utils modifyList
 #' @docType package
 #' @name mizer
 #' @aliases mizer-package

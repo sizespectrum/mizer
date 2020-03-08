@@ -4,7 +4,7 @@
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the plankton abundance by size
 #' @param n_other A list with the abundances of other components
-#' @param rates A list of rates as returned by [getRates()]
+#' @param rates A list of rates as returned by [mizerRates()]
 #' @param t The current time
 #' @param dt Time step
 #' @param ... Unused

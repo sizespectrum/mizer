@@ -12,8 +12,6 @@ markBackground(object, species)
 
 \item{species}{Name or vector of names of the species to be designated as
 background species. By default this is set to all species.}
-
-\item{...}{Other arguments (unused)}
 }
 \value{
 An object of the same class as the \code{object} argument

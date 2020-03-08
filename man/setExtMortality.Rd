@@ -41,7 +41,7 @@ due to predation by predators that are not explicitly included in the model
 (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 with units 1/year.
 
-The \code{z0} argument allows you to specify an exteral mortality rate
+The \code{z0} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
 the Examples section of the help page for \code{\link{setExtMortality}}.
 

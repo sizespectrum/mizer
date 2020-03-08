@@ -5,20 +5,12 @@
 \alias{plotlyYield}
 \title{Plot the total yield of species through time}
 \usage{
-plotYield(
-  sim,
-  sim2,
-  species = dimnames(sim@n)$sp,
-  total = FALSE,
-  log = TRUE,
-  highlight = NULL,
-  ...
-)
+plotYield(sim, sim2, species, total = FALSE, log = TRUE, highlight = NULL, ...)
 
 plotlyYield(
   sim,
   sim2,
-  species = dimnames(sim@n)$sp,
+  species,
   total = FALSE,
   log = TRUE,
   highlight = NULL,

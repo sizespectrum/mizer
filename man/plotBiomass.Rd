@@ -20,9 +20,9 @@ plotBiomass(
 
 plotlyBiomass(
   sim,
-  species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
-  start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-  end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+  species,
+  start_time,
+  end_time,
   y_ticks = 6,
   ylim = c(NA, NA),
   total = FALSE,

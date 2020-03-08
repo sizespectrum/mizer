@@ -1,7 +1,7 @@
 ^vignettes/.*\.Rmd$
 ^codecov\.yml$
 ^docs$
-^_pkgdown\.yml$
+^pkgdown$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$

@@ -20,7 +20,7 @@ displayFrames(f1, f2, params, xlab = NA, ylab = NA, y_ticks = 6)
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 }
 \value{
-ggplot2 object
+A plot
 }
 \description{
 Takes two data frames with plotting data and displays them side-by-side,
@@ -32,23 +32,8 @@ variable will go on the x-axis, the third on the y-axis with a logarithmic
 scale. The second variable should be the species and will be used to group
 the data and display with the linetype and linecolour specified by the
 \code{linetype} and \code{linecolour} slots of the \code{params} object.
-
-The recommended way is to obtain the data frames using one of the supplied
-functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
-}
-\examples{
-# Set up example MizerParams and MizerSim objects
-params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
-sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
-
-# Display biomass from each simulation next to each other
-displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 }
 \seealso{
-\code{\link{plotting_functions}},
-  \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
-
 Other frame functions: 
 \code{\link{getBiomassFrame}()}
 }

@@ -1125,7 +1125,6 @@ renameSpecies <- function(params, replace) {
 #'   new species. In the latter case all interaction between an old and a new
 #'   species are set to 1. If this argument is missing, all interactions 
 #'   involving a new species are set to 1.
-#' @inheritParams newTraitParams
 #' 
 #' @return An object of type \linkS4class{MizerParams}
 #' @seealso \code{\link{removeSpecies}}
@@ -1160,8 +1159,7 @@ renameSpecies <- function(params, replace) {
 #' sim <- project(params, t_max=50)
 #' plotBiomass(sim)
 #' }
-addSpecies <- function(params, species_params, interaction,
-                       initial_effort = NULL) {
+addSpecies <- function(params, species_params, interaction) {
     # check validity of parameters ----
     assert_that(is(params, "MizerParams"),
                 is.data.frame(species_params))
@@ -1217,7 +1215,7 @@ addSpecies <- function(params, species_params, interaction,
         max_w = max(params@w),
         min_w_pp = min(params@w_full),
         no_w = length(params@w),
-        initial_effort = initial_effort
+        initial_effort = params@initial_effort
     )
     # Use the same plankton spectrum as params
     p@initial_n_pp <- params@initial_n_pp
@@ -1400,7 +1398,6 @@ setRmax <- function(params, rfac) {
 #'   \linkS4class{MizerSim}.
 #' @param species Name or vector of names of the species to be designated as
 #'   background species. By default this is set to all species.
-#' @param ... Other arguments (unused)
 #' 
 #' @return An object of the same class as the \code{object} argument
 #' @export

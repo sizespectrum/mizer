@@ -15,8 +15,6 @@ getMetabolicRate(params)
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-
-\item{p}{Scaling exponent of the standard metabolic rate.}
 }
 \value{
 MizerParams object with updated metabolic rate. Because of the way

@@ -4,7 +4,7 @@
 \alias{addSpecies}
 \title{Add new species}
 \usage{
-addSpecies(params, species_params, interaction, initial_effort = NULL)
+addSpecies(params, species_params, interaction)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}

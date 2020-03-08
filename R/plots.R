@@ -121,9 +121,6 @@ log_breaks <- function(n = 6){
 #' the data and display with the linetype and linecolour specified by the
 #' \code{linetype} and \code{linecolour} slots of the \code{params} object.
 #' 
-#' The recommended way is to obtain the data frames using one of the supplied
-#' functions, e.g., \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}.
-#' 
 #' @param f1 Data frame for left plot
 #' @param f2 Data frame for right plot
 #' @param params A MizerParams object
@@ -131,18 +128,8 @@ log_breaks <- function(n = 6){
 #' @param ylab Label for y-axis. Defaults to third variable name.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' 
-#' @return ggplot2 object
+#' @return A plot
 #' @family frame functions
-#' @seealso \code{\link{plotting_functions}},
-#'   \code{\link{getBiomassFrame}}, \code{\link{getSSBFrame}}
-#' @examples 
-#' # Set up example MizerParams and MizerSim objects
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
-#' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
-#' 
-#' # Display biomass from each simulation next to each other
-#' displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 displayFrames <- function(f1, f2, params, 
                            xlab = NA, ylab = NA,
                            y_ticks = 6) {
@@ -200,15 +187,6 @@ displayFrames <- function(f1, f2, params,
 #'   
 #' @return A data frame that can be used in \code{\link{displayFrames}}
 #' @family frame functions
-#' @seealso \code{\link{getBiomass}}, \code{\link{displayFrames}}
-#' @examples 
-#' # Set up example MizerParams and MizerSim objects
-#' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
-#' sim0 <- project(params, effort=0, t_max=20, progress_bar = FALSE)
-#' sim1 <- project(params, effort=1, t_max=20, progress_bar = FALSE)
-#' 
-#' # Display biomass from each simulation next to each other
-#' displayFrames(getBiomassFrame(sim0), getBiomassFrame(sim1), params)
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
@@ -320,9 +298,9 @@ plotBiomass <- function(sim, species, start_time, end_time, y_ticks = 6,
 #' @rdname plotBiomass
 #' @export
 plotlyBiomass <- function(sim,
-             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
-             start_time = as.numeric(dimnames(sim@n)[[1]][1]),
-             end_time = as.numeric(dimnames(sim@n)[[1]][dim(sim@n)[1]]),
+             species,
+             start_time,
+             end_time,
              y_ticks = 6,
              ylim = c(NA, NA),
              total = FALSE,
@@ -331,8 +309,6 @@ plotlyBiomass <- function(sim,
              ...) {
     argg <- c(as.list(environment()), list(...))
     ggplotly(do.call("plotBiomass", argg))
-    # ggplotly(do.callplotBiomass(sim, species, start_time, end_time, y_ticks,
-    #                      ylim, total, background, ...))
 }
 
 
@@ -365,9 +341,10 @@ plotlyBiomass <- function(sim,
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #' 
 plotYield <- function(sim, sim2,
-                      species = dimnames(sim@n)$sp,
+                      species,
                       total = FALSE, log = TRUE,
                       highlight = NULL, ...){
+    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     if (missing(sim2)) {
@@ -447,7 +424,7 @@ plotYield <- function(sim, sim2,
 #' @rdname plotYield
 #' @export
 plotlyYield <- function(sim, sim2,
-                        species = dimnames(sim@n)$sp,
+                        species,
                         total = FALSE, log = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -480,9 +457,10 @@ plotlyYield <- function(sim, sim2,
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 #' 
 plotYieldGear <- function(sim,
-                          species = dimnames(sim@n)$sp,
+                          species,
                           total = FALSE,
                           highlight = NULL, ...){
+    if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
     
@@ -514,8 +492,7 @@ plotYieldGear <- function(sim,
 
 #' @rdname plotYieldGear
 #' @export
-plotlyYieldGear <- function(sim,
-                            species = dimnames(sim@n)$sp,
+plotlyYieldGear <- function(sim, species,
                             total = FALSE, highlight = NULL, ...) {
     argg <- as.list(environment())
     ggplotly(do.call("plotYieldGear", argg))

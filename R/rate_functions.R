@@ -47,11 +47,15 @@ getEncounter <- function(params, n = params@initial_n,
 #' The feeding level is used in \code{\link{getEReproAndGrowth}} and in
 #' \code{\link{getPredRate}}.
 #' 
+#' @param object A \code{MizerParams} object or a \code{MizerSim} object
 #' @inheritParams mizerRates
+#' @inheritParams get_time_elements
 #' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
 #'   using \code{\link{getEncounter}}. Only used if \code{object}
 #'   argument is of type \code{MizerParams}.
+#' @param drop If \code{TRUE} then any dimension of length 1 will be removed
+#'   from the returned array.
 #'
 #' @return If a \code{MizerParams} object is passed in, the function returns a two
 #'   dimensional array (predator species x predator size) based on the
@@ -179,7 +183,7 @@ getPredRate <- function(params, n = params@initial_n,
 #' \deqn{\mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.}{
 #'   \mu_{p.i}(w_p) = \sum_j pred_rate_j(w_p) \theta_{ji}.}
 #' 
-#' @inheritParams mizerRates
+#' @inheritParams getFeedingLevel
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
@@ -508,7 +512,10 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' mortality for a single time step.
 #' @inheritParams mizerRates
 #' @param effort A numeric vector of the effort by gear or a single numeric
-#'   effort value which is used for all gears. 
+#'   effort value which is used for all gears.
+#' @param fishing_mort A two dimensional array (species x size) of predation mortality
+#'   (optional).If not supplied is calculated using the \code{\link{getFMort}}
+#'   function.
 #' @param m2 A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
 #'   calculated using the \code{\link{getPredMort}} function.

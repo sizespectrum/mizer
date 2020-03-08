@@ -7,6 +7,8 @@
 getPredMort(object, n, n_pp, n_other, pred_rate, time_range, drop = TRUE)
 }
 \arguments{
+\item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
+
 \item{n}{A matrix of species abundances (species x size).}
 
 \item{n_pp}{A vector of the plankton abundance by size}
@@ -18,6 +20,11 @@ ecosystem}
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{\link{getPredRate}} function.}
+
+\item{time_range}{The time_range can be character or numeric.}
+
+\item{drop}{If \code{TRUE} then any dimension of length 1 will be removed
+from the returned array.}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two

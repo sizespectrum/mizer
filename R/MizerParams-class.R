@@ -1165,7 +1165,7 @@ getInteraction <- function(params) {
 #' \code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
 #' An alternative pred_kernel type is "box", implemented by the function
 #' \code{\link{box_pred_kernel}}, and "power_law", implemented by the function
-#' \code{\link{power_law_kernel}}. These functions require certain species
+#' \code{\link{power_law_pred_kernel}}. These functions require certain species
 #' parameters in the species_params data frame. For the lognormal kernel these
 #' are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
 #' and \code{ppmr_max}. They are explained in the help pages for the kernel
@@ -1533,7 +1533,6 @@ getMaxIntakeRate <- function(params) {
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting metabolic rate".
-#' @param p Scaling exponent of the standard metabolic rate.
 #' 
 #' @return MizerParams object with updated metabolic rate. Because of the way
 #'   the R language works, `setMetabolicRate()` does not make the changes to the
@@ -1598,7 +1597,7 @@ getMetabolicRate <- function(params) {
 #' (e.g. mammals or seabirds) or due to other causes like illness. It is a rate
 #' with units 1/year.
 #' 
-#' The \code{z0} argument allows you to specify an exteral mortality rate
+#' The \code{z0} argument allows you to specify an external mortality rate
 #' that depends on species and body size. You can see an example of this in
 #' the Examples section of the help page for \code{\link{setExtMortality}}.
 #' 
@@ -1953,7 +1952,7 @@ getMaturityProportion <- function(params) {
 getReproductionProportion <- function(params) {
     repro_prop <- params@psi / params@maturity
     repro_prop[is.nan(repro_prop)] <- 0
-    comment(repro_prop) <- comment(psi)
+    comment(repro_prop) <- comment(params@psi)
     repro_prop
 }
 
@@ -2351,7 +2350,7 @@ getInitial_n_other <- function(params) {
 #' Set line colours to be used in mizer plots
 #' 
 #' @param params A MizerParams object
-#' @param line_colours A named list or named vector of line colours.
+#' @param colours A named list or named vector of line colours.
 #' 
 #' @return The MizerParams object with updated line colours
 #' @export
@@ -2365,6 +2364,8 @@ setColours <- function(params, colours) {
         modifyList(as.list(params@linecolour), as.list(colours)))
 }
 
+#' @rdname setColours
+#' @export
 getColours <- function(params) {
     as.list(params@linecolour)
 }
@@ -2376,10 +2377,10 @@ validColour <- function(colour) {
     })
 }
 
-#' Set colours to be used in mizer plots
+#' Set linetypes to be used in mizer plots
 #' 
 #' @param params A MizerParams object
-#' @param colours A named list or named vector of linetypes.
+#' @param linetypes A named list or named vector of linetypes.
 #' 
 #' @return The MizerParams object with updated linetypes
 #' @export
@@ -2392,6 +2393,8 @@ setLinetypes <- function(params, linetypes) {
         modifyList(as.list(params@linetype), as.list(linetypes)))
 }
 
+#' @rdname setLinetypes
+#' @export
 getLinetypes <- function(params) {
     as.list(params@linetype)
 }
@@ -2713,7 +2716,7 @@ default_pred_kernel_params <- function(object) {
     if (is(object, "MizerParams")) {
         # Nothing to do if full pred kernel has been specified
         if (length(dim(object@pred_kernel)) > 1) {
-            return(params@object)
+            return(object)
         }
         species_params <- object@species_params
     } else {

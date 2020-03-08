@@ -15,7 +15,7 @@ plankton_constant(params, n, n_pp, n_other, rates, t, dt, ...)
 
 \item{n_other}{A list with the abundances of other components}
 
-\item{rates}{A list of rates as returned by \code{\link[=getRates]{getRates()}}}
+\item{rates}{A list of rates as returned by \code{\link[=mizerRates]{mizerRates()}}}
 
 \item{t}{The current time}
 

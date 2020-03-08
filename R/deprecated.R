@@ -4,6 +4,8 @@
 #' \code{\link{newMultispeciesParams}} that sets better default values.
 #' 
 #' @inheritParams newMultispeciesParams
+#' @inheritParams newTraitParams
+#' @param q Allometric exponent of search volume
 #' @param ... Unused
 #' @export
 #' @family deprecated functions
