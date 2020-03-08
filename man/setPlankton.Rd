@@ -35,13 +35,13 @@ getPlanktonDynamics(params)
 
 \item{capacity}{Optional. Vector of plankton intrinsic carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic birth rate}
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
-\item{kappa}{Coefficient of the intrinsic carrying capacity}
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
-\item{n}{Scaling exponent of the intrinsic birth rate}
+\item{n}{Allometric growth exponent for plankton}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}

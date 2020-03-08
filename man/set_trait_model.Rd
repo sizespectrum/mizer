@@ -12,7 +12,6 @@ set_trait_model(
   min_w = 0.001,
   max_w = max_w_inf * 1.1,
   min_w_pp = 1e-10,
-  no_w_pp = NA,
   w_pp_cutoff = 1,
   k0 = 50,
   n = 2/3,
@@ -53,10 +52,6 @@ spectrum is set to max_w_inf.}
 
 \item{min_w_pp}{Obsolete argument because the smallest plankton size is set
 to the smallest size at which the consumers feed.}
-
-\item{no_w_pp}{Obsolete argument that is no longer used because the number
-of plankton size bins is determined because all size bins have to
-be logarithmically equally spaced.}
 
 \item{w_pp_cutoff}{The cut off size of the plankton spectrum. Default value
 is 1.}

@@ -7,6 +7,7 @@
 set_community_model(
   max_w = 1e+06,
   min_w = 0.001,
+  min_w_pp = 1e-10,
   z0 = 0.1,
   alpha = 0.2,
   h = 10,
@@ -32,6 +33,8 @@ species used to represent the community is set to this value. The
 default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
+
+\item{min_w_pp}{The smallest size of the plankton spectrum.}
 
 \item{z0}{The background mortality of the community. Default value is 0.1.}
 

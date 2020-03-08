@@ -1,6 +1,5 @@
 # Class specification and constructors for mizer base parameters class
 # Class has members to store parameters of size based model
-
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
 # Development has received funding from the European Commission's Horizon 2020 
@@ -393,13 +392,12 @@ remove(validMizerParams)
 
 #' Create empty MizerParams object of the right size
 #' 
+#' An internal function.
 #' Sets up a valid \linkS4class{MizerParams} object with all the slots
 #' initialised and given dimension names, but with some slots left empty. This
 #' function is to be used by other functions to set up full parameter objects.
 #' 
-#' See \code{\link{newMultispeciesParams}} for a function that fills the
-#' slots left empty by this function.
-#' 
+#' @section Size grid:
 # Some code is commented out that would allow the user to 
 # specify a grid with a non-constant log spacing. But we comment this out
 # for now because of the fft.
@@ -411,6 +409,7 @@ remove(validMizerParams)
 #' `min_w`, with the same log size. The number of extra bins is such that
 #' `min_w_pp` comes to lie within the smallest bin. 
 #' 
+#' @section Changes to species params:
 #' The \code{species_params} slot of the returned MizerParams object may differ
 #' slightly from the data frame supplied as argument to this function in the
 #' following ways:
@@ -433,12 +432,14 @@ remove(validMizerParams)
 # #'   provided then size classes are set by the other arguments as described in
 # #'   the Details.
 #' @param max_w The largest size of the consumer spectrum. By default this is
-#'   set to the largest w_inf specified in the species_params data frame.
+#'   set to the largest \code{w_inf} specified in the \code{species_params} data
+#'   frame.
 #' @param min_w_pp The smallest size of the plankton spectrum.
 # #'   Ignored if w_full is specified.
-#' @param no_w_pp  No longer used
 #' 
 #' @return An empty but valid MizerParams object
+#' @seealso See \code{\link{newMultispeciesParams}} for a function that fills
+#'   the slots left empty by this function.
 #' @md
 #' @export
 emptyParams <- function(species_params,
@@ -446,11 +447,7 @@ emptyParams <- function(species_params,
                         min_w = 0.001,
                         # w_full = NA,
                         max_w = NA,
-                        min_w_pp = NA,
-                        no_w_pp = NA) {
-    if (!is.na(no_w_pp)) {
-        warning("New mizer code does not support the parameter no_w_pp")
-    }
+                        min_w_pp = NA) {
     assert_that(no_w > 10)
     
     ## Set defaults ----
@@ -708,10 +705,9 @@ emptyParams <- function(species_params,
 #' @inheritParams emptyParams
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
-#' @param no_w_pp Obsolete argument that is no longer used because the number
-#'    of plankton size bins is determined because all size bins have to
-#'    be logarithmically equally spaced.
 #' @inheritParams setParams
+#' @param n The allometric growth exponent. This can be overruled for individual
+#'   species by including a \code{n} column in the \code{species_params}. 
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #' 
@@ -737,7 +733,8 @@ emptyParams <- function(species_params,
 #' other entries as NA and the missing values will be set to the defaults.
 #' 
 #' All the parameters will be mentioned in the following sections.
-#' 
+#' @inheritSection emptyParams Changes to species params
+#' @inheritSection emptyParams Size grid
 #' @inheritSection setParams Units in mizer
 #' @inheritSection setInteraction Setting interactions
 #' @inheritSection setPredationKernel Setting predation kernel
@@ -759,17 +756,11 @@ emptyParams <- function(species_params,
 #' }
 newMultispeciesParams <- function(
     species_params,
-    interaction = matrix(1,
-                         nrow = nrow(species_params),
-                         ncol = nrow(species_params)),
+    interaction = NULL,
     no_w = 100,
     min_w = 0.001,
     max_w = NA,
     min_w_pp = NA,
-    no_w_pp = NA,
-    n = 2 / 3,
-    p = 0.7,
-    f0 = 0.6,
     # setPredationKernel()
     pred_kernel = NULL,
     # setSearchVolume()
@@ -778,6 +769,7 @@ newMultispeciesParams <- function(
     intake_max = NULL,
     # setMetabolicRate()
     metab = NULL,
+    p = 0.7,
     # setExtMortality
     z0 = NULL,
     z0pre = 0.6,
@@ -789,6 +781,7 @@ newMultispeciesParams <- function(
     # setPlankton
     rate = NULL,
     capacity = NULL,
+    n = 2 / 3,
     r_pp = 10,
     kappa = 1e11,
     lambda = 2.05,
@@ -796,6 +789,7 @@ newMultispeciesParams <- function(
     plankton_dynamics = "plankton_semichemostat",
     # setFishing
     initial_effort = NULL) {
+    no_sp <- nrow(species_params)
     
     ## For backwards compatibility, allow r_max instead of R_max
     if (!("R_max" %in% names(species_params)) &&
@@ -808,16 +802,17 @@ newMultispeciesParams <- function(
                           no_w = no_w, 
                           min_w = min_w,  
                           max_w = max_w, 
-                          min_w_pp = min_w_pp, 
-                          no_w_pp = NA)
+                          min_w_pp = min_w_pp)
     
     ## Fill the slots ----
     params <- params %>% 
         set_species_param_default("n", n) %>% 
-        set_species_param_default("p", p) %>%
-        set_species_param_default("f0", f0)
+        set_species_param_default("p", p)
     params <- set_species_param_default(params, "q", 
                                         lambda - 2 + params@species_params$n)
+    if (is.null(interaction)) {
+        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
+    }
     params <-
         setParams(params,
                   # setInteraction
@@ -1001,6 +996,7 @@ setParams <- function(params,
                       intake_max = NULL,
                       # setMetabolicRate()
                       metab = NULL,
+                      p = NULL,
                       # setExtMortality
                       z0 = NULL,
                       z0pre = 0.6,
@@ -1028,7 +1024,7 @@ setParams <- function(params,
     params <- setMaxIntakeRate(params,
                            intake_max = intake_max)
     params <- setMetabolicRate(params,
-                       metab = metab)
+                       metab = metab, p = p)
     params <- setExtMortality(params,
                        z0 = z0,
                        z0pre = z0pre,
@@ -1071,9 +1067,9 @@ setParams <- function(params,
 #'   to all 1s.
 #'
 #' @param params MizerParams object
-#' @param interaction Interaction matrix of the species (predator by prey).
-#'   Entries should be numbers between 0 and 1. See "Setting interactions"
-#'   section below.
+#' @param interaction Optional interaction matrix of the species (predator
+#'   species x prey species). Entries should be numbers between 0 and 1. By
+#'   default all entries are 1. See "Setting interactions" section below.
 #'
 #' @return MizerParams object with updated interaction matrix. Because of the
 #'   way the R language works, `setInteraction()` does not make the changes to
@@ -1533,6 +1529,9 @@ getMaxIntakeRate <- function(params) {
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting metabolic rate".
+#' @param p The allometric metabolic exponent. This is only used if \code{metab}
+#'   is not given explicitly and if the exponent is not specified in a \code{p}
+#'   column in the \code{species_params}.
 #' 
 #' @return MizerParams object with updated metabolic rate. Because of the way
 #'   the R language works, `setMetabolicRate()` does not make the changes to the
@@ -1549,8 +1548,12 @@ getMaxIntakeRate <- function(params) {
 #' params <- setMetabolicRate(params)
 #' }
 setMetabolicRate <- function(params, 
-                     metab = NULL) {
+                     metab = NULL, p = NULL) {
     assert_that(is(params, "MizerParams"))
+    if (!is.null(p)) {
+        assert_that(is.numeric(p))
+        params <- set_species_param_default(params, "p", p)
+    }
     species_params <- params@species_params
     if (!is.null(metab)) {
         assert_that(is.array(metab),
@@ -1776,7 +1779,7 @@ getExtMortality <- function(params) {
 #' @param srr The name of the stock recruitment function. Defaults to 
 #'   "\code{\link{srrBevertonHolt}}".
 #' 
-#' @return The updatec MizerParams object. Because of the way the R language
+#' @return The updated MizerParams object. Because of the way the R language
 #'   works, `setReproduction()` does not make the changes to the params object
 #'   that you pass to it but instead returns a new params object. So to affect
 #'   the change you call the function in the form
@@ -1988,10 +1991,10 @@ getReproductionProportion <- function(params) {
 #' @param params A MizerParams object
 #' @param rate Optional. Vector of plankton intrinsic birth rates
 #' @param capacity Optional. Vector of plankton intrinsic carrying capacity
-#' @param r_pp Coefficient of the intrinsic birth rate
-#' @param n Scaling exponent of the intrinsic birth rate
-#' @param kappa Coefficient of the intrinsic carrying capacity
-#' @param lambda Scaling exponent of the intrinsic carrying capacity
+#' @param r_pp Coefficient of the intrinsic plankton birth rate
+#' @param n Allometric growth exponent for plankton
+#' @param kappa Coefficient of the intrinsic plankton carrying capacity
+#' @param lambda Scaling exponent of the intrinsic plankton carrying capacity
 #' @param w_pp_cutoff The upper cut off size of the plankton spectrum. 
 #'   Default is 10 g.
 #' @param plankton_dynamics Function that determines plankton dynamics by
@@ -2356,12 +2359,15 @@ getInitial_n_other <- function(params) {
 #' @export
 #' @examples
 #' params <- NS_params
-#' params <- setLineColours
+#' params <- setColours(params, list("Cod" = "red", "Haddock" = "#00ff00"))
+#' plotSpectra(params)
+#' getColours(params)
 setColours <- function(params, colours) {
     assert_that(is(params, "MizerParams"),
                 all(validColour(colours)))
     params@linecolour <- unlist(
         modifyList(as.list(params@linecolour), as.list(colours)))
+    params
 }
 
 #' @rdname setColours
@@ -2386,11 +2392,14 @@ validColour <- function(colour) {
 #' @export
 #' @examples
 #' params <- NS_params
-#' params <- setLineColours
+#' params <- setLinetypes(params, list("Cod" = "solid"))
+#' plotSpectra(params)
+#' getLinetypes(params)
 setLinetypes <- function(params, linetypes) {
     assert_that(is(params, "MizerParams"))
     params@linetype <- unlist(
         modifyList(as.list(params@linetype), as.list(linetypes)))
+    params
 }
 
 #' @rdname setLinetypes
@@ -2811,7 +2820,8 @@ get_phi <- function(species_params, ppmr) {
 #' @concept helper
 get_h_default <- function(params) {
     assert_that(is(params, "MizerParams"))
-    species_params <- params@species_params
+    species_params <- params@species_params %>%
+        set_species_param_default("f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
         species_params$h <- rep(NA, nrow(species_params))
     }
@@ -2866,7 +2876,8 @@ get_h_default <- function(params) {
 #' @concept helper
 get_gamma_default <- function(params) {
     assert_that(is(params, "MizerParams"))
-    species_params <- params@species_params
+    species_params <- params@species_params %>%
+        set_species_param_default("f0", 0.6)
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
     }

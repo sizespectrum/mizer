@@ -9,8 +9,7 @@ emptyParams(
   no_w = 100,
   min_w = 0.001,
   max_w = NA,
-  min_w_pp = NA,
-  no_w_pp = NA
+  min_w_pp = NA
 )
 }
 \arguments{
@@ -22,23 +21,21 @@ emptyParams(
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.}
+set to the largest \code{w_inf} specified in the \code{species_params} data
+frame.}
 
 \item{min_w_pp}{The smallest size of the plankton spectrum.}
-
-\item{no_w_pp}{No longer used}
 }
 \value{
 An empty but valid MizerParams object
 }
 \description{
+An internal function.
 Sets up a valid \linkS4class{MizerParams} object with all the slots
 initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects.
 }
-\details{
-See \code{\link{newMultispeciesParams}} for a function that fills the
-slots left empty by this function.
+\section{Size grid}{
 
 A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
@@ -46,6 +43,9 @@ the log-sizes are equally spaced. The spacing is chosen so that there will be
 starting at \code{max_w}. For \code{w_full} additional size bins are added below
 \code{min_w}, with the same log size. The number of extra bins is such that
 \code{min_w_pp} comes to lie within the smallest bin.
+}
+
+\section{Changes to species params}{
 
 The \code{species_params} slot of the returned MizerParams object may differ
 slightly from the data frame supplied as argument to this function in the
@@ -56,4 +56,9 @@ following ways:
 }
 Note that the other characteristic sizes of the species, like \code{w_mat} and
 \code{w_inf}, are not modified to lie on grid points.
+}
+
+\seealso{
+See \code{\link{newMultispeciesParams}} for a function that fills
+the slots left empty by this function.
 }

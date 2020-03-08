@@ -20,27 +20,29 @@ MizerParams(
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
 
-\item{interaction}{Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.}
+\item{interaction}{Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.}
 
 \item{min_w_pp}{The smallest size of the plankton spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.}
+set to the largest \code{w_inf} specified in the \code{species_params} data
+frame.}
 
-\item{n}{Scaling exponent of the intrinsic birth rate}
+\item{n}{The allometric growth exponent. This can be overruled for individual
+species by including a \code{n} column in the \code{species_params}.}
 
 \item{q}{Allometric exponent of search volume}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
-coefficient in the search rate. The default value is 0.6. Ignored if 
-\code{gamma} is given explicitly.}
+coefficient in the search rate. Ignored if \code{gamma} is given
+explicitly.}
 
-\item{kappa}{Coefficient of the intrinsic carrying capacity}
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
 \item{...}{Unused}
 }

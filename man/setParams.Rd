@@ -19,6 +19,7 @@ setParams(
   search_vol = NULL,
   intake_max = NULL,
   metab = NULL,
+  p = NULL,
   z0 = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
@@ -35,13 +36,13 @@ setParams(
 
 \item{capacity}{Optional. Vector of plankton intrinsic carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic birth rate}
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
-\item{kappa}{Coefficient of the intrinsic carrying capacity}
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
-\item{n}{Scaling exponent of the intrinsic birth rate}
+\item{n}{Allometric growth exponent for plankton}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
@@ -50,9 +51,9 @@ Default is 10 g.}
 calculating the plankton spectrum at the next time step from the current
 state.}
 
-\item{interaction}{Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.}
+\item{interaction}{Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
@@ -70,6 +71,10 @@ described in the section "Setting maximum intake rate".}
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
+
+\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
+is not given explicitly and if the exponent is not specified in a \code{p}
+column in the \code{species_params}.}
 
 \item{z0}{Optional. An array (species x size) holding the external
 mortality rate.}

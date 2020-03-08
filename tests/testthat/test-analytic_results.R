@@ -167,6 +167,7 @@ test_that("Analytic steady-state solution is well approximated", {
         w_min = w_min,
         w_inf = w_inf,
         w_mat = w_mat,
+        f0 = f0,
         h = h,
         ks = ks,
         beta = beta,
@@ -179,7 +180,7 @@ test_that("Analytic steady-state solution is well approximated", {
     )
     
     params <- newMultispeciesParams(species_params, p = p, n = n, lambda = lambda,
-                                    f0 = f0, kappa = kappa, min_w = w_min, max_w = w_inf,
+                                    kappa = kappa, min_w = w_min, max_w = w_inf,
                                     no_w = no_w, min_w_pp = min_w_pp, w_pp_cutoff = w_inf,
                                     r_pp = r_pp)
     

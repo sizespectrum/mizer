@@ -9,15 +9,15 @@ newCommunityParams(
   min_w = 0.001,
   z0 = 0.1,
   alpha = 0.2,
+  f0 = 0.7,
   h = 10,
+  gamma = NA,
   beta = 100,
   sigma = 2,
   n = 2/3,
   kappa = 1000,
   lambda = 2.05,
-  f0 = 0.7,
   r_pp = 10,
-  gamma = NA,
   knife_edge_size = 1000,
   recruitment,
   ...
@@ -25,45 +25,94 @@ newCommunityParams(
 }
 \arguments{
 \item{max_w}{The maximum size of the community. The \code{w_inf} of the 
-species used to represent the community is set to this value. The 
-default value is 1e6.}
+species used to represent the community is set to this value.}
 
-\item{min_w}{The minimum size of the community. Default value is 1e-3.}
+\item{min_w}{The minimum size of the community.}
 
-\item{z0}{The background mortality of the community. Default value is 0.1.}
+\item{z0}{The background mortality of the community.}
 
-\item{alpha}{The assimilation efficiency of the community. Default value 0.2}
-
-\item{h}{The maximum food intake rate. Default value is 10.}
-
-\item{beta}{The preferred predator prey mass ratio. Default value is 100.}
-
-\item{sigma}{The width of the prey preference. Default value is 2.0.}
-
-\item{n}{The scaling exponent of the maximum intake rate. Default value is 2/3.}
-
-\item{kappa}{The carrying capacity of the plankton spectrum. Default value
-is 1000.}
-
-\item{lambda}{The exponent of the plankton spectrum. Default value is 2.05.}
+\item{alpha}{The assimilation efficiency of the community.}
 
 \item{f0}{The average feeding level of individuals who feed on a power-law 
 spectrum. This value is used to calculate the search rate parameter 
-\code{gamma} (see the package vignette). Default value is 0.7.}
+\code{gamma} (see the package vignette).}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 10.}
+\item{h}{The maximum food intake rate.}
 
 \item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 \code{kappa} if not supplied.}
 
-\item{knife_edge_size}{The size at the edge of the knife-selectivity 
-function. Default value is 1000.}
+\item{beta}{The preferred predator prey mass ratio.}
+
+\item{sigma}{The width of the prey preference.}
+
+\item{n}{The scaling exponent of the maximum intake rate.}
+
+\item{kappa}{The carrying capacity of the plankton spectrum.}
+
+\item{lambda}{The exponent of the plankton spectrum.}
+
+\item{r_pp}{Growth rate parameter for the plankton spectrum.}
+
+\item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
+function.}
 
 \item{recruitment}{The constant recruitment in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum 
-continues the plankton spectrum.}
+is continuous with the plankton spectrum.}
 
-\item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
+\item{...}{
+  Arguments passed on to \code{\link[=newMultispeciesParams]{newMultispeciesParams}}
+  \describe{
+    \item{\code{min_w_pp}}{The smallest size of the plankton spectrum. By default this
+is set to the smallest value at which any of the consumers can feed.}
+    \item{\code{species_params}}{A data frame of species-specific parameter values.}
+    \item{\code{no_w}}{The number of size bins in the consumer spectrum.}
+    \item{\code{interaction}}{Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.}
+    \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
+that holds the predation coefficient of each predator at size on each prey
+size. If not supplied, a default is set as described in section "Setting
+predation kernel".}
+    \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the section "Setting search volume".}
+    \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
+intake rate for each species at size. If not supplied, a default is set as
+described in the section "Setting maximum intake rate".}
+    \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
+for each species at size. If not supplied, a default is set as described in
+the section "Setting metabolic rate".}
+    \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
+is not given explicitly and if the exponent is not specified in a \code{p}
+column in the \code{species_params}.}
+    \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.}
+    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+Default value is \code{n-1}.}
+    \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".}
+    \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".}
+    \item{\code{srr}}{The name of the stock recruitment function. Defaults to 
+"\code{\link{srrBevertonHolt}}".}
+    \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
+    \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
+    \item{\code{w_pp_cutoff}}{The upper cut off size of the plankton spectrum. 
+Default is 10 g.}
+    \item{\code{plankton_dynamics}}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.}
+    \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.}
+  }}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
@@ -114,7 +163,6 @@ K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
 \seealso{
 Other functions for setting up models: 
 \code{\link{newMultispeciesParams}()},
-\code{\link{newSheldonParams}()},
 \code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

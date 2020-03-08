@@ -23,7 +23,12 @@ set_multispecies_model <-
         kappa = 1e11,
         lambda = 2 + q - n,
         ...) {
+    if (exists("no_w_pp")) {
+        warning("New mizer code does not support the parameter no_w_pp")
+    }
+        
     species_params[["q"]] <- q
+    species_params[["f0"]] <- f0
     object <- species_params
     # old code from MizerParams() in version 1.0.1
     
@@ -84,7 +89,6 @@ set_multispecies_model <-
     return(newMultispeciesParams(object,
                                  interaction = interaction,
                                  n = n,
-                                 f0 = f0,
                                  kappa = kappa,
                                  lambda = lambda,
                                  max_w = max_w,
@@ -157,9 +161,6 @@ MizerParams <- set_multispecies_model
 #'   spectrum is set to max_w_inf.
 #' @param min_w_pp Obsolete argument because the smallest plankton size is set
 #'   to the smallest size at which the consumers feed.
-#' @param no_w_pp Obsolete argument that is no longer used because the number
-#'    of plankton size bins is determined because all size bins have to
-#'    be logarithmically equally spaced.
 #' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
 #'    is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
@@ -202,7 +203,6 @@ set_trait_model <- function(no_sp = 10,
                             min_w = 0.001,
                             max_w = max_w_inf * 1.1,
                             min_w_pp = 1e-10,
-                            no_w_pp = NA,
                             w_pp_cutoff = 1,
                             k0 = 50, # recruitment adjustment parameter
                             n = 2/3,
@@ -223,8 +223,9 @@ set_trait_model <- function(no_sp = 10,
                             knife_edge_size = 1000,
                             gear_names = "knife_edge_gear",
                             ...){
-    if (!is.na(no_w_pp))
+    if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
+    }
     # If not supplied, calculate gamma using equation 2.1 in A&P 2010
     # TODO: remove this here because it is already calculated in MizerParams()
     #       Having the same code in two locations is not a good idea
@@ -372,6 +373,7 @@ set_trait_model <- function(no_sp = 10,
 #'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
+#' @param min_w_pp The smallest size of the plankton spectrum. 
 #' @param ... Other arguments to pass to the \code{MizerParams} constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
@@ -388,6 +390,7 @@ set_trait_model <- function(no_sp = 10,
 #' }
 set_community_model <- function(max_w = 1e6,
                                 min_w = 1e-3,
+                                min_w_pp = 1e-10,
                                 z0 = 0.1,
                                 alpha = 0.2,
                                 h = 10,
@@ -435,6 +438,7 @@ set_community_model <- function(max_w = 1e6,
     )
     com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w, max_w = max_w, 
+                              min_w_pp = min_w_pp,
                               w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
     com_params@rates_funcs$RDD <- "srrConstant"
     com_params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 

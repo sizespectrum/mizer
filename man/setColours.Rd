@@ -22,5 +22,7 @@ Set line colours to be used in mizer plots
 }
 \examples{
 params <- NS_params
-params <- setLineColours
+params <- setColours(params, list("Cod" = "red", "Haddock" = "#00ff00"))
+plotSpectra(params)
+getColours(params)
 }

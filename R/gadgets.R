@@ -62,6 +62,12 @@
 #' @md
 #' @export
 tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
+    # Define some local variables to avoid "no visible bindings for global 
+    # variable" warnings in CMD check
+    wpredator <- wprey <- Nprey <- weight_kernel <- L_inf <-
+        Legend <- w_mat <- erepro <- Type <- Abundance <- Catch <-
+        Kernel <- Numbers <- Cause <- psi <- Predator <- Density <- NULL
+    # Not yet using stomach data
     stomach <- NULL
     # Check arguments ----
     if (!is.null(catch)) {
@@ -73,21 +79,21 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 all(c("weight", "dw") %in% names(catch))
         )
     }
-    if (!is.null(stomach)) {
-        assert_that(
-            is.data.frame(stomach),
-            "wprey" %in% names(stomach),
-            "wpredator" %in% names(stomach),
-            "species" %in% names(stomach)
-        )
-        if (!("Nprey" %in% names(stomach))) stomach$Nprey <- 1
-        stomach <- stomach %>% 
-            mutate(logpredprey = log(wpredator / wprey),
-                   weight = Nprey / sum(Nprey),
-                   weight_biomass = Nprey * wprey / sum(Nprey * wprey),
-                   weight_kernel = Nprey / wprey^(1 + alpha - lambda),
-                   weight_kernel = weight_kernel / sum(weight_kernel))
-    }
+    # if (!is.null(stomach)) {
+    #     assert_that(
+    #         is.data.frame(stomach),
+    #         "wprey" %in% names(stomach),
+    #         "wpredator" %in% names(stomach),
+    #         "species" %in% names(stomach)
+    #     )
+    #     if (!("Nprey" %in% names(stomach))) stomach$Nprey <- 1
+    #     stomach <- stomach %>% 
+    #         mutate(logpredprey = log(wpredator / wprey),
+    #                weight = Nprey / sum(Nprey),
+    #                weight_biomass = Nprey * wprey / sum(Nprey * wprey),
+    #                weight_kernel = Nprey / wprey^(1 + alpha - lambda),
+    #                weight_kernel = weight_kernel / sum(weight_kernel))
+    # }
     
     # Define some globals to skip certain observers ----
     sp_old <- 1
@@ -1385,7 +1391,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             if (sum(catch_w) > 0) catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
             # The catch density in l gets an extra factor of dw/dl
             catch_l <- catch_w * b * w / l
-            df <- data.frame(w, l, catch_w, catch_l, type = "Model catch")
+            df <- data.frame(w, l, catch_w, catch_l, Type = "Model catch")
             
             # We also include the abundance density because that helps to understand
             # the catch density    
@@ -1394,7 +1400,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             catch_w <- catch_w / sum(catch_w * p@dw[w_sel])
             # The catch density in l gets an extra factor of dw/dl
             catch_l <- catch_w * b * w / l
-            abundance <- data.frame(w, l, catch_w, catch_l, type = "Abundance")
+            abundance <- data.frame(w, l, catch_w, catch_l, Type = "Abundance")
             
             if (is_observed) {
                 sel <- (catch$species == input$sp)
@@ -1418,7 +1424,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                     catch_l <- catch_w * b / l * w
                 }
                 df <- rbind(df, data.frame(w, l, catch_w, catch_l, 
-                                           type = "Observed catch"))
+                                           Type = "Observed catch"))
             }
             # From the abundance only keep values that are no larger than
             # the maximum of the other shown densities.
@@ -1434,14 +1440,14 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
             if (input$catch_x == "Weight") {
                 mat  <- p@species_params$w_mat[sp]
                 pl <- ggplot(df) +
-                    geom_line(aes(x = w, y = catch_w, color = type)) +
+                    geom_line(aes(x = w, y = catch_w, color = Type)) +
                     geom_text(aes(x = mat, y = max(catch_w * 0.9), label = "\nMaturity"), 
                               angle = 90) +
                     labs(x = "Size [g]", y = "Normalised number density [1/g]")
             } else {
                 mat <- (p@species_params$w_mat[sp] / a) ^ (1 / b)
                 pl <- ggplot(df) +
-                    geom_line(aes(x = l, y = catch_l, color = type)) +
+                    geom_line(aes(x = l, y = catch_l, color = Type)) +
                     geom_text(aes(x = mat, y = max(catch_l * 0.9), label = "\nMaturity"), 
                               angle = 90) +
                     labs(x = "Size [cm]", y = "Normalised number density [1/cm]")
@@ -1631,9 +1637,9 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                                  Kernel = phix, 
                                  Biomass = br, 
                                  Numbers = pr) %>%
-                tidyr::gather(type, y, Kernel, Biomass, Numbers)
+                tidyr::gather(Type, y, Kernel, Biomass, Numbers)
             ggplot(df) +
-                geom_line(aes(w, y, color = type)) +
+                geom_line(aes(w, y, color = Type)) +
                 labs(x = "Weight [g]", y = "Density") +
                 geom_point(aes(x = wp, y = 0), size = 4, colour = "blue") +
                 scale_x_log10()
@@ -1751,35 +1757,35 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 theme_grey(base_size = base_size)
         })
         
-        ## Plot stomach content ####
-        output$plot_stomach <- renderPlot({
-            req(input$sp)
-            p <- params()
-            sp <- which.max(p@species_params$species == input$sp)
-            
-            df <- tibble(
-                x = x,
-                Kernel = double_sigmoid(
-                    x, 
-                    p_l = input$p_l, 
-                    s_l = input$s_l, 
-                    p_r = input$p_r, 
-                    s_r = input$s_r, 
-                    ex = input$ex)) %>% 
-                mutate(Numbers = Kernel / exp((1 + alpha - lambda) * x),
-                       Biomass = Numbers / exp(x),
-                       Kernel = Kernel / sum(Kernel) / dx,
-                       Numbers = Numbers / sum(Numbers) / dx,
-                       Biomass = Biomass / sum(Biomass) / dx) %>% 
-                gather(key = Type, value = "Density",
-                       Numbers, Biomass)
-            
-            pl + geom_line(data = df,
-                           aes(x, Density, colour = Type),
-                           size = 3) 
-            st <- stomach %>% 
-                filter(species == input$sp)
-        })
+        # ## Plot stomach content ####
+        # output$plot_stomach <- renderPlot({
+        #     req(input$sp)
+        #     p <- params()
+        #     sp <- which.max(p@species_params$species == input$sp)
+        #     
+        #     df <- tibble(
+        #         x = x,
+        #         Kernel = double_sigmoid(
+        #             x, 
+        #             p_l = input$p_l, 
+        #             s_l = input$s_l, 
+        #             p_r = input$p_r, 
+        #             s_r = input$s_r, 
+        #             ex = input$ex)) %>% 
+        #         mutate(Numbers = Kernel / exp((1 + alpha - lambda) * x),
+        #                Biomass = Numbers / exp(x),
+        #                Kernel = Kernel / sum(Kernel) / dx,
+        #                Numbers = Numbers / sum(Numbers) / dx,
+        #                Biomass = Biomass / sum(Biomass) / dx) %>% 
+        #         gather(key = Type, value = "Density",
+        #                Numbers, Biomass)
+        #     
+        #     pl + geom_line(data = df,
+        #                    aes(x, Density, colour = Type),
+        #                    size = 3) 
+        #     st <- stomach %>% 
+        #         filter(species == input$sp)
+        # })
         
         ## Plot run to steady ####
         output$plot_steady <- renderPlotly({

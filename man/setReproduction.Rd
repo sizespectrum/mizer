@@ -33,7 +33,7 @@ described in the section "Setting reproduction".}
 "\code{\link{srrBevertonHolt}}".}
 }
 \value{
-The updatec MizerParams object. Because of the way the R language
+The updated MizerParams object. Because of the way the R language
   works, `setReproduction()` does not make the changes to the params object
   that you pass to it but instead returns a new params object. So to affect
   the change you call the function in the form

@@ -6,19 +6,16 @@
 \usage{
 newMultispeciesParams(
   species_params,
-  interaction = matrix(1, nrow = nrow(species_params), ncol = nrow(species_params)),
+  interaction = NULL,
   no_w = 100,
   min_w = 0.001,
   max_w = NA,
   min_w_pp = NA,
-  no_w_pp = NA,
-  n = 2/3,
-  p = 0.7,
-  f0 = 0.6,
   pred_kernel = NULL,
   search_vol = NULL,
   intake_max = NULL,
   metab = NULL,
+  p = 0.7,
   z0 = NULL,
   z0pre = 0.6,
   z0exp = n - 1,
@@ -27,6 +24,7 @@ newMultispeciesParams(
   srr = "srrBevertonHolt",
   rate = NULL,
   capacity = NULL,
+  n = 2/3,
   r_pp = 10,
   kappa = 1e+11,
   lambda = 2.05,
@@ -38,9 +36,9 @@ newMultispeciesParams(
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
 
-\item{interaction}{Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.}
+\item{interaction}{Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
@@ -48,16 +46,11 @@ section below.}
 given in the \code{w_min} column of the \code{species_params} dataframe.}
 
 \item{max_w}{The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.}
+set to the largest \code{w_inf} specified in the \code{species_params} data
+frame.}
 
 \item{min_w_pp}{The smallest size of the plankton spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
-
-\item{no_w_pp}{Obsolete argument that is no longer used because the number
-of plankton size bins is determined because all size bins have to
-be logarithmically equally spaced.}
-
-\item{n}{Scaling exponent of the intrinsic birth rate}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
@@ -75,6 +68,10 @@ described in the section "Setting maximum intake rate".}
 \item{metab}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
+
+\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
+is not given explicitly and if the exponent is not specified in a \code{p}
+column in the \code{species_params}.}
 
 \item{z0}{Optional. An array (species x size) holding the external
 mortality rate.}
@@ -103,11 +100,14 @@ described in the section "Setting reproduction".}
 
 \item{capacity}{Optional. Vector of plankton intrinsic carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic birth rate}
+\item{n}{The allometric growth exponent. This can be overruled for individual
+species by including a \code{n} column in the \code{species_params}.}
 
-\item{kappa}{Coefficient of the intrinsic carrying capacity}
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
-\item{lambda}{Scaling exponent of the intrinsic carrying capacity}
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
 \item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
 Default is 10 g.}
@@ -155,6 +155,29 @@ parameters you can also specify values for only some species and leave the
 other entries as NA and the missing values will be set to the defaults.
 
 All the parameters will be mentioned in the following sections.
+}
+
+\section{Changes to species params}{
+
+The \code{species_params} slot of the returned MizerParams object may differ
+slightly from the data frame supplied as argument to this function in the
+following ways:
+\itemize{
+\item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+\item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
+}
+Note that the other characteristic sizes of the species, like \code{w_mat} and
+\code{w_inf}, are not modified to lie on grid points.
+}
+
+\section{Size grid}{
+
+A size grid is created so that
+the log-sizes are equally spaced. The spacing is chosen so that there will be
+\code{no_w} fish size bins, with the smallest starting at \code{min_w} and the largest
+starting at \code{max_w}. For \code{w_full} additional size bins are added below
+\code{min_w}, with the same log size. The number of extra bins is such that
+\code{min_w_pp} comes to lie within the smallest bin.
 }
 
 \section{Units in mizer}{
@@ -541,7 +564,6 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
-\code{\link{newSheldonParams}()},
 \code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

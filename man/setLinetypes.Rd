@@ -22,5 +22,7 @@ Set linetypes to be used in mizer plots
 }
 \examples{
 params <- NS_params
-params <- setLineColours
+params <- setLinetypes(params, list("Cod" = "solid"))
+plotSpectra(params)
+getLinetypes(params)
 }

@@ -27,105 +27,145 @@ newTraitParams(
   sigma = 1.3,
   f0 = 0.6,
   gamma = NA,
-  bmort_prop = 0,
+  ext_mort_prop = 0,
   rfac = 4,
-  knife_edge_size = 1000,
   gear_names = "knife_edge_gear",
+  knife_edge_size = 1000,
   egg_size_scaling = FALSE,
   perfect_scaling = FALSE,
   ...
 )
 }
 \arguments{
-\item{no_sp}{The number of species in the model. The default value is 11.}
+\item{no_sp}{The number of species in the model.}
 
 \item{min_w_inf}{The asymptotic size of the smallest species in the
-community. Default value is 10. This will be rounded to lie on a grid
-point.}
+community. This will be rounded to lie on a grid point.}
 
 \item{max_w_inf}{The asymptotic size of the largest species in the community.
-Default value is 1000. This will be rounded to lie on a grid point.}
+This will be rounded to lie on a grid point.}
 
-\item{min_w}{The size of the the egg of the smallest species. Default value
-is 10^(-4). This also defines the start of the community size spectrum.}
+\item{min_w}{The size of the the egg of the smallest species. This also
+defines the start of the community size spectrum.}
 
-\item{max_w}{The largest size in the model. By default this is set to
-the largest asymptotic size \code{max_w_inf}. Setting it to something
-larger only makes sense if you plan to add larger species to the model
-later.}
+\item{max_w}{The largest size in the model. By default this is set to the
+largest asymptotic size \code{max_w_inf}. Setting it to something larger
+only makes sense if you plan to add larger species to the model later.}
 
 \item{eta}{Ratio between maturity size and asymptotic size of a species.
-Ignored if \code{min_w_mat} is supplied. Default is 10^(-0.6), 
+Ignored if \code{min_w_mat} is supplied. Default is 10^(-0.6),
 approximately 1/4.}
 
 \item{min_w_mat}{The maturity size of the smallest species. Default value is
 \code{eta * min_w_inf}. This will be rounded to lie on a grid point.}
 
-\item{no_w}{The number of size bins in the community spectrum. These bins 
-will be equally spaced on a logarithmic scale. Default value
-is such that there are 50 bins for each factor of 10 in weight.}
+\item{no_w}{The number of size bins in the community spectrum. These bins
+will be equally spaced on a logarithmic scale. Default value is such that
+there are 50 bins for each factor of 10 in weight.}
 
 \item{min_w_pp}{The smallest size of the plankton spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
-\item{w_pp_cutoff}{The largest size of the plankton spectrum. Default
-value is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
+\item{w_pp_cutoff}{The largest size of the plankton spectrum. Default value
+is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
 
-\item{n}{Scaling exponent of the maximum intake rate. Default value is 2/3.}
+\item{n}{Scaling exponent of the maximum intake rate.}
 
 \item{p}{Scaling exponent of the standard metabolic rate. By default this is
 equal to the exponent \code{n}.}
 
 \item{lambda}{Exponent of the abundance power law.}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 0.1.}
+\item{r_pp}{Growth rate parameter for the plankton spectrum.}
 
-\item{kappa}{Coefficient in abundance power law. Default value is
-0.005.}
+\item{kappa}{Coefficient in abundance power law.}
 
-\item{alpha}{The assimilation efficiency of the community. The default value
-is 0.4.}
+\item{alpha}{The assimilation efficiency of the community.}
 
-\item{ks}{Standard metabolism coefficient. Default value is 4.}
+\item{ks}{Standard metabolism coefficient.}
 
-\item{h}{Maximum food intake rate. Default value is 30.}
+\item{h}{Maximum food intake rate.}
 
-\item{beta}{Preferred predator prey mass ratio. Default value is 100.}
+\item{beta}{Preferred predator prey mass ratio.}
 
-\item{sigma}{Width of prey size preference. Default value is 1.3.}
+\item{sigma}{Width of prey size preference.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
-coefficient in the search rate. The default value is 0.6. Ignored if 
-\code{gamma} is given explicitly.}
+coefficient in the search rate. Ignored if \code{gamma} is given
+explicitly.}
 
 \item{gamma}{Volumetric search rate. If not provided, default is determined
 by \code{\link{get_gamma_default}} using the value of \code{f0}.}
 
-\item{bmort_prop}{The proportion of the total mortality that comes from
-background mortality, i.e., from sources other than predation or fishing. A
-number in the interval [0, 1). Default 0.}
+\item{ext_mort_prop}{The proportion of the total mortality that comes from
+external mortality, i.e., from sources not explicitly modelled. A number in
+the interval [0, 1).}
 
 \item{rfac}{The factor such that \code{R_max = rfac * R}, where \code{R_max}
 is the maximum recruitment allowed and \code{R} is the steady-state
 recruitment. Thus the larger \code{rfac} the less the impact of the
-non-linear stock-recruitment curve. The default is 4.}
-
-\item{knife_edge_size}{The minimum size at which the gear or gears select
-fish. A vector with the length equal to the number of gears.}
+non-linear stock-recruitment curve.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the number of gears. Default is "knife_edge_gear".}
+same length as the number of gears.}
 
-\item{egg_size_scaling}{Boolean. Default FALSE. If TRUE, the egg size is a
-constant fraction of the maximum size of each species. This fraction is
-\code{min_w / min_w_inf}. If FALSE, all species have the egg size
-\code{w_min}.}
+\item{knife_edge_size}{The minimum size at which the gear or gears select
+fish. A single value for each gear or a vector with one value for each
+gear.}
 
-\item{perfect_scaling}{Boolean. Default FALSE. If TRUE then parameters are set so
-that the community abundance, growth before reproduction and death are
-perfect power laws.}
+\item{egg_size_scaling}{If TRUE, the egg size is a constant fraction of the
+maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
+FALSE, all species have the egg size \code{w_min}.}
 
-\item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
+\item{perfect_scaling}{If TRUE then parameters are set so that the community
+abundance, growth before reproduction and death are perfect power laws.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=newMultispeciesParams]{newMultispeciesParams}}
+  \describe{
+    \item{\code{species_params}}{A data frame of species-specific parameter values.}
+    \item{\code{interaction}}{Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.}
+    \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
+that holds the predation coefficient of each predator at size on each prey
+size. If not supplied, a default is set as described in section "Setting
+predation kernel".}
+    \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the section "Setting search volume".}
+    \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
+intake rate for each species at size. If not supplied, a default is set as
+described in the section "Setting maximum intake rate".}
+    \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
+for each species at size. If not supplied, a default is set as described in
+the section "Setting metabolic rate".}
+    \item{\code{z0}}{Optional. An array (species x size) holding the external
+mortality rate.}
+    \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.}
+    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+Default value is \code{n-1}.}
+    \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".}
+    \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".}
+    \item{\code{srr}}{The name of the stock recruitment function. Defaults to 
+"\code{\link{srrBevertonHolt}}".}
+    \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
+    \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
+    \item{\code{plankton_dynamics}}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.}
+    \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.}
+  }}
 }
 \value{
 An object of type \code{MizerParams}
@@ -200,7 +240,6 @@ plotSpectra(sim)
 \seealso{
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
-\code{\link{newMultispeciesParams}()},
-\code{\link{newSheldonParams}()}
+\code{\link{newMultispeciesParams}()}
 }
 \concept{functions for setting up models}

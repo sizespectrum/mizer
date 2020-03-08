@@ -57,7 +57,7 @@ test_that("Scaling model is set up correctly", {
     alpha <- p@species_params$alpha[[sp]]
     h <- p@species_params$h[[sp]]
     ks <- p@species_params$ks[[sp]]
-    f0 <- p@species_params$f0[[sp]]
+    f0 <-0.6
     n <- p@species_params$n[[sp]]
     mu0 <- (1 - f0) * sqrt(2 * pi) * 
         p@plankton_params$kappa * gamma * sigma *
@@ -243,15 +243,4 @@ test_that("steady works", {
     sim <- steady(params, t_per = 2, return_sim = TRUE)
     expect_is(sim, "MizerSim")
     expect_known_value(getRDI(sim@params), "values/steady")
-})
-
-# newSheldonParams ----
-test_that("newSheldonParams works", {
-    params <- newSheldonParams()
-    no_w <- length(params@w)
-    expect_equal(dim(params@initial_n), c(1, no_w))
-    expect_equal(params@w[1], params@species_params$w_min)
-    expect_equal(params@w[no_w], params@species_params$w_inf)
-    sim <- project(params, t_max = 1)
-    expect_equal(sim@n[1, 1, ], sim@n[2, 1, ])
 })
