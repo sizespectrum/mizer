@@ -1938,7 +1938,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
             message("The 'r_max' column has been renamed to 'R_max'.")
         }
         
-        set_species_param_default(params, "R_max", Inf)
+        params <- set_species_param_default(params, "R_max", Inf)
     }
     
     return(params)

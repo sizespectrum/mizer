@@ -31,3 +31,11 @@ test_that("summary methods return arrays of correct dimension", {
     expect_length(dim(getYieldGear(sim1)), 3)
     expect_length(dim(getYield(sim1)), 2)
 })
+
+test_that("Can set up model with minimal information",{
+    sp <- data.frame(species = "test")
+    sp$w_inf <- 1000
+    sp$k_vb <- 10
+    params <- newMultispeciesParams(sp)
+    sim <- project(params, t_max = 1)
+})
