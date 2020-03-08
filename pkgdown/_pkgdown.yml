@@ -152,7 +152,11 @@ reference:
   - double_sigmoid_length
   - plankton_semichemostat
   - plankton_constant
-  - starts_with("srr")
+  - BevertonHoltRDD
+  - RickerRDD
+  - SheperdRDD
+  - noRDD
+  - constantRDD
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper
@@ -166,7 +170,7 @@ reference:
   - get_phi
   - log_breaks
   - get_initial_n
-  - get_required_recruitment
+  - get_required_reproduction
 - title: Classes
   contents:
   - MizerParams-class

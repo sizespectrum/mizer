@@ -11,7 +11,7 @@
 \item{w_mat}{Size at maturity}
 \item{beta}{Size preference ratio}
 \item{sigma}{Width of the size-preference}
-\item{R_max}{Maximum recruitment}
+\item{R_max}{Maximum reproduction rate}
 \item{k_vb}{The von Bertalanffy k parameter}
 \item{gear}{Name of the fishing gear}
 }}

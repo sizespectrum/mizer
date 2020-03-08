@@ -102,9 +102,9 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
 \item{rfac}{The factor such that \code{R_max = rfac * R}, where \code{R_max}
-is the maximum recruitment allowed and \code{R} is the steady-state
-recruitment. Thus the larger \code{rfac} the less the impact of the
-non-linear stock-recruitment curve.}
+is the maximum reproduction rate allowed and \code{R} is the steady-state
+reproduction rate. Thus the larger \code{rfac} the less the impact of the
+density-dependence.}
 
 \item{gear_names}{The names of the fishing gears. A character vector, the
 same length as the number of gears.}
@@ -155,7 +155,8 @@ default is set as described in the section "Setting reproduction".}
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{RDD}}{The name of the stock recruitment function. Defaults to 
+    \item{\code{RDD}}{The name of the function calculating the density-dependent 
+reproduction rate from the density-independent rate. Defaults to 
 "\code{\link{BevertonHoltRDD}}".}
     \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
     \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
@@ -205,11 +206,11 @@ Otherwise all species have the same egg size.
 In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state.
 
-Although the trait based model's steady state is often
-stable without imposing a stock recruitment relationship, the function can
-set a Beverton-Holt type stock recruitment relationship that imposes a
-maximal reproduction rate that is a multiple of the recruitment rate at
-steady state. That multiple is set by the argument \code{rfac}.
+Although the trait based model's steady state is often stable without
+imposing additional density-dependence, the function can set a Beverton-Holt
+type density-dependence that imposes a maximal reproduction rate that is a
+multiple of the reproduction rate at steady state. That multiple is set by
+the argument \code{rfac}.
 
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.

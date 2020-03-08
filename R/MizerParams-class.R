@@ -1747,26 +1747,18 @@ getExtMortality <- function(params) {
 #' which depends on the density of predators, and on larval growth rate, which
 #' depends on density of prey.
 #' 
-#' Finally, the proportion of eggs that are viable and hatch to larvae can be
-#' density dependent. Somewhat misleadingly, mizer refers to this relationship
-#' between the number of eggs and the number of hatched larvae as the
-#' stock-recruitment relationship, even though it is only one part of the full
-#' stock-recruitment relationship. However it is the only part that can be set
-#' independently, while the other parts are already determined by the predation
-#' parameters and other model parameters. Thus in practice this part of the
-#' density dependence is used to encode all the density dependence that is not
-#' already included in the other two sources of density dependence.
-#' 
-#' To calculate the density-dependent rate of larvae production, mizer puts the
-#' the density-independent rate of egg production through a "stock-recruitment"
-#' function. The result is returned by \code{\link{getRDD}}. The name of the
-#' stock-recruitment function is specified by the \code{RDD} argument. The
-#' default is the Beverton-Holt function \code{\link{BevertonHoltRDD}}, which
-#' requires an \code{R_max} column in the species_params data frame giving the
-#' maximum egg production rate. If this column does not exist, it is initialised
-#' to \code{Inf}, leading to no density-dependence. Other functions provided by
-#' mizer are \code{\link{RickerRDD}} and \code{\link{SheperdRDD}} and you can
-#' easily use these as models for writing your own functions.
+#' Finally, to encode all the density dependence in the stock-recruitment
+#' relationship that is not already included in the other two sources of density
+#' dependence, mizer puts the the density-independent rate of egg production
+#' through a density-dependence function. The result is returned by
+#' \code{\link{getRDD}}. The name of the density-dependence function is
+#' specified by the \code{RDD} argument. The default is the Beverton-Holt
+#' function \code{\link{BevertonHoltRDD}}, which requires an \code{R_max} column
+#' in the species_params data frame giving the maximum egg production rate. If
+#' this column does not exist, it is initialised to \code{Inf}, leading to no
+#' density-dependence. Other functions provided by mizer are
+#' \code{\link{RickerRDD}} and \code{\link{SheperdRDD}} and you can easily use
+#' these as models for writing your own functions.
 #' }
 #' @param params A MizerParams object
 #' @param maturity Optional. An array (species x size) that holds the proportion
@@ -1776,7 +1768,8 @@ getExtMortality <- function(params) {
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
-#' @param RDD The name of the stock recruitment function. Defaults to 
+#' @param RDD The name of the function calculating the density-dependent 
+#'   reproduction rate from the density-independent rate. Defaults to 
 #'   "\code{\link{BevertonHoltRDD}}".
 #' 
 #' @return The updated MizerParams object. Because of the way the R language

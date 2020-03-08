@@ -2,7 +2,7 @@
 % Please edit documentation in R/rate_functions.R
 \name{getRDD}
 \alias{getRDD}
-\title{Get density dependent rate of larvae production}
+\title{Get density dependent reproduction rate}
 \usage{
 getRDD(
   params,
@@ -22,19 +22,20 @@ getRDD(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{rdi}{A vector of density independent recruitment for each species. 
-If not specified rdi is calculated internally using
+\item{rdi}{A vector of density-independent reproduction rates for each
+species. If not specified, rdi is calculated internally using
 \code{\link{getRDI}}.}
 }
 \value{
 A numeric vector the length of the number of species.
 }
 \description{
-Calculates the density dependent rate of larvae production \eqn{R_i} (units
+Calculates the density dependent rate of egg production \eqn{R_i} (units
 1/year) for each species. This is the flux entering the smallest size class
 of each species. The density dependent rate is the density independent
 rate obtained with \code{\link{getRDI}} after it has been put through the 
-density dependent "stock-recruitment" relationship function. See
+density dependence function. This is the Beverton-Holt function
+\code{\link{BevertonHoltRDD}} by default, but this can be changed. See
 \code{\link{setReproduction}} for more details.
 }
 \examples{

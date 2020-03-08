@@ -35,9 +35,8 @@ NULL
 #' 'species' is resolved, i.e. one 'species' is used to represent the whole
 #' community. The plankton spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
-#' constant and set by the user. As recruitment is constant, the proportion of
-#' energy invested in reproduction (the slot \code{psi} of the returned 
-#' \code{MizerParams} object) is set to 0. Standard metabolism has been turned 
+#' constant and set by the user. As reproduction is constant, the proportion of
+#' energy invested in reproduction is set to 0. Standard metabolism has been turned 
 #' off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
 #' now determined solely by the assimilated food (see the package vignette for 
 #' more details).
@@ -72,7 +71,7 @@ NULL
 #' @param r_pp Growth rate parameter for the plankton spectrum.
 #' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 #'   \code{kappa} if not supplied.
-#' @param recruitment The constant recruitment in the smallest size class of the
+#' @param reproduction The constant reproduction in the smallest size class of the
 #'   community spectrum. By default this is set so that the community spectrum 
 #'   is continuous with the plankton spectrum.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
@@ -86,7 +85,7 @@ NULL
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
-#' params <- newCommunityParams(f0=0.7, z0=0.2, recruitment=3e7)
+#' params <- newCommunityParams(f0=0.7, z0=0.2, reproduction=3e7)
 #' sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 #' plotBiomass(sim)
 #' plotSpectra(sim)
@@ -105,7 +104,7 @@ newCommunityParams <- function(max_w = 1e6,
                                lambda = 2.05,
                                r_pp = 10,
                                knife_edge_size = 1000,
-                               recruitment,
+                               reproduction,
                                ...) {
     w_inf <- max_w
     w_pp_cutoff <- min_w
@@ -143,10 +142,10 @@ newCommunityParams <- function(max_w = 1e6,
     params <- setInitialValues(params, initial_n = initial_n)
 
     params@rates_funcs$RDD <- "constantRDD"
-    if (missing(recruitment)) {
-        recruitment <- get_required_recruitment(params)
+    if (missing(reproduction)) {
+        reproduction <- get_required_reproduction(params)
     }
-    params@species_params$constant_recruitment <- recruitment
+    params@species_params$constant_reproduction <- reproduction
     params@psi[] <- 0 # Need to force to be 0. Can try setting w_mat but 
                           # due to slope still not 0
     # Set w_mat to NA for clarity - it is not actually being used
@@ -189,11 +188,11 @@ newCommunityParams <- function(max_w = 1e6,
 #' In addition to setting up the parameters, this function also sets up an
 #' initial condition that is close to steady state.
 #'
-#' Although the trait based model's steady state is often
-#' stable without imposing a stock recruitment relationship, the function can
-#' set a Beverton-Holt type stock recruitment relationship that imposes a
-#' maximal reproduction rate that is a multiple of the recruitment rate at
-#' steady state. That multiple is set by the argument \code{rfac}.
+#' Although the trait based model's steady state is often stable without
+#' imposing additional density-dependence, the function can set a Beverton-Holt
+#' type density-dependence that imposes a maximal reproduction rate that is a
+#' multiple of the reproduction rate at steady state. That multiple is set by
+#' the argument \code{rfac}.
 #'
 #' The search rate coefficient \code{gamma} is calculated using the expected
 #' feeding level, \code{f0}.
@@ -256,9 +255,9 @@ newCommunityParams <- function(max_w = 1e6,
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
 #' @param rfac The factor such that \code{R_max = rfac * R}, where \code{R_max}
-#'   is the maximum recruitment allowed and \code{R} is the steady-state
-#'   recruitment. Thus the larger \code{rfac} the less the impact of the
-#'   non-linear stock-recruitment curve.
+#'   is the maximum reproduction rate allowed and \code{R} is the steady-state
+#'   reproduction rate. Thus the larger \code{rfac} the less the impact of the
+#'   density-dependence.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the number of gears.
 #' @param knife_edge_size The minimum size at which the gear or gears select
@@ -552,7 +551,7 @@ newTraitParams <- function(no_sp = 11,
     }
     if (is.finite(rfac)) {
         # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
-        # compensate for using a stock recruitment relationship.
+        # compensate for using Beverton Holt function.
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
@@ -561,7 +560,7 @@ newTraitParams <- function(no_sp = 11,
     params@initial_n_pp <- initial_n_pp
     # set rmax=fac*RDD
     # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
-    # compensate for using a stock recruitment relationship.
+    # compensate for using a Beverton Holt function
     params@species_params$R_max <-
         (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
 
@@ -773,7 +772,7 @@ rescaleAbundance <- function(params, factor) {
 #'   \code{initial_n_other} are rescaled by \eqn{c}.
 #' \item The search volume is rescaled by \eqn{1/c}.
 #' \item The plankton carrying capacity is rescaled by \eqn{c}
-#' \item The maximum recruitment rate \eqn{R_{max}}, if used, is rescaled by 
+#' \item The maximum reproduction rate \eqn{R_{max}}, if used, is rescaled by 
 #'   \eqn{c}.
 #' }
 #' The effect of this is that the dynamics of the rescaled system are identical
@@ -1075,7 +1074,9 @@ addSpecies <- function(params, species_params, interaction) {
 #' 
 #' Sets the reproductive efficiency for all species so that the rate of egg
 #' production exactly compensates for the loss from the first size class due
-#' to growth and mortality. Sets the identical stock recruitment function.
+#' to growth and mortality. Turns off the external density dependence in the
+#' reproduction rate by setting the \code{RDD} function to 
+#' \code{\link{noRDD}}
 #' 
 #' @inheritParams steady
 #' @param species A vector of the names of the species to be affected or a
@@ -1120,11 +1121,11 @@ retuneReproductionEfficiency <- function(params,
     return(setReproduction(params, RDD = "noRDD"))
 }
 
-#' Determine recruitment rate needed for initial egg abundance
+#' Determine reproduction rate needed for initial egg abundance
 #' 
 #' @param params A MizerParams object
 #' @return A vector of reproduction rates for all species
-get_required_recruitment <- function(params) {
+get_required_reproduction <- function(params) {
     assert_that(is(params, "MizerParams"))
     
     no_sp <- nrow(params@species_params)
@@ -1141,15 +1142,16 @@ get_required_recruitment <- function(params) {
     return(reproduction)
 }
 
-#' Set maximum recruitment
+#' Set maximum reproduction rate
 #' 
-#' Takes a MizerParams object with trivial stock recruitment function and sets 
-#' Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-#' factor \code{rfac} higher than the initial-state recruitment.
+#' Takes a MizerParams object with density-independent reproduction rate and
+#' sets a Beverton-Holt density-dependence with a maximum reproduction rate that
+#' is a chosen factor \code{rfac} higher than the initial-state reproduction
+#' rate.
 #' 
 #' @param params A MizerParams object
-#' @param rfac The factor by which the maximum recruitment should be higher than
-#'   the initial-state recruitment
+#' @param rfac The factor by which the maximum reproduction rate should be higher than
+#'   the initial-state reproduction rate
 #' 
 #' @return A MizerParams object
 #' @export
@@ -1159,11 +1161,10 @@ setRmax <- function(params, rfac) {
                 length(rfac) %in% c(1, nrow(params@species_params)),
                 all(rfac > 1))
     if (params@rates_funcs$RDD != "noRDD") {
-        stop("setRmax can only be applied to params objects using the identity",
-             " stock-recruitment function.")
+        stop("setRmax can only be applied to params objects using 'noRDD'.")
     }
     # erepro needs to be divided by a factor of 1-1/rfac to
-    # compensate for using a stock recruitment relationship
+    # compensate for using a Beverton Holt relationship
     # because RDD = (1-1/rfac) RDI
     params@species_params$erepro <- 
         params@species_params$erepro / (1 - 1/rfac)
@@ -1214,10 +1215,10 @@ markBackground <- function(object, species) {
 
 #' Find a steady state for the model
 #' 
-#' This is done by running the dynamics while keeping recruitment and other
+#' This is done by running the dynamics while keeping reproduction and other
 #' components constant until the size spectra no longer change (or until time
 #' `t_max` is reached if earlier) Then the reproductive efficiencies are set to
-#' the values that give the level of recruitment observed in that steady state.
+#' the values that give the level of reproduction observed in that steady state.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
@@ -1256,8 +1257,8 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         proginc <- 1/ceiling(t_max/t_per)
     }
     
-    # Force the recruitment to stay at the current level
-    p@species_params$constant_recruitment <- getRDD(p)
+    # Force the reproduction to stay at the current level
+    p@species_params$constant_reproduction <- getRDD(p)
     p@rates_funcs$RDD <- "constantRDD"
     old_rdi <- getRDI(p)
     rdi_limit <- old_rdi / 1e7
@@ -1313,7 +1314,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         message("Steady state was reached before ", ti * t_per, " years.")
     }
     
-    # Restore original stock-recruitment relationship and other dynamics
+    # Restore original RDD and other dynamics
     p@rates_funcs$RDD <- params@rates_funcs$RDD
     p@other_dynamics <- old_other_dynamics
     
@@ -1323,7 +1324,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     p@initial_n_other[] <- n_other
 
     # Retune the values of erepro so that we get the correct level of
-    # recruitment
+    # reproduction
     p <- retuneReproductionEfficiency(p)
     
     if (return_sim) {

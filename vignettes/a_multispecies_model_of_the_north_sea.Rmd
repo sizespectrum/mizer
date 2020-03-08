@@ -73,9 +73,9 @@ data.frame does not include columns for `h` or `gamma`. This means that they
 will be estimated using the `k_vb` column (see [the section on species
 parameters](multispecies_model.html#sec:species_parameters_dataframe)).
 
-We will use the default stock-recruitment relationship, which is the
+We will use the default density dependence in the reproduction rate, which is the
 Beverton-Holt shape. This requires a column `R_max` in the species data.frame
-which contains the maximum recruitment flux for each species. This column is
+which contains the maximum reproduction rate for each species. This column is
 already in the `params_data` data.frame. The values were found through a
 calibration process which is not covered here but will be added to a later
 version of this manual.

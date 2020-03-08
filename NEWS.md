@@ -13,7 +13,7 @@ generic trait-based background has better support.
 * In `retuneBackground()`, Singular Value Decomposition is used to retune 
   background species to keep the community close to power law. Background 
   species with very low abundances are automatically removed.
-* Setting of nonlinear stock-recruitment has been separated out into new
+* Setting of the maximum reproduction rate has been separated out into new
   function `setRmax()`.
 
 ## Setting model parameters
@@ -88,7 +88,8 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
 * New `getDiet()` calculates the diet of predators. (#43)
-* Alternative stock-recruitment functions `RickerRDD()` and `SheperdRDD()`.
+* Alternative functions `RickerRDD()` and `SheperdRDD()` for density-dependence 
+  in reproduction.
 * Satiation can be switched off by setting the maximum intake rate to `Inf`.
 * Users can now set their own plankton dynamics instead of the default
   `plankton_semichemostat()`.
@@ -228,8 +229,7 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
   species. If for some reason you want the old plots that show a feeding level
   also for sizes that the fish can never have, you need to supply an argument
   `all.sizes = TRUE`.
-* The stock recruitment function is now specified by giving the name of the
-  function, rather than the function itself.
+* The way the density-dependence in the reproduction rate is set has changed.
 * The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
 * The `displayFrames()` function has been moved to the "mizerExperimental"
   package.

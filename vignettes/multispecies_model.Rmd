@@ -43,8 +43,8 @@ The `MizerParams` class stores the:
 
 * life-history parameters of the species in the community, such as $w_{\infty}$;
 * size-based biological parameters for the species, such as the search volume, $V(w)$;
-* stock-recruitment relationship functions and parameters of each species;
-* interaction matrix to describe the spatial overlap of pairs of species;
+* density-dependent reproduction functions and parameters of each species;
+* an interaction matrix to describe the spatial overlap of pairs of species;
 * parameters relating to the growth and dynamics of the plankton spectrum;
 * fishing gear parameters: selectivity and catchability.
 
@@ -79,7 +79,9 @@ A description of the columns of the species parameter data.frame and any default
 -->
 
 
-The essential columns of the species parameters data.frame that have no default values are: `species`, the names of the species in the community; `w_inf`, the asymptotic mass of the species; `w_mat`, the mass at maturation; `beta` and `sigma`, the predator-prey mass ratio parameters $\beta$ and $\sigma$ (see [the section on predator/prey mass ratio](model_description.html#ppmr)) and the stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a `R_max` column must be provided - see [the section on the stock-recruitment relationship](model_description.html#sec:recruitment) for more details).
+The essential columns of the species parameters data.frame that have no default 
+values are: `species`, the names of the species in the community and `w_inf`, 
+the asymptotic mass of the species.
 
 
 
@@ -152,7 +154,7 @@ Standard metabolism is used in calculation of the growth of individuals as $k_{s
 	    %b & Length-weight conversion power & See notes for column $a$\\
 	    other columns & Other parameters used by the selectivity function. For example, if the default "knife_edge" function is used then the parameters "knife_edge_size" must also be specified as columns (see Section~\@ref(sec:fishing_gear)). & \\ 
 	    \hline
-	    \multicolumn{3}{c}{Stock recruitment parameters (see Section~\@ref(sec:srr) for more details).} \\
+	    \multicolumn{3}{c}{Density-dependent recruitment parameters (see Section~\@ref(sec:srr) for more details).} \\
 	    \hline
 	    other columns & Any arguments that appear in the stock-recruitment function must also have a column of values (see Section~\@ref(sec:srr)) & \\
 	%\end{tabular}

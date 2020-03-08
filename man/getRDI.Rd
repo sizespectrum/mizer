@@ -40,7 +40,7 @@ See \code{\link{setReproduction}} for more details.
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-# Get the recruitment at a particular time step
+# Get the density-independent reproduction rate at a particular time step
 getRDI(params,sim@n[21,,],sim@n_pp[21,])
 }
 }

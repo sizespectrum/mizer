@@ -275,17 +275,23 @@ The result is multiplied by a factor $1/2$ to take into account that only
 females reproduce.
 
 
-## Recruitment
-In mizer, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR).
-The default functional form is such that the recruitment flux $R_i$ (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a *Beverton-Holt* type of SRR:
+## Density-dependence in reproduction
+In mizer, density dependence is modelled as a compensation on the egg 
+production. This gives an additional contribution to the stock-recruitment 
+relationship. The default functional form of this density dependence is such 
+that the reproduction rate $R_i$ (numbers per time) approaches a maximum as the 
+energy invested in reproduction increases, modelled mathematically analogous to 
+the Holling type II function response as a *Beverton-Holt* type function:
 
 \begin{equation}
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
 \end{equation}
-where $R_{\max.i}$ is the maximum recruitment flux of each trait class (Figure~\ref{fig:recruitment}). 
+where $R_{\max.i}$ is the maximum reproduction rate of each trait class (Figure~\ref{fig:recruitment}). 
 
-The *Beverton-Holt* type of SRR is not the only density dependence model that mizer can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or *hockey-stick.*
+The *Beverton-Holt* type is not the only density dependence model that mizer can
+use. Users are able to write their own functions, e.g. fixed reproduction (as
+used in the community-type model) or *hockey-stick*.
 
 
 ## Growth

@@ -764,7 +764,7 @@ getEGrowth <- function(params, n = params@initial_n,
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # Project with constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get the recruitment at a particular time step
+#' # Get the density-independent reproduction rate at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDI <- function(params, n = params@initial_n, 
@@ -782,18 +782,19 @@ getRDI <- function(params, n = params@initial_n,
 }
 
 
-#' Get density dependent rate of larvae production
+#' Get density dependent reproduction rate
 #'
-#' Calculates the density dependent rate of larvae production \eqn{R_i} (units
+#' Calculates the density dependent rate of egg production \eqn{R_i} (units
 #' 1/year) for each species. This is the flux entering the smallest size class
 #' of each species. The density dependent rate is the density independent
 #' rate obtained with \code{\link{getRDI}} after it has been put through the 
-#' density dependent "stock-recruitment" relationship function. See
+#' density dependence function. This is the Beverton-Holt function
+#' \code{\link{BevertonHoltRDD}} by default, but this can be changed. See
 #' \code{\link{setReproduction}} for more details.
 #' 
 #' @inheritParams mizerRates
-#' @param rdi A vector of density independent recruitment for each species. 
-#'   If not specified rdi is calculated internally using
+#' @param rdi A vector of density-independent reproduction rates for each
+#'   species. If not specified, rdi is calculated internally using
 #'   \code{\link{getRDI}}.
 #'   
 #' @return A numeric vector the length of the number of species. 

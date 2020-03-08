@@ -19,7 +19,7 @@ newCommunityParams(
   lambda = 2.05,
   r_pp = 10,
   knife_edge_size = 1000,
-  recruitment,
+  reproduction,
   ...
 )
 }
@@ -57,7 +57,7 @@ spectrum. This value is used to calculate the search rate parameter
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
 
-\item{recruitment}{The constant recruitment in the smallest size class of the
+\item{reproduction}{The constant reproduction in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum 
 is continuous with the plankton spectrum.}
 
@@ -100,7 +100,8 @@ default is set as described in the section "Setting reproduction".}
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{RDD}}{The name of the stock recruitment function. Defaults to 
+    \item{\code{RDD}}{The name of the function calculating the density-dependent 
+reproduction rate from the density-independent rate. Defaults to 
 "\code{\link{BevertonHoltRDD}}".}
     \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
     \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
@@ -127,9 +128,8 @@ several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
 community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot \code{psi} of the returned 
-\code{MizerParams} object) is set to 0. Standard metabolism has been turned 
+constant and set by the user. As reproduction is constant, the proportion of
+energy invested in reproduction is set to 0. Standard metabolism has been turned 
 off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
 now determined solely by the assimilated food (see the package vignette for 
 more details).
@@ -149,7 +149,7 @@ through time after the projection.
 }
 \examples{
 \dontrun{
-params <- newCommunityParams(f0=0.7, z0=0.2, recruitment=3e7)
+params <- newCommunityParams(f0=0.7, z0=0.2, reproduction=3e7)
 sim <- project(params, effort = 0, t_max = 100, dt=0.1)
 plotBiomass(sim)
 plotSpectra(sim)

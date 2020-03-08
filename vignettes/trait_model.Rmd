@@ -48,16 +48,15 @@ logarithmic scale between these values.
 
 One of the key differences between the community type model and
 the trait-based model is that reproduction and egg production are considered. In
-the community model, recruitment is constant and there is no relationship
+the community model, reproduction is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
 model, the egg production is dependent on mature individuals investing part
 of their energy income into reproduction. The relationship between the energy
 invested into reproduction and the actual rate of egg production is modeled using a *Beverton-Holt* type function (the
-default in `mizer`, see [the section on stock-recruitment
-relationships](model_description.html#recruitment)) where the egg
-flux $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
+default in `mizer`, see [the section on density-dependence in reproduction](model_description.html#recruitment)) where the reproduction rate $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
-Here we set up the model to have 10 species, with asymptotic sizes ranging from 10 g to 100 kg. All the other parameters have default values. 
+Here we set up the model to have 10 species, with asymptotic sizes ranging from 
+10 g to 100 kg. All the other parameters have default values. 
 
 ```{r label=demo_trait_model_params}
 params <- newTraitParams(no_sp = 10, min_w_inf = 10, max_w_inf = 1e5)

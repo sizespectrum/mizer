@@ -19,5 +19,7 @@ A MizerParams object
 \description{
 Sets the reproductive efficiency for all species so that the rate of egg
 production exactly compensates for the loss from the first size class due
-to growth and mortality. Sets the identical stock recruitment function.
+to growth and mortality. Turns off the external density dependence in the
+reproduction rate by setting the \code{RDD} function to 
+\code{\link{noRDD}}
 }

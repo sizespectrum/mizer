@@ -977,7 +977,7 @@ tuneParams <- function(p, catch = NULL) { #, stomach = NULL) {
                 }
                 
                 # Retune the value of erepro so that we get the correct level of
-                # recruitment
+                # reproduction
                 i <- which(p@species_params$species == sp)
                 rdd <- getRDD(p)[i]
                 gg0 <- gg[p@w_min_idx[i]]

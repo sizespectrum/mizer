@@ -135,7 +135,7 @@ server <- function(input, output, session) {
         p@species_params$R_max <- Inf
         
         # Retune the values of erepro so that we get the correct level of
-        # recruitment without stock-recruitment relationship
+        # reproduction without density dependence
         mumu <- getZ(p, p@initial_n, p@initial_n_pp, effort = fixed_effort)
         gg <- getEGrowth(p, p@initial_n, p@initial_n_pp)
         rdi <- getRDI(p, p@initial_n, p@initial_n_pp)

@@ -38,10 +38,10 @@ a MizerParams object with the "initial" slots set to the steady state.}
 shiny app. Default FALSE.}
 }
 \description{
-This is done by running the dynamics while keeping recruitment and other
+This is done by running the dynamics while keeping reproduction and other
 components constant until the size spectra no longer change (or until time
 \code{t_max} is reached if earlier) Then the reproductive efficiencies are set to
-the values that give the level of recruitment observed in that steady state.
+the values that give the level of reproduction observed in that steady state.
 }
 \examples{
 \dontrun{

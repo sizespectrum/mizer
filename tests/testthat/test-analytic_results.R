@@ -205,7 +205,7 @@ test_that("Analytic steady-state solution is well approximated", {
     
     # Make sure that the rate of reproduction is R
     params@rates_funcs$RDD <- "constantRDD"
-    params@species_params$constant_recruitment <- R
+    params@species_params$constant_reproduction <- R
     # We use a step function for the maturity function
     params@psi[1,] <- (params@w / w_inf) ^ (1 - n)
     params@psi[1, params@w < w_mat] <- 0

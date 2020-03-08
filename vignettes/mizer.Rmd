@@ -173,7 +173,7 @@ offspring by mature individuals in the population $R_i$:
 
 The rest of the formulation of the model rests on a number of ``standard''
 assumptions from ecology and fisheries science about how encounters between
-predators and prey leads to growth $g_i(w)$ and recruitment $R_i$ of the
+predators and prey leads to growth $g_i(w)$ and reproduction $R_i$ of the
 predators, and mortality of the prey $\mu_i(w)$.
 
 For a more detailed exposition of the model see the vignette 
@@ -218,16 +218,6 @@ resolved in detail and each has distinct life history, feeding and reproduction
 parameters. More detailed information is required to parameterise the
 multispecies model but the approach can be used to address management strategies
 for a realistic community in a specific region or subset of interacting species.
-
-<!--
-## Scale-invariant trait-based model
-The [scale-invariant trait-based model](scale_invariant_trait_based_model.html)
-is a version of the trait-based model with even more symmetries, so that the
-resulting system is close to being scale-invariant. This allows us to obtain
-analytic expressions for the steady state of the model, which makes setting a
-stable steady state easier, without having to impose an external
-stock-recruitment relationship.
--->
 
 ### Which model to use
 All three models predict abundance, biomass and yield as well as predation and

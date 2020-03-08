@@ -30,7 +30,7 @@ following rescalings in the params object:
   \code{initial_n_other} are rescaled by \eqn{c}.
 \item The search volume is rescaled by \eqn{1/c}.
 \item The plankton carrying capacity is rescaled by \eqn{c}
-\item The maximum recruitment rate \eqn{R_{max}}, if used, is rescaled by 
+\item The maximum reproduction rate \eqn{R_{max}}, if used, is rescaled by 
   \eqn{c}.
 }
 The effect of this is that the dynamics of the rescaled system are identical

@@ -322,7 +322,7 @@ project <- function(object, effort,
                         r$mort[, idx, drop = FALSE] * dt
         # S_{ij} <- N_i(w_j)
         S[,idx] <- n[, idx, drop = FALSE]
-        # Boundary condition upstream end (recruitment)
+        # Boundary condition upstream end (reproduction)
         b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
                                         sim@params@dw[sim@params@w_min_idx] +
                                     r$mort[w_min_idx_array_ref] * dt
