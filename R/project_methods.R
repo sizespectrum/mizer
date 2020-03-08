@@ -107,7 +107,7 @@ mizerRates <- function(params,
     # Calculate total mortality \mu_i(w)
     r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        fishing_mort = r$fishing_mort, m2 = r$pred_mort, t = t)    
+        fishing_mort = r$fishing_mort, m2 = r$pred_mort, t = t)
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
@@ -481,9 +481,9 @@ mizerMort <- function(params,
 #' Get energy rate available for reproduction and growth  needed to project 
 #' standard mizer model
 #'
-#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
-#' reproduction and growth after metabolism and movement have been accounted
-#' for. 
+#' Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available to an
+#' individual of species i and size w for reproduction and growth after
+#' metabolism and movement have been accounted for.
 #' 
 #' @inheritParams mizerRates
 #' @param encounter An array (species x size) with the encounter rate as
@@ -590,13 +590,17 @@ mizerEGrowth <- function(params, n = params@initial_n,
 }
 
 
-#' Get density independent rate of egg production needed to project standard
+#' Get density-independent rate of reproduction needed to project standard
 #' mizer model
 #'
-#' Calculates the density independent rate of egg production \eqn{R_{p.i}}
-#' (units 1/year) before density dependence, by species. Used by
-#' \code{\link{getRDD}} to calculate the actual density dependent rate. See
-#' \code{\link{setReproduction}} for more details.
+#' Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
+#' (units 1/year) before density dependence, by species. This is obtained by
+#' taking the total rate at which energy is invested in reproduction,
+#' multiplying by the reproductive efficiency `erepro` and dividing by the egg
+#' size `w_min`, and by a factor of two to account for the two sexes.
+#' 
+#' Used by \code{\link{getRDD}} to calculate the actual, density dependent rate.
+#' See \code{\link{setReproduction}} for more details.
 #'
 #' @inheritParams mizerRates
 #' @param e_repro An array (species x size) with the energy available for
@@ -612,7 +616,7 @@ mizerRDI <- function(params,
                      n_other = params@initial_n_other,
                      e_repro,
                      ...) {
-    
+    # Calculate total energy from per capita energy
     e_repro_pop <- drop((e_repro * n) %*% params@dw)
     # Assume sex_ratio = 0.5
     rdi <- 0.5 * (e_repro_pop * params@species_params$erepro) /
@@ -620,108 +624,109 @@ mizerRDI <- function(params,
     return(rdi)
 }
 
-#' Beverton Holt stock-recruitment function
-#' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent larvae production rates \eqn{R} given as
-#' \deqn{R = R_p \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})}
-#' where \eqn{R_{max}} are the maximum possible larvae production rates that
-#' must be specified in a column in the species parameter dataframe.
-#' 
-#' This is only one example of a stock-recruitment function. You can write
-#' your own function based on this example, returning different
-#' density-dependent larvae production rates. Two other examples provided are
-#' \code{\link{srrRicker}} and \code{\link{srrSheperd}}. For more explanation
-#' see \code{\link{setReproduction}}.
-#' 
-#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
-#' @param species_params A species parameter dataframe. Must contain a column
-#'   R_max holding the maximum larvae production rate \eqn{R_{max}} for each
+#' Beverton Holt function to calculate density-dependent reproduction rate
+#'
+#' Takes the density-independent rates \eqn{R_p} of egg production and returns
+#' reduced, density-dependent reproduction rates \eqn{R} given as \deqn{R = R_p
+#' \frac{R_{max}}{R_p + R_{max}}}{R = R_p R_{max}/(R_p + R_{max})} where
+#' \eqn{R_{max}} are the maximum possible reproduction rates that must be
+#' specified in a column in the species parameter dataframe.
+#'
+#' This is only one example of a density-dependence. You can write your own
+#' function based on this example, returning different density-dependent
+#' reproduction rates. Two other examples provided are \code{\link{RickerRDD}}
+#' and \code{\link{SheperdRDD}}. For more explanation see
+#' \code{\link{setReproduction}}.
+#'
+#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for all
 #'   species.
+#' @param species_params A species parameter dataframe. Must contain a column
+#'   R_max holding the maximum reproduction rate \eqn{R_{max}} for each species.
 #' @param ... Unused
-#' 
-#' @return Vector of density-dependent larvae production rates.
+#'
+#' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family stock-recruitment functions
-srrBevertonHolt <- function(rdi, species_params, ...) {
+#' @family functions calculating density-dependent reproduction rate
+BevertonHoltRDD <- function(rdi, species_params, ...) {
     if (!("R_max" %in% names(species_params))) {
         stop("The R_max column is missing in species_params.")
     }
     return(rdi / (1 + rdi/species_params$R_max))
 }
 
-#' Ricker stock-recruitment function
+#' Ricker function to calculate density-dependent reproduction rate
 #' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent rates \eqn{R} given as
+#' Takes the density-independent rates \eqn{R_p} of egg production and returns
+#' reduced, density-dependent rates \eqn{R} given as
 #' \deqn{R = R_p \exp{- b R_p}}
 #' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.
 #' @param species_params A species parameter dataframe. Must contain a column
-#'   \code{ricker_b} holding the coefficients b.
+#'   \code{ricker_b} holding the coefficient b.
 #' @param ... Unused
 #' 
-#' @return Vector of density-dependent larvae production rates.
+#' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family stock-recruitment functions
-srrRicker <- function(rdi, species_params, ...) {
+#' @family functions calculating density-dependent reproduction rate
+RickerRDD <- function(rdi, species_params, ...) {
     if (!("ricker_b" %in% names(species_params))) {
         stop("The ricker_b column is missing in species_params")
     }
     return(rdi * exp(-species_params$ricker_b * rdi))
 }
 
-#' Sheperd stock-recruitment function
+#' Sheperd function to calculate density-dependent reproduction rate
 #' 
-#' Takes the rates \eqn{R_p} of egg production and returns reduced,
-#' density-dependent rates \eqn{R} as
+#' Takes the density-independent rates \eqn{R_p} of egg production and returns
+#' reduced, density-dependent rates \eqn{R} as
 #' \deqn{R = \frac{R_p}{1+(b\ R_p)^c}}{R = R_p / (1 + (b R_p)^c)}
 #' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.
 #' @param species_params A species parameter dataframe. Must contain columns
 #'   \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.
 #' @param ... Unused
 #' 
-#' @return Vector of density-dependent larvae production rates.
+#' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family stock-recruitment functions
-srrSheperd <- function(rdi, species_params, ...) {
+#' @family functions calculating density-dependent reproduction rate
+SheperdRDD <- function(rdi, species_params, ...) {
     if (!all(c("sheperd_b", "sheperd_c") %in% names(species_params))) {
         stop("The species_params dataframe must contain columns sheperd_b and sheperd_c.")
     }
     return(rdi / (1 + (species_params$sheperd_b * rdi)^species_params$sheperd_c))
 }
 
-#' Identity stock-recruitment function
+#' Give density-independent reproduction rate
 #' 
 #' Simply returns its \code{rdi} argument.
 #' 
-#' @param rdi Vector of density independent egg production rates \eqn{R_p} for
+#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.
 #' @param ... Not used.
 #' 
-#' @return Vector of density-dependent larvae production rates.
+#' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family stock-recruitment functions
-srrNone <- function(rdi, ...) {
+#' @family functions calculating density-dependent reproduction rate
+noRDD <- function(rdi, ...) {
     return(rdi)
 }
 
 
-#' Set the recruitment function for constant recruitment
-#' 
-#' Simply returns the value from `species_params$constant_recruitment`
-#' 
-#' @param rdi Vector of egg production rates \eqn{R_p} for all species.
+#' Give constant reproduction rate
+#'
+#' Simply returns the value from `species_params$constant_recruitment`.
+#'
+#' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for all
+#'   species.
 #' @param species_params A species parameter dataframe. Must contain a column
 #'   `constant_recruitment`.
 #' @param ... Unused
-#'   
+#'
 #' @return Vector `species_params$constant_recruitment`
 #' @export
-#' @family stock-recruitment functions
-srrConstant <- function(rdi, species_params, ...){
+#' @family functions calculating density-dependent reproduction rate
+constantRDD <- function(rdi, species_params, ...){
     return(species_params$constant_recruitment)
 }

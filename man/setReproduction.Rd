@@ -10,7 +10,7 @@ setReproduction(
   params,
   maturity = NULL,
   repro_prop = NULL,
-  srr = params@rates_funcs$RDD
+  RDD = params@rates_funcs$RDD
 )
 
 getMaturityProportion(params)
@@ -29,8 +29,8 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{srr}{The name of the stock recruitment function. Defaults to 
-"\code{\link{srrBevertonHolt}}".}
+\item{RDD}{The name of the stock recruitment function. Defaults to 
+"\code{\link{BevertonHoltRDD}}".}
 }
 \value{
 The updated MizerParams object. Because of the way the R language
@@ -118,12 +118,12 @@ already included in the other two sources of density dependence.
 To calculate the density-dependent rate of larvae production, mizer puts the
 the density-independent rate of egg production through a "stock-recruitment"
 function. The result is returned by \code{\link{getRDD}}. The name of the
-stock-recruitment function is specified by the \code{srr} argument. The
-default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
+stock-recruitment function is specified by the \code{RDD} argument. The
+default is the Beverton-Holt function \code{\link{BevertonHoltRDD}}, which
 requires an \code{R_max} column in the species_params data frame giving the
 maximum egg production rate. If this column does not exist, it is initialised
 to \code{Inf}, leading to no density-dependence. Other functions provided by
-mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
+mizer are \code{\link{RickerRDD}} and \code{\link{SheperdRDD}} and you can
 easily use these as models for writing your own functions.
 }
 }

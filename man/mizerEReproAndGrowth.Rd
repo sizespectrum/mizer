@@ -55,9 +55,9 @@ The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.
 }
 \description{
-Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available for
-reproduction and growth after metabolism and movement have been accounted
-for.
+Calculates the energy rate \eqn{E_{r.i}(w)} (grams/year) available to an
+individual of species i and size w for reproduction and growth after
+metabolism and movement have been accounted for.
 }
 \seealso{
 Other mizer rate functions: 

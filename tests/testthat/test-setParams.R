@@ -163,17 +163,17 @@ test_that("setReproduction works", {
     expect_equal(p2, setReproduction(p2, maturity = maturity,
                                      repro_prop = p2@psi))
     expect_equal(params, setReproduction(params, repro_prop = p2@psi))
-    expect_error(setReproduction(params, srr = "str"),
-                 "Arguments of srr function can only contain 'rdi', 'species_params' and `t`.")
-    expect_error(setReproduction(params, srr = "sum"),
-                 "The srr function needs to have at least arguments `rdi` and `...`.")
+    expect_error(setReproduction(params, RDD = "str"),
+                 "Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
+    expect_error(setReproduction(params, RDD = "sum"),
+                 "The RDD function needs to have at least arguments `rdi` and `...`.")
     params@species_params$erepro[1] <- NA
-    p2 <- setReproduction(params, srr = "srrSheperd")
+    p2 <- setReproduction(params, RDD = "SheperdRDD")
     expect_equal(p2@species_params$erepro[1], 1)
     p2@species_params$sheperd_b <- 0
     expect_error(getRDD(p2),
                  "The species_params dataframe must contain columns sheperd_b and sheperd_c.")
-    p2 <- setReproduction(params, srr = "srrRicker")
+    p2 <- setReproduction(params, RDD = "RickerRDD")
     expect_error(getRDD(p2),
                  "The ricker_b column is missing in species_params")
     p2@species_params$ricker_b <- 0

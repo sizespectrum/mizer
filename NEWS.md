@@ -88,7 +88,7 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
 * New `getDiet()` calculates the diet of predators. (#43)
-* Alternative stock-recruitment functions `srrRicker()` and `srrSheperd()`.
+* Alternative stock-recruitment functions `RickerRDD()` and `SheperdRDD()`.
 * Satiation can be switched off by setting the maximum intake rate to `Inf`.
 * Users can now set their own plankton dynamics instead of the default
   `plankton_semichemostat()`.
@@ -218,8 +218,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
     predator/prey ratio.
   + Added slot `plankton_dynamics` to allow user to specify alternative
     plankton dynamics.
-  + Changed slot `srr` to hold the name of the stock recruitment function rather
-    than the function itself, see #91.
+  + Instead of the function in the slot `@srr` we now have the name of the 
+    function in `@rate_funcs$RDD`, see #91.
 
 ## Breaking changes
 

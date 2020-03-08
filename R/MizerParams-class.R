@@ -680,7 +680,7 @@ emptyParams <- function(species_params,
             EGrowth = "mizerEGrowth",
             PlanktonMort = "mizerPlanktonMort",
             RDI = "mizerRDI",
-            RDD = "srrBevertonHolt"),
+            RDD = "BevertonHoltRDD"),
         plankton_dynamics = "plankton_semichemostat",
         other_params = list(),
         initial_n_other = list(),
@@ -777,7 +777,7 @@ newMultispeciesParams <- function(
     # setReproduction
     maturity = NULL,
     repro_prop = NULL,
-    srr = "srrBevertonHolt",
+    RDD = "BevertonHoltRDD",
     # setPlankton
     rate = NULL,
     capacity = NULL,
@@ -832,7 +832,7 @@ newMultispeciesParams <- function(
                   # setReproduction
                   maturity = maturity,
                   repro_prop = repro_prop,
-                  srr = srr,
+                  RDD = RDD,
                   # setPlankton
                   rate = rate,
                   capacity = capacity,
@@ -1004,7 +1004,7 @@ setParams <- function(params,
                       # setReproduction
                       maturity = NULL,
                       repro_prop = NULL,
-                      srr = params@rates_funcs$RDD,
+                      RDD = params@rates_funcs$RDD,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
@@ -1036,7 +1036,7 @@ setParams <- function(params,
     params <- setReproduction(params,
                               maturity = maturity,
                               repro_prop = repro_prop,
-                              srr = srr)
+                              RDD = RDD)
     params <- setFishing(params, initial_effort = initial_effort)
     return(params)
 }
@@ -1760,12 +1760,12 @@ getExtMortality <- function(params) {
 #' To calculate the density-dependent rate of larvae production, mizer puts the
 #' the density-independent rate of egg production through a "stock-recruitment"
 #' function. The result is returned by \code{\link{getRDD}}. The name of the
-#' stock-recruitment function is specified by the \code{srr} argument. The
-#' default is the Beverton-Holt function \code{\link{srrBevertonHolt}}, which
+#' stock-recruitment function is specified by the \code{RDD} argument. The
+#' default is the Beverton-Holt function \code{\link{BevertonHoltRDD}}, which
 #' requires an \code{R_max} column in the species_params data frame giving the
 #' maximum egg production rate. If this column does not exist, it is initialised
 #' to \code{Inf}, leading to no density-dependence. Other functions provided by
-#' mizer are \code{\link{srrRicker}} and \code{\link{srrSheperd}} and you can
+#' mizer are \code{\link{RickerRDD}} and \code{\link{SheperdRDD}} and you can
 #' easily use these as models for writing your own functions.
 #' }
 #' @param params A MizerParams object
@@ -1776,8 +1776,8 @@ getExtMortality <- function(params) {
 #'   proportion of consumed energy that a mature individual allocates to
 #'   reproduction for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting reproduction".
-#' @param srr The name of the stock recruitment function. Defaults to 
-#'   "\code{\link{srrBevertonHolt}}".
+#' @param RDD The name of the stock recruitment function. Defaults to 
+#'   "\code{\link{BevertonHoltRDD}}".
 #' 
 #' @return The updated MizerParams object. Because of the way the R language
 #'   works, `setReproduction()` does not make the changes to the params object
@@ -1794,11 +1794,11 @@ getExtMortality <- function(params) {
 #' params <- setReproduction(params)
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                            srr = params@rates_funcs$RDD) {
+                            RDD = params@rates_funcs$RDD) {
     assert_that(is(params, "MizerParams"),
-                is.string(srr),
-                exists(srr),
-                is.function(get(srr)))
+                is.string(RDD),
+                exists(RDD),
+                is.function(get(RDD)))
     species_params <- params@species_params
 
     # Check maximum sizes
@@ -1920,16 +1920,16 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     params <- set_species_param_default(params, "erepro", 1)
     assert_that(all(params@species_params$erepro > 0))
     
-    # srr function is currently called only with three arguments
-    srr_fn <- get(srr)
-    if (!all(names(formals(srr)) %in%  c("rdi", "species_params", "t", "..."))) {
-        stop("Arguments of srr function can only contain 'rdi', 'species_params' and `t`.")
+    # RDD function is currently called only with three arguments
+    RDD_fn <- get(RDD)
+    if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "t", "..."))) {
+        stop("Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     }
-    if (!all(c("rdi", "...") %in% names(formals(srr)))) {
-        stop("The srr function needs to have at least arguments `rdi` and `...`.")
+    if (!all(c("rdi", "...") %in% names(formals(RDD)))) {
+        stop("The RDD function needs to have at least arguments `rdi` and `...`.")
     }
-    params@rates_funcs$RDD <- srr
-    if (identical(params@rates_funcs$RDD, "srrBevertonHolt")) {
+    params@rates_funcs$RDD <- RDD
+    if (identical(params@rates_funcs$RDD, "BevertonHoltRDD")) {
         
         # for legacy reasons (R_max used to be called r_max):
         if ("r_max" %in% names(params@species_params)) {
@@ -2408,6 +2408,54 @@ getLinetypes <- function(params) {
     as.list(params@linetype)
 }
 
+#' Set own rate function to replace mizer rate function
+#' 
+#' At each time step during a simulation with the [project()] function, mizer
+#' needs to calculate the instantaneous values of the various rates. By
+#' default it calls the [mizerRates()] function which creates a list with the
+#' following components:
+#' * `encounter` from [mizerEncounter()]
+#' * `feeding_level` from [mizerFeedingLevel()]
+#' * `pred_rate` from [mizerPredRate()]
+#' * `pred_mort` from [mizerPredMort()]
+#' * `fishing_mort` from [mizerFMort()]
+#' * `mort` from [mizerMort()]
+#' * `plankton_mort` from [mizerPlanktonMort()]
+#' * `e` from [mizerEReproAndGrowth()]
+#' * `e_repro` from [mizerERepro()]
+#' * `e_growth` from [mizerEGrowth()]
+#' * `rdi` from [mizerRDI()]
+#' * `rdd` from [BervertonHoltRDD()]
+#' 
+#' You can modify these in two ways.
+#' 
+#' @param params A `MizerParams` object
+#' @param rate Name of the rate for which a new function is to be set.
+#' @md
+#' @export
+setRateFunction <- function(params, rate = "Rates", fun) {
+    assert_that(is(params, "MizerParams"),
+                is.string(rate),
+                is.string(fun),
+                is.function(get(fun)))
+    if (!(rate %in% names(params@rates_funcs))) {
+        stop("The `rate` argument must be one of ", 
+             toString(names(params@rates_funcs)), ".")
+    }
+    f <- get0(fun, mode = "function")
+    if (is.null(f)) {
+        stop(fun, " should be a function")
+    }
+    # TODO: put some code to test that the function has the right kind of
+    # arguments
+    params@rates_funcs[[rate]] <- fun
+    
+    validObject(params)
+    params
+}
+
+#' @rdname setRateFunction
+#' @export
 getRateFunction <- function(params, rate = "Rates") {
     assert_that(is(params, "MizerParams"),
                 is.string(rate))
@@ -2420,27 +2468,6 @@ getRateFunction <- function(params, rate = "Rates") {
              toString(names(params@rates_funcs)), ".")
     }
     params@rates_funcs[[rate]]
-}
-
-setRateFunction <- function(params, rate = "Rates", value) {
-    assert_that(is(params, "MizerParams"),
-                is.string(rate),
-                is.string(value),
-                is.function(get(value)))
-    if (!(rate %in% names(params@rates_funcs))) {
-        stop("The `rate` argument must be one of ", 
-             toString(names(params@rates_funcs)), ".")
-    }
-    f <- get0(value, mode = "function")
-    if (is.null(f)) {
-        stop(value, " should be a function")
-    }
-    # TODO: put some code to test that the function has the right kind of
-    # arguments
-    params@rates_funcs[[rate]] <- get(value)
-    
-    validObject(params)
-    params
 }
 
 
@@ -2523,13 +2550,13 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "srr")) {
         if (is.function(params@srr)) {
-            srr <- "srrBevertonHolt"
-            message('The density-dependent reproduction rate function has been set to "srrBevertonHolt".')
+            RDD <- "BevertonHoltRDD"
+            message('The density-dependent reproduction rate function has been set to "BevertonHoltRDD".')
         } else {
-            srr <- params@srr
+            RDD <- params@srr
         }
     } else {
-        srr <- "srrBevertonHolt"
+        RDD <- "BevertonHoltRDD"
     }
     
     if (is.function(params@plankton_dynamics)) {
@@ -2598,7 +2625,7 @@ upgradeParams <- function(params) {
         z0 = params@mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
-        srr = srr,
+        RDD = RDD,
         initial_effort = initial_effort)
     
     pnew@linecolour <- params@linecolour

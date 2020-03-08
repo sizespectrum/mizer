@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerRDI}
 \alias{mizerRDI}
-\title{Get density independent rate of egg production needed to project standard
+\title{Get density-independent rate of reproduction needed to project standard
 mizer model}
 \usage{
 mizerRDI(
@@ -33,10 +33,15 @@ reproduction as calculated by \code{getERepro()}.}
 A numeric vector with the rate of egg production for each species.
 }
 \description{
-Calculates the density independent rate of egg production \eqn{R_{p.i}}
-(units 1/year) before density dependence, by species. Used by
-\code{\link{getRDD}} to calculate the actual density dependent rate. See
-\code{\link{setReproduction}} for more details.
+Calculates the density-independent rate of total egg production \eqn{R_{p.i}}
+(units 1/year) before density dependence, by species. This is obtained by
+taking the total rate at which energy is invested in reproduction,
+multiplying by the reproductive efficiency \code{erepro} and dividing by the egg
+size \code{w_min}, and by a factor of two to account for the two sexes.
+}
+\details{
+Used by \code{\link{getRDD}} to calculate the actual, density dependent rate.
+See \code{\link{setReproduction}} for more details.
 }
 \seealso{
 Other mizer rate functions: 

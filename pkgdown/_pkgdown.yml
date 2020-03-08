@@ -138,6 +138,9 @@ reference:
 - title: Rate functions used by `project()`
   contents:
   - starts_with("mizer")
+- title: Extending Mizer
+  contents:
+  - setRateFunction
 - title: Functions used in the model
   contents:
   - lognormal_pred_kernel

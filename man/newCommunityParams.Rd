@@ -100,8 +100,8 @@ default is set as described in the section "Setting reproduction".}
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-    \item{\code{srr}}{The name of the stock recruitment function. Defaults to 
-"\code{\link{srrBevertonHolt}}".}
+    \item{\code{RDD}}{The name of the stock recruitment function. Defaults to 
+"\code{\link{BevertonHoltRDD}}".}
     \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
     \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
     \item{\code{w_pp_cutoff}}{The upper cut off size of the plankton spectrum. 
