@@ -1,9 +1,10 @@
-#' Find a steady state for the model
+#' Set initial values to a steady state for the model
 #' 
-#' This is done by running the dynamics while keeping reproduction and other
-#' components constant until the size spectra no longer change (or until time
-#' `t_max` is reached if earlier) Then the reproductive efficiencies are set to
-#' the values that give the level of reproduction observed in that steady state.
+#' The steady state is found by running the dynamics while keeping reproduction
+#' and other components constant until the size spectra no longer change (or
+#' until time `t_max` is reached if earlier) Then the reproductive efficiencies
+#' are set to the values that give the level of reproduction observed in that
+#' steady state.
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.

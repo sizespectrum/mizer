@@ -205,4 +205,47 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     return(sim)
 }
 
+#' Consumer size spectra at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return A matrix (species x size) holding the consumer number densities at
+#'   the end of the simulation
+#' @export
+final_n <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    n <- sim@params@initial_n  # Needed to get the right dimnames
+    n[] <- sim@n[dim(sim@n)[1], , ]
+    n
+}
 
+#' Plankton size spectrum at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return A vector holding the plankton number densities at the end of the
+#'   simulation for all size classes
+#' @export
+final_n_pp <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    sim@n_pp[dim(sim@n_pp)[1], ]
+}
+
+#' Values of other ecosystem components at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return A named list holding the values of other ecosystem components at the
+#'   end of the simulation
+#' @export
+final_n_other <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    sim@n_other[[length(sim@n_other)]]
+}
+
+#' Times for which simulation results are available
+#' 
+#' @param sim A MizerSim object
+#' @return A numeric vectors of the times (in years) at which simulation results
+#'   have been stored in the MizerSim object.
+#' @export
+times <- function(sim) {
+    as.numeric(names(sim@n_other))
+}

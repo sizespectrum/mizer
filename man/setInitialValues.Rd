@@ -2,7 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setInitialValues}
 \alias{setInitialValues}
-\title{Set initial values}
+\title{Set initial values to final values of a simulation}
 \usage{
 setInitialValues(params, sim)
 }
@@ -20,7 +20,8 @@ The `params` object with updated initial values, taken from the
   `params <- setInitialValues(params, sim)`.
 }
 \description{
-Set initial values
+Takes the final values from a simulation in a MizerSim object and stores them
+as initial values in a MizerParams object.
 }
 \examples{
 \dontrun{

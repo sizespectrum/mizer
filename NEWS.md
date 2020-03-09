@@ -1,6 +1,28 @@
 
 # mizer 1.0.1.9000 
 
+## Backwards compatibility
+
+This version of mizer introduces a large number of new features but is almost
+fully backwards compatible with version 1.0 with the exception of the
+following breaking changes:
+
+* Removed the `print_it` argument from plot functions.
+* plotFeedingLevel() now only plots the values within the size range of each
+  species. If for some reason you want the old plots that show a feeding level
+  also for sizes that the fish can never have, you need to supply an argument
+  `all.sizes = TRUE`.
+* The way the density-dependence in the reproduction rate is set has changed,
+  see `RDD` argument in `setReproduction()`.
+* The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
+* The `set_scaling_model()` function has been removed because such models can
+  now be set up with `newTraitParams()` with the options `perfect_scaling = TRUE`
+  and `egg_size_scaling = TRUE`.
+* The `displayFrames()` function has been moved to the "mizerExperimental"
+  package.
+* During runs of `project()` a progress bar is displayed by default. You can 
+  turn this off with the option `progress_bar = FALSE.
+
 ## Setting up models
 
 The new functions
@@ -11,7 +33,7 @@ The new functions
 
 replace the old functions `set_community_model()`, `set_trait_model()` and
 `MizerParams()`, which are now deprecated. The new functions choose better
-default values.
+default values, in particular for metabolic rate and maximum intake rate.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
@@ -50,7 +72,12 @@ The MizerParams object now also contains the initial values for the size
 spectra. This is particularly useful if the model has been tuned to produce
 the observed steady state. The new function `steady()` finds a steady state
 for a model and sets it as the initial value. The initial values can be
-accessed and changed via functions `initial_n()` and `initial_n_pp()`.
+accessed and changed via functions `initial_n()` and `initial_n_pp()`. The
+initial values can be set to the final values of a previous simulation with
+`setInitialValues()`.
+
+The MizerParams object now has a slot `initial_effort` that specifies the
+  initial fishing effort to which the steady state has been calibrated.
 
 ## Extension mechanisms
 
@@ -73,6 +100,8 @@ written to generalise the mizer model. More documentation to follow.
   object as an alternative to the MizerSim object to plot the initial state.
 * New `plot()` method for MizerParams object to plot the initial state.
 * Avoiding duplicate graphs in rmarkdown documents.
+* New argument `include_critical` in `plotFeedingLevel()` allows to show also
+  the critical feeding level.
 * New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
   argument to limit the w range in the plot.
 * The colours used in plot functions can be set with `setColours()`.
@@ -80,7 +109,7 @@ written to generalise the mizer model. More documentation to follow.
   `setLinetypes()` function.
 * Use colour and linetype for plots irrespective of the number of species.
 
-## General feeding kernel
+## General predation kernel
 
 * Users can now replace the lognormal function in the predation kernel by a
   function of their choice, allowing a differently shaped kernel for each 
@@ -94,29 +123,48 @@ written to generalise the mizer model. More documentation to follow.
   falls back on the old non-FFT code to handle this. (#41)
 * New `getPredationKernel()` returns the full 3-dimensional predation kernel array,
   even when this is not stored in MizerParams object.
+  
+## Other new functions
+
+* New `upgradeParams()` can upgrade MizerParams objects from previous versions 
+  of mizer so they work with the new version.
+* New `getDiet()` calculates the diet of predators. (#43)
+* Alternative functions `RickerRDD()` and `SheperdRDD()` for density-dependence 
+  in reproduction, as well as `noRDD()` and `constantRDD()`.
+* New gear selectivity function `double_sigmoid_length()` allows modelling
+  of escape of large individuals.
+* New gear selectivity function `sigmoidal_weight()` is weight-based trawl 
+  selectivity function. (Ken H Andersen)
+* New `getGrowthCurves()` calculates the growth curves (size at age).
+* New `mizerRates()` calculates all the rates needed in the model and collects
+  them in a list.
+* A convenience function `times()` to extract the times at which simulation 
+  results are saved in a MizerSim object.
+* Convenience functions `final_n()`, `final_n_pp()` and `final_n_other` to
+  access the values at the final time of a simulation.
+* New function `getCriticalFeedingLevel()` returns the critical feeding level
+  for each species at each size.
+* Mizer reexports the `melt()` function from the reshape2 package which allows
+  users to convert the arrays returned by mizer functions into data frames
+  that can be used for example in ggplot2 and plotly.
+* `validSpeciesParams()` checks validity of species parameter data frame and
+  sets defaults for missing but required parameters.
 
 ## Other new features
 
+* The allometric exponents `n`, `p` and `q` as well as the feeding level `f0`
+  can now be set at the species level via columns in `species_params`.
 * The critical feeding level `fc` can now be specified as a species parameter 
   and will be used to calculate the metabolic rate parameter `ks` if it is not
   supplied.
-* New `upgradeParams()` can upgrade MizerParams objects from previous versions 
-  of mizer so they work with the new version.
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
-* New `getDiet()` calculates the diet of predators. (#43)
-* Alternative functions `RickerRDD()` and `SheperdRDD()` for density-dependence 
-  in reproduction.
 * Satiation can be switched off by setting the maximum intake rate to `Inf`.
 * Users can now set their own plankton dynamics instead of the default
   `plankton_semichemostat()`.
 * Different species can interact with plankton with different strengths, or not
   feed on plankton at all, controlled by an `interaction_p` column in the
   species parameter data frame.
-* New gear selectivity function `double_sigmoid_length()` allows modelling
-  of escape of large individuals.
-* New gear selectivity function `sigmoidal_weight()` is weight-based trawl 
-  selectivity function. (Ken H Andersen)
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which
   25% of the individuals of a species are mature.
@@ -125,21 +173,21 @@ written to generalise the mizer model. More documentation to follow.
 * `project()` can now continue projection from last time step of a previous
   simulation if the first argument is a MizerSim object. The new `append` 
   argument then controls whether the new results are appended to the old.
-* New `getGrowthCurves()` calculates the growth curves (size at age).
 * Values for minimum plankton size, and minimum and maximum consumer sizes are
   set automatically if not provided in `newMultispeciesParams()`.
 * Default values for species parameters are used for missing values within a 
   column in the species parameter data frame, not only if the column is missing 
   entirely.
-* New `getRates()` calculates all the rates needed in the model and collects
-  them in a list.
-* Rate functions take defaults for their `initial_n`, `initial_n_pp` and
-  `initial_B` arguments from the corresponding slot in the `params` argument.
+* Rate functions take defaults for their `n`, `n_pp` and `n_other` arguments
+  from the initial values in the `params` argument.
 * New `perfect_scaling` argument allows `newTraitParams()` to produce a perfectly 
   scale-invariant model.
 * A new `ext_mort_prop` argument in `newTraitParams()` allows the inclusion of
   external mortality.
 * Added a data file`NS_params` with the North Sea model MizerParams object.
+* Comments can be added to MizerParams objects and any of their slots. Slots
+  that have comments are protected from being overwritten with allometric
+  defaults.
   
 ## Documentation
 
@@ -153,6 +201,9 @@ written to generalise the mizer model. More documentation to follow.
 * Clarified that mizer uses grams and years as size and time units and is 
   agnostic about whether abundances are per area, per volume or per study area.
   (#42)
+* Added a tutorial on using ggplot2 and plotly with mizer.
+* Added a tutorial on working with git and GitHub for mizer development.
+* Added a FAQ page for developers.
 * Added a unit test to automatically run a spell check on documentation.
 * Renamed some functions for consistency and to make them easier to understand,
   but kept old names as aliases for backwards compatibility:
@@ -162,6 +213,8 @@ written to generalise the mizer model. More documentation to follow.
   + `getZ()` -> `getMort()`
   + `getESpawning()` -> `getERepro()`
   + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
+* Renamed maximum reproductive rate from `r_max` to `R_max`.
+* Updated list of publications (@Kenhasteandersen)
 
 ## Ecosystems
 Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
@@ -192,6 +245,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
 * times are not truncated at 3 significant figures, because that would not allow
   something like 2019.
 * get_initial_n() gets values for n and q from params object
+* `summary()` of MizerParams object reflects the number of non-empty plankton 
+  bins. (@patricksykes)
   
 ## Under the hood
 
@@ -238,19 +293,12 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
     plankton dynamics.
   + Instead of the function in the slot `@srr` we now have the name of the 
     function in `@rate_funcs$RDD`, see #91.
+  + Added slots `@other_dynamics`, `@other_params`, `@other_encounter`,
+    `@other_mort` and `initial_n_other` to allow mizer extensions to add more 
+    ecosystem components.
+  + Added slot `@rates_funcs` to allow mizer extensions to replace mizer rate
+    functions with their own rate functions.
 
-## Breaking changes
-
-* Removed the `print_it` argument from plot functions.
-* plotFeedingLevel() now only plots the values within the size range of each
-  species. If for some reason you want the old plots that show a feeding level
-  also for sizes that the fish can never have, you need to supply an argument
-  `all.sizes = TRUE`.
-* The way the density-dependence in the reproduction rate is set has changed,
-  see `RDD` argument in `setReproduction()`.
-* The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
-* The `displayFrames()` function has been moved to the "mizerExperimental"
-  package.
 
 
 # mizer 1.0.1
@@ -284,7 +332,7 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
       selection of species to be plotted
   + Allow the number of ticks on y-axis in biomass plot to be controlled
 * Allow for size- and species-dependent background death.
-* Add initial_n and initial_n_pp slots to mizer params.
+* Add `@initial_n` and `@initial_n_pp` slots to MizerParams class.
 * Now checking that effort times are increasing.
 * Corrections in the documentation.
 * Improvements to the vignette.

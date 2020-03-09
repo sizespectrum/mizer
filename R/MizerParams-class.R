@@ -2263,7 +2263,10 @@ getSelectivity <- function(params) {
 }
 
 
-#' Set initial values
+#' Set initial values to final values of a simulation
+#' 
+#' Takes the final values from a simulation in a MizerSim object and stores them
+#' as initial values in a MizerParams object.
 #'
 #' @param params A \code{\link{MizerParams}} object
 #' @param sim A \code{MizerSim} object.
