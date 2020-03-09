@@ -2266,23 +2266,14 @@ getSelectivity <- function(params) {
 #' Set initial values
 #'
 #' @param params A \code{\link{MizerParams}} object
-#' @param sim A \code{MizerSim} object. If supplied, the `initial_n`, 
-#'   `initial_n_pp` and `initial_n_pp` arguments are ignored and the information
-#'   is taken from the last timestep of the simulation in `sim`.
-#' @param initial_n The initial abundances of species. A matrix with dimensions
-#'   species x size. The order of species must be the same as in the MizerParams
-#'   argument. Optional. Ignored if `sim` is supplied.
-#' @param initial_n_pp The initial abundances of plankton. A numeric vector.
-#'   Optional. Ignored if `sim` is supplied.
-#' @param initial_n_other The initial abundances of the other dynamic ecosystem
-#'   components. A named list with one entry for each component. Optional.
-#'   Ignored if `sim` is supplied.
+#' @param sim A \code{MizerSim} object.
 #'   
-#' @return A MizerParams object with updated initial values. Because of the
-#'   way the R language works, `setInitialValues()` does not make the changes to the
+#' @return The `params` object with updated initial values, taken from the
+#'   values at the final time of the simulation in `sim`. Because of the way the
+#'   R language works, `setInitialValues()` does not make the changes to the
 #'   params object that you pass to it but instead returns a new params object.
 #'   So to affect the change you call the function in the form
-#'   `params <- setInitialValues(params, ...)`.
+#'   `params <- setInitialValues(params, sim)`.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -2291,57 +2282,91 @@ getSelectivity <- function(params) {
 #' sim <- project(params, t_max = 20, effort = 0.5)
 #' params <- setInitialValues(params, sim)
 #' }
-setInitialValues <- function(params, sim,
-                             initial_n = getInitial_n(params),
-                             initial_n_pp = getInitial_n_pp(params),
-                             initial_n_other = getInitial_n_other(params)) {
-    if (!missing(sim)) {
-        assert_that(is(sim, "MizerSim"))
-        no_t <- dim(sim@n)[1]
-        initial_n < sim@params@initial_n # Needed to get the right dimensions
-        initial_n[] <- sim@n[no_t, , ]
-        initial_n_pp < sim@params@initial_n_pp # Needed to get the right dimensions
-        initial_n_pp[] <- sim@n_pp[no_t, ]
-        initial_n_other < sim@n_other[[no_t]]
-    }
-    assert_that(identical(dim(initial_n), dim(params@initial_n)),
-                all(initial_n >= 0),
-                identical(dim(initial_n_pp), dim(params@initial_n_pp)),
-                all(initial_n_pp >= 0),
-                identical(length(initial_n_other), length(params@initial_n_other)))
-    if (!is.null(dimnames(initial_n)) &&
-        !identical(dimnames(initial_n), dimnames(params@initial_n))) {
-        warning("The dimnames of initial_n are not as expected. I will ignore them.")
-    }
-    if (!is.null(dimnames(initial_n_pp)) &&
-        !identical(dimnames(initial_n_pp), dimnames(params@initial_n_pp))) {
-        warning("The dimnames of initial_n_pp are not as expected. I will ignore them.")
-    }
-    if (!identical(names(initial_n_other), names(params@initial_n_other))) {
-        stop("The names of initial_n_other do not match those in params.")
-    }
-    params@initial_n[] <- initial_n
-    params@initial_n_pp[] <- initial_n_pp
-    params@initial_n_other <- initial_n_other
-    return(params)
+setInitialValues <- function(params, sim) {
+    assert_that(is(params, "MizerParams"),
+                is(sim, "MizerSim"))
+    no_t <- dim(sim@n)[1]
+    assert_that(identical(dim(sim@n[no_t, , ]), dim(params@initial_n)),
+                identical(dim(sim@n_pp[no_t, ]), dim(params@initial_n_pp)),
+                identical(length(sim@n_other[[no_t]]), length(params@initial_n_other)))
+    params@initial_n[] <- sim@n[no_t, , ]
+    params@initial_n_pp[] <- sim@n_pp[no_t, ]
+    params@initial_n_other <- sim@n_other[[no_t]]
+    params
 }
 
-#' @rdname setInitialValues
+#' Initial values for fish spectra
+#' 
+#' Values used as starting values for simulations with `project()`.
+#' 
+#' @param params A MizerParams object
+#' @param value A matrix with dimensions species x size holding the initial
+#'   number densities for the fish spectra.
 #' @export
-getInitial_n <- function(params) {
+`initial_n<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"),
+                identical(dim(value), dim(params@initial_n)),
+                all(value >= 0))
+    if (!is.null(dimnames(value)) &&
+        !identical(dimnames(value), dimnames(params@initial_n))) {
+        warning("The dimnames do not match. I will ignore them.")
+    }
+    params@initial_n[] <- value
+    params
+}
+
+#' @rdname initial_n-set
+#' @export
+initial_n <- function(params) {
     params@initial_n
 }
 
-#' @rdname setInitialValues
+#' Initial value for plankton spectrum
+#' 
+#' Value used as starting value for simulations with `project()`.
+#' 
+#' @param params A MizerParams object
+#' @param value A vector with the initial number densities for the plankton
+#'   spectrum
 #' @export
-getInitial_n_pp <- function(params) {
+`initial_n_pp<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"),
+                identical(dim(value), dim(params@initial_n_pp)),
+                all(value >= 0))
+    if (!is.null(dimnames(value)) &&
+        !identical(dimnames(value), dimnames(params@initial_n_pp))) {
+        warning("The dimnames do not match. I will ignore them.")
+    }
+    params@initial_n_pp[] <- value
+    params
+}
+
+#' @rdname initial_n_pp-set
+#' @export
+initial_n_pp <- function(params) {
     params@initial_n_pp
 }
-#' @rdname setInitialValues
+
+#' Initial values for other ecosystem components
+#' 
+#' Values used as starting values for simulations with `project()`.
+#' 
+#' @param params A MizerParams object
+#' @param value A named list with the initial values of other ecosystem components
 #' @export
-getInitial_n_other <- function(params) {
+`initial_n_other<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"),
+                is.list(value))
+    params@initial_n_other <- value
+    params
+}
+
+#' @rdname initial_n_other-set
+#' @export
+initial_n_other <- function(params) {
     params@initial_n_other
 }
+
 
 #' Set line colours to be used in mizer plots
 #' 

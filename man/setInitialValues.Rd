@@ -2,49 +2,22 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{setInitialValues}
 \alias{setInitialValues}
-\alias{getInitial_n}
-\alias{getInitial_n_pp}
-\alias{getInitial_n_other}
 \title{Set initial values}
 \usage{
-setInitialValues(
-  params,
-  sim,
-  initial_n = getInitial_n(params),
-  initial_n_pp = getInitial_n_pp(params),
-  initial_n_other = getInitial_n_other(params)
-)
-
-getInitial_n(params)
-
-getInitial_n_pp(params)
-
-getInitial_n_other(params)
+setInitialValues(params, sim)
 }
 \arguments{
 \item{params}{A \code{\link{MizerParams}} object}
 
-\item{sim}{A \code{MizerSim} object. If supplied, the `initial_n`, 
-`initial_n_pp` and `initial_n_pp` arguments are ignored and the information
-is taken from the last timestep of the simulation in `sim`.}
-
-\item{initial_n}{The initial abundances of species. A matrix with dimensions
-species x size. The order of species must be the same as in the MizerParams
-argument. Optional. Ignored if `sim` is supplied.}
-
-\item{initial_n_pp}{The initial abundances of plankton. A numeric vector.
-Optional. Ignored if `sim` is supplied.}
-
-\item{initial_n_other}{The initial abundances of the other dynamic ecosystem
-components. A named list with one entry for each component. Optional.
-Ignored if `sim` is supplied.}
+\item{sim}{A \code{MizerSim} object.}
 }
 \value{
-A MizerParams object with updated initial values. Because of the
-  way the R language works, `setInitialValues()` does not make the changes to the
+The `params` object with updated initial values, taken from the
+  values at the final time of the simulation in `sim`. Because of the way the
+  R language works, `setInitialValues()` does not make the changes to the
   params object that you pass to it but instead returns a new params object.
   So to affect the change you call the function in the form
-  `params <- setInitialValues(params, ...)`.
+  `params <- setInitialValues(params, sim)`.
 }
 \description{
 Set initial values
