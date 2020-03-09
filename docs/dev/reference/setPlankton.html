@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set up plankton — setPlankton" />
 <meta property="og:description" content="Sets the intrinsic plankton growth rate and the intrinsic plankton carrying
@@ -71,7 +73,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -132,15 +134,23 @@ dynamics</p>
 
     <pre class="usage"><span class='fu'>setPlankton</span>(
   <span class='no'>params</span>,
-  <span class='kw'>rr_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cc_pp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>rate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>capacity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"kappa"</span>]],
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"lambda"</span>]],
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"n"</span>]],
   <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
   <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+)
+
+<span class='fu'>getPlanktonRate</span>(<span class='no'>params</span>)
+
+<span class='fu'>getPlanktonCapacity</span>(<span class='no'>params</span>)
+
+<span class='fu'>getPlanktonParams</span>(<span class='no'>params</span>)
+
+<span class='fu'>getPlanktonDynamics</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,28 +160,28 @@ dynamics</p>
       <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>rr_pp</th>
-      <td><p>Optional. Vector of plankton intrinsic growth rates</p></td>
+      <th>rate</th>
+      <td><p>Optional. Vector of plankton intrinsic birth rates</p></td>
     </tr>
     <tr>
-      <th>cc_pp</th>
+      <th>capacity</th>
       <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Coefficient of the intrinsic growth rate</p></td>
+      <td><p>Coefficient of the intrinsic plankton birth rate</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>Coefficient of the intrinsic carrying capacity</p></td>
+      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic carrying capacity</p></td>
+      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>Scaling exponent of the intrinsic growth rate</p></td>
+      <td><p>Allometric growth exponent for plankton</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
@@ -188,7 +198,11 @@ state.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object</p>
+    <p>A MizerParams object with updated plankton parameters. Because of the
+  way the R language works, `setPlankton()` does not make the changes to the
+  params object that you pass to it but instead returns a new params object.
+  So to affect the change you call the function in the form
+  `params &lt;- setPlankton(params, ...)`.</p>
     <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
 
     
@@ -199,13 +213,13 @@ by the function <code><a href='plankton_semichemostat.html'>plankton_semichemost
 plankton dynamics by writing your own function, modelled on
 <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>, and then passing the name of your
 function in the <code>plankton_dynamics</code> argument.</p>
-<p>The <code>rr_pp</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>rate</code> argument is a vector specifying the intrinsic plankton
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
 The values of \(r_p\) and \(n\) are taken from the <code>r_pp</code>
 and <code>n</code> arguments.</p>
-<p>The <code>cc_pp</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>capacity</code> argument is a vector specifying the intrinsic plankton
 carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
 capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -215,14 +229,14 @@ and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 

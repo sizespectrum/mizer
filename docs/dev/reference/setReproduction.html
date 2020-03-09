@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set reproduction parameters — setReproduction" />
 <meta property="og:description" content="Sets the proportion of the total energy available for reproduction and growth
@@ -71,7 +73,7 @@ individual and sets the reproductive efficiency." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -130,7 +132,16 @@ that is invested into reproduction as a function of the size of the
 individual and sets the reproductive efficiency.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='no'>params</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>srr</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>srr</span>)</pre>
+    <pre class="usage"><span class='fu'>setReproduction</span>(
+  <span class='no'>params</span>,
+  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>rates_funcs</span>$<span class='no'>RDD</span>
+)
+
+<span class='fu'>getMaturityProportion</span>(<span class='no'>params</span>)
+
+<span class='fu'>getReproductionProportion</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,15 +164,20 @@ reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
-      <th>srr</th>
-      <td><p>The name of the stock recruitment function. Defaults to 
-<code><a href='srrBevertonHolt.html'>srrBevertonHolt</a></code>.</p></td>
+      <th>RDD</th>
+      <td><p>The name of the function calculating the density-dependent 
+reproduction rate from the density-independent rate. Defaults to 
+"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The MizerParams object.</p>
+    <p>The updated MizerParams object. Because of the way the R language
+  works, `setReproduction()` does not make the changes to the params object
+  that you pass to it but instead returns a new params object. So to affect
+  the change you call the function in the form
+  `params &lt;- setReproduction(params, ...)`.</p>
     <h2 class="hasAnchor" id="setting-reproduction"><a class="anchor" href="#setting-reproduction"></a>Setting reproduction</h2>
 
     
@@ -217,38 +233,31 @@ density-dependent due to competition for prey. Secondly, the proportion of
 larvae that grow up to recruitment size depends on the larval mortality,
 which depends on the density of predators, and on larval growth rate, which
 depends on density of prey.</p>
-<p>Finally, the proportion of eggs that are viable and hatch to larvae can be
-density dependent. Somewhat misleadingly, mizer refers to this relationship
-between the number of eggs and the number of hatched larvae as the
-stock-recruitment relationship, even though it is only one part of the full
-stock-recruitment relationship. However it is the only part that can be set
-independently, while the other parts are already determined by the predation
-parameters and other model parameters. Thus in practice this part of the
-density dependence is used to encode all the density dependence that is not
-already included in the other two sources of density dependence.</p>
-<p>To calculate the density-dependent rate of larvae production, mizer puts the
-the density-independent rate of egg production through a "stock-recruitment"
-function. The result is returned by <code><a href='getRDD.html'>getRDD</a></code>. The name of the
-stock-recruitment function is specified by the <code>srr</code> argument. The
-default is the Beverton-Holt function <code><a href='srrBevertonHolt.html'>srrBevertonHolt</a></code>, which
-requires an <code>R_max</code> column in the species_params data frame giving the
-maximum egg production rate. If this column does not exist, it is initialised
-to <code>Inf</code>, leading to no density-dependence. Other functions provided by
-mizer are <code><a href='srrRicker.html'>srrRicker</a></code> and <code><a href='srrSheperd.html'>srrSheperd</a></code> and you can
-easily use these as models for writing your own functions.</p>
+<p>Finally, to encode all the density dependence in the stock-recruitment
+relationship that is not already included in the other two sources of density
+dependence, mizer puts the the density-independent rate of egg production
+through a density-dependence function. The result is returned by
+<code><a href='getRDD.html'>getRDD</a></code>. The name of the density-dependence function is
+specified by the <code>RDD</code> argument. The default is the Beverton-Holt
+function <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>, which requires an <code>R_max</code> column
+in the species_params data frame giving the maximum egg production rate. If
+this column does not exist, it is initialised to <code>Inf</code>, leading to no
+density-dependence. Other functions provided by mizer are
+<code><a href='RickerRDD.html'>RickerRDD</a></code> and <code><a href='SheperdRDD.html'>SheperdRDD</a></code> and you can easily use
+these as models for writing your own functions.</p>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set maximum intake rate — setIntakeMax • mizer</title>
+<title>Set maximum intake rate �setMaxIntakeRateax • mizer</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,7 @@
 
 
 
-<meta property="og:title" content="Set maximum intake rate — setIntakeMax" />
+<meta property="og:title" content="Set maximum intake rate �setMaxIntakeRateax" />
 <meta property="og:description" content="Set maximum intake rate" />
 <meta name="twitter:card" content="summary" />
 
@@ -119,14 +119,14 @@
     <div class="page-header">
     <h1>Set maximum intake rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>setIntakeMax.Rd</code></div>
+    <div class="hidden name"><code>setMaxIntakeRate.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Set maximum intake rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setIntakeMax</span>(<span class='no'>params</span>, <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setMaxIntakeRate</span>(<span class='no'>params</span>, <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,14 +165,14 @@ the <code>k_vb</code> column, if they are supplied.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
@@ -180,7 +180,7 @@ the <code>k_vb</code> column, if they are supplied.</p>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='no'>NS_params</span>
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>h</span>[<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>35</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setIntakeMax</span>(<span class='no'>params</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setMaxIntakeRate</span>(<span class='no'>params</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

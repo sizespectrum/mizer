@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set up parameters for a community-type model — newCommunityParams" />
 <meta property="og:description" content="This functions creates a MizerParams object so that
@@ -70,7 +72,7 @@ community-type models can be easily set up and run." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -132,19 +134,18 @@ community-type models can be easily set up and run.</p>
   <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>1e+06</span>,
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
   <span class='kw'>z0</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>starv_coef</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
+  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
   <span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>2</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
-  <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-  <span class='no'>recruitment</span>,
+  <span class='no'>reproduction</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -154,62 +155,29 @@ community-type models can be easily set up and run.</p>
     <tr>
       <th>max_w</th>
       <td><p>The maximum size of the community. The <code>w_inf</code> of the 
-species used to represent the community is set to this value. The 
-default value is 1e6.</p></td>
+species used to represent the community is set to this value.</p></td>
     </tr>
     <tr>
       <th>min_w</th>
-      <td><p>The minimum size of the community. Default value is 1e-3.</p></td>
+      <td><p>The minimum size of the community.</p></td>
     </tr>
     <tr>
       <th>z0</th>
-      <td><p>The background mortality of the community. Default value is 0.1.</p></td>
-    </tr>
-    <tr>
-      <th>starv_coef</th>
-      <td><p>Proportionality constant for starvation mortality. When 
-starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
-is 1 when energy deficit is 10<!-- % of body weight. When starv_coef = 0 there  -->
-is no starvation mortality</p></td>
+      <td><p>The background mortality of the community.</p></td>
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p>The assimilation efficiency of the community. Default value 0.2</p></td>
-    </tr>
-    <tr>
-      <th>h</th>
-      <td><p>The maximum food intake rate. Default value is 10.</p></td>
-    </tr>
-    <tr>
-      <th>beta</th>
-      <td><p>The preferred predator prey mass ratio. Default value is 100.</p></td>
-    </tr>
-    <tr>
-      <th>sigma</th>
-      <td><p>The width of the prey preference. Default value is 2.0.</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>The scaling exponent of the maximum intake rate. Default value is 2/3.</p></td>
-    </tr>
-    <tr>
-      <th>kappa</th>
-      <td><p>The carrying capacity of the plankton spectrum. Default value
-is 1000.</p></td>
-    </tr>
-    <tr>
-      <th>lambda</th>
-      <td><p>The exponent of the plankton spectrum. Default value is 2.05.</p></td>
+      <td><p>The assimilation efficiency of the community.</p></td>
     </tr>
     <tr>
       <th>f0</th>
       <td><p>The average feeding level of individuals who feed on a power-law 
 spectrum. This value is used to calculate the search rate parameter 
-<code>gamma</code> (see the package vignette). Default value is 0.7.</p></td>
+<code>gamma</code> (see the package vignette).</p></td>
     </tr>
     <tr>
-      <th>r_pp</th>
-      <td><p>Growth rate parameter for the plankton spectrum. Default value is 10.</p></td>
+      <th>h</th>
+      <td><p>The maximum food intake rate.</p></td>
     </tr>
     <tr>
       <th>gamma</th>
@@ -217,19 +185,94 @@ spectrum. This value is used to calculate the search rate parameter
 <code>kappa</code> if not supplied.</p></td>
     </tr>
     <tr>
-      <th>knife_edge_size</th>
-      <td><p>The size at the edge of the knife-selectivity 
-function. Default value is 1000.</p></td>
+      <th>beta</th>
+      <td><p>The preferred predator prey mass ratio.</p></td>
     </tr>
     <tr>
-      <th>recruitment</th>
-      <td><p>The constant recruitment in the smallest size class of the
+      <th>sigma</th>
+      <td><p>The width of the prey preference.</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>The scaling exponent of the maximum intake rate.</p></td>
+    </tr>
+    <tr>
+      <th>kappa</th>
+      <td><p>The carrying capacity of the plankton spectrum.</p></td>
+    </tr>
+    <tr>
+      <th>lambda</th>
+      <td><p>The exponent of the plankton spectrum.</p></td>
+    </tr>
+    <tr>
+      <th>r_pp</th>
+      <td><p>Growth rate parameter for the plankton spectrum.</p></td>
+    </tr>
+    <tr>
+      <th>knife_edge_size</th>
+      <td><p>The size at the edge of the knife-edge-selectivity
+function.</p></td>
+    </tr>
+    <tr>
+      <th>reproduction</th>
+      <td><p>The constant reproduction in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum 
-continues the plankton spectrum.</p></td>
+is continuous with the plankton spectrum.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Other arguments to pass to the <code>MizerParams</code> constructor.</p></td>
+      <td><p>Arguments passed on to <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code></p><dl class='dl-horizontal'>
+    <dt><code>min_w_pp</code></dt><dd><p>The smallest size of the plankton spectrum. By default this
+is set to the smallest value at which any of the consumers can feed.</p></dd>
+    <dt><code>species_params</code></dt><dd><p>A data frame of species-specific parameter values.</p></dd>
+    <dt><code>no_w</code></dt><dd><p>The number of size bins in the consumer spectrum.</p></dd>
+    <dt><code>interaction</code></dt><dd><p>Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.</p></dd>
+    <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
+that holds the predation coefficient of each predator at size on each prey
+size. If not supplied, a default is set as described in section "Setting
+predation kernel".</p></dd>
+    <dt><code>search_vol</code></dt><dd><p>Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the section "Setting search volume".</p></dd>
+    <dt><code>intake_max</code></dt><dd><p>Optional. An array (species x size) holding the maximum
+intake rate for each species at size. If not supplied, a default is set as
+described in the section "Setting maximum intake rate".</p></dd>
+    <dt><code>metab</code></dt><dd><p>Optional. An array (species x size) holding the metabolic rate
+for each species at size. If not supplied, a default is set as described in
+the section "Setting metabolic rate".</p></dd>
+    <dt><code>p</code></dt><dd><p>The allometric metabolic exponent. This is only used if <code>metab</code>
+is not given explicitly and if the exponent is not specified in a <code>p</code>
+column in the <code>species_params</code>.</p></dd>
+    <dt><code>z0pre</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.</p></dd>
+    <dt><code>z0exp</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
+in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
+Default value is <code>n-1</code>.</p></dd>
+    <dt><code>maturity</code></dt><dd><p>Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".</p></dd>
+    <dt><code>repro_prop</code></dt><dd><p>Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".</p></dd>
+    <dt><code>RDD</code></dt><dd><p>The name of the function calculating the density-dependent 
+reproduction rate from the density-independent rate. Defaults to 
+"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></dd>
+    <dt><code>rate</code></dt><dd><p>Optional. Vector of plankton intrinsic birth rates</p></dd>
+    <dt><code>capacity</code></dt><dd><p>Optional. Vector of plankton intrinsic carrying capacity</p></dd>
+    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the plankton spectrum. 
+Default is 10 g.</p></dd>
+    <dt><code>plankton_dynamics</code></dt><dd><p>Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.</p></dd>
+    <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.</p></dd>
+  
+</dl></td>
     </tr>
     </table>
 
@@ -243,9 +286,8 @@ several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
 community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot <code>psi</code> of the returned 
-<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
+constant and set by the user. As reproduction is constant, the proportion of
+energy invested in reproduction is set to 0. Standard metabolism has been turned 
 off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
 now determined solely by the assimilated food (see the package vignette for 
 more details).</p>
@@ -268,12 +310,11 @@ through time after the projection.</p>
 
     <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a>()</code>,
-<code><a href='newSheldonParams.html'>newSheldonParams</a>()</code>,
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newCommunityParams</span>(<span class='kw'>f0</span><span class='kw'>=</span><span class='fl'>0.7</span>, <span class='kw'>z0</span><span class='kw'>=</span><span class='fl'>0.2</span>, <span class='kw'>recruitment</span><span class='kw'>=</span><span class='fl'>3e7</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newCommunityParams</span>(<span class='kw'>f0</span><span class='kw'>=</span><span class='fl'>0.7</span>, <span class='kw'>z0</span><span class='kw'>=</span><span class='fl'>0.2</span>, <span class='kw'>reproduction</span><span class='kw'>=</span><span class='fl'>3e7</span>)
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>dt</span><span class='kw'>=</span><span class='fl'>0.1</span>)
 <span class='fu'><a href='plotBiomass.html'>plotBiomass</a></span>(<span class='no'>sim</span>)
 <span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)

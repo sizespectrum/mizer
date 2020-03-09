@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Plot the feeding level of species by size — plotFeedingLevel" />
 <meta property="og:description" content="After running a projection, plot the feeding level of each species by size. 
@@ -71,7 +73,7 @@ for the time range can be used)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -136,6 +138,16 @@ for the time range can be used).</p>
   <span class='no'>time_range</span>,
   <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>all.sizes</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>include_critical</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)
+
+<span class='fu'>plotlyFeedingLevel</span>(
+  <span class='no'>object</span>,
+  <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>time_range</span>,
+  <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>include_critical</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -168,6 +180,11 @@ object.</p></td>
 outside a species' size range. Default FALSE.</p></td>
     </tr>
     <tr>
+      <th>include_critical</th>
+      <td><p>If TRUE, then the critical feeding level is also
+plotted. Default FALSE.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Other arguments (currently unused)</p></td>
     </tr>
@@ -175,19 +192,22 @@ outside a species' size range. Default FALSE.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
+    <p>A plot</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When called with a <a href='MizerSim-class.html'>MizerSim</a> object, the feeding level is averaged
 over the specified time range (a single value for the time range can be used
 to plot a single time step). When called with a <a href='MizerParams-class.html'>MizerParams</a>
 object the initial feeding level is plotted.</p>
+<p>If `include_critical = TRUE` then the critical feeding level (the feeding
+level at which the intake just covers the metabolic cost) is also plotted,
+with a thinner line. This line should always stay below the line of the
+actual feeding level, because the species would stop growing at any point
+where the feeding level drops to the critical feeding level.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='plotting_functions.html'>plotting_functions</a></code>, <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code></p>
 <p>Other plotting functions: 
-<code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
 <code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
 <code><a href='plotDiet.html'>plotDiet</a>()</code>,
@@ -197,20 +217,10 @@ object the initial feeding level is plotted.</p>
 <code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
 <code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
 <code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
 <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>t_save</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 <span class='fu'>plotFeedingLevel</span>(<span class='no'>sim</span>)</div><div class='img'><img src='plotFeedingLevel-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotFeedingLevel</span>(<span class='no'>sim</span>, <span class='kw'>time_range</span> <span class='kw'>=</span> <span class='fl'>10</span>:<span class='fl'>20</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Cod"</span>, <span class='st'>"Herring"</span>))</div><div class='img'><img src='plotFeedingLevel-2.png' alt='' width='700' height='433' /></div><div class='input'>

@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Deprecated function for setting up parameters for a trait-based model — set_trait_model" />
 <meta property="og:description" content="This function has been deprecated in favour of the function
@@ -70,7 +72,7 @@ newTraitParams that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -136,7 +138,6 @@ newTraitParams that sets better default values." />
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
   <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='no'>max_w_inf</span> * <span class='fl'>1.1</span>,
   <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
-  <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>k0</span> <span class='kw'>=</span> <span class='fl'>50</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
@@ -193,12 +194,6 @@ spectrum is set to max_w_inf.</p></td>
       <th>min_w_pp</th>
       <td><p>Obsolete argument because the smallest plankton size is set
 to the smallest size at which the consumers feed.</p></td>
-    </tr>
-    <tr>
-      <th>no_w_pp</th>
-      <td><p>Obsolete argument that is no longer used because the number
-of plankton size bins is determined because all size bins have to
-be logarithmically equally spaced.</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>

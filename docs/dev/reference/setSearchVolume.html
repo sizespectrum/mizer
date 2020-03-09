@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set search volume — setSearchVolume" />
 <meta property="og:description" content="Set search volume" />
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -126,7 +128,9 @@
     <p>Set search volume</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setSearchVolume</span>(<span class='no'>params</span>, <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>getSearchVolume</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,7 +149,11 @@ the section "Setting search volume".</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams</p>
+    <p>MizerParams with updated search volume. Because of the way the R
+  language works, `setSearchVolume()` does not make the changes to the params
+  object that you pass to it but instead returns a new params object. So to
+  affect the change you call the function in the form
+  `params &lt;- setSearchVolume(params, ...)`.</p>
     <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
 
     
@@ -174,15 +182,15 @@ for predators of size \(w = 1\) gram is the value of the species parameter
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

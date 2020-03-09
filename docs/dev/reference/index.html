@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Function reference" />
 
@@ -67,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -130,16 +132,10 @@
       <tr>
         <th colspan="2">
           <h2 id="section-creating-a-new-model" class="hasAnchor"><a href="#section-creating-a-new-model" class="anchor"></a>Creating a new model</h2>
-          <p class="section-desc"><p>Mizer allows the easy set-up of four different types of models, of increasing levels of complexity. See <a href="https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></p>
+          <p class="section-desc"><p>Mizer allows the easy set-up of three different types of models, of increasing levels of complexity. See <a href="https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></p>
         </th>
       </tr>
       <tr>
-        
-        <td>
-          <p><code><a href="newMultispeciesParams.html">newMultispeciesParams()</a></code> </p>
-        </td>
-        <td><p>Construct MizerParams object for general multispecies model</p></td>
-      </tr><tr>
         
         <td>
           <p><code><a href="newCommunityParams.html">newCommunityParams()</a></code> </p>
@@ -154,14 +150,94 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="newSheldonParams.html">newSheldonParams()</a></code> </p>
+          <p><code><a href="newMultispeciesParams.html">newMultispeciesParams()</a></code> </p>
         </td>
-        <td><p>Set up parameters for a single-species in a Sheldon power-law background</p></td>
+        <td><p>Set up parameters for a general multispecies model</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-interactively-tuning-a-model" class="hasAnchor"><a href="#section-interactively-tuning-a-model" class="anchor"></a>Interactively tuning a model</h2>
+          <h2 id="section-setting-or-changing-model-parameters" class="hasAnchor"><a href="#section-setting-or-changing-model-parameters" class="anchor"></a>Setting or changing model parameters</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="setPredationKernel.html">setPredationKernel()</a></code> </p>
+        </td>
+        <td><p>Set predation kernel</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> <code><a href="setSearchVolume.html">getSearchVolume()</a></code> </p>
+        </td>
+        <td><p>Set search volume</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setInteraction.html">setInteraction()</a></code> <code><a href="setInteraction.html">getInteraction()</a></code> </p>
+        </td>
+        <td><p>Set species interaction matrix</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setMaxIntakeRate.html">setMaxIntakeRate()</a></code> <code><a href="setMaxIntakeRate.html">getMaxIntakeRate()</a></code> </p>
+        </td>
+        <td><p>Set maximum intake rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setMetabolicRate.html">setMetabolicRate()</a></code> <code><a href="setMetabolicRate.html">getMetabolicRate()</a></code> </p>
+        </td>
+        <td><p>Set metabolic rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setExtMortality.html">setExtMortality()</a></code> <code><a href="setExtMortality.html">getExtMortality()</a></code> </p>
+        </td>
+        <td><p>Set external mortality rate</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setReproduction.html">setReproduction()</a></code> <code><a href="setReproduction.html">getMaturityProportion()</a></code> <code><a href="setReproduction.html">getReproductionProportion()</a></code> </p>
+        </td>
+        <td><p>Set reproduction parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> </p>
+        </td>
+        <td><p>Set fishing parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setPlankton.html">setPlankton()</a></code> <code><a href="setPlankton.html">getPlanktonRate()</a></code> <code><a href="setPlankton.html">getPlanktonCapacity()</a></code> <code><a href="setPlankton.html">getPlanktonParams()</a></code> <code><a href="setPlankton.html">getPlanktonDynamics()</a></code> </p>
+        </td>
+        <td><p>Set up plankton</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setInitialValues.html">setInitialValues()</a></code> <code><a href="setInitialValues.html">getInitial_n()</a></code> <code><a href="setInitialValues.html">getInitial_n_pp()</a></code> <code><a href="setInitialValues.html">getInitial_n_other()</a></code> </p>
+        </td>
+        <td><p>Set initial values</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setParams.html">setParams()</a></code> </p>
+        </td>
+        <td><p>Set or change any model parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
+        </td>
+        <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-interactively-tuning-a-multispecies-model" class="hasAnchor"><a href="#section-interactively-tuning-a-multispecies-model" class="anchor"></a>Interactively tuning a multispecies model</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -186,9 +262,15 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="steady.html">steady()</a></code> </p>
+          <p><code><a href="removeSpecies.html">removeSpecies()</a></code> </p>
         </td>
-        <td><p>Tune params object to be at steady state</p></td>
+        <td><p>Remove species from an ecosystem</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="renameSpecies.html">renameSpecies()</a></code> </p>
+        </td>
+        <td><p>Rename species</p></td>
       </tr><tr>
         
         <td>
@@ -210,6 +292,12 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="updateInitialValues.html">updateInitialValues()</a></code> </p>
+        </td>
+        <td><p>Update the initial values</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="retuneReproductionEfficiency.html">retuneReproductionEfficiency()</a></code> </p>
         </td>
         <td><p>Retune reproduction efficiency to maintain initial egg abundances</p></td>
@@ -224,99 +312,7 @@
         <td>
           <p><code><a href="setRmax.html">setRmax()</a></code> </p>
         </td>
-        <td><p>Set maximum recruitment</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-setting-or-changing-model-parameters" class="hasAnchor"><a href="#section-setting-or-changing-model-parameters" class="anchor"></a>Setting or changing model parameters</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="setParams.html">setParams()</a></code> </p>
-        </td>
-        <td><p>Set or change any model parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setPredKernel.html">setPredKernel()</a></code> </p>
-        </td>
-        <td><p>Set predation kernel</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setSearchVolume.html">setSearchVolume()</a></code> </p>
-        </td>
-        <td><p>Set search volume</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setInteraction.html">setInteraction()</a></code> </p>
-        </td>
-        <td><p>Set species interaction matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setIntakeMax.html">setIntakeMax()</a></code> </p>
-        </td>
-        <td><p>Set maximum intake rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setMetab.html">setMetab()</a></code> </p>
-        </td>
-        <td><p>Set metabolic rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setBMort.html">setBMort()</a></code> </p>
-        </td>
-        <td><p>Set background mortality rate</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setReproduction.html">setReproduction()</a></code> </p>
-        </td>
-        <td><p>Set reproduction parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> </p>
-        </td>
-        <td><p>Set fishing parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setPlankton.html">setPlankton()</a></code> </p>
-        </td>
-        <td><p>Set up plankton</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setInitial.html">setInitial()</a></code> </p>
-        </td>
-        <td><p>Set initial abundances</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
-        </td>
-        <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="removeSpecies.html">removeSpecies()</a></code> </p>
-        </td>
-        <td><p>Remove species from an ecosystem</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="renameSpecies.html">renameSpecies()</a></code> </p>
-        </td>
-        <td><p>Rename species</p></td>
+        <td><p>Set maximum reproduction rate</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -331,6 +327,12 @@
           <p><code><a href="project.html">project()</a></code> </p>
         </td>
         <td><p>Project size spectrum forward in time</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="steady.html">steady()</a></code> </p>
+        </td>
+        <td><p>Find a steady state for the model</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -443,7 +445,7 @@ step.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotBiomass.html">plotBiomass()</a></code> </p>
+          <p><code><a href="plotBiomass.html">plotBiomass()</a></code> <code><a href="plotBiomass.html">plotlyBiomass()</a></code> </p>
         </td>
         <td><p>Plot the biomass of species through time</p></td>
       </tr><tr>
@@ -455,19 +457,19 @@ step.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotFMort.html">plotFMort()</a></code> </p>
+          <p><code><a href="plotFMort.html">plotFMort()</a></code> <code><a href="plotFMort.html">plotlyFMort()</a></code> </p>
         </td>
         <td><p>Plot total fishing mortality of each species by size</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code> </p>
+          <p><code><a href="plotFeedingLevel.html">plotFeedingLevel()</a></code> <code><a href="plotFeedingLevel.html">plotlyFeedingLevel()</a></code> </p>
         </td>
         <td><p>Plot the feeding level of species by size</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code> </p>
+          <p><code><a href="plotGrowthCurves.html">plotGrowthCurves()</a></code> <code><a href="plotGrowthCurves.html">plotlyGrowthCurves()</a></code> </p>
         </td>
         <td><p>Plot growth curves giving weight as a function of age</p></td>
       </tr><tr>
@@ -485,115 +487,48 @@ step.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotPredMort.html">plotPredMort()</a></code> </p>
+          <p><code><a href="plotPredMort.html">plotPredMort()</a></code> <code><a href="plotPredMort.html">plotlyPredMort()</a></code> </p>
         </td>
         <td><p>Plot predation mortality rate of each species against size</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotSpectra.html">plotSpectra()</a></code> </p>
+          <p><code><a href="plotSpectra.html">plotSpectra()</a></code> <code><a href="plotSpectra.html">plotlySpectra()</a></code> </p>
         </td>
         <td><p>Plot the abundance spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotYield.html">plotYield()</a></code> </p>
+          <p><code><a href="plotYield.html">plotYield()</a></code> <code><a href="plotYield.html">plotlyYield()</a></code> </p>
         </td>
         <td><p>Plot the total yield of species through time</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotYieldGear.html">plotYieldGear()</a></code> </p>
+          <p><code><a href="plotYieldGear.html">plotYieldGear()</a></code> <code><a href="plotYieldGear.html">plotlyYieldGear()</a></code> </p>
         </td>
         <td><p>Plot the total yield of each species by gear through time</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotlyBiomass.html">plotlyBiomass()</a></code> </p>
+          <p><code><a href="setColours.html">setColours()</a></code> <code><a href="setColours.html">getColours()</a></code> </p>
         </td>
-        <td><p>Plot the biomass of species against time with plotly</p></td>
+        <td><p>Set line colours to be used in mizer plots</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotlyFMort.html">plotlyFMort()</a></code> </p>
+          <p><code><a href="setLinetypes.html">setLinetypes()</a></code> <code><a href="setLinetypes.html">getLinetypes()</a></code> </p>
         </td>
-        <td><p>Plot total fishing mortality of each species by size with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlyFeedingLevel.html">plotlyFeedingLevel()</a></code> </p>
-        </td>
-        <td><p>Plot the feeding level of species by size with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlyGrowthCurves.html">plotlyGrowthCurves()</a></code> </p>
-        </td>
-        <td><p>Plot growth curves giving weight as a function of age with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlyPredMort.html">plotlyPredMort()</a></code> </p>
-        </td>
-        <td><p>Plot predation mortality rate of each species against size with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlySpectra.html">plotlySpectra()</a></code> </p>
-        </td>
-        <td><p>Plotly plot of the abundance spectra</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlyYield.html">plotlyYield()</a></code> </p>
-        </td>
-        <td><p>Plot the total yield of species through time with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plotlyYieldGear.html">plotlyYieldGear()</a></code> </p>
-        </td>
-        <td><p>Plot the total yield of each species by gear through time with plotly</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="animateSpectra.html">animateSpectra()</a></code> </p>
-        </td>
-        <td><p>Animation of the abundance spectra</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getBiomassFrame.html">getBiomassFrame()</a></code> </p>
-        </td>
-        <td><p>Get data frame of biomass of species through time, ready for ggplot2</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="getSSBFrame.html">getSSBFrame()</a></code> </p>
-        </td>
-        <td><p>Get data frame of spawning stock biomass of species through time, 
-ready for ggplot2</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="displayFrames.html">displayFrames()</a></code> </p>
-        </td>
-        <td><p>Display frames</p></td>
+        <td><p>Set linetypes to be used in mizer plots</p></td>
       </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-calculating-rates-used-in-the-model" class="hasAnchor"><a href="#section-calculating-rates-used-in-the-model" class="anchor"></a>Calculating rates used in the model</h2>
+          <h2 id="section-calculating-rates" class="hasAnchor"><a href="#section-calculating-rates" class="anchor"></a>Calculating rates</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
-        
-        <td>
-          <p><code><a href="getRates.html">getRates()</a></code> </p>
-        </td>
-        <td><p>Get all rates</p></td>
-      </tr><tr>
         
         <td>
           <p><code><a href="getEncounter.html">getEncounter()</a></code> </p>
@@ -639,6 +574,12 @@ and size.</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> </p>
+        </td>
+        <td><p>Get critical feeding level</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getMort.html">getMort()</a></code> </p>
         </td>
         <td><p>Get total mortality rate</p></td>
@@ -665,7 +606,7 @@ and size.</p></td>
         <td>
           <p><code><a href="getRDD.html">getRDD()</a></code> </p>
         </td>
-        <td><p>Get density dependent rate of larvae production</p></td>
+        <td><p>Get density dependent reproduction rate</p></td>
       </tr><tr>
         
         <td>
@@ -675,9 +616,121 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="getPredKernel.html">getPredKernel()</a></code> </p>
+          <p><code><a href="getPredationKernel.html">getPredationKernel()</a></code> </p>
         </td>
         <td><p>Get predation kernel</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-rate-functions-used-by-project-" class="hasAnchor"><a href="#section-rate-functions-used-by-project-" class="anchor"></a>Rate functions used by `project()`</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="mizer.html">mizer</a></code> </p>
+        </td>
+        <td><p>mizer: Multi-species size-based modelling in R</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerEGrowth.html">mizerEGrowth()</a></code> </p>
+        </td>
+        <td><p>Get energy rate available for growth needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerERepro.html">mizerERepro()</a></code> </p>
+        </td>
+        <td><p>Get energy rate available for reproduction needed to project standard mizer 
+model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerEReproAndGrowth.html">mizerEReproAndGrowth()</a></code> </p>
+        </td>
+        <td><p>Get energy rate available for reproduction and growth  needed to project
+standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerEncounter.html">mizerEncounter()</a></code> </p>
+        </td>
+        <td><p>Get encounter rate needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerFMort.html">mizerFMort()</a></code> </p>
+        </td>
+        <td><p>Get the total fishing mortality rate from all fishing gears by time, species
+and size needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerFMortGear.html">mizerFMortGear()</a></code> </p>
+        </td>
+        <td><p>Get the fishing mortality by time, gear, species and size needed to project 
+standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerFeedingLevel.html">mizerFeedingLevel()</a></code> </p>
+        </td>
+        <td><p>Get feeding level needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerMort.html">mizerMort()</a></code> </p>
+        </td>
+        <td><p>Get total mortality rate needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerPlanktonMort.html">mizerPlanktonMort()</a></code> </p>
+        </td>
+        <td><p>Get predation mortality rate for plankton needed to project standard mizer 
+model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerPredMort.html">mizerPredMort()</a></code> </p>
+        </td>
+        <td><p>Get total predation mortality rate needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerPredRate.html">mizerPredRate()</a></code> </p>
+        </td>
+        <td><p>Get predation rate needed to project standard mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerRDI.html">mizerRDI()</a></code> </p>
+        </td>
+        <td><p>Get density-independent rate of reproduction needed to project standard
+mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerRates.html">mizerRates()</a></code> </p>
+        </td>
+        <td><p>Get all rates needed to project standard mizer model</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-extending-mizer" class="hasAnchor"><a href="#section-extending-mizer" class="anchor"></a>Extending Mizer</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="setRateFunction.html">setRateFunction()</a></code> <code><a href="setRateFunction.html">getRateFunction()</a></code> </p>
+        </td>
+        <td><p>Set own rate function to replace mizer rate function</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -743,33 +796,33 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="srrBevertonHolt.html">srrBevertonHolt()</a></code> </p>
+          <p><code><a href="BevertonHoltRDD.html">BevertonHoltRDD()</a></code> </p>
         </td>
-        <td><p>Beverton Holt stock-recruitment function</p></td>
+        <td><p>Beverton Holt function to calculate density-dependent reproduction rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="srrConstant.html">srrConstant()</a></code> </p>
+          <p><code><a href="RickerRDD.html">RickerRDD()</a></code> </p>
         </td>
-        <td><p>Set the recruitment function for constant recruitment</p></td>
+        <td><p>Ricker function to calculate density-dependent reproduction rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="srrNone.html">srrNone()</a></code> </p>
+          <p><code><a href="SheperdRDD.html">SheperdRDD()</a></code> </p>
         </td>
-        <td><p>Identity stock-recruitment function</p></td>
+        <td><p>Sheperd function to calculate density-dependent reproduction rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="srrRicker.html">srrRicker()</a></code> </p>
+          <p><code><a href="noRDD.html">noRDD()</a></code> </p>
         </td>
-        <td><p>Ricker stock-recruitment function</p></td>
+        <td><p>Give density-independent reproduction rate</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="srrSheperd.html">srrSheperd()</a></code> </p>
+          <p><code><a href="constantRDD.html">constantRDD()</a></code> </p>
         </td>
-        <td><p>Sheperd stock-recruitment function</p></td>
+        <td><p>Give constant reproduction rate</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -779,6 +832,13 @@ and size.</p></td>
         </th>
       </tr>
       <tr>
+        
+        <td>
+          <p><code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> </p>
+        </td>
+        <td><p>Check validity of species parameters and set defaults for missing but
+required parameters</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
@@ -823,9 +883,9 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="get_required_recruitment.html">get_required_recruitment()</a></code> </p>
+          <p><code><a href="get_required_reproduction.html">get_required_reproduction()</a></code> </p>
         </td>
-        <td><p>Determine recruitment rate needed for initial egg abundance</p></td>
+        <td><p>Determine reproduction rate needed for initial egg abundance</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -991,13 +1051,15 @@ and size.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-creating-a-new-model">Creating a new model</a></li>
-      <li><a href="#section-interactively-tuning-a-model">Interactively tuning a model</a></li>
       <li><a href="#section-setting-or-changing-model-parameters">Setting or changing model parameters</a></li>
+      <li><a href="#section-interactively-tuning-a-multispecies-model">Interactively tuning a multispecies model</a></li>
       <li><a href="#section-running-simulations">Running simulations</a></li>
       <li><a href="#section-analysing-results">Analysing results</a></li>
       <li><a href="#section-calculating-indicators">Calculating indicators</a></li>
       <li><a href="#section-plotting-results">Plotting results</a></li>
-      <li><a href="#section-calculating-rates-used-in-the-model">Calculating rates used in the model</a></li>
+      <li><a href="#section-calculating-rates">Calculating rates</a></li>
+      <li><a href="#section-rate-functions-used-by-project-">Rate functions used by `project()`</a></li>
+      <li><a href="#section-extending-mizer">Extending Mizer</a></li>
       <li><a href="#section-functions-used-in-the-model">Functions used in the model</a></li>
       <li><a href="#section-internal-helper-functions">Internal helper functions</a></li>
       <li><a href="#section-classes">Classes</a></li>

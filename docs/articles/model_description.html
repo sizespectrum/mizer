@@ -141,7 +141,7 @@ And clicking again will hide the details again.
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}\]</span> The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code>changeSearchVolume()</code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
 <p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and plankton. It is changed with <code>changeInteraction()</code>.</p>
-<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code>changePredKernel()</code>.</p>
+<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code>changePredationKernel()</code>.</p>
 <details><p>An important simplification occurs when the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span> depends on the size of the prey <strong>only</strong> through the predator/prey size ratio <span class="math inline">\(w_p/w\)</span>, <span class="math display">\[\phi_i(w, w_p)=\tilde{\phi}_i(w/w_p).\]</span> This is assumed by default but can be overruled. The default for the predation kernel is the truncated log-normal function <span class="math display">\[
   \label{eq:4}
   \tilde{\phi}_i(x) = \begin{cases}
@@ -225,7 +225,7 @@ And clicking again will hide the details again.
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}\]</span></p>
-<p>Background mortality <span class="math inline">\(\mu_{b .i}(w)\)</span> is independent of the abundances and is changed with <code>changeBMort()</code>. By default mizer assumes an allometric form <span class="math display">\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
+<p>Background mortality <span class="math inline">\(\mu_{b .i}(w)\)</span> is independent of the abundances and is changed with <code>changeExtMortality()</code>. By default mizer assumes an allometric form <span class="math display">\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
 <p>Fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span> will be discussed in section <a href="#fishing">Fishing</a>.</p>
 <p>The total mortality rate is <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{f.i}(w)\]</span></p>
 </div>

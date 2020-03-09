@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Sheperd stock-recruitment function — srrSheperd" />
 <meta property="og:description" content="Takes the rates \(R_p\) of egg production and returns reduced,
@@ -71,7 +73,7 @@ $$R = \frac{R_p}{1+(b\ R_p)^c}$$" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -120,7 +122,7 @@ $$R = \frac{R_p}{1+(b\ R_p)^c}$$" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Sheperd stock-recruitment function</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
     <div class="hidden name"><code>srrSheperd.Rd</code></div>
     </div>
 
@@ -130,7 +132,7 @@ density-dependent rates \(R\) as
 $$R = \frac{R_p}{1+(b\ R_p)^c}$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>srrSheperd</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>)</pre>
+    <pre class="usage"><span class='fu'>srrSheperd</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -144,6 +146,10 @@ all species.</p></td>
       <th>species_params</th>
       <td><p>A species parameter dataframe. Must contain columns
 <code>sheperd_b</code> and <code>sheperd_c</code> with the parameters b and c.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 

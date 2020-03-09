@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Functions for calculating rates used for projecting — project_methods" />
 <meta property="og:description" content="The functions defined in the file project_methods calculate the various
@@ -71,7 +73,7 @@ model described in section 3 of the mizer vignette." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -139,20 +141,19 @@ model described in section 3 of the mizer vignette.</p>
 <p>In this list we relate the functions in this file to the quantities named in
 the mizer vignette.</p><table class='table'>
 <tr><td>Function</td><td>Expression</td><td>Description</td><td>Section in vignette</td></tr>
-<tr><td><code><a href='getRates.html'>getRates</a></code></td><td></td><td>All of the below</td><td><code><a href='getEncounter.html'>getEncounter</a></code></td></tr>
-<tr><td>\(E_{e.i}(w)\)</td><td>Encounter rate</td><td>3.2</td><td><code><a href='getFeedingLevel.html'>getFeedingLevel</a></code></td></tr>
-<tr><td>\(f_i(w)\)</td><td>Feeding level</td><td>3.3</td><td><code><a href='getPredRate.html'>getPredRate</a></code></td></tr>
-<tr><td>\(\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw\)</td><td>Predation</td><td>3.7</td><td><code><a href='getPredMort.html'>getPredMort</a></code></td></tr>
-<tr><td>\(\mu_{p.i}(w)\)</td><td>Predation mortality</td><td>3.7</td><td><code><a href='getPlanktonMort.html'>getPlanktonMort</a></code></td></tr>
-<tr><td>\(\mu_{p}(w)\)</td><td>Mortality on plankton</td><td>3.8</td><td><code><a href='getFMortGear.html'>getFMortGear</a></code></td></tr>
-<tr><td>\(F_{g,i}(w)\)</td><td>Fishing mortality by gear</td><td>8.3</td><td><code><a href='getFMort.html'>getFMort</a></code></td></tr>
-<tr><td>\(\mu_{f.i}(w)\)</td><td>Total fishing mortality</td><td>8.3</td><td><code><a href='getMort.html'>getMort</a></code></td></tr>
-<tr><td>\(\mu_{i}(w)\)</td><td>Total mortality</td><td>3.7</td><td><code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code></td></tr>
-<tr><td>\(E_{r.i}(w)\)</td><td>Energy put into growth and reproduction</td><td>3.4</td><td><code><a href='getERepro.html'>getERepro</a></code></td></tr>
-<tr><td>\(\psi_i(w)E_{r.i}(w)\)</td><td>Energy put reproduction</td><td>3.5</td><td><code><a href='getEGrowth.html'>getEGrowth</a></code></td></tr>
-<tr><td>\(g_i(w)\)</td><td>Energy put growth</td><td>3.4</td><td><code><a href='getRDI.html'>getRDI</a></code></td></tr>
-<tr><td>\(R_{p.i}\)</td><td>Egg production</td><td>3.5</td><td><code><a href='getRDD.html'>getRDD</a></code></td></tr>
-<tr><td>\(R_i\)</td><td>Recruitment</td><td>3.6</td><td></td></tr>
+<tr><td><code><a href='mizerEncounter.html'>mizerEncounter</a></code></td><td>\(E_{e.i}(w)\)</td><td>Encounter rate</td><td>3.2</td></tr>
+<tr><td><code><a href='mizerFeedingLevel.html'>mizerFeedingLevel</a></code></td><td>\(f_i(w)\)</td><td>Feeding level</td><td>3.3</td></tr>
+<tr><td><code><a href='mizerPredRate.html'>mizerPredRate</a></code></td><td>\(\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw\)</td><td>Predation</td><td>3.7</td></tr>
+<tr><td><code><a href='mizerPredMort.html'>mizerPredMort</a></code></td><td>\(\mu_{p.i}(w)\)</td><td>Predation mortality</td><td>3.7</td></tr>
+<tr><td><code><a href='mizerPlanktonMort.html'>mizerPlanktonMort</a></code></td><td>\(\mu_{p}(w)\)</td><td>Mortality on plankton</td><td>3.8</td></tr>
+<tr><td><code><a href='mizerFMortGear.html'>mizerFMortGear</a></code></td><td>\(F_{g,i}(w)\)</td><td>Fishing mortality by gear</td><td>8.3</td></tr>
+<tr><td><code><a href='mizerFMort.html'>mizerFMort</a></code></td><td>\(\mu_{f.i}(w)\)</td><td>Total fishing mortality</td><td>8.3</td></tr>
+<tr><td><code><a href='mizerMort.html'>mizerMort</a></code></td><td>\(\mu_{i}(w)\)</td><td>Total mortality</td><td>3.7</td></tr>
+<tr><td><code><a href='mizerEReproAndGrowth.html'>mizerEReproAndGrowth</a></code></td><td>\(E_{r.i}(w)\)</td><td>Energy put into growth and reproduction</td><td>3.4</td></tr>
+<tr><td><code><a href='mizerERepro.html'>mizerERepro</a></code></td><td>\(\psi_i(w)E_{r.i}(w)\)</td><td>Energy put reproduction</td><td>3.5</td></tr>
+<tr><td><code><a href='mizerEGrowth.html'>mizerEGrowth</a></code></td><td>\(g_i(w)\)</td><td>Energy put growth</td><td>3.4</td></tr>
+<tr><td><code><a href='mizerRDI.html'>mizerRDI</a></code></td><td>\(R_{p.i}\)</td><td>Density-independent reproduction rate</td><td>3.5</td></tr>
+<tr><td><code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code></td><td>\(R_i\)</td><td>Density-dependent reproduction rate</td><td>3.6</td></tr>
 </table>
 
 

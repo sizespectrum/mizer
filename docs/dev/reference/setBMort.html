@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set background mortality rate — setBMort • mizer</title>
+<title>Set background mortality rate —ExtMortalitytert • mizer</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,7 @@
 
 
 
-<meta property="og:title" content="Set background mortality rate — setBMort" />
+<meta property="og:title" content="Set background mortality rate —ExtMortalitytert" />
 <meta property="og:description" content="Set background mortality rate" />
 <meta name="twitter:card" content="summary" />
 
@@ -119,14 +119,14 @@
     <div class="page-header">
     <h1>Set background mortality rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>setBMort.Rd</code></div>
+    <div class="hidden name"><code>setExtMortality.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Set background mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)</pre>
+    <pre class="usage"><span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,7 +165,7 @@ Default value is <code>n-1</code>.</p></td>
 predation or fishing. It is a rate with units 1/year.</p>
 <p>The <code>mu_b</code> argument allows you to specify a background mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code>setBMort</code>.</p>
+the Examples section of the help page for <code>setExtMortality</code>.</p>
 <p>If the <code>mu_b</code> argument is not supplied, then the background mortality
 is assumed to depend only on the asymptotic size of the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
@@ -177,13 +177,13 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
@@ -202,7 +202,7 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <span class='no'>mu_b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='no'>mu_b0</span>, <span class='no'>params</span>@<span class='kw'>w</span>^(-<span class='fl'>1</span>/<span class='fl'>4</span>))
 
 <span class='co'># Change the background death in the params object</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setBMort</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='no'>mu_b</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='no'>mu_b</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

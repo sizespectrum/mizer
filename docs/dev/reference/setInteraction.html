@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set species interaction matrix — setInteraction" />
 <meta property="og:description" content="Set species interaction matrix" />
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -126,7 +128,9 @@
     <p>Set species interaction matrix</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setInteraction</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setInteraction</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='fu'>getInteraction</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,47 +141,51 @@
     </tr>
     <tr>
       <th>interaction</th>
-      <td><p>Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.</p></td>
+      <td><p>Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams object</p>
+    <p>MizerParams object with updated interaction matrix. Because of the
+way the R language works, <code>setInteraction()</code> does not make the changes to
+the params object that you pass to it but instead returns a new params
+object. So to affect the change you call the function in the form
+<code>params &lt;- setInteraction(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-interactions"><a class="anchor" href="#setting-interactions"></a>Setting interactions</h2>
 
     
 
 
-<p>The species interaction matrix \(\theta_{ij}\), is used when calculating the
-food encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the predation mortality rate in
-<code><a href='getPredMort.html'>getPredMort</a></code>. Its entries are dimensionless numbers between
-0 and 1 that characterise the strength at which predator species \(i\)
-predates on prey species \(j\).</p>
-<p>This function checks that the supplied interaction
-matrix is valid and then stores it in the <code>interaction</code> slot of the
-params object before returning that object.</p>
-<p>The order of the columns and rows of the <code>interaction</code> argument should be the 
-same as the order in the species params dataframe in the <code>params</code> object.
-If you supply a named array then the function will check the order and warn 
-if it is different.</p>
+<p>The species interaction matrix \(\theta_{ij}\), is used when calculating
+the food encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the predation
+mortality rate in <code><a href='getPredMort.html'>getPredMort</a></code>. Its entries are dimensionless
+numbers between 0 and 1 that characterise the strength at which predator
+species \(i\) predates on prey species \(j\).</p>
+<p>This function checks that the supplied interaction matrix is valid and then
+stores it in the <code>interaction</code> slot of the params object before
+returning that object.</p>
+<p>The order of the columns and rows of the <code>interaction</code> argument should
+be the same as the order in the species params dataframe in the
+<code>params</code> object. If you supply a named array then the function will
+check the order and warn if it is different.</p>
 <p>The interaction of the species with the plankton are set via a column
-<code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries
-have to be numbers between 0 and 1. By default this column is set to all
-1s.</p>
+<code>interaction_p</code> in the <code>species_params</code> data frame. Again the
+entries have to be numbers between 0 and 1. By default this column is set
+to all 1s.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitial.html'>setInitial</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 

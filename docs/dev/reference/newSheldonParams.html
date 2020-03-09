@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Set up parameters for a single-species in a Sheldon power-law background — newSheldonParams" />
 <meta property="og:description" content="This functions creates a MizerParams object with a single 
@@ -76,7 +78,7 @@ many arguments, all of which have default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -158,7 +160,6 @@ many arguments, all of which have default values.</p>
   <span class='kw'>f0</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>bmort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>starv_coef</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='no'>...</span>
 )</pre>
@@ -244,13 +245,6 @@ background mortality, i.e., from sources other than predation or fishing. A
 number in the interval [0, 1). Default 0.</p></td>
     </tr>
     <tr>
-      <th>starv_coef</th>
-      <td><p>Proportionality constant for starvation mortality. When 
-starv_coef is equal to 10 the instantaneous starvation mortality (1/year) 
-is 1 when energy deficit is 10<!-- % of body weight. When starv_coef = 0 there  -->
-is no starvation mortality</p></td>
-    </tr>
-    <tr>
       <th>rfac</th>
       <td><p>The factor such that <code>R_max = rfac * R</code>, where <code>R_max</code>
 is the maximum recruitment allowed and <code>R</code> is the steady-state
@@ -285,7 +279,7 @@ argument <code>rfac</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newTraitParams.html'>newTraitParams</a></span>()
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>newSheldonParams</span>()
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 <span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
 }</div></pre>

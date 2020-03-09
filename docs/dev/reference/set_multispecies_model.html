@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Deprecated obsolete function for setting up multispecies parameters — set_multispecies_model" />
 <meta property="og:description" content="This function has been deprecated in favour of the function
@@ -70,7 +72,7 @@ newMultispeciesParams that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -150,9 +152,9 @@ newMultispeciesParams that sets better default values." />
     </tr>
     <tr>
       <th>interaction</th>
-      <td><p>Interaction matrix of the species (predator by prey).
-Entries should be numbers between 0 and 1. See "Setting interactions"
-section below.</p></td>
+      <td><p>Optional interaction matrix of the species (predator
+species x prey species). Entries should be numbers between 0 and 1. By
+default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
@@ -162,19 +164,31 @@ is set to the smallest value at which any of the consumers can feed.</p></td>
     <tr>
       <th>max_w</th>
       <td><p>The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.</p></td>
+set to the largest <code>w_inf</code> specified in the <code>species_params</code> data
+frame.</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>Scaling exponent of the intrinsic growth rate</p></td>
+      <td><p>The allometric growth exponent. This can be overruled for individual
+species by including a <code>n</code> column in the <code>species_params</code>.</p></td>
+    </tr>
+    <tr>
+      <th>q</th>
+      <td><p>Allometric exponent of search volume</p></td>
+    </tr>
+    <tr>
+      <th>f0</th>
+      <td><p>Expected average feeding level. Used to set <code>gamma</code>, the
+coefficient in the search rate. Ignored if <code>gamma</code> is given
+explicitly.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>Coefficient of the intrinsic carrying capacity</p></td>
+      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic carrying capacity</p></td>
+      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
     </tr>
     <tr>
       <th>...</th>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set maximum recruitment — setRmax • mizer</title>
+<title>Set maximum reproduction rate — setRmax • mizer</title>
 
 
 <!-- jquery -->
@@ -34,11 +34,14 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Set maximum recruitment — setRmax" />
-<meta property="og:description" content="Takes a MizerParams object with trivial stock recruitment function and sets 
-Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-factor rfac higher than the initial-state recruitment." />
+<meta property="og:title" content="Set maximum reproduction rate — setRmax" />
+<meta property="og:description" content="Takes a MizerParams object with density-independent reproduction rate and
+sets a Beverton-Holt density-dependence with a maximum reproduction rate that
+is a chosen factor rfac higher than the initial-state reproduction
+rate." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +74,7 @@ factor rfac higher than the initial-state recruitment." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -119,15 +122,16 @@ factor rfac higher than the initial-state recruitment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set maximum recruitment</h1>
+    <h1>Set maximum reproduction rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
     <div class="hidden name"><code>setRmax.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Takes a MizerParams object with trivial stock recruitment function and sets 
-Beverton-Holt stock recruitment with a maximum recruitment that is a chosen
-factor <code>rfac</code> higher than the initial-state recruitment.</p>
+    <p>Takes a MizerParams object with density-independent reproduction rate and
+sets a Beverton-Holt density-dependence with a maximum reproduction rate that
+is a chosen factor <code>rfac</code> higher than the initial-state reproduction
+rate.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setRmax</span>(<span class='no'>params</span>, <span class='no'>rfac</span>)</pre>
@@ -141,8 +145,8 @@ factor <code>rfac</code> higher than the initial-state recruitment.</p>
     </tr>
     <tr>
       <th>rfac</th>
-      <td><p>The factor by which the maximum recruitment should be higher than
-the initial-state recruitment</p></td>
+      <td><p>The factor by which the maximum reproduction rate should be higher than
+the initial-state reproduction rate</p></td>
     </tr>
     </table>
 

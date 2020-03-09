@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Project plankton using semichemostat model — plankton_semichemostat" />
 <meta property="og:description" content="Project plankton using semichemostat model" />
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -149,7 +151,7 @@
     </tr>
     <tr>
       <th>rates</th>
-      <td><p>A list of rates as returned by <code><a href='getRates.html'>getRates()</a></code></p></td>
+      <td><p>A list of rates as returned by <code><a href='mizerRates.html'>mizerRates()</a></code></p></td>
     </tr>
     <tr>
       <th>t</th>
@@ -171,8 +173,6 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>,
                                 <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='st'>"plankton_semichemostat"</span>)
 }</div></pre>

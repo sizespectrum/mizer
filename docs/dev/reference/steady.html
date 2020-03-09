@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tune params object to be at steady state — steady • mizer</title>
+<title>Find a steady state for the model — steady • mizer</title>
 
 
 <!-- jquery -->
@@ -34,12 +34,14 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Tune params object to be at steady state — steady" />
-<meta property="og:description" content="This is done by running the dynamics for a specified number of years while
-keeping recruitment and other components constant to reach steady state. Then
-the reproductive efficiencies are retuned to achieve that level of
-recruitment." />
+<meta property="og:title" content="Find a steady state for the model — steady" />
+<meta property="og:description" content="This is done by running the dynamics while keeping reproduction and other
+components constant until the size spectra no longer change (or until time
+t_max is reached if earlier) Then the reproductive efficiencies are set to
+the values that give the level of reproduction observed in that steady state." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +74,7 @@ recruitment." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -120,16 +122,16 @@ recruitment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Tune params object to be at steady state</h1>
+    <h1>Find a steady state for the model</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
     <div class="hidden name"><code>steady.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is done by running the dynamics for a specified number of years while
-keeping recruitment and other components constant to reach steady state. Then
-the reproductive efficiencies are retuned to achieve that level of
-recruitment.</p>
+    <p>This is done by running the dynamics while keeping reproduction and other
+components constant until the size spectra no longer change (or until time
+<code>t_max</code> is reached if earlier) Then the reproductive efficiencies are set to
+the values that give the level of reproduction observed in that steady state.</p>
     </div>
 
     <pre class="usage"><span class='fu'>steady</span>(
@@ -163,8 +165,8 @@ able to detect period 2 cycles.</p></td>
     <tr>
       <th>tol</th>
       <td><p>The simulation stops when the relative change in the egg
-production RDI over <code>t_per years</code> is less than <code>tol</code> for every background
-species. Default value is 1/100.</p></td>
+production RDI over <code>t_per</code> years is less than <code>tol</code> for every species.
+Default value is 1/100.</p></td>
     </tr>
     <tr>
       <th>dt</th>
@@ -178,8 +180,8 @@ a MizerParams object with the "initial" slots set to the steady state.</p></td>
     </tr>
     <tr>
       <th>progress_bar</th>
-      <td><p>A shiny progress object to implement
-a progress bar in a shiny app. Default FALSE.</p></td>
+      <td><p>A shiny progress object to implement a progress bar in a
+shiny app. Default FALSE.</p></td>
     </tr>
     </table>
 
@@ -190,6 +192,7 @@ a progress bar in a shiny app. Default FALSE.</p></td>
 <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span>[<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>3000</span>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='setSearchVolume.html'>setSearchVolume</a></span>(<span class='no'>params</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>steady</span>(<span class='no'>params</span>)
+<span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>params</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

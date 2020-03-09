@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set initial abundances — setInitial • mizer</title>
+<title>Set initial abundances �setInitialValuesal • mizer</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,7 @@
 
 
 
-<meta property="og:title" content="Set initial abundances — setInitial" />
+<meta property="og:title" content="Set initial abundances �setInitialValuesal" />
 <meta property="og:description" content="Sets the slots in the MizerParams object holding the initial
 abundances, initial_n, initial_n_pp and initial_n_other." />
 <meta name="twitter:card" content="summary" />
@@ -120,7 +120,7 @@ abundances, initial_n, initial_n_pp and initial_n_other." />
     <div class="page-header">
     <h1>Set initial abundances</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>setInitial.Rd</code></div>
+    <div class="hidden name"><code>setInitialValues.Rd</code></div>
     </div>
 
     <div class="ref-description">
@@ -128,7 +128,7 @@ abundances, initial_n, initial_n_pp and initial_n_other." />
 abundances, <code>initial_n</code>, <code>initial_n_pp</code> and <code>initial_n_other</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setInitial</span>(
+    <pre class="usage"><span class='fu'>setInitialValues</span>(
   <span class='no'>params</span>,
   <span class='no'>sim</span>,
   <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
@@ -174,14 +174,14 @@ Ignored if `sim` is supplied.</p></td>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setBMort.html'>setBMort</a>()</code>,
+<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setIntakeMax.html'>setIntakeMax</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetab.html'>setMetab</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
@@ -189,7 +189,7 @@ Ignored if `sim` is supplied.</p></td>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='no'>NS_params</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setInitial</span>(<span class='no'>params</span>, <span class='no'>sim</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setInitialValues</span>(<span class='no'>params</span>, <span class='no'>sim</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
