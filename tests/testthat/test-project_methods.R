@@ -335,7 +335,7 @@ test_that("getEReproAndGrowth", {
     expect_identical(erg, erg3)
     # Can be used with infinite intake_max
     params@intake_max[] <- Inf
-    expect_true(!anyNA(getEReproAndGrowth(params, n = n, n_pp = n_full)))
+    expect_true(!any(is.na(getEReproAndGrowth(params, n = n, n_pp = n_full))))
     
     erg[erg <= 0] <- 0
     expect_known_value(erg, "values/getEReproAndGrowth")

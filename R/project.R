@@ -18,7 +18,8 @@ NULL
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
 #' \linkS4class{MizerSim} that can then be explored with a range of
-#' \code{\link{summary_functions}} and \code{\link{plotting_functions}}.
+#' \code{\link{summary_functions}}, \code{\link{indicator_functions}} and 
+#' \code{\link{plotting_functions}}.
 #' 
 #' @param object Either a \linkS4class{MizerParams} object or a 
 #'   \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).
@@ -90,8 +91,8 @@ NULL
 #' @return An object of class \linkS4class{MizerSim}.
 #' 
 #' @export
-#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}} and 
-#'   \code{\link{plotting_functions}}
+#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}},
+#' \code{\link{indicator_functions}} and \code{\link{plotting_functions}}
 #' @examples
 #' \dontrun{
 #' # Data set with different fishing gears

@@ -13,6 +13,8 @@ getRateFunction(params, rate = "Rates")
 \item{params}{A \code{MizerParams} object}
 
 \item{rate}{Name of the rate for which a new function is to be set.}
+
+\item{fun}{Name of the function to use to calculate the rate.}
 }
 \description{
 At each time step during a simulation with the \code{\link[=project]{project()}} function, mizer
@@ -31,7 +33,7 @@ following components:
 \item \code{e_repro} from \code{\link[=mizerERepro]{mizerERepro()}}
 \item \code{e_growth} from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
 \item \code{rdi} from \code{\link[=mizerRDI]{mizerRDI()}}
-\item \code{rdd} from \code{\link[=BervertonHoltRDD]{BervertonHoltRDD()}}
+\item \code{rdd} from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
 }
 }
 \details{

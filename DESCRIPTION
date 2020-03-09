@@ -62,9 +62,9 @@ Collate:
     'summary_methods.R'
     'plots.R'
     'wrapper_functions.R'
+    'steady.R'
     'data.R'
     'RcppExports.R'
-    'gadgets.R'
     'deprecated.R'
 VignetteBuilder: knitr
 RoxygenNote: 7.0.2

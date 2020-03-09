@@ -1,20 +1,17 @@
 
 # mizer 1.0.1.9000 
 
-## Model building
-The process of building a new multi-species model by adding the species to a
-generic trait-based background has better support.
+## Setting up models
 
-* `tuneParams()` starts a shiny gadget that allows for interactive tuning of 
-  model parameters while various plots update automatically.
-* `addSpecies()` can now add several species at once, all at low abundance
-* New functions `pruneSpecies()`, `renameSpecies()`, `rescaleAbundance()`,
-  `retuneReproductionEfficiency()`.
-* In `retuneBackground()`, Singular Value Decomposition is used to retune 
-  background species to keep the community close to power law. Background 
-  species with very low abundances are automatically removed.
-* Setting of the maximum reproduction rate has been separated out into new
-  function `setRmax()`.
+The new functions
+
+* `newCommunityParams()`
+* `newTraitParams()`
+* `newMultispeciesParams()`
+
+replace the old functions `set_community_model()`, `set_trait_model()` and
+`MizerParams()`, which are now deprecated. The new functions choose better
+default values.
 
 ## Setting model parameters
 After setting up a mizer model, it is possible to change specific model
@@ -34,10 +31,31 @@ The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `newMultispeciesParams()`.
 (#51)
 
+The documentation for these functions serves to explain the details of the
+mizer model.
+
+Along with these setter functions there are accessor functions for getting the
+parameter arrays: `getPredationKernel()`, `getSearchVolume()`, 
+`getInteraction()`, `getMaxIntakeRate()`, `getMetabolicRate()`, 
+`getExtMortality()`, `getMaturityProportion()`, `getReproductionProportion()`,
+`getCatchability()`, `getSelectivity()`, `getPlanktonBirthRate()`,
+`getPlanktonCarryingCapacity()`, `getPlanktonParams()`, `getPlanktonDynamics()`,
+
+* Setting of the maximum reproduction rate has been separated out into new
+  function `setRmax()`.
+
+## Initial Values and steady state
+
+The MizerParams object now also contains the initial values for the size
+spectra. This is particularly useful if the model has been tuned to produce
+the observed steady state. The new function `steady()` finds a steady state
+for a model and sets it as the initial value. The initial values can be
+accessed and changed via functions `initial_n()` and `initial_n_pp()`.
+
 ## Extension mechanisms
 
-* Mizer now has an extension mechanism that allows other R packages to be
-  written to generalise the mizer model. More documentation to follow.
+Mizer now has an extension mechanism that allows other R packages to be
+written to generalise the mizer model. More documentation to follow.
 
 ## Plotting
 
@@ -54,14 +72,13 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
 * All plot functions that are not time-resolved now accept also a MizerParams
   object as an alternative to the MizerSim object to plot the initial state.
 * New `plot()` method for MizerParams object to plot the initial state.
-* Avoiding duplicate graphs in rmarkdown documents by setting the default for
-  the `print_it` argument in plot functions to `FALSE`.
+* Avoiding duplicate graphs in rmarkdown documents.
 * New `wlim` argument to `plotSpectra()` in analogy to the existing `ylim`
   argument to limit the w range in the plot.
+* The colours used in plot functions can be set with `setColours()`.
+* The default line type is `solid` but this can be changed via the 
+  `setLinetypes()` function.
 * Use colour and linetype for plots irrespective of the number of species.
-* Plot background species in the colour specified in the `linecolour` slot.
-* The default line type is `solid` but this can be changed via the `linetype`
-  slot.
 
 ## General feeding kernel
 
@@ -98,7 +115,8 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
   species parameter data frame.
 * New gear selectivity function `double_sigmoid_length()` allows modelling
   of escape of large individuals.
-* New gear selectivity function `sigmoidal_weight()` is weight-based trawl selectivity function. (Ken H Andersen)
+* New gear selectivity function `sigmoidal_weight()` is weight-based trawl 
+  selectivity function. (Ken H Andersen)
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which
   25% of the individuals of a species are mature.
@@ -115,14 +133,13 @@ and is also used when setting up a new model with `newMultispeciesParams()`.
   entirely.
 * New `getRates()` calculates all the rates needed in the model and collects
   them in a list.
-* Can set initial state with `setInitialValues()`.
 * Rate functions take defaults for their `initial_n`, `initial_n_pp` and
   `initial_B` arguments from the corresponding slot in the `params` argument.
 * New `perfect_scaling` argument allows `newTraitParams()` to produce a perfectly 
   scale-invariant model.
-* A new `bmort_prop` argument in `newTraitParams()` allows the inclusion of
-  background death.
-* Added a data file with the North Sea model MizerParams object.
+* A new `ext_mort_prop` argument in `newTraitParams()` allows the inclusion of
+  external mortality.
+* Added a data file`NS_params` with the North Sea model MizerParams object.
   
 ## Documentation
 
@@ -229,7 +246,8 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
   species. If for some reason you want the old plots that show a feeding level
   also for sizes that the fish can never have, you need to supply an argument
   `all.sizes = TRUE`.
-* The way the density-dependence in the reproduction rate is set has changed.
+* The way the density-dependence in the reproduction rate is set has changed,
+  see `RDD` argument in `setReproduction()`.
 * The `sex_ratio` argument has been removed from `getRDI()` and `getRDD()`.
 * The `displayFrames()` function has been moved to the "mizerExperimental"
   package.

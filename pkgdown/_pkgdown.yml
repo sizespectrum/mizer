@@ -63,9 +63,13 @@ reference:
   - newCommunityParams
   - newTraitParams
   - newMultispeciesParams
-- title: Setting or changing model parameters
+- title: Model parameters
+  description: Even after you have created a model, you can still make changes
+    with the following functions. This is useful while tuning the model and for
+    investigating the impact of changes in parameters.
   contents:
   - setPredationKernel
+  - getPredationKernel
   - setSearchVolume
   - setInteraction
   - setMaxIntakeRate
@@ -77,19 +81,6 @@ reference:
   - setInitialValues
   - setParams
   - upgradeParams
-- title: Interactively tuning a multispecies model
-  contents:
-  - tuneParams
-  - markBackground
-  - addSpecies
-  - removeSpecies
-  - renameSpecies
-  - retuneBackground
-  - rescaleAbundance
-  - rescaleSystem
-  - updateInitialValues
-  - retuneReproductionEfficiency
-  - pruneSpecies
   - setRmax
 - title: Running simulations
   contents:
@@ -134,29 +125,39 @@ reference:
   - getPredRate
   - getRDD
   - getRDI
-  - getPredationKernel
-- title: Rate functions used by `project()`
-  contents:
-  - starts_with("mizer")
 - title: Extending Mizer
   contents:
   - setRateFunction
-- title: Functions used in the model
+- title: Predation kernels
   contents:
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel
+- title: Fishing selectivity
+  contents:
   - knife_edge
   - sigmoid_length
   - sigmoid_weight
   - double_sigmoid_length
+- title: Plankton dynamics
+  contents:
   - plankton_semichemostat
   - plankton_constant
+- title: Density-dependent reproduction
+  contents:
   - BevertonHoltRDD
   - RickerRDD
   - SheperdRDD
   - noRDD
   - constantRDD
+- title: Internal rate functions
+  description: These functions are used by `project()` to calculate 
+    instantaneous rates at each time step. You should use the `get...()` 
+    functions instead of the `mizer...()` functions.
+  contents:
+  - mizerRates
+  - starts_with("mizer")
+  - -mizer
 - title: Internal helper functions
   contents:
 # The following should list all functions with @concept helper
@@ -170,7 +171,7 @@ reference:
   - get_phi
   - log_breaks
   - get_initial_n
-  - get_required_reproduction
+  - retune_erepro
 - title: Classes
   contents:
   - MizerParams-class
