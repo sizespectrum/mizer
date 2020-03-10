@@ -2350,6 +2350,24 @@ initial_n_pp <- function(params) {
     params@initial_n_pp
 }
 
+#' Species parameter data frame
+#' 
+#' This is the right place to document the use of species parameters in mizer.
+#' 
+#' @param params A MizerParams object
+#' @export
+species_params <- function(params) {
+    params@species_params
+}
+
+#' @rdname species_params
+#' @param value A data frame with the species parameters
+#' @export
+`species_params<-` <- function(params, value) {
+    validSpeciesParams(value)
+    params@species_params <- value
+    params
+}
 
 #' Set line colours to be used in mizer plots
 #' 
