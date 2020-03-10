@@ -26,6 +26,11 @@ set_multispecies_model <-
     if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
     }
+    
+    # Need to correct for the fact that new mizer extends w_full to BELOW
+    # min_w_pp
+        dx <- log10(max_w / min_w) / (no_w - 1)
+        min_w_pp <- min_w_pp * 10 ^ dx
         
     species_params[["q"]] <- q
     species_params[["f0"]] <- f0
