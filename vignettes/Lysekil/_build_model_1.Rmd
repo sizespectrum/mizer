@@ -48,7 +48,7 @@ As you know, the specification of a mizer model is stored in an object of
 class MizerParams, which has many slots holding the various rate functions
 and other parameters. In this notebook we will always use the name `params`
 for the variable holding our MizerParams object. This object now has slots
-`params@initial_n`, `params@initial_n_pp` and `params@initial_B` holding the
+`params@initial_n`, `params@initial_n_pp` and `params@initial_n_other` holding the
 initial values for the fish abundances, the plankton abundances and the
 unstructured resource biomasses, respectively. (The unstructured resources are
 another new feature, very much in the experimental stage, that we will discuss

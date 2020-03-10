@@ -154,12 +154,12 @@ We can rescale the foreground species to whatever abundance we like. So we need
 some observation to choose the right abundance. In our system we have for both
 of our foreground species observations of the total biomass of all individuals above a certain cutoff size. We put that information into the species_params data frame.
 ```{r}
-params@species_params$biomass_observed <- NA
-params@species_params$cutoff_size <- NA
-params@species_params["Hake", "biomass_observed"] <- 0.013
-params@species_params["Hake", "cutoff_size"] <- 0.3
-params@species_params["Mullet", "biomass_observed"] <- 0.0018
-params@species_params["Mullet", "cutoff_size"] <- 0.25
+species_params(params)$biomass_observed <- NA
+species_params(params)$cutoff_size <- NA
+species_params(params)["Hake", "biomass_observed"] <- 0.013
+species_params(params)["Hake", "cutoff_size"] <- 0.3
+species_params(params)["Mullet", "biomass_observed"] <- 0.0018
+species_params(params)["Mullet", "cutoff_size"] <- 0.25
 ```
 
 Now I want to introduce a very convenient gadget that allows you to tune the

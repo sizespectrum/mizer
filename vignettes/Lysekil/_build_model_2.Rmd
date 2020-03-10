@@ -34,13 +34,13 @@ and only change the coefficient $h_5$ for species 5. The coefficients $h_i$,
 being species-specific numbers, are stored in the species_params data frame. Its
 current value for species 5 is
 ```{r}
-params@species_params$h[5]
+species_params(params)$h[5]
 ```
 Let's change that to $h_5=100$ but also keep a version of the old params
 object around for later comparison.
 ```{r}
 params_old <- params
-params@species_params$h[5] <- 100
+species_params(params)$h[5] <- 100
 ```
 This has changed the coefficient $h_5$, but it has not yet changed the maximum
 intake rate $h_5(w)$ that is stored in the params object. We need to instruct
@@ -72,12 +72,12 @@ keeps the reproduction of all species at a constant level. This means changing
 thee reproductive efficiency of the species. Indeed if we look at the values of
 the reproductive efficiencies we see that it is much lower for species 5 now:
 ```{r}
-params@species_params$erepro
+species_params(params)$erepro
 ```
 Compare that to the reproductive efficiencies of the old params object by
 looking at the ratio of old to new:
 ```{r}
-params_old@species_params$erepro / params@species_params$erepro
+species_params(params_old)$erepro / species_params(params)$erepro
 ```
 In order to retain the egg abundances at the previous level, not only did we
 have to drastically reduce the reproductive efficiency for species 5 by a factor
@@ -100,7 +100,7 @@ plotSpectra(params, power = 2, ylim = c(1e-5, NA), wlim = c(1e-3, NA))
 Let's check that this is viable, in the sense that it does not demand any 
 species to have a reproductive efficiency greater than 1.
 ```{r}
-params@species_params$erepro
+species_params(params)$erepro
 ```
 
 We have now seen how to change a parameter of the model and to investigate the
