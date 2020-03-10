@@ -10,7 +10,7 @@ final_n(sim)
 \item{sim}{A MizerSim object}
 }
 \value{
-A matrix (species x size) holding the consumer number densities at
+An array (species x size) holding the consumer number densities at
   the end of the simulation
 }
 \description{

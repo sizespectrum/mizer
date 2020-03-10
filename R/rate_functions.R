@@ -113,10 +113,9 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
             # species which makes using drop impossible
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
-            n_other <- sim@n_other[[x]]
             feed <- getFeedingLevel(sim@params, n = n,
                                     n_pp = sim@n_pp[x, ],
-                                    n_other = n_other)
+                                    n_other = n_other[x, ])
             return(feed)
             }, .drop = drop)
         return(feed_time)
@@ -239,7 +238,7 @@ getPredMort <- function(object, n, n_pp, n_other,
         m2_time <- plyr::aaply(which(time_elements), 1, function(x) {
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
-            n_other <- sim@n_other[[x]]
+            n_other <- sim@n_other[x, ]
             n_pp <- sim@n_pp[x, ]
             return(getPredMort(sim@params, n = n, 
                                n_pp = n_pp, n_other = n_other))

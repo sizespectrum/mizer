@@ -75,7 +75,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         no_t <- dim(sim@n)[1]
         n[] <- sim@n[no_t, , ]
         n_pp[] <- sim@n_pp[no_t, ]
-        n_other <- sim@n_other[[no_t]]
+        n_other <- sim@n_other[no_t, ]
         new_rdi <- getRDI(p, n, n_pp, n_other)
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (any(new_rdi < rdi_limit)) {
@@ -177,5 +177,5 @@ retune_erepro <- function(params,
 # Helper function to keep other components constant
 constant_other <- function(other_name) {
     force(other_name)
-    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[other_name]
+    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[other_name, ]
 }

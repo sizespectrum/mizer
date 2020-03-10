@@ -4,8 +4,8 @@
 ## Backwards compatibility
 
 This version of mizer introduces a large number of new features but is almost
-fully backwards compatible with version 1.0 with the exception of the
-following breaking changes:
+fully backwards compatible with version 1.0 with the exception of bug fixes and
+the following breaking changes:
 
 * Removed the `print_it` argument from plot functions.
 * plotFeedingLevel() now only plots the values within the size range of each
@@ -18,8 +18,9 @@ following breaking changes:
 * The `set_scaling_model()` function has been removed because such models can
   now be set up with `newTraitParams()` with the options `perfect_scaling = TRUE`
   and `egg_size_scaling = TRUE`.
-* The `displayFrames()` function has been moved to the "mizerExperimental"
-  package.
+* The functions `display_frames()`, `addSpecies()`, `setBackground()` and 
+  `retuneAbundance()` have been removed to the "mizerExperimental" package
+  (https://sizespectrum.org/mizerExperimental)
 * During runs of `project()` a progress bar is displayed by default. You can 
   turn this off with the option `progress_bar = FALSE.
 

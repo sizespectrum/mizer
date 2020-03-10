@@ -28,15 +28,16 @@ There are several \code{link{summary_functions}} and
 \describe{
 \item{\code{params}}{An object of type \linkS4class{MizerParams}.}
 
-\item{\code{n}}{Array that stores the projected community population abundances by
-time, species and size.}
+\item{\code{n}}{Three-dimensional array (time x species x size) that stores the 
+projected community number densities.}
 
-\item{\code{n_pp}}{Array that stores the projected plankton abundance by time and
-size.}
+\item{\code{n_pp}}{An array (time x size) that stores the projected plankton number
+densities.}
 
-\item{\code{n_other}}{List of lists where the outer list is named by time and the
-inner lists are named by the names of the other ecosystem components.}
+\item{\code{n_other}}{A list array (time x component) that stores the projected
+values for other ecosystem components.}
 
-\item{\code{effort}}{Array that stores the fishing effort by time and gear.}
+\item{\code{effort}}{An array (time x gear) that stores the fishing effort by time and 
+gear.}
 }}
 

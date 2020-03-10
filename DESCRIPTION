@@ -63,6 +63,7 @@ Collate:
     'plots.R'
     'wrapper_functions.R'
     'steady.R'
+    'extension.R'
     'data.R'
     'RcppExports.R'
     'deprecated.R'

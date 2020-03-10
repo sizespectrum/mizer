@@ -2291,10 +2291,10 @@ setInitialValues <- function(params, sim) {
     no_t <- dim(sim@n)[1]
     assert_that(identical(dim(sim@n[no_t, , ]), dim(params@initial_n)),
                 identical(dim(sim@n_pp[no_t, ]), dim(params@initial_n_pp)),
-                identical(length(sim@n_other[[no_t]]), length(params@initial_n_other)))
+                identical(dim(sim@n_other[no_t, ]), length(params@initial_n_other)))
     params@initial_n[] <- sim@n[no_t, , ]
     params@initial_n_pp[] <- sim@n_pp[no_t, ]
-    params@initial_n_other <- sim@n_other[[no_t]]
+    params@initial_n_other <- sim@n_other[no_t, ]
     params
 }
 
@@ -2348,26 +2348,6 @@ initial_n <- function(params) {
 #' @export
 initial_n_pp <- function(params) {
     params@initial_n_pp
-}
-
-#' Initial values for other ecosystem components
-#' 
-#' Values used as starting values for simulations with `project()`.
-#' 
-#' @param params A MizerParams object
-#' @param value A named list with the initial values of other ecosystem components
-#' @export
-`initial_n_other<-` <- function(params, value) {
-    assert_that(is(params, "MizerParams"),
-                is.list(value))
-    params@initial_n_other <- value
-    params
-}
-
-#' @rdname initial_n_other-set
-#' @export
-initial_n_other <- function(params) {
-    params@initial_n_other
 }
 
 
@@ -2428,71 +2408,6 @@ setLinetypes <- function(params, linetypes) {
 getLinetypes <- function(params) {
     as.list(params@linetype)
 }
-
-#' Set own rate function to replace mizer rate function
-#' 
-#' At each time step during a simulation with the [project()] function, mizer
-#' needs to calculate the instantaneous values of the various rates. By
-#' default it calls the [mizerRates()] function which creates a list with the
-#' following components:
-#' * `encounter` from [mizerEncounter()]
-#' * `feeding_level` from [mizerFeedingLevel()]
-#' * `pred_rate` from [mizerPredRate()]
-#' * `pred_mort` from [mizerPredMort()]
-#' * `fishing_mort` from [mizerFMort()]
-#' * `mort` from [mizerMort()]
-#' * `plankton_mort` from [mizerPlanktonMort()]
-#' * `e` from [mizerEReproAndGrowth()]
-#' * `e_repro` from [mizerERepro()]
-#' * `e_growth` from [mizerEGrowth()]
-#' * `rdi` from [mizerRDI()]
-#' * `rdd` from [BevertonHoltRDD()]
-#' 
-#' You can modify these in two ways.
-#' 
-#' @param params A `MizerParams` object
-#' @param rate Name of the rate for which a new function is to be set.
-#' @param fun Name of the function to use to calculate the rate.
-#' @md
-#' @export
-setRateFunction <- function(params, rate = "Rates", fun) {
-    assert_that(is(params, "MizerParams"),
-                is.string(rate),
-                is.string(fun),
-                is.function(get(fun)))
-    if (!(rate %in% names(params@rates_funcs))) {
-        stop("The `rate` argument must be one of ", 
-             toString(names(params@rates_funcs)), ".")
-    }
-    f <- get0(fun, mode = "function")
-    if (is.null(f)) {
-        stop(fun, " should be a function")
-    }
-    # TODO: put some code to test that the function has the right kind of
-    # arguments
-    params@rates_funcs[[rate]] <- fun
-    
-    validObject(params)
-    params
-}
-
-#' @rdname setRateFunction
-#' @export
-getRateFunction <- function(params, rate = "Rates") {
-    assert_that(is(params, "MizerParams"),
-                is.string(rate))
-    validObject(params)
-    if (rate == "All") {
-        return(params@rates_funcs)
-    }
-    if (!(rate %in% names(params@rates_funcs))) {
-        stop("The `rate` argument must be one of ", 
-             toString(names(params@rates_funcs)), ".")
-    }
-    params@rates_funcs[[rate]]
-}
-
-
 
 
 #' Upgrade MizerParams object from earlier mizer versions

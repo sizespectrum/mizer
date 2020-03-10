@@ -26,50 +26,51 @@ valid_MizerSim <- function(object) {
 	errors <- c(errors, msg)
     }
     # Check time dimension is good - size, dim name, and names
-    if (!all(c(dim(object@n)[1], 
-               dim(object@n_pp)[1],
-               length(object@n_other)) == dim(object@effort)[1])) {
+    if (!all(c(dim(object@n)[[1]], 
+               dim(object@n_pp)[[1]],
+               dim(object@n_other)[[1]]) == dim(object@effort)[[1]])) {
 	msg <- "First dimension of effort, n, n_pp and n_other slots must be the same length."
 	errors <- c(errors, msg)
     }
-    if (!all(c(names(dimnames(object@n))[1],
-               names(dimnames(object@n_pp))[1],
-               names(dimnames(object@effort))[1]) == "time")) {
-	msg <- "First dimension of effort, n and n_pp slots must be called 'time'."
+    if (!all(c(names(dimnames(object@n))[[1]],
+               names(dimnames(object@n_pp))[[1]],
+               names(dimnames(object@n_other))[[1]],
+               names(dimnames(object@effort))[[1]]) == "time")) {
+	msg <- "First dimension of effort, n, n_pp and n_other slots must be called 'time'."
 	errors <- c(errors, msg)
     }
     # species dimension of n
-    if (dim(object@n)[2] != dim(object@params@psi)[1]) {
+    if (dim(object@n)[[2]] != dim(object@params@psi)[[1]]) {
 	msg <- "Second dimension of n slot must have same length as the species names in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n))[2] != "sp") {
+    if (names(dimnames(object@n))[[2]] != "sp") {
 	msg <- "Second dimension of n slot must be called 'sp'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[2] == names(dimnames(object@params@psi))[1])) {
+    if (!all(names(dimnames(object@n))[[2]] == names(dimnames(object@params@psi))[[1]])) {
 	msg <- "Second dimension of n slot must have same species names as in the params slot"
 	errors <- c(errors, msg)
     }
     # w dimension of n
-    if (dim(object@n)[3] != length(object@params@w)) {
+    if (dim(object@n)[[3]] != length(object@params@w)) {
 	msg <- "Third dimension of n slot must have same length as w in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n))[3] != "w") {
+    if (names(dimnames(object@n))[[3]] != "w") {
 	msg <- "Third dimension of n slot must be called 'w'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@n))[3] == names(dimnames(object@params@psi))[2])) {
+    if (!all(names(dimnames(object@n))[[3]] == names(dimnames(object@params@psi))[[2]])) {
 	msg <- "Third dimension of n slot must have same size names as in the params slot"
 	errors <- c(errors, msg)
     }
     # w dimension of n_pp
-    if (dim(object@n_pp)[2] != length(object@params@w_full)) {
+    if (dim(object@n_pp)[[2]] != length(object@params@w_full)) {
 	msg <- "Second dimension of n_pp slot must have same length as w_full in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@n_pp))[2] != "w") {
+    if (names(dimnames(object@n_pp))[[2]] != "w") {
 	msg <- "Second dimension of n_pp slot must be called 'w'"
 	errors <- c(errors, msg)
     }
@@ -77,17 +78,30 @@ valid_MizerSim <- function(object) {
 	msg <- "Second dimension of n_pp slot must have same size names as rr_pp in the params slot"
 	errors <- c(errors, msg)
     }
+    # component dimension of n_other
+    if (dim(object@n_other)[[2]] != length(object@params@other_dynamics)) {
+        msg <- "Second dimension of n_other slot must have same length as other_dynamics in the params slot"
+        errors <- c(errors, msg)
+    }
+    if (names(dimnames(object@n_other))[[2]] != "component") {
+        msg <- "Second dimension of n_other slot must be called 'component'"
+        errors <- c(errors, msg)
+    }
+    if (!all(dimnames(object@n_pp)$component == names(object@params@other_dynamics))) {
+        msg <- "Second dimension of n_other slot must have same component names as other_dynamics in the params slot"
+        errors <- c(errors, msg)
+    }
     
     # gear dimension of effort
-    if (dim(object@effort)[2] != dim(object@params@catchability)[1]) {
+    if (dim(object@effort)[[2]] != dim(object@params@catchability)[[1]]) {
 	msg <- "Second dimension of effort slot must have same number of gears as in the params slot"
 	errors <- c(errors, msg)
     }
-    if (names(dimnames(object@effort))[2] != "gear") {
+    if (names(dimnames(object@effort))[[2]] != "gear") {
 	msg <- "Second dimension of effort slot must be called 'gear'"
 	errors <- c(errors, msg)
     }
-    if (!all(names(dimnames(object@effort))[2] == names(dimnames(object@params@catchability)[1]))) {
+    if (!all(names(dimnames(object@effort))[[2]] == names(dimnames(object@params@catchability)[[1]]))) {
 	msg <- "Second dimension of effort slot must have same gear names as in the params slot"
 	errors <- c(errors, msg)
     }
@@ -116,13 +130,14 @@ valid_MizerSim <- function(object) {
 #' \code{MizerSim} object.
 #' 
 #' @slot params An object of type \linkS4class{MizerParams}.
-#' @slot n Array that stores the projected community population abundances by
-#'   time, species and size.
-#' @slot n_pp Array that stores the projected plankton abundance by time and
-#'   size.
-#' @slot n_other List of lists where the outer list is named by time and the
-#'   inner lists are named by the names of the other ecosystem components.
-#' @slot effort Array that stores the fishing effort by time and gear.
+#' @slot n Three-dimensional array (time x species x size) that stores the 
+#'   projected community number densities.
+#' @slot n_pp An array (time x size) that stores the projected plankton number
+#'   densities.
+#' @slot n_other A list array (time x component) that stores the projected
+#'   values for other ecosystem components.
+#' @slot effort An array (time x gear) that stores the fishing effort by time and 
+#'   gear.
 #' 
 #' @export
 setClass(
@@ -132,7 +147,7 @@ setClass(
         n = "array",
         effort = "array",
         n_pp = "array",
-        n_other = "list"
+        n_other = "array"
     )
 )
 
@@ -189,12 +204,12 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
                         dimnames = list(time = t_dimnames, 
                                         w = w_full_names))
     
-    other_names <- names(params@other_dynamics)
-    no_other <- length(other_names)
-    other <- rep(list(NA), no_other)
-    names(other) <- other_names
-    list_n_other <- rep(list(other), no_t)
-    names(list_n_other) <- t_dimnames
+    component_names <- names(params@other_dynamics)
+    no_components <- length(component_names)
+    list_n_other <- rep(list(NA), no_t * no_components)
+    dim(list_n_other) <- c(no_t, no_components)
+    dimnames(list_n_other) <- list(time = t_dimnames,
+                                   component = component_names)
     
     sim <- new('MizerSim',
                params = params,
@@ -205,16 +220,40 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     return(sim)
 }
 
+#' Time series of consumer size spectra
+#' 
+#' Fetch the simulation results for the consumer size spectra over time.
+#' 
+#' @param sim A MizerSim object
+#' @return A three-dimensional array (time x species x size) with the number
+#'   density of consumers
+#' @export
+n <- function(sim) {
+    sim@n
+}
+
+#' Time series of plankton size spectrum
+#' 
+#' Fetch the simulation results for the plankton size spectrum over time.
+#' 
+#' @param sim A MizerSim object
+#' @return An array (time x size) with the number density of plankton
+#' @export
+n_pp <- function(sim) {
+    sim@n_pp
+}
+
+
 #' Consumer size spectra at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return A matrix (species x size) holding the consumer number densities at
+#' @return An array (species x size) holding the consumer number densities at
 #'   the end of the simulation
 #' @export
 final_n <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
-    n[] <- sim@n[dim(sim@n)[1], , ]
+    n[] <- sim@n[dim(sim@n)[[1]], , ]
     n
 }
 
@@ -226,19 +265,9 @@ final_n <- function(sim) {
 #' @export
 final_n_pp <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    sim@n_pp[dim(sim@n_pp)[1], ]
+    sim@n_pp[dim(sim@n_pp)[[1]], ]
 }
 
-#' Values of other ecosystem components at end of simulation
-#' 
-#' @param sim A MizerSim object
-#' @return A named list holding the values of other ecosystem components at the
-#'   end of the simulation
-#' @export
-final_n_other <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
-    sim@n_other[[length(sim@n_other)]]
-}
 
 #' Times for which simulation results are available
 #' 
@@ -247,5 +276,15 @@ final_n_other <- function(sim) {
 #'   have been stored in the MizerSim object.
 #' @export
 times <- function(sim) {
-    as.numeric(names(sim@n_other))
+    as.numeric(dimnames(sim@n)$t)
+}
+
+#' Fishing effort used in simulation
+#' 
+#' @param sim A MizerSim object
+#' @return An array (time x gear) that stores the fishing effort by time and 
+#'   gear.
+#' @export
+effort <- function(sim) {
+    sim@effort
 }

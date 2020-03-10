@@ -126,7 +126,7 @@ project <- function(object, effort,
         initial_n[] <- object@n[no_t, , ]
         initial_n_pp <- params@initial_n_pp # Needed to get the right dimensions
         initial_n_pp[] <- object@n_pp[no_t, ]
-        initial_n_other <- object@n_other[[no_t]]
+        initial_n_other <- object@n_other[no_t, ]
         t_start <- as.numeric(dimnames(object@n)[[1]][[no_t]])
     } else {
         params <- object
@@ -243,7 +243,7 @@ project <- function(object, effort,
     # Set initial population
     sim@n[1, , ] <- initial_n 
     sim@n_pp[1, ] <- initial_n_pp
-    sim@n_other[[1]] <- initial_n_other
+    sim@n_other[1, ] <- initial_n_other
     
     # Handy things
     no_sp <- nrow(sim@params@species_params) # number of species
@@ -356,7 +356,7 @@ project <- function(object, effort,
             t_idx <- which(store)
             sim@n[t_idx, , ] <- n
             sim@n_pp[t_idx, ] <- n_pp
-            sim@n_other[[t_idx]] <- n_other
+            sim@n_other[t_idx, ] <- n_other
         }
     }
     if (is(object, "MizerSim") && append) {
@@ -372,8 +372,8 @@ project <- function(object, effort,
         new_sim@n[new_indices, , ]  <- sim@n[2:no_t, , ]
         new_sim@n_pp[old_indices, ] <- object@n_pp
         new_sim@n_pp[new_indices, ] <- sim@n_pp[2:no_t, ]
-        new_sim@n_other[old_indices]  <- object@n_other
-        new_sim@n_other[new_indices]  <- sim@n_other[2:no_t]
+        new_sim@n_other[old_indices, ]  <- object@n_other
+        new_sim@n_other[new_indices, ]  <- sim@n_other[2:no_t, ]
         new_sim@effort[old_indices, ] <- object@effort
         new_sim@effort[new_indices, ] <- sim@effort[2:no_t, ]
         return(new_sim)
