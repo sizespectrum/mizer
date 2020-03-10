@@ -428,7 +428,9 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), 
         "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
-    print(object@species_params[,c("species","w_inf","w_mat","beta","sigma")])
+    sp <- object@species_params[,c("species","w_inf","w_mat","beta","sigma")]
+    rownames(sp) <- NULL
+    print(sp)
     cat("Fishing gear details:\n")
     cat("\tGear\t\t\tTarget species\n")
     for (i in 1:dim(object@catchability)[1]){
@@ -436,7 +438,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
             dimnames(object@catchability)$sp[object@catchability[i,]>0], 
             "\n", sep=" ") 
     }
-    return()
+    invisible(params)
 })
 
 
