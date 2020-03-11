@@ -16,7 +16,9 @@ set_multispecies_model <-
                              nrow = nrow(species_params),
                              ncol = nrow(species_params)),
         min_w_pp = 1e-10,
+        min_w = 0.001,
         max_w = max(species_params$w_inf)*1.1,
+        no_w = 100,
         n = 2 / 3,
         q = 0.8,
         f0 = 0.6,
@@ -306,7 +308,7 @@ set_trait_model <- function(no_sp = 10,
     g0 <- (alpha * f0 * h * trait_params@w[1]^n - ks * trait_params@w[1]^p)
     r_max <- N0_max * g0
     
-    trait_params@species_params$r_max <- r_max
+    trait_params@species_params$R_max <- r_max
     
     return(trait_params)
 }
@@ -439,7 +441,7 @@ set_community_model <- function(max_w = 1e6,
         sel_func = "knife_edge",
         knife_edge_size = knife_edge_size,
         knife_is_min = knife_is_min,
-        constant_recruitment = recruitment * rec_mult # to be used in the SRR
+        constant_reproduction = recruitment * rec_mult # to be used in the SRR
     )
     com_params <- MizerParams(com_params_df, p = p, n = n, q = q, lambda = lambda, 
                               kappa = kappa, min_w = min_w, max_w = max_w, 
@@ -451,4 +453,34 @@ set_community_model <- function(max_w = 1e6,
     # Set w_mat to NA for clarity - it is not actually being used
     com_params@species_params$w_mat[] <- NA
     return(com_params)
+}
+
+#### getPhiPrey ####
+#' Get available energy
+#' 
+#' This is deprecated and is no longer used by the mizer project() method.
+#' Calculates the amount \eqn{E_{a,i}(w)} of food exposed to each predator as
+#' a function of predator size. 
+#' 
+#' @param object An \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the background abundance by size
+#' @param ... Other arguments (currently unused)
+#'   
+#' @return A two dimensional array (predator species x predator size)
+#' @seealso \code{\link{project}}
+#' @export
+#' @examples
+#' \dontrun{
+#' data(NS_species_params_gears)
+#' data(inter)
+#' params <- MizerParams(NS_species_params_gears, inter)
+#' # With constant fishing effort for all gears for 20 time steps
+#' sim <- project(params, t_max = 20, effort = 0.5)
+#' n <- sim@@n[21,,]
+#' n_pp <- sim@@n_pp[21,]
+#' getPhiPrey(params,n,n_pp)
+#' }
+getPhiPrey <- function(object, n, n_pp, ...) {
+    phi_prey <- getEncounter(object, n, n_pp) / object@search_vol
 }
