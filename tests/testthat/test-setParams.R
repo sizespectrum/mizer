@@ -94,6 +94,15 @@ test_that("Comment works on pred kernel", {
     expect_message(setPredationKernel(params_c),
                    "has been commented")
 })
+test_that("getPredationKernel has correct dimnames",{
+    pred_kernel <- getPredationKernel(params)
+    expect_identical(dimnames(pred_kernel)$sp, 
+                     dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(pred_kernel)$w_pred, 
+                     dimnames(params@initial_n)$w)
+    expect_identical(dimnames(pred_kernel)$w_prey, 
+                     as.character(signif(params@w_full, 3)))
+})
 
 ## setSearchVolume ----
 test_that("setSearchVolume works", {

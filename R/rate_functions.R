@@ -170,10 +170,12 @@ getPredRate <- function(params, n = params@initial_n,
     }
     
     f <- get(params@rates_funcs$PredRate)
-    f(params, n = n, n_pp = n_pp, n_other = n_other, 
-      feeding_level = feeding_level)
+    pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                   feeding_level = feeding_level)
+    dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
+                                w_prey = as.character(signif(params@w_full, 3)))
+    pred_rate
 }
-
 
 #' Get total predation mortality rate
 #'
@@ -228,7 +230,11 @@ getPredMort <- function(object, n, n_pp, n_other,
         }
         
         f <- get(params@rates_funcs$PredMort)
-        f(params, n = n, n_pp = n_pp, n_other = n_other, pred_rate = pred_rate)
+        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+                       pred_rate = pred_rate)
+        dimnames(pred_mort) <- list(prey = dimnames(params@initial_n)$sp,
+                                    w_prey = dimnames(params@initial_n)$w)
+        pred_mort
     } else {
         sim <- object
         if (missing(time_range)) {
@@ -551,15 +557,17 @@ getMort <- function(params,
              length(params@w), ")")
     }
     
-    m2 <- m2 + params@mu_b + fishing_mort
+    z <- m2 + params@mu_b + fishing_mort
     # Add contributions from other components
     for (fun_name in params@other_mort) {
-        m2 <- m2 + 
+        z <- z + 
             do.call(fun_name, 
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other))
     }
-    return(m2)
+    dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
+                        w_prey = dimnames(params@initial_n)$w)
+    return(z)
 }
 
 #' Alias for getMort

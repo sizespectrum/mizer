@@ -33,6 +33,11 @@ n_full <- abs(rnorm(no_w_full)) * 1e9
 
 # getEncounter --------------------------------------------------------------
 
+test_that("getEncounter returns with correct dimnames", {
+    enc <- getEncounter(params)
+    expect_identical(dimnames(enc), 
+                     dimnames(params@initial_n))
+})
 test_that("getEncounter is independent of volume", {
     enc <- getEncounter(params)
     enc_r <- getEncounter(params_r)
@@ -92,6 +97,8 @@ test_that("getPredRate for MizerParams", {
     pr <- getPredRate(params, n, n_full)
     # test dim
     expect_identical(dim(pr), c(no_sp, no_w_full))
+    expect_identical(dimnames(pr)$sp, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(pr)$w_prey, as.character(signif(params@w_full, 3)))
     # passing in feeding level gives the same as not
     fl <- getFeedingLevel(params, n, n_full)
     pr2 <- getPredRate(params, n, n_full, feeding_level = fl)
@@ -125,7 +132,9 @@ test_that("getPredMort for MizerParams", {
     m22 <- getPredMort(params, n, n_full)
     # Test dims
     expect_identical(dim(m21), c(no_sp, no_w))
-    expect_identical(dim(m21), c(no_sp, no_w))
+    expect_identical(dimnames(m21)$prey, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(m21)$w_prey, dimnames(params@initial_n)$w)
+    expect_identical(dim(m22), c(no_sp, no_w))
     expect_equal(m22[1, ], m21[1, ])
     # test value
     expect_known_value(m21, "values/getPredMort")
@@ -182,7 +191,7 @@ test_that("getPlanktonMort", {
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_equal(m22, m2)
+    expect_equal(m22, m2, check.attributes = FALSE)
     # Passing in pred_rate gives the same
     pr <- getPredRate(params, n, n_full)
     m2b1 <- getPlanktonMort(params, n, n_full)
@@ -295,6 +304,8 @@ test_that("getMort", {
     z <- getMort(params, n, n_full, effort = effort2)
     # test dim
     expect_identical(dim(z), c(no_sp, no_w))
+    expect_identical(dimnames(z)$prey, dimnames(params@initial_n)$sp)
+    expect_identical(dimnames(z)$w_prey, dimnames(params@initial_n)$w)
     # Look at numbers in species 1
     f <- getFMort(params, effort2)
     m2 <- getPredMort(params, n, n_full)
@@ -320,6 +331,7 @@ test_that("getEReproAndGrowth", {
     erg <- getEReproAndGrowth(params, n, n_full)
     # test dim
     expect_identical(dim(erg), c(no_sp, no_w))
+    expect_identical(dimnames(erg), dimnames(params@initial_n))
     # Check number in final prey size group
     f <- getFeedingLevel(params, n = n, n_pp = n_full)
     e <-  (f[1, ] * params@intake_max[1, ]) * params@species_params$alpha[1]
@@ -354,6 +366,8 @@ test_that("getERepro", {
     es <- getERepro(params, n, n_full)
     # test dim
     expect_identical(dim(es), c(no_sp, no_w))
+    expect_identical(dimnames(es), dimnames(params@initial_n))
+    
     e <- getEReproAndGrowth(params, n = n, n_pp = n_full)
     e_repro <- params@psi * e
     e_repro[e_repro <= 0] <- 0
@@ -377,6 +391,7 @@ test_that("getRDI", {
     rdi <- getRDI(params, n, n_full)
     # test dim
     expect_length(rdi, no_sp)
+    expect_named(rdi, as.character(params@species_params$species))
     # test values
     e_repro <- getERepro(params, n = n, n_pp = n_full)
     e_repro_pop <- apply(sweep(e_repro * n, 2, params@dw, "*"), 1, sum)
@@ -402,6 +417,7 @@ test_that("getRDI is proportional to volume", {
 test_that("getRDD", {
     rdd <- getRDD(params, n, n_full)
     expect_length(rdd, no_sp)
+    expect_named(rdd, as.character(params@species_params$species))
     rdi <- getRDI(params, n, n_full)
     rdd2 <- getRDD(params, n, n_full, rdi = rdi)
     expect_identical(rdd, rdd2)
@@ -427,6 +443,9 @@ test_that("getEGrowth is working", {
     eg2 <- getEGrowth(params, n = n, n_pp = n_full, e = e, 
                       e_repro = e_repro)
     expect_identical(eg1, eg2)
+    # test dim
+    expect_identical(dim(eg1), c(no_sp, no_w))
+    expect_identical(dimnames(eg1), dimnames(params@initial_n))
     expect_known_value(eg1, "values/getEGrowth")
 })
 
