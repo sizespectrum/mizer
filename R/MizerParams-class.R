@@ -779,8 +779,8 @@ newMultispeciesParams <- function(
     repro_prop = NULL,
     RDD = "BevertonHoltRDD",
     # setPlankton
-    rate = NULL,
-    capacity = NULL,
+    r_plankton = NULL,
+    K_plankton = NULL,
     n = 2 / 3,
     r_pp = 10,
     kappa = 1e11,
@@ -834,8 +834,8 @@ newMultispeciesParams <- function(
                   repro_prop = repro_prop,
                   RDD = RDD,
                   # setPlankton
-                  rate = rate,
-                  capacity = capacity,
+                  r_plankton = r_plankton,
+                  K_plankton = K_plankton,
                   r_pp = r_pp,
                   kappa = kappa,
                   lambda = lambda,
@@ -978,8 +978,8 @@ newMultispeciesParams <- function(
 #' }
 setParams <- function(params,
                       # setPlankton
-                      rate = NULL,
-                      capacity = NULL,
+                      r_plankton = NULL,
+                      K_plankton = NULL,
                       r_pp = params@plankton_params[["r_pp"]],
                       kappa = params@plankton_params[["kappa"]],
                       lambda = params@plankton_params[["lambda"]],
@@ -1009,8 +1009,8 @@ setParams <- function(params,
                       initial_effort = NULL) {
     validObject(params)
     params <- setPlankton(params,
-                          rate = rate,
-                          capacity = capacity,
+                          r_plankton = r_plankton,
+                          K_plankton = K_plankton,
                           r_pp = r_pp,
                           kappa = kappa,
                           lambda = lambda,
@@ -1966,24 +1966,24 @@ getReproductionProportion <- function(params) {
 #' \code{\link{plankton_semichemostat}}, and then passing the name of your
 #' function in the \code{plankton_dynamics} argument.
 #' 
-#' The \code{rate} argument is a vector specifying the intrinsic plankton
+#' The \code{r_plankton} argument is a vector specifying the intrinsic plankton
 #' growth rate for each size class. If it is not supplied, then the intrinsic growth
 #' rate \eqn{r_p(w)} at size \eqn{w}
 #' is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-#' The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
+#' The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_plankton}
 #' and \code{n} arguments.
 #' 
-#' The \code{capacity} argument is a vector specifying the intrinsic plankton
-#' carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
-#' capacity \eqn{c_p(w)} at size \eqn{w}
+#' The \code{K_plankton} argument is a vector specifying the intrinsic plankton
+#' carrying capacity for each size class. If it is not supplied, then the 
+#' intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 #' is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
 #' for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 #' The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
 #' and \code{lambda} arguments.
 #' 
 #' @param params A MizerParams object
-#' @param rate Optional. Vector of plankton intrinsic birth rates
-#' @param capacity Optional. Vector of plankton intrinsic carrying capacity
+#' @param r_plankton Optional. Vector of plankton intrinsic birth rates
+#' @param K_plankton Optional. Vector of plankton intrinsic carrying capacity
 #' @param r_pp Coefficient of the intrinsic plankton birth rate
 #' @param n Allometric growth exponent for plankton
 #' @param kappa Coefficient of the intrinsic plankton carrying capacity
@@ -2002,8 +2002,8 @@ getReproductionProportion <- function(params) {
 #' @export
 #' @family functions for setting parameters
 setPlankton <- function(params,
-                        rate = NULL,
-                        capacity = NULL,
+                        r_plankton = NULL,
+                        K_plankton = NULL,
                         r_pp = params@plankton_params[["r_pp"]],
                         kappa = params@plankton_params[["kappa"]],
                         lambda = params@plankton_params[["lambda"]],
@@ -2022,11 +2022,11 @@ setPlankton <- function(params,
     params@plankton_params[["n"]] <- n
     params@plankton_params[["w_pp_cutoff"]] <- w_pp_cutoff
     # weight specific plankton growth rate
-    if (!is.null(rate)) {
-        assert_that(is.numeric(rate),
-                    identical(length(rate), length(params@rr_pp)))
-        params@rr_pp[] <- rate
-        comment(params@rr_pp) <- comment(rate)
+    if (!is.null(r_plankton)) {
+        assert_that(is.numeric(r_plankton),
+                    identical(length(r_plankton), length(params@rr_pp)))
+        params@rr_pp[] <- r_plankton
+        comment(params@rr_pp) <- comment(r_plankton)
     } else {
         if (!is.null(comment(params@rr_pp))) {
             message("The plankton intrinsic growth rate has been commented and therefore will ",
@@ -2036,11 +2036,11 @@ setPlankton <- function(params,
         }
     }
     # the plankton carrying capacity
-    if (!is.null(capacity)) {
-        assert_that(is.numeric(capacity),
-                    identical(length(capacity), length(params@cc_pp)))
-        params@cc_pp[] <- capacity
-        comment(params@cc_pp) <- comment(capacity)
+    if (!is.null(K_plankton)) {
+        assert_that(is.numeric(K_plankton),
+                    identical(length(K_plankton), length(params@cc_pp)))
+        params@cc_pp[] <- K_plankton
+        comment(params@cc_pp) <- comment(K_plankton)
     } else {
         if (!is.null(comment(params@cc_pp))) {
             message("The plankton intrinsic growth rate has been commented and therefore will ",
@@ -2520,8 +2520,8 @@ upgradeParams <- function(params) {
         max_w = params@w[length(params@w)],
         min_w_pp = params@w_full[1] + 1e-16, # To make
         # sure that we don't add an extra bracket.
-        rate = params@rr_pp,
-        capacity = params@cc_pp,
+        r_plankton = params@rr_pp,
+        K_plankton = params@cc_pp,
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,

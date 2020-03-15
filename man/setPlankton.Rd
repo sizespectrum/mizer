@@ -10,8 +10,8 @@
 \usage{
 setPlankton(
   params,
-  rate = NULL,
-  capacity = NULL,
+  r_plankton = NULL,
+  K_plankton = NULL,
   r_pp = params@plankton_params[["r_pp"]],
   kappa = params@plankton_params[["kappa"]],
   lambda = params@plankton_params[["lambda"]],
@@ -31,9 +31,9 @@ getPlanktonDynamics(params)
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{rate}{Optional. Vector of plankton intrinsic birth rates}
+\item{r_plankton}{Optional. Vector of plankton intrinsic birth rates}
 
-\item{capacity}{Optional. Vector of plankton intrinsic carrying capacity}
+\item{K_plankton}{Optional. Vector of plankton intrinsic carrying capacity}
 
 \item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
@@ -71,16 +71,16 @@ plankton dynamics by writing your own function, modelled on
 \code{\link{plankton_semichemostat}}, and then passing the name of your
 function in the \code{plankton_dynamics} argument.
 
-The \code{rate} argument is a vector specifying the intrinsic plankton
+The \code{r_plankton} argument is a vector specifying the intrinsic plankton
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \eqn{r_p(w)} at size \eqn{w}
 is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_pp}
+The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_plankton}
 and \code{n} arguments.
 
-The \code{capacity} argument is a vector specifying the intrinsic plankton
-carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
-capacity \eqn{c_p(w)} at size \eqn{w}
+The \code{K_plankton} argument is a vector specifying the intrinsic plankton
+carrying capacity for each size class. If it is not supplied, then the 
+intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
