@@ -27,19 +27,20 @@ NULL
 
 #' Set up parameters for a community-type model
 #' 
-#' This functions creates a \code{\linkS4class{MizerParams}} object so that
-#' community-type models can be easily set up and run. 
+#' This functions creates a \code{\linkS4class{MizerParams}} object describing a
+#' community-type model. 
 #' 
-#' A community model has
-#' several features that distinguish it from the food-web type models. Only one
-#' 'species' is resolved, i.e. one 'species' is used to represent the whole
-#' community. The plankton spectrum only extends to the start of the community
-#' spectrum. Recruitment to the smallest size in the community spectrum is
-#' constant and set by the user. As reproduction is constant, the proportion of
-#' energy invested in reproduction is set to 0. Standard metabolism has been turned 
-#' off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
-#' now determined solely by the assimilated food (see the package vignette for 
-#' more details).
+#' A community model has several features that distinguish it from a multi-species
+#' model:
+#' 
+#' * Species identities of individuals are ignored. All are aggregated into a
+#'   single community.
+#' * The plankton spectrum only extends to the start of the community spectrum. 
+#' * Reproductive rate is constant, independent of the energy invested in 
+#'   reproduction, which is set to 0. 
+#' * Standard metabolism is turned off (the parameter \code{ks} is set to 0).
+#'   Consequently, the growth rate is now determined solely by the assimilated
+#'   food 
 #' 
 #' The function has many arguments, all of which have default values.
 #' 
@@ -62,13 +63,12 @@ NULL
 #' @param f0 The average feeding level of individuals who feed on a power-law 
 #'   spectrum. This value is used to calculate the search rate parameter 
 #'   \code{gamma} (see the package vignette).
-#' @param h The maximum food intake rate.
+#' @param h The coefficient of the maximum food intake rate.
+#' @param n The allometric growth exponent. Used as allometric exponent for
+#'   the maximum intake rate of the community as well as the intrinsic growth
+#'   rate of the plankton.
 #' @param beta The preferred predator prey mass ratio.
 #' @param sigma The width of the prey preference.
-#' @param n The scaling exponent of the maximum intake rate.
-#' @param kappa The carrying capacity of the plankton spectrum.
-#' @param lambda The exponent of the plankton spectrum.
-#' @param r_pp Growth rate parameter for the plankton spectrum.
 #' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 #'   \code{kappa} if not supplied.
 #' @param reproduction The constant reproduction in the smallest size class of the
@@ -76,7 +76,7 @@ NULL
 #'   is continuous with the plankton spectrum.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
 #'   function.
-#' @inheritDotParams newMultispeciesParams
+#' @inheritParams newMultispeciesParams
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
@@ -92,6 +92,8 @@ NULL
 #' }
 newCommunityParams <- function(max_w = 1e6,
                                min_w = 1e-3,
+                               no_w = 100,
+                               min_w_pp = 1e-10,
                                z0 = 0.1,
                                alpha = 0.2,
                                f0 = 0.7,
@@ -104,8 +106,7 @@ newCommunityParams <- function(max_w = 1e6,
                                lambda = 2.05,
                                r_pp = 10,
                                knife_edge_size = 1000,
-                               reproduction,
-                               ...) {
+                               reproduction) {
     w_inf <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -115,8 +116,6 @@ newCommunityParams <- function(max_w = 1e6,
     species_params <- data.frame(
         species = "Community",
         w_inf = w_inf,
-        w_mat = 1e12, # Has no affect as psi set to 0 but we set it to something 
-                      # to help the constructor
         f0 = f0,
         h = h, # max food intake
         gamma = gamma, # vol. search rate,
@@ -132,10 +131,10 @@ newCommunityParams <- function(max_w = 1e6,
         stringsAsFactors = FALSE
     )
     params <- 
-        newMultispeciesParams(species_params,
+        newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, 
                               kappa = kappa, min_w = min_w,
-                              w_pp_cutoff = w_pp_cutoff, r_pp = r_pp, ...)
+                              w_pp_cutoff = w_pp_cutoff, r_pp = r_pp)
     
     initial_n <- array(kappa * params@w ^ (-lambda), 
                        dim = c(1, length(params@w)))
@@ -155,19 +154,16 @@ newCommunityParams <- function(max_w = 1e6,
 
 #' Set up parameters for a trait-based model
 #' 
-#' This functions creates a \code{MizerParams} object so that trait-based
-#' models can be easily set up and run. A trait-based size spectrum model is
-#' a simplification of the general size-based model used in
-#' \code{mizer}. The species-specific parameters are the same for all species, 
-#' except for
-#' the asymptotic size, which is considered the most important trait
-#' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by \code{w_inf * eta}, 
-#' where \code{eta} is
-#' the same for all species. For the trait-based model the number of species is
-#' not important. For applications of the trait-based model see Andersen &
-#' Pedersen (2010). See the \code{mizer} vignette for more details and examples
-#' of the trait-based model.
+#' This functions creates a \code{MizerParams} object describing a trait-based
+#' model. This is a simplification of the general size-based model used in
+#' \code{mizer} in which the species-specific parameters are the same for all
+#' species, except for the asymptotic size, which is considered the most
+#' important trait characterizing a species. Other parameters are related to the
+#' asymptotic size. For example, the size at maturity is given by \code{w_inf *
+#' eta}, where \code{eta} is the same for all species. For the trait-based model
+#' the number of species is not important. For applications of the trait-based
+#' model see Andersen & Pedersen (2010). See the \code{mizer} website for more
+#' details and examples of the trait-based model.
 #'
 #' The function has many arguments, all of which have default values. Of
 #' particular interest to the user are the number of species in the model and
@@ -190,9 +186,9 @@ newCommunityParams <- function(max_w = 1e6,
 #'
 #' Although the trait based model's steady state is often stable without
 #' imposing additional density-dependence, the function can set a Beverton-Holt
-#' type density-dependence that imposes a maximal reproduction rate that is a
-#' multiple of the reproduction rate at steady state. That multiple is set by
-#' the argument \code{rfac}.
+#' type density-dependence that imposes a maximum for the reproduction rate that
+#' is a multiple of the reproduction rate at steady state. That multiple is set
+#' by the argument \code{rfac}.
 #'
 #' The search rate coefficient \code{gamma} is calculated using the expected
 #' feeding level, \code{f0}.
@@ -268,7 +264,6 @@ newCommunityParams <- function(max_w = 1e6,
 #'   FALSE, all species have the egg size \code{w_min}.
 #' @param perfect_scaling If TRUE then parameters are set so that the community
 #'   abundance, growth before reproduction and death are perfect power laws.
-#' @inheritDotParams newMultispeciesParams
 #' @export
 #' @return An object of type \code{MizerParams}
 #' @family functions for setting up models
@@ -286,7 +281,7 @@ newTraitParams <- function(no_sp = 11,
                            eta = 10^(-0.6),
                            min_w_mat = min_w_inf * eta,
                            no_w = log10(max_w_inf / min_w) * 50 + 1,
-                           min_w_pp = NA,
+                           min_w_pp = 1e-10,
                            w_pp_cutoff = min_w_inf,
                            n = 2 / 3,
                            p = n,
@@ -305,8 +300,7 @@ newTraitParams <- function(no_sp = 11,
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
-                           perfect_scaling = FALSE,
-                           ...) {
+                           perfect_scaling = FALSE) {
     
     ## Check validity of parameters ----
     assert_that(is.logical(egg_size_scaling),

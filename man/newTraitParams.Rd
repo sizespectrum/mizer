@@ -13,7 +13,7 @@ newTraitParams(
   eta = 10^(-0.6),
   min_w_mat = min_w_inf * eta,
   no_w = log10(max_w_inf/min_w) * 50 + 1,
-  min_w_pp = NA,
+  min_w_pp = 1e-10,
   w_pp_cutoff = min_w_inf,
   n = 2/3,
   p = n,
@@ -32,8 +32,7 @@ newTraitParams(
   gear_names = "knife_edge_gear",
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
-  perfect_scaling = FALSE,
-  ...
+  perfect_scaling = FALSE
 )
 }
 \arguments{
@@ -119,72 +118,21 @@ FALSE, all species have the egg size \code{w_min}.}
 
 \item{perfect_scaling}{If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws.}
-
-\item{...}{
-  Arguments passed on to \code{\link[=newMultispeciesParams]{newMultispeciesParams}}
-  \describe{
-    \item{\code{species_params}}{A data frame of species-specific parameter values.}
-    \item{\code{interaction}}{Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.}
-    \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
-that holds the predation coefficient of each predator at size on each prey
-size. If not supplied, a default is set as described in section "Setting
-predation kernel".}
-    \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the section "Setting search volume".}
-    \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
-intake rate for each species at size. If not supplied, a default is set as
-described in the section "Setting maximum intake rate".}
-    \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
-for each species at size. If not supplied, a default is set as described in
-the section "Setting metabolic rate".}
-    \item{\code{z0}}{Optional. An array (species x size) holding the external
-mortality rate.}
-    \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.}
-    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-Default value is \code{n-1}.}
-    \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
-of individuals of each species at size that are mature. If not supplied, a
-default is set as described in the section "Setting reproduction".}
-    \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
-proportion of consumed energy that a mature individual allocates to
-reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".}
-    \item{\code{RDD}}{The name of the function calculating the density-dependent 
-reproduction rate from the density-independent rate. Defaults to 
-"\code{\link{BevertonHoltRDD}}".}
-    \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
-    \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
-    \item{\code{plankton_dynamics}}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.}
-    \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
-the fishing effort. If a number, the same effort is used for all gears. If
-a vector, must be named by gear.}
-  }}
 }
 \value{
 An object of type \code{MizerParams}
 }
 \description{
-This functions creates a \code{MizerParams} object so that trait-based
-models can be easily set up and run. A trait-based size spectrum model is
-a simplification of the general size-based model used in
-\code{mizer}. The species-specific parameters are the same for all species, 
-except for
-the asymptotic size, which is considered the most important trait
-characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by \code{w_inf * eta}, 
-where \code{eta} is
-the same for all species. For the trait-based model the number of species is
-not important. For applications of the trait-based model see Andersen &
-Pedersen (2010). See the \code{mizer} vignette for more details and examples
-of the trait-based model.
+This functions creates a \code{MizerParams} object describing a trait-based
+model. This is a simplification of the general size-based model used in
+\code{mizer} in which the species-specific parameters are the same for all
+species, except for the asymptotic size, which is considered the most
+important trait characterizing a species. Other parameters are related to the
+asymptotic size. For example, the size at maturity is given by \code{w_inf *
+eta}, where \code{eta} is the same for all species. For the trait-based model
+the number of species is not important. For applications of the trait-based
+model see Andersen & Pedersen (2010). See the \code{mizer} website for more
+details and examples of the trait-based model.
 }
 \details{
 The function has many arguments, all of which have default values. Of
@@ -208,9 +156,9 @@ initial condition that is close to steady state.
 
 Although the trait based model's steady state is often stable without
 imposing additional density-dependence, the function can set a Beverton-Holt
-type density-dependence that imposes a maximal reproduction rate that is a
-multiple of the reproduction rate at steady state. That multiple is set by
-the argument \code{rfac}.
+type density-dependence that imposes a maximum for the reproduction rate that
+is a multiple of the reproduction rate at steady state. That multiple is set
+by the argument \code{rfac}.
 
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.

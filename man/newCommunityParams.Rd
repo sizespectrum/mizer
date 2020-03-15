@@ -7,6 +7,8 @@
 newCommunityParams(
   max_w = 1e+06,
   min_w = 0.001,
+  no_w = 100,
+  min_w_pp = 1e-10,
   z0 = 0.1,
   alpha = 0.2,
   f0 = 0.7,
@@ -19,8 +21,7 @@ newCommunityParams(
   lambda = 2.05,
   r_pp = 10,
   knife_edge_size = 1000,
-  reproduction,
-  ...
+  reproduction
 )
 }
 \arguments{
@@ -28,6 +29,11 @@ newCommunityParams(
 species used to represent the community is set to this value.}
 
 \item{min_w}{The minimum size of the community.}
+
+\item{no_w}{The number of size bins in the consumer spectrum.}
+
+\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+is set to the smallest value at which any of the consumers can feed.}
 
 \item{z0}{The background mortality of the community.}
 
@@ -37,7 +43,7 @@ species used to represent the community is set to this value.}
 spectrum. This value is used to calculate the search rate parameter 
 \code{gamma} (see the package vignette).}
 
-\item{h}{The maximum food intake rate.}
+\item{h}{The coefficient of the maximum food intake rate.}
 
 \item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and 
 \code{kappa} if not supplied.}
@@ -46,13 +52,15 @@ spectrum. This value is used to calculate the search rate parameter
 
 \item{sigma}{The width of the prey preference.}
 
-\item{n}{The scaling exponent of the maximum intake rate.}
+\item{n}{The allometric growth exponent. Used as allometric exponent for
+the maximum intake rate of the community as well as the intrinsic growth
+rate of the plankton.}
 
-\item{kappa}{The carrying capacity of the plankton spectrum.}
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
 
-\item{lambda}{The exponent of the plankton spectrum.}
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum.}
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
@@ -60,79 +68,26 @@ function.}
 \item{reproduction}{The constant reproduction in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum 
 is continuous with the plankton spectrum.}
-
-\item{...}{
-  Arguments passed on to \code{\link[=newMultispeciesParams]{newMultispeciesParams}}
-  \describe{
-    \item{\code{min_w_pp}}{The smallest size of the plankton spectrum. By default this
-is set to the smallest value at which any of the consumers can feed.}
-    \item{\code{species_params}}{A data frame of species-specific parameter values.}
-    \item{\code{no_w}}{The number of size bins in the consumer spectrum.}
-    \item{\code{interaction}}{Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.}
-    \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
-that holds the predation coefficient of each predator at size on each prey
-size. If not supplied, a default is set as described in section "Setting
-predation kernel".}
-    \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the section "Setting search volume".}
-    \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
-intake rate for each species at size. If not supplied, a default is set as
-described in the section "Setting maximum intake rate".}
-    \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
-for each species at size. If not supplied, a default is set as described in
-the section "Setting metabolic rate".}
-    \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
-is not given explicitly and if the exponent is not specified in a \code{p}
-column in the \code{species_params}.}
-    \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.}
-    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-Default value is \code{n-1}.}
-    \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
-of individuals of each species at size that are mature. If not supplied, a
-default is set as described in the section "Setting reproduction".}
-    \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
-proportion of consumed energy that a mature individual allocates to
-reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".}
-    \item{\code{RDD}}{The name of the function calculating the density-dependent 
-reproduction rate from the density-independent rate. Defaults to 
-"\code{\link{BevertonHoltRDD}}".}
-    \item{\code{rate}}{Optional. Vector of plankton intrinsic birth rates}
-    \item{\code{capacity}}{Optional. Vector of plankton intrinsic carrying capacity}
-    \item{\code{w_pp_cutoff}}{The upper cut off size of the plankton spectrum. 
-Default is 10 g.}
-    \item{\code{plankton_dynamics}}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.}
-    \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
-the fishing effort. If a number, the same effort is used for all gears. If
-a vector, must be named by gear.}
-  }}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
 }
 \description{
-This functions creates a \code{\linkS4class{MizerParams}} object so that
-community-type models can be easily set up and run.
+This functions creates a \code{\linkS4class{MizerParams}} object describing a
+community-type model.
 }
 \details{
-A community model has
-several features that distinguish it from the food-web type models. Only one
-'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
-spectrum. Recruitment to the smallest size in the community spectrum is
-constant and set by the user. As reproduction is constant, the proportion of
-energy invested in reproduction is set to 0. Standard metabolism has been turned 
-off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
-more details).
+A community model has several features that distinguish it from a multi-species
+model:
+
+* Species identities of individuals are ignored. All are aggregated into a
+  single community.
+* The plankton spectrum only extends to the start of the community spectrum. 
+* Reproductive rate is constant, independent of the energy invested in 
+  reproduction, which is set to 0. 
+* Standard metabolism is turned off (the parameter \code{ks} is set to 0).
+  Consequently, the growth rate is now determined solely by the assimilated
+  food 
 
 The function has many arguments, all of which have default values.
 

@@ -92,6 +92,7 @@ reference:
   - setInitialValues
   - steady
 - title: Accessing results
+  contents:
   - n
   - n_pp
   - final_n
