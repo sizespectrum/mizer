@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Rescale System — rescaleSystem • mizer</title>
+<title>Get critical feeding level — getCriticalFeedingLevel • mizer</title>
 
 
 <!-- jquery -->
@@ -37,12 +37,10 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Rescale System — rescaleSystem" />
-<meta property="og:description" content="The abundances in mizer and some rates depend on the size of the area to
-which they refer. So they could be given per square meter or per square
-kilometer or for an entire study area or any other choice of yours. This
-function allows you to change the size by automatically changing the
-abundances and rates accordingly." />
+<meta property="og:title" content="Get critical feeding level — getCriticalFeedingLevel" />
+<meta property="og:description" content="The critical feeding level is the feeding level at which the food intake is
+just high enough to cover the metabolic costs, with nothing left over for
+growth or reproduction." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,55 +121,31 @@ abundances and rates accordingly." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Rescale System</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>rescaleSystem.Rd</code></div>
+    <h1>Get critical feeding level</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>getCriticalFeedingLevel.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The abundances in mizer and some rates depend on the size of the area to
-which they refer. So they could be given per square meter or per square
-kilometer or for an entire study area or any other choice of yours. This
-function allows you to change the size by automatically changing the
-abundances and rates accordingly.</p>
+    <p>The critical feeding level is the feeding level at which the food intake is
+just high enough to cover the metabolic costs, with nothing left over for
+growth or reproduction.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rescaleSystem</span>(<span class='no'>params</span>, <span class='no'>factor</span>)</pre>
+    <pre class="usage"><span class='fu'>getCriticalFeedingLevel</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A mizer params object</p></td>
-    </tr>
-    <tr>
-      <th>factor</th>
-      <td><p>The factor by which the size is rescaled with respect to which 
-the abundances are given.</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of type <a href='MizerParams-class.html'>MizerParams</a></p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>If you rescale the system by a factor \(c\) then this function makes the
-following rescalings in the params object:</p><ul>
-<li><p>The initial abundances <code>initial_n</code>, <code>initial_n_pp</code> and
-  <code>initial_n_other</code> are rescaled by \(c\).</p></li>
-<li><p>The search volume is rescaled by \(1/c\).</p></li>
-<li><p>The plankton carrying capacity is rescaled by \(c\)</p></li>
-<li><p>The maximum reproduction rate \(R_{max}\), if used, is rescaled by 
-  \(c\).</p></li>
-</ul><p>The effect of this is that the dynamics of the rescaled system are identical
-to those of the unscaled system, in the sense that it does not matter whether
-one first calls <code>rescaleSystem</code> and then runs a simulation with
-<code>project</code> or whether one first runs a simulation and then rescales the
-resulting abundances.</p>
-<p>Note that if you use non-standard plankton dynamics or other components then you
-may need to rescale additional parameters that appear in those dynamics.</p>
+    <p>A matrix (species x size) with the critical feeding level</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -179,7 +153,6 @@ may need to rescale additional parameters that appear in those dynamics.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

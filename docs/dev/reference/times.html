@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Update the initial abundances �updateInitialValuesal • mizer</title>
+<title>Times for which simulation results are available — times • mizer</title>
 
 
 <!-- jquery -->
@@ -34,12 +34,11 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Update the initial abundances �updateInitialValuesal" />
-<meta property="og:description" content="Recalculates the steady-state abundances in a fixed background
-given by the current abundances, keeping the abundances fixed in the
-smallest size class for each species. Then readjusts the erepro
-values." />
+<meta property="og:title" content="Times for which simulation results are available — times" />
+<meta property="og:description" content="Times for which simulation results are available" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +71,7 @@ values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -120,33 +119,30 @@ values." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Update the initial abundances</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>updateInitialValues.Rd</code></div>
+    <h1>Times for which simulation results are available</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>times.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Recalculates the steady-state abundances in a fixed background
-given by the current abundances, keeping the abundances fixed in the
-smallest size class for each species. Then readjusts the <code>erepro</code>
-values.</p>
+    <p>Times for which simulation results are available</p>
     </div>
 
-    <pre class="usage"><span class='fu'>updateInitialValues</span>(<span class='no'>params</span>)</pre>
+    <pre class="usage"><span class='fu'>times</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A MizerParams object</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The MizerParams object with updated <code>initial_n</code> and 
-  <code>initial_n_pp</code> slots.</p>
+    <p>A numeric vectors of the times (in years) at which simulation results
+  have been stored in the MizerSim object.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

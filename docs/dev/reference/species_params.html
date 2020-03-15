@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get data frame of spawning stock biomass of species through time, 
-ready for ggplot2 — getSSBFrame • mizer</title>
+<title>Species parameter data frame — species_params • mizer</title>
 
 
 <!-- jquery -->
@@ -35,11 +34,11 @@ ready for ggplot2 — getSSBFrame • mizer</title>
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Get data frame of spawning stock biomass of species through time, 
-ready for ggplot2 — getSSBFrame" />
-<meta property="og:description" content="After running a projection, the spawning stock biomass of each species can be
-plotted against time." />
+<meta property="og:title" content="Species parameter data frame — species_params" />
+<meta property="og:description" content="This is the right place to document the use of species parameters in mizer." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -72,7 +71,7 @@ plotted against time." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -120,78 +119,38 @@ plotted against time." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get data frame of spawning stock biomass of species through time, 
-ready for ggplot2</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>getSSBFrame.Rd</code></div>
+    <h1>Species parameter data frame</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>species_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, the spawning stock biomass of each species can be
-plotted against time.</p>
+    <p>This is the right place to document the use of species parameters in mizer.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getSSBFrame</span>(
-  <span class='no'>sim</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>sp</span>[!<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>A</span>)],
-  <span class='kw'>start_time</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)<span class='kw'>[[</span><span class='fl'>1</span>]][<span class='fl'>1</span>]),
-  <span class='kw'>end_time</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)<span class='kw'>[[</span><span class='fl'>1</span>]][<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)[<span class='fl'>1</span>]]),
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
-  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>species_params</span>(<span class='no'>params</span>)
+
+<span class='fu'>species_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sim</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a></p></td>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all foreground species are plotted.</p></td>
-    </tr>
-    <tr>
-      <th>start_time</th>
-      <td><p>The first time to be plotted. Default is the beginning
-of the time series.</p></td>
-    </tr>
-    <tr>
-      <th>end_time</th>
-      <td><p>The last time to be plotted. Default is the end of the
-time series.</p></td>
-    </tr>
-    <tr>
-      <th>ylim</th>
-      <td><p>A numeric vector of length two providing limits of for the
-y axis. Use NA to refer to the existing minimum or maximum. Any values
-below 1e-20 are always cut off.</p></td>
-    </tr>
-    <tr>
-      <th>total</th>
-      <td><p>A boolean value that determines whether the total SSB from
-all species is plotted as well. Default is FALSE</p></td>
+      <th>value</th>
+      <td><p>A data frame with the species parameters</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A data frame that can be used in <code><a href='displayFrames.html'>displayFrames</a></code></p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='getSSB.html'>getSSB</a></code></p>
-<p>Other frame functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='getBiomassFrame.html'>getBiomassFrame</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

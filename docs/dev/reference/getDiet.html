@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Get diet of predator at size, resolved by prey species — getDiet" />
 <meta property="og:description" content="Calculates the rate at which a predator of a particular species and size
@@ -70,7 +72,7 @@ consumes biomass of each prey species and plankton." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -138,6 +140,18 @@ consumes biomass of each prey species and plankton.</p>
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size).</p></td>
+    </tr>
+    <tr>
+      <th>n_pp</th>
+      <td><p>A vector of the plankton abundance by size</p></td>
+    </tr>
     <tr>
       <th>proportion</th>
       <td><p>If TRUE (default) the function returns the diet as a

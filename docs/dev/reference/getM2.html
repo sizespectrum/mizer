@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Alias for getPredMort — getM2" />
 <meta property="og:description" content="An alias provided for backward compatibility with mizer version &amp;lt;= 1.0" />
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -118,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Alias for getPredMort</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/rate_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
     <div class="hidden name"><code>getM2.Rd</code></div>
     </div>
 
@@ -132,11 +134,37 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>object</th>
+      <td><p>A <code>MizerParams</code> object or a <code>MizerSim</code> object</p></td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size).</p></td>
+    </tr>
+    <tr>
+      <th>n_pp</th>
+      <td><p>A vector of the plankton abundance by size</p></td>
+    </tr>
+    <tr>
+      <th>n_other</th>
+      <td><p>A list of abundances for other dynamical components of the
+ecosystem</p></td>
+    </tr>
+    <tr>
       <th>pred_rate</th>
       <td><p>An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
 it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> function.</p></td>
+    </tr>
+    <tr>
+      <th>time_range</th>
+      <td><p>The time_range can be character or numeric.</p></td>
+    </tr>
+    <tr>
+      <th>drop</th>
+      <td><p>If <code>TRUE</code> then any dimension of length 1 will be removed
+from the returned array.</p></td>
     </tr>
     </table>
 
@@ -162,14 +190,10 @@ it is calculated by the <code><a href='getPredRate.html'>getPredRate</a></code> 
 <code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code>,
-<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># With constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)

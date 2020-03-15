@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get density dependent rate of larvae production — getRDD • mizer</title>
+<title>Get density dependent reproduction rate — getRDD • mizer</title>
 
 
 <!-- jquery -->
@@ -34,13 +34,16 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Get density dependent rate of larvae production — getRDD" />
-<meta property="og:description" content="Calculates the density dependent rate of larvae production \(R_i\) (units
+<meta property="og:title" content="Get density dependent reproduction rate — getRDD" />
+<meta property="og:description" content="Calculates the density dependent rate of egg production \(R_i\) (units
 1/year) for each species. This is the flux entering the smallest size class
 of each species. The density dependent rate is the density independent
 rate obtained with getRDI after it has been put through the 
-density dependent &quot;stock-recruitment&quot; relationship function. See
+density dependence function. This is the Beverton-Holt function
+BevertonHoltRDD by default, but this can be changed. See
 setReproduction for more details." />
 <meta name="twitter:card" content="summary" />
 
@@ -74,7 +77,7 @@ setReproduction for more details." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -122,17 +125,18 @@ setReproduction for more details." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get density dependent rate of larvae production</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <h1>Get density dependent reproduction rate</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/rate_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
     <div class="hidden name"><code>getRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the density dependent rate of larvae production \(R_i\) (units
+    <p>Calculates the density dependent rate of egg production \(R_i\) (units
 1/year) for each species. This is the flux entering the smallest size class
 of each species. The density dependent rate is the density independent
 rate obtained with <code><a href='getRDI.html'>getRDI</a></code> after it has been put through the 
-density dependent "stock-recruitment" relationship function. See
+density dependence function. This is the Beverton-Holt function
+<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code> by default, but this can be changed. See
 <code><a href='setReproduction.html'>setReproduction</a></code> for more details.</p>
     </div>
 
@@ -141,8 +145,7 @@ density dependent "stock-recruitment" relationship function. See
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
-  <span class='kw'>sex_ratio</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-  <span class='kw'>rdi</span> <span class='kw'>=</span> <span class='fu'><a href='getRDI.html'>getRDI</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>, <span class='kw'>sex_ratio</span> <span class='kw'>=</span> <span class='no'>sex_ratio</span>)
+  <span class='kw'>rdi</span> <span class='kw'>=</span> <span class='fu'><a href='getRDI.html'>getRDI</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -166,14 +169,9 @@ density dependent "stock-recruitment" relationship function. See
 ecosystem</p></td>
     </tr>
     <tr>
-      <th>sex_ratio</th>
-      <td><p>Proportion of the population that is female. Default value
-is 0.5.</p></td>
-    </tr>
-    <tr>
       <th>rdi</th>
-      <td><p>A vector of density independent recruitment for each species. 
-If not specified rdi is calculated internally using
+      <td><p>A vector of density-independent reproduction rates for each
+species. If not specified, rdi is calculated internally using
 <code><a href='getRDI.html'>getRDI</a></code>.</p></td>
     </tr>
     </table>
@@ -196,14 +194,10 @@ If not specified rdi is calculated internally using
 <code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code>,
-<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)

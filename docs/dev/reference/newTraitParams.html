@@ -38,19 +38,16 @@
   
 
 <meta property="og:title" content="Set up parameters for a trait-based model — newTraitParams" />
-<meta property="og:description" content="This functions creates a MizerParams object so that trait-based
-models can be easily set up and run. A trait-based size spectrum model is
-a simplification of the general size-based model used in
-mizer. The species-specific parameters are the same for all species, 
-except for
-the asymptotic size, which is considered the most important trait
-characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by w_inf * eta, 
-where eta is
-the same for all species. For the trait-based model the number of species is
-not important. For applications of the trait-based model see Andersen &amp;amp;
-Pedersen (2010). See the mizer vignette for more details and examples
-of the trait-based model." />
+<meta property="og:description" content="This functions creates a MizerParams object describing a trait-based
+model. This is a simplification of the general size-based model used in
+mizer in which the species-specific parameters are the same for all
+species, except for the asymptotic size, which is considered the most
+important trait characterizing a species. Other parameters are related to the
+asymptotic size. For example, the size at maturity is given by w_inf *
+eta, where eta is the same for all species. For the trait-based model
+the number of species is not important. For applications of the trait-based
+model see Andersen &amp;amp; Pedersen (2010). See the mizer website for more
+details and examples of the trait-based model." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -137,19 +134,16 @@ of the trait-based model." />
     </div>
 
     <div class="ref-description">
-    <p>This functions creates a <code>MizerParams</code> object so that trait-based
-models can be easily set up and run. A trait-based size spectrum model is
-a simplification of the general size-based model used in
-<code>mizer</code>. The species-specific parameters are the same for all species, 
-except for
-the asymptotic size, which is considered the most important trait
-characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by <code>w_inf * eta</code>, 
-where <code>eta</code> is
-the same for all species. For the trait-based model the number of species is
-not important. For applications of the trait-based model see Andersen &amp;
-Pedersen (2010). See the <code>mizer</code> vignette for more details and examples
-of the trait-based model.</p>
+    <p>This functions creates a <code>MizerParams</code> object describing a trait-based
+model. This is a simplification of the general size-based model used in
+<code>mizer</code> in which the species-specific parameters are the same for all
+species, except for the asymptotic size, which is considered the most
+important trait characterizing a species. Other parameters are related to the
+asymptotic size. For example, the size at maturity is given by <code>w_inf *
+eta</code>, where <code>eta</code> is the same for all species. For the trait-based model
+the number of species is not important. For applications of the trait-based
+model see Andersen &amp; Pedersen (2010). See the <code>mizer</code> website for more
+details and examples of the trait-based model.</p>
     </div>
 
     <pre class="usage"><span class='fu'>newTraitParams</span>(
@@ -161,7 +155,7 @@ of the trait-based model.</p>
   <span class='kw'>eta</span> <span class='kw'>=</span> <span class='fl'>10</span>^(-<span class='fl'>0.6</span>),
   <span class='kw'>min_w_mat</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span> * <span class='no'>eta</span>,
   <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log10</a></span>(<span class='no'>max_w_inf</span>/<span class='no'>min_w</span>) * <span class='fl'>50</span> + <span class='fl'>1</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>1e-10</span>,
   <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>min_w_inf</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
   <span class='kw'>p</span> <span class='kw'>=</span> <span class='no'>n</span>,
@@ -180,8 +174,7 @@ of the trait-based model.</p>
   <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>egg_size_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>perfect_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
+  <span class='kw'>perfect_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -326,55 +319,6 @@ FALSE, all species have the egg size <code>w_min</code>.</p></td>
       <td><p>If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws.</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed on to <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code></p><dl class='dl-horizontal'>
-    <dt><code>species_params</code></dt><dd><p>A data frame of species-specific parameter values.</p></dd>
-    <dt><code>interaction</code></dt><dd><p>Optional interaction matrix of the species (predator
-species x prey species). Entries should be numbers between 0 and 1. By
-default all entries are 1. See "Setting interactions" section below.</p></dd>
-    <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
-that holds the predation coefficient of each predator at size on each prey
-size. If not supplied, a default is set as described in section "Setting
-predation kernel".</p></dd>
-    <dt><code>search_vol</code></dt><dd><p>Optional. An array (species x size) holding the search volume
-for each species at size. If not supplied, a default is set as described in
-the section "Setting search volume".</p></dd>
-    <dt><code>intake_max</code></dt><dd><p>Optional. An array (species x size) holding the maximum
-intake rate for each species at size. If not supplied, a default is set as
-described in the section "Setting maximum intake rate".</p></dd>
-    <dt><code>metab</code></dt><dd><p>Optional. An array (species x size) holding the metabolic rate
-for each species at size. If not supplied, a default is set as described in
-the section "Setting metabolic rate".</p></dd>
-    <dt><code>z0</code></dt><dd><p>Optional. An array (species x size) holding the external
-mortality rate.</p></dd>
-    <dt><code>z0pre</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.</p></dd>
-    <dt><code>z0exp</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
-Default value is <code>n-1</code>.</p></dd>
-    <dt><code>maturity</code></dt><dd><p>Optional. An array (species x size) that holds the proportion
-of individuals of each species at size that are mature. If not supplied, a
-default is set as described in the section "Setting reproduction".</p></dd>
-    <dt><code>repro_prop</code></dt><dd><p>Optional. An array (species x size) that holds the
-proportion of consumed energy that a mature individual allocates to
-reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".</p></dd>
-    <dt><code>RDD</code></dt><dd><p>The name of the function calculating the density-dependent 
-reproduction rate from the density-independent rate. Defaults to 
-"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></dd>
-    <dt><code>rate</code></dt><dd><p>Optional. Vector of plankton intrinsic birth rates</p></dd>
-    <dt><code>capacity</code></dt><dd><p>Optional. Vector of plankton intrinsic carrying capacity</p></dd>
-    <dt><code>plankton_dynamics</code></dt><dd><p>Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.</p></dd>
-    <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
-the fishing effort. If a number, the same effort is used for all gears. If
-a vector, must be named by gear.</p></dd>
-  
-</dl></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -400,9 +344,9 @@ Otherwise all species have the same egg size.</p>
 initial condition that is close to steady state.</p>
 <p>Although the trait based model's steady state is often stable without
 imposing additional density-dependence, the function can set a Beverton-Holt
-type density-dependence that imposes a maximal reproduction rate that is a
-multiple of the reproduction rate at steady state. That multiple is set by
-the argument <code>rfac</code>.</p>
+type density-dependence that imposes a maximum for the reproduction rate that
+is a multiple of the reproduction rate at steady state. That multiple is set
+by the argument <code>rfac</code>.</p>
 <p>The search rate coefficient <code>gamma</code> is calculated using the expected
 feeding level, <code>f0</code>.</p>
 <p>The option of including fishing is given, but the steady state may lose its

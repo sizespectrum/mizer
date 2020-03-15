@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot the total yield of species through time with plotly — plotlyYield • mizer</title>
+<title>Add a dynamical ecosystem component — setComponent • mizer</title>
 
 
 <!-- jquery -->
@@ -37,10 +37,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Plot the total yield of species through time with plotly — plotlyYield" />
-<meta property="og:description" content="After running a projection, the total yield of each species across all 
-fishing gears can be plotted against time. The yield is obtained with
-getYield." />
+<meta property="og:title" content="Add a dynamical ecosystem component — setComponent" />
+<meta property="og:description" content="Add a dynamical ecosystem component
+Get information about other ecosystem components" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,89 +120,71 @@ getYield." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot the total yield of species through time with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyYield.Rd</code></div>
+    <h1>Add a dynamical ecosystem component</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
+    <div class="hidden name"><code>setComponent.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, the total yield of each species across all 
-fishing gears can be plotted against time. The yield is obtained with
-<code><a href='getYield.html'>getYield</a></code>.</p>
+    <p>Add a dynamical ecosystem component</p>
+<p>Get information about other ecosystem components</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyYield</span>(
-  <span class='no'>sim</span>,
-  <span class='no'>sim2</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>sp</span>,
-  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>setComponent</span>(
+  <span class='no'>params</span>,
+  <span class='no'>component</span>,
+  <span class='no'>initial_value</span>,
+  <span class='no'>encounter_fun</span>,
+  <span class='no'>mortality_fun</span>,
+  <span class='no'>dynamics_fun</span>,
+  <span class='no'>component_params</span>
+)
+
+<span class='fu'>getComponent</span>(<span class='no'>params</span>, <span class='no'>component</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>sim</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a></p></td>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>sim2</th>
-      <td><p>An optional second object of class <a href='MizerSim-class.html'>MizerSim</a>. If
-this is provided its yields will be shown on the same plot in bolder lines.</p></td>
+      <th>component</th>
+      <td><p>Name of the component of interest. If missing, a list of
+all components will be returned.</p></td>
     </tr>
     <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
+      <th>initial_value</th>
+      <td><p>Initial value of the component</p></td>
     </tr>
     <tr>
-      <th>total</th>
-      <td><p>A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE</p></td>
+      <th>encounter_fun</th>
+      <td><p>Name of function to calculate contribution to encounter
+rate</p></td>
     </tr>
     <tr>
-      <th>log</th>
-      <td><p>Boolean whether yield should be plotted on a logarithmic axis. 
-Defaults to true.</p></td>
+      <th>mortality_fun</th>
+      <td><p>Name of function to calculate contribution to the
+predation mortality rate.</p></td>
     </tr>
     <tr>
-      <th>highlight</th>
-      <td><p>Name or vector of names of the species to be highlighted.</p></td>
+      <th>dynamics_fun</th>
+      <td><p>Name of function to calculate value at the next time step</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Other arguments (currently unused)</p></td>
+      <th>component_params</th>
+      <td><p>Named list of parameters needed by the component
+functions.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <p>For `setComponent`: The updated MizerParams object</p>
+<p>For <code>getComponent</code>: A list with the entries <code>initial_value</code>, <code>dynamics_fun</code>,
+<code>encounter_fun</code>, <code>morality_fun</code>, <code>component_params</code>. If <code>component</code> is
+missing, then a list of lists for all components is returned.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -211,7 +192,6 @@ Defaults to true.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

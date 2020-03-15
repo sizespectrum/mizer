@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set initial values — setInitialValues • mizer</title>
+<title>Set initial values to final values of a simulation — setInitialValues • mizer</title>
 
 
 <!-- jquery -->
@@ -37,8 +37,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Set initial values — setInitialValues" />
-<meta property="og:description" content="Set initial values" />
+<meta property="og:title" content="Set initial values to final values of a simulation — setInitialValues" />
+<meta property="og:description" content="Takes the final values from a simulation in a MizerSim object and stores them
+as initial values in a MizerParams object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -119,28 +120,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set initial values</h1>
+    <h1>Set initial values to final values of a simulation</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
     <div class="hidden name"><code>setInitialValues.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Set initial values</p>
+    <p>Takes the final values from a simulation in a MizerSim object and stores them
+as initial values in a MizerParams object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setInitialValues</span>(
-  <span class='no'>params</span>,
-  <span class='no'>sim</span>,
-  <span class='kw'>initial_n</span> <span class='kw'>=</span> <span class='fu'>getInitial_n</span>(<span class='no'>params</span>),
-  <span class='kw'>initial_n_pp</span> <span class='kw'>=</span> <span class='fu'>getInitial_n_pp</span>(<span class='no'>params</span>),
-  <span class='kw'>initial_n_other</span> <span class='kw'>=</span> <span class='fu'>getInitial_n_other</span>(<span class='no'>params</span>)
-)
-
-<span class='fu'>getInitial_n</span>(<span class='no'>params</span>)
-
-<span class='fu'>getInitial_n_pp</span>(<span class='no'>params</span>)
-
-<span class='fu'>getInitial_n_other</span>(<span class='no'>params</span>)</pre>
+    <pre class="usage"><span class='fu'>setInitialValues</span>(<span class='no'>params</span>, <span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,36 +141,18 @@
     </tr>
     <tr>
       <th>sim</th>
-      <td><p>A <code>MizerSim</code> object. If supplied, the `initial_n`, 
-`initial_n_pp` and `initial_n_pp` arguments are ignored and the information
-is taken from the last timestep of the simulation in `sim`.</p></td>
-    </tr>
-    <tr>
-      <th>initial_n</th>
-      <td><p>The initial abundances of species. A matrix with dimensions
-species x size. The order of species must be the same as in the MizerParams
-argument. Optional. Ignored if `sim` is supplied.</p></td>
-    </tr>
-    <tr>
-      <th>initial_n_pp</th>
-      <td><p>The initial abundances of plankton. A numeric vector.
-Optional. Ignored if `sim` is supplied.</p></td>
-    </tr>
-    <tr>
-      <th>initial_n_other</th>
-      <td><p>The initial abundances of the other dynamic ecosystem
-components. A named list with one entry for each component. Optional.
-Ignored if `sim` is supplied.</p></td>
+      <td><p>A <code>MizerSim</code> object.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated initial values. Because of the
-  way the R language works, `setInitialValues()` does not make the changes to the
+    <p>The `params` object with updated initial values, taken from the
+  values at the final time of the simulation in `sim`. Because of the way the
+  R language works, `setInitialValues()` does not make the changes to the
   params object that you pass to it but instead returns a new params object.
   So to affect the change you call the function in the form
-  `params &lt;- setInitialValues(params, ...)`.</p>
+  `params &lt;- setInitialValues(params, sim)`.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 

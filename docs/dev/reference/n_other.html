@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Retune reproduction efficiency to maintain initial egg abundances — retuneReproductionEfficiency • mizer</title>
+<title>Time series of other components — n_other • mizer</title>
 
 
 <!-- jquery -->
@@ -37,12 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Retune reproduction efficiency to maintain initial egg abundances — retuneReproductionEfficiency" />
-<meta property="og:description" content="Sets the reproductive efficiency for all species so that the rate of egg
-production exactly compensates for the loss from the first size class due
-to growth and mortality. Turns off the external density dependence in the
-reproduction rate by setting the RDD function to 
-noRDD" />
+<meta property="og:title" content="Time series of other components — n_other" />
+<meta property="og:description" content="Fetch the simulation results for other components over time." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,39 +119,30 @@ noRDD" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Retune reproduction efficiency to maintain initial egg abundances</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>retuneReproductionEfficiency.Rd</code></div>
+    <h1>Time series of other components</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
+    <div class="hidden name"><code>n_other.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Sets the reproductive efficiency for all species so that the rate of egg
-production exactly compensates for the loss from the first size class due
-to growth and mortality. Turns off the external density dependence in the
-reproduction rate by setting the <code>RDD</code> function to 
-<code><a href='noRDD.html'>noRDD</a></code></p>
+    <p>Fetch the simulation results for other components over time.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>retuneReproductionEfficiency</span>(<span class='no'>params</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>species</span>)</pre>
+    <pre class="usage"><span class='fu'>n_other</span>(<span class='no'>sim</span>, <span class='no'>component</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>species</th>
-      <td><p>A vector of the names of the species to be affected or a
-boolean vector indicating for each species whether it is to be affected
-(TRUE) or not. By default all species are affected</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object</p>
+    <p>A list array (time x component) that stores the projected
+  values for other ecosystem components.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

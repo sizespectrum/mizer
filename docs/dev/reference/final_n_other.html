@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot total fishing mortality of each species by size with plotly — plotlyFMort • mizer</title>
+<title>Values of other ecosystem components at end of simulation — final_n_other • mizer</title>
 
 
 <!-- jquery -->
@@ -37,10 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Plot total fishing mortality of each species by size with plotly — plotlyFMort" />
-<meta property="og:description" content="After running a projection, plot the predation mortality rate of each species
-by size. The mortality rate is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step)." />
+<meta property="og:title" content="Values of other ecosystem components at end of simulation — final_n_other" />
+<meta property="og:description" content="Values of other ecosystem components at end of simulation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,73 +119,30 @@ single value for the time range can be used to plot a single time step)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot total fishing mortality of each species by size with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyFMort.Rd</code></div>
+    <h1>Values of other ecosystem components at end of simulation</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
+    <div class="hidden name"><code>final_n_other.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, plot the predation mortality rate of each species
-by size. The mortality rate is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step).</p>
+    <p>Values of other ecosystem components at end of simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyFMort</span>(<span class='no'>object</span>, <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>time_range</span>, <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>final_n_other</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a> or <a href='MizerParams-class.html'>MizerParams</a>.</p></td>
-    </tr>
-    <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
-    </tr>
-    <tr>
-      <th>time_range</th>
-      <td><p>The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step. Ignored when called with a <a href='MizerParams-class.html'>MizerParams</a>
-object.</p></td>
-    </tr>
-    <tr>
-      <th>highlight</th>
-      <td><p>Name or vector of names of the species to be highlighted.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Other arguments (currently unused)</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <p>A named list holding the values of other ecosystem components at the
+  end of the simulation</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -195,7 +150,6 @@ object.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

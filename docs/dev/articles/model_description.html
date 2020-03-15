@@ -10,7 +10,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="The General Mizer Size-spectrum Model">
+<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="The General Mizer Size-spectrum Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <meta name="robots" content="noindex">
@@ -32,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -90,7 +91,7 @@
 
     
     
-<p>On this page we will revisit the presentation of the mizer model given in chapter 3 of the main <a href="https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf">mizer vignette</a> but taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code><a href="../reference/getRates.html">getRates()</a></code>) because the help pages of these functions will provide useful additional details.</p>
+<p>On this page we will revisit the presentation of the mizer model given in chapter 3 of the main <a href="https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf">mizer vignette</a> but taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code>getRates()</code>) because the help pages of these functions will provide useful additional details.</p>
 We will not go into detail of how this model is realised in code. Such detail will be provided in the <a href="developer_vignette.html">developer guide</a>. However some details are hidden on this page and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.
@@ -101,7 +102,7 @@ And clicking again will hide the details again.
 <p>The first central assumption is that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</span>
-<span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_egg =</span> <span class="fl">1e-3</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_w =</span> <span class="fl">1e-3</span>)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</span></code></pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big.</p>
@@ -147,7 +148,7 @@ And clicking again will hide the details again.
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
 <p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and plankton. It is changed with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>
-<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code>.</p>
+<p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code><a href="../reference/setPredationKernel.html">setPredationKernel()</a></code>.</p>
 <details><p>An important simplification occurs when the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span> depends on the size of the prey <strong>only</strong> through the predator/prey size ratio <span class="math inline">\(w_p/w\)</span>, <span class="math display">\[\phi_i(w, w_p)=\tilde{\phi}_i(w/w_p).\]</span> This is assumed by default but can be overruled. The default for the predation kernel is the truncated log-normal function <span class="math display">\[
   \label{eq:4}
   \tilde{\phi}_i(x) = \begin{cases}
@@ -171,7 +172,7 @@ And clicking again will hide the details again.
   \label{eq:f}
   f_i(w) = \frac{E_{i}(w)}{E_{e.i}(w) + h_i(w)},
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(h_i(w)\)</span> is the maximum consumption rate. This is changed with <code><a href="../reference/setIntakeMax.html">setIntakeMax()</a></code>. By default mizer assumes an allometric form <span class="math inline">\(h_i(w) = h_i\, w^n.\)</span> The feeding level is calculated with the function <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>.</p>
+<p>where <span class="math inline">\(h_i(w)\)</span> is the maximum consumption rate. This is changed with <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>. By default mizer assumes an allometric form <span class="math inline">\(h_i(w) = h_i\, w^n.\)</span> The feeding level is calculated with the function <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>.</p>
 <p>The rate at which food is consumed is then <span class="math display">\[\begin{equation}
 (1-f_i(w))E_{i}(w)=f_i(w)\, h_i(w).
 \end{equation}\]</span></p>
@@ -179,7 +180,7 @@ And clicking again will hide the details again.
 <div id="metabolic-losses" class="section level2">
 <h2 class="hasAnchor">
 <a href="#metabolic-losses" class="anchor"></a>Metabolic losses</h2>
-<p>Some of the consumed food is used to fuel the needs for metabolism and activity and movement, at a rate <span class="math inline">\({\tt metab}_i(w)\)</span>. By default this is made up out of standard metabolism, scaling with exponent <span class="math inline">\(p\)</span>, and loss due to activity and movement, scaling with exponent <span class="math inline">\(1\)</span>: <span class="math display">\[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]</span> See the help page for <code><a href="../reference/setMetab.html">setMetab()</a></code>.</p>
+<p>Some of the consumed food is used to fuel the needs for metabolism and activity and movement, at a rate <span class="math inline">\({\tt metab}_i(w)\)</span>. By default this is made up out of standard metabolism, scaling with exponent <span class="math inline">\(p\)</span>, and loss due to activity and movement, scaling with exponent <span class="math inline">\(1\)</span>: <span class="math display">\[{\tt metab}_i(w) = k_{s.i}\,w^p + k_i\,w.\]</span> See the help page for <code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code>.</p>
 <p>The remaining rate, if any, is assimilated with an efficiency <span class="math inline">\(\alpha_i\)</span> and is then available for growth and reproduction. So the rate at which energy becomes available for growth and reproduction is <span class="math display">\[\begin{equation}
   \label{eq:Er}
   E_{r.i}(w) = \max(0, \alpha_i f_i(w)\, h_i(w) - {\tt metab}_i(w))
@@ -194,15 +195,15 @@ And clicking again will hide the details again.
   R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
 \end{equation}\]</span> where the individual contribution is obtained by multiplying the rate at which the individual allocates energy to reproduction by an efficiency factor <span class="math inline">\(\epsilon\)</span> and then dividing by the egg weight <span class="math inline">\(w_0\)</span> to convert the energy into number of eggs. The result is multiplied by a factor <span class="math inline">\(1/2\)</span> to take into account that only females reproduce.</p>
 </div>
-<div id="recruitment" class="section level2">
+<div id="density-dependence-in-reproduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#recruitment" class="anchor"></a>Recruitment</h2>
-<p>In mizer, density dependence is modelled as a compensation on the egg production. This can be considered as the stock-recruitment relationship (SRR). The default functional form is such that the recruitment flux <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum recruitment as the egg production increases, modelled mathematically analogous to the Holling type II function response as a <em>Beverton-Holt</em> type of SRR:</p>
+<a href="#density-dependence-in-reproduction" class="anchor"></a>Density-dependence in reproduction</h2>
+<p>In mizer, density dependence is modelled as a compensation on the egg production. This gives an additional contribution to the stock-recruitment relationship. The default functional form of this density dependence is such that the reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum as the energy invested in reproduction increases, modelled mathematically analogous to the Holling type II function response as a <em>Beverton-Holt</em> type function:</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
-\end{equation}\]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum recruitment flux of each trait class (Figure~).</p>
-<p>The <em>Beverton-Holt</em> type of SRR is not the only density dependence model that mizer can use. Users are able to write their own model so it is possible to set a range of SRRs, e.g. fixed recruitment (as used in the community-type model) or <em>hockey-stick.</em></p>
+\end{equation}\]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum reproduction rate of each trait class (Figure~).</p>
+<p>The <em>Beverton-Holt</em> type is not the only density dependence model that mizer can use. Users are able to write their own functions, e.g. fixed reproduction (as used in the community-type model) or <em>hockey-stick</em>.</p>
 </div>
 <div id="growth" class="section level2">
 <h2 class="hasAnchor">
@@ -231,9 +232,9 @@ And clicking again will hide the details again.
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}\]</span> This predation mortality rate is calculated by the function <code><a href="../reference/getPredMort.html">getPredMort()</a></code>.</p>
-<p>Background mortality <span class="math inline">\(\mu_{b .i}(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setBMort.html">setBMort()</a></code>. By default mizer assumes an allometric form <span class="math display">\[\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
+<p>External mortality <span class="math inline">\(z0_i(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMortality.html">setExtMortality()</a></code>. By default mizer assumes an allometric form <span class="math display">\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
 <p>Fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span> will be discussed in section <a href="#fishing">Fishing</a>.</p>
-<p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+\mu_{b.i}(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
+<p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
 </div>
 <div id="plankton-mortality" class="section level2">
 <h2 class="hasAnchor">
@@ -262,7 +263,7 @@ And clicking again will hide the details again.
       <li><a href="#consumption">Consumption</a></li>
       <li><a href="#metabolic-losses">Metabolic losses</a></li>
       <li><a href="#sec:repro">Investment into reproduction</a></li>
-      <li><a href="#recruitment">Recruitment</a></li>
+      <li><a href="#density-dependence-in-reproduction">Density-dependence in reproduction</a></li>
       <li><a href="#growth">Growth</a></li>
       <li><a href="#mortality">Mortality</a></li>
       <li><a href="#plankton-mortality">Plankton Mortality</a></li>

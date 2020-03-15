@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="A class to hold the parameters for a size based model. — MizerParams-class" />
 <meta property="og:description" content="MizerParams objects can be created using a range of constructor functions." />
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -167,33 +169,33 @@ for each species at size, \(\psi_i(w)\). Changed with
 <code><a href='setReproduction.html'>setReproduction</a></code>.</p></dd>
 
 <dt><code>intake_max</code></dt><dd><p>An array (species x size) that holds the maximum intake for
-each species at size. Changed with <code><a href='setIntakeMax.html'>setIntakeMax</a></code>.</p></dd>
+each species at size. Changed with <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.</p></dd>
 
 <dt><code>search_vol</code></dt><dd><p>An array (species x size) that holds the search volume for
 each species at size. Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
 
 <dt><code>metab</code></dt><dd><p>An array (species x size) that holds the metabolism
-for each species at size. Changed with <code><a href='setMetab.html'>setMetab</a></code>.</p></dd>
+for each species at size. Changed with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p></dd>
 
-<dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the background death 
-\(\mu_{b.i}(w)\). Changed with <code><a href='setBMort.html'>setBMort</a></code>.</p></dd>
+<dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the external mortality rate
+\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMortality.html'>setExtMortality</a></code>.</p></dd>
 
 <dt><code>pred_kernel</code></dt><dd><p>An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
 this is NA then the following two slots will be used. Changed with 
-<code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+<code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_e</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the available 
-energy integral. Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+energy integral. Changed with <code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_p</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
-Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+Changed with <code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
 
 <dt><code>rr_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
 growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
@@ -215,17 +217,16 @@ are the names of those components.</p></dd>
 <dt><code>other_encounter</code></dt><dd><p>A named list of functions for calculating the 
 contribution to the encounter rate from each other dynamical component.</p></dd>
 
-<dt><code>other_pred_mort</code></dt><dd><p>A named list of functions for calculating the 
-contribution to the predation mortality rate from each other dynamical 
-component.</p></dd>
+<dt><code>other_mort</code></dt><dd><p>A named list of functions for calculating the 
+contribution to the mortality rate from each other dynamical components.</p></dd>
 
 <dt><code>other_params</code></dt><dd><p>A list containing the parameters needed by any mizer
 extensions you may have installed to model other dynamical components of
 the ecosystem.</p></dd>
 
-<dt><code>rates_func</code></dt><dd><p>A string with the name of the function that should be used to
-calculate the rates needed by `project()`. By default this will be set to
-"getRates" so that the built-in `getRates()` function is used.</p></dd>
+<dt><code>rates_funcs</code></dt><dd><p>A named list with the names of the functions that should be
+used to calculate the rates needed by `project()`. By default this will be
+set to the names of the built-in rate functions.</p></dd>
 
 <dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
 
@@ -234,10 +235,6 @@ See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> 
 
 <dt><code>interaction</code></dt><dd><p>The species specific interaction matrix, \(\theta_{ij}\).
 Changed with <code><a href='setInteraction.html'>setInteraction</a></code>.</p></dd>
-
-<dt><code>srr</code></dt><dd><p>String holding the name of the function to calculate the realised
-(density dependent) recruitment. The function should have two arguments
-which are rdi and species_params.</p></dd>
 
 <dt><code>selectivity</code></dt><dd><p>An array (gear x species x w) that holds the selectivity of
 each gear for species and size, \(S_{g,i,w}\). Changed with 

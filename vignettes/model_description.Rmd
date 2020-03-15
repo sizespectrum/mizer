@@ -50,7 +50,7 @@ Here is a plot of an example size spectrum for two species with
 $N_i(w)$ on the vertical axis for $i=1,2$ and $w$ on the horizontal axis.
 ```{r, message=FALSE}
 library(mizer)
-params <- newTraitParams(no_sp = 2, min_egg = 1e-3)
+params <- newTraitParams(no_sp = 2, min_w = 1e-3)
 plotSpectra(params, plankton = FALSE, power = 0)
 ```
 

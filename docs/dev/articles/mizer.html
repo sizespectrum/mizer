@@ -10,7 +10,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
+<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Get started">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <meta name="robots" content="noindex">
@@ -32,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -121,34 +122,31 @@
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span>()</span></code></pre></div>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species how species predate on each other. An example of a North Sea model is provided with the package.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(NS_species_params)</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(inter)</span>
-<span id="cb5-3"><a href="#cb5-3"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(NS_species_params, inter)</span></code></pre></div>
-<pre><code>## Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.</code></pre>
-<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
-<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(NS_species_params, inter)</span></code></pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
+<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
+<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <p>The notes printed out by the function show us that mizer calculated default values for many parameters that were not provided.</p>
 </div>
 <div id="running-a-simulation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#running-a-simulation" class="anchor"></a>Running a simulation</h2>
 <p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function with the model parameters.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">effort =</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(params, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">effort =</span> <span class="dv">0</span>)</span></code></pre></div>
 <p>This produces an object of class <code>MizerSim</code> which contains the results of the simulation. In this example we chose to set some parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we want to project 10 years into the future, under the assumption of zero fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for more details and it is described fully in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 </div>
 <div id="exploring-the-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#exploring-the-results" class="anchor"></a>Exploring the results</h2>
 <p>After a simulation has been run, the results can be examined using a range of <code>plotting_functions</code> and <code>summary functions</code>. The <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> function combines several of these plots into one:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</span></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <p>Just as an example: we might be interested in how the proportion of large fish varies over time. We can get the proportion of Herrings in terms of biomass that have a weight above 50g in each of the 10 years:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(sim, <span class="dt">species =</span> <span class="st">"Herring"</span>, <span class="dt">threshold_w =</span> <span class="dv">50</span>, <span class="dt">biomass_proportion =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span>(sim, <span class="dt">species =</span> <span class="st">"Herring"</span>, <span class="dt">threshold_w =</span> <span class="dv">50</span>, <span class="dt">biomass_proportion =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>##         0         1         2         3         4         5         6         7 
 ## 0.8241807 0.1925368 0.8376381 0.8602555 0.2809572 0.1283272 0.2979067 0.3274678 
 ##         8         9        10 
@@ -168,7 +166,7 @@
 <p>The continuity equation is supplemented by a boundary condition at the egg weight <span class="math inline">\(w_0\)</span> where the flux of individuals (numbers per time) <span class="math inline">\(g_i(w_0) N_i(w_0)\)</span> is determined by the reproduction of offspring by mature individuals in the population <span class="math inline">\(R_i\)</span>: <span class="math display">\[\begin{equation}
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}\]</span></p>
-<p>The rest of the formulation of the model rests on a number of ``standard’’ assumptions from ecology and fisheries science about how encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and recruitment <span class="math inline">\(R_i\)</span> of the predators, and mortality of the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
+<p>The rest of the formulation of the model rests on a number of ``standard’’ assumptions from ecology and fisheries science about how encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and reproduction <span class="math inline">\(R_i\)</span> of the predators, and mortality of the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
 <p>For a more detailed exposition of the model see the vignette <a href="model_description.html">The mizer size-spectrum model</a>.</p>
 <p>It is easiest to learn the basics of mizer through examples. We do this by looking at three set-ups of the framework, of increasing complexity. For each one there is a vignette that describes how to set up the model, run it in different scenarios, and explore the results. We recommend that you explore these in the following order:</p>
 <div id="community-model" class="section level3">
@@ -185,15 +183,6 @@
 <h3 class="hasAnchor">
 <a href="#multispecies-model" class="anchor"></a>Multispecies model</h3>
 <p>In the <a href="multispecies_model.html">multispecies model</a> individual species are resolved in detail and each has distinct life history, feeding and reproduction parameters. More detailed information is required to parameterise the multispecies model but the approach can be used to address management strategies for a realistic community in a specific region or subset of interacting species.</p>
-<!--
-## Scale-invariant trait-based model
-The [scale-invariant trait-based model](scale_invariant_trait_based_model.html)
-is a version of the trait-based model with even more symmetries, so that the
-resulting system is close to being scale-invariant. This allows us to obtain
-analytic expressions for the steady state of the model, which makes setting a
-stable steady state easier, without having to impose an external
-stock-recruitment relationship.
--->
 </div>
 <div id="which-model-to-use" class="section level3">
 <h3 class="hasAnchor">

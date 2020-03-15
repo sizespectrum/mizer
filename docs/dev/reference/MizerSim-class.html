@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="A class to hold the results of a simulation — MizerSim-class" />
 <meta property="og:description" content="A class that holds the results of projecting a MizerParams
@@ -70,7 +72,7 @@ object through time using the project function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -150,16 +152,17 @@ same order as specified when setting up the <code>MizerParams</code> object.</p>
 <dl class='dl-horizontal'>
 <dt><code>params</code></dt><dd><p>An object of type <a href='MizerParams-class.html'>MizerParams</a>.</p></dd>
 
-<dt><code>n</code></dt><dd><p>Array that stores the projected community population abundances by
-time, species and size.</p></dd>
+<dt><code>n</code></dt><dd><p>Three-dimensional array (time x species x size) that stores the 
+projected community number densities.</p></dd>
 
-<dt><code>n_pp</code></dt><dd><p>Array that stores the projected plankton abundance by time and
-size.</p></dd>
+<dt><code>n_pp</code></dt><dd><p>An array (time x size) that stores the projected plankton number
+densities.</p></dd>
 
-<dt><code>n_other</code></dt><dd><p>List of lists where the outer list is named by time and the
-inner lists are named by the names of the other ecosystem components.</p></dd>
+<dt><code>n_other</code></dt><dd><p>A list array (time x component) that stores the projected
+values for other ecosystem components.</p></dd>
 
-<dt><code>effort</code></dt><dd><p>Array that stores the fishing effort by time and gear.</p></dd>
+<dt><code>effort</code></dt><dd><p>An array (time x gear) that stores the fishing effort by time and 
+gear.</p></dd>
 
 </dl>
 

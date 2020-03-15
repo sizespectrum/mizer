@@ -13,9 +13,11 @@ articles:
   editing_website: editing_website.html
   exploring_the_simulation_results: exploring_the_simulation_results.html
   installation: installation.html
+  making_modifications: making_modifications.html
   mizer: mizer.html
   model_description: model_description.html
   multispecies_model: multispecies_model.html
+  plotting: plotting.html
   publications: publications.html
   running_a_simulation: running_a_simulation.html
   trait_model: trait_model.html

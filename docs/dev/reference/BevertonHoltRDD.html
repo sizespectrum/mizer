@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Identity stock-recruitment function — srrNone • mizer</title>
+<title>Beverton Holt function to calculate density-dependent reproduction rate — BevertonHoltRDD • mizer</title>
 
 
 <!-- jquery -->
@@ -37,8 +37,12 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Identity stock-recruitment function — srrNone" />
-<meta property="og:description" content="Simply returns its rdi argument." />
+<meta property="og:title" content="Beverton Holt function to calculate density-dependent reproduction rate — BevertonHoltRDD" />
+<meta property="og:description" content="Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent reproduction rates \(R\) given as $$R = R_p
+\frac{R_{max}}{R_p + R_{max}}$$ where
+\(R_{max}\) are the maximum possible reproduction rates that must be
+specified in a column in the species parameter dataframe." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -119,41 +123,57 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Identity stock-recruitment function</h1>
+    <h1>Beverton Holt function to calculate density-dependent reproduction rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
-    <div class="hidden name"><code>srrNone.Rd</code></div>
+    <div class="hidden name"><code>BevertonHoltRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simply returns its <code>rdi</code> argument.</p>
+    <p>Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent reproduction rates \(R\) given as $$R = R_p
+\frac{R_{max}}{R_p + R_{max}}$$ where
+\(R_{max}\) are the maximum possible reproduction rates that must be
+specified in a column in the species parameter dataframe.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>srrNone</span>(<span class='no'>rdi</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>BevertonHoltRDD</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>rdi</th>
-      <td><p>Vector of density independent egg production rates \(R_p\) for
-all species.</p></td>
+      <td><p>Vector of density-independent reproduction rates \(R_p\) for all
+species.</p></td>
+    </tr>
+    <tr>
+      <th>species_params</th>
+      <td><p>A species parameter dataframe. Must contain a column
+R_max holding the maximum reproduction rate \(R_{max}\) for each species.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Vector of density-dependent larvae production rates.</p>
+    <p>Vector of density-dependent reproduction rates.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This is only one example of a density-dependence. You can write your own
+function based on this example, returning different density-dependent
+reproduction rates. Two other examples provided are <code><a href='RickerRDD.html'>RickerRDD</a></code>
+and <code><a href='SheperdRDD.html'>SheperdRDD</a></code>. For more explanation see
+<code><a href='setReproduction.html'>setReproduction</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other stock-recruitment functions: 
-<code><a href='srrBevertonHolt.html'>srrBevertonHolt</a>()</code>,
-<code><a href='srrConstant.html'>srrConstant</a>()</code>,
-<code><a href='srrRicker.html'>srrRicker</a>()</code>,
-<code><a href='srrSheperd.html'>srrSheperd</a>()</code></p></div>
+    <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
+<code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
+<code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
+<code><a href='constantRDD.html'>constantRDD</a>()</code>,
+<code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -161,6 +181,7 @@ all species.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

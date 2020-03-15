@@ -34,9 +34,12 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Create empty MizerParams object of the right size — emptyParams" />
-<meta property="og:description" content="Sets up a valid MizerParams object with all the slots
+<meta property="og:description" content="An internal function.
+Sets up a valid MizerParams object with all the slots
 initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects." />
 <meta name="twitter:card" content="summary" />
@@ -71,7 +74,7 @@ function is to be used by other functions to set up full parameter objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -125,7 +128,8 @@ function is to be used by other functions to set up full parameter objects." />
     </div>
 
     <div class="ref-description">
-    <p>Sets up a valid <a href='MizerParams-class.html'>MizerParams</a> object with all the slots
+    <p>An internal function.
+Sets up a valid <a href='MizerParams-class.html'>MizerParams</a> object with all the slots
 initialised and given dimension names, but with some slots left empty. This
 function is to be used by other functions to set up full parameter objects.</p>
     </div>
@@ -135,8 +139,7 @@ function is to be used by other functions to set up full parameter objects.</p>
   <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
   <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>no_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>
+  <span class='kw'>min_w_pp</span> <span class='kw'>=</span> <span class='fl'>NA</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -158,31 +161,32 @@ given in the <code>w_min</code> column of the <code>species_params</code> datafr
     <tr>
       <th>max_w</th>
       <td><p>The largest size of the consumer spectrum. By default this is
-set to the largest w_inf specified in the species_params data frame.</p></td>
+set to the largest <code>w_inf</code> specified in the <code>species_params</code> data
+frame.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
       <td><p>The smallest size of the plankton spectrum.</p></td>
-    </tr>
-    <tr>
-      <th>no_w_pp</th>
-      <td><p>No longer used</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An empty but valid MizerParams object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="size-grid"><a class="anchor" href="#size-grid"></a>Size grid</h2>
 
-    <p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for a function that fills the
-slots left empty by this function.</p>
+    
+
 <p>A size grid is created so that
 the log-sizes are equally spaced. The spacing is chosen so that there will be
 <code>no_w</code> fish size bins, with the smallest starting at <code>min_w</code> and the largest
 starting at <code>max_w</code>. For <code>w_full</code> additional size bins are added below
 <code>min_w</code>, with the same log size. The number of extra bins is such that
 <code>min_w_pp</code> comes to lie within the smallest bin.</p>
+    <h2 class="hasAnchor" id="changes-to-species-params"><a class="anchor" href="#changes-to-species-params"></a>Changes to species params</h2>
+
+    
+
 <p>The <code>species_params</code> slot of the returned MizerParams object may differ
 slightly from the data frame supplied as argument to this function in the
 following ways:</p><ul>
@@ -190,6 +194,10 @@ following ways:</p><ul>
 <li><p>The egg sizes in <code>w_min</code> are rounded down to lie on a grid point.</p></li>
 </ul><p>Note that the other characteristic sizes of the species, like <code>w_mat</code> and
 <code>w_inf</code>, are not modified to lie on grid points.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for a function that fills
+the slots left empty by this function.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -197,7 +205,9 @@ following ways:</p><ul>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#size-grid">Size grid</a></li>
+      <li><a href="#changes-to-species-params">Changes to species params</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

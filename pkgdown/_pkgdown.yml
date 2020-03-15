@@ -93,7 +93,7 @@ reference:
   - steady
 - title: Accessing results
   contents:
-  - n
+  - "n"
   - n_pp
   - final_n
   - final_n_pp
@@ -170,18 +170,18 @@ reference:
   - noRDD
   - constantRDD
 - title: Internal rate functions
-  description: These functions are used by `project()` to calculate 
-    instantaneous rates at each time step. You should use the `get...()` 
-    functions instead of the `mizer...()` functions.
+  description: These functions are used by project() to calculate 
+    instantaneous rates at each time step. You should use the get...() 
+    functions instead of the mizer...() functions.
   contents:
   - mizerRates
   - starts_with("mizer")
   - -mizer
 - title: Internal helper functions
   contents:
-# The following should list all functions with @concept helper
-# but instead lists all functions. A bug in pkgdown?
-#  - has_concept("helper")
+    # The following should list all functions with @concept helper
+    # but instead lists all functions. A bug in pkgdown?
+    #  - has_concept("helper")
   - validSpeciesParams
   - set_species_param_default
   - get_h_default
@@ -206,7 +206,7 @@ reference:
   - inter
 - title: Deprecated
   desc: These functions are available for backwards compatibility with earlier
-        versions of mizer
+    versions of mizer
   contents:
   - set_multispecies_model
   - set_community_model
@@ -217,3 +217,4 @@ reference:
   - getM2Background
   - getZ
   - plotM2
+

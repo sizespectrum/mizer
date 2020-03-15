@@ -13,6 +13,9 @@
     <loc>https://sizespectrum.org/mizer/reference/Benguela_params.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/BevertonHoltRDD.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/MizerParams-class.html</loc>
   </url>
   <url>
@@ -40,13 +43,19 @@
     <loc>https://sizespectrum.org/mizer/reference/NorthSea_params.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/addSpecies.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/RickerRDD.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/animateSpectra.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/SheperdRDD.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/box_pred_kernel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/constantRDD.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/displayFrames.html</loc>
@@ -55,7 +64,19 @@
     <loc>https://sizespectrum.org/mizer/reference/double_sigmoid_length.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/effort.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/emptyParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/final_n.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/final_n_other.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/final_n_pp.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getBiomass.html</loc>
@@ -65,6 +86,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getCommunitySlope.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getDiet.html</loc>
@@ -115,16 +139,19 @@
     <loc>https://sizespectrum.org/mizer/reference/getN.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/getPlanktonMort.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/getPhiPrey.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/getPredKernel.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/getPlanktonMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getPredMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getPredRate.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getPredationKernel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.html</loc>
@@ -136,16 +163,7 @@
     <loc>https://sizespectrum.org/mizer/reference/getRDI.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/getRates.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/getSSB.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/getSSBFrame.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/getStarvMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getYield.html</loc>
@@ -172,7 +190,7 @@
     <loc>https://sizespectrum.org/mizer/reference/get_phi.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/get_required_recruitment.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/get_required_reproduction.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/get_size_range_array.html</loc>
@@ -182,6 +200,15 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/indicator_functions.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/initial_n-set.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/initial_n_other-set.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/initial_n_pp-set.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/inter.html</loc>
@@ -196,10 +223,55 @@
     <loc>https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/markBackground.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/mizer.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/mizer.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/mizerEGrowth.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerERepro.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerEncounter.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerFMort.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerFMortGear.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerFeedingLevel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerMort.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerPlanktonMort.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerPredMort.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerPredRate.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerRDI.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerRates.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/n.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/n_other.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/n_pp.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
@@ -208,10 +280,10 @@
     <loc>https://sizespectrum.org/mizer/reference/newMultispeciesParams.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/newSheldonParams.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/newTraitParams.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/noRDD.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plankton_constant.html</loc>
@@ -253,30 +325,6 @@
     <loc>https://sizespectrum.org/mizer/reference/plotYieldGear.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyBiomass.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyFMort.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyFeedingLevel.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyGrowthCurves.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyPredMort.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlySpectra.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyYield.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plotlyYieldGear.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/plotting_functions.html</loc>
   </url>
   <url>
@@ -289,46 +337,37 @@
     <loc>https://sizespectrum.org/mizer/reference/project_methods.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/pruneSpecies.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/removeSpecies.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/retune_erepro.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/renameSpecies.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setColours.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/rescaleAbundance.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setComponent.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/rescaleSystem.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/retuneBackground.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/retuneReproductionEfficiency.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/setBMort.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setExtMortality.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setFishing.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setInitial.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/setIntakeMax.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setInitialValues.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setInteraction.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setMetab.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setLinetypes.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setMaxIntakeRate.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setMetabolicRate.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setParams.html</loc>
@@ -337,7 +376,10 @@
     <loc>https://sizespectrum.org/mizer/reference/setPlankton.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setPredKernel.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setPredationKernel.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setRateFunction.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setReproduction.html</loc>
@@ -367,19 +409,7 @@
     <loc>https://sizespectrum.org/mizer/reference/sigmoid_weight.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/srrBevertonHolt.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/srrConstant.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/srrNone.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/srrRicker.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/srrSheperd.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/species_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/steady.html</loc>
@@ -394,13 +424,13 @@
     <loc>https://sizespectrum.org/mizer/reference/summary_functions.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/tuneParams.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/updateInitial.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/times.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/validSpeciesParams.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/validate_effort_vector.html</loc>
@@ -430,6 +460,9 @@
     <loc>https://sizespectrum.org/mizer/articles/installation.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/articles/making_modifications.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>
   </url>
   <url>
@@ -437,6 +470,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/multispecies_model.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/plotting.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/publications.html</loc>

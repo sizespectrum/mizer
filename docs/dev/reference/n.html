@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot the total yield of each species by gear through time with plotly — plotlyYieldGear • mizer</title>
+<title>Time series of consumer size spectra — n • mizer</title>
 
 
 <!-- jquery -->
@@ -37,9 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Plot the total yield of each species by gear through time with plotly — plotlyYieldGear" />
-<meta property="og:description" content="After running a projection, the total yield of each species by fishing gear
-can be plotted against time." />
+<meta property="og:title" content="Time series of consumer size spectra — n" />
+<meta property="og:description" content="Fetch the simulation results for the consumer size spectra over time." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,82 +119,30 @@ can be plotted against time." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot the total yield of each species by gear through time with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyYieldGear.Rd</code></div>
+    <h1>Time series of consumer size spectra</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>n.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, the total yield of each species by fishing gear
-can be plotted against time.</p>
+    <p>Fetch the simulation results for the consumer size spectra over time.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyYieldGear</span>(
-  <span class='no'>sim</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/dimnames.html'>dimnames</a></span>(<span class='no'>sim</span>@<span class='kw'>n</span>)$<span class='no'>sp</span>,
-  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>n</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>sim</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a></p></td>
-    </tr>
-    <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
-    </tr>
-    <tr>
-      <th>total</th>
-      <td><p>A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE</p></td>
-    </tr>
-    <tr>
-      <th>highlight</th>
-      <td><p>Name or vector of names of the species to be highlighted.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Other arguments (currently unused)</p></td>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This plot is pretty easy to do by hand. It just
-gets the biomass using the <code><a href='getYieldGear.html'>getYieldGear</a></code> method and plots using
-the ggplot2 package. You can then fiddle about with colours and linetypes
-etc. Just look at the source code for details.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <p>A three-dimensional array (time x species x size) with the number
+  density of consumers</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -203,8 +150,6 @@ etc. Just look at the source code for details.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

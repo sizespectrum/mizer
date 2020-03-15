@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot growth curves giving weight as a function of age with plotly — plotlyGrowthCurves • mizer</title>
+<title>Plankton size spectrum at end of simulation — final_n_pp • mizer</title>
 
 
 <!-- jquery -->
@@ -37,13 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Plot growth curves giving weight as a function of age with plotly — plotlyGrowthCurves" />
-<meta property="og:description" content="When the growth curve for only a single species is plotted, horizontal
-lines are included that indicate the maturity size and the maximum size for 
-that species. If furthermore the species parameters contain the variables
-a and b for length to weight conversion and the von Bertalanffy parameter
-k_vb (and optionally t0), then the von Bertalanffy growth curve is
-superimposed in black." />
+<meta property="og:title" content="Plankton size spectrum at end of simulation — final_n_pp" />
+<meta property="og:description" content="Plankton size spectrum at end of simulation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,83 +119,30 @@ superimposed in black." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot growth curves giving weight as a function of age with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyGrowthCurves.Rd</code></div>
+    <h1>Plankton size spectrum at end of simulation</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>final_n_pp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>When the growth curve for only a single species is plotted, horizontal
-lines are included that indicate the maturity size and the maximum size for 
-that species. If furthermore the species parameters contain the variables
-a and b for length to weight conversion and the von Bertalanffy parameter
-k_vb (and optionally t0), then the von Bertalanffy growth curve is
-superimposed in black.</p>
+    <p>Plankton size spectrum at end of simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyGrowthCurves</span>(
-  <span class='no'>object</span>,
-  <span class='no'>species</span>,
-  <span class='kw'>max_age</span> <span class='kw'>=</span> <span class='fl'>20</span>,
-  <span class='kw'>percentage</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>final_n_pp</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>MizerSim or MizerParams object. If given a
-<a href='MizerSim-class.html'>MizerSim</a> object, uses the growth rates at the final time of a
-simulation to calculate the size at age. If given a
-<a href='MizerParams-class.html'>MizerParams</a> object, uses the initial growth rates instead.</p></td>
-    </tr>
-    <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be included. By
-default all species are included.</p></td>
-    </tr>
-    <tr>
-      <th>max_age</th>
-      <td><p>The age up to which to run the growth curve. Default is 20.</p></td>
-    </tr>
-    <tr>
-      <th>percentage</th>
-      <td><p>Boolean value. If TRUE, the size is given as a percentage
-of the maximal size.</p></td>
-    </tr>
-    <tr>
-      <th>highlight</th>
-      <td><p>Name or vector of names of the species to be highlighted.</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A ggplot2 object</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <p>A vector holding the plankton number densities at the end of the
+  simulation for all size classes</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -208,7 +150,6 @@ of the maximal size.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

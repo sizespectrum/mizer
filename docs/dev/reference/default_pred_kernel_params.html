@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Remove species from an ecosystem — removeSpecies • mizer</title>
+<title>Set defaults for predation kernel parameters — default_pred_kernel_params • mizer</title>
 
 
 <!-- jquery -->
@@ -37,10 +37,10 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Remove species from an ecosystem — removeSpecies" />
-<meta property="og:description" content="This function simply removes all entries from the MizerParams object that
-refer to the selected species. It does not recalculate the steady state for
-the remaining species or retune their reproductive efficiency." />
+<meta property="og:title" content="Set defaults for predation kernel parameters — default_pred_kernel_params" />
+<meta property="og:description" content="If the predation kernel type has not been specified for a species, then it
+is set to &quot;lognormal&quot; and the default values are set for the parameters
+`beta` and `sigma`." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,37 +121,31 @@ the remaining species or retune their reproductive efficiency." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Remove species from an ecosystem</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>removeSpecies.Rd</code></div>
+    <h1>Set defaults for predation kernel parameters</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>default_pred_kernel_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function simply removes all entries from the MizerParams object that
-refer to the selected species. It does not recalculate the steady state for
-the remaining species or retune their reproductive efficiency.</p>
+    <p>If the predation kernel type has not been specified for a species, then it
+is set to "lognormal" and the default values are set for the parameters
+`beta` and `sigma`.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>removeSpecies</span>(<span class='no'>params</span>, <span class='no'>species</span>)</pre>
+    <pre class="usage"><span class='fu'>default_pred_kernel_params</span>(<span class='no'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A mizer params object for the original system.</p></td>
-    </tr>
-    <tr>
-      <th>species</th>
-      <td><p>A vector of the names of the species to be deleted or a boolean
-vector indicating for each species whether it is to be removed (TRUE) or
-not.</p></td>
+      <th>object</th>
+      <td><p>Either a MizerParams object or a species parameter data frame</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of type <a href='MizerParams-class.html'>MizerParams</a></p>
+    <p>The `object` with updated columns in the species params data frame.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

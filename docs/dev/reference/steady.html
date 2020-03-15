@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find a steady state for the model — steady • mizer</title>
+<title>Set initial values to a steady state for the model — steady • mizer</title>
 
 
 <!-- jquery -->
@@ -37,11 +37,12 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Find a steady state for the model — steady" />
-<meta property="og:description" content="This is done by running the dynamics while keeping reproduction and other
-components constant until the size spectra no longer change (or until time
-t_max is reached if earlier) Then the reproductive efficiencies are set to
-the values that give the level of reproduction observed in that steady state." />
+<meta property="og:title" content="Set initial values to a steady state for the model — steady" />
+<meta property="og:description" content="The steady state is found by running the dynamics while keeping reproduction
+and other components constant until the size spectra no longer change (or
+until time t_max is reached if earlier) Then the reproductive efficiencies
+are set to the values that give the level of reproduction observed in that
+steady state." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,16 +123,17 @@ the values that give the level of reproduction observed in that steady state." /
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find a steady state for the model</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
+    <h1>Set initial values to a steady state for the model</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/steady.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/steady.R'><code>R/steady.R</code></a></small>
     <div class="hidden name"><code>steady.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is done by running the dynamics while keeping reproduction and other
-components constant until the size spectra no longer change (or until time
-<code>t_max</code> is reached if earlier) Then the reproductive efficiencies are set to
-the values that give the level of reproduction observed in that steady state.</p>
+    <p>The steady state is found by running the dynamics while keeping reproduction
+and other components constant until the size spectra no longer change (or
+until time <code>t_max</code> is reached if earlier) Then the reproductive efficiencies
+are set to the values that give the level of reproduction observed in that
+steady state.</p>
     </div>
 
     <pre class="usage"><span class='fu'>steady</span>(

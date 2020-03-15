@@ -10,7 +10,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="The Multi Species Model">
+<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="The Multi Species Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <meta name="robots" content="noindex">
@@ -32,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -106,8 +107,8 @@
 <ul>
 <li>life-history parameters of the species in the community, such as <span class="math inline">\(w_{\infty}\)</span>;</li>
 <li>size-based biological parameters for the species, such as the search volume, <span class="math inline">\(V(w)\)</span>;</li>
-<li>stock-recruitment relationship functions and parameters of each species;</li>
-<li>interaction matrix to describe the spatial overlap of pairs of species;</li>
+<li>density-dependent reproduction functions and parameters of each species;</li>
+<li>an interaction matrix to describe the spatial overlap of pairs of species;</li>
 <li>parameters relating to the growth and dynamics of the plankton spectrum;</li>
 <li>fishing gear parameters: selectivity and catchability.</li>
 </ul>
@@ -125,7 +126,7 @@
 A description of the columns of the species parameter data.frame and any default values can be seen Table~\@ref(tab:species_params).
 
 -->
-<p>The essential columns of the species parameters data.frame that have no default values are: <code>species</code>, the names of the species in the community; <code>w_inf</code>, the asymptotic mass of the species; <code>w_mat</code>, the mass at maturation; <code>beta</code> and <code>sigma</code>, the predator-prey mass ratio parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma\)</span> (see <a href="model_description.html#ppmr">the section on predator/prey mass ratio</a>) and the stock-recruitment parameters (by default, the stock-recruitment function is a Beverton-Holt type and so, unless a different SRR function is used, a <code>R_max</code> column must be provided - see <a href="model_description.html#sec:recruitment">the section on the stock-recruitment relationship</a> for more details).</p>
+<p>The essential columns of the species parameters data.frame that have no default values are: <code>species</code>, the names of the species in the community and <code>w_inf</code>, the asymptotic mass of the species.</p>
 <!-- need to check these are still the defaults -->
 <p>Essential columns that have default values are: <code>k</code>, the activity coefficient (default = 0); <code>alpha</code>, the assimilation efficiency (default = 0.6); <code>erepro</code>, the reproductive efficiency (default value = 1); <code>w_min</code>, the size of recruits (default value is the smallest size of the community size spectrum); <code>sel_func</code>, the name of the fishing selectivity function (default value = “knife_edge”); <code>gear</code>, the name of the fishing gear that catches the species (default value is the name of the species in the <code>species</code> column); <code>catchability</code>, the catchability of the fishing gear on that species (default value = 1). Additionally, columns that contain the selectivity function parameters are needed. As mentioned, the default selectivity function is a <em>knife_edge</em> function. This has an argument <code>knife_edge_size</code> that determines the knife-edge position and has a default value of <code>w_min</code>. If any of these columns are not included in the species parameter data.frame, the default values are used.</p>
 <p>As mentioned above, there are some columns that are essential but if they are not provided, values for them are estimated using the values in the other columns. These columns are: <code>h</code>, the maximum food intake; <code>gamma</code>, the volumetric search rate; <code>ks</code>, the coefficient for standard metabolism; <code>z0</code>, the mortality from other sources, <span class="math inline">\(\mu_{b,i}.\)</span> These parameters can be included as columns in the species parameters <code>data.frame</code> if they are available. If they are not provided then the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> construction method will try to calculate them.</p>
@@ -135,7 +136,7 @@ A description of the columns of the species parameter data.frame and any default
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(k_{vb}\)</span> is the von Bertalanffy <span class="math inline">\(K\)</span> parameter and <span class="math inline">\(f_0\)</span> is the feeding level of small individuals feeding mainly on the plankton. This mean that if an <code>h</code> column is not included in the species parameter data.frame, a column for <code>k_vb</code> is necessary. If it is not included then the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> function will fail with an error message. The calculation also requires a value of the feeding level of small individuals. This can be passed as an additional argument, <code>f0</code>, to the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor and it has a default value of 0.6.</p>
 <p>The <code>gamma</code> column is calculated using <a href="model_description.html#eq:gamma">the equation for volumetric search rate.</a> This calculation requires that the <code>h</code> column is available, either included in the species parameter data.frame, or calculated internally using the <code>k_vb</code> column as described above. This means that if you include a <code>k_vb</code> column in the data.frame, <code>h</code> and <code>gamma</code> will be calculated from it.</p>
-<p>The <code>z0</code> column (mortality from other sources) is calculated using the equation <span class="math inline">\(\mu_{b.i}(w) = \mu_b w_{\infty.i}^{1-n}.\)</span> The values <code>z0pre</code> (equivalent to <span class="math inline">\(\mu_0\)</span>) and <code>z0exp</code> (the power that <span class="math inline">\(w_\infty\)</span> is raised to) can be passed as arguments to the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor and have default values of 0.6 and <code>n-1</code> (where <code>n</code> has a default value of 2/3) respectively.</p>
+<p>The <code>z0</code> column (mortality from other sources) is calculated using the equation <span class="math inline">\({\tt z0}_i(w) = {\tt z0pre }\  w_{\infty.i}^{\tt{z0exp}}.\)</span> The values <code>z0pre</code> (equivalent to <span class="math inline">\(\mu_0\)</span>) and <code>z0exp</code> (the power that <span class="math inline">\(w_\infty\)</span> is raised to) can be passed as arguments to the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor and have default values of 0.6 and <code>n-1</code> (where <code>n</code> has a default value of 2/3) respectively.</p>
 <p>The <code>ks</code> column is calculated as 20% of <code>h</code>, i.e. the standard metabolism coefficient is 20% of the maximum consumption. Standard metabolism is used in calculation of the growth of individuals as <span class="math inline">\(k_{s.i} w_i^p\)</span> (see <a href="model_description.html#sec:allo">the section on allometric rates</a>). The species parameter information is stored as a data.frame which hold the information described in <a href="../reference/newMultispeciesParams.html#note">the MizerParams help page.</a></p>
 <!-- The old generator for table 2 used to be here, but I am commenting it out -->
 <!--
@@ -176,7 +177,7 @@ A description of the columns of the species parameter data.frame and any default
         %b & Length-weight conversion power & See notes for column $a$\\
         other columns & Other parameters used by the selectivity function. For example, if the default "knife_edge" function is used then the parameters "knife_edge_size" must also be specified as columns (see Section~\@ref(sec:fishing_gear)). & \\ 
         \hline
-        \multicolumn{3}{c}{Stock recruitment parameters (see Section~\@ref(sec:srr) for more details).} \\
+        \multicolumn{3}{c}{Density-dependent recruitment parameters (see Section~\@ref(sec:srr) for more details).} \\
         \hline
         other columns & Any arguments that appear in the stock-recruitment function must also have a column of values (see Section~\@ref(sec:srr)) & \\
     %\end{tabular}
@@ -275,23 +276,21 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 <p>Note that there are no columns describing the fishing selectivity. There is no <code>sel_func</code> column to determine the selectivity function. This means that the default selectivity function, <code>knife_edge</code>, will be used. As mentioned in <a href="multispecies_model.html#sec:fishing_gear">the section on fishing gears</a>, this function also needs another argument, <code>knife_edge_size</code>. This is not present in the data.frame and so it will be set to the default value of <code>w_mat</code>. Also, there is no <code>catchability</code> column so a default value for <code>catchability</code> of 1 will be used for all gears and species.</p>
 <p>This species parameter data.frame is the minimum we need to create a <code>MizerParams</code> object as it contains only essential columns. To create the <code>MizerParams</code> object we pass the data.frame into the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> constructor method:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data)</span></code></pre></div>
-<pre><code>## Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.</code></pre>
-<pre><code>## Starvation mortality coefficient `starv_coef` is not provided in species parameters, so it is set to 10.</code></pre>
-<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
-<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
+<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
+<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <p>We have just created a <code>MizerParams</code> object:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(params)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw"><a href="https://rdrr.io/r/base/class.html">class</a></span>(params)</span></code></pre></div>
 <pre><code>## [1] "MizerParams"
 ## attr(,"package")
 ## [1] "mizer"</code></pre>
 <p>As has been mentioned in <a href="community_model.html">the section on the community model</a> and <a href="trait_model.html">the section on the trait based model</a>, a <code>MizerParams</code> object is made up of <em>slots</em> that store a wide range of model parameters. Each of these slots contains information on the parameters in the model. A description of these slots can be found by calling <code><a href="https://rdrr.io/r/utils/help.html">help()</a></code> on the class: <code><a href="https://rdrr.io/r/utils/help.html">help("MizerParams-class")</a></code>. The different slots can be accessed using the <code>@</code> operator.</p>
 <p>The slot <code>species_params</code> contains the species parameters data.frame that was passed in to the constructor. We can inspect this slot with:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>params<span class="op">@</span>species_params</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>params<span class="op">@</span>species_params</span></code></pre></div>
 <pre><code>##         species w_inf w_mat   beta sigma    R_max  k_vb w_min            gear
 ## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.001 knife_edge_gear
 ## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.001 knife_edge_gear
@@ -305,74 +304,72 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 ## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.001 knife_edge_gear
 ## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.001 knife_edge_gear
 ## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.001 knife_edge_gear
-##         alpha starv_coef interaction_p         n   p  f0         q   sel_func
-## Sprat     0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Sandeel   0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## N.pout    0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Herring   0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Dab       0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Whiting   0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Sole      0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Gurnard   0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Plaice    0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Haddock   0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Cod       0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-## Saithe    0.6         10             1 0.6666667 0.7 0.6 0.7166667 knife_edge
-##         knife_edge_size catchability pred_kernel_type        h k       ks
-## Sprat                13            1        lognormal 14.51026 0 1.598545
-## Sandeel               4            1        lognormal 28.36951 0 3.250607
-## N.pout               23            1        lognormal 30.69918 0 3.318311
-## Herring              99            1        lognormal 31.20041 0 3.212332
-## Dab                  21            1        lognormal 34.68295 0 3.760307
-## Whiting              75            1        lognormal 32.78322 0 3.406676
-## Sole                 78            1        lognormal 24.90951 0 2.585095
-## Gurnard              39            1        lognormal 22.29126 0 2.367448
-## Plaice              105            1        lognormal 17.71691 0 1.820523
-## Haddock             165            1        lognormal 40.62144 0 4.111691
-## Cod                1606            1        lognormal 74.81794 0 7.019866
-## Saithe             1076            1        lognormal 43.50194 0 4.136466
-##                 z0        gamma     w_mat25 m erepro
-## Sprat   0.18705957 5.777329e-11   11.647460 1      1
-## Sandeel 0.18171206 4.274228e-11    3.583834 1      1
-## N.pout  0.12926608 9.769939e-11   20.607045 1      1
-## Herring 0.08647736 2.818625e-11   88.699888 1      1
-## Dab     0.08735805 7.680025e-11   18.815128 1      1
-## Whiting 0.05658819 1.043318e-10   67.196884 1      1
-## Sole    0.06294752 5.319233e-11   69.884760 1      1
-## Gurnard 0.06863713 5.100931e-11   34.942380 1      1
-## Plaice  0.04171321 4.783604e-11   94.075638 1      1
-## Haddock 0.03957464 7.693180e-11  147.833146 1      1
-## Cod     0.01753768 2.554384e-10 1438.909287 1      1
-## Saithe  0.02340093 1.800058e-10  964.051303 1      1</code></pre>
+##         alpha interaction_p         n   p         q pred_kernel_type        h k
+## Sprat     0.6             1 0.6666667 0.7 0.7166667        lognormal 14.51026 0
+## Sandeel   0.6             1 0.6666667 0.7 0.7166667        lognormal 28.36951 0
+## N.pout    0.6             1 0.6666667 0.7 0.7166667        lognormal 30.69918 0
+## Herring   0.6             1 0.6666667 0.7 0.7166667        lognormal 31.20041 0
+## Dab       0.6             1 0.6666667 0.7 0.7166667        lognormal 34.68295 0
+## Whiting   0.6             1 0.6666667 0.7 0.7166667        lognormal 32.78322 0
+## Sole      0.6             1 0.6666667 0.7 0.7166667        lognormal 24.90951 0
+## Gurnard   0.6             1 0.6666667 0.7 0.7166667        lognormal 22.29126 0
+## Plaice    0.6             1 0.6666667 0.7 0.7166667        lognormal 17.71691 0
+## Haddock   0.6             1 0.6666667 0.7 0.7166667        lognormal 40.62144 0
+## Cod       0.6             1 0.6666667 0.7 0.7166667        lognormal 74.81794 0
+## Saithe    0.6             1 0.6666667 0.7 0.7166667        lognormal 43.50194 0
+##               ks         z0        gamma     w_mat25 m erepro   sel_func
+## Sprat   1.598545 0.18705957 5.777329e-11   11.647460 1      1 knife_edge
+## Sandeel 3.250607 0.18171206 4.274228e-11    3.583834 1      1 knife_edge
+## N.pout  3.318311 0.12926608 9.769939e-11   20.607045 1      1 knife_edge
+## Herring 3.212332 0.08647736 2.818625e-11   88.699888 1      1 knife_edge
+## Dab     3.760307 0.08735805 7.680025e-11   18.815128 1      1 knife_edge
+## Whiting 3.406676 0.05658819 1.043318e-10   67.196884 1      1 knife_edge
+## Sole    2.585095 0.06294752 5.319233e-11   69.884760 1      1 knife_edge
+## Gurnard 2.367448 0.06863713 5.100931e-11   34.942380 1      1 knife_edge
+## Plaice  1.820523 0.04171321 4.783604e-11   94.075638 1      1 knife_edge
+## Haddock 4.111691 0.03957464 7.693180e-11  147.833146 1      1 knife_edge
+## Cod     7.019866 0.01753768 2.554384e-10 1438.909287 1      1 knife_edge
+## Saithe  4.136466 0.02340093 1.800058e-10  964.051303 1      1 knife_edge
+##         knife_edge_size catchability
+## Sprat                13            1
+## Sandeel               4            1
+## N.pout               23            1
+## Herring              99            1
+## Dab                  21            1
+## Whiting              75            1
+## Sole                 78            1
+## Gurnard              39            1
+## Plaice              105            1
+## Haddock             165            1
+## Cod                1606            1
+## Saithe             1076            1</code></pre>
 <p>We can see that this contains the original species data.frame (with <code>w_inf</code> and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are no columns for <code>alpha</code> and <code>h</code> and <code>gamma</code> etc.</p>
 <p>Also note how the default fishing gears have been set up. Because we did not specify gear names in the original species parameter data.frame, each species is fished by a unique gear named after the species. This can be seen in the new <code>gear</code> column which holds the names of the fishing gears. Also, the selectivity function for each fishing gear has been set in the <code>sel_func</code> column to the default function, <code><a href="../reference/knife_edge.html">knife_edge()</a></code>. A <code>catchability</code> column has been added with a default value of 1 for each of the species that the gear catches. An example of setting the catchability by hand can be seen in <a href="a_multispecies_model_of_the_north_sea.html">the section on the North Sea.</a></p>
 <p>There is a <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method for <code>MizerParams</code> objects which prints a useful summary of the model parameters:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(params)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(params)</span></code></pre></div>
 <p>As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are <span class="math inline">\(100\)</span> size classes in the community, ranging from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(4\times 10^{4}\)</span> . These values are controlled by the arguments <code>no_w</code>, <code>min_w</code> and <code>max_w</code> respectively. For example, if we wanted 200 size classes in the model we would use:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>params200 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data, <span class="dt">no_w=</span><span class="dv">200</span>)</span>
-<span id="cb24-2"><a href="#cb24-2"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(params200)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>params200 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data, <span class="dt">no_w=</span><span class="dv">200</span>)</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(params200)</span></code></pre></div>
 <p>So far we have created a <code>MizerParams</code> object by passing in only the species parameter data.frame argument. This means the interaction matrix will be set to the default value (see <a href="model_description.html#sec:pref">the section on predator/prey preference.</a>) This is a matrix of 1s, implying that all species fully interact with each other, i.e. the species are spread homogeneously across the model area. For the North Sea this is not the case and so the model would be improved by also including an interaction matrix which describes the spatial overlap between species.</p>
 <p>An example interaction matrix for the North Sea has been included in <code>mizer</code> as a .csv file. The location of the file can be found by running:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/inter.csv"</span>,<span class="dt">package=</span><span class="st">"mizer"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"doc/inter.csv"</span>,<span class="dt">package=</span><span class="st">"mizer"</span>)</span></code></pre></div>
 <p>Take a look at it in a spreadsheet if you want. As mentioned above, to read this file into R we can make use of the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function. However, this time we want the first column of the .csv file to be the row names. We therefore use an additional argument to the <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function: <code>row.names</code>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>inter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span>(<span class="st">"inter.csv"</span>, <span class="dt">row.names=</span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>inter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span>(<span class="st">"inter.csv"</span>, <span class="dt">row.names=</span><span class="dv">1</span>)</span></code></pre></div>
 <p>The <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> function reads the data into a data.frame. We want the interaction matrix to be of class <code>matrix</code> so we need to make use of the <code>as()</code> function.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>inter &lt;-<span class="st"> </span><span class="kw">as</span>(inter, <span class="st">"matrix"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>inter &lt;-<span class="st"> </span><span class="kw">as</span>(inter, <span class="st">"matrix"</span>)</span></code></pre></div>
 <p>We now have an interaction matrix that can be passed to the <code>MizerParams</code> constructor along with the species parameter data.frame. To make the <code>MizerClass</code> object you just call the constructor method and pass in the arguments. We will use default values for the remainder of the arguments to the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> method.</p>
 <!--
 (see Section~\@ref(sec:other_mizerparams_arguments) and Table~\@ref(tab:other_params)).
 -->
 <p>This means that we only need to pass in two arguments to the constructor:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data, <span class="dt">interaction =</span> inter)</span></code></pre></div>
-<pre><code>## Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.</code></pre>
-<pre><code>## Starvation mortality coefficient `starv_coef` is not provided in species parameters, so it is set to 10.</code></pre>
-<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
-<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data, <span class="dt">interaction =</span> inter)</span></code></pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
+<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
+<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <p>Note that the first argument must be the species parameters data.frame. The remaining arguments can be in any order but should be named. If we didn’t want to use default values for the other arguments we would pass them in to the constructor by name.</p>
 <p>We now have all we need to start running projections. Before we get to that though, we’ll take a quick look at how different fishing gears can be set up.</p>
 </div>
@@ -381,23 +378,21 @@ These are explained further in Sections~\@ref(sec:fishing_gear) and \@ref(sec:sr
 <a href="#sec:setting_different_gears" class="anchor"></a>Setting different gears</h2>
 <p>In the above example, each species is caught by a different gear (named after the species it catches). This is the default when there is no <code>gear</code> column in the species parameter data.frame.</p>
 <p>Here, we look at an example where we do specify the fishing gears. We take the original <code>params_data</code> species parameter data.frame that was read in above and bind an additional column, <code>gear</code>, to it. This <code>gear</code> column contains the name of the gear that catches the species in that row. Here we set up four different gears: Industrial, Pelagic, Beam and Otter trawl, that catch different combinations of species.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>params_data_gears &lt;-<span class="st"> </span>params_data</span>
-<span id="cb38-2"><a href="#cb38-2"></a>params_data_gears<span class="op">$</span>gear &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,</span>
-<span id="cb38-3"><a href="#cb38-3"></a>              <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,</span>
-<span id="cb38-4"><a href="#cb38-4"></a>              <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,</span>
-<span id="cb38-5"><a href="#cb38-5"></a>              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>params_data_gears &lt;-<span class="st"> </span>params_data</span>
+<span id="cb34-2"><a href="#cb34-2"></a>params_data_gears<span class="op">$</span>gear &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,<span class="st">"Industrial"</span>,</span>
+<span id="cb34-3"><a href="#cb34-3"></a>              <span class="st">"Pelagic"</span>,<span class="st">"Beam"</span>,<span class="st">"Otter"</span>,</span>
+<span id="cb34-4"><a href="#cb34-4"></a>              <span class="st">"Beam"</span>,<span class="st">"Otter"</span>,<span class="st">"Beam"</span>,</span>
+<span id="cb34-5"><a href="#cb34-5"></a>              <span class="st">"Otter"</span>,<span class="st">"Otter"</span>,<span class="st">"Otter"</span>)</span></code></pre></div>
 <p>If you inspect the <code>params_data</code> object you will see a new column, <code>gear</code>, has been added to it.<br>
 We then make a new <code>MizerParams</code> object as before:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>params_gears &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data_gears, <span class="dt">interaction =</span> inter)</span></code></pre></div>
-<pre><code>## Assimilation efficiency `alpha` is not provided in species parameters, so it is set to 0.6.</code></pre>
-<pre><code>## Starvation mortality coefficient `starv_coef` is not provided in species parameters, so it is set to 10.</code></pre>
-<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
-<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>params_gears &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span>(params_data_gears, <span class="dt">interaction =</span> inter)</span></code></pre></div>
 <pre><code>## Note: No h provided for some species, so using f0 and k_vb to calculate it.</code></pre>
 <pre><code>## Note: Because you have n != p, the default value is not very good.</code></pre>
 <pre><code>## Note: No ks column so calculating from critical feeding level.</code></pre>
 <pre><code>## Note: Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</code></pre>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
+<pre><code>## Note: Setting missing selectivity function to be 'knife_edge'.</code></pre>
+<pre><code>## Note: Setting missing knife edge selectivity equal to w_mat.</code></pre>
 <p>You can see the result by calling <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> on the <code>params_gears</code> object.</p>
 <p>In this example the same gear now catches multiple stocks. For example, the <em>Industrial</em> gear catches Sprat, Sandeel and Norway Pout. Why would we want to set up the gears like this? In the next section we will see that to project the model through time you can specify the fishing effort for each gear through time. By setting the gears up in this way you can run different management scenarios of changing the efforts of the fishing gears rather than on individual species. It also means that after a simulation has been run you can examine the catches by gear.</p>
 </div>

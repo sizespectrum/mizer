@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Display frames — displayFrames" />
 <meta property="og:description" content="Takes two data frames with plotting data and displays them side-by-side,
@@ -70,7 +72,7 @@ using the same axes and legend." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -161,7 +163,7 @@ using the same axes and legend.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>ggplot2 object</p>
+    <p>A plot</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The two data frames each need to have the same three variables. The first
@@ -169,47 +171,11 @@ variable will go on the x-axis, the third on the y-axis with a logarithmic
 scale. The second variable should be the species and will be used to group
 the data and display with the linetype and linecolour specified by the
 <code>linetype</code> and <code>linecolour</code> slots of the <code>params</code> object.</p>
-<p>The recommended way is to obtain the data frames using one of the supplied
-functions, e.g., <code><a href='getBiomassFrame.html'>getBiomassFrame</a></code>, <code><a href='getSSBFrame.html'>getSSBFrame</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='plotting_functions.html'>plotting_functions</a></code>,
-  <code><a href='getBiomassFrame.html'>getBiomassFrame</a></code>, <code><a href='getSSBFrame.html'>getSSBFrame</a></code></p>
-<p>Other frame functions: 
-<code><a href='getBiomassFrame.html'>getBiomassFrame</a>()</code>,
-<code><a href='getSSBFrame.html'>getSSBFrame</a>()</code></p>
-<p>Other plotting functions: 
-<code><a href='animateSpectra.html'>animateSpectra</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <div class='dont-index'><p>Other frame functions: 
+<code><a href='getBiomassFrame.html'>getBiomassFrame</a>()</code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Set up example MizerParams and MizerSim objects</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span>(<span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>))
-<span class='no'>sim0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='no'>sim1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>t_max</span><span class='kw'>=</span><span class='fl'>20</span>, <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='co'># Display biomass from each simulation next to each other</span>
-<span class='fu'>displayFrames</span>(<span class='fu'><a href='getBiomassFrame.html'>getBiomassFrame</a></span>(<span class='no'>sim0</span>), <span class='fu'><a href='getBiomassFrame.html'>getBiomassFrame</a></span>(<span class='no'>sim1</span>), <span class='no'>params</span>)</div><div class='img'><img src='displayFrames-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
@@ -218,7 +184,6 @@ functions, e.g., <code><a href='getBiomassFrame.html'>getBiomassFrame</a></code>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>

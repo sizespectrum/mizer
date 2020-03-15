@@ -152,8 +152,8 @@ functions</p><ul>
 
     <pre class="usage"><span class='fu'>setParams</span>(
   <span class='no'>params</span>,
-  <span class='kw'>rate</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>capacity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>r_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>K_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"kappa"</span>]],
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"lambda"</span>]],
@@ -183,11 +183,11 @@ functions</p><ul>
       <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
-      <th>rate</th>
+      <th>r_plankton</th>
       <td><p>Optional. Vector of plankton intrinsic birth rates</p></td>
     </tr>
     <tr>
-      <th>capacity</th>
+      <th>K_plankton</th>
       <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
     </tr>
     <tr>
@@ -653,15 +653,15 @@ by the function <code><a href='plankton_semichemostat.html'>plankton_semichemost
 plankton dynamics by writing your own function, modelled on
 <code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>, and then passing the name of your
 function in the <code>plankton_dynamics</code> argument.</p>
-<p>The <code>rate</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>r_plankton</code> argument is a vector specifying the intrinsic plankton
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_pp</code>
+The values of \(r_p\) and \(n\) are taken from the <code>r_plankton</code>
 and <code>n</code> arguments.</p>
-<p>The <code>capacity</code> argument is a vector specifying the intrinsic plankton
-carrying capacity for each size class. If it is not supplied, then the intrinsic carrying
-capacity \(c_p(w)\) at size \(w\)
+<p>The <code>K_plankton</code> argument is a vector specifying the intrinsic plankton
+carrying capacity for each size class. If it is not supplied, then the 
+intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
 for all \(w\) less than <code>w_pp_cutoff</code> and zero for larger sizes.
 The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>

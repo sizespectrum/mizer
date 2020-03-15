@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Animation of the abundance spectra — animateSpectra • mizer</title>
+<title>Fishing effort used in simulation — effort • mizer</title>
 
 
 <!-- jquery -->
@@ -34,9 +34,11 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Animation of the abundance spectra — animateSpectra" />
-<meta property="og:description" content="Animation of the abundance spectra" />
+<meta property="og:title" content="Fishing effort used in simulation — effort" />
+<meta property="og:description" content="Fishing effort used in simulation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -117,24 +119,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Animation of the abundance spectra</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>animateSpectra.Rd</code></div>
+    <h1>Fishing effort used in simulation</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>effort.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Animation of the abundance spectra</p>
+    <p>Fishing effort used in simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>animateSpectra</span>(
-  <span class='no'>sim</span>,
-  <span class='no'>species</span>,
-  <span class='kw'>wlim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>),
-  <span class='kw'>power</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>total</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plankton</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>effort</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -143,71 +137,19 @@
       <th>sim</th>
       <td><p>A MizerSim object</p></td>
     </tr>
-    <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
-    </tr>
-    <tr>
-      <th>wlim</th>
-      <td><p>A numeric vector of length two providing lower and upper limits
-for the w axis. Use NA to refer to the existing minimum or maximum.</p></td>
-    </tr>
-    <tr>
-      <th>ylim</th>
-      <td><p>A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to refer to the existing minimum or maximum. Any
-values below 1e-20 are always cut off.</p></td>
-    </tr>
-    <tr>
-      <th>power</th>
-      <td><p>The abundance is plotted as the number density times the weight
-raised to <code>power</code>. The default <code>power = 1</code> gives the biomass 
-density, whereas <code>power = 2</code> gives the biomass density with respect
-to logarithmic size bins.</p></td>
-    </tr>
-    <tr>
-      <th>total</th>
-      <td><p>A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE</p></td>
-    </tr>
-    <tr>
-      <th>plankton</th>
-      <td><p>A boolean value that determines whether plankton is included.
-Default is TRUE.</p></td>
-    </tr>
     </table>
 
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyFeedingLevel.html'>plotlyFeedingLevel</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <p>An array (time x gear) that stores the fishing effort by time and 
+  gear.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#see-also">See also</a></li>
+      <li><a href="#value">Value</a></li>
     </ul>
 
   </div>

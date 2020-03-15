@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Rename species — renameSpecies • mizer</title>
+<title>Ricker function to calculate density-dependent reproduction rate — RickerRDD • mizer</title>
 
 
 <!-- jquery -->
@@ -37,8 +37,10 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Rename species — renameSpecies" />
-<meta property="og:description" content="Changes the names of species in a MizerParams object" />
+<meta property="og:title" content="Ricker function to calculate density-dependent reproduction rate — RickerRDD" />
+<meta property="og:description" content="Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent rates \(R\) given as
+$$R = R_p \exp{- b R_p}$$" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -119,48 +121,56 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Rename species</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>renameSpecies.Rd</code></div>
+    <h1>Ricker function to calculate density-dependent reproduction rate</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <div class="hidden name"><code>RickerRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Changes the names of species in a MizerParams object</p>
+    <p>Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent rates \(R\) given as
+$$R = R_p \exp{- b R_p}$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>renameSpecies</span>(<span class='no'>params</span>, <span class='no'>replace</span>)</pre>
+    <pre class="usage"><span class='fu'>RickerRDD</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A mizer params object</p></td>
+      <th>rdi</th>
+      <td><p>Vector of density-independent reproduction rates \(R_p\) for
+all species.</p></td>
     </tr>
     <tr>
-      <th>replace</th>
-      <td><p>A named character vector, with new names as values, and old 
-names as names.</p></td>
+      <th>species_params</th>
+      <td><p>A species parameter dataframe. Must contain a column
+<code>ricker_b</code> holding the coefficient b.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of type <a href='MizerParams-class.html'>MizerParams</a></p>
+    <p>Vector of density-dependent reproduction rates.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>replace</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>Cod</span> <span class='kw'>=</span> <span class='st'>"Kabeljau"</span>, <span class='kw'>Haddock</span> <span class='kw'>=</span> <span class='st'>"Schellfisch"</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>renameSpecies</span>(<span class='no'>NS_params</span>, <span class='no'>replace</span>)
-<span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>species</span>
-}</div></pre>
+    <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
+<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
+<code><a href='SheperdRDD.html'>SheperdRDD</a>()</code>,
+<code><a href='constantRDD.html'>constantRDD</a>()</code>,
+<code><a href='noRDD.html'>noRDD</a>()</code></p></div>
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

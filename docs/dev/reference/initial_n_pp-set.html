@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Retunes abundance of background species. — retuneBackground • mizer</title>
+<title>Initial value for plankton spectrum — initial_n_pp&lt;- • mizer</title>
 
 
 <!-- jquery -->
@@ -37,11 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Retunes abundance of background species. — retuneBackground" />
-<meta property="og:description" content="Rescales all background species in such a way that the total community
-spectrum is as close to the Sheldon power law as possible. Background
-species that are no longer needed are removed. The reproductive efficiencies
-of all species are retuned." />
+<meta property="og:title" content="Initial value for plankton spectrum — initial_n_pp&lt;-" />
+<meta property="og:description" content="Value used as starting value for simulations with `project()`." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,43 +119,39 @@ of all species are retuned." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Retunes abundance of background species.</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>retuneBackground.Rd</code></div>
+    <h1>Initial value for plankton spectrum</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>initial_n_pp-set.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Rescales all background species in such a way that the total community
-spectrum is as close to the Sheldon power law as possible. Background
-species that are no longer needed are removed. The reproductive efficiencies
-of all species are retuned.</p>
+    <p>Value used as starting value for simulations with `project()`.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>retuneBackground</span>(<span class='no'>params</span>)</pre>
+    <pre class="usage"><span class='fu'>initial_n_pp</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='fu'>initial_n_pp</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>A MizerParams object</p></td>
+    </tr>
+    <tr>
+      <th>value</th>
+      <td><p>A vector with the initial number densities for the plankton
+spectrum</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An object of type <code>MizerParams</code></p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>markBackground</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

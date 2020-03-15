@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set background mortality rate —ExtMortalitytert • mizer</title>
+<title>Get available energy — getPhiPrey • mizer</title>
 
 
 <!-- jquery -->
@@ -34,9 +34,13 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Set background mortality rate —ExtMortalitytert" />
-<meta property="og:description" content="Set background mortality rate" />
+<meta property="og:title" content="Get available energy — getPhiPrey" />
+<meta property="og:description" content="This is deprecated and is no longer used by the mizer project() method.
+Calculates the amount \(E_{a,i}(w)\) of food exposed to each predator as
+a function of predator size." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -69,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -117,92 +121,57 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set background mortality rate</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>setExtMortality.Rd</code></div>
+    <h1>Get available energy</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/deprecated.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/deprecated.R'><code>R/deprecated.R</code></a></small>
+    <div class="hidden name"><code>getPhiPrey.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Set background mortality rate</p>
+    <p>This is deprecated and is no longer used by the mizer project() method.
+Calculates the amount \(E_{a,i}(w)\) of food exposed to each predator as
+a function of predator size.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)</pre>
+    <pre class="usage"><span class='fu'>getPhiPrey</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>MizerParams</p></td>
+      <th>object</th>
+      <td><p>An <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
-      <th>mu_b</th>
-      <td><p>Optional. An array (species x size) holding the background
-mortality rate.</p></td>
+      <th>n</th>
+      <td><p>A matrix of species abundances (species x size)</p></td>
     </tr>
     <tr>
-      <th>z0pre</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.</p></td>
+      <th>n_pp</th>
+      <td><p>A vector of the background abundance by size</p></td>
     </tr>
     <tr>
-      <th>z0exp</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
-Default value is <code>n-1</code>.</p></td>
+      <th>...</th>
+      <td><p>Other arguments (currently unused)</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>MizerParams</p>
-    <h2 class="hasAnchor" id="setting-background-mortality-rate"><a class="anchor" href="#setting-background-mortality-rate"></a>Setting background mortality rate</h2>
-
-    
-
-<p>The background mortality is all the mortality that is not due to either
-predation or fishing. It is a rate with units 1/year.</p>
-<p>The <code>mu_b</code> argument allows you to specify a background mortality rate
-that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code>setExtMortality</code>.</p>
-<p>If the <code>mu_b</code> argument is not supplied, then the background mortality
-is assumed to depend only on the asymptotic size of the species, not on the
-size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
-constant \(z_0\) for each species is taken from the <code>z0</code> column of the
-species_params data frame, if that column exists. Otherwise it is calculated
-as 
-$$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
+    <p>A two dimensional array (predator species x predator size)</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setFishing.html'>setFishing</a>()</code>,
-<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
-<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
-<code><a href='setInteraction.html'>setInteraction</a>()</code>,
-<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
-<code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
-<code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+    <div class='dont-index'><p><code><a href='project.html'>project</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"NS_species_params"</span>)
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params</span>)
-
-<span class='co'>#### Setting allometric death rate #######################</span>
-
-<span class='co'># Set coefficient for each species. Here we choose 0.1 for each species</span>
-<span class='no'>mu_b0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>params</span>@<span class='kw'>species_params</span>))
-
-<span class='co'># Multiply by power of size with exponent, here chosen to be -1/4</span>
-<span class='co'># The outer() function makes it an array species x size</span>
-<span class='no'>mu_b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='no'>mu_b0</span>, <span class='no'>params</span>@<span class='kw'>w</span>^(-<span class='fl'>1</span>/<span class='fl'>4</span>))
-
-<span class='co'># Change the background death in the params object</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>mu_b</span> <span class='kw'>=</span> <span class='no'>mu_b</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='MizerParams.html'>MizerParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
+<span class='co'># With constant fishing effort for all gears for 20 time steps</span>
+<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
+<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,]
+<span class='no'>n_pp</span> <span class='kw'>&lt;-</span> <span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,]
+<span class='fu'>getPhiPrey</span>(<span class='no'>params</span>,<span class='no'>n</span>,<span class='no'>n_pp</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -210,7 +179,6 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#setting-background-mortality-rate">Setting background mortality rate</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get starvation mortality — getStarvMort • mizer</title>
+<title>Sheperd function to calculate density-dependent reproduction rate — SheperdRDD • mizer</title>
 
 
 <!-- jquery -->
@@ -34,15 +34,13 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
-<meta property="og:title" content="Get starvation mortality — getStarvMort" />
-<meta property="og:description" content="Calculates starvation mortality based on the equation in the original mizer
-vignette. Starvation mortality is proportional to the energy deficiency and
-is inversely proportional to body weight (and therefore also lipid reserves).
-\(\mu_s(w)\) The weight proportionality constant is currently set to 0.1,
-but could be a separate parameter. The 0.1 constant means that the
-instantaneous starvation mortality is 1 when energy deficit is equal
-individual's body mass." />
+<meta property="og:title" content="Sheperd function to calculate density-dependent reproduction rate — SheperdRDD" />
+<meta property="og:description" content="Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent rates \(R\) as
+$$R = \frac{R_p}{1+(b\ R_p)^c}$$" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -75,7 +73,7 @@ individual's body mass." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -123,72 +121,48 @@ individual's body mass." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get starvation mortality</h1>
+    <h1>Sheperd function to calculate density-dependent reproduction rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
-    <div class="hidden name"><code>getStarvMort.Rd</code></div>
+    <div class="hidden name"><code>SheperdRDD.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates starvation mortality based on the equation in the original mizer
-vignette. Starvation mortality is proportional to the energy deficiency and
-is inversely proportional to body weight (and therefore also lipid reserves).
-\(\mu_s(w)\) The weight proportionality constant is currently set to 0.1,
-but could be a separate parameter. The 0.1 constant means that the
-instantaneous starvation mortality is 1 when energy deficit is equal
-individual's body mass.</p>
+    <p>Takes the density-independent rates \(R_p\) of egg production and returns
+reduced, density-dependent rates \(R\) as
+$$R = \frac{R_p}{1+(b\ R_p)^c}$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getStarvMort</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
-  <span class='kw'>e</span> <span class='kw'>=</span> <span class='fu'><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='no'>n_other</span>)
-)</pre>
+    <pre class="usage"><span class='fu'>SheperdRDD</span>(<span class='no'>rdi</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>e</th>
-      <td><p>The energy available for reproduction and growth (optional). A
-matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using the <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code> method.</p></td>
+      <th>rdi</th>
+      <td><p>Vector of density-independent reproduction rates \(R_p\) for
+all species.</p></td>
+    </tr>
+    <tr>
+      <th>species_params</th>
+      <td><p>A species parameter dataframe. Must contain columns
+<code>sheperd_b</code> and <code>sheperd_c</code> with the parameters b and c.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array of instantaneous starvation mortality
-  (species x size).</p>
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>The default value of starv_coef is 10, which scales how energy intake
-  deficit (e) translates to starvation mortality. When instantaneous energy
-  intake rate deficit per year is 10<!-- % of body weight it will give -->
-  instantaneous starvation mortality rate of 1/year, i.e. an average
-  individual can survive for about a year. If starv_coef = 0, there is no
-  starvation mortality and negative intake just gets converted to 0 (there is
-  no cost to having negative energy intake, which is unrealistic!). If
-  starv_coef = 20, the cost of negative intake increases, and 10<!-- % energy -->
-  deficit will lead to instantaneous starvation mortality of 2/year.</p>
+    <p>Vector of density-dependent reproduction rates.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other rate functions: 
-<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-<code><a href='getERepro.html'>getERepro</a>()</code>,
-<code><a href='getEncounter.html'>getEncounter</a>()</code>,
-<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
-<code><a href='getFMort.html'>getFMort</a>()</code>,
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
-<code><a href='getMort.html'>getMort</a>()</code>,
-<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
-<code><a href='getPredMort.html'>getPredMort</a>()</code>,
-<code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code></p></div>
+    <div class='dont-index'><p>Other functions calculating density-dependent reproduction rate: 
+<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a>()</code>,
+<code><a href='RickerRDD.html'>RickerRDD</a>()</code>,
+<code><a href='constantRDD.html'>constantRDD</a>()</code>,
+<code><a href='noRDD.html'>noRDD</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -196,7 +170,6 @@ internally using the <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth(
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#note">Note</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

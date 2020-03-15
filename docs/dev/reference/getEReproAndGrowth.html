@@ -34,6 +34,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="Get energy rate available for reproduction and growth — getEReproAndGrowth" />
 <meta property="og:description" content="Calculates the energy rate \(E_{r.i}(w)\) (grams/year) available for
@@ -71,7 +73,7 @@ for." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
       </span>
     </div>
 
@@ -120,7 +122,7 @@ for." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get energy rate available for reproduction and growth</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/rate_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
     <div class="hidden name"><code>getEReproAndGrowth.Rd</code></div>
     </div>
 
@@ -184,10 +186,10 @@ Due to the form of the feeding level, calculated by
 $$E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
                            h_i(w) - {\tt metab}_i(w))$$
 where \(h_i\) is the maximum intake rate, set with 
-<code><a href='setIntakeMax.html'>setIntakeMax</a></code>.
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.
 The assimilation rate \(\alpha_i\) is taken from the species parameter
 data frame in <code>params</code>. The metabolic rate <code>metab</code> is taken from 
-<code>params</code> and set with <code><a href='setMetab.html'>setMetab</a></code>.</p>
+<code>params</code> and set with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p>
 <p>The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -207,14 +209,10 @@ cover the cost of metabolism and movement.</p>
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getRates.html'>getRates</a>()</code>,
-<code><a href='getStarvMort.html'>getStarvMort</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>NS_species_params_gears</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>inter</span>)
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
 <span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
 <span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)

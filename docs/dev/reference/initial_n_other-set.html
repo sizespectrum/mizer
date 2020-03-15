@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot the feeding level of species by size with plotly — plotlyFeedingLevel • mizer</title>
+<title>Initial values for other ecosystem components — initial_n_other&lt;- • mizer</title>
 
 
 <!-- jquery -->
@@ -37,10 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Plot the feeding level of species by size with plotly — plotlyFeedingLevel" />
-<meta property="og:description" content="After running a projection, plot the feeding level of each species by size. 
-The feeding level is averaged over the specified time range (a single value
-for the time range can be used)." />
+<meta property="og:title" content="Initial values for other ecosystem components — initial_n_other&lt;-" />
+<meta property="og:description" content="Values used as starting values for simulations with `project()`." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,105 +119,38 @@ for the time range can be used)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot the feeding level of species by size with plotly</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/plots.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/plots.R'><code>R/plots.R</code></a></small>
-    <div class="hidden name"><code>plotlyFeedingLevel.Rd</code></div>
+    <h1>Initial values for other ecosystem components</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
+    <div class="hidden name"><code>initial_n_other-set.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>After running a projection, plot the feeding level of each species by size. 
-The feeding level is averaged over the specified time range (a single value
-for the time range can be used).</p>
+    <p>Values used as starting values for simulations with `project()`.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotlyFeedingLevel</span>(
-  <span class='no'>object</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>time_range</span>,
-  <span class='kw'>highlight</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>include_critical</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>initial_n_other</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='fu'>initial_n_other</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An object of class <a href='MizerSim-class.html'>MizerSim</a> or <a href='MizerParams-class.html'>MizerParams</a>.</p></td>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>species</th>
-      <td><p>Name or vector of names of the species to be plotted. By
-default all species are plotted.</p></td>
-    </tr>
-    <tr>
-      <th>time_range</th>
-      <td><p>The time range (either a vector of values, a vector of min
-and max time, or a single value) to average the abundances over. Default is
-the final time step. Ignored when called with a <a href='MizerParams-class.html'>MizerParams</a>
-object.</p></td>
-    </tr>
-    <tr>
-      <th>highlight</th>
-      <td><p>Name or vector of names of the species to be highlighted.</p></td>
-    </tr>
-    <tr>
-      <th>include_critical</th>
-      <td><p>If TRUE, then the critical feeding level is also
-plotted. Default FALSE.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Other arguments (currently unused)</p></td>
+      <th>value</th>
+      <td><p>A named list with the initial values of other ecosystem components</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A ggplot2 object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>When called with a <a href='MizerSim-class.html'>MizerSim</a> object, the feeding level is averaged
-over the specified time range (a single value for the time range can be used
-to plot a single time step). When called with a <a href='MizerParams-class.html'>MizerParams</a>
-object the initial feeding level is plotted.</p>
-<p>If `include_critical = TRUE` then the critical feeding level (the feeding
-level at which the intake just covers the metabolic cost) is also plotted,
-with a thinner line. This line should always stay below the line of the
-actual feeding level, because the species would stop growing at any point
-where the feeding level drops to the critical feeding level.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other plotting functions: 
-<code><a href='displayFrames.html'>displayFrames</a>()</code>,
-<code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
-<code><a href='plotBiomass.html'>plotBiomass</a>()</code>,
-<code><a href='plotDiet.html'>plotDiet</a>()</code>,
-<code><a href='plotFMort.html'>plotFMort</a>()</code>,
-<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a>()</code>,
-<code><a href='plotGrowthCurves.html'>plotGrowthCurves</a>()</code>,
-<code><a href='plotPredMort.html'>plotPredMort</a>()</code>,
-<code><a href='plotSpectra.html'>plotSpectra</a>()</code>,
-<code><a href='plotYieldGear.html'>plotYieldGear</a>()</code>,
-<code><a href='plotYield.html'>plotYield</a>()</code>,
-<code><a href='plotlyBiomass.html'>plotlyBiomass</a>()</code>,
-<code><a href='plotlyFMort.html'>plotlyFMort</a>()</code>,
-<code><a href='plotlyGrowthCurves.html'>plotlyGrowthCurves</a>()</code>,
-<code><a href='plotlyPredMort.html'>plotlyPredMort</a>()</code>,
-<code><a href='plotlySpectra.html'>plotlySpectra</a>()</code>,
-<code><a href='plotlyYieldGear.html'>plotlyYieldGear</a>()</code>,
-<code><a href='plotlyYield.html'>plotlyYield</a>()</code>,
-<code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>

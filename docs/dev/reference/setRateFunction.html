@@ -53,7 +53,7 @@ e from mizerEReproAndGrowth()
 e_repro from mizerERepro()
 e_growth from mizerEGrowth()
 rdi from mizerRDI()
-rdd from BervertonHoltRDD()
+rdd from BevertonHoltRDD()
 
 " />
 <meta name="twitter:card" content="summary" />
@@ -137,7 +137,7 @@ rdd from BervertonHoltRDD()
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set own rate function to replace mizer rate function</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
     <div class="hidden name"><code>setRateFunction.Rd</code></div>
     </div>
 
@@ -157,7 +157,7 @@ following components:</p><ul>
 <li><p><code>e_repro</code> from <code><a href='mizerERepro.html'>mizerERepro()</a></code></p></li>
 <li><p><code>e_growth</code> from <code><a href='mizerEGrowth.html'>mizerEGrowth()</a></code></p></li>
 <li><p><code>rdi</code> from <code><a href='mizerRDI.html'>mizerRDI()</a></code></p></li>
-<li><p><code>rdd</code> from <code>BervertonHoltRDD()</code></p></li>
+<li><p><code>rdd</code> from <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code></p></li>
 </ul>
 
     </div>
@@ -176,6 +176,10 @@ following components:</p><ul>
     <tr>
       <th>rate</th>
       <td><p>Name of the rate for which a new function is to be set.</p></td>
+    </tr>
+    <tr>
+      <th>fun</th>
+      <td><p>Name of the function to use to calculate the rate.</p></td>
     </tr>
     </table>
 

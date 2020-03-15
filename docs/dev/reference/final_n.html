@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Removes species with abundance below a threshold — pruneSpecies • mizer</title>
+<title>Consumer size spectra at end of simulation — final_n • mizer</title>
 
 
 <!-- jquery -->
@@ -37,10 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Removes species with abundance below a threshold — pruneSpecies" />
-<meta property="og:description" content="This species simply removes the low-abundance species from the params object. 
-It does not recalculate the steady state for the remaining species or
-retune their reproductive efficiencies." />
+<meta property="og:title" content="Consumer size spectra at end of simulation — final_n" />
+<meta property="og:description" content="Consumer size spectra at end of simulation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,36 +119,30 @@ retune their reproductive efficiencies." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Removes species with abundance below a threshold</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/wrapper_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/wrapper_functions.R'><code>R/wrapper_functions.R</code></a></small>
-    <div class="hidden name"><code>pruneSpecies.Rd</code></div>
+    <h1>Consumer size spectra at end of simulation</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>final_n.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This species simply removes the low-abundance species from the params object. 
-It does not recalculate the steady state for the remaining species or
-retune their reproductive efficiencies.</p>
+    <p>Consumer size spectra at end of simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>pruneSpecies</span>(<span class='no'>params</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)</pre>
+    <pre class="usage"><span class='fu'>final_n</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>cutoff</th>
-      <td><p>Species with an abundance at maturity size that is less than 
-cutoff times community abundance will be removed. Default 1e-3.</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of type <code>MizerParams</code></p>
+    <p>An array (species x size) holding the consumer number densities at
+  the end of the simulation</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
