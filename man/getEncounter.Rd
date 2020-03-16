@@ -22,8 +22,8 @@ getEncounter(
 ecosystem}
 }
 \value{
-A two dimensional array (predator species x predator size) with the 
-  encounter rates.
+A two dimensional array (predator species x predator size) with the
+encounter rates.
 }
 \description{
 Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
@@ -47,17 +47,18 @@ Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 \eqn{N_R(w)} is the abundance density of plankton.
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
-\code{\link{setSearchVolume}} function. The predation kernel
-\eqn{\phi(w,w_p)} is set with the \code{\link{setPredationKernel}} function. The
-species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-vector \eqn{\theta_{ip}} are set with \code{\link{setInteraction}}.
+\code{\link[=setSearchVolume]{setSearchVolume()}} function. The predation kernel
+\eqn{\phi(w,w_p)} is set with the \code{\link[=setPredationKernel]{setPredationKernel()}} function. The
+species interaction matrix \eqn{\theta_{ij}} is set with \code{\link[=setInteraction]{setInteraction()}}
+and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
+\code{interaction_p} column in \code{params@species_params}.
 }
 
 \section{Details}{
 
 The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
-where \eqn{f_0} is the feeding level calculated with \code{\link{getFeedingLevel}}.
-This is used by the \code{\link{project}} function for performing simulations.
+where \eqn{f_0} is the feeding level calculated with \code{\link[=getFeedingLevel]{getFeedingLevel()}}.
+This is used by the \code{\link[=project]{project()}} function for performing simulations.
 
 The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.

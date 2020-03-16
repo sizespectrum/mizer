@@ -158,15 +158,16 @@ mizerRates <- function(params,
 #' \eqn{N_R(w)} is the abundance density of plankton.
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 #' predator. It could be interpreted as a search volume and is set with the
-#' \code{\link{setSearchVolume}} function. The predation kernel
-#' \eqn{\phi(w,w_p)} is set with the \code{\link{setPredationKernel}} function. The
-#' species interaction matrix \eqn{\theta_{ij}} and the plankton interaction
-#' vector \eqn{\theta_{ip}} are set with \code{\link{setInteraction}}.
+#' [setSearchVolume()] function. The predation kernel
+#' \eqn{\phi(w,w_p)} is set with the [setPredationKernel()] function. The
+#' species interaction matrix \eqn{\theta_{ij}} is set with [setInteraction()]
+#' and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
+#' `interaction_p` column in `params@species_params`.
 #' 
 #' @section Details:
 #' The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
-#' where \eqn{f_0} is the feeding level calculated with \code{\link{getFeedingLevel}}.
-#' This is used by the \code{\link{project}} function for performing simulations.
+#' where \eqn{f_0} is the feeding level calculated with [getFeedingLevel()].
+#' This is used by the [project()] function for performing simulations.
 #' 
 #' The function returns values also for sizes outside the size-range of the
 #' species. These values should not be used, as they are meaningless.
@@ -175,6 +176,7 @@ mizerRates <- function(params,
 #'   
 #' @return A two dimensional array (predator species x predator size) with the 
 #'   encounter rates.
+#' @md
 #' @export
 #' @family mizer rate functions
 mizerEncounter <- function(params, 
