@@ -2457,7 +2457,12 @@ upgradeParams <- function(params) {
             RDD <- "BevertonHoltRDD"
             message('The density-dependent reproduction rate function has been set to "BevertonHoltRDD".')
         } else {
-            RDD <- params@srr
+            RDD <- switch(params@srr,
+                          srrBevertonHolt = "BevertonHoltRDD",
+                          srrNone = "noRDD",
+                          srrConstant = "constantRDD",
+                          srrRicker = "RickerRDD",
+                          srrSheperd = "SheperdRDD")
         }
     } else {
         RDD <- "BevertonHoltRDD"

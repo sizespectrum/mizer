@@ -100,6 +100,7 @@ set_multispecies_model <-
                                  lambda = lambda,
                                  max_w = max_w,
                                  min_w_pp = min_w_pp,
+                                 no_w = no_w,
                                  ...))
 }
 
