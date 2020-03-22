@@ -32,10 +32,9 @@ test_that("MizerParams() works as in version 1", {
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_multispecies_model_pred_rate")
     # dimnames(old) <- dimnames(new)
-    # dfo <- melt(old) %>% mutate(type = "old") 
+    # dfo <- melt(old) %>% mutate(type = "old")
     # dfs <- rbind(df, dfo)
     # dfs$sp <- as.factor(dfs$sp)
-    # 
     # ggplot(dfs) +
     #     geom_line((aes(x = w_prey, y = value, colour = sp, linetype = type))) +
     #     scale_x_log10() +
@@ -43,21 +42,20 @@ test_that("MizerParams() works as in version 1", {
     expect_known_value(getPhiPrey(params, n = params@initial_n, n_pp = params@initial_n_pp), 
                        "values/set_multispecies_model_phi_prey",
                        check.attributes = FALSE,
-                       tolerance = 6753)
-    # The discrepancy seems to be due to cutting off the predation kernel at
-    # the upper end, see the following graph:
+                       tolerance = 0.0005)
+    # The discrepancy is small, see the following graph:
     # new <- getPhiPrey(params, n = params@initial_n, n_pp = params@initial_n_pp)
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_multispecies_model_phi_prey")
     # dimnames(old) <- dimnames(new)
-    # dfo <- melt(old) %>% mutate(type = "old") 
+    # dfo <- melt(old) %>% mutate(type = "old")
     # dfs <- rbind(df, dfo)
     # dfs$sp <- as.factor(dfs$sp)
-    # 
     # ggplot(dfs) +
     #     geom_line((aes(x = w, y = value, colour = sp, linetype = type))) +
     #     scale_x_log10() +
     #     scale_y_log10()
+    # max(abs(old - new))
     sim <- project(params, t_max = 0.1, t_save = 0.1)
     expect_known_value(sim@n[2, , ],  "values/set_multispecies_model_n")
     expect_known_value(sim@n_pp[2, ], "values/set_multispecies_model_n_pp")
@@ -134,6 +132,17 @@ test_that("set_community_model() works as in version 1", {
                        "values/set_community_model_ft_pred_kernel_e",
                        check.attributes = FALSE,
                        tolerance = 0.07)
+    # Plot
+    # new <- params@ft_pred_kernel_e * Dx
+    # df <- melt(new) %>% mutate(type = "new")
+    # old <- readRDS("values/set_community_model_ft_pred_kernel_e")
+    # dimnames(old) <- dimnames(new)
+    # dfo <- melt(old) %>% mutate(type = "old")
+    # dfs <- rbind(df, dfo)
+    # dfs$sp <- as.factor(dfs$sp)
+    # ggplot(dfs) +
+    #     geom_line((aes(x = k, y = Re(value), colour = sp, linetype = type)))
+    # max(abs(new - old))
     expect_known_value(params@rr_pp, "values/set_community_model_rr_pp")
     expect_known_value(params@cc_pp, "values/set_community_model_cc_pp")
     expect_known_value(params@initial_n, "values/set_community_model_initial_n")
@@ -142,25 +151,37 @@ test_that("set_community_model() works as in version 1", {
                        "values/set_community_model_pred_rate",
                        check.attributes = FALSE,
                        tolerance = 2e-6)
+    # You can see the discrepancy in the following plot:
+    # new <- getPredRate(params)
+    # df <- melt(new) %>% mutate(type = "new")
+    # old <- readRDS("values/set_community_model_pred_rate")
+    # dimnames(old) <- dimnames(new)
+    # dfo <- melt(old) %>% mutate(type = "old")
+    # dfs <- rbind(df, dfo)
+    # dfs$sp <- as.factor(dfs$sp)
+    # ggplot(dfs) +
+    #     geom_line((aes(x = w_prey, y = value, colour = sp, linetype = type))) +
+    #     scale_x_log10() +
+    #     scale_y_log10()
+    # max(abs(new - old))
     expect_known_value(getPhiPrey(params, n = params@initial_n, n_pp = params@initial_n_pp), 
                        "values/set_community_phi_prey",
                        check.attributes = FALSE,
                        tolerance = 130)
-    # The discrepancy seems to be due to cutting off the predation kernel at
-    # the upper end, see the following graph:
+    # The discrepancy is small, see the following graph:
     # new <- getPhiPrey(params, n = params@initial_n, n_pp = params@initial_n_pp)
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_community_phi_prey")
     # dimnames(old) <- dimnames(new)
-    # dfo <- melt(old) %>% mutate(type = "old") 
+    # dfo <- melt(old) %>% mutate(type = "old")
     # dfs <- rbind(df, dfo)
     # dfs$sp <- as.factor(dfs$sp)
-    # 
     # ggplot(dfs) +
     #     geom_line((aes(x = w, y = value, colour = sp, linetype = type))) +
     #     scale_x_log10() +
     #     scale_y_log10()
-    sim <- project(params, t_max = 0.1, t_save = 0.1)
+    
+    sim <- project(params, t_max = 1)
     expect_known_value(sim@n[2, , ],  "values/set_community_model_n")
     expect_known_value(sim@n_pp[2, ], "values/set_community_model_n_pp")
 })
