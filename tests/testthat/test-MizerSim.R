@@ -22,9 +22,6 @@ test_that("basic constructor sets dimensions properly",{
     expect_that(dim(sim@n)[1], equals(1 + (t_max / t_save)))
     expect_that(dimnames(sim@n)[[1]], is_identical_to(dimnames(sim@effort)[[1]]))
 
-    # Test for warning if t_save is not integer multiple of dt
-    expect_error(MizerSim(params, t_save = 15, dt = 2))
-
     # Make MizerSim using t_dimnames
     t_dimnames <- seq(from = 1990, to = 2000, by = 1)
     sim <- MizerSim(params, t_dimnames = t_dimnames)
