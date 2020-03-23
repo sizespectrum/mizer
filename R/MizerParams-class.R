@@ -2454,8 +2454,15 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "srr")) {
         if (is.function(params@srr)) {
-            RDD <- "BevertonHoltRDD"
-            message('The density-dependent reproduction rate function has been set to "BevertonHoltRDD".')
+            if(!is.null(params@species_params$constant_recruitment)) {
+                RDD <- "constantRDD"
+                params@species_params$constant_reproduction <- 
+                    params@species_params$constant_recruitment
+                params@species_params$constant_recruitment <- NULL
+            } else {
+                RDD <- "BevertonHoltRDD"
+                message('The density-dependent reproduction rate function has been set to "BevertonHoltRDD".')
+            }
         } else {
             RDD <- switch(params@srr,
                           srrBevertonHolt = "BevertonHoltRDD",
@@ -2466,11 +2473,6 @@ upgradeParams <- function(params) {
         }
     } else {
         RDD <- "BevertonHoltRDD"
-    }
-    
-    if (is.function(params@plankton_dynamics)) {
-        params@plankton_dynamics <- "plankton_semichemostat"
-        message('The plankton dynamics function has been set to "plankton_semichemostat".')
     }
     
     if (.hasSlot(params, "initial_effort")) {
@@ -2497,6 +2499,12 @@ upgradeParams <- function(params) {
     } else {
         maturity <- NULL
         repro_prop <- NULL
+    }
+    
+    if(.hasSlot(params, "mu_b")) {
+        mu_b <- params@mu_b
+    } else {
+        mu_b <- NULL
     }
     
     if ("r_max" %in% names(params@species_params)) {
@@ -2531,16 +2539,20 @@ upgradeParams <- function(params) {
         search_vol = params@search_vol,
         intake_max = params@intake_max,
         metab = metab,
-        z0 = params@mu_b,
+        z0 = mu_b,
         maturity = maturity,
         repro_prop = repro_prop,
         RDD = RDD,
         initial_effort = initial_effort)
     
-    pnew@linecolour <- params@linecolour
-    pnew@linetype <- params@linetype
-    pnew@initial_n <- params@initial_n
-    pnew@initial_n_pp <- params@initial_n_pp
+    if (.hasSlot(params, "linecolour")) {
+        pnew@linecolour <- params@linecolour
+        pnew@linetype <- params@linetype
+    }
+    if (.hasSlot(params, "initial_n")) {
+        pnew@initial_n <- params@initial_n
+        pnew@initial_n_pp <- params@initial_n_pp
+    }
     if (.hasSlot(params, "initial_n_other")) {
         pnew@initial_n_other <- params@initial_n_other
     }
@@ -2559,7 +2571,12 @@ upgradeParams <- function(params) {
         pnew@other_mort <- params@other_pred_mort
     }
     if (.hasSlot(params, "plankton_dynamics")) {
-        pnew@plankton_dynamics <- params@plankton_dynamics
+        if (is.function(params@plankton_dynamics)) {
+            pnew@plankton_dynamics <- "plankton_semichemostat"
+            message('The plankton dynamics function has been set to "plankton_semichemostat".')
+        } else {
+            pnew@plankton_dynamics <- params@plankton_dynamics
+        }
     }
     if (.hasSlot(params, "plankton_params")) {
         pnew@plankton_params <- params@plankton_params

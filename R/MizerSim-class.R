@@ -288,3 +288,38 @@ times <- function(sim) {
 effort <- function(sim) {
     sim@effort
 }
+
+
+#' Upgrade MizerSim object from earlier mizer versions
+#' 
+#' Occasionally during the development of new features for mizer, the MizerSim
+#' class or the MizerParams class gains extra slots. MizerSim objects created in
+#' older versions of mizer are then no longer valid in the new version because
+#' of the missing slots. This function adds the missing slots and fills them
+#' with default values. It calls `upgradeParams()` to upgrade the MizerParams
+#' object inside the MizerSim object.
+#' 
+#' If you only have a serialised version of the old object, for example created
+#' via `saveRDS()`, and you get an error when trying to read it in with
+#' `readRDS()` then unfortunately you will need to install the old version of
+#' mizer first to read the params object into your workspace, then switch to the
+#' current version and then call `upgradeSim()`. You can then save the new
+#' version again with `saveRDS()`.
+#' 
+#' @param sim An old MizerSim object to be upgraded
+#' 
+#' @return The upgraded MizerSim object
+#' @export
+upgradeSim <- function(sim) {
+    t_dimnames <- dimnames(sim@effort)[[1]]
+    new_sim <- MizerSim(upgradeParams(sim@params),
+                        t_dimnames = as.numeric(t_dimnames))
+    new_sim@n <- sim@n
+    new_sim@n_pp <- sim@n_pp
+    new_sim@effort <- sim@effort
+    if (.hasSlot(sim, "n_other")) {
+        new_sim@n_other <- sim@n_other
+    }
+    comment(new_sim) <- comment(sim)
+    new_sim
+}

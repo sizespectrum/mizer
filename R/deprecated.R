@@ -24,6 +24,7 @@ set_multispecies_model <-
         f0 = 0.6,
         kappa = 1e11,
         lambda = 2 + q - n,
+        r_pp = 10,
         ...) {
     if (exists("no_w_pp")) {
         warning("New mizer code does not support the parameter no_w_pp")
@@ -98,7 +99,9 @@ set_multispecies_model <-
                                  n = n,
                                  kappa = kappa,
                                  lambda = lambda,
+                                 r_pp = r_pp,
                                  max_w = max_w,
+                                 min_w = min_w,
                                  min_w_pp = min_w_pp,
                                  no_w = no_w,
                                  ...))
