@@ -2491,6 +2491,8 @@ upgradeParams <- function(params) {
                           srrRicker = "RickerRDD",
                           srrSheperd = "SheperdRDD")
         }
+    } else if (.hasSlot(params, "rates_funcs")) {
+        RDD <- params@rates_funcs[["RDD"]]
     } else {
         RDD <- "BevertonHoltRDD"
     }
