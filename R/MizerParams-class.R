@@ -2466,13 +2466,15 @@ getLinetypes <- function(params) {
 #' @export
 upgradeParams <- function(params) {
     
-    if(!.hasSlot(params, "ft_pred_kernel_e")) {
+    if (!.hasSlot(params, "ft_pred_kernel_e")) {
         stop("Objects from versions 0.3 and earlier can not be upgraded.")
     }
     
+    params@species_params$w_min_idx <- NULL
+    
     if (.hasSlot(params, "srr")) {
         if (is.function(params@srr)) {
-            if(!is.null(params@species_params$constant_recruitment)) {
+            if (!is.null(params@species_params$constant_recruitment)) {
                 RDD <- "constantRDD"
                 params@species_params$constant_reproduction <- 
                     params@species_params$constant_recruitment
@@ -2514,12 +2516,13 @@ upgradeParams <- function(params) {
         maturity <- params@maturity
         repro_prop <- params@psi / params@maturity
         repro_prop[params@maturity == 0] <- 0
+        comment(repro_prop) <- comment(params@psi)
     } else {
         maturity <- NULL
         repro_prop <- NULL
     }
     
-    if(.hasSlot(params, "mu_b")) {
+    if (.hasSlot(params, "mu_b")) {
         mu_b <- params@mu_b
     } else {
         mu_b <- NULL
@@ -2533,12 +2536,29 @@ upgradeParams <- function(params) {
     
     if (.hasSlot(params, "p")) {
         params@species_params[["p"]] <- params@p
+    } else if (is.null(params@species_params[["p"]])) {
+        # No p in params object, so extract from metabolism
+        p <- log(metab[, 2] / metab[, 1]) / 
+            log(params@w[[2]] / params@w[[1]])
+        p[is.nan(p)] <- NA
+        params@species_params[["p"]] <- p
     }
     if (.hasSlot(params, "q")) {
         params@species_params[["q"]] <- params@q
+    } else if (is.null(params@species_params[["q"]])) {
+        # No q in params object, so extract from search volume
+        q <- log(params@search_vol[, 2] / params@search_vol[, 1]) / 
+            log(params@w[[2]] / params@w[[1]])
+        params@species_params[["q"]] <- q
     }
     if (.hasSlot(params, "n")) {
         params@species_params[["n"]] <- params@n
+    } else if (is.null(params@species_params[["n"]])) {
+        # No n in params object, so extract from intake_max
+        n <- log(params@intake_max[, 2] / params@intake_max[, 1]) / 
+            log(params@w[[2]] / params@w[[1]])
+        n[is.nan(n)] <- NA
+        params@species_params[["n"]] <- n
     }
     if (.hasSlot(params, "f0")) {
         params@species_params[["f0"]] <- params@f0
@@ -2562,6 +2582,8 @@ upgradeParams <- function(params) {
         repro_prop = repro_prop,
         RDD = RDD,
         initial_effort = initial_effort)
+    
+    pnew@psi <- params@psi
     
     if (.hasSlot(params, "linecolour")) {
         pnew@linecolour <- params@linecolour
@@ -2600,7 +2622,8 @@ upgradeParams <- function(params) {
         pnew@plankton_params <- params@plankton_params
     } else if (.hasSlot(params, "lambda")) {
         # r_pp was not stored in params object, so has to be reconstructed
-        r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (n - 1)
+        maxidx <- max(which(pnew@cc_pp > 0))  # The largest plankton index
+        r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (params@n - 1)
         pnew@plankton_params[["r_pp"]] <- r_pp
         pnew@plankton_params[["lambda"]] <- params@lambda
         pnew@plankton_params[["kappa"]] <- params@kappa
