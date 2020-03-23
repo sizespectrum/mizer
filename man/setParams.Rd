@@ -111,12 +111,12 @@ A \linkS4class{MizerParams} object
 This is a convenient wrapper function calling each of the following
 functions
 \itemize{
-\item \code{\link{setPredationKernel}}
+\item \code{\link{setPredKernel}}
 \item \code{\link{setSearchVolume}}
 \item \code{\link{setInteraction}}
 \item \code{\link{setMaxIntakeRate}}
 \item \code{\link{setMetabolicRate}}
-\item \code{\link{setExtMortality}}
+\item \code{\link{setExtMort}}
 \item \code{\link{setReproduction}}
 \item \code{\link{setFishing}}
 \item \code{\link{setPlankton}}
@@ -257,7 +257,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link{getPredationKernel}} function.
+\code{\link{getPredKernel}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 
@@ -351,7 +351,7 @@ with units 1/year.
 
 The \code{z0} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for \code{\link{setExtMortality}}.
+the Examples section of the help page for \code{\link{setExtMort}}.
 
 If the \code{z0} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
@@ -542,14 +542,14 @@ params <- setParams(params)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setExtMortality}()},
+\code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredationKernel}()},
+\code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
 \code{\link{setSearchVolume}()}
 }

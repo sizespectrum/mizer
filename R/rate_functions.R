@@ -241,7 +241,7 @@ getPredMort <- function(object, n, n_pp, n_other,
             time_range <- dimnames(sim@n)$time
         }
         time_elements <- get_time_elements(sim, time_range)
-        m2_time <- plyr::aaply(which(time_elements), 1, function(x) {
+        pred_mort_time <- plyr::aaply(which(time_elements), 1, function(x) {
             n <- array(sim@n[x, , ], dim = dim(sim@n)[2:3])
             dimnames(n) <- dimnames(sim@n)[2:3]
             n_other <- sim@n_other[x, ]
@@ -249,7 +249,7 @@ getPredMort <- function(object, n, n_pp, n_other,
             return(getPredMort(sim@params, n = n, 
                                n_pp = n_pp, n_other = n_other))
         }, .drop = drop)
-        return(m2_time)
+        return(pred_mort_time)
     }
 }
 
@@ -518,10 +518,10 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' @inheritParams mizerRates
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
-#' @param fishing_mort A two dimensional array (species x size) of predation mortality
+#' @param f_mort A two dimensional array (species x size) of fishing mortality
 #'   (optional).If not supplied is calculated using the \code{\link{getFMort}}
 #'   function.
-#' @param m2 A two dimensional array of predation mortality (optional). Has
+#' @param pred_mort A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
 #'   calculated using the \code{\link{getPredMort}} function.
 #'
@@ -543,21 +543,21 @@ getMort <- function(params,
                     n_pp = params@initial_n_pp,
                     n_other = params@initial_n_other,
                     effort = params@initial_effort,
-                    fishing_mort = getFMort(params, effort),
-                    m2 = getPredMort(params, n = n, n_pp = n_pp, 
+                    f_mort = getFMort(params, effort),
+                    pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
                                      n_other = n_other)){
-    if (!all(dim(fishing_mort) == c(nrow(params@species_params), length(params@w)))) {
-        stop("fishing_mort argument must have dimensions: no. species (",
+    if (!all(dim(f_mort) == c(nrow(params@species_params), length(params@w)))) {
+        stop("f_mort argument must have dimensions: no. species (",
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-    if (!all(dim(m2) == c(nrow(params@species_params), length(params@w)))) {
-        stop("m2 argument must have dimensions: no. species (",
+    if (!all(dim(pred_mort) == c(nrow(params@species_params), length(params@w)))) {
+        stop("pred_mort argument must have dimensions: no. species (",
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
     
-    z <- m2 + params@mu_b + fishing_mort
+    z <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (fun_name in params@other_mort) {
         z <- z + 

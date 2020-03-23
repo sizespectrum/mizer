@@ -311,12 +311,20 @@ effort <- function(sim) {
 #' @return The upgraded MizerSim object
 #' @export
 upgradeSim <- function(sim) {
-    t_dimnames <- dimnames(sim@effort)[[1]]
+    t_dimnames <- dimnames(sim@n_pp)[[1]]
+    no_gears <- dim(sim@effort)[[2]]
     new_sim <- MizerSim(upgradeParams(sim@params),
                         t_dimnames = as.numeric(t_dimnames))
+
     new_sim@n <- sim@n
     new_sim@n_pp <- sim@n_pp
-    new_sim@effort <- sim@effort
+    if (dim(sim@effort)[[1]] < dim(sim@n)[[1]]) {
+        # This happened in version 0.4 because there was no effort for initial
+        # time
+        new_sim@effort[] <- rbind(rep(0, no_gears), sim@effort)
+    } else {
+        new_sim@effort[] <- sim@effort
+    }
     if (.hasSlot(sim, "n_other")) {
         new_sim@n_other <- sim@n_other
     }

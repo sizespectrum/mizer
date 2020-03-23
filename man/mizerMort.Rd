@@ -9,7 +9,7 @@ mizerMort(
   n = params@initial_n,
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
-  fishing_mort,
+  f_mort,
   m2,
   ...
 )
@@ -24,7 +24,7 @@ mizerMort(
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{fishing_mort}{A two dimensional array (species x size) with the fishing
+\item{f_mort}{A two dimensional array (species x size) with the fishing
 mortality}
 
 \item{m2}{A two dimensional array (species x size) with the predation

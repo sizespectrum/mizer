@@ -29,7 +29,7 @@ A two dimensional array (predator species x predator size) with the
 encounter rates.
 }
 \description{
-Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
+Calculates the rate \eqn{E_{e.i}(w)} at which a predator of species \eqn{i} and
 weight \eqn{w} encounters food (grams/year).
 }
 \section{Predation encounter}{
@@ -51,7 +51,7 @@ Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
 \code{\link[=setSearchVolume]{setSearchVolume()}} function. The predation kernel
-\eqn{\phi(w,w_p)} is set with the \code{\link[=setPredationKernel]{setPredationKernel()}} function. The
+\eqn{\phi(w,w_p)} is set with the \code{\link[=setPredKernel]{setPredKernel()}} function. The
 species interaction matrix \eqn{\theta_{ij}} is set with \code{\link[=setInteraction]{setInteraction()}}
 and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
 \code{interaction_p} column in \code{params@species_params}.

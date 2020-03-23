@@ -10,8 +10,8 @@ getMort(
   n_pp = params@initial_n_pp,
   n_other = params@initial_n_other,
   effort = params@initial_effort,
-  fishing_mort = getFMort(params, effort),
-  m2 = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other)
+  f_mort = getFMort(params, effort),
+  pred_mort = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other)
 )
 }
 \arguments{
@@ -27,11 +27,11 @@ ecosystem}
 \item{effort}{A numeric vector of the effort by gear or a single numeric
 effort value which is used for all gears.}
 
-\item{fishing_mort}{A two dimensional array (species x size) of predation mortality
+\item{f_mort}{A two dimensional array (species x size) of fishing mortality
 (optional).If not supplied is calculated using the \code{\link{getFMort}}
 function.}
 
-\item{m2}{A two dimensional array of predation mortality (optional). Has
+\item{pred_mort}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
 calculated using the \code{\link{getPredMort}} function.}
 }

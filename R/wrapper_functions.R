@@ -511,7 +511,7 @@ newTraitParams <- function(no_sp = 11,
     m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
     params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
     
-    ## Setup background death ----
+    ## Setup external death ----
     m2 <- getPredMort(params, initial_n, initial_n_pp)
     flag <- FALSE
     for (i in 1:no_sp) {

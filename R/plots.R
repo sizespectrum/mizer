@@ -883,10 +883,10 @@ plotPredMort <- function(object, species = NULL,
         assert_that(is(object, "MizerParams"))
         params <- object
     }
-    m2 <- getPredMort(object, time_range = time_range, drop = FALSE)
+    pred_mort <- getPredMort(object, time_range = time_range, drop = FALSE)
     # If a time range was returned, average over it
-    if (length(dim(m2)) == 3) {
-        m2 <- apply(m2, c(2, 3), mean)
+    if (length(dim(pred_mort)) == 3) {
+        pred_mort <- apply(pred_mort, c(2, 3), mean)
     }
     
     # selector for desired species
@@ -897,9 +897,9 @@ plotPredMort <- function(object, species = NULL,
     # Need to keep species in order for legend
     species_levels <- c(as.character(params@species_params$species), 
                         "Background", "Plankton", "Total")
-    m2 <- m2[as.character(dimnames(m2)[[1]]) %in% species, , drop = FALSE]
-    plot_dat <- data.frame(value = c(m2),
-                           Species = factor(dimnames(m2)[[1]],
+    pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
+    plot_dat <- data.frame(value = c(pred_mort),
+                           Species = factor(dimnames(pred_mort)[[1]],
                                             levels = species_levels),
                            w = rep(params@w, each = length(species)))
     p <- ggplot(plot_dat) +

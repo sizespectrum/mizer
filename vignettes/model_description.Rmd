@@ -179,7 +179,7 @@ The $\theta$ matrix sets the interaction strength between predators and the
 various prey species and plankton. It is changed with `setInteraction()`.
 
 The size selectivity is encoded in the predation kernel $\phi_i(w,w_p)$. This is
-changed with `setPredationKernel()`.
+changed with `setPredKernel()`.
 
 <details>
 An important simplification occurs when the predation kernel $\phi_i(w,w_p)$
@@ -344,7 +344,7 @@ The mortality rate due to predation is then obtained as
 This predation mortality rate is calculated by the function `getPredMort()`.
 
 External mortality $z0_i(w)$ is independent of the abundances and is
-changed with `setExtMortality()`. By default mizer assumes an allometric form
+changed with `setExtMort()`. By default mizer assumes an allometric form
 \[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]
 where $w_{\infty.i}$ is the asymptotic size of species $i$.
 

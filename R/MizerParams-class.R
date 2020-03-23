@@ -265,21 +265,21 @@ validMizerParams <- function(object) {
 #' @slot metab An array (species x size) that holds the metabolism
 #'   for each species at size. Changed with \code{\link{setMetabolicRate}}.
 #' @slot mu_b An array (species x size) that holds the external mortality rate
-#'   \eqn{\mu_{b.i}(w)}. Changed with \code{\link{setExtMortality}}.
+#'   \eqn{\mu_{b.i}(w)}. Changed with \code{\link{setExtMort}}.
 #' @slot pred_kernel An array (species x predator size x prey size) that holds
 #'   the predation coefficient of each predator at size on each prey size. If
 #'   this is NA then the following two slots will be used. Changed with 
-#'   \code{\link{setPredationKernel}}.
+#'   \code{\link{setPredKernel}}.
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the encounter rate integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the available 
-#'   energy integral. Changed with \code{\link{setPredationKernel}}.
+#'   energy integral. Changed with \code{\link{setPredKernel}}.
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the \code{pred_kernel} will be used to calculate the integral.
-#'   Changed with \code{\link{setPredationKernel}}.
+#'   Changed with \code{\link{setPredKernel}}.
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the plankton spectrum. Changed with \code{\link{setPlankton}}.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -737,11 +737,11 @@ emptyParams <- function(species_params,
 #' @inheritSection emptyParams Size grid
 #' @inheritSection setParams Units in mizer
 #' @inheritSection setInteraction Setting interactions
-#' @inheritSection setPredationKernel Setting predation kernel
+#' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
-#' @inheritSection setExtMortality Setting external mortality rate
+#' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
@@ -761,7 +761,7 @@ newMultispeciesParams <- function(
     min_w = 0.001,
     max_w = NA,
     min_w_pp = NA,
-    # setPredationKernel()
+    # setPredKernel()
     pred_kernel = NULL,
     # setSearchVolume()
     search_vol = NULL,
@@ -770,7 +770,7 @@ newMultispeciesParams <- function(
     # setMetabolicRate()
     metab = NULL,
     p = 0.7,
-    # setExtMortality
+    # setExtMort
     z0 = NULL,
     z0pre = 0.6,
     z0exp = n - 1,
@@ -817,7 +817,7 @@ newMultispeciesParams <- function(
         setParams(params,
                   # setInteraction
                   interaction = interaction,
-                  # setPredationKernel()
+                  # setPredKernel()
                   pred_kernel = pred_kernel,
                   # setSearchVolume()
                   search_vol = search_vol,
@@ -825,7 +825,7 @@ newMultispeciesParams <- function(
                   intake_max = intake_max,
                   # setMetabolicRate()
                   metab = metab,
-                  # setExtMortality
+                  # setExtMort
                   z0 = z0,
                   z0pre = z0pre,
                   z0exp = z0exp,
@@ -857,12 +857,12 @@ newMultispeciesParams <- function(
 #' This is a convenient wrapper function calling each of the following
 #' functions
 #' \itemize{
-#' \item \code{\link{setPredationKernel}}
+#' \item \code{\link{setPredKernel}}
 #' \item \code{\link{setSearchVolume}}
 #' \item \code{\link{setInteraction}}
 #' \item \code{\link{setMaxIntakeRate}}
 #' \item \code{\link{setMetabolicRate}}
-#' \item \code{\link{setExtMortality}}
+#' \item \code{\link{setExtMort}}
 #' \item \code{\link{setReproduction}}
 #' \item \code{\link{setFishing}}
 #' \item \code{\link{setPlankton}}
@@ -871,11 +871,11 @@ newMultispeciesParams <- function(
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
-#' @inheritParams setPredationKernel
+#' @inheritParams setPredKernel
 #' @inheritParams setSearchVolume
 #' @inheritParams setMaxIntakeRate
 #' @inheritParams setMetabolicRate
-#' @inheritParams setExtMortality
+#' @inheritParams setExtMort
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
 #' @inheritParams setPlankton
@@ -959,11 +959,11 @@ newMultispeciesParams <- function(
 #' of the productive layer. In that respect, case 2 is a bit cumbersome.
 #' 
 #' @inheritSection setInteraction Setting interactions
-#' @inheritSection setPredationKernel Setting predation kernel
+#' @inheritSection setPredKernel Setting predation kernel
 #' @inheritSection setSearchVolume Setting search volume
 #' @inheritSection setMaxIntakeRate Setting maximum intake rate
 #' @inheritSection setMetabolicRate Setting metabolic rate
-#' @inheritSection setExtMortality Setting external mortality rate
+#' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
@@ -980,15 +980,15 @@ setParams <- function(params,
                       # setPlankton
                       r_plankton = NULL,
                       K_plankton = NULL,
-                      r_pp = params@plankton_params[["r_pp"]],
-                      kappa = params@plankton_params[["kappa"]],
-                      lambda = params@plankton_params[["lambda"]],
-                      n = params@plankton_params[["n"]],
-                      w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
+                      r_pp = NULL,
+                      kappa = NULL,
+                      lambda = NULL,
+                      n = NULL,
+                      w_pp_cutoff = NULL,
                       plankton_dynamics = NULL,
                       # setInteraction()
                       interaction = NULL,
-                      # setPredationKernel()
+                      # setPredKernel()
                       pred_kernel = NULL,
                       # setSearchVolume()
                       search_vol = NULL,
@@ -997,17 +997,23 @@ setParams <- function(params,
                       # setMetabolicRate()
                       metab = NULL,
                       p = NULL,
-                      # setExtMortality
+                      # setExtMort
                       z0 = NULL,
                       z0pre = 0.6,
                       z0exp = n - 1,
                       # setReproduction
                       maturity = NULL,
                       repro_prop = NULL,
-                      RDD = params@rates_funcs$RDD,
+                      RDD = NULL,
                       # setFishing
                       initial_effort = NULL) {
     validObject(params)
+    if (is.null(r_pp)) r_pp <- params@plankton_params[["r_pp"]]
+    if (is.null(kappa)) kappa <- params@plankton_params[["kappa"]]
+    if (is.null(lambda)) lambda <- params@plankton_params[["lambda"]]
+    if (is.null(n)) n <- params@plankton_params[["n"]]
+    if (is.null(w_pp_cutoff)) w_pp_cutoff <- params@plankton_params[["w_pp_cutoff"]]
+    if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     params <- setPlankton(params,
                           r_plankton = r_plankton,
                           K_plankton = K_plankton,
@@ -1019,18 +1025,18 @@ setParams <- function(params,
                           plankton_dynamics = plankton_dynamics)
     params <- setInteraction(params,
                              interaction = interaction)
-    params <- setPredationKernel(params,
+    params <- setPredKernel(params,
                             pred_kernel = pred_kernel)
     params <- setMaxIntakeRate(params,
                            intake_max = intake_max)
     params <- setMetabolicRate(params,
                        metab = metab, p = p)
-    params <- setExtMortality(params,
+    params <- setExtMort(params,
                        z0 = z0,
                        z0pre = z0pre,
                        z0exp = z0exp)
     # setSearchVolume() should be called only after 
-    # setMaxIntakeRate() and setPredationKernel()
+    # setMaxIntakeRate() and setPredKernel()
     params <- setSearchVolume(params,
                               search_vol = search_vol)
     params <- setReproduction(params,
@@ -1180,7 +1186,7 @@ getInteraction <- function(params) {
 #' Fourier transforms of the feeding kernel function that allow the encounter
 #' rate and the predation rate to be calculated very efficiently. However, if
 #' you need the full three-dimensional array you can calculate it with the
-#' \code{\link{getPredationKernel}} function.
+#' \code{\link{getPredKernel}} function.
 #' 
 #' \strong{Kernel dependent on both predator and prey size}
 #' 
@@ -1205,10 +1211,10 @@ getInteraction <- function(params) {
 #'   predation kernel".
 #' 
 #' @return A MizerParams object with updated predation kernel. Because of the
-#'   way the R language works, `setPredationKernel()` does not make the changes
+#'   way the R language works, `setPredKernel()` does not make the changes
 #'   to the params object that you pass to it but instead returns a new params
 #'   object. So to affect the change you call the function in the form
-#'   `params <- setPredationKernel(params, ...)`.
+#'   `params <- setPredKernel(params, ...)`.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -1217,24 +1223,24 @@ getInteraction <- function(params) {
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' 
 #' ## If you change predation kernel parameters after setting up a model, you
-#' # need to call setPredationKernel
+#' # need to call setPredKernel
 #' params@species_params["Cod", "beta"] <- 200
-#' params <- setPredationKernel(params)
+#' params <- setPredKernel(params)
 #' 
 #' ## You can change to a different predation kernel type
 #' params@species_params$pred_kernel_type <- "box"
 #' params@species_params$ppmr_min <- 2
 #' params@species_params$ppmr_max <- 4
-#' params <- setPredationKernel(params)
+#' params <- setPredKernel(params)
 #' 
 #' ## If you need a kernel that depends also on prey size you need to define
 #' # it yourself.
-#' pred_kernel <- getPredationKernel(params)
+#' pred_kernel <- getPredKernel(params)
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2, 
 #'                                     params@w_full, "*")
-#' params<- setPredationKernel(params, pred_kernel = pred_kernel)
+#' params<- setPredKernel(params, pred_kernel = pred_kernel)
 #' }
-setPredationKernel <- function(params,
+setPredKernel <- function(params,
                           pred_kernel = NULL) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
@@ -1302,12 +1308,12 @@ setPredationKernel <- function(params,
 #' object, then this function calculates it from the information in the species
 #' parameter data frame in the params object.
 #' 
-#' For more detail about the predation kernel see \code{\link{setPredationKernel}}.
+#' For more detail about the predation kernel see \code{\link{setPredKernel}}.
 #' 
 #' @param params A MizerParams object
 #' @return An array (predator species x predator_size x prey_size)
 #' @export
-getPredationKernel <- function(params) {
+getPredKernel <- function(params) {
     assert_that(is(params, "MizerParams"))
     if (length(dim(params@pred_kernel)) > 1) {
         return(params@pred_kernel)
@@ -1602,7 +1608,7 @@ getMetabolicRate <- function(params) {
 #' 
 #' The \code{z0} argument allows you to specify an external mortality rate
 #' that depends on species and body size. You can see an example of this in
-#' the Examples section of the help page for \code{\link{setExtMortality}}.
+#' the Examples section of the help page for \code{\link{setExtMort}}.
 #' 
 #' If the \code{z0} argument is not supplied, then the external mortality
 #' is assumed to depend only on the species, not on the
@@ -1623,10 +1629,10 @@ getMetabolicRate <- function(params) {
 #'   Default value is \code{n-1}.
 #' 
 #' @return MizerParams object with updated external mortality rate. Because of
-#'   the way the R language works, `setExtMortality()` does not make the changes
+#'   the way the R language works, `setExtMort()` does not make the changes
 #'   to the params object that you pass to it but instead returns a new params
 #'   object. So to affect the change you call the function in the form
-#'   `params <- setExtMortality(params, ...)`.
+#'   `params <- setExtMort(params, ...)`.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -1643,9 +1649,9 @@ getMetabolicRate <- function(params) {
 #' z0 <- outer(z0pre, params@w^(-1/4))
 #' 
 #' # Change the external mortality rate in the params object
-#' params <- setExtMortality(params, z0 = z0)
+#' params <- setExtMort(params, z0 = z0)
 #' }
-setExtMortality <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4) {
+setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(z0)) {
         assert_that(is.array(z0),
@@ -1674,9 +1680,9 @@ setExtMortality <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4) {
     return(params)
 }
 
-#' @rdname setExtMortality
+#' @rdname setExtMort
 #' @export
-getExtMortality <- function(params) {
+getExtMort <- function(params) {
     params@mu_b
 }
 
@@ -1787,9 +1793,10 @@ getExtMortality <- function(params) {
 #' params <- setReproduction(params)
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                            RDD = params@rates_funcs$RDD) {
-    assert_that(is(params, "MizerParams"),
-                is.string(RDD),
+                            RDD = NULL) {
+    assert_that(is(params, "MizerParams"))
+    if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
+    assert_that(is.string(RDD),
                 exists(RDD),
                 is.function(get(RDD)))
     species_params <- params@species_params
@@ -2491,6 +2498,8 @@ upgradeParams <- function(params) {
                           srrRicker = "RickerRDD",
                           srrSheperd = "SheperdRDD")
         }
+    } else if (.hasSlot(params, "rates_funcs")) {
+        RDD <- params@rates_funcs[["RDD"]]
     } else {
         RDD <- "BevertonHoltRDD"
     }

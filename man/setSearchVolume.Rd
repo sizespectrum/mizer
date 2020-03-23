@@ -62,7 +62,7 @@ params <- setSearchVolume(params)
 }
 \seealso{
 Other functions for setting parameters: 
-\code{\link{setExtMortality}()},
+\code{\link{setExtMort}()},
 \code{\link{setFishing}()},
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
@@ -70,7 +70,7 @@ Other functions for setting parameters:
 \code{\link{setMetabolicRate}()},
 \code{\link{setParams}()},
 \code{\link{setPlankton}()},
-\code{\link{setPredationKernel}()},
+\code{\link{setPredKernel}()},
 \code{\link{setReproduction}()}
 }
 \concept{functions for setting parameters}

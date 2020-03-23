@@ -57,7 +57,7 @@ NULL
 #'     \item feeding_level from \code{\link{mizerFeedingLevel}}
 #'     \item pred_rate from \code{\link{mizerPredRate}}
 #'     \item pred_mort from \code{\link{mizerPredMort}}
-#'     \item fishing_mort from \code{\link{mizerFMort}}
+#'     \item f_mort from \code{\link{mizerFMort}}
 #'     \item mort from \code{\link{mizerMort}}
 #'     \item plankton_mort from \code{\link{mizerPlanktonMort}}
 #'     \item e from \code{\link{mizerEReproAndGrowth}}
@@ -101,13 +101,13 @@ mizerRates <- function(params,
         params, n = n, n_pp = n_pp, n_other = n_other, 
         pred_rate = r$pred_rate, t = t)
     # Calculate fishing mortality
-    r$fishing_mort <- rates_fns$FMort(
+    r$f_mort <- rates_fns$FMort(
         params, n = n, n_pp = n_pp, n_other = n_other, 
         effort = effort, t = t)
     # Calculate total mortality \mu_i(w)
     r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        fishing_mort = r$fishing_mort, m2 = r$pred_mort, t = t)
+        f_mort = r$f_mort, pred_mort = r$pred_mort, t = t)
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
@@ -138,7 +138,7 @@ mizerRates <- function(params,
 
 #' Get encounter rate needed to project standard mizer model
 #' 
-#' Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
+#' Calculates the rate \eqn{E_{e.i}(w)} at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year).
 #' 
 #' @section Predation encounter:
@@ -159,7 +159,7 @@ mizerRates <- function(params,
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 #' predator. It could be interpreted as a search volume and is set with the
 #' [setSearchVolume()] function. The predation kernel
-#' \eqn{\phi(w,w_p)} is set with the [setPredationKernel()] function. The
+#' \eqn{\phi(w,w_p)} is set with the [setPredKernel()] function. The
 #' species interaction matrix \eqn{\theta_{ij}} is set with [setInteraction()]
 #' and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
 #' `interaction_p` column in `params@species_params`.
@@ -452,9 +452,9 @@ mizerFMort <- function(params, effort, ...) {
 #' mortality.
 #'
 #' @inheritParams mizerRates
-#' @param fishing_mort A two dimensional array (species x size) with the fishing
+#' @param f_mort A two dimensional array (species x size) with the fishing
 #'   mortality
-#' @param m2 A two dimensional array (species x size) with the predation
+#' @param pred_mort A two dimensional array (species x size) with the predation
 #'   mortality
 #'
 #' @return A two dimensional array (species x size) with the total mortality
@@ -465,18 +465,18 @@ mizerMort <- function(params,
                     n = params@initial_n, 
                     n_pp = params@initial_n_pp,
                     n_other = params@initial_n_other,
-                    fishing_mort,
-                    m2,
+                    f_mort,
+                    pred_mort,
                     ...){
-    m2 <- m2 + params@mu_b + fishing_mort
+    pred_mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (fun_name in params@other_mort) {
-        m2 <- m2 + 
+        pred_mort <- pred_mort + 
             do.call(fun_name, 
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other))
     }
-    return(m2)
+    return(pred_mort)
 }
 
 

@@ -312,8 +312,8 @@ test_that("getMort", {
     z1 <- f[1, ] + m2[1, ] + params@species_params$z0[1]
     expect_equal(z1, z[1, ], check.names = FALSE)
     # Passing in M2 gives the same
-    m2 <- getPredMort(params, n, n_full)
-    z2 <- getMort(params, n, n_full, effort = effort2, m2 = m2)
+    pred_mort <- getPredMort(params, n, n_full)
+    z2 <- getMort(params, n, n_full, effort = effort2, pred_mort = pred_mort)
     expect_identical(z, z2)
     expect_known_value(z, "values/getMort")
 })
@@ -461,7 +461,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
     params <- newMultispeciesParams(species_params, inter, no_w = 30)
     # create a second params object that does not use fft
-    params2 <- setPredationKernel(params, pred_kernel = getPredationKernel(params))
+    params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral
     efft <- getEncounter(params, params@initial_n, params@initial_n_pp)
     e <- getEncounter(params2, params@initial_n, params@initial_n_pp)

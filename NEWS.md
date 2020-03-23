@@ -40,12 +40,12 @@ default values, in particular for metabolic rate and maximum intake rate.
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
 
-* `setPredationKernel()`
+* `setPredKernel()`
 * `setSearchVolume()`
 * `setInteraction()`
 * `setMaxIntakeRate()`
 * `setMetabolicRate()`
-* `setExtMortality()`
+* `setExtMort()`
 * `setReproduction()`
 * `setFishing()`
 * `setPlankton()`
@@ -58,9 +58,9 @@ The documentation for these functions serves to explain the details of the
 mizer model.
 
 Along with these setter functions there are accessor functions for getting the
-parameter arrays: `getPredationKernel()`, `getSearchVolume()`, 
+parameter arrays: `getPredKernel()`, `getSearchVolume()`, 
 `getInteraction()`, `getMaxIntakeRate()`, `getMetabolicRate()`, 
-`getExtMortality()`, `getMaturityProportion()`, `getReproductionProportion()`,
+`getExtMort()`, `getMaturityProportion()`, `getReproductionProportion()`,
 `getCatchability()`, `getSelectivity()`, `getPlanktonBirthRate()`,
 `getPlanktonCarryingCapacity()`, `getPlanktonParams()`, `getPlanktonDynamics()`,
 
@@ -120,9 +120,9 @@ written to generalise the mizer model. More documentation to follow.
 * New `power_law_pred_kernel()` implements a power-law kernel with sigmoidal
   cutoffs at both ends. This is suitable for filter feeders.
 * Users can sets a predation kernel that has a predator-size-dependent
-  predator/prey mass ration (via `setPredationKernel()`). Mizer automatically
+  predator/prey mass ration (via `setPredKernel()`). Mizer automatically
   falls back on the old non-FFT code to handle this. (#41)
-* New `getPredationKernel()` returns the full 3-dimensional predation kernel array,
+* New `getPredKernel()` returns the full 3-dimensional predation kernel array,
   even when this is not stored in MizerParams object.
   
 ## Other new functions

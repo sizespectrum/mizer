@@ -64,38 +64,38 @@ test_that("setInteraction works", {
                  "Values in the plankton interaction vector should be between 0 and 1")
 })
 
-## setPredationKernel ----
-test_that("setPredationKernel works", {
-    expect_identical(setPredationKernel(params), params)
-    expect_identical(setPredationKernel(params, pred_kernel = NULL), 
+## setPredKernel ----
+test_that("setPredKernel works", {
+    expect_identical(setPredKernel(params), params)
+    expect_identical(setPredKernel(params, pred_kernel = NULL), 
                      params)
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 2
-    expect_error(setPredationKernel(params), 
+    expect_error(setPredKernel(params), 
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
-    p2 <- setPredationKernel(params)
-    pred_kernel <- getPredationKernel(params)
-    expect_error(setPredationKernel(params, pred_kernel[1:2, ]),
+    p2 <- setPredKernel(params)
+    pred_kernel <- getPredKernel(params)
+    expect_error(setPredKernel(params, pred_kernel[1:2, ]),
                  "incorrect number of dimensions")
-    expect_error(setPredationKernel(params, pred_kernel - 1),
+    expect_error(setPredKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
-    p2 <- setPredationKernel(params, pred_kernel)
+    p2 <- setPredKernel(params, pred_kernel)
     expect_equal(p2@ft_pred_kernel_e, array())
     expect_equal(p2@ft_pred_kernel_p, array())
     expect_equivalent(p2@pred_kernel, pred_kernel)
-    expect_identical(p2@pred_kernel, getPredationKernel(p2))
+    expect_identical(p2@pred_kernel, getPredKernel(p2))
 })
 test_that("Comment works on pred kernel", {
-    pred_kernel <- getPredationKernel(params)
+    pred_kernel <- getPredKernel(params)
     comment(pred_kernel) <- "test"
-    params_c <- setPredationKernel(params, pred_kernel = pred_kernel)
+    params_c <- setPredKernel(params, pred_kernel = pred_kernel)
     expect_identical(comment(params_c@pred_kernel), "test")
-    expect_message(setPredationKernel(params_c),
+    expect_message(setPredKernel(params_c),
                    "has been commented")
 })
-test_that("getPredationKernel has correct dimnames",{
-    pred_kernel <- getPredationKernel(params)
+test_that("getPredKernel has correct dimnames",{
+    pred_kernel <- getPredKernel(params)
     expect_identical(dimnames(pred_kernel)$sp, 
                      dimnames(params@initial_n)$sp)
     expect_identical(dimnames(pred_kernel)$w_pred, 
@@ -149,18 +149,18 @@ test_that("Comment works on metab", {
                    "has been commented")
 })
 
-## setExtMortality ----
-test_that("setExtMortality works", {
-    expect_identical(setExtMortality(params, params@mu_b), params)
+## setExtMort ----
+test_that("setExtMort works", {
+    expect_identical(setExtMort(params, params@mu_b), params)
     params@species_params$z0 <- 2 * params@species_params$z0
-    p2 <- setExtMortality(params)
+    p2 <- setExtMort(params)
     expect_identical(2 * params@mu_b, p2@mu_b)
 })
 test_that("Comment works on mu_b", {
     comment(params@mu_b) <- "test"
-    params <- setExtMortality(params, z0 = params@mu_b)
+    params <- setExtMort(params, z0 = params@mu_b)
     expect_identical(comment(params@mu_b), "test")
-    expect_message(setExtMortality(params),
+    expect_message(setExtMort(params),
                    "has been commented")
 })
 

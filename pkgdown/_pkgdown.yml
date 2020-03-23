@@ -69,13 +69,13 @@ reference:
     investigating the impact of changes in parameters.
   contents:
   - species_params
-  - setPredationKernel
-  - getPredationKernel
+  - setPredKernel
+  - getPredKernel
   - setSearchVolume
   - setInteraction
   - setMaxIntakeRate
   - setMetabolicRate
-  - setExtMortality
+  - setExtMort
   - setReproduction
   - setFishing
   - setPlankton

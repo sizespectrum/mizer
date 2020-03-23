@@ -186,26 +186,26 @@ object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see
 `getPredMort()` using the `sim` object:
 
 ```{r label=get_m2_comm}
-m2 <- getPredMort(sim)
+pred_mort <- getPredMort(sim)
 ```
 
-The resulting `m2` object is an array that contains the predation mortality at
+The resulting `pred_mort` object is an array that contains the predation mortality at
 time by species by size. Here we only have one species so the species dimension
 is dropped, leaving us with a two dimensional array of time by size. We
-projected the model for $`r dim(m2)[1]-1`$ time steps but the length of the time
-dimension is $`r dim(m2)[1]`$ as the initial population is also included as a
+projected the model for $`r dim(pred_mort)[1]-1`$ time steps but the length of the time
+dimension is $`r dim(pred_mort)[1]`$ as the initial population is also included as a
 time step.
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
-m2[51,]
+pred_mort[51,]
 ```
 
 If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
 ```{r label=print_plot_comm_m2, warning=FALSE}
-plot(x = sim@params@w, y = m2[51,], log = "xy", type = "l", 
+plot(x = sim@params@w, y = pred_mort[51,], log = "xy", type = "l", 
      xlab = "Size", ylab = "Predation mortality")
 ```
  

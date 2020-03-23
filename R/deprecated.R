@@ -264,6 +264,7 @@ set_trait_model <- function(no_sp = 10,
         species = as.factor(1:no_sp),
         w_inf = w_inf,
         w_mat = w_mat,
+        w_min = min_w,
         h = h, # max food intake
         gamma = gamma, # vol. search rate,
         ks = ks,# standard metabolism coefficient,

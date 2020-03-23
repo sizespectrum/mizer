@@ -41,7 +41,7 @@ A list with the following components:
     \item feeding_level from \code{\link{mizerFeedingLevel}}
     \item pred_rate from \code{\link{mizerPredRate}}
     \item pred_mort from \code{\link{mizerPredMort}}
-    \item fishing_mort from \code{\link{mizerFMort}}
+    \item f_mort from \code{\link{mizerFMort}}
     \item mort from \code{\link{mizerMort}}
     \item plankton_mort from \code{\link{mizerPlanktonMort}}
     \item e from \code{\link{mizerEReproAndGrowth}}
