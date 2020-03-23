@@ -2598,12 +2598,30 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "plankton_params")) {
         pnew@plankton_params <- params@plankton_params
-    }
-    if (.hasSlot(params, "lambda")) {
+    } else if (.hasSlot(params, "lambda")) {
+        # r_pp was not stored in params object, so has to be reconstructed
+        r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (n - 1)
+        pnew@plankton_params[["r_pp"]] <- r_pp
         pnew@plankton_params[["lambda"]] <- params@lambda
         pnew@plankton_params[["kappa"]] <- params@kappa
         pnew@plankton_params[["n"]] <- params@n
         pnew@plankton_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
+    } else {
+        # No plankton parameters saved in params object, so need to
+        # reconstruct from cc_pp and rr_pp
+        minidx <- min(which(pnew@cc_pp > 0))  # The smallest plankton index
+        maxidx <- max(which(pnew@cc_pp > 0))  # The largest plankton index
+        lambda <- -log(params@cc_pp[[maxidx]] / params@cc_pp[[minidx]]) / 
+            log(params@w_full[[maxidx]] / params@w_full[[minidx]])
+        kappa <- params@cc_pp[[maxidx]] * params@w_full[[maxidx]] ^ lambda
+        n <- 1 + log(params@rr_pp[[maxidx]] / params@rr_pp[[minidx]]) / 
+            log(params@w_full[[maxidx]] / params@w_full[[minidx]])
+        r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (n - 1)
+        pnew@plankton_params[["r_pp"]] <- r_pp
+        pnew@plankton_params[["lambda"]] <- lambda
+        pnew@plankton_params[["kappa"]] <- kappa
+        pnew@plankton_params[["n"]] <- n
+        pnew@plankton_params[["w_pp_cutoff"]] <- pnew@w_full[[maxidx]]
     }
     
     if (.hasSlot(params, "A")) {
