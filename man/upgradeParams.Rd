@@ -17,16 +17,28 @@ Occasionally during the development of new features for mizer, the
 MizerParams object gains extra slots. MizerParams objects created in older
 versions of mizer are then no longer valid in the new version because of
 the missing slots. This function adds the missing slots and fills them
-with default values.
+with default values. Any object from version 0.4 onwards can be upgraded.
 }
 \details{
-Uses newMultispeciesParams() to create a new MizerParams object using the
+Uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new MizerParams object using the
 parameters extracted from the old MizerParams object.
 
+The internal numerics in mizer have changed over time, so there may be small
+discrepancies between the results obtained with the upgraded params object
+in the new version and the original params object in the old version. If it
+is important for you to reproduce the exact results then you should install
+the version of mizer with which you obtained the results. You can do this
+with\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")
+}
+
+where you should replace "v0.2" with the version number you require. You can
+see the list of available releases at
+\url{https://github.com/sizespectrum/mizer/tags}.
+
 If you only have a serialised version of the old object, for example
-created via `saveRDS()`, and you get an error when trying to read it in
-with `readRDS()` then unfortunately you will need to install the old version
+created via \code{\link[=saveRDS]{saveRDS()}}, and you get an error when trying to read it in
+with \code{\link[=readRDS]{readRDS()}} then unfortunately you will need to install the old version
 of mizer first to read the params object into your workspace, then switch
-to the current version and then call `upgradeParams()`. You can then save
-the new version again with `saveRDS()`.
+to the current version and then call \code{\link[=upgradeParams]{upgradeParams()}}. You can then save
+the new version again with \code{\link[=saveRDS]{saveRDS()}}.
 }

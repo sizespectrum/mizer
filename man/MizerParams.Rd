@@ -16,6 +16,7 @@ MizerParams(
   f0 = 0.6,
   kappa = 1e+11,
   lambda = 2 + q - n,
+  r_pp = 10,
   ...
 )
 }
@@ -50,6 +51,8 @@ explicitly.}
 \item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
 
 \item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
 
 \item{...}{Unused}
 }

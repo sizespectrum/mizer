@@ -2434,23 +2434,41 @@ getLinetypes <- function(params) {
 #' MizerParams object gains extra slots. MizerParams objects created in older
 #' versions of mizer are then no longer valid in the new version because of
 #' the missing slots. This function adds the missing slots and fills them
-#' with default values.
+#' with default values. Any object from version 0.4 onwards can be upgraded.
 #' 
-#' Uses newMultispeciesParams() to create a new MizerParams object using the
+#' Uses [newMultispeciesParams()] to create a new MizerParams object using the
 #' parameters extracted from the old MizerParams object.
 #' 
+#' The internal numerics in mizer have changed over time, so there may be small
+#' discrepancies between the results obtained with the upgraded params object
+#' in the new version and the original params object in the old version. If it
+#' is important for you to reproduce the exact results then you should install
+#' the version of mizer with which you obtained the results. You can do this
+#' with
+#' ```
+#' remotes::install_github("sizespectrum/mizer", ref = "v0.2")
+#' ```
+#' where you should replace "v0.2" with the version number you require. You can
+#' see the list of available releases at 
+#' <https://github.com/sizespectrum/mizer/tags>.
+#' 
 #' If you only have a serialised version of the old object, for example
-#' created via `saveRDS()`, and you get an error when trying to read it in
-#' with `readRDS()` then unfortunately you will need to install the old version
+#' created via [saveRDS()], and you get an error when trying to read it in
+#' with [readRDS()] then unfortunately you will need to install the old version
 #' of mizer first to read the params object into your workspace, then switch
-#' to the current version and then call `upgradeParams()`. You can then save
-#' the new version again with `saveRDS()`.
+#' to the current version and then call [upgradeParams()]. You can then save
+#' the new version again with [saveRDS()].
 #' 
 #' @param params An old MizerParams object to be upgraded
 #' 
 #' @return The upgraded MizerParams object
+#' @md
 #' @export
 upgradeParams <- function(params) {
+    
+    if(!.hasSlot(params, "ft_pred_kernel_e")) {
+        stop("Objects from versions 0.3 and earlier can not be upgraded.")
+    }
     
     if (.hasSlot(params, "srr")) {
         if (is.function(params@srr)) {
