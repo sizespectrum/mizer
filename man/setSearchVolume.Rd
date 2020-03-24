@@ -5,7 +5,7 @@
 \alias{getSearchVolume}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, search_vol = NULL)
+setSearchVolume(params, search_vol = NULL, ...)
 
 getSearchVolume(params)
 }
@@ -15,6 +15,8 @@ getSearchVolume(params)
 \item{search_vol}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
+
+\item{...}{Unused}
 }
 \value{
 MizerParams with updated search volume. Because of the way the R

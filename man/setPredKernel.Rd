@@ -4,7 +4,7 @@
 \alias{setPredKernel}
 \title{Set predation kernel}
 \usage{
-setPredKernel(params, pred_kernel = NULL)
+setPredKernel(params, pred_kernel = NULL, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -13,6 +13,8 @@ setPredKernel(params, pred_kernel = NULL)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
+
+\item{...}{Unused}
 }
 \value{
 A MizerParams object with updated predation kernel. Because of the

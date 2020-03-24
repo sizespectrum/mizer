@@ -17,7 +17,8 @@ setPlankton(
   lambda = params@plankton_params[["lambda"]],
   n = params@plankton_params[["n"]],
   w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
-  plankton_dynamics = NULL
+  plankton_dynamics = NULL,
+  ...
 )
 
 getPlanktonRate(params)
@@ -49,6 +50,8 @@ Default is 10 g.}
 \item{plankton_dynamics}{Function that determines plankton dynamics by
 calculating the plankton spectrum at the next time step from the current
 state.}
+
+\item{...}{Unused}
 }
 \value{
 A MizerParams object with updated plankton parameters. Because of the

@@ -5,7 +5,7 @@
 \alias{getExtMort}
 \title{Set external mortality rate}
 \usage{
-setExtMort(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4)
+setExtMort(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4, ...)
 
 getExtMort(params)
 }
@@ -22,6 +22,8 @@ Default value is 0.6.}
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
+
+\item{...}{Unused}
 }
 \value{
 MizerParams object with updated external mortality rate. Because of

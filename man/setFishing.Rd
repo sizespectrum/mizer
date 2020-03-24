@@ -6,7 +6,7 @@
 \alias{getSelectivity}
 \title{Set fishing parameters}
 \usage{
-setFishing(params, initial_effort = NULL)
+setFishing(params, initial_effort = NULL, ...)
 
 getCatchability(params)
 
@@ -18,6 +18,8 @@ getSelectivity(params)
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
+
+\item{...}{Unused}
 }
 \value{
 MizerParams object with updated catchability and selectivity. Because

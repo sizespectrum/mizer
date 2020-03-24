@@ -4,105 +4,67 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(
-  params,
-  r_plankton = NULL,
-  K_plankton = NULL,
-  r_pp = params@plankton_params[["r_pp"]],
-  kappa = params@plankton_params[["kappa"]],
-  lambda = params@plankton_params[["lambda"]],
-  n = params@plankton_params[["n"]],
-  w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
-  plankton_dynamics = NULL,
-  interaction = NULL,
-  pred_kernel = NULL,
-  search_vol = NULL,
-  intake_max = NULL,
-  metab = NULL,
-  p = NULL,
-  z0 = NULL,
-  z0pre = 0.6,
-  z0exp = n - 1,
-  maturity = NULL,
-  repro_prop = NULL,
-  RDD = params@rates_funcs$RDD,
-  initial_effort = NULL
-)
+setParams(params, interaction = NULL, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
-
-\item{r_plankton}{Optional. Vector of plankton intrinsic birth rates}
-
-\item{K_plankton}{Optional. Vector of plankton intrinsic carrying capacity}
-
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
-
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
-
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
-
-\item{n}{Allometric growth exponent for plankton}
-
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
-Default is 10 g.}
-
-\item{plankton_dynamics}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.}
 
 \item{interaction}{Optional interaction matrix of the species (predator
 species x prey species). Entries should be numbers between 0 and 1. By
 default all entries are 1. See "Setting interactions" section below.}
 
-\item{pred_kernel}{Optional. An array (species x predator size x prey size)
+\item{...}{
+  Arguments passed on to \code{\link[=setPredKernel]{setPredKernel}}, \code{\link[=setSearchVolume]{setSearchVolume}}, \code{\link[=setMaxIntakeRate]{setMaxIntakeRate}}, \code{\link[=setMetabolicRate]{setMetabolicRate}}, \code{\link[=setExtMort]{setExtMort}}, \code{\link[=setReproduction]{setReproduction}}, \code{\link[=setFishing]{setFishing}}, \code{\link[=setPlankton]{setPlankton}}
+  \describe{
+    \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
-
-\item{search_vol}{Optional. An array (species x size) holding the search volume
+    \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
-
-\item{intake_max}{Optional. An array (species x size) holding the maximum
+    \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
-
-\item{metab}{Optional. An array (species x size) holding the metabolic rate
+    \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-
-\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
+    \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
-
-\item{z0}{Optional. An array (species x size) holding the external
+    \item{\code{z0}}{Optional. An array (species x size) holding the external
 mortality rate.}
-
-\item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
+    \item{\code{z0pre}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
-
-\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
+    \item{\code{z0exp}}{If \code{z0}, the mortality from other sources, is not a column
 in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
-
-\item{maturity}{Optional. An array (species x size) that holds the proportion
+    \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
-
-\item{repro_prop}{Optional. An array (species x size) that holds the
+    \item{\code{repro_prop}}{Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
-
-\item{RDD}{The name of the function calculating the density-dependent 
+    \item{\code{RDD}}{The name of the function calculating the density-dependent 
 reproduction rate from the density-independent rate. Defaults to 
 "\code{\link{BevertonHoltRDD}}".}
-
-\item{initial_effort}{Optional. A number or a named numeric vector specifying
+    \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
+    \item{\code{r_plankton}}{Optional. Vector of plankton intrinsic birth rates}
+    \item{\code{K_plankton}}{Optional. Vector of plankton intrinsic carrying capacity}
+    \item{\code{r_pp}}{Coefficient of the intrinsic plankton birth rate}
+    \item{\code{n}}{Allometric growth exponent for plankton}
+    \item{\code{kappa}}{Coefficient of the intrinsic plankton carrying capacity}
+    \item{\code{lambda}}{Scaling exponent of the intrinsic plankton carrying capacity}
+    \item{\code{w_pp_cutoff}}{The upper cut off size of the plankton spectrum. 
+Default is 10 g.}
+    \item{\code{plankton_dynamics}}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.}
+  }}
 }
 \value{
 A \linkS4class{MizerParams} object
@@ -132,7 +94,7 @@ function to effect the change. Note that just changing the species parameters
 by themselves is not changing the model until you call \code{setParams()} or the
 appropriate one of its sub-functions. Here is an example which assumes that
 you have have a MizerParams object \code{params} in which you just want to change
-one parameter of the third species:\preformatted{params@species_params$gamma[3] <- 1000
+one parameter of the third species:\preformatted{params@species_params$gamma[[3]] <- 1000
 params <- setParams(params)
 }
 

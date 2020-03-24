@@ -703,9 +703,17 @@ emptyParams <- function(species_params,
 #' details in the sections below the list.
 #' 
 #' @inheritParams emptyParams
+#' @inheritParams setInteraction
+#' @inheritParams setPredKernel
+#' @inheritParams setSearchVolume
+#' @inheritParams setMaxIntakeRate
+#' @inheritParams setMetabolicRate
+#' @inheritParams setExtMort
+#' @inheritParams setReproduction
+#' @inheritParams setFishing
+#' @inheritParams setPlankton
 #' @param min_w_pp The smallest size of the plankton spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
-#' @inheritParams setParams
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a \code{n} column in the \code{species_params}. 
 #'
@@ -745,9 +753,7 @@ emptyParams <- function(species_params,
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
-#'   
-#' @seealso \code{\link{project}}, \linkS4class{MizerSim},
-#'   \code{\link{newCommunityParams}}, \code{\link{newTraitParams}}
+#' 
 #' @export
 #' @family functions for setting up models
 #' @examples
@@ -871,14 +877,14 @@ newMultispeciesParams <- function(
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
-#' @inheritParams setPredKernel
-#' @inheritParams setSearchVolume
-#' @inheritParams setMaxIntakeRate
-#' @inheritParams setMetabolicRate
-#' @inheritParams setExtMort
-#' @inheritParams setReproduction
-#' @inheritParams setFishing
-#' @inheritParams setPlankton
+#' @inheritDotParams setPredKernel
+#' @inheritDotParams setSearchVolume
+#' @inheritDotParams setMaxIntakeRate
+#' @inheritDotParams setMetabolicRate
+#' @inheritDotParams setExtMort
+#' @inheritDotParams setReproduction
+#' @inheritDotParams setFishing
+#' @inheritDotParams setPlankton
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -893,7 +899,7 @@ newMultispeciesParams <- function(
 #' you have have a MizerParams object `params` in which you just want to change
 #' one parameter of the third species:
 #' ```
-#' params@species_params$gamma[3] <- 1000
+#' params@species_params$gamma[[3]] <- 1000
 #' params <- setParams(params)
 #' ```
 #' Because of the way the R language works, `setParams` does not make the
@@ -976,74 +982,19 @@ newMultispeciesParams <- function(
 #' params@species_params$gamma[3] <- 1000
 #' params <- setParams(params)
 #' }
-setParams <- function(params,
-                      # setPlankton
-                      r_plankton = NULL,
-                      K_plankton = NULL,
-                      r_pp = NULL,
-                      kappa = NULL,
-                      lambda = NULL,
-                      n = NULL,
-                      w_pp_cutoff = NULL,
-                      plankton_dynamics = NULL,
-                      # setInteraction()
-                      interaction = NULL,
-                      # setPredKernel()
-                      pred_kernel = NULL,
-                      # setSearchVolume()
-                      search_vol = NULL,
-                      # setMaxIntakeRate()
-                      intake_max = NULL,
-                      # setMetabolicRate()
-                      metab = NULL,
-                      p = NULL,
-                      # setExtMort
-                      z0 = NULL,
-                      z0pre = 0.6,
-                      z0exp = n - 1,
-                      # setReproduction
-                      maturity = NULL,
-                      repro_prop = NULL,
-                      RDD = NULL,
-                      # setFishing
-                      initial_effort = NULL) {
+setParams <- function(params, interaction = NULL, ...) {
     validObject(params)
-    if (is.null(r_pp)) r_pp <- params@plankton_params[["r_pp"]]
-    if (is.null(kappa)) kappa <- params@plankton_params[["kappa"]]
-    if (is.null(lambda)) lambda <- params@plankton_params[["lambda"]]
-    if (is.null(n)) n <- params@plankton_params[["n"]]
-    if (is.null(w_pp_cutoff)) w_pp_cutoff <- params@plankton_params[["w_pp_cutoff"]]
-    if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
-    params <- setPlankton(params,
-                          r_plankton = r_plankton,
-                          K_plankton = K_plankton,
-                          r_pp = r_pp,
-                          kappa = kappa,
-                          lambda = lambda,
-                          n = n,
-                          w_pp_cutoff = w_pp_cutoff,
-                          plankton_dynamics = plankton_dynamics)
-    params <- setInteraction(params,
-                             interaction = interaction)
-    params <- setPredKernel(params,
-                            pred_kernel = pred_kernel)
-    params <- setMaxIntakeRate(params,
-                           intake_max = intake_max)
-    params <- setMetabolicRate(params,
-                       metab = metab, p = p)
-    params <- setExtMort(params,
-                       z0 = z0,
-                       z0pre = z0pre,
-                       z0exp = z0exp)
+    params <- setPlankton(params, ...)
+    params <- setInteraction(params, interaction)
+    params <- setPredKernel(params, ...)
+    params <- setMaxIntakeRate(params, ...)
+    params <- setMetabolicRate(params, ...)
+    params <- setExtMort(params, ...)
     # setSearchVolume() should be called only after 
     # setMaxIntakeRate() and setPredKernel()
-    params <- setSearchVolume(params,
-                              search_vol = search_vol)
-    params <- setReproduction(params,
-                              maturity = maturity,
-                              repro_prop = repro_prop,
-                              RDD = RDD)
-    params <- setFishing(params, initial_effort = initial_effort)
+    params <- setSearchVolume(params, ...)
+    params <- setReproduction(params, ...)
+    params <- setFishing(params, ...)
     return(params)
 }
 
@@ -1209,6 +1160,7 @@ getInteraction <- function(params) {
 #'   that holds the predation coefficient of each predator at size on each prey
 #'   size. If not supplied, a default is set as described in section "Setting
 #'   predation kernel".
+#' @param ... Unused
 #' 
 #' @return A MizerParams object with updated predation kernel. Because of the
 #'   way the R language works, `setPredKernel()` does not make the changes
@@ -1241,7 +1193,7 @@ getInteraction <- function(params) {
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
 #' }
 setPredKernel <- function(params,
-                          pred_kernel = NULL) {
+                          pred_kernel = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(pred_kernel)) {
         # A pred kernel was supplied, so check it and store it
@@ -1375,6 +1327,7 @@ getPredKernel <- function(params) {
 #' @param search_vol Optional. An array (species x size) holding the search volume
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting search volume". 
+#' @param ... Unused
 #' 
 #' @return MizerParams with updated search volume. Because of the way the R
 #'   language works, `setSearchVolume()` does not make the changes to the params
@@ -1390,7 +1343,7 @@ getPredKernel <- function(params) {
 #' params <- setSearchVolume(params)
 #' }
 setSearchVolume <- function(params, 
-                            search_vol = NULL) {
+                            search_vol = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     # If search_vol array is supplied, check it, store it and return
@@ -1454,6 +1407,8 @@ getSearchVolume <- function(params) {
 #' @param intake_max Optional. An array (species x size) holding the maximum
 #'   intake rate for each species at size. If not supplied, a default is set as
 #'   described in the section "Setting maximum intake rate".
+#' @param ... Unused
+#' 
 #' @return A \code{MizerParams} object with updated maximum intake rate. Because
 #'   of the way the R language works, `setMaxIntakeRate()` does not make the
 #'   changes to the params object that you pass to it but instead returns a new
@@ -1468,7 +1423,7 @@ getSearchVolume <- function(params) {
 #' params <- setMaxIntakeRate(params)
 #' }
 setMaxIntakeRate <- function(params, 
-                         intake_max = NULL) {
+                         intake_max = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     
@@ -1538,6 +1493,7 @@ getMaxIntakeRate <- function(params) {
 #' @param p The allometric metabolic exponent. This is only used if \code{metab}
 #'   is not given explicitly and if the exponent is not specified in a \code{p}
 #'   column in the \code{species_params}.
+#' @param ... Unused
 #' 
 #' @return MizerParams object with updated metabolic rate. Because of the way
 #'   the R language works, `setMetabolicRate()` does not make the changes to the
@@ -1554,7 +1510,7 @@ getMaxIntakeRate <- function(params) {
 #' params <- setMetabolicRate(params)
 #' }
 setMetabolicRate <- function(params, 
-                     metab = NULL, p = NULL) {
+                     metab = NULL, p = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(p)) {
         assert_that(is.numeric(p))
@@ -1627,6 +1583,7 @@ getMetabolicRate <- function(params) {
 #' @param z0exp If \code{z0}, the mortality from other sources, is not a column
 #'   in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 #'   Default value is \code{n-1}.
+#' @param ... Unused
 #' 
 #' @return MizerParams object with updated external mortality rate. Because of
 #'   the way the R language works, `setExtMort()` does not make the changes
@@ -1651,7 +1608,7 @@ getMetabolicRate <- function(params) {
 #' # Change the external mortality rate in the params object
 #' params <- setExtMort(params, z0 = z0)
 #' }
-setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4) {
+setExtMort <- function(params, z0 = NULL, z0pre = 0.6, z0exp = -1/4, ...) {
     assert_that(is(params, "MizerParams"))
     if (!is.null(z0)) {
         assert_that(is.array(z0),
@@ -1777,6 +1734,7 @@ getExtMort <- function(params) {
 #' @param RDD The name of the function calculating the density-dependent 
 #'   reproduction rate from the density-independent rate. Defaults to 
 #'   "\code{\link{BevertonHoltRDD}}".
+#' @param ... Unused
 #' 
 #' @return The updated MizerParams object. Because of the way the R language
 #'   works, `setReproduction()` does not make the changes to the params object
@@ -1793,7 +1751,7 @@ getExtMort <- function(params) {
 #' params <- setReproduction(params)
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                            RDD = NULL) {
+                            RDD = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
     assert_that(is.string(RDD),
@@ -2000,6 +1958,7 @@ getReproductionProportion <- function(params) {
 #' @param plankton_dynamics Function that determines plankton dynamics by
 #'   calculating the plankton spectrum at the next time step from the current
 #'   state.
+#' @param ... Unused
 #' 
 #' @return A MizerParams object with updated plankton parameters. Because of the
 #'   way the R language works, `setPlankton()` does not make the changes to the
@@ -2016,7 +1975,8 @@ setPlankton <- function(params,
                         lambda = params@plankton_params[["lambda"]],
                         n = params@plankton_params[["n"]],
                         w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
-                        plankton_dynamics = NULL) {
+                        plankton_dynamics = NULL,
+                        ...) {
     assert_that(is(params, "MizerParams"),
                 is.number(kappa), kappa > 0,
                 is.number(lambda),
@@ -2167,6 +2127,7 @@ getPlanktonDynamics <- function(params) {
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
+#' @param ... Unused
 #'   
 #' @return MizerParams object with updated catchability and selectivity. Because
 #'   of the way the R language works, `setFishing()` does not make the changes
@@ -2183,7 +2144,7 @@ getPlanktonDynamics <- function(params) {
 #' params@species_params$knife_edge_size[1] <- 15
 #' params <- setFishing(params)
 #' }
-setFishing <- function(params, initial_effort = NULL) {
+setFishing <- function(params, initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)

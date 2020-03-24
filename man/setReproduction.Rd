@@ -6,12 +6,7 @@
 \alias{getReproductionProportion}
 \title{Set reproduction parameters}
 \usage{
-setReproduction(
-  params,
-  maturity = NULL,
-  repro_prop = NULL,
-  RDD = params@rates_funcs$RDD
-)
+setReproduction(params, maturity = NULL, repro_prop = NULL, RDD = NULL, ...)
 
 getMaturityProportion(params)
 
@@ -32,6 +27,8 @@ described in the section "Setting reproduction".}
 \item{RDD}{The name of the function calculating the density-dependent 
 reproduction rate from the density-independent rate. Defaults to 
 "\code{\link{BevertonHoltRDD}}".}
+
+\item{...}{Unused}
 }
 \value{
 The updated MizerParams object. Because of the way the R language

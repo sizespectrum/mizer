@@ -48,11 +48,11 @@ species by including a \code{n} column in the \code{species_params}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+\item{kappa}{Coefficient in abundance power law.}
 
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+\item{lambda}{Exponent of the abundance power law.}
 
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+\item{r_pp}{Growth rate parameter for the plankton spectrum.}
 
 \item{...}{Unused}
 }

@@ -5,7 +5,7 @@
 \alias{getMaxIntakeRate}
 \title{Set maximum intake rate}
 \usage{
-setMaxIntakeRate(params, intake_max = NULL)
+setMaxIntakeRate(params, intake_max = NULL, ...)
 
 getMaxIntakeRate(params)
 }
@@ -15,6 +15,8 @@ getMaxIntakeRate(params)
 \item{intake_max}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}
+
+\item{...}{Unused}
 }
 \value{
 A \code{MizerParams} object with updated maximum intake rate. Because

@@ -56,12 +56,6 @@ spectrum. This value is used to calculate the search rate parameter
 the maximum intake rate of the community as well as the intrinsic growth
 rate of the plankton.}
 
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
-
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
-
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
-
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
 

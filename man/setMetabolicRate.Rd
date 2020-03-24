@@ -5,7 +5,7 @@
 \alias{getMetabolicRate}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(params, metab = NULL, p = NULL)
+setMetabolicRate(params, metab = NULL, p = NULL, ...)
 
 getMetabolicRate(params)
 }
@@ -19,6 +19,8 @@ the section "Setting metabolic rate".}
 \item{p}{The allometric metabolic exponent. This is only used if \code{metab}
 is not given explicitly and if the exponent is not specified in a \code{p}
 column in the \code{species_params}.}
+
+\item{...}{Unused}
 }
 \value{
 MizerParams object with updated metabolic rate. Because of the way
