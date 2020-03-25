@@ -4,19 +4,20 @@
 \alias{setPlankton}
 \alias{getPlanktonRate}
 \alias{getPlanktonCapacity}
-\alias{getPlanktonParams}
 \alias{getPlanktonDynamics}
+\alias{plankton_params}
+\alias{plankton_params<-}
 \title{Set up plankton}
 \usage{
 setPlankton(
   params,
   r_plankton = NULL,
   K_plankton = NULL,
-  r_pp = params@plankton_params[["r_pp"]],
-  kappa = params@plankton_params[["kappa"]],
-  lambda = params@plankton_params[["lambda"]],
-  n = params@plankton_params[["n"]],
-  w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
+  r_pp = plankton_params(params)[["r_pp"]],
+  kappa = plankton_params(params)[["kappa"]],
+  lambda = plankton_params(params)[["lambda"]],
+  n = plankton_params(params)[["n"]],
+  w_pp_cutoff = plankton_params(params)[["w_pp_cutoff"]],
   plankton_dynamics = NULL,
   ...
 )
@@ -25,9 +26,11 @@ getPlanktonRate(params)
 
 getPlanktonCapacity(params)
 
-getPlanktonParams(params)
-
 getPlanktonDynamics(params)
+
+plankton_params(params)
+
+plankton_params(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}

@@ -1970,11 +1970,11 @@ getReproductionProportion <- function(params) {
 setPlankton <- function(params,
                         r_plankton = NULL,
                         K_plankton = NULL,
-                        r_pp = params@plankton_params[["r_pp"]],
-                        kappa = params@plankton_params[["kappa"]],
-                        lambda = params@plankton_params[["lambda"]],
-                        n = params@plankton_params[["n"]],
-                        w_pp_cutoff = params@plankton_params[["w_pp_cutoff"]],
+                        r_pp = plankton_params(params)[["r_pp"]],
+                        kappa = plankton_params(params)[["kappa"]],
+                        lambda = plankton_params(params)[["lambda"]],
+                        n = plankton_params(params)[["n"]],
+                        w_pp_cutoff = plankton_params(params)[["w_pp_cutoff"]],
                         plankton_dynamics = NULL,
                         ...) {
     assert_that(is(params, "MizerParams"),
@@ -2042,14 +2042,36 @@ getPlanktonCapacity <- function(params) {
 
 #' @rdname setPlankton
 #' @export
-getPlanktonParams <- function(params) {
+getPlanktonDynamics <- function(params) {
+    params@plankton_dynamics
+}
+
+#' @rdname setPlankton
+#' @export
+plankton_params <- function(params) {
     params@plankton_params
 }
 
 #' @rdname setPlankton
 #' @export
-getPlanktonDynamics <- function(params) {
-    params@plankton_dynamics
+`plankton_params<-` <- function(params, value) {
+    assert_that(
+        is(params, "MizerParams"),
+        setequal(names(value) == names(params@plankton_params)),
+        is.number(value$lambda),
+        value$lambda >= 0,
+        is.number(value$kappa),
+        value$kappa >= 0,
+        is.number(value$r_pp),
+        value$r_pp >= 0,
+        is.number(value$n),
+        value$n >= 0,
+        is.number(value$w_pp_cutoff),
+        value$w_pp_cutoff > min(params@w_full),
+        value$w_pp_cutoff < max(params@w_full)
+    )
+    params@plankton_params <- value
+    params
 }
 
 
