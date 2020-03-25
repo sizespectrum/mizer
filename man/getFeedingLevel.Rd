@@ -28,32 +28,38 @@ from the returned array.}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
-  dimensional array (predator species x predator size) based on the
-  abundances also passed in.
-  If a \code{MizerSim} object is passed in, the function returns a three
-  dimensional array (time step x predator species x predator size) with the
-  feeding level calculated at every time step in the simulation.
-  If \code{drop = TRUE} then the dimension of length 1 will be removed from
-  the returned array.
+dimensional array (predator species x predator size) based on the
+abundances also passed in.
+If a \code{MizerSim} object is passed in, the function returns a three
+dimensional array (time step x predator species x predator size) with the
+feeding level calculated at every time step in the simulation.
+If \code{drop = TRUE} then the dimension of length 1 will be removed from
+the returned array.
 }
 \description{
-Calculates the feeding level \eqn{f_i(w)}. The feeding level is the
+Returns the feeding level.
+By default this function uses the function \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}} to calculate
+the feeding level, but this can be overruled via \code{\link[=setRateFunction]{setRateFunction()}}.
+}
+\section{Feeding level}{
+
+The feeding level \eqn{f_i(w)} is the
 proportion of its maximum intake rate at which the predator is actually
 taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
 maximum intake rate \eqn{h_i(w)} as
 \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
 The encounter rate \eqn{E_i} is passed as an argument or calculated with
-\code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
-taken from the \code{params} object, and is set with 
-\code{\link{setMaxIntakeRate}}.
+[getEncounter()]. The maximum intake rate \eqn{h_i(w)} is
+taken from the `params` object, and is set with 
+[setMaxIntakeRate()].
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.
+
+The feeding level is used in [mizerEReproAndGrowth()] and in
+[mizerPredRate()].
 }
-\details{
-The feeding level is used in \code{\link{getEReproAndGrowth}} and in
-\code{\link{getPredRate}}.
-}
+
 \examples{
 \dontrun{
 params <- newMultispeciesParams(NS_species_params_gears, inter)

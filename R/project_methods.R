@@ -68,10 +68,7 @@ NULL
 #'   }
 #' @export
 #' @family mizer rate functions
-mizerRates <- function(params,
-                       n = params@initial_n, 
-                       n_pp = params@initial_n_pp,
-                       n_other = params@initial_n_other,
+mizerRates <- function(params, n, n_pp, n_other,
                        t = 0,
                        effort = params@initial_effort,
                        rates_fns = lapply(params@rates_funcs, get),
@@ -138,17 +135,17 @@ mizerRates <- function(params,
 
 #' Get encounter rate needed to project standard mizer model
 #' 
-#' Calculates the rate \eqn{E_{e.i}(w)} at which a predator of species \eqn{i} and
+#' Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
 #' weight \eqn{w} encounters food (grams/year).
 #' 
 #' @section Predation encounter:
-#' The encounter rate has contributions from the encounter of fish prey and of
-#' plankton. This is determined by summing over all prey species and the
-#' plankton spectrum and then integrating over all prey sizes \eqn{w_p},
-#' weighted by predation kernel
-#' \eqn{\phi(w,w_p)}:
+#' The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
+#' and weight \eqn{w} encounters food has contributions from the encounter of
+#' fish prey and of plankton. This is determined by summing over all prey
+#' species and the plankton spectrum and then integrating over all prey sizes
+#' \eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 #' \deqn{
-#' E_{e.i}(w) = \gamma_i(w) \int 
+#' E_i(w) = \gamma_i(w) \int 
 #' \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 #' \phi_i(w,w_p) w_p \, dw_p.
 #' }{\gamma_i(w) \int 
@@ -179,11 +176,7 @@ mizerRates <- function(params,
 #' @md
 #' @export
 #' @family mizer rate functions
-mizerEncounter <- function(params, 
-                           n = params@initial_n, 
-                           n_pp = params@initial_n_pp,
-                           n_other = params@initial_n_other,
-                           ...) {
+mizerEncounter <- function(params, n, n_pp, n_other, ...) {
 
     # idx_sp are the index values of params@w_full such that
     # params@w_full[idx_sp] = params@w
@@ -253,22 +246,23 @@ mizerEncounter <- function(params,
 
 
 #' Get feeding level needed to project standard mizer model
-#'
-#' Calculates the feeding level \eqn{f_i(w)}. The feeding level is the
+#' 
+#' @section Feeding level:
+#' The feeding level \eqn{f_i(w)} is the
 #' proportion of its maximum intake rate at which the predator is actually
 #' taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
 #' maximum intake rate \eqn{h_i(w)} as
 #' \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
 #' The encounter rate \eqn{E_i} is passed as an argument or calculated with
-#' \code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
-#' taken from the \code{params} object, and is set with 
-#' \code{\link{setMaxIntakeRate}}.
+#' [getEncounter()]. The maximum intake rate \eqn{h_i(w)} is
+#' taken from the `params` object, and is set with 
+#' [setMaxIntakeRate()].
 #' As a consequence of the above expression for the feeding level,
 #' \eqn{1-f_i(w)} is the proportion of the food available to it that the
 #' predator actually consumes.
 #'
-#' The feeding level is used in \code{\link{mizerEReproAndGrowth}} and in
-#' \code{\link{mizerPredRate}}.
+#' The feeding level is used in [mizerEReproAndGrowth()] and in
+#' [mizerPredRate()].
 #' 
 #' @inheritParams mizerRates
 #' @param encounter A two dimensional array (predator species x predator size) 
@@ -291,25 +285,21 @@ mizerFeedingLevel <- function(params, encounter, ...) {
 #' \deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
 #'   \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
 #'   \gamma_i(w) N_i(w) dw.}
-#' This potential rate is used in the function \code{\link{getPredMort}} to
+#' This potential rate is used in the function [mizerPredMort()] to
 #' calculate the realised predation mortality rate on the prey individual.
 #'
 #' @inheritParams mizerRates
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the \code{\link{getFeedingLevel}} function.
+#'   using the [getFeedingLevel()] function.
 #'   
 #' @return A two dimensional array (predator species x prey size) with the
 #'   predation rate, where the prey size runs over fish community plus plankton
 #'   spectrum.
 #' @export
+#' @md
 #' @family mizer rate functions
-mizerPredRate <- function(params, 
-                          n = params@initial_n, 
-                          n_pp = params@initial_n_pp,
-                          n_other = params@initial_n_other,
-                          feeding_level,
-                          ...) {
+mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
     no_sp <- dim(params@interaction)[1]
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -391,12 +381,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
 #' @family mizer rate functions
 #' @export
 mizerPlanktonMort <- 
-    function(params, 
-             n = params@initial_n, 
-             n_pp = params@initial_n_pp,
-             n_other = params@initial_n_other,
-             pred_rate,
-             ...) {
+    function(params, n, n_pp, n_other, pred_rate, ...) {
 
     return(as.vector(params@species_params$interaction_p %*% pred_rate))
 }
@@ -461,13 +446,7 @@ mizerFMort <- function(params, effort, ...) {
 #'   rates.
 #' @export
 #' @family mizer rate functions
-mizerMort <- function(params, 
-                    n = params@initial_n, 
-                    n_pp = params@initial_n_pp,
-                    n_other = params@initial_n_other,
-                    f_mort,
-                    pred_mort,
-                    ...){
+mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
     pred_mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (fun_name in params@other_mort) {
@@ -516,12 +495,8 @@ mizerMort <- function(params,
 #' @export
 #' @md
 #' @family mizer rate functions
-mizerEReproAndGrowth <- function(params, n = params@initial_n, 
-                               n_pp = params@initial_n_pp,
-                               n_other = params@initial_n_other,
-                               encounter,
-                               feeding_level,
-                               ...) {
+mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
+                                 feeding_level, ...) {
 
     sweep((1 - feeding_level) * encounter, 1,
                params@species_params$alpha, "*", check.margin = FALSE) - 
@@ -548,10 +523,7 @@ mizerEReproAndGrowth <- function(params, n = params@initial_n,
 #' set with \code{\link{setReproduction}}.
 #' @export
 #' @family mizer rate functions
-mizerERepro <- function(params, n = params@initial_n, 
-                      n_pp = params@initial_n_pp,
-                      n_other = params@initial_n_other,
-                      e, ...) {
+mizerERepro <- function(params, n, n_pp, n_other, e, ...) {
     # Because getEReproAndGrowth can return negative values, 
     # we add an extra line here 
     e[e < 0] <- 0 # Do not allow negative growth
@@ -578,11 +550,7 @@ mizerERepro <- function(params, n = params@initial_n,
 #' @return A two dimensional array (species x size) with the growth rates.
 #' @export
 #' @family mizer rate functions
-mizerEGrowth <- function(params, n = params@initial_n, 
-                       n_pp = params@initial_n_pp,
-                       n_other = params@initial_n_other,
-                       e_repro,
-                       e, ...) {
+mizerEGrowth <- function(params, n, n_pp, n_other, e_repro, e, ...) {
     # Because getEReproAndGrowth can return negative values, we add an 
     # extra line here 
     e[e < 0] <- 0 # Do not allow negative growth
@@ -612,12 +580,7 @@ mizerEGrowth <- function(params, n = params@initial_n,
 #' @export
 #' @md
 #' @family mizer rate functions
-mizerRDI <- function(params, 
-                     n = params@initial_n, 
-                     n_pp = params@initial_n_pp,
-                     n_other = params@initial_n_other,
-                     e_repro,
-                     ...) {
+mizerRDI <- function(params, n, n_pp, n_other, e_repro, ...) {
     # Calculate total energy from per capita energy
     e_repro_pop <- drop((e_repro * n) %*% params@dw)
     # Assume sex_ratio = 0.5

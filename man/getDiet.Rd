@@ -6,8 +6,8 @@
 \usage{
 getDiet(
   params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
+  n = initial_n(params),
+  n_pp = initial_n_pp(params),
   proportion = TRUE
 )
 }

@@ -4,15 +4,7 @@
 \alias{mizerEGrowth}
 \title{Get energy rate available for growth needed to project standard mizer model}
 \usage{
-mizerEGrowth(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  e_repro,
-  e,
-  ...
-)
+mizerEGrowth(params, n, n_pp, n_other, e_repro, e, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

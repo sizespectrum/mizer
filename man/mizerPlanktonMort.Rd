@@ -5,14 +5,7 @@
 \title{Get predation mortality rate for plankton needed to project standard mizer 
 model}
 \usage{
-mizerPlanktonMort(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  pred_rate,
-  ...
-)
+mizerPlanktonMort(params, n, n_pp, n_other, pred_rate, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

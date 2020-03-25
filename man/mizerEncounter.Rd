@@ -4,13 +4,7 @@
 \alias{mizerEncounter}
 \title{Get encounter rate needed to project standard mizer model}
 \usage{
-mizerEncounter(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  ...
-)
+mizerEncounter(params, n, n_pp, n_other, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -29,18 +23,18 @@ A two dimensional array (predator species x predator size) with the
 encounter rates.
 }
 \description{
-Calculates the rate \eqn{E_{e.i}(w)} at which a predator of species \eqn{i} and
+Calculates the rate \eqn{E_i(w)} at which a predator of species \eqn{i} and
 weight \eqn{w} encounters food (grams/year).
 }
 \section{Predation encounter}{
 
-The encounter rate has contributions from the encounter of fish prey and of
-plankton. This is determined by summing over all prey species and the
-plankton spectrum and then integrating over all prey sizes \eqn{w_p},
-weighted by predation kernel
-\eqn{\phi(w,w_p)}:
+The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
+and weight \eqn{w} encounters food has contributions from the encounter of
+fish prey and of plankton. This is determined by summing over all prey
+species and the plankton spectrum and then integrating over all prey sizes
+\eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 \deqn{
-E_{e.i}(w) = \gamma_i(w) \int 
+E_i(w) = \gamma_i(w) \int 
 \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 \phi_i(w,w_p) w_p \, dw_p.
 }{\gamma_i(w) \int 

@@ -25,7 +25,7 @@ newCommunityParams(
 )
 }
 \arguments{
-\item{max_w}{The maximum size of the community. The \code{w_inf} of the 
+\item{max_w}{The maximum size of the community. The \code{w_inf} of the
 species used to represent the community is set to this value.}
 
 \item{min_w}{The minimum size of the community.}
@@ -39,13 +39,13 @@ is set to the smallest value at which any of the consumers can feed.}
 
 \item{alpha}{The assimilation efficiency of the community.}
 
-\item{f0}{The average feeding level of individuals who feed on a power-law 
-spectrum. This value is used to calculate the search rate parameter 
+\item{f0}{The average feeding level of individuals who feed on a power-law
+spectrum. This value is used to calculate the search rate parameter
 \code{gamma} (see the package vignette).}
 
 \item{h}{The coefficient of the maximum food intake rate.}
 
-\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and 
+\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and
 \code{kappa} if not supplied.}
 
 \item{beta}{The preferred predator prey mass ratio.}
@@ -56,11 +56,17 @@ spectrum. This value is used to calculate the search rate parameter
 the maximum intake rate of the community as well as the intrinsic growth
 rate of the plankton.}
 
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
 
 \item{reproduction}{The constant reproduction in the smallest size class of the
-community spectrum. By default this is set so that the community spectrum 
+community spectrum. By default this is set so that the community spectrum
 is continuous with the plankton spectrum.}
 }
 \value{
@@ -73,24 +79,25 @@ community-type model.
 \details{
 A community model has several features that distinguish it from a multi-species
 model:
-
-* Species identities of individuals are ignored. All are aggregated into a
-  single community.
-* The plankton spectrum only extends to the start of the community spectrum. 
-* Reproductive rate is constant, independent of the energy invested in 
-  reproduction, which is set to 0. 
-* Standard metabolism is turned off (the parameter \code{ks} is set to 0).
-  Consequently, the growth rate is now determined solely by the assimilated
-  food 
+\itemize{
+\item Species identities of individuals are ignored. All are aggregated into a
+single community.
+\item The plankton spectrum only extends to the start of the community spectrum.
+\item Reproductive rate is constant, independent of the energy invested in
+reproduction, which is set to 0.
+\item Standard metabolism is turned off (the parameter \code{ks} is set to 0).
+Consequently, the growth rate is now determined solely by the assimilated
+food
+}
 
 The function has many arguments, all of which have default values.
 
-Fishing selectivity is modelled as a knife-edge function with one parameter, 
-\code{knife_edge_size}, which determines the size at which species are 
+Fishing selectivity is modelled as a knife-edge function with one parameter,
+\code{knife_edge_size}, which determines the size at which species are
 selected.
 
-The resulting \code{MizerParams} object can be projected forward using 
-\code{project()} like any other \code{MizerParams} object. When projecting 
+The resulting \code{MizerParams} object can be projected forward using
+\code{project()} like any other \code{MizerParams} object. When projecting
 the community model it may be necessary to keep a small time step size
 \code{dt} of around 0.1 to avoid any instabilities with the solver. You can
 check for these numerical instabilities by plotting the biomass or abundance
@@ -105,9 +112,9 @@ plotSpectra(sim)
 }
 }
 \references{
-K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-  individual efficiencies of size-structured communities, Proceedings of the 
-  Royal Society, 276, 109-114
+K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+individual efficiencies of size-structured communities, Proceedings of the
+Royal Society, 276, 109-114
 }
 \seealso{
 Other functions for setting up models: 

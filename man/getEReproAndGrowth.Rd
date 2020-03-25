@@ -6,9 +6,9 @@
 \usage{
 getEReproAndGrowth(
   params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
+  n = initial_n(params),
+  n_pp = initial_n_pp(params),
+  n_other = initial_n_other(params),
   encounter = getEncounter(params, n = n, n_pp = n_pp, n_other = n_other),
   feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other,
     encounter = encounter)

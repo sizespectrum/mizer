@@ -6,9 +6,9 @@
 \usage{
 mizerRates(
   params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
+  n,
+  n_pp,
+  n_other,
   t = 0,
   effort = params@initial_effort,
   rates_fns = lapply(params@rates_funcs, get),

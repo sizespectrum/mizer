@@ -8,9 +8,16 @@
 
 #' Get encounter rate
 #' 
+#' Returns the rate at which a predator of species \eqn{i} and
+#' weight \eqn{w} encounters food (grams/year).
+#' By default this function uses the function [mizerEncounter()] to calculate
+#' the encounter rate, but this can be overruled via [setRateFunction()].
+#' 
 #' @inherit mizerEncounter
+#' 
 #' @export
 #' @family rate functions
+#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -20,9 +27,9 @@
 #' n_pp <- sim@@n_pp[21, ]
 #' getEncounter(params, n, n_pp)
 #' }
-getEncounter <- function(params, n = params@initial_n, 
-                         n_pp = params@initial_n_pp,
-                         n_other = params@initial_n_other) {
+getEncounter <- function(params, n = initial_n(params), 
+                         n_pp = initial_n_pp(params),
+                         n_other = initial_n_other(params)) {
 
     f <- get(params@rates_funcs$Encounter)
     f(params, n = n, n_pp = n_pp, n_other = n_other)
@@ -31,21 +38,11 @@ getEncounter <- function(params, n = params@initial_n,
 
 #' Get feeding level
 #'
-#' Calculates the feeding level \eqn{f_i(w)}. The feeding level is the
-#' proportion of its maximum intake rate at which the predator is actually
-#' taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
-#' maximum intake rate \eqn{h_i(w)} as
-#' \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
-#' The encounter rate \eqn{E_i} is passed as an argument or calculated with
-#' \code{\link{getEncounter}}. The maximum intake rate \eqn{h_i(w)} is
-#' taken from the \code{params} object, and is set with 
-#' \code{\link{setMaxIntakeRate}}.
-#' As a consequence of the above expression for the feeding level,
-#' \eqn{1-f_i(w)} is the proportion of the food available to it that the
-#' predator actually consumes.
-#'
-#' The feeding level is used in \code{\link{getEReproAndGrowth}} and in
-#' \code{\link{getPredRate}}.
+#' Returns the feeding level.
+#' By default this function uses the function [mizerFeedingLevel()] to calculate
+#' the feeding level, but this can be overruled via [setRateFunction()].
+#' 
+#' @inherit mizerFeedingLevel
 #' 
 #' @param object A \code{MizerParams} object or a \code{MizerSim} object
 #' @inheritParams mizerRates
@@ -68,6 +65,7 @@ getEncounter <- function(params, n = params@initial_n,
 #' 
 #' @export
 #' @family rate functions
+#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -154,9 +152,9 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
 #' getPredRate(params,n,n_pp)
 #' }
 
-getPredRate <- function(params, n = params@initial_n, 
-                        n_pp = params@initial_n_pp,
-                        n_other = params@initial_n_other,
+getPredRate <- function(params, n = initial_n(params), 
+                        n_pp = initial_n_pp(params),
+                        n_other = initial_n_other(params),
                         feeding_level = getFeedingLevel(params, n = n,
                                                         n_pp = n_pp, 
                                                         n_other = n_other)
@@ -288,9 +286,9 @@ getM2 <- getPredMort
 #' getPlanktonMort(params,n,n_pp)
 #' }
 getPlanktonMort <- 
-    function(params, n = params@initial_n, 
-             n_pp = params@initial_n_pp,
-             n_other = params@initial_n_other,
+    function(params, n = initial_n(params), 
+             n_pp = initial_n_pp(params),
+             n_other = initial_n_other(params),
              pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                      n_other = n_other)) {
 
@@ -539,9 +537,9 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
 getMort <- function(params, 
-                    n = params@initial_n, 
-                    n_pp = params@initial_n_pp,
-                    n_other = params@initial_n_other,
+                    n = initial_n(params), 
+                    n_pp = initial_n_pp(params),
+                    n_other = initial_n_other(params),
                     effort = params@initial_effort,
                     f_mort = getFMort(params, effort),
                     pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -625,9 +623,9 @@ getZ <- getMort
 #' # Get the energy at a particular time step
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEReproAndGrowth <- function(params, n = params@initial_n, 
-                               n_pp = params@initial_n_pp,
-                               n_other = params@initial_n_other,
+getEReproAndGrowth <- function(params, n = initial_n(params), 
+                               n_pp = initial_n_pp(params),
+                               n_other = initial_n_other(params),
                                encounter = getEncounter(params, n = n,
                                                         n_pp = n_pp, 
                                                         n_other = n_other),
@@ -678,9 +676,9 @@ getEReproAndGrowth <- function(params, n = params@initial_n,
 #' # Get the energy at a particular time step
 #' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getERepro <- function(params, n = params@initial_n, 
-                      n_pp = params@initial_n_pp,
-                      n_other = params@initial_n_other,
+getERepro <- function(params, n = initial_n(params), 
+                      n_pp = initial_n_pp(params),
+                      n_other = initial_n_other(params),
                       e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                              n_other = n_other)) {
     if (!all(dim(e) == c(nrow(params@species_params), length(params@w)))) {
@@ -728,9 +726,9 @@ getESpawning <- getERepro
 #' # Get the energy at a particular time step
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEGrowth <- function(params, n = params@initial_n, 
-                       n_pp = params@initial_n_pp,
-                       n_other = params@initial_n_other,
+getEGrowth <- function(params, n = initial_n(params), 
+                       n_pp = initial_n_pp(params),
+                       n_other = initial_n_other(params),
                        e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                            n_other = n_other),
                        e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
@@ -774,9 +772,9 @@ getEGrowth <- function(params, n = params@initial_n,
 #' # Get the density-independent reproduction rate at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDI <- function(params, n = params@initial_n, 
-                   n_pp = params@initial_n_pp,
-                   n_other = params@initial_n_other,
+getRDI <- function(params, n = initial_n(params), 
+                   n_pp = initial_n_pp(params),
+                   n_other = initial_n_other(params),
                    e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                        n_other = n_other)) {
     if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
@@ -816,9 +814,9 @@ getRDI <- function(params, n = params@initial_n,
 #' # Get the rate at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDD <- function(params, n = params@initial_n, 
-                   n_pp = params@initial_n_pp,
-                   n_other = params@initial_n_other,
+getRDD <- function(params, n = initial_n(params), 
+                   n_pp = initial_n_pp(params),
+                   n_other = initial_n_other(params),
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other)) {
     # Avoid getting into infinite loops

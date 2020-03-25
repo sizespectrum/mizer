@@ -52,8 +52,74 @@ frame.}
 \item{min_w_pp}{The smallest size of the plankton spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
+\item{pred_kernel}{Optional. An array (species x predator size x prey size)
+that holds the predation coefficient of each predator at size on each prey
+size. If not supplied, a default is set as described in section "Setting
+predation kernel".}
+
+\item{search_vol}{Optional. An array (species x size) holding the search volume
+for each species at size. If not supplied, a default is set as described in
+the section "Setting search volume".}
+
+\item{intake_max}{Optional. An array (species x size) holding the maximum
+intake rate for each species at size. If not supplied, a default is set as
+described in the section "Setting maximum intake rate".}
+
+\item{metab}{Optional. An array (species x size) holding the metabolic rate
+for each species at size. If not supplied, a default is set as described in
+the section "Setting metabolic rate".}
+
+\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
+is not given explicitly and if the exponent is not specified in a \code{p}
+column in the \code{species_params}.}
+
+\item{z0}{Optional. An array (species x size) holding the external
+mortality rate.}
+
+\item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.}
+
+\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column
+in the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
+Default value is \code{n-1}.}
+
+\item{maturity}{Optional. An array (species x size) that holds the proportion
+of individuals of each species at size that are mature. If not supplied, a
+default is set as described in the section "Setting reproduction".}
+
+\item{repro_prop}{Optional. An array (species x size) that holds the
+proportion of consumed energy that a mature individual allocates to
+reproduction for each species at size. If not supplied, a default is set as
+described in the section "Setting reproduction".}
+
+\item{RDD}{The name of the function calculating the density-dependent 
+reproduction rate from the density-independent rate. Defaults to 
+"\code{\link{BevertonHoltRDD}}".}
+
+\item{r_plankton}{Optional. Vector of plankton intrinsic birth rates}
+
+\item{K_plankton}{Optional. Vector of plankton intrinsic carrying capacity}
+
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}
+
+\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+
+\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+
+\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+
+\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
+Default is 10 g.}
+
+\item{plankton_dynamics}{Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.}
+
+\item{initial_effort}{Optional. A number or a named numeric vector specifying
+the fishing effort. If a number, the same effort is used for all gears. If
+a vector, must be named by gear.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
@@ -486,9 +552,6 @@ params <- newMultispeciesParams(NS_species_params_gears, inter)
 }
 }
 \seealso{
-\code{\link{project}}, \linkS4class{MizerSim},
-  \code{\link{newCommunityParams}}, \code{\link{newTraitParams}}
-
 Other functions for setting up models: 
 \code{\link{newCommunityParams}()},
 \code{\link{newTraitParams}()}

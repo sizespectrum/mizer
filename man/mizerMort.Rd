@@ -4,15 +4,7 @@
 \alias{mizerMort}
 \title{Get total mortality rate needed to project standard mizer model}
 \usage{
-mizerMort(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  f_mort,
-  pred_mort,
-  ...
-)
+mizerMort(params, n, n_pp, n_other, f_mort, pred_mort, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

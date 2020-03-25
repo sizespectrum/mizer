@@ -6,9 +6,9 @@
 \usage{
 getEncounter(
   params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other
+  n = initial_n(params),
+  n_pp = initial_n_pp(params),
+  n_other = initial_n_other(params)
 )
 }
 \arguments{
@@ -26,18 +26,20 @@ A two dimensional array (predator species x predator size) with the
 encounter rates.
 }
 \description{
-Calculates the rate \eqn{E_{e.i}(w)} at which a predator of species \eqn{i} and
+Returns the rate at which a predator of species \eqn{i} and
 weight \eqn{w} encounters food (grams/year).
+By default this function uses the function \code{\link[=mizerEncounter]{mizerEncounter()}} to calculate
+the encounter rate, but this can be overruled via \code{\link[=setRateFunction]{setRateFunction()}}.
 }
 \section{Predation encounter}{
 
-The encounter rate has contributions from the encounter of fish prey and of
-plankton. This is determined by summing over all prey species and the
-plankton spectrum and then integrating over all prey sizes \eqn{w_p},
-weighted by predation kernel
-\eqn{\phi(w,w_p)}:
+The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
+and weight \eqn{w} encounters food has contributions from the encounter of
+fish prey and of plankton. This is determined by summing over all prey
+species and the plankton spectrum and then integrating over all prey sizes
+\eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 \deqn{
-E_{e.i}(w) = \gamma_i(w) \int 
+E_i(w) = \gamma_i(w) \int 
 \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 \phi_i(w,w_p) w_p \, dw_p.
 }{\gamma_i(w) \int 

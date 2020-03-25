@@ -111,7 +111,7 @@ getComponent <- function(params, component) {
                function(x) getComponent(params, x))
     }
     comp_list <- list(
-        initial_value = params@initial_n_other[[component]],
+        initial_value = initial_n_other(params)[[component]],
         component_params = params@other_params[[component]],
         dynamics_fun = params@other_dynamics[[component]],
         mortality_fun = params@other_mort[[component]],

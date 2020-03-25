@@ -83,6 +83,7 @@ NULL
 #'   individual efficiencies of size-structured communities, Proceedings of the 
 #'   Royal Society, 276, 109-114
 #' @family functions for setting up models
+#' @md
 #' @examples
 #' \dontrun{
 #' params <- newCommunityParams(f0=0.7, z0=0.2, reproduction=3e7)

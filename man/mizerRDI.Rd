@@ -5,14 +5,7 @@
 \title{Get density-independent rate of reproduction needed to project standard
 mizer model}
 \usage{
-mizerRDI(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  e_repro,
-  ...
-)
+mizerRDI(params, n, n_pp, n_other, e_repro, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}

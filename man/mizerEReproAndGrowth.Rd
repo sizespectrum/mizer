@@ -5,15 +5,7 @@
 \title{Get energy rate available for reproduction and growth  needed to project
 standard mizer model}
 \usage{
-mizerEReproAndGrowth(
-  params,
-  n = params@initial_n,
-  n_pp = params@initial_n_pp,
-  n_other = params@initial_n_other,
-  encounter,
-  feeding_level,
-  ...
-)
+mizerEReproAndGrowth(params, n, n_pp, n_other, encounter, feeding_level, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
