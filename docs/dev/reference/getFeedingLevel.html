@@ -38,18 +38,9 @@
   
 
 <meta property="og:title" content="Get feeding level — getFeedingLevel" />
-<meta property="og:description" content="Calculates the feeding level \(f_i(w)\). The feeding level is the
-proportion of its maximum intake rate at which the predator is actually
-taking in fish. It is calculated from the encounter rate \(E_i\) and the
-maximum intake rate \(h_i(w)\) as
-$$f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.$$
-The encounter rate \(E_i\) is passed as an argument or calculated with
-getEncounter. The maximum intake rate \(h_i(w)\) is
-taken from the params object, and is set with 
-setMaxIntakeRate.
-As a consequence of the above expression for the feeding level,
-\(1-f_i(w)\) is the proportion of the food available to it that the
-predator actually consumes." />
+<meta property="og:description" content="Returns the feeding level.
+By default this function uses the function mizerFeedingLevel() to calculate
+the feeding level, but this can be overruled via setRateFunction()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -136,18 +127,9 @@ predator actually consumes." />
     </div>
 
     <div class="ref-description">
-    <p>Calculates the feeding level \(f_i(w)\). The feeding level is the
-proportion of its maximum intake rate at which the predator is actually
-taking in fish. It is calculated from the encounter rate \(E_i\) and the
-maximum intake rate \(h_i(w)\) as
-$$f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.$$
-The encounter rate \(E_i\) is passed as an argument or calculated with
-<code><a href='getEncounter.html'>getEncounter</a></code>. The maximum intake rate \(h_i(w)\) is
-taken from the <code>params</code> object, and is set with 
-<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.
-As a consequence of the above expression for the feeding level,
-\(1-f_i(w)\) is the proportion of the food available to it that the
-predator actually consumes.</p>
+    <p>Returns the feeding level.
+By default this function uses the function <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel()</a></code> to calculate
+the feeding level, but this can be overruled via <code><a href='setRateFunction.html'>setRateFunction()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getFeedingLevel</span>(<span class='no'>object</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>encounter</span>, <span class='no'>time_range</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
@@ -193,17 +175,31 @@ from the returned array.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>If a <code>MizerParams</code> object is passed in, the function returns a two
-  dimensional array (predator species x predator size) based on the
-  abundances also passed in.
-  If a <code>MizerSim</code> object is passed in, the function returns a three
-  dimensional array (time step x predator species x predator size) with the
-  feeding level calculated at every time step in the simulation.
-  If <code>drop = TRUE</code> then the dimension of length 1 will be removed from
-  the returned array.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+dimensional array (predator species x predator size) based on the
+abundances also passed in.
+If a <code>MizerSim</code> object is passed in, the function returns a three
+dimensional array (time step x predator species x predator size) with the
+feeding level calculated at every time step in the simulation.
+If <code>drop = TRUE</code> then the dimension of length 1 will be removed from
+the returned array.</p>
+    <h2 class="hasAnchor" id="feeding-level"><a class="anchor" href="#feeding-level"></a>Feeding level</h2>
 
-    <p>The feeding level is used in <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code> and in
-<code><a href='getPredRate.html'>getPredRate</a></code>.</p>
+    
+
+<p>The feeding level \(f_i(w)\) is the
+proportion of its maximum intake rate at which the predator is actually
+taking in fish. It is calculated from the encounter rate \(E_i\) and the
+maximum intake rate \(h_i(w)\) as
+$$f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.$$
+The encounter rate \(E_i\) is passed as an argument or calculated with
+[getEncounter()]. The maximum intake rate \(h_i(w)\) is
+taken from the `params` object, and is set with 
+[setMaxIntakeRate()].
+As a consequence of the above expression for the feeding level,
+\(1-f_i(w)\) is the proportion of the food available to it that the
+predator actually consumes.</p>
+<p>The feeding level is used in [mizerEReproAndGrowth()] and in
+[mizerPredRate()].</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 
@@ -240,7 +236,7 @@ from the returned array.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#feeding-level">Feeding level</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

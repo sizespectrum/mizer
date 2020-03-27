@@ -155,19 +155,19 @@
 <a href="#setting-model-parameters" class="anchor"></a>Setting model parameters</h2>
 <p>After setting up a mizer model, it is possible to change specific model parameters with the new functions</p>
 <ul>
-<li><code><a href="../reference/setPredationKernel.html">setPredationKernel()</a></code></li>
+<li><code><a href="../reference/setPredKernel.html">setPredKernel()</a></code></li>
 <li><code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code></li>
 <li><code><a href="../reference/setInteraction.html">setInteraction()</a></code></li>
 <li><code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code></li>
 <li><code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code></li>
-<li><code><a href="../reference/setExtMortality.html">setExtMortality()</a></code></li>
+<li><code><a href="../reference/setExtMort.html">setExtMort()</a></code></li>
 <li><code><a href="../reference/setReproduction.html">setReproduction()</a></code></li>
 <li><code><a href="../reference/setFishing.html">setFishing()</a></code></li>
 <li><code><a href="../reference/setPlankton.html">setPlankton()</a></code></li>
 </ul>
 <p>The new function <code><a href="../reference/setParams.html">setParams()</a></code> is a wrapper for all of the above functions and is also used when setting up a new model with <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>. (<a href='https://github.com/sizespectrum/mizer/issues/51'>#51</a>)</p>
 <p>The documentation for these functions serves to explain the details of the mizer model.</p>
-<p>Along with these setter functions there are accessor functions for getting the parameter arrays: <code><a href="../reference/getPredationKernel.html">getPredationKernel()</a></code>, <code><a href="../reference/setSearchVolume.html">getSearchVolume()</a></code>, <code><a href="../reference/setInteraction.html">getInteraction()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">getMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">getMetabolicRate()</a></code>, <code><a href="../reference/setExtMortality.html">getExtMortality()</a></code>, <code><a href="../reference/setReproduction.html">getMaturityProportion()</a></code>, <code><a href="../reference/setReproduction.html">getReproductionProportion()</a></code>, <code><a href="../reference/setFishing.html">getCatchability()</a></code>, <code><a href="../reference/setFishing.html">getSelectivity()</a></code>, <code>getPlanktonBirthRate()</code>, <code>getPlanktonCarryingCapacity()</code>, <code><a href="../reference/setPlankton.html">getPlanktonParams()</a></code>, <code><a href="../reference/setPlankton.html">getPlanktonDynamics()</a></code>,</p>
+<p>Along with these setter functions there are accessor functions for getting the parameter arrays: <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code>, <code><a href="../reference/setSearchVolume.html">getSearchVolume()</a></code>, <code><a href="../reference/setInteraction.html">getInteraction()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">getMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">getMetabolicRate()</a></code>, <code><a href="../reference/setExtMort.html">getExtMort()</a></code>, <code><a href="../reference/setReproduction.html">getMaturityProportion()</a></code>, <code><a href="../reference/setReproduction.html">getReproductionProportion()</a></code>, <code><a href="../reference/setFishing.html">getCatchability()</a></code>, <code><a href="../reference/setFishing.html">getSelectivity()</a></code>, <code>getPlanktonBirthRate()</code>, <code>getPlanktonCarryingCapacity()</code>, <code>getPlanktonParams()</code>, <code><a href="../reference/setPlankton.html">getPlanktonDynamics()</a></code>,</p>
 <ul>
 <li>Setting of the maximum reproduction rate has been separated out into new function <code><a href="../reference/setRmax.html">setRmax()</a></code>.</li>
 </ul>
@@ -209,8 +209,8 @@
 <li>Users can now replace the lognormal function in the predation kernel by a function of their choice, allowing a differently shaped kernel for each species.</li>
 <li>New <code><a href="../reference/box_pred_kernel.html">box_pred_kernel()</a></code> implements a box-shaped kernel as an alternative to the default <code><a href="../reference/lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>.</li>
 <li>New <code><a href="../reference/power_law_pred_kernel.html">power_law_pred_kernel()</a></code> implements a power-law kernel with sigmoidal cutoffs at both ends. This is suitable for filter feeders.</li>
-<li>Users can sets a predation kernel that has a predator-size-dependent predator/prey mass ration (via <code><a href="../reference/setPredationKernel.html">setPredationKernel()</a></code>). Mizer automatically falls back on the old non-FFT code to handle this. (<a href='https://github.com/sizespectrum/mizer/issues/41'>#41</a>)</li>
-<li>New <code><a href="../reference/getPredationKernel.html">getPredationKernel()</a></code> returns the full 3-dimensional predation kernel array, even when this is not stored in MizerParams object.</li>
+<li>Users can sets a predation kernel that has a predator-size-dependent predator/prey mass ration (via <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code>). Mizer automatically falls back on the old non-FFT code to handle this. (<a href='https://github.com/sizespectrum/mizer/issues/41'>#41</a>)</li>
+<li>New <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code> returns the full 3-dimensional predation kernel array, even when this is not stored in MizerParams object.</li>
 </ul>
 </div>
 <div id="other-new-functions" class="section level2">
@@ -225,7 +225,7 @@
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
 <li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
-<li>Convenience functions <code><a href="../reference/final_n.html">final_n()</a></code>, <code><a href="../reference/final_n_pp.html">final_n_pp()</a></code> and <code>final_n_other</code> to access the values at the final time of a simulation.</li>
+<li>Convenience functions <code><a href="../reference/final_n.html">final_n()</a></code>, <code><a href="../reference/final_n.html">final_n_pp()</a></code> and <code>final_n_other</code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>
 <li>

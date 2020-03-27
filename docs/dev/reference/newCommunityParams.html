@@ -155,7 +155,7 @@ community-type model.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>max_w</th>
-      <td><p>The maximum size of the community. The <code>w_inf</code> of the 
+      <td><p>The maximum size of the community. The <code>w_inf</code> of the
 species used to represent the community is set to this value.</p></td>
     </tr>
     <tr>
@@ -181,8 +181,8 @@ is set to the smallest value at which any of the consumers can feed.</p></td>
     </tr>
     <tr>
       <th>f0</th>
-      <td><p>The average feeding level of individuals who feed on a power-law 
-spectrum. This value is used to calculate the search rate parameter 
+      <td><p>The average feeding level of individuals who feed on a power-law
+spectrum. This value is used to calculate the search rate parameter
 <code>gamma</code> (see the package vignette).</p></td>
     </tr>
     <tr>
@@ -191,7 +191,7 @@ spectrum. This value is used to calculate the search rate parameter
     </tr>
     <tr>
       <th>gamma</th>
-      <td><p>Volumetric search rate. Estimated using <code>h</code>, <code>f0</code> and 
+      <td><p>Volumetric search rate. Estimated using <code>h</code>, <code>f0</code> and
 <code>kappa</code> if not supplied.</p></td>
     </tr>
     <tr>
@@ -228,7 +228,7 @@ function.</p></td>
     <tr>
       <th>reproduction</th>
       <td><p>The constant reproduction in the smallest size class of the
-community spectrum. By default this is set so that the community spectrum 
+community spectrum. By default this is set so that the community spectrum
 is continuous with the plankton spectrum.</p></td>
     </tr>
     </table>
@@ -239,30 +239,32 @@ is continuous with the plankton spectrum.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>A community model has several features that distinguish it from a multi-species
-model:</p>
-<p>* Species identities of individuals are ignored. All are aggregated into a
-  single community.
-* The plankton spectrum only extends to the start of the community spectrum. 
-* Reproductive rate is constant, independent of the energy invested in 
-  reproduction, which is set to 0. 
-* Standard metabolism is turned off (the parameter <code>ks</code> is set to 0).
-  Consequently, the growth rate is now determined solely by the assimilated
-  food</p>
+model:</p><ul>
+<li><p>Species identities of individuals are ignored. All are aggregated into a
+single community.</p></li>
+<li><p>The plankton spectrum only extends to the start of the community spectrum.</p></li>
+<li><p>Reproductive rate is constant, independent of the energy invested in
+reproduction, which is set to 0.</p></li>
+<li><p>Standard metabolism is turned off (the parameter <code>ks</code> is set to 0).
+Consequently, the growth rate is now determined solely by the assimilated
+food</p></li>
+</ul>
+
 <p>The function has many arguments, all of which have default values.</p>
-<p>Fishing selectivity is modelled as a knife-edge function with one parameter, 
-<code>knife_edge_size</code>, which determines the size at which species are 
+<p>Fishing selectivity is modelled as a knife-edge function with one parameter,
+<code>knife_edge_size</code>, which determines the size at which species are
 selected.</p>
-<p>The resulting <code>MizerParams</code> object can be projected forward using 
-<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting 
+<p>The resulting <code>MizerParams</code> object can be projected forward using
+<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting
 the community model it may be necessary to keep a small time step size
 <code>dt</code> of around 0.1 to avoid any instabilities with the solver. You can
 check for these numerical instabilities by plotting the biomass or abundance
 through time after the projection.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-  individual efficiencies of size-structured communities, Proceedings of the 
-  Royal Society, 276, 109-114</p>
+    <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+individual efficiencies of size-structured communities, Proceedings of the
+Royal Society, 276, 109-114</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting up models: 

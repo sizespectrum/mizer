@@ -42,7 +42,7 @@
 a given size \(w\) is killed by predators from species \(j\). In formulas
 $${\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
   \gamma_j(w) N_j(w) \, dw.$$
-This potential rate is used in the function getPredMort to
+This potential rate is used in the function mizerPredMort() to
 calculate the realised predation mortality rate on the prey individual." />
 <meta name="twitter:card" content="summary" />
 
@@ -134,18 +134,11 @@ calculate the realised predation mortality rate on the prey individual." />
 a given size \(w\) is killed by predators from species \(j\). In formulas
 $${\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
   \gamma_j(w) N_j(w) \, dw.$$
-This potential rate is used in the function <code><a href='getPredMort.html'>getPredMort</a></code> to
+This potential rate is used in the function <code><a href='mizerPredMort.html'>mizerPredMort()</a></code> to
 calculate the realised predation mortality rate on the prey individual.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerPredRate</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
-  <span class='no'>feeding_level</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mizerPredRate</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>feeding_level</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,7 +164,7 @@ ecosystem</p></td>
       <th>feeding_level</th>
       <td><p>The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> function.</p></td>
+using the <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code> function.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -182,8 +175,8 @@ using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> functi
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A two dimensional array (predator species x prey size) with the
-  predation rate, where the prey size runs over fish community plus plankton
-  spectrum.</p>
+predation rate, where the prey size runs over fish community plus plankton
+spectrum.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 

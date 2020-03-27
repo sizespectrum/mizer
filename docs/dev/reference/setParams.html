@@ -40,12 +40,12 @@
 <meta property="og:title" content="Set or change any model parameters — setParams" />
 <meta property="og:description" content="This is a convenient wrapper function calling each of the following
 functions
-setPredationKernel
+setPredKernel
 setSearchVolume
 setInteraction
 setMaxIntakeRate
 setMetabolicRate
-setExtMortality
+setExtMort
 setReproduction
 setFishing
 setPlankton
@@ -138,42 +138,19 @@ See the Details section below for a discussion of how to use this function." />
     <div class="ref-description">
     <p>This is a convenient wrapper function calling each of the following
 functions</p><ul>
-<li><p><code><a href='setPredationKernel.html'>setPredationKernel</a></code></p></li>
+<li><p><code><a href='setPredKernel.html'>setPredKernel</a></code></p></li>
 <li><p><code><a href='setSearchVolume.html'>setSearchVolume</a></code></p></li>
 <li><p><code><a href='setInteraction.html'>setInteraction</a></code></p></li>
 <li><p><code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code></p></li>
 <li><p><code><a href='setMetabolicRate.html'>setMetabolicRate</a></code></p></li>
-<li><p><code><a href='setExtMortality.html'>setExtMortality</a></code></p></li>
+<li><p><code><a href='setExtMort.html'>setExtMort</a></code></p></li>
 <li><p><code><a href='setReproduction.html'>setReproduction</a></code></p></li>
 <li><p><code><a href='setFishing.html'>setFishing</a></code></p></li>
 <li><p><code><a href='setPlankton.html'>setPlankton</a></code></p></li>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setParams</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>r_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>K_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"kappa"</span>]],
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"lambda"</span>]],
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"n"</span>]],
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
-  <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>search_vol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>intake_max</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>metab</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>p</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>z0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
-  <span class='kw'>z0exp</span> <span class='kw'>=</span> <span class='no'>n</span> - <span class='fl'>1</span>,
-  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>rates_funcs</span>$<span class='no'>RDD</span>,
-  <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>setParams</span>(<span class='no'>params</span>, <span class='kw'>interaction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -183,118 +160,64 @@ functions</p><ul>
       <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
     </tr>
     <tr>
-      <th>r_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic birth rates</p></td>
-    </tr>
-    <tr>
-      <th>K_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>r_pp</th>
-      <td><p>Coefficient of the intrinsic plankton birth rate</p></td>
-    </tr>
-    <tr>
-      <th>kappa</th>
-      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>Allometric growth exponent for plankton</p></td>
-    </tr>
-    <tr>
-      <th>w_pp_cutoff</th>
-      <td><p>The upper cut off size of the plankton spectrum. 
-Default is 10 g.</p></td>
-    </tr>
-    <tr>
-      <th>plankton_dynamics</th>
-      <td><p>Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
-state.</p></td>
-    </tr>
-    <tr>
       <th>interaction</th>
       <td><p>Optional interaction matrix of the species (predator
 species x prey species). Entries should be numbers between 0 and 1. By
 default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     <tr>
-      <th>pred_kernel</th>
-      <td><p>Optional. An array (species x predator size x prey size)
+      <th>...</th>
+      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code></p><dl class='dl-horizontal'>
+    <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
-predation kernel".</p></td>
-    </tr>
-    <tr>
-      <th>search_vol</th>
-      <td><p>Optional. An array (species x size) holding the search volume
+predation kernel".</p></dd>
+    <dt><code>search_vol</code></dt><dd><p>Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
-the section "Setting search volume".</p></td>
-    </tr>
-    <tr>
-      <th>intake_max</th>
-      <td><p>Optional. An array (species x size) holding the maximum
+the section "Setting search volume".</p></dd>
+    <dt><code>intake_max</code></dt><dd><p>Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
-described in the section "Setting maximum intake rate".</p></td>
-    </tr>
-    <tr>
-      <th>metab</th>
-      <td><p>Optional. An array (species x size) holding the metabolic rate
+described in the section "Setting maximum intake rate".</p></dd>
+    <dt><code>metab</code></dt><dd><p>Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
-the section "Setting metabolic rate".</p></td>
-    </tr>
-    <tr>
-      <th>p</th>
-      <td><p>The allometric metabolic exponent. This is only used if <code>metab</code>
+the section "Setting metabolic rate".</p></dd>
+    <dt><code>p</code></dt><dd><p>The allometric metabolic exponent. This is only used if <code>metab</code>
 is not given explicitly and if the exponent is not specified in a <code>p</code>
-column in the <code>species_params</code>.</p></td>
-    </tr>
-    <tr>
-      <th>z0</th>
-      <td><p>Optional. An array (species x size) holding the external
-mortality rate.</p></td>
-    </tr>
-    <tr>
-      <th>z0pre</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
+column in the <code>species_params</code>.</p></dd>
+    <dt><code>z0</code></dt><dd><p>Optional. An array (species x size) holding the external
+mortality rate.</p></dd>
+    <dt><code>z0pre</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
 in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.</p></td>
-    </tr>
-    <tr>
-      <th>z0exp</th>
-      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
+Default value is 0.6.</p></dd>
+    <dt><code>z0exp</code></dt><dd><p>If <code>z0</code>, the mortality from other sources, is not a column
 in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
-Default value is <code>n-1</code>.</p></td>
-    </tr>
-    <tr>
-      <th>maturity</th>
-      <td><p>Optional. An array (species x size) that holds the proportion
+Default value is <code>n-1</code>.</p></dd>
+    <dt><code>maturity</code></dt><dd><p>Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
-default is set as described in the section "Setting reproduction".</p></td>
-    </tr>
-    <tr>
-      <th>repro_prop</th>
-      <td><p>Optional. An array (species x size) that holds the
+default is set as described in the section "Setting reproduction".</p></dd>
+    <dt><code>repro_prop</code></dt><dd><p>Optional. An array (species x size) that holds the
 proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
-described in the section "Setting reproduction".</p></td>
-    </tr>
-    <tr>
-      <th>RDD</th>
-      <td><p>The name of the function calculating the density-dependent 
+described in the section "Setting reproduction".</p></dd>
+    <dt><code>RDD</code></dt><dd><p>The name of the function calculating the density-dependent 
 reproduction rate from the density-independent rate. Defaults to 
-"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></td>
-    </tr>
-    <tr>
-      <th>initial_effort</th>
-      <td><p>Optional. A number or a named numeric vector specifying
+"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></dd>
+    <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
-a vector, must be named by gear.</p></td>
+a vector, must be named by gear.</p></dd>
+    <dt><code>r_plankton</code></dt><dd><p>Optional. Vector of plankton intrinsic birth rates</p></dd>
+    <dt><code>K_plankton</code></dt><dd><p>Optional. Vector of plankton intrinsic carrying capacity</p></dd>
+    <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic plankton birth rate</p></dd>
+    <dt><code>n</code></dt><dd><p>Allometric growth exponent for plankton</p></dd>
+    <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic plankton carrying capacity</p></dd>
+    <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic plankton carrying capacity</p></dd>
+    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the plankton spectrum. 
+Default is 10 g.</p></dd>
+    <dt><code>plankton_dynamics</code></dt><dd><p>Function that determines plankton dynamics by
+calculating the plankton spectrum at the next time step from the current
+state.</p></dd>
+  
+</dl></td>
     </tr>
     </table>
 
@@ -311,7 +234,7 @@ function to effect the change. Note that just changing the species parameters
 by themselves is not changing the model until you call <code>setParams()</code> or the
 appropriate one of its sub-functions. Here is an example which assumes that
 you have have a MizerParams object <code>params</code> in which you just want to change
-one parameter of the third species:</p><pre>params@species_params$gamma[3] &lt;- 1000
+one parameter of the third species:</p><pre>params@species_params$gamma[[3]] &lt;- 1000
 params &lt;- setParams(params)
 </pre>
 
@@ -423,7 +346,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-<code><a href='getPredationKernel.html'>getPredationKernel</a></code> function.</p>
+<code><a href='getPredKernel.html'>getPredKernel</a></code> function.</p>
 <p><strong>Kernel dependent on both predator and prey size</strong></p>
 <p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
@@ -507,7 +430,7 @@ due to predation by predators that are not explicitly included in the model
 with units 1/year.</p>
 <p>The <code>z0</code> argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code><a href='setExtMortality.html'>setExtMortality</a></code>.</p>
+the Examples section of the help page for <code><a href='setExtMort.html'>setExtMort</a></code>.</p>
 <p>If the <code>z0</code> argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
@@ -669,14 +592,14 @@ and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
+<code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 

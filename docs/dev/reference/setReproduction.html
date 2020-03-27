@@ -132,12 +132,7 @@ that is invested into reproduction as a function of the size of the
 individual and sets the reproductive efficiency.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setReproduction</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>rates_funcs</span>$<span class='no'>RDD</span>
-)
+    <pre class="usage"><span class='fu'>setReproduction</span>(<span class='no'>params</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='fu'>getMaturityProportion</span>(<span class='no'>params</span>)
 
@@ -168,6 +163,10 @@ described in the section "Setting reproduction".</p></td>
       <td><p>The name of the function calculating the density-dependent 
 reproduction rate from the density-independent rate. Defaults to 
 "<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -249,7 +248,7 @@ these as models for writing your own functions.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
+<code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
@@ -257,7 +256,7 @@ these as models for writing your own functions.</p>
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

@@ -130,13 +130,7 @@ weight \(w\) encounters food (grams/year)." />
 weight \(w\) encounters food (grams/year).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerEncounter</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mizerEncounter</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -166,19 +160,19 @@ ecosystem</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (predator species x predator size) with the 
-  encounter rates.</p>
+    <p>A two dimensional array (predator species x predator size) with the
+encounter rates.</p>
     <h2 class="hasAnchor" id="predation-encounter"><a class="anchor" href="#predation-encounter"></a>Predation encounter</h2>
 
     
 
-<p>The encounter rate has contributions from the encounter of fish prey and of
-plankton. This is determined by summing over all prey species and the
-plankton spectrum and then integrating over all prey sizes \(w_p\),
-weighted by predation kernel
-\(\phi(w,w_p)\):
+<p>The encounter rate \(E_i(w)\) at which a predator of species \(i\)
+and weight \(w\) encounters food has contributions from the encounter of
+fish prey and of plankton. This is determined by summing over all prey
+species and the plankton spectrum and then integrating over all prey sizes
+\(w_p\), weighted by predation kernel \(\phi(w,w_p)\):
 $$
-E_{e.i}(w) = \gamma_i(w) \int 
+E_i(w) = \gamma_i(w) \int 
 \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right) 
 \phi_i(w,w_p) w_p \, dw_p.
 $$
@@ -186,17 +180,18 @@ Here \(N_j(w)\) is the abundance density of species \(j\) and
 \(N_R(w)\) is the abundance density of plankton.
 The overall prefactor \(\gamma_i(w)\) determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
-<code><a href='setSearchVolume.html'>setSearchVolume</a></code> function. The predation kernel
-\(\phi(w,w_p)\) is set with the <code><a href='setPredationKernel.html'>setPredationKernel</a></code> function. The
-species interaction matrix \(\theta_{ij}\) and the plankton interaction
-vector \(\theta_{ip}\) are set with <code><a href='setInteraction.html'>setInteraction</a></code>.</p>
+<code><a href='setSearchVolume.html'>setSearchVolume()</a></code> function. The predation kernel
+\(\phi(w,w_p)\) is set with the <code><a href='setPredKernel.html'>setPredKernel()</a></code> function. The
+species interaction matrix \(\theta_{ij}\) is set with <code><a href='setInteraction.html'>setInteraction()</a></code>
+and the plankton interaction vector \(\theta_{ip}\) is taken from the
+<code>interaction_p</code> column in <code>params@species_params</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     
 
 <p>The encounter rate is multiplied by \(1-f_0\) to obtain the consumption rate,
-where \(f_0\) is the feeding level calculated with <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>.
-This is used by the <code><a href='project.html'>project</a></code> function for performing simulations.</p>
+where \(f_0\) is the feeding level calculated with <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>.
+This is used by the <code><a href='project.html'>project()</a></code> function for performing simulations.</p>
 <p>The function returns values also for sizes outside the size-range of the
 species. These values should not be used, as they are meaningless.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

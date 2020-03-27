@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get density dependent reproduction rate — getRDD • mizer</title>
+<title>Set external mortality rate — setExtMort • mizer</title>
 
 
 <!-- jquery -->
@@ -37,14 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Get density dependent reproduction rate — getRDD" />
-<meta property="og:description" content="Calculates the density dependent rate of egg production \(R_i\) (units
-1/year) for each species. This is the flux entering the smallest size class
-of each species. The density dependent rate is the density independent
-rate obtained with getRDI after it has been put through the 
-density dependence function. This is the Beverton-Holt function
-BevertonHoltRDD by default, but this can be changed. See
-setReproduction for more details." />
+<meta property="og:title" content="Set external mortality rate — setExtMort" />
+<meta property="og:description" content="Set external mortality rate" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,84 +119,104 @@ setReproduction for more details." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get density dependent reproduction rate</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/rate_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
-    <div class="hidden name"><code>getRDD.Rd</code></div>
+    <h1>Set external mortality rate</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>setExtMort.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the density dependent rate of egg production \(R_i\) (units
-1/year) for each species. This is the flux entering the smallest size class
-of each species. The density dependent rate is the density independent
-rate obtained with <code><a href='getRDI.html'>getRDI</a></code> after it has been put through the 
-density dependence function. This is the Beverton-Holt function
-<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code> by default, but this can be changed. See
-<code><a href='setReproduction.html'>setReproduction</a></code> for more details.</p>
+    <p>Set external mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getRDD</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n-set.html'>initial_n</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_pp-set.html'>initial_n_pp</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_other-set.html'>initial_n_other</a></span>(<span class='no'>params</span>),
-  <span class='kw'>rdi</span> <span class='kw'>=</span> <span class='fu'><a href='getRDI.html'>getRDI</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
-)</pre>
+    <pre class="usage"><span class='fu'>setExtMort</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>, <span class='no'>...</span>)
+
+<span class='fu'>getExtMort</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
+      <td><p>MizerParams</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size).</p></td>
+      <th>z0</th>
+      <td><p>Optional. An array (species x size) holding the external
+mortality rate.</p></td>
     </tr>
     <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
+      <th>z0pre</th>
+      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
+Default value is 0.6.</p></td>
     </tr>
     <tr>
-      <th>n_other</th>
-      <td><p>A list of abundances for other dynamical components of the
-ecosystem</p></td>
+      <th>z0exp</th>
+      <td><p>If <code>z0</code>, the mortality from other sources, is not a column
+in the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
+Default value is <code>n-1</code>.</p></td>
     </tr>
     <tr>
-      <th>rdi</th>
-      <td><p>A vector of density-independent reproduction rates for each
-species. If not specified, rdi is calculated internally using
-<code><a href='getRDI.html'>getRDI</a></code>.</p></td>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A numeric vector the length of the number of species.</p>
+    <p>MizerParams object with updated external mortality rate. Because of
+  the way the R language works, `setExtMort()` does not make the changes
+  to the params object that you pass to it but instead returns a new params
+  object. So to affect the change you call the function in the form
+  `params &lt;- setExtMort(params, ...)`.</p>
+    <h2 class="hasAnchor" id="setting-external-mortality-rate"><a class="anchor" href="#setting-external-mortality-rate"></a>Setting external mortality rate</h2>
+
+    
+
+<p>The external mortality is all the mortality that is not due to fishing or
+predation by predators included in the model. The external mortality could be
+due to predation by predators that are not explicitly included in the model
+(e.g. mammals or seabirds) or due to other causes like illness. It is a rate
+with units 1/year.</p>
+<p>The <code>z0</code> argument allows you to specify an external mortality rate
+that depends on species and body size. You can see an example of this in
+the Examples section of the help page for <code>setExtMort</code>.</p>
+<p>If the <code>z0</code> argument is not supplied, then the external mortality
+is assumed to depend only on the species, not on the
+size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
+constant \(z_0\) for each species is taken from the <code>z0</code> column of the
+species_params data frame, if that column exists. Otherwise it is calculated
+as 
+$$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='getRDI.html'>getRDI</a></code></p>
-<p>Other rate functions: 
-<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-<code><a href='getERepro.html'>getERepro</a>()</code>,
-<code><a href='getEncounter.html'>getEncounter</a>()</code>,
-<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
-<code><a href='getFMort.html'>getFMort</a>()</code>,
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
-<code><a href='getMort.html'>getMort</a>()</code>,
-<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
-<code><a href='getPredMort.html'>getPredMort</a>()</code>,
-<code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
+    <div class='dont-index'><p>Other functions for setting parameters: 
+<code><a href='setFishing.html'>setFishing</a>()</code>,
+<code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
+<code><a href='setInteraction.html'>setInteraction</a>()</code>,
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
+<code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
+<code><a href='setParams.html'>setParams</a>()</code>,
+<code><a href='setPlankton.html'>setPlankton</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
+<code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='co'># Get the rate at a particular time step</span>
-<span class='fu'>getRDD</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,])
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params</span>)
+
+<span class='co'>#### Setting allometric death rate #######################</span>
+
+<span class='co'># Set coefficient for each species. Here we choose 0.1 for each species</span>
+<span class='no'>z0pre</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.1</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>params</span>@<span class='kw'>species_params</span>))
+
+<span class='co'># Multiply by power of size with exponent, here chosen to be -1/4</span>
+<span class='co'># The outer() function makes it an array species x size</span>
+<span class='no'>z0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='no'>z0pre</span>, <span class='no'>params</span>@<span class='kw'>w</span>^(-<span class='fl'>1</span>/<span class='fl'>4</span>))
+
+<span class='co'># Change the external mortality rate in the params object</span>
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setExtMort</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='no'>z0</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -210,6 +224,7 @@ species. If not specified, rdi is calculated internally using
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#setting-external-mortality-rate">Setting external mortality rate</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

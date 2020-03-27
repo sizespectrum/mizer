@@ -178,24 +178,24 @@ each species at size. Changed with <code><a href='setSearchVolume.html'>setSearc
 for each species at size. Changed with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p></dd>
 
 <dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the external mortality rate
-\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMortality.html'>setExtMortality</a></code>.</p></dd>
+\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMort.html'>setExtMort</a></code>.</p></dd>
 
 <dt><code>pred_kernel</code></dt><dd><p>An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
 this is NA then the following two slots will be used. Changed with 
-<code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
+<code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_e</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the available 
-energy integral. Changed with <code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
+energy integral. Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_p</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
-Changed with <code><a href='setPredationKernel.html'>setPredationKernel</a></code>.</p></dd>
+Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
 
 <dt><code>rr_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
 growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>

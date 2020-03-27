@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set external mortality rate — setExtMortality • mizer</title>
+<title>Set external mortality rate — sExtMortty • mizer</title>
 
 
 <!-- jquery -->
@@ -37,7 +37,7 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Set external mortality rate — setExtMortality" />
+<meta property="og:title" content="Set external mortality rate — sExtMortty" />
 <meta property="og:description" content="Set external mortality rate" />
 <meta name="twitter:card" content="summary" />
 
@@ -121,16 +121,16 @@
     <div class="page-header">
     <h1>Set external mortality rate</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
-    <div class="hidden name"><code>setExtMortality.Rd</code></div>
+    <div class="hidden name"><code>setExtMort.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Set external mortality rate</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)
+    <pre class="usage"><span class='fu'>setExtMort</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>z0pre</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>z0exp</span> <span class='kw'>=</span> -<span class='fl'>1</span>/<span class='fl'>4</span>)
 
-<span class='fu'>getExtMortality</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>getExtMort</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,10 +161,10 @@ Default value is <code>n-1</code>.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>MizerParams object with updated external mortality rate. Because of
-  the way the R language works, `setExtMortality()` does not make the changes
+  the way the R language works, `setExtMort()` does not make the changes
   to the params object that you pass to it but instead returns a new params
   object. So to affect the change you call the function in the form
-  `params &lt;- setExtMortality(params, ...)`.</p>
+  `params &lt;- setExtMort(params, ...)`.</p>
     <h2 class="hasAnchor" id="setting-external-mortality-rate"><a class="anchor" href="#setting-external-mortality-rate"></a>Setting external mortality rate</h2>
 
     
@@ -176,7 +176,7 @@ due to predation by predators that are not explicitly included in the model
 with units 1/year.</p>
 <p>The <code>z0</code> argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code>setExtMortality</code>.</p>
+the Examples section of the help page for <code>setExtMort</code>.</p>
 <p>If the <code>z0</code> argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
@@ -194,7 +194,7 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
-<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
@@ -212,7 +212,7 @@ $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$</p>
 <span class='no'>z0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='no'>z0pre</span>, <span class='no'>params</span>@<span class='kw'>w</span>^(-<span class='fl'>1</span>/<span class='fl'>4</span>))
 
 <span class='co'># Change the external mortality rate in the params object</span>
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setExtMortality</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='no'>z0</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setExtMort</span>(<span class='no'>params</span>, <span class='kw'>z0</span> <span class='kw'>=</span> <span class='no'>z0</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

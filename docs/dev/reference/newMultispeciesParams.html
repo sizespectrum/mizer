@@ -438,7 +438,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-<code><a href='getPredationKernel.html'>getPredationKernel</a></code> function.</p>
+<code><a href='getPredKernel.html'>getPredKernel</a></code> function.</p>
 <p><strong>Kernel dependent on both predator and prey size</strong></p>
 <p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
@@ -522,7 +522,7 @@ due to predation by predators that are not explicitly included in the model
 with units 1/year.</p>
 <p>The <code>z0</code> argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for <code><a href='setExtMortality.html'>setExtMortality</a></code>.</p>
+the Examples section of the help page for <code><a href='setExtMort.html'>setExtMort</a></code>.</p>
 <p>If the <code>z0</code> argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
 size of the individual: \(\mu_{b.i}(w) = z_{0.i}\). The value of the
@@ -683,9 +683,7 @@ The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>
 and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='project.html'>project</a></code>, <a href='MizerSim-class.html'>MizerSim</a>,
-  <code><a href='newCommunityParams.html'>newCommunityParams</a></code>, <code><a href='newTraitParams.html'>newTraitParams</a></code></p>
-<p>Other functions for setting up models: 
+    <div class='dont-index'><p>Other functions for setting up models: 
 <code><a href='newCommunityParams.html'>newCommunityParams</a>()</code>,
 <code><a href='newTraitParams.html'>newTraitParams</a>()</code></p></div>
 

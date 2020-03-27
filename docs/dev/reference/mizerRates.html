@@ -130,9 +130,9 @@
 
     <pre class="usage"><span class='fu'>mizerRates</span>(
   <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
+  <span class='no'>n</span>,
+  <span class='no'>n_pp</span>,
+  <span class='no'>n_other</span>,
   <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_effort</span>,
   <span class='kw'>rates_fns</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>rates_funcs</span>, <span class='no'>get</span>),
@@ -185,7 +185,7 @@ Note that this list holds the functions themselves, not their names.</p></td>
 <li><p>feeding_level from <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel</a></code></p></li>
 <li><p>pred_rate from <code><a href='mizerPredRate.html'>mizerPredRate</a></code></p></li>
 <li><p>pred_mort from <code><a href='mizerPredMort.html'>mizerPredMort</a></code></p></li>
-<li><p>fishing_mort from <code><a href='mizerFMort.html'>mizerFMort</a></code></p></li>
+<li><p>f_mort from <code><a href='mizerFMort.html'>mizerFMort</a></code></p></li>
 <li><p>mort from <code><a href='mizerMort.html'>mizerMort</a></code></p></li>
 <li><p>plankton_mort from <code><a href='mizerPlanktonMort.html'>mizerPlanktonMort</a></code></p></li>
 <li><p>e from <code><a href='mizerEReproAndGrowth.html'>mizerEReproAndGrowth</a></code></p></li>

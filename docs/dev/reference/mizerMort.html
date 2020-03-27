@@ -132,15 +132,7 @@ species by size from predation mortality, background mortality and fishing
 mortality.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerMort</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
-  <span class='no'>fishing_mort</span>,
-  <span class='no'>m2</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mizerMort</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>f_mort</span>, <span class='no'>pred_mort</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,12 +155,12 @@ mortality.</p>
 ecosystem</p></td>
     </tr>
     <tr>
-      <th>fishing_mort</th>
+      <th>f_mort</th>
       <td><p>A two dimensional array (species x size) with the fishing
 mortality</p></td>
     </tr>
     <tr>
-      <th>m2</th>
+      <th>pred_mort</th>
       <td><p>A two dimensional array (species x size) with the predation
 mortality</p></td>
     </tr>

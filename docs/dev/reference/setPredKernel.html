@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set predation kernel — sPredKernelel • mizer</title>
+<title>Set predation kernel — setPredKernel • mizer</title>
 
 
 <!-- jquery -->
@@ -37,7 +37,7 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Set predation kernel — sPredKernelel" />
+<meta property="og:title" content="Set predation kernel — setPredKernel" />
 <meta property="og:description" content="The predation kernel determines the distribution of prey sizes that a
 predator feeds on. It is used in getEncounter when calculating
 the rate at which food is encountered and in getPredRate when
@@ -140,7 +140,7 @@ the predator size and the prey size separately. Both types can be set up with
 this function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>setPredKernel</span>(<span class='no'>params</span>, <span class='kw'>pred_kernel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,6 +155,10 @@ this function.</p>
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 

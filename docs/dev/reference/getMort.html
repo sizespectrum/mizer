@@ -134,12 +134,12 @@ mortality for a single time step.</p>
 
     <pre class="usage"><span class='fu'>getMort</span>(
   <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n</span>,
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_pp</span>,
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_n_other</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n-set.html'>initial_n</a></span>(<span class='no'>params</span>),
+  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_pp-set.html'>initial_n_pp</a></span>(<span class='no'>params</span>),
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_other-set.html'>initial_n_other</a></span>(<span class='no'>params</span>),
   <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_effort</span>,
-  <span class='kw'>fishing_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getFMort.html'>getFMort</a></span>(<span class='no'>params</span>, <span class='no'>effort</span>),
-  <span class='kw'>m2</span> <span class='kw'>=</span> <span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
+  <span class='kw'>f_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getFMort.html'>getFMort</a></span>(<span class='no'>params</span>, <span class='no'>effort</span>),
+  <span class='kw'>pred_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -168,13 +168,13 @@ ecosystem</p></td>
 effort value which is used for all gears.</p></td>
     </tr>
     <tr>
-      <th>fishing_mort</th>
-      <td><p>A two dimensional array (species x size) of predation mortality
+      <th>f_mort</th>
+      <td><p>A two dimensional array (species x size) of fishing mortality
 (optional).If not supplied is calculated using the <code><a href='getFMort.html'>getFMort</a></code>
 function.</p></td>
     </tr>
     <tr>
-      <th>m2</th>
+      <th>pred_mort</th>
       <td><p>A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
 calculated using the <code><a href='getPredMort.html'>getPredMort</a></code> function.</p></td>

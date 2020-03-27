@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get density dependent reproduction rate — getRDD • mizer</title>
+<title>Get predation kernel — getPredKernel • mizer</title>
 
 
 <!-- jquery -->
@@ -37,14 +37,10 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Get density dependent reproduction rate — getRDD" />
-<meta property="og:description" content="Calculates the density dependent rate of egg production \(R_i\) (units
-1/year) for each species. This is the flux entering the smallest size class
-of each species. The density dependent rate is the density independent
-rate obtained with getRDI after it has been put through the 
-density dependence function. This is the Beverton-Holt function
-BevertonHoltRDD by default, but this can be changed. See
-setReproduction for more details." />
+<meta property="og:title" content="Get predation kernel — getPredKernel" />
+<meta property="og:description" content="If no explicit predation kernel \(\phi_i(w, w_p)\) is stored in the params
+object, then this function calculates it from the information in the species
+parameter data frame in the params object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,93 +121,42 @@ setReproduction for more details." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get density dependent reproduction rate</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/rate_functions.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
-    <div class="hidden name"><code>getRDD.Rd</code></div>
+    <h1>Get predation kernel</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <div class="hidden name"><code>getPredKernel.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the density dependent rate of egg production \(R_i\) (units
-1/year) for each species. This is the flux entering the smallest size class
-of each species. The density dependent rate is the density independent
-rate obtained with <code><a href='getRDI.html'>getRDI</a></code> after it has been put through the 
-density dependence function. This is the Beverton-Holt function
-<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code> by default, but this can be changed. See
-<code><a href='setReproduction.html'>setReproduction</a></code> for more details.</p>
+    <p>If no explicit predation kernel \(\phi_i(w, w_p)\) is stored in the params
+object, then this function calculates it from the information in the species
+parameter data frame in the params object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getRDD</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n-set.html'>initial_n</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_pp-set.html'>initial_n_pp</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initial_n_other-set.html'>initial_n_other</a></span>(<span class='no'>params</span>),
-  <span class='kw'>rdi</span> <span class='kw'>=</span> <span class='fu'><a href='getRDI.html'>getRDI</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
-)</pre>
+    <pre class="usage"><span class='fu'>getPredKernel</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size).</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
-    </tr>
-    <tr>
-      <th>n_other</th>
-      <td><p>A list of abundances for other dynamical components of the
-ecosystem</p></td>
-    </tr>
-    <tr>
-      <th>rdi</th>
-      <td><p>A vector of density-independent reproduction rates for each
-species. If not specified, rdi is calculated internally using
-<code><a href='getRDI.html'>getRDI</a></code>.</p></td>
+      <td><p>A MizerParams object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A numeric vector the length of the number of species.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>An array (predator species x predator_size x prey_size)</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <div class='dont-index'><p><code><a href='getRDI.html'>getRDI</a></code></p>
-<p>Other rate functions: 
-<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-<code><a href='getERepro.html'>getERepro</a>()</code>,
-<code><a href='getEncounter.html'>getEncounter</a>()</code>,
-<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
-<code><a href='getFMort.html'>getFMort</a>()</code>,
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
-<code><a href='getMort.html'>getMort</a>()</code>,
-<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
-<code><a href='getPredMort.html'>getPredMort</a>()</code>,
-<code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
+    <p>For more detail about the predation kernel see <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='co'># Get the rate at a particular time step</span>
-<span class='fu'>getRDD</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,])
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

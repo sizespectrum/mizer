@@ -136,21 +136,24 @@ dynamics</p>
   <span class='no'>params</span>,
   <span class='kw'>r_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>K_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"kappa"</span>]],
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"lambda"</span>]],
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"n"</span>]],
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>plankton_params</span><span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
-  <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"kappa"</span>]],
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"lambda"</span>]],
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"n"</span>]],
+  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
+  <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>
 )
 
 <span class='fu'>getPlanktonRate</span>(<span class='no'>params</span>)
 
 <span class='fu'>getPlanktonCapacity</span>(<span class='no'>params</span>)
 
-<span class='fu'>getPlanktonParams</span>(<span class='no'>params</span>)
+<span class='fu'>getPlanktonDynamics</span>(<span class='no'>params</span>)
 
-<span class='fu'>getPlanktonDynamics</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>plankton_params</span>(<span class='no'>params</span>)
+
+<span class='fu'>plankton_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -194,6 +197,10 @@ Default is 10 g.</p></td>
 calculating the plankton spectrum at the next time step from the current
 state.</p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Unused</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -229,14 +236,14 @@ and <code>lambda</code> arguments.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
-<code><a href='setExtMortality.html'>setExtMortality</a>()</code>,
+<code><a href='setExtMort.html'>setExtMort</a>()</code>,
 <code><a href='setFishing.html'>setFishing</a>()</code>,
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
 <code><a href='setParams.html'>setParams</a>()</code>,
-<code><a href='setPredationKernel.html'>setPredationKernel</a>()</code>,
+<code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 

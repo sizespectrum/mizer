@@ -76,9 +76,6 @@
     <loc>https://sizespectrum.org/mizer/reference/final_n_other.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/final_n_pp.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/getBiomass.html</loc>
   </url>
   <url>
@@ -145,13 +142,13 @@
     <loc>https://sizespectrum.org/mizer/reference/getPlanktonMort.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/getPredKernel.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/getPredMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getPredRate.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/getPredationKernel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.html</loc>
@@ -349,7 +346,7 @@
     <loc>https://sizespectrum.org/mizer/reference/setComponent.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setExtMortality.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setExtMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setFishing.html</loc>
@@ -376,7 +373,7 @@
     <loc>https://sizespectrum.org/mizer/reference/setPlankton.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setPredationKernel.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/setPredKernel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setRateFunction.html</loc>
@@ -428,6 +425,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/upgradeSim.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/validSpeciesParams.html</loc>
