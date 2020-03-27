@@ -120,9 +120,8 @@ instead of \code{params <- setParams(params)}.
 
 If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example after\preformatted{comment(params@search_vol) <- "This should not change"
-params@species_params$gamma <- 10
-params <- setParams(params)
+species parameters. For example\preformatted{comment(params@search_vol) <- "This should not change"
+species_params(params)$gamma <- 10
 }
 
 will just issue a warning "The search volume has been commented and therefore

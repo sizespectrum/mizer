@@ -91,8 +91,6 @@ test_that("Comment works on pred kernel", {
     comment(pred_kernel) <- "test"
     params_c <- setPredKernel(params, pred_kernel = pred_kernel)
     expect_identical(comment(params_c@pred_kernel), "test")
-    expect_message(setPredKernel(params_c),
-                   "has been commented")
 })
 test_that("getPredKernel has correct dimnames",{
     pred_kernel <- getPredKernel(params)
@@ -115,8 +113,9 @@ test_that("Comment works on search volume", {
     comment(params@search_vol) <- "test"
     params <- setSearchVolume(params, search_vol = params@search_vol)
     expect_identical(comment(params@search_vol), "test")
-    expect_message(setSearchVolume(params),
-                   "has been commented")
+    expect_message(setSearchVolume(params), NA)
+    params@species_params$gamma <- 1
+    expect_message(setSearchVolume(params), "has been commented")
 })
 
 ## setMaxIntakeRate ----
@@ -130,6 +129,8 @@ test_that("Comment works on intake_max", {
     comment(params@intake_max) <- "test"
     params <- setMaxIntakeRate(params, intake_max = params@intake_max)
     expect_identical(comment(params@intake_max), "test")
+    expect_message(setMaxIntakeRate(params), NA)
+    params@species_params$h <- 1
     expect_message(setMaxIntakeRate(params),
                    "has been commented")
 })
@@ -145,6 +146,8 @@ test_that("Comment works on metab", {
     comment(params@metab) <- "test"
     params <- setMetabolicRate(params, metab = params@metab)
     expect_identical(comment(params@metab), "test")
+    expect_message(setMetabolicRate(params), NA)
+    params@species_params$k <- 1
     expect_message(setMetabolicRate(params),
                    "has been commented")
 })
@@ -160,6 +163,8 @@ test_that("Comment works on mu_b", {
     comment(params@mu_b) <- "test"
     params <- setExtMort(params, z0 = params@mu_b)
     expect_identical(comment(params@mu_b), "test")
+    expect_message(setExtMort(params), NA)
+    params@species_params$z0 <- 1
     expect_message(setExtMort(params),
                    "has been commented")
 })
@@ -192,6 +197,8 @@ test_that("Comment works on maturity", {
     comment(params@maturity) <- "test"
     params <- setReproduction(params, maturity = params@maturity)
     expect_identical(comment(params@maturity), "test")
+    expect_message(setReproduction(params), NA)
+    params@species_params$w_mat <- params@species_params$w_mat + 1
     expect_message(setReproduction(params),
                    "maturity ogive has been commented")
 })
