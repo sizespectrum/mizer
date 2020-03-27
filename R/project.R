@@ -171,9 +171,9 @@ project <- function(object, effort,
             effort_gear_names <- gear_names
         }
         if (!all(gear_names %in% effort_gear_names)) {
-            stop(paste0("Gear names in the MizerParams object (", 
-                        paste(gear_names, collapse = ", "), 
-                        ") do not match those in the effort vector."))
+            stop("Gear names in the MizerParams object (", 
+                 paste(gear_names, collapse = ", "), 
+                 ") do not match those in the effort vector.")
         }
         # Set up the effort array transposed so we can use the recycling rules
         time_dimnames <- seq(from = t_start, 
@@ -188,16 +188,16 @@ project <- function(object, effort,
     # MizerParams object
     no_gears <- dim(params@catchability)[1]
     if (dim(effort)[2] != no_gears) {
-        stop(paste0("The number of gears in the effort array (length of the second dimension = ", 
-                   dim(effort)[2], 
-                   ") does not equal the number of gears in the MizerParams object (", 
-                   no_gears, ")."))
+        stop("The number of gears in the effort array (length of the second dimension = ", 
+             dim(effort)[2], 
+             ") does not equal the number of gears in the MizerParams object (", 
+             no_gears, ").")
     }
     gear_names <- dimnames(params@catchability)[[1]]
     if (!all(gear_names %in% dimnames(effort)[[2]])) {
-        stop(paste0("Gear names in the MizerParams object (", 
-                    paste(gear_names, collapse = ", "), 
-                    ") do not match those in the effort array."))
+        stop("Gear names in the MizerParams object (", 
+             paste(gear_names, collapse = ", "), 
+             ") do not match those in the effort array.")
     }
     # Sort effort array to match order in MizerParams
     effort <- effort[, gear_names, drop = FALSE]
