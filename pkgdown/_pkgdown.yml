@@ -97,6 +97,7 @@ reference:
   - n_pp
   - final_n
   - final_n_pp
+  - final_idx
   - effort
   - times
 - title: Analysing results

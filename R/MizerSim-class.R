@@ -247,8 +247,9 @@ n_pp <- function(sim) {
 #' Consumer size spectra at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return An array (species x size) holding the consumer number densities at
-#'   the end of the simulation
+#' @return For `final_n()`: An array (species x size) holding the consumer
+#'   number densities at the end of the simulation
+#' @md
 #' @export
 final_n <- function(sim) {
     assert_that(is(sim, "MizerSim"))
@@ -260,12 +261,40 @@ final_n <- function(sim) {
 #' Plankton size spectrum at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return A vector holding the plankton number densities at the end of the
-#'   simulation for all size classes
+#' @return For `final_n_pp()`: A vector holding the plankton number densities at
+#'   the end of the simulation for all size classes
+#' @rdname final_n
+#' @md
 #' @export
 final_n_pp <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp[dim(sim@n_pp)[[1]], ]
+}
+
+#' Time index at end of simulation
+#' 
+#' @param sim A MizerSim object
+#' @return For `final_idx()`: An integer giving the index for extracting the
+#'   results for the final time step
+#' @rdname final_n
+#' @export
+#' @md
+#' @examples
+#' \dontrun{
+#' sim <- project(NS_params, t_max = 12, t_save = 0.5)
+#' idx <- final_idx(sim)
+#' idx
+#' # This coincides with
+#' length(times(sim))
+#' # and corresponds to the final time
+#' times(sim)[idx]
+#' # We can use this index to extract the result at the final time
+#' identical(n(sim)[idx, , ], final_n(sim))
+#' identical(n_pp(sim)[idx, ], final_n_pp(sim))
+#' }
+final_idx <- function(sim) {
+    assert_that(is(sim, "MizerSim"))
+    dim(sim@n_pp)[[1]]
 }
 
 
