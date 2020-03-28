@@ -59,6 +59,6 @@ Note that the other characteristic sizes of the species, like \code{w_mat} and
 }
 
 \seealso{
-See \code{\link{newMultispeciesParams}} for a function that fills
+See \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for a function that fills
 the slots left empty by this function.
 }

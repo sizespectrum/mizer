@@ -24,7 +24,7 @@ double_sigmoid_length(w, l25, l50, l50_right, l25_right, a, b)
 \description{
 A hump-shaped selectivity function with a sigmoidal rise and an independent
 sigmoidal drop-off. This drop-off is what distinguishes this from the
-function \code{\link{sigmoid_length}} and it is intended to model the escape
+function \code{\link[=sigmoid_length]{sigmoid_length()}} and it is intended to model the escape
 of large individuals from the fishing gear.
 }
 \details{

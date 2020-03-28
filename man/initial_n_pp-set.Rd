@@ -16,5 +16,5 @@ initial_n_pp(params)
 spectrum}
 }
 \description{
-Value used as starting value for simulations with `project()`.
+Value used as starting value for simulations with \code{project()}.
 }

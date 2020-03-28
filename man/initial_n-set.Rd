@@ -16,5 +16,5 @@ initial_n(params)
 number densities for the fish spectra.}
 }
 \description{
-Values used as starting values for simulations with `project()`.
+Values used as starting values for simulations with \code{project()}.
 }

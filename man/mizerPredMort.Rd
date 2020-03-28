@@ -23,7 +23,7 @@ with the feeding level.}
 }
 \value{
 A two dimensional array (prey species x prey size) with the predation
-  mortality
+mortality
 }
 \description{
 Calculates the total predation mortality rate \eqn{\mu_{p,i}(w_p)} (in units

@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerFMortGear}
 \alias{mizerFMortGear}
-\title{Get the fishing mortality by time, gear, species and size needed to project 
+\title{Get the fishing mortality by time, gear, species and size needed to project
 standard mizer model}
 \usage{
 mizerFMortGear(params, effort, ...)
@@ -16,7 +16,7 @@ mizerFMortGear(params, effort, ...)
 }
 \value{
 An three dimensional array (gear x species x size) with the
-   fishing mortality
+fishing mortality
 }
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and

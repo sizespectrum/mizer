@@ -26,12 +26,12 @@ ecosystem}
 \item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
 size bins. If not supplied, is calculated internally using
-\code{\link{getERepro}}.}
+\code{\link[=getERepro]{getERepro()}}.}
 
 \item{e}{The energy available for reproduction and growth (optional, although
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
-\code{\link{getEReproAndGrowth}}.}
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
 }
 \value{
 A two dimensional array (prey species x prey size)
@@ -39,7 +39,7 @@ A two dimensional array (prey species x prey size)
 \description{
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
-accounted for. Used by \code{\link{project}} for performing simulations.
+accounted for. Used by \code{\link[=project]{project()}} for performing simulations.
 }
 \examples{
 \dontrun{
@@ -51,7 +51,7 @@ getEGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{getERepro}}, \code{\link{getEReproAndGrowth}}
+\code{\link[=getERepro]{getERepro()}}, \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}
 
 Other rate functions: 
 \code{\link{getEReproAndGrowth}()},

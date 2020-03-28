@@ -1,7 +1,7 @@
 #' Deprecated obsolete function for setting up multispecies parameters
 #' 
 #' This function has been deprecated in favour of the function
-#' \code{\link{newMultispeciesParams}} that sets better default values.
+#' [newMultispeciesParams()] that sets better default values.
 #' 
 #' @inheritParams newMultispeciesParams
 #' @inheritParams newTraitParams
@@ -119,20 +119,20 @@ MizerParams <- set_multispecies_model
 #' Deprecated function for setting up parameters for a trait-based model
 #' 
 #' This function has been deprecated in favour of the function
-#' \code{\link{newTraitParams}} that sets better default values.
+#' [newTraitParams()] that sets better default values.
 #' 
-#' This functions creates a \code{MizerParams} object so that trait-based-type 
+#' This functions creates a `MizerParams` object so that trait-based-type 
 #' models can be easily set up and run. The trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
-#' \code{mizer}. The species-specific parameters are the same for all species, 
+#' `mizer`. The species-specific parameters are the same for all species, 
 #' except for
 #' the asymptotic size, which is considered the most important trait
 #' characterizing a species. Other parameters are related to the asymptotic
 #' size. For example, the size at maturity is given by \code{w_inf * eta}, 
-#' where \code{eta} is
+#' where `eta` is
 #' the same for all species. For the trait-based model the number of species is
 #' not important. For applications of the trait-based model see Andersen &
-#' Pedersen (2010). See the \code{mizer} vignette for more details and examples
+#' Pedersen (2010). See the `mizer` vignette for more details and examples
 #' of the trait-based model.
 #' 
 #' The function has many arguments, all of which have default values. Of
@@ -142,22 +142,22 @@ MizerParams <- set_multispecies_model
 #' 
 #' The stock recruitment relationship is the default Beverton-Holt style. The
 #' maximum recruitment is calculated using equilibrium theory (see Andersen &
-#' Pedersen, 2010) and a multiplier, \code{k0}. Users should adjust \code{k0} to
+#' Pedersen, 2010) and a multiplier, `k0`. Users should adjust `k0` to
 #' get the spectra they want.
 #' 
-#' The factor for the search volume, \code{gamma}, is calculated using the
-#' expected feeding level, \code{f0}.
+#' The factor for the search volume, `gamma`, is calculated using the
+#' expected feeding level, `f0`.
 #' 
 #' Fishing selectivity is modelled as a knife-edge function with one parameter,
-#' \code{knife_edge_size}, which is the size at which species are selected. Each
-#' species can either be fished by the same gear (\code{knife_edge_size} has a
-#' length of 1) or by a different gear (the length of \code{knife_edge_size} has
+#' `knife_edge_size`, which is the size at which species are selected. Each
+#' species can either be fished by the same gear (`knife_edge_size` has a
+#' length of 1) or by a different gear (the length of `knife_edge_size` has
 #' the same length as the number of species and the order of selectivity size is
 #' that of the asymptotic size).
 #' 
-#' The resulting \code{MizerParams} object can be projected forward using
-#' \code{project} like any other \code{MizerParams} object. When projecting
-#' the community model it may be necessary to reduce \code{dt} to 0.1 to avoid
+#' The resulting `MizerParams` object can be projected forward using
+#' `project` like any other `MizerParams` object. When projecting
+#' the community model it may be necessary to reduce `dt` to 0.1 to avoid
 #' any instabilities with the solver. You can check this by plotting the biomass
 #' or abundance through time after the projection.
 #' 
@@ -178,7 +178,7 @@ MizerParams <- set_multispecies_model
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.75.
 #' @param q Exponent of the search volume. Default value is 0.9.
-#' @param eta Factor to calculate \code{w_mat} from asymptotic size.
+#' @param eta Factor to calculate `w_mat` from asymptotic size.
 #' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 4.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
@@ -191,17 +191,17 @@ MizerParams <- set_multispecies_model
 #' @param h Maximum food intake rate. Default value is 30.
 #' @param beta Preferred predator prey mass ratio. Default value is 100.
 #' @param sigma Width of prey size preference. Default value is 1.3.
-#' @param f0 Expected average feeding level. Used to set \code{gamma}, the
+#' @param f0 Expected average feeding level. Used to set `gamma`, the
 #'   factor for the search volume. The default value is 0.5.
-#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and
-#'   \code{kappa} if not supplied.
+#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and
+#'   `kappa` if not supplied.
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   species. Must be of length 1 or no_sp.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the number of species. Default is 1 - no_sp.
-#' @param ... Other arguments to pass to the \code{MizerParams} constructor.
+#' @param ... Other arguments to pass to the `MizerParams` constructor.
 #' 
-#' @return An object of type \code{MizerParams}
+#' @return An object of type `MizerParams`
 #' @references K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 #'   driven by fishing in model marine ecosystems. Proceedings of the Royal
 #'   Society V, Biological Sciences, 1682, 795-802.
@@ -323,7 +323,7 @@ set_trait_model <- function(no_sp = 10,
 #' Deprecated function for setting up parameters for a community-type model
 #' 
 #' This function has been deprecated in favour of the function
-#' \code{\link{newCommunityParams}} that sets better default values.
+#' [newCommunityParams()] that sets better default values.
 #' 
 #' This functions creates a \code{\linkS4class{MizerParams}} object so that
 #' community-type models can be easily set up and run. A community model has
@@ -332,25 +332,25 @@ set_trait_model <- function(no_sp = 10,
 #' community. The plankton spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
 #' constant and set by the user. As recruitment is constant, the proportion of
-#' energy invested in reproduction (the slot \code{psi} of the returned 
-#' \code{MizerParams} object) is set to 0. Standard metabolism has been turned 
-#' off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
+#' energy invested in reproduction (the slot `psi` of the returned 
+#' `MizerParams` object) is set to 0. Standard metabolism has been turned 
+#' off (the parameter `ks` is set to 0). Consequently, the growth rate is 
 #' now determined solely by the assimilated food (see the package vignette for 
 #' more details).
 #' 
 #' The function has many arguments, all of which have default values. The main 
-#' arguments that the users should be concerned with are \code{z0}, 
-#' \code{recruitment}, \code{alpha} and \code{f0} as these determine the average
+#' arguments that the users should be concerned with are `z0`, 
+#' `recruitment`, `alpha` and `f0` as these determine the average
 #' growth rate of the community.
 #' 
 #' Fishing selectivity is modelled as a knife-edge function with one parameter, 
-#' \code{knife_edge_size}, which determines the size at which species are 
+#' `knife_edge_size`, which determines the size at which species are 
 #' selected.
 #' 
-#' The resulting \code{MizerParams} object can be projected forward using 
-#' \code{project()} like any other \code{MizerParams} object. When projecting 
+#' The resulting `MizerParams` object can be projected forward using 
+#' \code{project()} like any other `MizerParams` object. When projecting 
 #' the community model it may be necessary to keep a small time step size
-#' \code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+#' `dt` of around 0.1 to avoid any instabilities with the solver. You can
 #' check for these numerical instabilities by plotting the biomass or abundance
 #' through time after the projection.
 #' 
@@ -358,7 +358,7 @@ set_trait_model <- function(no_sp = 10,
 #' @param alpha The assimilation efficiency of the community. Default value 0.2
 #' @param f0 The average feeding level of individuals who feed on a power-law 
 #'   spectrum. This value is used to calculate the search rate parameter 
-#'   \code{gamma} (see the package vignette). Default value is 0.7.
+#'   `gamma` (see the package vignette). Default value is 0.7.
 #' @param h The maximum food intake rate. Default value is 10.
 #' @param beta The preferred predator prey mass ratio. Default value is 100.
 #' @param sigma The width of the prey preference. Default value is 2.0.
@@ -369,24 +369,24 @@ set_trait_model <- function(no_sp = 10,
 #' @param lambda The exponent of the plankton spectrum. Default value is 2 + q
 #'   - n.
 #' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 10.
-#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
-#'   \code{kappa} if not supplied.
+#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
+#'   `kappa` if not supplied.
 #' @param recruitment The constant recruitment in the smallest size class of the
 #'   community spectrum. This should be set so that the community spectrum 
-#'   continues the plankton spectrum. Default value = \code{kappa} * 
-#'   \code{min_w}^-\code{lambda}.
+#'   continues the plankton spectrum. Default value = `kappa` * 
+#'   `min_w`^-`lambda`.
 #' @param rec_mult Additional multiplier for the constant recruitment. Default 
 #'   value is 1.
 #' @param knife_edge_size The size at the edge of the knife-selectivity 
 #'   function. Default value is 1000.
 #' @param knife_is_min Is the knife-edge selectivity function selecting above 
 #'   (TRUE) or below (FALSE) the edge. Default is TRUE.
-#' @param max_w The maximum size of the community. The \code{w_inf} of the 
+#' @param max_w The maximum size of the community. The `w_inf` of the 
 #'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
 #' @param min_w_pp The smallest size of the plankton spectrum. 
-#' @param ... Other arguments to pass to the \code{MizerParams} constructor.
+#' @param ... Other arguments to pass to the `MizerParams` constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
@@ -473,7 +473,7 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments (currently unused)
 #'   
 #' @return A two dimensional array (predator species x predator size)
-#' @seealso \code{\link{project}}
+#' @seealso [project()]
 #' @export
 #' @examples
 #' \dontrun{

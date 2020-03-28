@@ -24,10 +24,10 @@ column in the \code{species_params}.}
 }
 \value{
 MizerParams object with updated metabolic rate. Because of the way
-  the R language works, `setMetabolicRate()` does not make the changes to the
-  params object that you pass to it but instead returns a new params object.
-  So to affect the change you call the function in the form
-  `params <- setMetabolicRate(params, ...)`.
+the R language works, \code{setMetabolicRate()} does not make the changes to the
+params object that you pass to it but instead returns a new params object.
+So to affect the change you call the function in the form
+\code{params <- setMetabolicRate(params, ...)}.
 }
 \description{
 Sets the rate at which energy is used for metabolism and activity
@@ -36,7 +36,7 @@ Sets the rate at which energy is used for metabolism and activity
 
 The metabolic rate is subtracted from the energy income rate to calculate
 the rate at which energy is available for growth and reproduction, see
-\code{\link{getEReproAndGrowth}}. It is measured in grams/year.
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}. It is measured in grams/year.
 
 If the \code{metab} argument is not supplied, then for each species the
 metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to

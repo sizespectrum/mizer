@@ -54,12 +54,12 @@ for the y axis. Use NA to refer to the existing minimum or maximum. Any
 values below 1e-20 are always cut off.}
 
 \item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass 
+raised to \code{power}. The default \code{power = 1} gives the biomass
 density, whereas \code{power = 2} gives the biomass density with respect
 to logarithmic size bins.}
 
 \item{biomass}{Obsolete. Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and 
+\code{biomass = TRUE} is equivalent to \code{power=1} and
 \code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{total}{A boolean value that determines whether the total over all
@@ -101,7 +101,7 @@ plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
 
 }
 \seealso{
-\code{\link{plotting_functions}}
+\code{\link[=plotting_functions]{plotting_functions()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

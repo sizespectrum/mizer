@@ -7,17 +7,17 @@
 setInitialValues(params, sim)
 }
 \arguments{
-\item{params}{A \code{\link{MizerParams}} object}
+\item{params}{A \code{\link[=MizerParams]{MizerParams()}} object}
 
 \item{sim}{A \code{MizerSim} object.}
 }
 \value{
-The `params` object with updated initial values, taken from the
-  values at the final time of the simulation in `sim`. Because of the way the
-  R language works, `setInitialValues()` does not make the changes to the
-  params object that you pass to it but instead returns a new params object.
-  So to affect the change you call the function in the form
-  `params <- setInitialValues(params, sim)`.
+The \code{params} object with updated initial values, taken from the
+values at the final time of the simulation in \code{sim}. Because of the way the
+R language works, \code{setInitialValues()} does not make the changes to the
+params object that you pass to it but instead returns a new params object.
+So to affect the change you call the function in the form
+\code{params <- setInitialValues(params, sim)}.
 }
 \description{
 Takes the final values from a simulation in a MizerSim object and stores them

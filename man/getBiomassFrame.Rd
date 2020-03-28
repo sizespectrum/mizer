@@ -47,14 +47,14 @@ over \code{max_w}.}
   }}
 }
 \value{
-A data frame that can be used in \code{\link{displayFrames}}
+A data frame that can be used in \code{\link[=displayFrames]{displayFrames()}}
 }
 \description{
 After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits 
-(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
-returns a dataframe that can be displayed with 
-\code{\link{displayFrames}}.
+against time. The biomass is calculated within user defined size limits
+(min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}). This function
+returns a dataframe that can be displayed with
+\code{\link[=displayFrames]{displayFrames()}}.
 }
 \seealso{
 Other frame functions: 

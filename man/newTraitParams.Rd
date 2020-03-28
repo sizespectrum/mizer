@@ -94,7 +94,7 @@ coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
 \item{gamma}{Volumetric search rate. If not provided, default is determined
-by \code{\link{get_gamma_default}} using the value of \code{f0}.}
+by \code{\link[=get_gamma_default]{get_gamma_default()}} using the value of \code{f0}.}
 
 \item{ext_mort_prop}{The proportion of the total mortality that comes from
 external mortality, i.e., from sources not explicitly modelled. A number in
@@ -140,11 +140,11 @@ particular interest to the user are the number of species in the model and
 the minimum and maximum asymptotic sizes.
 
 The characteristic weights of the smallest species are defined by
-\code{min_w} (egg size), \code{min_w_mat} (maturity size) and 
-\code{min_w_inf} (asymptotic size). The asymptotic sizes of 
+\code{min_w} (egg size), \code{min_w_mat} (maturity size) and
+\code{min_w_inf} (asymptotic size). The asymptotic sizes of
 the \code{no_sp} species
 are logarithmically evenly spaced, ranging from \code{min_w_inf} to
-\code{max_w_inf}. 
+\code{max_w_inf}.
 Similarly the maturity sizes of the species are logarithmically evenly
 spaced, so that the ratio \code{eta} between maturity size and asymptotic
 size is the same for all species. If \code{egg_size_scaling = TRUE} then also

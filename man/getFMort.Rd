@@ -24,9 +24,9 @@ species it might make presentation of results easier. Default is TRUE}
 }
 \value{
 An array. If the effort argument has a time dimension, or object is
-  of class \code{MizerSim}, the output array has three dimensions (time x
-  species x size). If the effort argument does not have a time dimension, the
-  output array has two dimensions (species x size).
+of class \code{MizerSim}, the output array has three dimensions (time x
+species x size). If the effort argument does not have a time dimension, the
+output array has two dimensions (species x size).
 }
 \description{
 Calculates the total fishing mortality  (in units 1/year) from all gears by

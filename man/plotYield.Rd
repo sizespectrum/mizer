@@ -29,7 +29,7 @@ default all species are plotted.}
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Default is FALSE}
 
-\item{log}{Boolean whether yield should be plotted on a logarithmic axis. 
+\item{log}{Boolean whether yield should be plotted on a logarithmic axis.
 Defaults to true.}
 
 \item{highlight}{Name or vector of names of the species to be highlighted.}
@@ -40,9 +40,9 @@ Defaults to true.}
 A plot
 }
 \description{
-After running a projection, the total yield of each species across all 
+After running a projection, the total yield of each species across all
 fishing gears can be plotted against time. The yield is obtained with
-\code{\link{getYield}}.
+\code{\link[=getYield]{getYield()}}.
 }
 \examples{
 
@@ -57,7 +57,7 @@ plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 
 }
 \seealso{
-\code{\link{plotting_functions}},  \code{\link{getYield}}
+\code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getYield]{getYield()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

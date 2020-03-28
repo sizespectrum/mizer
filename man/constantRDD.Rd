@@ -11,15 +11,15 @@ constantRDD(rdi, species_params, ...)
 species.}
 
 \item{species_params}{A species parameter dataframe. Must contain a column
-`constant_reproduction`.}
+\code{constant_reproduction}.}
 
 \item{...}{Unused}
 }
 \value{
-Vector `species_params$constant_reproduction`
+Vector \code{species_params$constant_reproduction}
 }
 \description{
-Simply returns the value from `species_params$constant_reproduction`.
+Simply returns the value from \code{species_params$constant_reproduction}.
 }
 \seealso{
 Other functions calculating density-dependent reproduction rate: 

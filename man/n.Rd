@@ -11,7 +11,7 @@ n(sim)
 }
 \value{
 A three-dimensional array (time x species x size) with the number
-  density of consumers
+density of consumers
 }
 \description{
 Fetch the simulation results for the consumer size spectra over time.

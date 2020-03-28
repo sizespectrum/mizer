@@ -28,8 +28,8 @@ set_community_model(
 )
 }
 \arguments{
-\item{max_w}{The maximum size of the community. The \code{w_inf} of the 
-species used to represent the community is set to this value. The 
+\item{max_w}{The maximum size of the community. The \code{w_inf} of the
+species used to represent the community is set to this value. The
 default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
@@ -54,29 +54,31 @@ default value is 1e6.}
 is 1000.}
 
 \item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
-- n.}
+\itemize{
+\item n.
+}}
 
-\item{f0}{The average feeding level of individuals who feed on a power-law 
-spectrum. This value is used to calculate the search rate parameter 
+\item{f0}{The average feeding level of individuals who feed on a power-law
+spectrum. This value is used to calculate the search rate parameter
 \code{gamma} (see the package vignette). Default value is 0.7.}
 
 \item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 10.}
 
-\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and 
+\item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and
 \code{kappa} if not supplied.}
 
-\item{knife_edge_size}{The size at the edge of the knife-selectivity 
+\item{knife_edge_size}{The size at the edge of the knife-selectivity
 function. Default value is 1000.}
 
-\item{knife_is_min}{Is the knife-edge selectivity function selecting above 
+\item{knife_is_min}{Is the knife-edge selectivity function selecting above
 (TRUE) or below (FALSE) the edge. Default is TRUE.}
 
 \item{recruitment}{The constant recruitment in the smallest size class of the
-community spectrum. This should be set so that the community spectrum 
-continues the plankton spectrum. Default value = \code{kappa} * 
+community spectrum. This should be set so that the community spectrum
+continues the plankton spectrum. Default value = \code{kappa} *
 \code{min_w}^-\code{lambda}.}
 
-\item{rec_mult}{Additional multiplier for the constant recruitment. Default 
+\item{rec_mult}{Additional multiplier for the constant recruitment. Default
 value is 1.}
 
 \item{...}{Other arguments to pass to the \code{MizerParams} constructor.}
@@ -86,7 +88,7 @@ An object of type \code{\linkS4class{MizerParams}}
 }
 \description{
 This function has been deprecated in favour of the function
-\code{\link{newCommunityParams}} that sets better default values.
+\code{\link[=newCommunityParams]{newCommunityParams()}} that sets better default values.
 }
 \details{
 This functions creates a \code{\linkS4class{MizerParams}} object so that
@@ -96,23 +98,23 @@ several features that distinguish it from the food-web type models. Only one
 community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot \code{psi} of the returned 
-\code{MizerParams} object) is set to 0. Standard metabolism has been turned 
-off (the parameter \code{ks} is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
+energy invested in reproduction (the slot \code{psi} of the returned
+\code{MizerParams} object) is set to 0. Standard metabolism has been turned
+off (the parameter \code{ks} is set to 0). Consequently, the growth rate is
+now determined solely by the assimilated food (see the package vignette for
 more details).
 
-The function has many arguments, all of which have default values. The main 
-arguments that the users should be concerned with are \code{z0}, 
+The function has many arguments, all of which have default values. The main
+arguments that the users should be concerned with are \code{z0},
 \code{recruitment}, \code{alpha} and \code{f0} as these determine the average
 growth rate of the community.
 
-Fishing selectivity is modelled as a knife-edge function with one parameter, 
-\code{knife_edge_size}, which determines the size at which species are 
+Fishing selectivity is modelled as a knife-edge function with one parameter,
+\code{knife_edge_size}, which determines the size at which species are
 selected.
 
-The resulting \code{MizerParams} object can be projected forward using 
-\code{project()} like any other \code{MizerParams} object. When projecting 
+The resulting \code{MizerParams} object can be projected forward using
+\code{project()} like any other \code{MizerParams} object. When projecting
 the community model it may be necessary to keep a small time step size
 \code{dt} of around 0.1 to avoid any instabilities with the solver. You can
 check for these numerical instabilities by plotting the biomass or abundance
@@ -127,9 +129,9 @@ plotSpectra(sim)
 }
 }
 \references{
-K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-  individual efficiencies of size-structured communities, Proceedings of the 
-  Royal Society, 276, 109-114
+K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+individual efficiencies of size-structured communities, Proceedings of the
+Royal Society, 276, 109-114
 }
 \seealso{
 Other deprecated functions: 

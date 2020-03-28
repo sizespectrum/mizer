@@ -18,15 +18,15 @@ predation kernel".}
 }
 \value{
 A MizerParams object with updated predation kernel. Because of the
-  way the R language works, `setPredKernel()` does not make the changes
-  to the params object that you pass to it but instead returns a new params
-  object. So to affect the change you call the function in the form
-  `params <- setPredKernel(params, ...)`.
+way the R language works, \code{setPredKernel()} does not make the changes
+to the params object that you pass to it but instead returns a new params
+object. So to affect the change you call the function in the form
+\code{params <- setPredKernel(params, ...)}.
 }
 \description{
 The predation kernel determines the distribution of prey sizes that a
-predator feeds on. It is used in \code{\link{getEncounter}} when calculating
-the rate at which food is encountered and in \code{\link{getPredRate}} when
+predator feeds on. It is used in \code{\link[=getEncounter]{getEncounter()}} when calculating
+the rate at which food is encountered and in \code{\link[=getPredRate]{getPredRate()}} when
 calculating the rate at which a prey is predated upon. The predation kernel
 can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
@@ -42,10 +42,10 @@ mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
 The default pred_kernel_type is "lognormal". This will call the function
-\code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
+\code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
-\code{\link{box_pred_kernel}}, and "power_law", implemented by the function
-\code{\link{power_law_pred_kernel}}. These functions require certain species
+\code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
+\code{\link[=power_law_pred_kernel]{power_law_pred_kernel()}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
 are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
 and \code{ppmr_max}. They are explained in the help pages for the kernel
@@ -55,7 +55,7 @@ mizer will issue an error message.
 
 You can use any other string as the type. If for example you choose "my" then
 you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link{lognormal_pred_kernel}}.
+existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
@@ -64,7 +64,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link{getPredKernel}} function.
+\code{\link[=getPredKernel]{getPredKernel()}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 
@@ -78,7 +78,7 @@ predator/prey mass ratio only allows mizer to use fast Fourier transform
 methods to significantly reduce the running time of simulations.
 
 The order of the predator species in \code{pred_kernel} should be the same
-as the order in the species params dataframe in the `params` object. If you
+as the order in the species params dataframe in the \code{params} object. If you
 supply a named array then the function will check the order and warn if it is
 different.
 }

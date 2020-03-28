@@ -28,7 +28,7 @@ Vector containing plankton spectrum at next timestep
 }
 \description{
 This function can be used instead of the standard
-\code{\link{plankton_semichemostat}} in order to keep the Plankton
+\code{\link[=plankton_semichemostat]{plankton_semichemostat()}} in order to keep the Plankton
 spectrum constant over time.
 }
 \examples{

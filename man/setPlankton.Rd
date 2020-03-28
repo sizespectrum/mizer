@@ -47,7 +47,7 @@ plankton_params(params) <- value
 
 \item{n}{Allometric growth exponent for plankton}
 
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
+\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum.
 Default is 10 g.}
 
 \item{plankton_dynamics}{Function that determines plankton dynamics by
@@ -58,10 +58,10 @@ state.}
 }
 \value{
 A MizerParams object with updated plankton parameters. Because of the
-  way the R language works, `setPlankton()` does not make the changes to the
-  params object that you pass to it but instead returns a new params object.
-  So to affect the change you call the function in the form
-  `params <- setPlankton(params, ...)`.
+way the R language works, \code{setPlankton()} does not make the changes to the
+params object that you pass to it but instead returns a new params object.
+So to affect the change you call the function in the form
+\code{params <- setPlankton(params, ...)}.
 }
 \description{
 Sets the intrinsic plankton growth rate and the intrinsic plankton carrying
@@ -72,9 +72,9 @@ dynamics
 
 By default, mizer uses a semichemostat model to describe the plankton
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link{plankton_semichemostat}}. You can change the
+by the function \code{\link[=plankton_semichemostat]{plankton_semichemostat()}}. You can change the
 plankton dynamics by writing your own function, modelled on
-\code{\link{plankton_semichemostat}}, and then passing the name of your
+\code{\link[=plankton_semichemostat]{plankton_semichemostat()}}, and then passing the name of your
 function in the \code{plankton_dynamics} argument.
 
 The \code{r_plankton} argument is a vector specifying the intrinsic plankton
@@ -85,7 +85,7 @@ The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_plankton}
 and \code{n} arguments.
 
 The \code{K_plankton} argument is a vector specifying the intrinsic plankton
-carrying capacity for each size class. If it is not supplied, then the 
+carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.

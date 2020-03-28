@@ -11,7 +11,7 @@ times(sim)
 }
 \value{
 A numeric vectors of the times (in years) at which simulation results
-  have been stored in the MizerSim object.
+have been stored in the MizerSim object.
 }
 \description{
 Times for which simulation results are available

@@ -76,8 +76,8 @@ A plot
 }
 \description{
 After running a projection, the biomass of each species can be plotted
-against time. The biomass is calculated within user defined size limits 
-(min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}).
+against time. The biomass is calculated within user defined size limits
+(min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}).
 }
 \examples{
 # Set up example MizerParams and MizerSim objects
@@ -92,7 +92,7 @@ plotBiomass(sim, y_ticks = 3)
 
 }
 \seealso{
-\code{\link{plotting_functions}}, \code{\link{getBiomass}}
+\code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getBiomass]{getBiomass()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

@@ -58,7 +58,7 @@ explicitly.}
 }
 \description{
 This function has been deprecated in favour of the function
-\code{\link{newMultispeciesParams}} that sets better default values.
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} that sets better default values.
 }
 \seealso{
 Other deprecated functions: 

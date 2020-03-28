@@ -93,9 +93,9 @@ proportion of consumed energy that a mature individual allocates to
 reproduction for each species at size. If not supplied, a default is set as
 described in the section "Setting reproduction".}
 
-\item{RDD}{The name of the function calculating the density-dependent 
-reproduction rate from the density-independent rate. Defaults to 
-"\code{\link{BevertonHoltRDD}}".}
+\item{RDD}{The name of the function calculating the density-dependent
+reproduction rate from the density-independent rate. Defaults to
+"\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
 \item{r_plankton}{Optional. Vector of plankton intrinsic birth rates}
 
@@ -110,7 +110,7 @@ species by including a \code{n} column in the \code{species_params}.}
 
 \item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
 
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum. 
+\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum.
 Default is 10 g.}
 
 \item{plankton_dynamics}{Function that determines plankton dynamics by
@@ -128,8 +128,8 @@ An object of type \linkS4class{MizerParams}
 Sets up a multi-species size spectrum model by filling all slots in the
 \linkS4class{MizerParams} object based on user-provided or default
 parameters. It does this by creating an empty MizerParams object with
-\code{\link{emptyParams}} and then filling the slots by passing its arguments
-to \code{\link{setParams}}. There is a long list of arguments, but almost
+\code{\link[=emptyParams]{emptyParams()}} and then filling the slots by passing its arguments
+to \code{\link[=setParams]{setParams()}}. There is a long list of arguments, but almost
 all of them have sensible default values. All arguments are described in more
 details in the sections below the list.
 }
@@ -141,9 +141,9 @@ of the parameter data frame is a parameter and each row has the values of the
 parameters for one of the species in the model.
 
 There are two essential columns that must be included in the species
-parameter data.frame and that do not have default values: the 
+parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
-species and the \code{w_inf} column with the asymptotic sizes of the species. 
+species and the \code{w_inf} column with the asymptotic sizes of the species.
 
 The species_params dataframe also needs to contain the parameters needed
 by any predation kernel function or size selectivity function. This will
@@ -218,8 +218,8 @@ of the productive layer. In that respect, case 2 is a bit cumbersome.
 
 
 The species interaction matrix \eqn{\theta_{ij}}, is used when calculating
-the food encounter rate in \code{\link{getEncounter}} and the predation
-mortality rate in \code{\link{getPredMort}}. Its entries are dimensionless
+the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and the predation
+mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are dimensionless
 numbers between 0 and 1 that characterise the strength at which predator
 species \eqn{i} predates on prey species \eqn{j}.
 
@@ -248,10 +248,10 @@ mass, not on the two masses independently. The shape of that kernel is then
 determined by the \code{pred_kernel_type} column in species_params.
 
 The default pred_kernel_type is "lognormal". This will call the function
-\code{\link{lognormal_pred_kernel}} to calculate the predation kernel.
+\code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
-\code{\link{box_pred_kernel}}, and "power_law", implemented by the function
-\code{\link{power_law_pred_kernel}}. These functions require certain species
+\code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
+\code{\link[=power_law_pred_kernel]{power_law_pred_kernel()}}. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
 are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
 and \code{ppmr_max}. They are explained in the help pages for the kernel
@@ -261,7 +261,7 @@ mizer will issue an error message.
 
 You can use any other string as the type. If for example you choose "my" then
 you need to define a function \code{my_pred_kernel} that you can model on the
-existing functions like \code{\link{lognormal_pred_kernel}}.
+existing functions like \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}.
 
 When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
@@ -270,7 +270,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link{getPredKernel}} function.
+\code{\link[=getPredKernel]{getPredKernel()}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 
@@ -284,7 +284,7 @@ predator/prey mass ratio only allows mizer to use fast Fourier transform
 methods to significantly reduce the running time of simulations.
 
 The order of the predator species in \code{pred_kernel} should be the same
-as the order in the species params dataframe in the `params` object. If you
+as the order in the species params dataframe in the \code{params} object. If you
 supply a named array then the function will check the order and warn if it is
 different.
 }
@@ -293,8 +293,8 @@ different.
 
 The search volume \eqn{\gamma_i(w)} of an individual of species \eqn{i}
 and weight \eqn{w} multiplies the predation kernel when
-calculating the encounter rate in \code{\link{getEncounter}} and the 
-predation rate in \code{\link{getPredRate}}.
+calculating the encounter rate in \code{\link[=getEncounter]{getEncounter()}} and the
+predation rate in \code{\link[=getPredRate]{getPredRate()}}.
 
 The name "search volume" is a bit misleading, because \eqn{\gamma_i(w)} does
 not have units of volume. It is simply a parameter that determines the rate
@@ -304,14 +304,14 @@ If you have chose to work with total abundances, then it is a rate with units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.
 
-If the \code{search_vol} argument is not supplied, then the search volume is 
+If the \code{search_vol} argument is not supplied, then the search volume is
 set to
-\deqn{\gamma_i(w) = \gamma_i w^q_i.} 
+\deqn{\gamma_i(w) = \gamma_i w^q_i.}
 The values of \eqn{\gamma_i} (the search volume at 1g) and \eqn{q_i} (the
 allometric exponent of the search volume) are taken from the \code{gamma} and
 \code{q} columns in the species parameter dataframe. If the \code{gamma}
 column is not supplied in the species parameter dataframe, a default is
-calculated by the \code{\link{get_gamma_default}} function. Note that only
+calculated by the \code{\link[=get_gamma_default]{get_gamma_default()}} function. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
 \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
 }
@@ -320,15 +320,15 @@ for predators of size \eqn{w = 1} gram is the value of the species parameter
 
 The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
 weight \eqn{w} determines the feeding level, calculated with
-\code{\link{getFeedingLevel}}. It is measured in grams/year.
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}. It is measured in grams/year.
 
 If the \code{intake_max} argument is not supplied, then the maximum intake
-rate is set to \deqn{h_i(w) = h_i w^n_i.} 
+rate is set to \deqn{h_i(w) = h_i w^n_i.}
 The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link{get_h_default}} function, using \code{f0} and
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using \code{f0} and
 the \code{k_vb} column, if they are supplied.
 
 If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
@@ -338,7 +338,7 @@ If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.
 
 The metabolic rate is subtracted from the energy income rate to calculate
 the rate at which energy is available for growth and reproduction, see
-\code{\link{getEReproAndGrowth}}. It is measured in grams/year.
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}. It is measured in grams/year.
 
 If the \code{metab} argument is not supplied, then for each species the
 metabolic rate \eqn{k(w)} for an individual of size \eqn{w} is set to
@@ -364,14 +364,14 @@ with units 1/year.
 
 The \code{z0} argument allows you to specify an external mortality rate
 that depends on species and body size. You can see an example of this in
-the Examples section of the help page for \code{\link{setExtMort}}.
+the Examples section of the help page for \code{\link[=setExtMort]{setExtMort()}}.
 
 If the \code{z0} argument is not supplied, then the external mortality
 is assumed to depend only on the species, not on the
 size of the individual: \eqn{\mu_{b.i}(w) = z_{0.i}}. The value of the
 constant \eqn{z_0} for each species is taken from the \code{z0} column of the
 species_params data frame, if that column exists. Otherwise it is calculated
-as 
+as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 }
 
@@ -379,18 +379,18 @@ as
 
 
 \subsection{Investment}{
-For each species and at each size, the proportion of the available energy 
+For each species and at each size, the proportion of the available energy
 that is invested into reproduction is the product of two factors: the
 proportion \code{maturity} of individuals that are mature and the proportion
-\code{repro_prop} of the energy available to a mature individual that is 
+\code{repro_prop} of the energy available to a mature individual that is
 invested into reproduction.
 
-If the \code{maturity} argument is not supplied, then it is set to a sigmoidal 
+If the \code{maturity} argument is not supplied, then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 \deqn{{\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.}{
   maturity(w) = [1+(w/w_mat)^(-U)]^(-1)}
 (To avoid clutter, we are not showing the species index in the equations.)
-The maturity weights are taken from the \code{w_mat} column of the 
+The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
 asymptotic weight in the \code{w_inf} column.
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
@@ -400,7 +400,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 \eqn{U = \log(3) / \log(w_{mat} / w_{25}).}{U = log(3) / log(w_mat / w_25).}
 
 The sigmoidal function given above would strictly reach 1 only asymptotically.
-Mizer instead sets the function equal to 1 already at the species' 
+Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory \code{w_inf} column in the
 \code{species_params} data frame.
 
@@ -410,9 +410,9 @@ allometric form
   repro_prop = (w/w_inf)^(m - n).}
 Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 the exponent \eqn{m} determines the scaling of the investment into
-reproduction for mature individuals. By default it is chosen to be 
-\eqn{m = 1} so that the rate at which energy is invested into reproduction 
-scales linearly with the size. This default can be overridden by including a 
+reproduction for mature individuals. By default it is chosen to be
+\eqn{m = 1} so that the rate at which energy is invested into reproduction
+scales linearly with the size. This default can be overridden by including a
 column \code{m} in the species parameter dataframe. The asymptotic sizes
 are taken from the compulsory \code{w_inf} column in the species_params
 data frame.
@@ -424,7 +424,7 @@ reproduction that results in egg biomass, is set from the \code{erepro}
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-\code{\link{getRDI}}.
+\code{\link[=getRDI]{getRDI()}}.
 }
 
 \subsection{Density dependence}{
@@ -440,13 +440,13 @@ Finally, to encode all the density dependence in the stock-recruitment
 relationship that is not already included in the other two sources of density
 dependence, mizer puts the the density-independent rate of egg production
 through a density-dependence function. The result is returned by
-\code{\link{getRDD}}. The name of the density-dependence function is
+\code{\link[=getRDD]{getRDD()}}. The name of the density-dependence function is
 specified by the \code{RDD} argument. The default is the Beverton-Holt
-function \code{\link{BevertonHoltRDD}}, which requires an \code{R_max} column
+function \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}, which requires an \code{R_max} column
 in the species_params data frame giving the maximum egg production rate. If
 this column does not exist, it is initialised to \code{Inf}, leading to no
 density-dependence. Other functions provided by mizer are
-\code{\link{RickerRDD}} and \code{\link{SheperdRDD}} and you can easily use
+\code{\link[=RickerRDD]{RickerRDD()}} and \code{\link[=SheperdRDD]{SheperdRDD()}} and you can easily use
 these as models for writing your own functions.
 }
 }
@@ -525,9 +525,9 @@ an effort that varies through time.
 
 By default, mizer uses a semichemostat model to describe the plankton
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link{plankton_semichemostat}}. You can change the
+by the function \code{\link[=plankton_semichemostat]{plankton_semichemostat()}}. You can change the
 plankton dynamics by writing your own function, modelled on
-\code{\link{plankton_semichemostat}}, and then passing the name of your
+\code{\link[=plankton_semichemostat]{plankton_semichemostat()}}, and then passing the name of your
 function in the \code{plankton_dynamics} argument.
 
 The \code{r_plankton} argument is a vector specifying the intrinsic plankton
@@ -538,7 +538,7 @@ The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_plankton}
 and \code{n} arguments.
 
 The \code{K_plankton} argument is a vector specifying the intrinsic plankton
-carrying capacity for each size class. If it is not supplied, then the 
+carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.

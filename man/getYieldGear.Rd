@@ -25,7 +25,7 @@ getYieldGear(sim)
 }
 }
 \seealso{
-\code{\link{getYield}}
+\code{\link[=getYield]{getYield()}}
 
 Other summary functions: 
 \code{\link{getBiomass}()},

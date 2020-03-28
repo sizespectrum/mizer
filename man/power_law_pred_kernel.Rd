@@ -29,7 +29,7 @@ predation kernel.}
 }
 \value{
 A vector giving the value of the predation kernel at each of the
-  predator/prey mass ratios in the \code{ppmr} argument.
+predator/prey mass ratios in the \code{ppmr} argument.
 }
 \description{
 This predation kernel is a power-law, with sigmoidal cut-offs at large and

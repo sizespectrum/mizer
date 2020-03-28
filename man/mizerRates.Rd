@@ -36,20 +36,20 @@ Note that this list holds the functions themselves, not their names.}
 }
 \value{
 A list with the following components:
-  \itemize{
-    \item encounter from \code{\link{mizerEncounter}}
-    \item feeding_level from \code{\link{mizerFeedingLevel}}
-    \item pred_rate from \code{\link{mizerPredRate}}
-    \item pred_mort from \code{\link{mizerPredMort}}
-    \item f_mort from \code{\link{mizerFMort}}
-    \item mort from \code{\link{mizerMort}}
-    \item plankton_mort from \code{\link{mizerPlanktonMort}}
-    \item e from \code{\link{mizerEReproAndGrowth}}
-    \item e_repro from \code{\link{mizerERepro}}
-    \item e_growth from \code{\link{mizerEGrowth}}
-    \item rdi from \code{\link{mizerRDI}}
-    \item rdd 
-  }
+\itemize{
+\item encounter from \code{\link[=mizerEncounter]{mizerEncounter()}}
+\item feeding_level from \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}
+\item pred_rate from \code{\link[=mizerPredRate]{mizerPredRate()}}
+\item pred_mort from \code{\link[=mizerPredMort]{mizerPredMort()}}
+\item f_mort from \code{\link[=mizerFMort]{mizerFMort()}}
+\item mort from \code{\link[=mizerMort]{mizerMort()}}
+\item plankton_mort from \code{\link[=mizerPlanktonMort]{mizerPlanktonMort()}}
+\item e from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
+\item e_repro from \code{\link[=mizerERepro]{mizerERepro()}}
+\item e_growth from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
+\item rdi from \code{\link[=mizerRDI]{mizerRDI()}}
+\item rdd
+}
 }
 \description{
 Calls other rate functions in sequence and collects the results in a list.

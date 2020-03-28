@@ -24,7 +24,7 @@ ecosystem}
 
 \item{rdi}{A vector of density-independent reproduction rates for each
 species. If not specified, rdi is calculated internally using
-\code{\link{getRDI}}.}
+\code{\link[=getRDI]{getRDI()}}.}
 }
 \value{
 A numeric vector the length of the number of species.
@@ -33,10 +33,10 @@ A numeric vector the length of the number of species.
 Calculates the density dependent rate of egg production \eqn{R_i} (units
 1/year) for each species. This is the flux entering the smallest size class
 of each species. The density dependent rate is the density independent
-rate obtained with \code{\link{getRDI}} after it has been put through the 
+rate obtained with \code{\link[=getRDI]{getRDI()}} after it has been put through the
 density dependence function. This is the Beverton-Holt function
-\code{\link{BevertonHoltRDD}} by default, but this can be changed. See
-\code{\link{setReproduction}} for more details.
+\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}} by default, but this can be changed. See
+\code{\link[=setReproduction]{setReproduction()}} for more details.
 }
 \examples{
 \dontrun{
@@ -48,7 +48,7 @@ getRDD(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{getRDI}}
+\code{\link[=getRDI]{getRDI()}}
 
 Other rate functions: 
 \code{\link{getEGrowth}()},

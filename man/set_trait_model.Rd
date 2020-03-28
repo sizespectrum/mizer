@@ -106,17 +106,17 @@ An object of type \code{MizerParams}
 }
 \description{
 This function has been deprecated in favour of the function
-\code{\link{newTraitParams}} that sets better default values.
+\code{\link[=newTraitParams]{newTraitParams()}} that sets better default values.
 }
 \details{
-This functions creates a \code{MizerParams} object so that trait-based-type 
+This functions creates a \code{MizerParams} object so that trait-based-type
 models can be easily set up and run. The trait-based size spectrum model can
 be derived as a simplification of the general size-based model used in
-\code{mizer}. The species-specific parameters are the same for all species, 
+\code{mizer}. The species-specific parameters are the same for all species,
 except for
 the asymptotic size, which is considered the most important trait
 characterizing a species. Other parameters are related to the asymptotic
-size. For example, the size at maturity is given by \code{w_inf * eta}, 
+size. For example, the size at maturity is given by \code{w_inf * eta},
 where \code{eta} is
 the same for all species. For the trait-based model the number of species is
 not important. For applications of the trait-based model see Andersen &
@@ -151,8 +151,8 @@ or abundance through time after the projection.
 }
 \references{
 K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
-  driven by fishing in model marine ecosystems. Proceedings of the Royal
-  Society V, Biological Sciences, 1682, 795-802.
+driven by fishing in model marine ecosystems. Proceedings of the Royal
+Society V, Biological Sciences, 1682, 795-802.
 }
 \seealso{
 Other deprecated functions: 

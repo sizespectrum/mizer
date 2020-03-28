@@ -30,8 +30,8 @@ object. Any object from version 0.4 onwards can be upgraded.
 \section{Backwards compatibility}{
 
 The internal numerics in mizer have changed over time, so there may be small
-discrepancies between the results obtained with the upgraded params object
-in the new version and the original params object in the old version. If it
+discrepancies between the results obtained with the upgraded object
+in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
 with\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")

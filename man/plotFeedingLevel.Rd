@@ -49,7 +49,7 @@ plotted. Default FALSE.}
 A plot
 }
 \description{
-After running a projection, plot the feeding level of each species by size. 
+After running a projection, plot the feeding level of each species by size.
 The feeding level is averaged over the specified time range (a single value
 for the time range can be used).
 }
@@ -59,7 +59,7 @@ over the specified time range (a single value for the time range can be used
 to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial feeding level is plotted.
 
-If `include_critical = TRUE` then the critical feeding level (the feeding
+If \code{include_critical = TRUE} then the critical feeding level (the feeding
 level at which the intake just covers the metabolic cost) is also plotted,
 with a thinner line. This line should always stay below the line of the
 actual feeding level, because the species would stop growing at any point
@@ -74,7 +74,7 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
 
 }
 \seealso{
-\code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
+\code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

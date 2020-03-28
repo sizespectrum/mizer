@@ -10,12 +10,12 @@ default_pred_kernel_params(object)
 \item{object}{Either a MizerParams object or a species parameter data frame}
 }
 \value{
-The `object` with updated columns in the species params data frame.
+The \code{object} with updated columns in the species params data frame.
 }
 \description{
 If the predation kernel type has not been specified for a species, then it
 is set to "lognormal" and the default values are set for the parameters
-`beta` and `sigma`.
+\code{beta} and \code{sigma}.
 }
 \concept{helper}
 \keyword{internal}

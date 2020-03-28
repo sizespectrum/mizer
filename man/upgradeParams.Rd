@@ -21,17 +21,17 @@ version because of the missing slots. You need to upgrade them with\preformatted
 
 where \code{params} should be replaced by the name of your MizerParams object.
 This function adds the missing slots and fills them with default values. Any
-object from version 0.4 onwards can be upgraded.
-}
-\details{
-Uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new MizerParams object using the
-parameters extracted from the old MizerParams object.
+object from version 0.4 onwards can be upgraded. Any old
+\linkS4class{MizerSim} objects should be similarly updated with
+\code{\link[=upgradeSim]{upgradeSim()}}. This function uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new
+MizerParams object using the parameters extracted from the old MizerParams
+object.
 }
 \section{Backwards compatibility}{
 
 The internal numerics in mizer have changed over time, so there may be small
-discrepancies between the results obtained with the upgraded params object
-in the new version and the original params object in the old version. If it
+discrepancies between the results obtained with the upgraded object
+in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
 with\preformatted{remotes::install_github("sizespectrum/mizer", ref = "v0.2")

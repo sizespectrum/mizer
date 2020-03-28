@@ -6,8 +6,8 @@
 \title{Example MizerParams object for the Barents Sea}
 \format{A MizerParams object}
 \source{
-{N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): 
-Efficiency of fisheries is increasing at the ecosystem level. 
+{N.S. Jacobsen, M. Burgess and K.H. Andersen (2017):
+Efficiency of fisheries is increasing at the ecosystem level.
 Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.}
 }
 \description{

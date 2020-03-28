@@ -43,20 +43,20 @@ getEncounter <- function(params, n = initial_n(params),
 #' 
 #' @inherit mizerFeedingLevel
 #' 
-#' @param object A \code{MizerParams} object or a \code{MizerSim} object
+#' @param object A `MizerParams` object or a `MizerSim` object
 #' @inheritParams mizerRates
 #' @inheritParams get_time_elements
 #' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
-#'   using \code{\link{getEncounter}}. Only used if \code{object}
-#'   argument is of type \code{MizerParams}.
-#' @param drop If \code{TRUE} then any dimension of length 1 will be removed
+#'   using [getEncounter()]. Only used if `object`
+#'   argument is of type `MizerParams`.
+#' @param drop If `TRUE` then any dimension of length 1 will be removed
 #'   from the returned array.
 #'
-#' @return If a \code{MizerParams} object is passed in, the function returns a two
+#' @return If a `MizerParams` object is passed in, the function returns a two
 #'   dimensional array (predator species x predator size) based on the
 #'   abundances also passed in.
-#'   If a \code{MizerSim} object is passed in, the function returns a three
+#'   If a `MizerSim` object is passed in, the function returns a three
 #'   dimensional array (time step x predator species x predator size) with the
 #'   feeding level calculated at every time step in the simulation.
 #'   If \code{drop = TRUE} then the dimension of length 1 will be removed from
@@ -127,13 +127,13 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
 #' \deqn{{\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
 #'   \gamma_j(w) N_j(w) \, dw.}{pred_rate_j(w_p) = \int\phi_i(w,w_p) (1-f_i(w)) 
 #'   \gamma_i(w) N_i(w) dw.}
-#' This potential rate is used in the function \code{\link{getPredMort}} to
+#' This potential rate is used in the function [getPredMort()] to
 #' calculate the realised predation mortality rate on the prey individual.
 #'
 #' @inheritParams mizerRates
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the \code{\link{getFeedingLevel}} function.
+#'   using the [getFeedingLevel()] function.
 #'   
 #' @return A two dimensional array (predator species x prey size), 
 #'   where the prey size runs over fish community plus plankton spectrum.
@@ -184,12 +184,12 @@ getPredRate <- function(params, n = initial_n(params),
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
-#'   it is calculated by the \code{\link{getPredRate}} function.
+#'   it is calculated by the [getPredRate()] function.
 #'
 #' @return
-#'   If a \code{MizerParams} object is passed in, the function returns a two
+#'   If a `MizerParams` object is passed in, the function returns a two
 #'   dimensional array (prey species x prey size) based on the abundances also
-#'   passed in. If a \code{MizerSim} object is passed in, the function returns a
+#'   passed in. If a `MizerSim` object is passed in, the function returns a
 #'   three dimensional array (time step x prey species x prey size) with the
 #'   predation mortality calculated at every time step in the simulation.
 #'   Dimensions may be dropped if they have length 1 unless `drop = FALSE`.
@@ -262,13 +262,13 @@ getM2 <- getPredMort
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
 #' spectrum by plankton size (in units 1/year).
 #' 
-#' Used by the \code{project} function for running size based simulations.
+#' Used by the `project` function for running size based simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
 #'   plankton, the w_full slot). The array is optional. If it is not provided
-#'   it is calculated by the \code{\link{getPredRate}} function.
+#'   it is calculated by the [getPredRate()] function.
 #'
 #' @return A vector of mortality rate by plankton size.
 #' @family rate functions
@@ -314,34 +314,34 @@ getM2Background <- getPlanktonMort
 #' Get the fishing mortality by time, gear, species and size
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the \code{effort} argument (in units 1/year).
-#' Used by the \code{project} function to perform simulations.
+#' size at each time step in the `effort` argument (in units 1/year).
+#' Used by the `project` function to perform simulations.
 #' 
-#' @param object A \code{MizerParams} object or a \code{MizerSim} object.
+#' @param object A `MizerParams` object or a `MizerSim` object.
 #' @param effort The effort for each fishing gear. See notes below.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
-#'   \code{object} argument is of type \code{MizerSim}.
+#'   `object` argument is of type `MizerSim`.
 #'   
 #' @return An array. If the effort argument has a time dimension, or a
-#'   \code{MizerSim} is passed in, the output array has four dimensions (time x
+#'   `MizerSim` is passed in, the output array has four dimensions (time x
 #'   gear x species x size). If the effort argument does not have a time
 #'   dimension (i.e. it is a vector or a single numeric), the output array has
 #'   three dimensions (gear x species x size).
 #' @note Here: fishing mortality = catchability x selectivity x effort.
 #' 
-#' The \code{effort} argument is only used if a \code{MizerParams} object is
-#' passed in. The \code{effort} argument can be a two dimensional array (time x
+#' The `effort` argument is only used if a `MizerParams` object is
+#' passed in. The `effort` argument can be a two dimensional array (time x
 #' gear), a vector of length equal to the number of gears (each gear has a
 #' different effort that is constant in time), or a single numeric value (each
 #' gear has the same effort that is constant in time). The order of gears in the
-#' \code{effort} argument must be the same the same as in the \code{MizerParams}
-#' object. If the \code{effort} argument is not supplied, its value is taken
+#' `effort` argument must be the same the same as in the `MizerParams`
+#' object. If the `effort` argument is not supplied, its value is taken
 #' from the `@initial_effort` slot in the params object.
 #' 
-#' If the object argument is of class \code{MizerSim} then the effort slot of
-#' the \code{MizerSim} object is used and the \code{effort} argument is not
+#' If the object argument is of class `MizerSim` then the effort slot of
+#' the `MizerSim` object is used and the `effort` argument is not
 #' used.
 #' @export
 #' @family rate functions
@@ -419,37 +419,37 @@ getFMortGear <- function(object, effort, time_range) {
 #' and size.
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size at each time step in the \code{effort} argument.
+#' species and size at each time step in the `effort` argument.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' 
-#' @param object A \code{MizerParams} object or a \code{MizerSim} object
+#' @param object A `MizerParams` object or a `MizerSim` object
 #' @param effort The effort of each fishing gear. Only needed if the object
-#'   argument is of class \code{MizerParams}. See notes below.
+#'   argument is of class `MizerParams`. See notes below.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
 #'   single value. Default is the whole time range. Only used if the
-#'   \code{object} argument is of type \code{MizerSim}.
-#' @param drop Only used when object is of type \code{MizerSim}. Should
+#'   `object` argument is of type `MizerSim`.
+#' @param drop Only used when object is of type `MizerSim`. Should
 #'   dimensions of length 1 be dropped, e.g. if your community only has one
 #'   species it might make presentation of results easier. Default is TRUE
 #'
 #' @return An array. If the effort argument has a time dimension, or object is
-#'   of class \code{MizerSim}, the output array has three dimensions (time x
+#'   of class `MizerSim`, the output array has three dimensions (time x
 #'   species x size). If the effort argument does not have a time dimension, the
 #'   output array has two dimensions (species x size).
 #' @note Here: fishing mortality = catchability x selectivity x effort.
 #'
-#' The \code{effort} argument is only used if a \code{MizerParams} object is
-#' passed in. The \code{effort} argument can be a two dimensional array (time x
+#' The `effort` argument is only used if a `MizerParams` object is
+#' passed in. The `effort` argument can be a two dimensional array (time x
 #' gear), a vector of length equal to the number of gears (each gear has a
 #' different effort that is constant in time), or a single numeric value (each
 #' gear has the same effort that is constant in time). The order of gears in the
-#' \code{effort} argument must be the same the same as in the \code{MizerParams}
+#' `effort` argument must be the same the same as in the `MizerParams`
 #' object.
 #'
-#' If the object argument is of class \code{MizerSim} then the effort slot of
-#' the \code{MizerSim} object is used and the \code{effort} argument is not
+#' If the object argument is of class `MizerSim` then the effort slot of
+#' the `MizerSim` object is used and the `effort` argument is not
 #' used.
 #' @export
 #' @family rate functions
@@ -515,16 +515,16 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' @param effort A numeric vector of the effort by gear or a single numeric
 #'   effort value which is used for all gears.
 #' @param f_mort A two dimensional array (species x size) of fishing mortality
-#'   (optional).If not supplied is calculated using the \code{\link{getFMort}}
+#'   (optional).If not supplied is calculated using the [getFMort()]
 #'   function.
 #' @param pred_mort A two dimensional array of predation mortality (optional). Has
 #'   dimensions no. sp x no. size bins in the community. If not supplied is
-#'   calculated using the \code{\link{getPredMort}} function.
+#'   calculated using the [getPredMort()] function.
 #'
 #' @return A two dimensional array (prey species x prey size). 
 #'
 #' @export
-#' @seealso \code{\link{getPredMort}}, \code{\link{getFMort}}
+#' @seealso [getPredMort()], [getFMort()]
 #' @family rate functions
 #' @examples
 #' \dontrun{
@@ -583,10 +583,10 @@ getZ <- getMort
 #' @inheritParams mizerRates
 #' @param encounter The encounter rate matrix (optional) of dimension no.
 #'   species x no. size bins. If not passed in, it is calculated internally
-#'   using the \code{\link{getEncounter}} function.
+#'   using the [getEncounter()] function.
 #' @param feeding_level The current feeding level (optional). A matrix of size
 #'   no. species x no. size bins. If not supplied, is calculated internally
-#'   using the \code{\link{getFeedingLevel}} function.
+#'   using the [getFeedingLevel()] function.
 #'
 #' @return A two dimensional array (species x size) holding
 #' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
@@ -594,24 +594,24 @@ getZ <- getMort
 #'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
 #'                       encounter_i(w) - metab_i(w)).}
 #' Due to the form of the feeding level, calculated by
-#' \code{\link{getFeedingLevel}}, this can also be expressed as
+#' [getFeedingLevel()], this can also be expressed as
 #' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
 #'                            h_i(w) - {\tt metab}_i(w))}{
 #'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
 #'                       h_i(w) - metab_i(w))}
 #' where \eqn{h_i} is the maximum intake rate, set with 
-#' \code{\link{setMaxIntakeRate}}.
+#' [setMaxIntakeRate()].
 #' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-#' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-#' \code{params} and set with \code{\link{setMetabolicRate}}.
+#' data frame in `params`. The metabolic rate `metab` is taken from 
+#' `params` and set with [setMetabolicRate()].
 #' 
 #' The return value can be negative, which means that the energy intake does not
 #' cover the cost of metabolism and movement.
 #' 
 #' @export
 #' @seealso The parts of this energy rate that is invested into growth is
-#'   calculated with \code{\link{getERepro}} and the part that is invested into
-#'   reproduction is calculated with \code{\link{getEGrowth}}.
+#'   calculated with [getERepro()] and the part that is invested into
+#'   reproduction is calculated with [getEGrowth()].
 #' @family rate functions
 #' @examples
 #' \dontrun{
@@ -655,15 +655,15 @@ getEReproAndGrowth <- function(params, n = initial_n(params),
 #' @inheritParams mizerRates
 #' @param e The energy available for reproduction and growth (optional). A
 #'   matrix of size no. species x no. size bins. If not supplied, is calculated
-#'   internally using \code{\link{getEReproAndGrowth}}.
+#'   internally using [getEReproAndGrowth()].
 #'
 #' @return A two dimensional array (prey species x prey size) holding
 #' \deqn{\psi_i(w)E_{r.i}(w)}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
-#' growth and reproduction, calculated with \code{\link{getEReproAndGrowth}},
+#' growth and reproduction, calculated with [getEReproAndGrowth()],
 #' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
-#' reproduction. This proportion is taken from the \code{params} object and is
-#' set with \code{\link{setReproduction}}.
+#' reproduction. This proportion is taken from the `params` object and is
+#' set with [setReproduction()].
 #' @export
 #' @family rate functions
 #' @examples
@@ -700,21 +700,21 @@ getESpawning <- getERepro
 #'
 #' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 #' size for growth after metabolism, movement and reproduction have been
-#' accounted for. Used by \code{\link{project}} for performing simulations.
+#' accounted for. Used by [project()] for performing simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param e The energy available for reproduction and growth (optional, although
 #'   if specified, e_repro must also be specified). A matrix of size no.
 #'   species x no. size bins. If not supplied, is calculated internally using
-#'   \code{\link{getEReproAndGrowth}}.
+#'   [getEReproAndGrowth()].
 #' @param e_repro The energy available for reproduction (optional, although if
 #'   specified, e must also be specified). A matrix of size no. species x no.
 #'   size bins. If not supplied, is calculated internally using
-#'   \code{\link{getERepro}}.
+#'   [getERepro()].
 #'   
 #' @return A two dimensional array (prey species x prey size) 
 #' @export
-#' @seealso \code{\link{getERepro}}, \code{\link{getEReproAndGrowth}}
+#' @seealso [getERepro()], [getEReproAndGrowth()]
 #' @family rate functions
 #' @examples
 #' \dontrun{
@@ -750,17 +750,17 @@ getEGrowth <- function(params, n = initial_n(params),
 #'
 #' Calculates the density independent rate of egg production \eqn{R_{p.i}}
 #' (units 1/year) before density dependence, by species. Used by
-#' \code{\link{getRDD}} to calculate the actual density dependent rate.
-#' See \code{\link{setReproduction}} for more details.
+#' [getRDD()] to calculate the actual density dependent rate.
+#' See [setReproduction()] for more details.
 #' 
 #' @inheritParams mizerRates
 #' @param e_repro The energy available for reproduction (optional). A matrix of
 #'   size no. species x no. size bins. If not supplied, is calculated internally
-#'   using \code{\link{getERepro}}.
+#'   using [getERepro()].
 #'   
 #' @return A numeric vector the length of the number of species 
 #' @export
-#' @seealso \code{\link{getRDD}}
+#' @seealso [getRDD()]
 #' @family rate functions
 #' @examples
 #' \dontrun{
@@ -790,19 +790,19 @@ getRDI <- function(params, n = initial_n(params),
 #' Calculates the density dependent rate of egg production \eqn{R_i} (units
 #' 1/year) for each species. This is the flux entering the smallest size class
 #' of each species. The density dependent rate is the density independent
-#' rate obtained with \code{\link{getRDI}} after it has been put through the 
+#' rate obtained with [getRDI()] after it has been put through the 
 #' density dependence function. This is the Beverton-Holt function
-#' \code{\link{BevertonHoltRDD}} by default, but this can be changed. See
-#' \code{\link{setReproduction}} for more details.
+#' [BevertonHoltRDD()] by default, but this can be changed. See
+#' [setReproduction()] for more details.
 #' 
 #' @inheritParams mizerRates
 #' @param rdi A vector of density-independent reproduction rates for each
 #'   species. If not specified, rdi is calculated internally using
-#'   \code{\link{getRDI}}.
+#'   [getRDI()].
 #'   
 #' @return A numeric vector the length of the number of species. 
 #' @export
-#' @seealso \code{\link{getRDI}}
+#' @seealso [getRDI()]
 #' @family rate functions
 #' @examples
 #' \dontrun{

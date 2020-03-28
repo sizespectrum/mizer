@@ -42,7 +42,7 @@ A plot
 }
 \description{
 When the growth curve for only a single species is plotted, horizontal
-lines are included that indicate the maturity size and the maximum size for 
+lines are included that indicate the maturity size and the maximum size for
 that species. If furthermore the species parameters contain the variables
 a and b for length to weight conversion and the von Bertalanffy parameter
 k_vb (and optionally t0), then the von Bertalanffy growth curve is
@@ -57,7 +57,7 @@ plotGrowthCurves(sim, species = "Cod", max_age = 24)
 
 }
 \seealso{
-\code{\link{plotting_functions}}
+\code{\link[=plotting_functions]{plotting_functions()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

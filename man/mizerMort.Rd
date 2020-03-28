@@ -26,7 +26,7 @@ mortality}
 }
 \value{
 A two dimensional array (species x size) with the total mortality
-  rates.
+rates.
 }
 \description{
 Calculates the total mortality rate \eqn{\mu_i(w)}  (in units 1/year) on each

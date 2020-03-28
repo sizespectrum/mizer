@@ -13,7 +13,7 @@ get_h_default(params)
 A vector with the values of h for all species
 }
 \description{
-Sets \code{h} so that the species reaches maturity 
+Sets \code{h} so that the species reaches maturity
 size at the age predicted by the von Bertalanffy growth curve parameters
 \code{k_vb} and (optionally \code{t0}) taken from the species parameter
 data frame. Also needs the exponent \code{b} from the length-weight

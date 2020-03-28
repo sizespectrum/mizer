@@ -125,8 +125,8 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
 #' Sets the reproductive efficiency for all species so that the rate of egg
 #' production exactly compensates for the loss from the first size class due
 #' to growth and mortality. Turns off the external density dependence in the
-#' reproduction rate by setting the \code{RDD} function to
-#' \code{\link{noRDD}}
+#' reproduction rate by setting the `RDD` function to
+#' [noRDD()]
 #'
 #' @inheritParams steady
 #' @param species A vector of the names of the species to be affected or a

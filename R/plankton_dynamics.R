@@ -27,7 +27,7 @@ plankton_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #' Keep plankton abundance constant
 #' 
 #' This function can be used instead of the standard 
-#' \code{\link{plankton_semichemostat}} in order to keep the Plankton
+#' [plankton_semichemostat()] in order to keep the Plankton
 #' spectrum constant over time.
 #' 
 #' @inheritParams plankton_semichemostat

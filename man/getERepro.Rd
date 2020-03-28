@@ -24,16 +24,16 @@ ecosystem}
 
 \item{e}{The energy available for reproduction and growth (optional). A
 matrix of size no. species x no. size bins. If not supplied, is calculated
-internally using \code{\link{getEReproAndGrowth}}.}
+internally using \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
 }
 \value{
 A two dimensional array (prey species x prey size) holding
 \deqn{\psi_i(w)E_{r.i}(w)}
 where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
-growth and reproduction, calculated with \code{\link{getEReproAndGrowth}},
+growth and reproduction, calculated with \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}},
 and \eqn{\psi_i(w)} is the proportion of this energy that is used for
 reproduction. This proportion is taken from the \code{params} object and is
-set with \code{\link{setReproduction}}.
+set with \code{\link[=setReproduction]{setReproduction()}}.
 }
 \description{
 Calculates the energy rate (grams/year) available for reproduction after

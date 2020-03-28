@@ -37,7 +37,7 @@ predation mortality rate.}
 functions.}
 }
 \value{
-For `setComponent`: The updated MizerParams object
+For \code{setComponent}: The updated MizerParams object
 
 For \code{getComponent}: A list with the entries \code{initial_value}, \code{dynamics_fun},
 \code{encounter_fun}, \code{morality_fun}, \code{component_params}. If \code{component} is

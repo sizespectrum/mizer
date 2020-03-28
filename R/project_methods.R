@@ -9,19 +9,19 @@
 #' the mizer vignette.
 #' \tabular{llll}{
 #'   Function \tab Expression \tab Description \tab Section in vignette\cr
-#'   \code{\link{mizerEncounter}} \tab \eqn{E_{e.i}(w)} \tab Encounter rate \tab 3.2 \cr
-#'   \code{\link{mizerFeedingLevel}} \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
-#'   \code{\link{mizerPredRate}} \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
-#'   \code{\link{mizerPredMort}} \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
-#'   \code{\link{mizerPlanktonMort}} \tab \eqn{\mu_{p}(w)} \tab Mortality on plankton \tab 3.8 \cr
-#'   \code{\link{mizerFMortGear}} \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
-#'   \code{\link{mizerFMort}} \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
-#'   \code{\link{mizerMort}} \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
-#'   \code{\link{mizerEReproAndGrowth}} \tab \eqn{E_{r.i}(w)} \tab Energy put into growth and reproduction \tab 3.4 \cr
-#'   \code{\link{mizerERepro}} \tab \eqn{\psi_i(w)E_{r.i}(w)} \tab Energy put reproduction\tab 3.5 \cr
-#'   \code{\link{mizerEGrowth}} \tab \eqn{g_i(w)} \tab Energy put growth \tab 3.4 \cr
-#'   \code{\link{mizerRDI}} \tab \eqn{R_{p.i}} \tab Density-independent reproduction rate \tab 3.5 \cr
-#'   \code{\link{BevertonHoltRDD}} \tab \eqn{R_i} \tab Density-dependent reproduction rate \tab 3.6 \cr
+#'   [mizerEncounter()] \tab \eqn{E_{e.i}(w)} \tab Encounter rate \tab 3.2 \cr
+#'   [mizerFeedingLevel()] \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
+#'   [mizerPredRate()] \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
+#'   [mizerPredMort()] \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
+#'   [mizerPlanktonMort()] \tab \eqn{\mu_{p}(w)} \tab Mortality on plankton \tab 3.8 \cr
+#'   [mizerFMortGear()] \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
+#'   [mizerFMort()] \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
+#'   [mizerMort()] \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
+#'   [mizerEReproAndGrowth()] \tab \eqn{E_{r.i}(w)} \tab Energy put into growth and reproduction \tab 3.4 \cr
+#'   [mizerERepro()] \tab \eqn{\psi_i(w)E_{r.i}(w)} \tab Energy put reproduction\tab 3.5 \cr
+#'   [mizerEGrowth()] \tab \eqn{g_i(w)} \tab Energy put growth \tab 3.4 \cr
+#'   [mizerRDI()] \tab \eqn{R_{p.i}} \tab Density-independent reproduction rate \tab 3.5 \cr
+#'   [BevertonHoltRDD()] \tab \eqn{R_i} \tab Density-dependent reproduction rate \tab 3.6 \cr
 #' }
 #'
 #' @name project_methods
@@ -53,17 +53,17 @@ NULL
 #' 
 #' @return A list with the following components:
 #'   \itemize{
-#'     \item encounter from \code{\link{mizerEncounter}}
-#'     \item feeding_level from \code{\link{mizerFeedingLevel}}
-#'     \item pred_rate from \code{\link{mizerPredRate}}
-#'     \item pred_mort from \code{\link{mizerPredMort}}
-#'     \item f_mort from \code{\link{mizerFMort}}
-#'     \item mort from \code{\link{mizerMort}}
-#'     \item plankton_mort from \code{\link{mizerPlanktonMort}}
-#'     \item e from \code{\link{mizerEReproAndGrowth}}
-#'     \item e_repro from \code{\link{mizerERepro}}
-#'     \item e_growth from \code{\link{mizerEGrowth}}
-#'     \item rdi from \code{\link{mizerRDI}}
+#'     \item encounter from [mizerEncounter()]
+#'     \item feeding_level from [mizerFeedingLevel()]
+#'     \item pred_rate from [mizerPredRate()]
+#'     \item pred_mort from [mizerPredMort()]
+#'     \item f_mort from [mizerFMort()]
+#'     \item mort from [mizerMort()]
+#'     \item plankton_mort from [mizerPlanktonMort()]
+#'     \item e from [mizerEReproAndGrowth()]
+#'     \item e_repro from [mizerERepro()]
+#'     \item e_growth from [mizerEGrowth()]
+#'     \item rdi from [mizerRDI()]
 #'     \item rdd 
 #'   }
 #' @export
@@ -368,7 +368,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
 #' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
 #' spectrum by plankton size (in units 1/year).
 #' 
-#' Used by the \code{project} function for running size based simulations.
+#' Used by the `project` function for running size based simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate A two dimensional array (predator species x prey size) with
@@ -389,8 +389,8 @@ mizerPlanktonMort <-
 #' standard mizer model
 #'
 #' Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
-#' size at each time step in the \code{effort} argument (in units 1/year).
-#' Used by the \code{project} function to perform simulations.
+#' size at each time step in the `effort` argument (in units 1/year).
+#' Used by the `project` function to perform simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param effort A vector with the effort for each fishing gear.
@@ -413,7 +413,7 @@ mizerFMortGear <- function(params, effort, ...) {
 #' and size needed to project standard mizer model
 #' 
 #' Calculates the total fishing mortality  (in units 1/year) from all gears by
-#' species and size at each time step in the \code{effort} argument.
+#' species and size at each time step in the `effort` argument.
 #' The total fishing mortality is just the sum of the fishing mortalities
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' 
@@ -476,16 +476,16 @@ mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
 #'   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
 #'                       encounter_i(w) - metab_i(w)).}
 #' Due to the form of the feeding level, calculated by
-#' \code{\link{getFeedingLevel}}, this can also be expressed as
+#' [getFeedingLevel()], this can also be expressed as
 #' \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
 #'                            h_i(w) - {\tt metab}_i(w))}{
 #'   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
 #'                       h_i(w) - metab_i(w))}
 #' where \eqn{h_i} is the maximum intake rate, set with 
-#' \code{\link{setMaxIntakeRate}}.
+#' [setMaxIntakeRate()].
 #' The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-#' data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-#' \code{params} and set with \code{\link{setMetabolicRate}}.
+#' data frame in `params`. The metabolic rate `metab` is taken from 
+#' `params` and set with [setMetabolicRate()].
 #' 
 #' The return value can be negative, which means that the energy intake does not
 #' cover the cost of metabolism and movement.
@@ -514,10 +514,10 @@ mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
 #' @return A two dimensional array (species x size) holding
 #' \deqn{\psi_i(w)E_{r.i}(w)}
 #' where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
-#' growth and reproduction, calculated with \code{\link{mizerEReproAndGrowth}},
+#' growth and reproduction, calculated with [mizerEReproAndGrowth()],
 #' and \eqn{\psi_i(w)} is the proportion of this energy that is used for
-#' reproduction. This proportion is taken from the \code{params} object and is
-#' set with \code{\link{setReproduction}}.
+#' reproduction. This proportion is taken from the `params` object and is
+#' set with [setReproduction()].
 #' @export
 #' @family mizer rate functions
 mizerERepro <- function(params, n, n_pp, n_other, e, ...) {
@@ -532,17 +532,17 @@ mizerERepro <- function(params, n, n_pp, n_other, e, ...) {
 #'
 #' Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 #' size for growth after metabolism, movement and reproduction have been
-#' accounted for. Used by \code{\link{project}} for performing simulations.
+#' accounted for. Used by [project()] for performing simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param e The energy available for reproduction and growth (optional, although
 #'   if specified, e_repro must also be specified). A matrix of size no.
 #'   species x no. size bins. If not supplied, is calculated internally using
-#'   \code{\link{getEReproAndGrowth}}.
+#'   [getEReproAndGrowth()].
 #' @param e_repro The energy available for reproduction (optional, although if
 #'   specified, e must also be specified). A matrix of size no. species x no.
 #'   size bins. If not supplied, is calculated internally using
-#'   \code{\link{getERepro}}.
+#'   [getERepro()].
 #'   
 #' @return A two dimensional array (species x size) with the growth rates.
 #' @export
@@ -566,8 +566,8 @@ mizerEGrowth <- function(params, n, n_pp, n_other, e_repro, e, ...) {
 #' multiplying by the reproductive efficiency `erepro` and dividing by the egg
 #' size `w_min`, and by a factor of two to account for the two sexes.
 #' 
-#' Used by \code{\link{getRDD}} to calculate the actual, density dependent rate.
-#' See \code{\link{setReproduction}} for more details.
+#' Used by [getRDD()] to calculate the actual, density dependent rate.
+#' See [setReproduction()] for more details.
 #'
 #' @inheritParams mizerRates
 #' @param e_repro An array (species x size) with the energy available for
@@ -595,9 +595,9 @@ mizerRDI <- function(params, n, n_pp, n_other, e_repro, ...) {
 #'
 #' This is only one example of a density-dependence. You can write your own
 #' function based on this example, returning different density-dependent
-#' reproduction rates. Two other examples provided are \code{\link{RickerRDD}}
-#' and \code{\link{SheperdRDD}}. For more explanation see
-#' \code{\link{setReproduction}}.
+#' reproduction rates. Two other examples provided are [RickerRDD()]
+#' and [SheperdRDD()]. For more explanation see
+#' [setReproduction()].
 #'
 #' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for all
 #'   species.
@@ -624,7 +624,7 @@ BevertonHoltRDD <- function(rdi, species_params, ...) {
 #' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.
 #' @param species_params A species parameter dataframe. Must contain a column
-#'   \code{ricker_b} holding the coefficient b.
+#'   `ricker_b` holding the coefficient b.
 #' @param ... Unused
 #' 
 #' @return Vector of density-dependent reproduction rates.
@@ -646,7 +646,7 @@ RickerRDD <- function(rdi, species_params, ...) {
 #' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.
 #' @param species_params A species parameter dataframe. Must contain columns
-#'   \code{sheperd_b} and \code{sheperd_c} with the parameters b and c.
+#'   `sheperd_b` and `sheperd_c` with the parameters b and c.
 #' @param ... Unused
 #' 
 #' @return Vector of density-dependent reproduction rates.
@@ -661,7 +661,7 @@ SheperdRDD <- function(rdi, species_params, ...) {
 
 #' Give density-independent reproduction rate
 #' 
-#' Simply returns its \code{rdi} argument.
+#' Simply returns its `rdi` argument.
 #' 
 #' @param rdi Vector of density-independent reproduction rates \eqn{R_p} for
 #'   all species.

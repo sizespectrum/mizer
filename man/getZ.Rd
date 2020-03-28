@@ -28,12 +28,12 @@ ecosystem}
 effort value which is used for all gears.}
 
 \item{f_mort}{A two dimensional array (species x size) of fishing mortality
-(optional).If not supplied is calculated using the \code{\link{getFMort}}
+(optional).If not supplied is calculated using the \code{\link[=getFMort]{getFMort()}}
 function.}
 
 \item{pred_mort}{A two dimensional array of predation mortality (optional). Has
 dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the \code{\link{getPredMort}} function.}
+calculated using the \code{\link[=getPredMort]{getPredMort()}} function.}
 }
 \value{
 A two dimensional array (prey species x prey size).
@@ -51,7 +51,7 @@ getMort(params,sim@n[21,,],sim@n_pp[21,],effort=0.5)
 }
 }
 \seealso{
-\code{\link{getPredMort}}, \code{\link{getFMort}}
+\code{\link[=getPredMort]{getPredMort()}}, \code{\link[=getFMort]{getFMort()}}
 
 Other rate functions: 
 \code{\link{getEGrowth}()},

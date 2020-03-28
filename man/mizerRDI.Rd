@@ -33,8 +33,8 @@ multiplying by the reproductive efficiency \code{erepro} and dividing by the egg
 size \code{w_min}, and by a factor of two to account for the two sexes.
 }
 \details{
-Used by \code{\link{getRDD}} to calculate the actual, density dependent rate.
-See \code{\link{setReproduction}} for more details.
+Used by \code{\link[=getRDD]{getRDD()}} to calculate the actual, density dependent rate.
+See \code{\link[=setReproduction]{setReproduction()}} for more details.
 }
 \seealso{
 Other mizer rate functions: 

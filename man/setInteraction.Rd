@@ -30,8 +30,8 @@ Set species interaction matrix
 
 
 The species interaction matrix \eqn{\theta_{ij}}, is used when calculating
-the food encounter rate in \code{\link{getEncounter}} and the predation
-mortality rate in \code{\link{getPredMort}}. Its entries are dimensionless
+the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and the predation
+mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are dimensionless
 numbers between 0 and 1 that characterise the strength at which predator
 species \eqn{i} predates on prey species \eqn{j}.
 

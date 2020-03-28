@@ -12,9 +12,9 @@ objects for various kinds of size-spectrum models.
 In this list we relate the functions in this file to the sections in
 the mizer vignette where the corresponding model is described.
 \tabular{llll}{
-  Function name \tab Description \tab Section in vignette\cr
-  \code{\link{newCommunityParams}} \tab Community model \tab 5 \cr
-  \code{\link{newTraitParams}} \tab Trait-based model \tab 6 \cr
+Function name \tab Description \tab Section in vignette\cr
+\code{\link[=newCommunityParams]{newCommunityParams()}} \tab Community model \tab 5 \cr
+\code{\link[=newTraitParams]{newTraitParams()}} \tab Trait-based model \tab 6 \cr
 }
 
 The file also contains functions for adding, removing or rescaling species.

@@ -18,7 +18,7 @@ ecosystem}
 
 \item{encounter}{The encounter rate matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
-using \code{\link{getEncounter}}. Only used if \code{object}
+using \code{\link[=getEncounter]{getEncounter()}}. Only used if \code{object}
 argument is of type \code{MizerParams}.}
 
 \item{time_range}{The time_range can be character or numeric.}
@@ -49,15 +49,15 @@ taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
 maximum intake rate \eqn{h_i(w)} as
 \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
 The encounter rate \eqn{E_i} is passed as an argument or calculated with
-[getEncounter()]. The maximum intake rate \eqn{h_i(w)} is
-taken from the `params` object, and is set with 
-[setMaxIntakeRate()].
+\code{\link[=getEncounter]{getEncounter()}}. The maximum intake rate \eqn{h_i(w)} is
+taken from the \code{params} object, and is set with
+\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}.
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.
 
-The feeding level is used in [mizerEReproAndGrowth()] and in
-[mizerPredRate()].
+The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}} and in
+\code{\link[=mizerPredRate]{mizerPredRate()}}.
 }
 
 \examples{

@@ -9,14 +9,14 @@ mizerFeedingLevel(params, encounter, ...)
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
 
-\item{encounter}{A two dimensional array (predator species x predator size) 
+\item{encounter}{A two dimensional array (predator species x predator size)
 with the encounter rate.}
 
 \item{...}{Unused}
 }
 \value{
 A two dimensional array (predator species x predator size) with the
-  feeding level.
+feeding level.
 }
 \description{
 Get feeding level needed to project standard mizer model
@@ -29,15 +29,15 @@ taking in fish. It is calculated from the encounter rate \eqn{E_i} and the
 maximum intake rate \eqn{h_i(w)} as
 \deqn{f_i(w) = \frac{E_i(w)}{E_i(w)+h_i(w)}.}{E_i(w)/(E_i(w)+h_i(w)).}
 The encounter rate \eqn{E_i} is passed as an argument or calculated with
-[getEncounter()]. The maximum intake rate \eqn{h_i(w)} is
-taken from the `params` object, and is set with 
-[setMaxIntakeRate()].
+\code{\link[=getEncounter]{getEncounter()}}. The maximum intake rate \eqn{h_i(w)} is
+taken from the \code{params} object, and is set with
+\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}.
 As a consequence of the above expression for the feeding level,
 \eqn{1-f_i(w)} is the proportion of the food available to it that the
 predator actually consumes.
 
-The feeding level is used in [mizerEReproAndGrowth()] and in
-[mizerPredRate()].
+The feeding level is used in \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}} and in
+\code{\link[=mizerPredRate]{mizerPredRate()}}.
 }
 
 \seealso{

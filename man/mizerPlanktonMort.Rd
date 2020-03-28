@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerPlanktonMort}
 \alias{mizerPlanktonMort}
-\title{Get predation mortality rate for plankton needed to project standard mizer 
+\title{Get predation mortality rate for plankton needed to project standard mizer
 model}
 \usage{
 mizerPlanktonMort(params, n, n_pp, n_other, pred_rate, ...)

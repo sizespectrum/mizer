@@ -13,27 +13,27 @@
 #' Mizer provides a range of plotting functions for visualising the results
 #' of running a simulation, stored in a MizerSim object, or the initial state
 #' stored in a MizerParams object. 
-#' Every plotting function exists in two versions, \code{plotSomething} and 
-#' \code{plotlySomething}. The plotly version is more interactive but not
+#' Every plotting function exists in two versions, `plotSomething` and 
+#' `plotlySomething`. The plotly version is more interactive but not
 #' suitable for inclusion in documents.
 #'
 #' This table shows the available plotting functions.
 #' \tabular{ll}{
 #'   Plot \tab Description \cr
-#'   \code{\link{plotBiomass}} \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for \code{\link{getBiomass}}. \cr
-#'   \code{\link{plotSpectra}} \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
-#'   \code{\link{plotFeedingLevel}} \tab Plots the feeding level of each species against size. \cr
-#'   \code{\link{plotPredMort}} \tab Plots the predation mortality of each species against size. \cr
-#'   \code{\link{plotFMort}} \tab Plots the total fishing mortality of each species against size. \cr
-#'   \code{\link{plotYield}} \tab Plots the total yield of each species across all fishing gears against time. \cr
-#'   \code{\link{plotYieldGear}} \tab Plots the total yield of each species by gear against time. \cr
-#'   \code{\link{plot}} \tab Produces 5 plots (\code{\link{plotFeedingLevel}}, \code{\link{plotBiomass}}, \code{\link{plotPredMort}}, \code{\link{plotFMort}} and \code{\link{plotSpectra}}) in the same window as a summary. \cr
+#'   [plotBiomass()] \tab Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for [getBiomass()]. \cr
+#'   [plotSpectra()] \tab Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot. \cr
+#'   [plotFeedingLevel()] \tab Plots the feeding level of each species against size. \cr
+#'   [plotPredMort()] \tab Plots the predation mortality of each species against size. \cr
+#'   [plotFMort()] \tab Plots the total fishing mortality of each species against size. \cr
+#'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
+#'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
+#'   [plot()] \tab Produces 5 plots ([plotFeedingLevel()], [plotBiomass()], [plotPredMort()], [plotFMort()] and [plotSpectra()]) in the same window as a summary. \cr
 #' }
 #' 
 #' These functions use the ggplot2 package and return the plot as a ggplot
 #' object. This means that you can manipulate the plot further after its 
 #' creation using the ggplot grammar of graphics. The corresponding function
-#' names with \code{plot} replaced by \code{plotly} produce interactive plots
+#' names with `plot` replaced by `plotly` produce interactive plots
 #' with the help of the plotly package.
 #' 
 #' While most plot functions take their data from a MizerSim object, some of
@@ -41,20 +41,20 @@
 #' data from the initial values in a MizerParams object.
 #' 
 #' Where plots show results for species, the line colour and line type for each 
-#' species are specified by the \code{linecolour} and \code{linetype} slots in
+#' species are specified by the `linecolour` and `linetype` slots in
 #' the MizerParams object. These were either taken from a default palette
-#' hard-coded into \code{\link{emptyParams}} or they were specified by the user
+#' hard-coded into [emptyParams()] or they were specified by the user
 #' in the species parameters dataframe used to set up the MizerParams object.
-#' The \code{linecolour} and \code{linetype} slots hold named vectors, named by
+#' The `linecolour` and `linetype` slots hold named vectors, named by
 #' the species. They can be overwritten by the user at any time.
 #' 
 #' Most plots allow the user to select to show only a subset of species,
-#' specified as a vector in the \code{species} argument to the plot function.
+#' specified as a vector in the `species` argument to the plot function.
 #' 
 #' The ordering of the species in the legend is the same as the ordering in
 #' the species parameter data frame.
 #' 
-#' @seealso \code{\link{summary_functions}}, \code{\link{indicator_functions}}
+#' @seealso [summary_functions()], [indicator_functions()]
 #' @family plotting functions
 #' @name plotting_functions
 #' @examples
@@ -119,7 +119,7 @@ log_breaks <- function(n = 6){
 #' variable will go on the x-axis, the third on the y-axis with a logarithmic
 #' scale. The second variable should be the species and will be used to group
 #' the data and display with the linetype and linecolour specified by the
-#' \code{linetype} and \code{linecolour} slots of the \code{params} object.
+#' `linetype` and `linecolour` slots of the `params` object.
 #' 
 #' @param f1 Data frame for left plot
 #' @param f2 Data frame for right plot
@@ -167,9 +167,9 @@ displayFrames <- function(f1, f2, params,
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). This function
+#' (min_w, max_w, min_l, max_l, see [getBiomass()]). This function
 #' returns a dataframe that can be displayed with 
-#' \code{\link{displayFrames}}.
+#' [displayFrames()].
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
@@ -185,7 +185,7 @@ displayFrames <- function(f1, f2, params,
 #'   all species is plotted as well. Default is FALSE.
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A data frame that can be used in \code{\link{displayFrames}}
+#' @return A data frame that can be used in [displayFrames()]
 #' @family frame functions
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
@@ -231,7 +231,7 @@ getBiomassFrame <- function(sim,
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see \code{\link{getBiomass}}). 
+#' (min_w, max_w, min_l, max_l, see [getBiomass()]). 
 #' 
 #' @inheritParams getBiomassFrame
 #' @inheritParams plotSpectra
@@ -241,7 +241,7 @@ getBiomassFrame <- function(sim,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}, \code{\link{getBiomass}}
+#' @seealso [plotting_functions()], [getBiomass()]
 #' @examples
 #' # Set up example MizerParams and MizerSim objects
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -316,7 +316,7 @@ plotlyBiomass <- function(sim,
 #'
 #' After running a projection, the total yield of each species across all 
 #' fishing gears can be plotted against time. The yield is obtained with
-#' \code{\link{getYield}}.
+#' [getYield()].
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param sim2 An optional second object of class \linkS4class{MizerSim}. If
@@ -328,7 +328,7 @@ plotlyBiomass <- function(sim,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}},  \code{\link{getYield}}
+#' @seealso [plotting_functions()],  [getYield()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -438,7 +438,7 @@ plotlyYield <- function(sim, sim2,
 #' can be plotted against time. 
 #' 
 #' This plot is pretty easy to do by hand. It just
-#' gets the biomass using the \code{\link{getYieldGear}} method and plots using
+#' gets the biomass using the [getYieldGear()] method and plots using
 #' the ggplot2 package. You can then fiddle about with colours and linetypes
 #' etc. Just look at the source code for details.
 #' 
@@ -448,7 +448,7 @@ plotlyYield <- function(sim, sim2,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}},  \code{\link{getYieldGear}}
+#' @seealso [plotting_functions()],  [getYieldGear()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -501,7 +501,7 @@ plotlyYieldGear <- function(sim, species,
 #' Plot the abundance spectra
 #' 
 #' Plots the number density multiplied by a power of the weight, with the power
-#' specified by the \code{power} argument.
+#' specified by the `power` argument.
 #'
 #' When called with a \linkS4class{MizerSim} object, the abundance is averaged
 #' over the specified time range (a single value for the time range can be used
@@ -521,10 +521,10 @@ plotlyYieldGear <- function(sim, species,
 #'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
 #'   values below 1e-20 are always cut off.
 #' @param power The abundance is plotted as the number density times the weight
-#' raised to \code{power}. The default \code{power = 1} gives the biomass 
+#' raised to `power`. The default \code{power = 1} gives the biomass 
 #' density, whereas \code{power = 2} gives the biomass density with respect
 #' to logarithmic size bins.
-#' @param biomass Obsolete. Only used if \code{power} argument is missing. Then
+#' @param biomass Obsolete. Only used if `power` argument is missing. Then
 #'   \code{biomass = TRUE} is equivalent to \code{power=1} and 
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param total A boolean value that determines whether the total over all
@@ -540,7 +540,7 @@ plotlyYieldGear <- function(sim, species,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}
+#' @seealso [plotting_functions()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -744,7 +744,7 @@ plotlySpectra <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}, \code{\link{getFeedingLevel}}
+#' @seealso [plotting_functions()], [getFeedingLevel()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -863,7 +863,7 @@ plotlyFeedingLevel <- function(object,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}},  \code{\link{getPredMort}}
+#' @seealso [plotting_functions()],  [getPredMort()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -947,7 +947,7 @@ plotlyPredMort <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}, \code{\link{getFMort}}
+#' @seealso [plotting_functions()], [getFMort()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -1028,7 +1028,7 @@ plotlyFMort <- function(object, species = NULL,
 #' @return A plot
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}
+#' @seealso [plotting_functions()]
 #' @examples
 #' 
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
@@ -1140,7 +1140,7 @@ plotDiet <- function(object, species) {
 
 
 #### plot ####
-#' Summary plot for \code{MizerSim} objects
+#' Summary plot for `MizerSim` objects
 #' 
 #' After running a projection, produces 5 plots in the same window: feeding
 #' level, abundance spectra, predation mortality and fishing mortality of each
@@ -1150,13 +1150,13 @@ plotDiet <- function(object, species) {
 #' @param x An object of class \linkS4class{MizerSim}
 #' @param y Not used
 #' @param ...  For additional arguments see the documentation for
-#'   \code{\link{plotBiomass}},
-#'   \code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotPredMort}}
-#'   and \code{\link{plotFMort}}.
+#'   [plotBiomass()],
+#'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
+#'   and [plotFMort()].
 #' @return A viewport object
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}
+#' @seealso [plotting_functions()]
 #' @rdname plotMizerSim
 #' @examples
 #' 
@@ -1189,7 +1189,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
           }
 )
 
-#' Summary plot for \code{MizerParams} objects
+#' Summary plot for `MizerParams` objects
 #' 
 #' Produces 3 plots in the same window: abundance spectra, feeding
 #' level and predation mortality of each species through time. This method just
@@ -1198,7 +1198,7 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @return A viewport object
 #' @export
 #' @family plotting functions
-#' @seealso \code{\link{plotting_functions}}
+#' @seealso [plotting_functions()]
 #' @rdname plotMizerSim
 #' @examples
 #' 

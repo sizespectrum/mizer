@@ -20,10 +20,10 @@ described in the section "Setting maximum intake rate".}
 }
 \value{
 A \code{MizerParams} object with updated maximum intake rate. Because
-  of the way the R language works, `setMaxIntakeRate()` does not make the
-  changes to the params object that you pass to it but instead returns a new
-  params object. So to affect the change you call the function in the form
-  `params <- setMaxIntakeRate(params, ...)`.
+of the way the R language works, \code{setMaxIntakeRate()} does not make the
+changes to the params object that you pass to it but instead returns a new
+params object. So to affect the change you call the function in the form
+\code{params <- setMaxIntakeRate(params, ...)}.
 }
 \description{
 Set maximum intake rate
@@ -32,15 +32,15 @@ Set maximum intake rate
 
 The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
 weight \eqn{w} determines the feeding level, calculated with
-\code{\link{getFeedingLevel}}. It is measured in grams/year.
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}. It is measured in grams/year.
 
 If the \code{intake_max} argument is not supplied, then the maximum intake
-rate is set to \deqn{h_i(w) = h_i w^n_i.} 
+rate is set to \deqn{h_i(w) = h_i w^n_i.}
 The values of \eqn{h_i} (the maximum intake rate of an individual of size 1
 gram) and \eqn{n_i} (the allometric exponent for the intake rate) are taken
 from the \code{h} and \code{n} columns in the species parameter dataframe. If
 the \code{h} column is not supplied in the species parameter dataframe, it is
-calculated by the \code{\link{get_h_default}} function, using \code{f0} and
+calculated by the \code{\link[=get_h_default]{get_h_default()}} function, using \code{f0} and
 the \code{k_vb} column, if they are supplied.
 
 If \eqn{h_i} is set to \code{Inf}, fish will consume all encountered food.

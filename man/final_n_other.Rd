@@ -11,7 +11,7 @@ final_n_other(sim)
 }
 \value{
 A named list holding the values of other ecosystem components at the
-  end of the simulation
+end of the simulation
 }
 \description{
 Values of other ecosystem components at end of simulation

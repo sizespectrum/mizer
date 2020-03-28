@@ -15,9 +15,9 @@
 \item{y}{Not used}
 
 \item{...}{For additional arguments see the documentation for
-\code{\link{plotBiomass}},
-\code{\link{plotFeedingLevel}},\code{\link{plotSpectra}},\code{\link{plotPredMort}}
-and \code{\link{plotFMort}}.}
+\code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}
+and \code{\link[=plotFMort]{plotFMort()}}.}
 }
 \value{
 A viewport object
@@ -49,9 +49,9 @@ plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
 
 }
 \seealso{
-\code{\link{plotting_functions}}
+\code{\link[=plotting_functions]{plotting_functions()}}
 
-\code{\link{plotting_functions}}
+\code{\link[=plotting_functions]{plotting_functions()}}
 
 Other plotting functions: 
 \code{\link{plotBiomass}()},

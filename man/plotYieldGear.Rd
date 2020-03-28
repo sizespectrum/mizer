@@ -31,7 +31,7 @@ can be plotted against time.
 }
 \details{
 This plot is pretty easy to do by hand. It just
-gets the biomass using the \code{\link{getYieldGear}} method and plots using
+gets the biomass using the \code{\link[=getYieldGear]{getYieldGear()}} method and plots using
 the ggplot2 package. You can then fiddle about with colours and linetypes
 etc. Just look at the source code for details.
 }
@@ -44,7 +44,7 @@ plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
 
 }
 \seealso{
-\code{\link{plotting_functions}},  \code{\link{getYieldGear}}
+\code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getYieldGear]{getYieldGear()}}
 
 Other plotting functions: 
 \code{\link{plot,MizerSim,missing-method}},

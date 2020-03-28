@@ -26,11 +26,11 @@ ecosystem}
 
 \item{encounter}{The encounter rate matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
-using the \code{\link{getEncounter}} function.}
+using the \code{\link[=getEncounter]{getEncounter()}} function.}
 
 \item{feeding_level}{The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the \code{\link{getFeedingLevel}} function.}
+using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
 }
 \value{
 A two dimensional array (species x size) holding
@@ -39,16 +39,16 @@ A two dimensional array (species x size) holding
   E_{r.i}(w) = max(0, alpha_i * (1 - feeding_level_i(w)) * 
                       encounter_i(w) - metab_i(w)).}
 Due to the form of the feeding level, calculated by
-\code{\link{getFeedingLevel}}, this can also be expressed as
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}, this can also be expressed as
 \deqn{E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
                            h_i(w) - {\tt metab}_i(w))}{
   E_{r.i}(w) = max(0, alpha_i * feeding_level_i(w) * 
                       h_i(w) - metab_i(w))}
-where \eqn{h_i} is the maximum intake rate, set with 
-\code{\link{setMaxIntakeRate}}.
+where \eqn{h_i} is the maximum intake rate, set with
+\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}}.
 The assimilation rate \eqn{\alpha_i} is taken from the species parameter
-data frame in \code{params}. The metabolic rate \code{metab} is taken from 
-\code{params} and set with \code{\link{setMetabolicRate}}.
+data frame in \code{params}. The metabolic rate \code{metab} is taken from
+\code{params} and set with \code{\link[=setMetabolicRate]{setMetabolicRate()}}.
 
 The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.
@@ -69,8 +69,8 @@ getEReproAndGrowth(params,sim@n[21,,],sim@n_pp[21,])
 }
 \seealso{
 The parts of this energy rate that is invested into growth is
-  calculated with \code{\link{getERepro}} and the part that is invested into
-  reproduction is calculated with \code{\link{getEGrowth}}.
+calculated with \code{\link[=getERepro]{getERepro()}} and the part that is invested into
+reproduction is calculated with \code{\link[=getEGrowth]{getEGrowth()}}.
 
 Other rate functions: 
 \code{\link{getEGrowth}()},

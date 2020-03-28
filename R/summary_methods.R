@@ -19,19 +19,19 @@
 #' A list of available summary functions is given in the table below.
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
-#'   \code{\link{getDiet}} \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
-#'   \code{\link{getSSB}} \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
-#'   \code{\link{getBiomass}} \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
-#'   \code{\link{getN}} \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
-#'   \code{\link{getFeedingLevel}} \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
+#'   [getDiet()] \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
+#'   [getSSB()] \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
+#'   [getBiomass()] \tab Two dimensional array (time x species) \tab Total biomass of each species through time. \cr
+#'   [getN()] \tab Two dimensional array (time x species) \tab Total abundance of each species through time. \cr
+#'   [getFeedingLevel()] \tab Three dimensional array (time x species x size) \tab Feeding level of each species by size through time. \cr
 #'   \code{\link{getM2}} \tab Three dimensional array (time x species x size) \tab The predation mortality imposed on each species by size through time. \cr
-#'   \code{\link{getFMort}} \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
-#'   \code{\link{getFMortGear}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
-#'   \code{\link{getYieldGear}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
-#'   \code{\link{getYield}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+#'   [getFMort()] \tab Three dimensional array (time x species x size) \tab Total fishing mortality on each species by size through time. \cr
+#'   [getFMortGear()] \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
+#'   [getYieldGear()] \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
+#'   [getYield()] \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
 #' }
 #'
-#' @seealso \code{\link{indicator_functions}}, \code{\link{plotting_functions}}
+#' @seealso [indicator_functions()], [plotting_functions()]
 #' @name summary_functions
 NULL
 
@@ -41,7 +41,7 @@ NULL
 #' consumes biomass of each prey species and plankton.
 #' 
 #' This function performs the same integration as
-#' \code{\link{getEncounter}} but does not aggregate over prey species, and
+#' [getEncounter()] but does not aggregate over prey species, and
 #' multiplies by (1-feeding_level) to get the consumed biomass rather than the
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
@@ -138,10 +138,10 @@ getDiet <- function(params,
 #' Calculate the SSB of species
 #' 
 #' Calculates the spawning stock biomass (SSB) through time of the species in
-#' the \code{MizerSim} class. SSB is calculated as the total mass of all mature
+#' the `MizerSim` class. SSB is calculated as the total mass of all mature
 #' individuals.
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class `MizerSim`.
 #'   
 #' @return An array containing the SSB (time x species)
 #' @export
@@ -166,12 +166,12 @@ getSSB <- function(sim) {
 #' step.
 #' 
 #' Calculates the total biomass through time of the species in the
-#' \code{MizerSim} class within user defined size limits. The default option is
+#' `MizerSim` class within user defined size limits. The default option is
 #' to use the whole size range. You can specify minimum and maximum weight or
 #' length range for the species. Lengths take precedence over weights (i.e. if
 #' both min_l and min_w are supplied, only min_l will be used).
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
 #' @return An array containing the biomass (time x species)
@@ -198,12 +198,12 @@ getBiomass <- function(sim, ...) {
 #' Calculate the number of individuals within a size range
 #'
 #' Calculates the number of individuals within user-defined size limits, for
-#' each time and each species in the \code{MizerSim} object. The default option
+#' each time and each species in the `MizerSim` object. The default option
 #' is to use the whole size range. You can specify minimum and maximum weight or
 #' lengths for the species. Lengths take precedence over weights (i.e. if both
 #' min_l and min_w are supplied, only min_l will be used)
 #' 
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
 #'
 #' @return An array containing the total numbers (time x species)
@@ -232,13 +232,13 @@ getN <- function(sim, ...) {
 #' Calculates the total yield per gear and species at each simulation
 #' time step.
 #'
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class `MizerSim`.
 #'
 #' @return An array containing the total yield (time x gear x species)
 #' @export
 #' @family summary functions
 #' @concept summary_function
-#' @seealso \code{\link{getYield}}
+#' @seealso [getYield()]
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -260,13 +260,13 @@ getYieldGear <- function(sim) {
 #' Calculates the total yield of each species across all gears at each
 #' simulation time step.
 #'
-#' @param sim An object of class \code{MizerSim}.
+#' @param sim An object of class `MizerSim`.
 #'
 #' @return An array containing the total yield (time x species)
 #' @export
 #' @family summary functions
 #' @concept summary_function
-#' @seealso \code{\link{getYieldGear}}
+#' @seealso [getYieldGear()]
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -353,9 +353,9 @@ getGrowthCurves <- function(object,
 #' @param max_w Largest weight in size range. Defaults to largest weight in the
 #'   model.
 #' @param min_l Smallest length in size range. If supplied, this takes
-#'   precedence over \code{min_w}.
+#'   precedence over `min_w`.
 #' @param max_l Largest length in size range. If supplied, this takes precedence
-#'   over \code{max_w}.
+#'   over `max_w`.
 #' @param ... Unused
 #'   
 #' @return Boolean array (species x size)
@@ -404,7 +404,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 #' Summarize MizerParams object 
 #'
 #' Outputs a general summary of the structure and content of the object
-#' @param object A \code{MizerParams} object.
+#' @param object A `MizerParams` object.
 #' @param ... Other arguments (currently not used).
 #'
 #' @export
@@ -446,7 +446,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
 #' Summarize MizerSim object 
 #'
 #' Outputs a general summary of the structure and content of the object
-#' @param object A \code{MizerSim} object.
+#' @param object A `MizerSim` object.
 #' @param ... Other arguments (currently not used).
 #' @export
 #' @concept summary_function
@@ -480,20 +480,20 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
 #' A list of available indicator functions for MizerSim objects is given in the table below
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
-#'   \code{\link{getProportionOfLargeFish}} \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
-#'   \code{\link{getMeanWeight}} \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
-#'   \code{\link{getMeanMaxWeight}} \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
-#'   \code{\link{getCommunitySlope}} \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
+#'   [getProportionOfLargeFish()] \tab A vector with values at each time step. \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
+#'   [getMeanWeight()] \tab A vector with values at each saved time step. \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
+#'   [getMeanMaxWeight()] \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step. If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
+#'   [getCommunitySlope()] \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination. \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
 #' }
 #'
-#' @seealso \code{\link{summary_functions}}, \code{\link{plotting_functions}}
+#' @seealso [summary_functions()], [plotting_functions()]
 #' @name indicator_functions
 NULL
 
 
 #' Calculate the proportion of large fish
 #' 
-#' Calculates the proportion of large fish through time in the \code{MizerSim}
+#' Calculates the proportion of large fish through time in the `MizerSim`
 #' class within user defined size limits. The default option is to use the whole
 #' size range. You can specify minimum and maximum size ranges for the species
 #' and also the threshold size for large fish. Sizes can be expressed as weight
@@ -599,7 +599,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return Depends on the \code{measure} argument. If \code{measure = “both”}
+#' @return Depends on the `measure` argument. If \code{measure = “both”}
 #'   then you get a matrix with two columns, one with values by numbers, the
 #'   other with values by biomass at each saved time step. If \code{measure =
 #'   “numbers”} or \code{“biomass”} you get a vector of the respective values at

@@ -20,7 +20,7 @@ project(
 )
 }
 \arguments{
-\item{object}{Either a \linkS4class{MizerParams} object or a 
+\item{object}{Either a \linkS4class{MizerParams} object or a
 \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).}
 
 \item{effort}{The effort of each fishing gear through time. See notes below.}
@@ -39,10 +39,10 @@ will cover the period from \code{t_start} to \code{t_start + t_max}.
 Defaults to 0. Ignored if an array is used for the \code{effort}
 argument or a \code{MizerSim} for the \code{object} argument.}
 
-\item{initial_n}{The initial abundances of species. A matrix with dimensions 
-species x size. The order of species must be the same as in the 
-\code{MizerParams} argument. Ignored if the \code{object} argument is a 
-MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
+\item{initial_n}{The initial abundances of species. A matrix with dimensions
+species x size. The order of species must be the same as in the
+\code{MizerParams} argument. Ignored if the \code{object} argument is a
+MizerSim object, but overrules the \code{initial_n} slot if \code{object}
 is a \code{MizerParams} object.}
 
 \item{initial_n_pp}{The initial abundances of plankton. A numeric vector.
@@ -61,7 +61,7 @@ are appended to the previous ones. Only relevant if \code{object} is a
 \code{MizerSim} object. Default = TRUE.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
-bar should be shown in the console of a shiny progress object to implement 
+bar should be shown in the console of a shiny progress object to implement
 a progress bar in a shiny app}
 
 \item{...}{Currently unused.}
@@ -73,14 +73,14 @@ An object of class \linkS4class{MizerSim}.
 Runs the size spectrum model simulation.
 The function returns an object of type
 \linkS4class{MizerSim} that can then be explored with a range of
-\code{\link{summary_functions}}, \code{\link{indicator_functions}} and 
-\code{\link{plotting_functions}}.
+\code{\link[=summary_functions]{summary_functions()}}, \code{\link[=indicator_functions]{indicator_functions()}} and
+\code{\link[=plotting_functions]{plotting_functions()}}.
 }
 \note{
 The \code{effort} argument specifies the level of fishing effort during
 the simulation. If it is not supplied, the initial effort stored in the params
-object is used. The effort can be specified in three different ways: 
-\itemize{ 
+object is used. The effort can be specified in three different ways:
+\itemize{
 \item A single numeric value. This specifies the effort of all fishing gears
 which is constant through time (i.e. all the gears have the same constant
 effort).
@@ -88,7 +88,7 @@ effort).
 gears. The vector must be named and the names must correspond to the gear
 names in the \code{MizerParams} object. The values in the vector specify the
 constant fishing effort of each of the fishing gears, i.e. the effort is
-constant through time but each gear may have a different fishing effort. 
+constant through time but each gear may have a different fishing effort.
 \item A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
 must be named numerically and contiguously. The second dimension of the array
@@ -97,15 +97,15 @@ must be named and the names must correspond to the gear names in the
 is used during the interval from that time to the next time in the array.
 }
 
-If effort is specified as an array then the smallest time in the array is 
+If effort is specified as an array then the smallest time in the array is
 used as the initial time for the simulation. Otherwise the initial time is
-set to the final time of the previous simulation if \code{object} is a 
+set to the final time of the previous simulation if \code{object} is a
 \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
 an array then the \code{t_max} argument is ignored and the maximum simulation
 time is the largest time of the effort array.
 
 If the \code{object} argument is of class \code{MizerSim} then the initial
-values for the simulation are taken from the final values in the 
+values for the simulation are taken from the final values in the
 \code{MizerSim} object and the corresponding arguments to this function will
 be ignored.
 }
@@ -131,6 +131,6 @@ sim <- project(params, effort = effort_array)
 }
 }
 \seealso{
-\code{\link{MizerParams}}, \code{\link{summary_functions}},
-\code{\link{indicator_functions}} and \code{\link{plotting_functions}}
+\code{\link[=MizerParams]{MizerParams()}}, \code{\link[=summary_functions]{summary_functions()}},
+\code{\link[=indicator_functions]{indicator_functions()}} and \code{\link[=plotting_functions]{plotting_functions()}}
 }

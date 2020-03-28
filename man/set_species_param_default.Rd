@@ -18,7 +18,7 @@ each species}
 not already exist}
 }
 \value{
-The `object` with an updated column in the species params data frame.
+The \code{object} with an updated column in the species params data frame.
 }
 \description{
 If the species parameter does not yet exist in the species parameter data

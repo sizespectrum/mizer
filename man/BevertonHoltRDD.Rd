@@ -28,9 +28,9 @@ specified in a column in the species parameter dataframe.
 \details{
 This is only one example of a density-dependence. You can write your own
 function based on this example, returning different density-dependent
-reproduction rates. Two other examples provided are \code{\link{RickerRDD}}
-and \code{\link{SheperdRDD}}. For more explanation see
-\code{\link{setReproduction}}.
+reproduction rates. Two other examples provided are \code{\link[=RickerRDD]{RickerRDD()}}
+and \code{\link[=SheperdRDD]{SheperdRDD()}}. For more explanation see
+\code{\link[=setReproduction]{setReproduction()}}.
 }
 \seealso{
 Other functions calculating density-dependent reproduction rate: 

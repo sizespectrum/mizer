@@ -35,7 +35,7 @@ over \code{max_w}.}
 }
 \value{
 A data.frame with four columns: time step, slope, intercept and the
-  coefficient of determination R^2.
+coefficient of determination R^2.
 }
 \description{
 Calculates the slope of the community abundance through time by performing a

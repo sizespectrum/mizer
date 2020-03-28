@@ -14,7 +14,7 @@ A vector with the values of ks for all species
 }
 \description{
 Fills in any missing values for ks so that the critical feeding level needed
-to sustain the species is as specified in the `fc` column in the species
+to sustain the species is as specified in the \code{fc} column in the species
 parameter data frame. If that column is not provided the default critical
 feeding level \eqn{f_c = 0.2} is used.
 }

@@ -11,7 +11,7 @@ n_other(sim, component)
 }
 \value{
 A list array (time x component) that stores the projected
-  values for other ecosystem components.
+values for other ecosystem components.
 }
 \description{
 Fetch the simulation results for other components over time.

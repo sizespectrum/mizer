@@ -8,14 +8,14 @@
 #' Length based sigmoid selectivity function
 #'
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
-#' \code{l50} which determine the length at which 25\% and 50\% of the stock is
+#' \code{l50} which determine the length at which 25% and 50% of the stock is
 #' selected respectively. As the size-based model is weight based, and this
 #' selectivity function is length based, it is also necessary to supply the
-#' length-weight parameters \code{a} and \code{b}.
+#' length-weight parameters `a` and `b`.
 #'
 #' @param w the size of the individual.
-#' @param l25 the length which gives a selectivity of 25\%.
-#' @param l50 the length which gives a selectivity of 50\%.
+#' @param l25 the length which gives a selectivity of 25%.
+#' @param l50 the length which gives a selectivity of 50%.
 #' @param a the multiplier of the length-weight function.
 #' @param b the exponent of the length-weight function.
 #' @export
@@ -34,26 +34,26 @@ sigmoid_length <- function(w, l25, l50, a, b) {
 #'
 #' A hump-shaped selectivity function with a sigmoidal rise and an independent
 #' sigmoidal drop-off. This drop-off is what distinguishes this from the
-#' function \code{\link{sigmoid_length}} and it is intended to model the escape
+#' function [sigmoid_length()] and it is intended to model the escape
 #' of large individuals from the fishing gear. 
 #' 
 #' The selectivity is obtained as the product of two sigmoidal curves, one
 #' rising and one dropping. The sigmoidal rise is based on the two parameters
-#' \code{l25} and \code{l50} which determine the length at which 25\% and 50\%
+#' \code{l25} and \code{l50} which determine the length at which 25% and 50%
 #' of the stock is selected respectively. The sigmoidal drop-off is based on the
 #' two parameters \code{l50_right} and \code{l25_right} which determine the
-#' length at which the selectivity curve has dropped back to 50\% and 25\%
+#' length at which the selectivity curve has dropped back to 50% and 25%
 #' respectively.
 #' 
 #' As the size-based model is weight based, and this
 #' selectivity function is length based, it is also necessary to supply the
-#' length-weight parameters \code{a} and \code{b}.
+#' length-weight parameters `a` and `b`.
 #'
 #' @param w the size of the individual.
-#' @param l25 the length which gives a selectivity of 25\%.
-#' @param l50 the length which gives a selectivity of 50\%.
-#' @param l50_right the length which gives a selectivity of 50\%.
-#' @param l25_right the length which gives a selectivity of 25\%.
+#' @param l25 the length which gives a selectivity of 25%.
+#' @param l50 the length which gives a selectivity of 50%.
+#' @param l50_right the length which gives a selectivity of 50%.
+#' @param l25_right the length which gives a selectivity of 25%.
 #' @param a the multiplier of the length-weight function.
 #' @param b the exponent of the length-weight function.
 #' @export
@@ -82,7 +82,7 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right, a, b) {
 #' Weight based knife-edge selectivity function
 #'
 #' A knife-edge selectivity function where weights greater or equal to
-#' \code{knife_edge_size} are selected.
+#' `knife_edge_size` are selected.
 #'
 #' @param w The size of the individual.
 #' @param knife_edge_size The weight at which the knife-edge operates.
@@ -95,8 +95,8 @@ knife_edge <- function(w, knife_edge_size) {
 
 #' Weight based sigmoidal selectivity function
 #'
-#' A sigmoidal selectivity function with 50\% selectivity at
-#' weight \code{sigmoidal_weight} and width \code{sigmoidal_sigma}.
+#' A sigmoidal selectivity function with 50% selectivity at
+#' weight `sigmoidal_weight` and width `sigmoidal_sigma`.
 #'
 #' @param w The size of the individual.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.

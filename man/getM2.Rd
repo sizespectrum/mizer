@@ -19,7 +19,7 @@ ecosystem}
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
 plankton, the w_full slot). The array is optional. If it is not provided
-it is calculated by the \code{\link{getPredRate}} function.}
+it is calculated by the \code{\link[=getPredRate]{getPredRate()}} function.}
 
 \item{time_range}{The time_range can be character or numeric.}
 
@@ -28,11 +28,11 @@ from the returned array.}
 }
 \value{
 If a \code{MizerParams} object is passed in, the function returns a two
-  dimensional array (prey species x prey size) based on the abundances also
-  passed in. If a \code{MizerSim} object is passed in, the function returns a
-  three dimensional array (time step x prey species x prey size) with the
-  predation mortality calculated at every time step in the simulation.
-  Dimensions may be dropped if they have length 1 unless `drop = FALSE`.
+dimensional array (prey species x prey size) based on the abundances also
+passed in. If a \code{MizerSim} object is passed in, the function returns a
+three dimensional array (time step x prey species x prey size) with the
+predation mortality calculated at every time step in the simulation.
+Dimensions may be dropped if they have length 1 unless \code{drop = FALSE}.
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0

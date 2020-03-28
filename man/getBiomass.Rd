@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_methods.R
 \name{getBiomass}
 \alias{getBiomass}
-\title{Calculate the total biomass of each species within a size range at each time 
+\title{Calculate the total biomass of each species within a size range at each time
 step.}
 \usage{
 getBiomass(sim, ...)

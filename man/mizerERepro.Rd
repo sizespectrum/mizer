@@ -2,7 +2,7 @@
 % Please edit documentation in R/project_methods.R
 \name{mizerERepro}
 \alias{mizerERepro}
-\title{Get energy rate available for reproduction needed to project standard mizer 
+\title{Get energy rate available for reproduction needed to project standard mizer
 model}
 \usage{
 mizerERepro(params, n, n_pp, n_other, e, ...)
@@ -18,7 +18,7 @@ mizerERepro(params, n, n_pp, n_other, e, ...)
 ecosystem}
 
 \item{e}{A two dimensional array (species x size) holding the energy available
-for reproduction and growth as calculated by `mizerEReproAndGrowth()`.}
+for reproduction and growth as calculated by \code{mizerEReproAndGrowth()}.}
 
 \item{...}{Unused}
 }
@@ -26,10 +26,10 @@ for reproduction and growth as calculated by `mizerEReproAndGrowth()`.}
 A two dimensional array (species x size) holding
 \deqn{\psi_i(w)E_{r.i}(w)}
 where \eqn{E_{r.i}(w)} is the rate at which energy becomes available for
-growth and reproduction, calculated with \code{\link{mizerEReproAndGrowth}},
+growth and reproduction, calculated with \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}},
 and \eqn{\psi_i(w)} is the proportion of this energy that is used for
 reproduction. This proportion is taken from the \code{params} object and is
-set with \code{\link{setReproduction}}.
+set with \code{\link[=setReproduction]{setReproduction()}}.
 }
 \description{
 Calculates the energy rate (grams/year) available for reproduction after

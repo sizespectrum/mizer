@@ -18,45 +18,45 @@ NULL
 #' Runs the size spectrum model simulation.
 #' The function returns an object of type
 #' \linkS4class{MizerSim} that can then be explored with a range of
-#' \code{\link{summary_functions}}, \code{\link{indicator_functions}} and 
-#' \code{\link{plotting_functions}}.
+#' [summary_functions()], [indicator_functions()] and 
+#' [plotting_functions()].
 #' 
 #' @param object Either a \linkS4class{MizerParams} object or a 
-#'   \linkS4class{MizerSim} object (which contains a \code{MizerParams} object).
+#'   \linkS4class{MizerSim} object (which contains a `MizerParams` object).
 #' @param effort The effort of each fishing gear through time. See notes below.
 #' @param t_max The number of years the projection runs for. The default value is
 #'   100. However, this argument is ignored if an array is used for the
-#'   \code{effort} argument. See notes below.
+#'   `effort` argument. See notes below.
 #' @param dt Time step of the solver. The default value is 0.1.
 #' @param t_save The frequency with which the output is stored. The default
 #'   value is 1. Must be an integer multiple of dt.
 #' @param t_start The the year of the start of the simulation. The simulation
-#'   will cover the period from \code{t_start} to \code{t_start + t_max}.
-#'   Defaults to 0. Ignored if an array is used for the \code{effort}
-#'   argument or a \code{MizerSim} for the \code{object} argument.
+#'   will cover the period from `t_start` to \code{t_start + t_max}.
+#'   Defaults to 0. Ignored if an array is used for the `effort`
+#'   argument or a `MizerSim` for the `object` argument.
 #' @param initial_n The initial abundances of species. A matrix with dimensions 
 #'   species x size. The order of species must be the same as in the 
-#'   \code{MizerParams} argument. Ignored if the \code{object} argument is a 
-#'   MizerSim object, but overrules the \code{initial_n} slot if \code{object} 
-#'   is a \code{MizerParams} object.
+#'   `MizerParams` argument. Ignored if the `object` argument is a 
+#'   MizerSim object, but overrules the `initial_n` slot if `object` 
+#'   is a `MizerParams` object.
 #' @param initial_n_pp The initial abundances of plankton. A numeric vector.
-#'   Ignored if the \code{object} argument is a MizerSim object, but overrules
-#'   the \code{initial_n_pp} slot if \code{object} is a \code{MizerParams}
+#'   Ignored if the `object` argument is a MizerSim object, but overrules
+#'   the `initial_n_pp` slot if `object` is a `MizerParams`
 #'   object.
 #' @param initial_n_other The initial abundances of the other dynamical
 #'   ecosystem components. It should be a named list with one entry for each
-#'   component. Ignored if the \code{object} argument is a MizerSim object, but
-#'   overrules the \code{initial_n_other} slot if \code{object} is a
-#'   \code{MizerParams} object.
+#'   component. Ignored if the `object` argument is a MizerSim object, but
+#'   overrules the `initial_n_other` slot if `object` is a
+#'   `MizerParams` object.
 #' @param append A boolean that determines whether the new simulation results
-#'   are appended to the previous ones. Only relevant if \code{object} is a
-#'   \code{MizerSim} object. Default = TRUE.
+#'   are appended to the previous ones. Only relevant if `object` is a
+#'   `MizerSim` object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console of a shiny progress object to implement 
 #'   a progress bar in a shiny app
 #' @param ... Currently unused.
 #' 
-#' @note The \code{effort} argument specifies the level of fishing effort during
+#' @note The `effort` argument specifies the level of fishing effort during
 #' the simulation. If it is not supplied, the initial effort stored in the params
 #' object is used. The effort can be specified in three different ways: 
 #' \itemize{ 
@@ -65,34 +65,34 @@ NULL
 #' effort).
 #' \item A numerical vector which has the same length as the number of fishing
 #' gears. The vector must be named and the names must correspond to the gear
-#' names in the \code{MizerParams} object. The values in the vector specify the
+#' names in the `MizerParams` object. The values in the vector specify the
 #' constant fishing effort of each of the fishing gears, i.e. the effort is
 #' constant through time but each gear may have a different fishing effort. 
 #' \item A numerical array with dimensions time x gear. This specifies the
 #' fishing effort of each gear at each time step.  The first dimension, time,
 #' must be named numerically and contiguously. The second dimension of the array
 #' must be named and the names must correspond to the gear names in the
-#' \code{MizerParams} argument. The value for the effort for a particular time
+#' `MizerParams` argument. The value for the effort for a particular time
 #' is used during the interval from that time to the next time in the array.
 #' }
 #' 
 #' If effort is specified as an array then the smallest time in the array is 
 #' used as the initial time for the simulation. Otherwise the initial time is
-#' set to the final time of the previous simulation if \code{object} is a 
-#' \code{MizerSim} object or to \code{t_start} otherwise. Also, if the effort is
-#' an array then the \code{t_max} argument is ignored and the maximum simulation
+#' set to the final time of the previous simulation if `object` is a 
+#' `MizerSim` object or to `t_start` otherwise. Also, if the effort is
+#' an array then the `t_max` argument is ignored and the maximum simulation
 #' time is the largest time of the effort array.
 #' 
-#' If the \code{object} argument is of class \code{MizerSim} then the initial
+#' If the `object` argument is of class `MizerSim` then the initial
 #' values for the simulation are taken from the final values in the 
-#' \code{MizerSim} object and the corresponding arguments to this function will
+#' `MizerSim` object and the corresponding arguments to this function will
 #' be ignored.
 #' 
 #' @return An object of class \linkS4class{MizerSim}.
 #' 
 #' @export
-#' @seealso \code{\link{MizerParams}}, \code{\link{summary_functions}},
-#' \code{\link{indicator_functions}} and \code{\link{plotting_functions}}
+#' @seealso [MizerParams()], [summary_functions()],
+#' [indicator_functions()] and [plotting_functions()]
 #' @examples
 #' \dontrun{
 #' # Data set with different fishing gears
@@ -387,7 +387,7 @@ project <- function(object, effort,
 #' This function uses the model parameters and other parameters to calculate 
 #' initial population abundances for the community populations. These initial 
 #' abundances should be reasonable guesses at the equilibrium values. The 
-#' returned population can be passed to the \code{project} function.
+#' returned population can be passed to the `project` function.
 #' 
 #' @param params The model parameters. An object of type \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.

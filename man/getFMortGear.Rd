@@ -18,10 +18,10 @@ single value. Default is the whole time range. Only used if the
 }
 \value{
 An array. If the effort argument has a time dimension, or a
-  \code{MizerSim} is passed in, the output array has four dimensions (time x
-  gear x species x size). If the effort argument does not have a time
-  dimension (i.e. it is a vector or a single numeric), the output array has
-  three dimensions (gear x species x size).
+\code{MizerSim} is passed in, the output array has four dimensions (time x
+gear x species x size). If the effort argument does not have a time
+dimension (i.e. it is a vector or a single numeric), the output array has
+three dimensions (gear x species x size).
 }
 \description{
 Calculates the fishing mortality rate \eqn{F_{g,i,w}} by gear, species and
@@ -38,7 +38,7 @@ different effort that is constant in time), or a single numeric value (each
 gear has the same effort that is constant in time). The order of gears in the
 \code{effort} argument must be the same the same as in the \code{MizerParams}
 object. If the \code{effort} argument is not supplied, its value is taken
-from the `@initial_effort` slot in the params object.
+from the \verb{@initial_effort} slot in the params object.
 
 If the object argument is of class \code{MizerSim} then the effort slot of
 the \code{MizerSim} object is used and the \code{effort} argument is not

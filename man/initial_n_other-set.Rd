@@ -15,5 +15,5 @@ initial_n_other(params)
 \item{value}{A named list with the initial values of other ecosystem components}
 }
 \description{
-Values used as starting values for simulations with `project()`.
+Values used as starting values for simulations with \code{project()}.
 }

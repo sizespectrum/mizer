@@ -8,8 +8,8 @@
 #' the mizer vignette where the corresponding model is described.
 #' \tabular{llll}{
 #'   Function name \tab Description \tab Section in vignette\cr
-#'   \code{\link{newCommunityParams}} \tab Community model \tab 5 \cr
-#'   \code{\link{newTraitParams}} \tab Trait-based model \tab 6 \cr
+#'   [newCommunityParams()] \tab Community model \tab 5 \cr
+#'   [newTraitParams()] \tab Trait-based model \tab 6 \cr
 #' }
 #'
 #' The file also contains functions for adding, removing or rescaling species.
@@ -38,39 +38,39 @@ NULL
 #' * The plankton spectrum only extends to the start of the community spectrum. 
 #' * Reproductive rate is constant, independent of the energy invested in 
 #'   reproduction, which is set to 0. 
-#' * Standard metabolism is turned off (the parameter \code{ks} is set to 0).
+#' * Standard metabolism is turned off (the parameter `ks` is set to 0).
 #'   Consequently, the growth rate is now determined solely by the assimilated
 #'   food 
 #' 
 #' The function has many arguments, all of which have default values.
 #' 
 #' Fishing selectivity is modelled as a knife-edge function with one parameter, 
-#' \code{knife_edge_size}, which determines the size at which species are 
+#' `knife_edge_size`, which determines the size at which species are 
 #' selected.
 #' 
-#' The resulting \code{MizerParams} object can be projected forward using 
-#' \code{project()} like any other \code{MizerParams} object. When projecting 
+#' The resulting `MizerParams` object can be projected forward using 
+#' \code{project()} like any other `MizerParams` object. When projecting 
 #' the community model it may be necessary to keep a small time step size
-#' \code{dt} of around 0.1 to avoid any instabilities with the solver. You can
+#' `dt` of around 0.1 to avoid any instabilities with the solver. You can
 #' check for these numerical instabilities by plotting the biomass or abundance
 #' through time after the projection.
 #' 
-#' @param max_w The maximum size of the community. The \code{w_inf} of the 
+#' @param max_w The maximum size of the community. The `w_inf` of the 
 #'   species used to represent the community is set to this value.
 #' @param min_w The minimum size of the community.
 #' @param z0 The background mortality of the community.
 #' @param alpha The assimilation efficiency of the community.
 #' @param f0 The average feeding level of individuals who feed on a power-law 
 #'   spectrum. This value is used to calculate the search rate parameter 
-#'   \code{gamma} (see the package vignette).
+#'   `gamma` (see the package vignette).
 #' @param h The coefficient of the maximum food intake rate.
 #' @param n The allometric growth exponent. Used as allometric exponent for
 #'   the maximum intake rate of the community as well as the intrinsic growth
 #'   rate of the plankton.
 #' @param beta The preferred predator prey mass ratio.
 #' @param sigma The width of the prey preference.
-#' @param gamma Volumetric search rate. Estimated using \code{h}, \code{f0} and 
-#'   \code{kappa} if not supplied.
+#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
+#'   `kappa` if not supplied.
 #' @param reproduction The constant reproduction in the smallest size class of the
 #'   community spectrum. By default this is set so that the community spectrum 
 #'   is continuous with the plankton spectrum.
@@ -154,15 +154,15 @@ newCommunityParams <- function(max_w = 1e6,
 
 #' Set up parameters for a trait-based model
 #' 
-#' This functions creates a \code{MizerParams} object describing a trait-based
+#' This functions creates a `MizerParams` object describing a trait-based
 #' model. This is a simplification of the general size-based model used in
-#' \code{mizer} in which the species-specific parameters are the same for all
+#' `mizer` in which the species-specific parameters are the same for all
 #' species, except for the asymptotic size, which is considered the most
 #' important trait characterizing a species. Other parameters are related to the
 #' asymptotic size. For example, the size at maturity is given by \code{w_inf *
-#' eta}, where \code{eta} is the same for all species. For the trait-based model
+#' eta}, where `eta` is the same for all species. For the trait-based model
 #' the number of species is not important. For applications of the trait-based
-#' model see Andersen & Pedersen (2010). See the \code{mizer} website for more
+#' model see Andersen & Pedersen (2010). See the `mizer` website for more
 #' details and examples of the trait-based model.
 #'
 #' The function has many arguments, all of which have default values. Of
@@ -170,13 +170,13 @@ newCommunityParams <- function(max_w = 1e6,
 #' the minimum and maximum asymptotic sizes.
 #'
 #' The characteristic weights of the smallest species are defined by
-#' \code{min_w} (egg size), \code{min_w_mat} (maturity size) and 
-#' \code{min_w_inf} (asymptotic size). The asymptotic sizes of 
-#' the \code{no_sp} species
-#' are logarithmically evenly spaced, ranging from \code{min_w_inf} to
-#' \code{max_w_inf}. 
+#' `min_w` (egg size), `min_w_mat` (maturity size) and 
+#' `min_w_inf` (asymptotic size). The asymptotic sizes of 
+#' the `no_sp` species
+#' are logarithmically evenly spaced, ranging from `min_w_inf` to
+#' `max_w_inf`. 
 #' Similarly the maturity sizes of the species are logarithmically evenly
-#' spaced, so that the ratio \code{eta} between maturity size and asymptotic
+#' spaced, so that the ratio `eta` between maturity size and asymptotic
 #' size is the same for all species. If \code{egg_size_scaling = TRUE} then also
 #' the ratio between asymptotic size and egg size is the same for all species.
 #' Otherwise all species have the same egg size.
@@ -188,24 +188,24 @@ newCommunityParams <- function(max_w = 1e6,
 #' imposing additional density-dependence, the function can set a Beverton-Holt
 #' type density-dependence that imposes a maximum for the reproduction rate that
 #' is a multiple of the reproduction rate at steady state. That multiple is set
-#' by the argument \code{rfac}.
+#' by the argument `rfac`.
 #'
-#' The search rate coefficient \code{gamma} is calculated using the expected
-#' feeding level, \code{f0}.
+#' The search rate coefficient `gamma` is calculated using the expected
+#' feeding level, `f0`.
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may wish to include stabilising effects (like \code{rfac}) to ensure the
+#' may wish to include stabilising effects (like `rfac`) to ensure the
 #' steady state is stable. Fishing selectivity is modelled as a knife-edge
-#' function with one parameter, \code{knife_edge_size}, which is the size at
+#' function with one parameter, `knife_edge_size`, which is the size at
 #' which species are selected. Each species can either be fished by the same
-#' gear (\code{knife_edge_size} has a length of 1) or by a different gear (the
-#' length of \code{knife_edge_size} has the same length as the number of species
+#' gear (`knife_edge_size` has a length of 1) or by a different gear (the
+#' length of `knife_edge_size` has the same length as the number of species
 #' and the order of selectivity size is that of the asymptotic size).
 #'
-#' The resulting \code{MizerParams} object can be projected forward using
-#' \code{project()} like any other \code{MizerParams} object. When projecting
-#' the model it may be necessary to reduce \code{dt} below 0.1 to avoid any
+#' The resulting `MizerParams` object can be projected forward using
+#' \code{project()} like any other `MizerParams` object. When projecting
+#' the model it may be necessary to reduce `dt` below 0.1 to avoid any
 #' instabilities with the solver. You can check this by plotting the biomass or
 #' abundance through time after the projection.
 #'
@@ -217,10 +217,10 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param min_w The size of the the egg of the smallest species. This also
 #'   defines the start of the community size spectrum.
 #' @param max_w The largest size in the model. By default this is set to the
-#'   largest asymptotic size \code{max_w_inf}. Setting it to something larger
+#'   largest asymptotic size `max_w_inf`. Setting it to something larger
 #'   only makes sense if you plan to add larger species to the model later.
 #' @param eta Ratio between maturity size and asymptotic size of a species.
-#'   Ignored if \code{min_w_mat} is supplied. Default is 10^(-0.6),
+#'   Ignored if `min_w_mat` is supplied. Default is 10^(-0.6),
 #'   approximately 1/4.
 #' @param min_w_mat The maturity size of the smallest species. Default value is
 #'   \code{eta * min_w_inf}. This will be rounded to lie on a grid point.
@@ -233,7 +233,7 @@ newCommunityParams <- function(max_w = 1e6,
 #'   is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.
 #' @param n Scaling exponent of the maximum intake rate.
 #' @param p Scaling exponent of the standard metabolic rate. By default this is
-#'   equal to the exponent \code{n}.
+#'   equal to the exponent `n`.
 #' @param lambda Exponent of the abundance power law.
 #' @param r_pp Growth rate parameter for the plankton spectrum.
 #' @param kappa Coefficient in abundance power law.
@@ -242,17 +242,17 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param h Maximum food intake rate.
 #' @param beta Preferred predator prey mass ratio.
 #' @param sigma Width of prey size preference.
-#' @param f0 Expected average feeding level. Used to set \code{gamma}, the
-#'   coefficient in the search rate. Ignored if \code{gamma} is given
+#' @param f0 Expected average feeding level. Used to set `gamma`, the
+#'   coefficient in the search rate. Ignored if `gamma` is given
 #'   explicitly.
 #' @param gamma Volumetric search rate. If not provided, default is determined
-#'   by \code{\link{get_gamma_default}} using the value of \code{f0}.
+#'   by [get_gamma_default()] using the value of `f0`.
 #' @param ext_mort_prop The proportion of the total mortality that comes from
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
-#' @param rfac The factor such that \code{R_max = rfac * R}, where \code{R_max}
-#'   is the maximum reproduction rate allowed and \code{R} is the steady-state
-#'   reproduction rate. Thus the larger \code{rfac} the less the impact of the
+#' @param rfac The factor such that \code{R_max = rfac * R}, where `R_max`
+#'   is the maximum reproduction rate allowed and `R` is the steady-state
+#'   reproduction rate. Thus the larger `rfac` the less the impact of the
 #'   density-dependence.
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the number of gears.
@@ -261,11 +261,11 @@ newCommunityParams <- function(max_w = 1e6,
 #'   gear.
 #' @param egg_size_scaling If TRUE, the egg size is a constant fraction of the
 #'   maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
-#'   FALSE, all species have the egg size \code{w_min}.
+#'   FALSE, all species have the egg size `w_min`.
 #' @param perfect_scaling If TRUE then parameters are set so that the community
 #'   abundance, growth before reproduction and death are perfect power laws.
 #' @export
-#' @return An object of type \code{MizerParams}
+#' @return An object of type `MizerParams`
 #' @family functions for setting up models
 #' @examples
 #' \dontrun{
@@ -566,7 +566,7 @@ newTraitParams <- function(no_sp = 11,
 #' 
 #' Takes a MizerParams object with density-independent reproduction rate and
 #' sets a Beverton-Holt density-dependence with a maximum reproduction rate that
-#' is a chosen factor \code{rfac} higher than the initial-state reproduction
+#' is a chosen factor `rfac` higher than the initial-state reproduction
 #' rate.
 #' 
 #' @param params A MizerParams object

@@ -13,17 +13,17 @@
 #' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
 #' determines the width of the kernel.
 #' These two parameters need to be given in the species parameter dataframe in
-#' the columns \code{beta} and \code{sigma}.
+#' the columns `beta` and `sigma`.
 #' 
-#' This function is called from \code{\link{setPredKernel}} to set up the
-#' predation kernel slots in a \code{MizerParams} object. 
+#' This function is called from [setPredKernel()] to set up the
+#' predation kernel slots in a `MizerParams` object. 
 #' 
 #' @param ppmr A vector of predator/prey size ratios
 #' @param beta The preferred predator/prey size ratio
 #' @param sigma The width parameter of the log-normal kernel
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
-#'   predator/prey mass ratios in the \code{ppmr} argument.
+#'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
@@ -42,17 +42,17 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' distributed on an interval.
 #' 
 #' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p}, the
-#' feeding kernel is 1 if \eqn{w/w_p} is between \code{ppmr_min} and
-#' \code{ppmr_max} and zero otherwise. The parameters need to be given in the
-#' species parameter dataframe in the columns \code{ppmr_min} and
-#' \code{ppmr_max}.
+#' feeding kernel is 1 if \eqn{w/w_p} is between `ppmr_min` and
+#' `ppmr_max` and zero otherwise. The parameters need to be given in the
+#' species parameter dataframe in the columns `ppmr_min` and
+#' `ppmr_max`.
 #' 
 #' @param ppmr A vector of predator/prey size ratios
 #' @param ppmr_min Minimum predator/prey mass ratio
 #' @param ppmr_max Maximum predator/prey mass ratio
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
-#'   predator/prey mass ratios in the \code{ppmr} argument.
+#'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     assert_that(ppmr_min < ppmr_max)
@@ -89,7 +89,7 @@ box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
 #' @param kernel_u_r The shape of the right, falling sigmoid
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
-#'   predator/prey mass ratios in the \code{ppmr} argument.
+#'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
 power_law_pred_kernel <- function(ppmr, kernel_exp,
                                   kernel_l_l, kernel_u_l,

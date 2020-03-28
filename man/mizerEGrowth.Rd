@@ -19,12 +19,12 @@ ecosystem}
 \item{e_repro}{The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
 size bins. If not supplied, is calculated internally using
-\code{\link{getERepro}}.}
+\code{\link[=getERepro]{getERepro()}}.}
 
 \item{e}{The energy available for reproduction and growth (optional, although
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
-\code{\link{getEReproAndGrowth}}.}
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
 
 \item{...}{Unused}
 }
@@ -34,7 +34,7 @@ A two dimensional array (species x size) with the growth rates.
 \description{
 Calculates the energy rate \eqn{g_i(w)} (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
-accounted for. Used by \code{\link{project}} for performing simulations.
+accounted for. Used by \code{\link[=project]{project()}} for performing simulations.
 }
 \seealso{
 Other mizer rate functions: 

@@ -24,7 +24,7 @@ ecosystem}
 
 \item{e_repro}{The energy available for reproduction (optional). A matrix of
 size no. species x no. size bins. If not supplied, is calculated internally
-using \code{\link{getERepro}}.}
+using \code{\link[=getERepro]{getERepro()}}.}
 }
 \value{
 A numeric vector the length of the number of species
@@ -32,8 +32,8 @@ A numeric vector the length of the number of species
 \description{
 Calculates the density independent rate of egg production \eqn{R_{p.i}}
 (units 1/year) before density dependence, by species. Used by
-\code{\link{getRDD}} to calculate the actual density dependent rate.
-See \code{\link{setReproduction}} for more details.
+\code{\link[=getRDD]{getRDD()}} to calculate the actual density dependent rate.
+See \code{\link[=setReproduction]{setReproduction()}} for more details.
 }
 \examples{
 \dontrun{
@@ -45,7 +45,7 @@ getRDI(params,sim@n[21,,],sim@n_pp[21,])
 }
 }
 \seealso{
-\code{\link{getRDD}}
+\code{\link[=getRDD]{getRDD()}}
 
 Other rate functions: 
 \code{\link{getEGrowth}()},

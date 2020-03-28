@@ -14,7 +14,7 @@ predation kernel function}
 }
 \value{
 An array (species x ppmr) with the values of the predation kernel
-  function
+function
 }
 \description{
 This involves finding the feeding kernel function for each species, using the

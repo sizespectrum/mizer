@@ -40,9 +40,9 @@ arguments.
 }
 \section{Length to weight conversion}{
 
-If `min_l` is specified there is no need to specify `min_w` and so on.
+If \code{min_l} is specified there is no need to specify \code{min_w} and so on.
 However, if a length is specified (minimum or maximum) then it is necessary
-for the species parameter data.frame to include the parameters `a` and `b`
+for the species parameter data.frame to include the parameters \code{a} and \code{b}
 that determine the relation between length \eqn{l} and weight \eqn{w} by
 \deqn{w = a l^b.}
 
