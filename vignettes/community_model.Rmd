@@ -99,8 +99,8 @@ summary(params)
 ```
 
 In the summary you can see that the size range of the community spectrum has
-been set from $`r min(params@w)`$ to $`r max(params@w)`$ and this is divided
-into $`r length(params@w)`$ size bins. Similar information is available for the
+been set from $`r min(w(params))`$ to $`r max(w(params))`$ and this is divided
+into $`r length(w(params))`$ size bins. Similar information is available for the
 plankton spectrum. Additionally, the community is made up of only one species,
 called *Community*, which has an asymptotic size of 
 $`r species_params(params)$w_inf[1]`$ and a preferred predator prey mass ratio of 
@@ -164,7 +164,7 @@ at size will be strongly affected by the values of the `f0` and `alpha`
 arguments passed to the `newCommunityParams()` function. The plankton and
 community spectra are shown in the bottom panel of the plot (the plotted
 plankton spectrum has been truncated to make for a better plot, but really
-extends all the way back to $`r signif(params@w_full[1],3)`$ g). You can see
+extends all the way back to $`r signif(w_full(params)[1], 3)`$ g). You can see
 that the community spectrum forms a continuum with the plankton spectrum. This
 is strongly affected by the level of fixed reproduction rate (the `reproduction`
 argument passed to `newCommunityParams()`).
@@ -198,14 +198,14 @@ time step.
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
-pred_mort[51,]
+pred_mort[final_idx(sim), ]
 ```
 
 If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
 ```{r label=print_plot_comm_m2, warning=FALSE}
-plot(x = sim@params@w, y = pred_mort[51,], log = "xy", type = "l", 
+plot(x = w(params), y = pred_mort[final_idx(sim), ], log = "xy", type = "l", 
      xlab = "Size", ylab = "Predation mortality")
 ```
  
@@ -277,14 +277,13 @@ relative_abundance <- final_n(sim1) / final_n(sim0)
 ```
 
 This can then be plotted using basic R plotting commands.
-The sizes are stored in the `params@w` slot.
 
 
 ```{r label=plot_relative_comm_abund}
-plot(x = params@w, y = relative_abundance, log = "x", type = "n",
+plot(x = w(params), y = relative_abundance, log = "x", type = "n",
     xlab = "Size (g)", ylab = "Relative abundance")
-lines(x = params@w, y = relative_abundance)
-lines(x = c(min(params@w), max(params@w)), y = c(1, 1), lty = 2)
+lines(x = w(params), y = relative_abundance)
+lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
 ```
 
 The impact of fishing on species larger than 1000g can be clearly seen. The

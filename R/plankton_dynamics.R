@@ -11,7 +11,6 @@
 #'   
 #' @return Vector containing plankton spectrum at next timestep
 #' @export
-#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter,
@@ -36,7 +35,6 @@ plankton_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt, ...) 
 #'   
 #' @return Vector containing plankton spectrum at next timestep
 #' @export
-#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter,

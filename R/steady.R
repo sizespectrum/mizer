@@ -22,7 +22,6 @@
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @export
-#' @md
 #' @examples
 #' \dontrun{
 #' params <- newTraitParams()

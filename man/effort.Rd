@@ -14,5 +14,8 @@ An array (time x gear) that stores the fishing effort by time and
   gear.
 }
 \description{
-Fishing effort used in simulation
+Note that the array returned may not be exactly the same as the `effort`
+argument that was passed in to `project()`. This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+`t_save`).
 }

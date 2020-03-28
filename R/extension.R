@@ -22,7 +22,6 @@
 #' @param params A `MizerParams` object
 #' @param rate Name of the rate for which a new function is to be set.
 #' @param fun Name of the function to use to calculate the rate.
-#' @md
 #' @export
 setRateFunction <- function(params, rate = "Rates", fun) {
     assert_that(is(params, "MizerParams"),
@@ -102,7 +101,6 @@ setComponent <- function(params, component, initial_value,
 #' @return For `getComponent`: A list with the entries `initial_value`, `dynamics_fun`,
 #'   `encounter_fun`, `morality_fun`, `component_params`. If `component` is
 #'   missing, then a list of lists for all components is returned.
-#' @md
 #' @rdname setComponent
 #' @export
 getComponent <- function(params, component) {

@@ -113,21 +113,39 @@ valid_MizerSim <- function(object) {
 #' A class to hold the results of a simulation
 #' 
 #' A class that holds the results of projecting a \linkS4class{MizerParams}
-#' object through time using the \code{\link{project}} function.
+#' object through time using [project()].
 #' 
-#' A new \code{MizerSim} object can be created with the \code{\link{MizerSim}}
+#' A new `MizerSim` object can be created with the [MizerSim()]
 #' constructor, but you will never have to do that because the object is
-#' created automatically by the \code{\link{project}} function when needed.
+#' created automatically by [project()] when needed.
 #' 
-#' The arrays all have named dimensions. The names of the "time" dimension are
-#' numeric and denote the time in years. The names of the "sp" dimension are the
+#' As a user you should never have to access the slots of a MizerSim object
+#' directly. Instead there are a range of functions to extract the information.
+#' [n()] and [n_pp()] return arrays with the saved abundances of
+#' the species and the plankton population at size respectively. [effort()]
+#' returns the fishing effort of each gear through time. 
+#' [times()] returns the vector of times at which simulation results
+#' were stored and [final_idx()] returns the index with which to access
+#' specifically the value at the final time in the arrays returned by the other
+#' functions. T[params()] returns the `MizerParams` object that was
+#' passed in to `project()`. There are also several
+#' [summary_functions] and [plotting_functions]
+#' available to explore the contents of a `MizerSim` object.
+#' 
+#' The arrays all have named dimensions. The names of the `time` dimension
+#' denote the time in years. The names of the `w` dimension are weights in grams
+#' rounded to three significant figures. The names of the `sp` dimension are the
 #' same as the species name in the order specified in the species_params data
-#' frame. The names of the "gear" dimension are the names of the gears, in the
-#' same order as specified when setting up the \code{MizerParams} object.
+#' frame. The names of the `gear` dimension are the names of the gears, in the
+#' same order as specified when setting up the `MizerParams` object.
 #' 
-#' There are several \code{link{summary_functions}} and
-#' \code{\link{plotting_functions}} available to explore the contents of a
-#' \code{MizerSim} object.
+#' Extensions of mizer can use the `n_other` slot to store the abundances of
+#' other ecosystem compoents and these extensions should provide their own
+#' functions for accessing that information.
+#' 
+#' The `MizerSim` class has changed since previous versions of mizer. To use
+#' a `MizerSim` object created by a previous version, you need to upgrade it
+#' with [upgradeSim()].
 #' 
 #' @slot params An object of type \linkS4class{MizerParams}.
 #' @slot n Three-dimensional array (time x species x size) that stores the 
@@ -155,10 +173,10 @@ setValidity("MizerSim", valid_MizerSim)
 remove(valid_MizerSim)
 
 
-#' Constructor for the \code{MizerSim} class
+#' Constructor for the `MizerSim` class
 #' 
-#' A constructor for the \code{MizerSim} class. This is used by the
-#' \code{project} function to create \code{MizerSim} objects of the right
+#' A constructor for the `MizerSim` class. This is used by 
+#' [project()] to create `MizerSim` objects of the right
 #' dimensions. It is not necessary for users to use this constructor.
 #' 
 #' @param params a \linkS4class{MizerParams} object
@@ -249,7 +267,6 @@ n_pp <- function(sim) {
 #' @param sim A MizerSim object
 #' @return For `final_n()`: An array (species x size) holding the consumer
 #'   number densities at the end of the simulation
-#' @md
 #' @export
 final_n <- function(sim) {
     assert_that(is(sim, "MizerSim"))
@@ -264,7 +281,6 @@ final_n <- function(sim) {
 #' @return For `final_n_pp()`: A vector holding the plankton number densities at
 #'   the end of the simulation for all size classes
 #' @rdname final_n
-#' @md
 #' @export
 final_n_pp <- function(sim) {
     assert_that(is(sim, "MizerSim"))
@@ -278,7 +294,6 @@ final_n_pp <- function(sim) {
 #'   results for the final time step
 #' @rdname final_n
 #' @export
-#' @md
 #' @examples
 #' \dontrun{
 #' sim <- project(NS_params, t_max = 12, t_save = 0.5)
@@ -310,6 +325,11 @@ times <- function(sim) {
 
 #' Fishing effort used in simulation
 #' 
+#' Note that the array returned may not be exactly the same as the `effort`
+#' argument that was passed in to `project()`. This is because only the saved
+#' effort is stored (the frequency of saving is determined by the argument
+#' `t_save`).
+#' 
 #' @param sim A MizerSim object
 #' @return An array (time x gear) that stores the fishing effort by time and 
 #'   gear.
@@ -318,22 +338,33 @@ effort <- function(sim) {
     sim@effort
 }
 
+#' Extract the parameter object underlying a simulation
+#' 
+#' @param sim A MizerSim object
+#' @return The MizerParams object that was used to run the simulation
+#' @export
+params <- function(sim) {
+    sim@params
+}
+
 
 #' Upgrade MizerSim object from earlier mizer versions
 #' 
-#' Occasionally during the development of new features for mizer, the MizerSim
-#' class or the MizerParams class gains extra slots. MizerSim objects created in
-#' older versions of mizer are then no longer valid in the new version because
-#' of the missing slots. This function adds the missing slots and fills them
-#' with default values. It calls `upgradeParams()` to upgrade the MizerParams
-#' object inside the MizerSim object.
+#' Occasionally, during the development of new features for mizer, the
+#' \linkS4class{MizerSim} class or the \linkS4class{MizerParams} class gains
+#' extra slots. MizerSim objects created in older versions of mizer are then no
+#' longer valid in the new version because of the missing slots. You need to
+#' upgrade them with
+#' ```
+#' sim <- upgradeSim(sim)
+#' ```
+#' where `sim` should be replaced by the name of your MizerSim object.
 #' 
-#' If you only have a serialised version of the old object, for example created
-#' via `saveRDS()`, and you get an error when trying to read it in with
-#' `readRDS()` then unfortunately you will need to install the old version of
-#' mizer first to read the params object into your workspace, then switch to the
-#' current version and then call `upgradeSim()`. You can then save the new
-#' version again with `saveRDS()`.
+#' This function adds the missing slots and fills them with default values. It
+#' calls [upgradeParams()] to upgrade the MizerParams object inside the MizerSim
+#' object. Any object from version 0.4 onwards can be upgraded.
+#' 
+#' @inheritSection upgradeParams Backwards compatibility
 #' 
 #' @param sim An old MizerSim object to be upgraded
 #' 

@@ -22,7 +22,7 @@ used if t_dimnames = NA. Default value = 1.}
 An object of type \linkS4class{MizerSim}
 }
 \description{
-A constructor for the \code{MizerSim} class. This is used by the
-\code{project} function to create \code{MizerSim} objects of the right
+A constructor for the \code{MizerSim} class. This is used by
+\code{\link[=project]{project()}} to create \code{MizerSim} objects of the right
 dimensions. It is not necessary for users to use this constructor.
 }

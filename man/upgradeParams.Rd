@@ -14,14 +14,20 @@ The upgraded MizerParams object
 }
 \description{
 Occasionally during the development of new features for mizer, the
-MizerParams object gains extra slots. MizerParams objects created in older
-versions of mizer are then no longer valid in the new version because of
-the missing slots. This function adds the missing slots and fills them
-with default values. Any object from version 0.4 onwards can be upgraded.
+\linkS4class{MizerParams} object gains extra slots. MizerParams objects
+created in older versions of mizer are then no longer valid in the new
+version because of the missing slots. You need to upgrade them with\preformatted{params <- upgradeParams(params)
+}
+
+where \code{params} should be replaced by the name of your MizerParams object.
+This function adds the missing slots and fills them with default values. Any
+object from version 0.4 onwards can be upgraded.
 }
 \details{
 Uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} to create a new MizerParams object using the
 parameters extracted from the old MizerParams object.
+}
+\section{Backwards compatibility}{
 
 The internal numerics in mizer have changed over time, so there may be small
 discrepancies between the results obtained with the upgraded params object
@@ -42,3 +48,4 @@ of mizer first to read the params object into your workspace, then switch
 to the current version and then call \code{\link[=upgradeParams]{upgradeParams()}}. You can then save
 the new version again with \code{\link[=saveRDS]{saveRDS()}}.
 }
+

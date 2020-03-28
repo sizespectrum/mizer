@@ -173,7 +173,6 @@ mizerRates <- function(params, n, n_pp, n_other,
 #'   
 #' @return A two dimensional array (predator species x predator size) with the 
 #'   encounter rates.
-#' @md
 #' @export
 #' @family mizer rate functions
 mizerEncounter <- function(params, n, n_pp, n_other, ...) {
@@ -297,7 +296,6 @@ mizerFeedingLevel <- function(params, encounter, ...) {
 #'   predation rate, where the prey size runs over fish community plus plankton
 #'   spectrum.
 #' @export
-#' @md
 #' @family mizer rate functions
 mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
     no_sp <- dim(params@interaction)[1]
@@ -493,7 +491,6 @@ mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
 #' cover the cost of metabolism and movement.
 #' 
 #' @export
-#' @md
 #' @family mizer rate functions
 mizerEReproAndGrowth <- function(params, n, n_pp, n_other, encounter,
                                  feeding_level, ...) {
@@ -578,7 +575,6 @@ mizerEGrowth <- function(params, n, n_pp, n_other, e_repro, e, ...) {
 #'
 #' @return A numeric vector with the rate of egg production for each species.
 #' @export
-#' @md
 #' @family mizer rate functions
 mizerRDI <- function(params, n, n_pp, n_other, e_repro, ...) {
     # Calculate total energy from per capita energy

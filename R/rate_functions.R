@@ -17,7 +17,6 @@
 #' 
 #' @export
 #' @family rate functions
-#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
@@ -65,7 +64,6 @@ getEncounter <- function(params, n = initial_n(params),
 #' 
 #' @export
 #' @family rate functions
-#' @md
 #' @examples
 #' \dontrun{
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)

@@ -24,7 +24,6 @@
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the \code{ppmr} argument.
-#' @md
 #' @export
 lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
@@ -54,7 +53,6 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' 
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the \code{ppmr} argument.
-#' @md
 #' @export
 box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     assert_that(ppmr_min < ppmr_max)

@@ -108,22 +108,23 @@ The default value for `initial_n_pp` is the carrying capacity of the plankton sp
 
 ## What do you get from running `project()?` {#sec:mizersim}
 
-Running `project()` returns an object of type `MizerSim` that stores the results of the projection.
-Like the `MizerParams` class this is also made up of various *slots*, which can be accessed using the `@` operator.
-An object of `MizerSim` has four slots, details of which can be seen in the help page (`help("MizerSim-class"`).
-The `params` slot holds the `MizerParams` object that was passed in to `project()`.
-The `effort` slot holds the fishing effort of each gear through time. Note that the `effort` slot may not be exactly the same as the `effort` argument that was passed in to `project()`. This is because only the saved effort is stored (the frequency of saving is determined by the argument `t_save`).
-The `n` and `n_pp` slots hold the saved abundances of the species and the plankton population at size respectively. 
+Running `project()` returns an object of type `MizerSim` that stores the results
+of the projection. These can be accessed with various functions. The function
+`params()` returns the `MizerParams` object that was passed in to `project()`.
+The function `effort()` returns the fishing effort of each gear through time.
+Note that the array returned may not be exactly the same as the `effort`
+argument that was passed in to `project()`. This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+`t_save`). The `n()` and `n_pp()` functions return arrays with the saved
+abundances of the species and the plankton population at size respectively.
+Finally the `times()` function returns the vector of times at which simulation
+results were stored.
 
 ## Projection examples {#sec:projection_examples}
 
 In this section we'll look at how to run simulations with the `project()` function.
 The examples will focus on how fishing effort can be specified in different ways.
 The results of the simulations will not be explored in detail. We will leave that for [the section on exploring the simulation results.](exploring_the_simulation_results.html#).
-
-
-
-
 
 
 \subsection{Summary functions for MizerSim objects}

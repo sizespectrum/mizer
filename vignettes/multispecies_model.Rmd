@@ -13,60 +13,83 @@ library(mizer)
 ```
 
 
-The previous sections have used wrapper functions to set up `MizerParams` objects that are appropriate for community and trait-based simulations.
-We now turn our attention to multispecies, or species-specific, models.
-These are potentially more complicated than the community and trait-based models and use the full power of the `mizer` package.
+The previous sections have used wrapper functions to set up `MizerParams`
+objects that are appropriate for community and trait-based simulations. We now
+turn our attention to multispecies, or species-specific, models. These are
+potentially more complicated than the community and trait-based models and use
+the full power of the `mizer` package.
 
-In multispecies type models multiple species are resolved. However, unlike in the trait-based model which also resolves multiple species, explicit species are represented.
-There are several advantages to this approach. As well as investigating the community as a whole (as was done for the community and trait-based models), we are able to investigate the dynamics of individual species. This means that species specific management rules can be tested and species specific metrics, such as yield, can be compared to reference levels.
+In multispecies type models multiple species are resolved. However, unlike in
+the trait-based model which also resolves multiple species, explicit species are
+represented. There are several advantages to this approach. As well as
+investigating the community as a whole (as was done for the community and
+trait-based models), we are able to investigate the dynamics of individual
+species. This means that species specific management rules can be tested and
+species specific metrics, such as yield, can be compared to reference levels.
 
-A multispecies model can take more effort to set up.
-For example, each species will have different life-history parameters; there may be multiple gear types with different selectivities targeting different groups of species; the fishing effort of each gear may change with time instead of just being constant (which has been the case in the simulations we have looked at so far); the interactions between the species needs to be considered.
+A multispecies model can take more effort to set up. For example, each species
+will have different life-history parameters; there may be multiple gear types
+with different selectivities targeting different groups of species; the fishing
+effort of each gear may change with time instead of just being constant (which
+has been the case in the simulations we have looked at so far); the interactions
+between the species needs to be considered.
 
-In later sections we build up a multispecies model for the North Sea.
-To effectively use `mizer` for a multispecies model we are going to have to take a closer look at the `MizerParams` class and the `project()` function.
-This will all be done in the context of examples so hopefully everything will be clear.
+In later sections we build up a multispecies model for the North Sea. To
+effectively use `mizer` for a multispecies model we are going to have to take a
+closer look at the `MizerParams` class and the `project()` function. This will
+all be done in the context of examples so hopefully everything will be clear.
 
-We also take a closer look at some of the summary plots and analyses that can be performed, for example, calculating a range of size-based indicators.
+We also take a closer look at some of the summary plots and analyses that can be
+performed, for example, calculating a range of size-based indicators.
 
 # Setting up a multispecies model {#sec:MizerParams}
 
 ## Overview
-The `MizerParams` class is used for storing model parameters.
-We have already met the `MizerParams` class when we looked at community and trait-based models.
-However, direct handling of the class was largely hidden by the use of the wrapper functions.
-To set up a multispecies model we need to directly create and use the `MizerParams` class.
-This is probably the most complicated part of using the `mizer` package so we will take it slowly.
-For additional help you can look at the help page for the class by entering `class ? MizerParams`.
+The `MizerParams` class is used for storing model parameters. We have already
+met the `MizerParams` class when we looked at community and trait-based models.
+However, direct handling of the class was largely hidden by the use of the
+wrapper functions.
 
-The `MizerParams` class stores the:
+A `MizerParams` object stores the:
 
-* life-history parameters of the species in the community, such as $w_{\infty}$;
-* size-based biological parameters for the species, such as the search volume, $V(w)$;
+* life-history parameters of the species in the community, such as asymptotic
+  size $w_{\infty}$;
+* size-based biological parameters for the species, such as the search volume;
 * density-dependent reproduction functions and parameters of each species;
 * an interaction matrix to describe the spatial overlap of pairs of species;
 * parameters relating to the growth and dynamics of the plankton spectrum;
 * fishing gear parameters: selectivity and catchability.
 
 
-Note that the `MizerParams` class does not store any parameters that can vary through time,
-such as fishing effort or population abundance. These are stored in the `MizerSim` class which
-we will come to later in [the section on running a simulation.](running_a_simulation.html#sec:projection)
+Note that the `MizerParams` class does not store any parameters that can vary
+through time, such as fishing effort or population abundance. These are stored
+in the `MizerSim` class which we will come to later in [the section on running a
+simulation.](running_a_simulation.html#sec:projection)
 
-Although the `MizerParams` class seems complicated, it is relatively straightforward to set up and use.
-Objects of class `MizerParams` are created using the constructor method `newMultispeciesParams()` (this constructor method was called MizerParams() in previous version of mizer).
-This constructor method can take many arguments. However, creation is simplified because many of the arguments have default values.
+Although the `MizerParams` class seems complicated, it is relatively
+straightforward to set up and use. Objects of class `MizerParams` are created
+using the constructor method `newMultispeciesParams()` (this constructor method
+was called MizerParams() in previous version of mizer). This constructor method
+can take many arguments. However, creation is simplified because many of the
+arguments have default values.
 
-In the rest of this section we look at the main arguments to the `newMultispeciesParams()` function.
-To help understand how the constructor is used and how the `MizerParams` class
-relates to the equations given in [the model description section,](model_description.html) there is an example
-section where we create example parameter objects using data that comes with the
-`mizer` package.
+In the rest of this section we look at the main arguments to the
+`newMultispeciesParams()` function. To help understand how the constructor is
+used and how the `MizerParams` class relates to the equations given in [the
+model description section,](model_description.html) there is an example section
+where we create example parameter objects using data that comes with the `mizer`
+package.
 
 ## The species parameters {#sec:species_parameters_dataframe}
 
-Although many of the arguments used when creating a `MizerParams` object are optional, there is one argument that must be supplied by the user: the *species specific parameters*.  These are stored in a single `data.frame` object. The `data.frame` is arranged species by parameter, so each column is a parameter and each row has the parameters for one of the species in the model.
-Although it is possible to create the data.frame by hand in R, it is probably easier to create the data externally as a .csv file (perhaps using a suitable open source spreadsheet such as LibreOffice) and then read the data into R.
+Although many of the arguments used when creating a `MizerParams` object are
+optional, there is one argument that must be supplied by the user: the *species
+specific parameters*.  These are stored in a single `data.frame` object. The
+`data.frame` is arranged species by parameter, so each column is a parameter and
+each row has the parameters for one of the species in the model. Although it is
+possible to create the data.frame by hand in R, it is probably easier to create
+the data externally as a .csv file (perhaps using a suitable open source
+spreadsheet such as LibreOffice) and then read the data into R.
 
 For each species in the model community there are certain parameters that are essential and that do not have default values. The user must provide values for these parameters.
 There are also some essential parameters that have default values, such as the selectivity function parameters, and some that are calculated internally using default relationships if not explicitly provided. These defaults are used if the parameters are not found in the data.frame. The species parameter information is stored as a data.frame which hold the information given in [the MizerParams help page.](../reference/newMultispeciesParams.html#note)
@@ -385,32 +408,49 @@ class(params)
 ```
 
 
-As has been mentioned in [the section on the community model](community_model.html) and [the section on the trait based model](trait_model.html), a `MizerParams` object is made up of *slots* that store a wide range of model parameters. Each of these slots contains information on the parameters in the model. A description of these slots can be found by calling `help()` on the class: `help("MizerParams-class")`.
-The different slots can be accessed using the `@` operator.
+As has been mentioned in [the section on the community
+model](community_model.html) and [the section on the trait based
+model](trait_model.html), a `MizerParams` object holds all the information
+needed to define a mizer model.
 
-The slot `species_params` contains the species parameters data.frame that was passed in to the constructor. We can inspect this slot with:
+The `params` object contains among other things the species parameters 
+data.frame that was passed in to the constructor. We can inspect this with:
 
 ```{r label=looking_at_params_slot}
-params@species_params
+species_params(params)
 ```
 
-We can see that this contains the original species data.frame (with `w_inf` and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are no columns for `alpha` and `h` and `gamma` etc.
+We can see that this returns the original species data.frame (with `w_inf` and
+so on), plus any default values that may not have been included in the original
+data.frame. For example, we can see that there are now columns for `alpha` and
+`h` and `gamma` etc.
 
-Also note how the default fishing gears have been set up. Because we did not specify gear names in the original species parameter data.frame, each species is fished by a unique gear named after the species.  This can be seen in the new `gear` column which holds the names of the fishing gears.
-Also, the selectivity function for each fishing gear has been set in the `sel_func` column to the default function, `knife_edge()`.
-A `catchability` column has been added with a default value of 1 for each of the species that the gear catches.
-An example of setting the catchability by hand can be seen in [the section on the North Sea.](a_multispecies_model_of_the_north_sea.html)
+Also note how the default fishing gears have been set up. Because we did not
+specify gear names in the original species parameter data.frame, each species is
+fished by a unique gear named after the species.  This can be seen in the new
+`gear` column which holds the names of the fishing gears. Also, the selectivity
+function for each fishing gear has been set in the `sel_func` column to the
+default function, `knife_edge()`. A `catchability` column has been added with a
+default value of 1 for each of the species that the gear catches. An example of
+setting the catchability by hand can be seen in [the section on the North
+Sea.](a_multispecies_model_of_the_north_sea.html)
 
-There is a `summary()` method for `MizerParams` objects which prints a useful summary of the model parameters:
+There is a `summary()` method for `MizerParams` objects which prints a useful
+summary of the model parameters:
 
 ```{r label=summary_params, results='hide'}
 summary(params)
 ```
 
-As well as giving a summary of the species in the model and what gear is fishing what species, it gives a summary of the size structure of the community. For example there are $`r length(params@w)`$ size classes in the community, ranging from $`r signif(min(params@w),3)`$ to $`r signif(max(params@w),3)`$ . These values are controlled by the arguments `no_w`, `min_w` and `max_w` respectively. For example, if we wanted 200 size classes in the model we would use:
+As well as giving a summary of the species in the model and what gear is fishing
+what species, it gives a summary of the size structure of the community. For
+example there are $`r length(w(params))`$ size classes in the community, ranging
+from $`r signif(min(w(params))), 3)`$ to $`r signif(max(w(params)), 3)`$ . These
+values are controlled by the arguments `no_w`, `min_w` and `max_w` respectively.
+For example, if we wanted 200 size classes in the model we would use:
 
 ```{r label=MP_200, eval=FALSE}
-params200 <- newMultispeciesParams(params_data, no_w=200)
+params200 <- newMultispeciesParams(params_data, no_w = 200)
 summary(params200)
 ```
 

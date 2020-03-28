@@ -82,6 +82,7 @@ reference:
   - setInitialValues
   - setParams
   - upgradeParams
+  - params
   - summary,MizerParams-method
   - setRmax
 - title: Running simulations

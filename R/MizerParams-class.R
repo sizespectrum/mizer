@@ -231,10 +231,11 @@ validMizerParams <- function(object) {
 #### Class definition ####
 #' A class to hold the parameters for a size based model. 
 #' 
-#' MizerParams objects can be created using a range of constructor functions.
-#' 
-#' Dynamic simulations are performed using the \code{\link{project}} function on
-#' objects of this class.
+#' Although it is possible to build a \code{MizerParams} object by hand it is
+#' not recommended and several constructors are available. Dynamic simulations
+#' are performed using [project()] function on objects of this class. As a 
+#' user you should never need to access the slots inside a `MizerParams` object
+#' directly. 
 #' 
 #' @slot w The size grid for the fish part of the spectrum. An increasing
 #'   vector of weights (in grams) running from the smallest egg size to the
@@ -329,17 +330,15 @@ validMizerParams <- function(object) {
 #' @slot linetype A named vector of linetypes, named by species. 
 #'   Used to give consistent line types in plots.
 
-#' @note The \linkS4class{MizerParams} class is fairly complex with a large number of
-#'   slots, many of which are multidimensional arrays. The dimensions of these
-#'   arrays is strictly enforced so that \code{MizerParams} objects are
-#'   consistent in terms of number of species and number of size classes.
+#' The \linkS4class{MizerParams} class is fairly complex with a large number of
+#' slots, many of which are multidimensional arrays. The dimensions of these
+#' arrays is strictly enforced so that \code{MizerParams} objects are consistent
+#' in terms of number of species and number of size classes.
 #'   
-#'   Although it is possible to build a \code{MizerParams} object by hand it is
-#'   not recommended and several constructors are available.
-#'   
-#'   The \code{MizerParams} class does not hold any dynamic information, e.g.
-#'   abundances or harvest effort through time. These are held in
-#'   \linkS4class{MizerSim} objects.
+#' The \code{MizerParams} class does not hold any dynamic information, e.g.
+#' abundances or harvest effort through time. These are held in
+#' \linkS4class{MizerSim} objects.
+#' 
 #' @seealso \code{\link{project}} \code{\link{MizerSim}}
 #'   \code{\link{emptyParams}} \code{\link{newMultispeciesParams}}
 #'   \code{\link{newCommunityParams}}
@@ -438,9 +437,8 @@ remove(validMizerParams)
 # #'   Ignored if w_full is specified.
 #' 
 #' @return An empty but valid MizerParams object
-#' @seealso See \code{\link{newMultispeciesParams}} for a function that fills
+#' @seealso See [newMultispeciesParams()] for a function that fills
 #'   the slots left empty by this function.
-#' @md
 #' @export
 emptyParams <- function(species_params,
                         no_w = 100,
@@ -972,7 +970,6 @@ newMultispeciesParams <- function(
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
 #' @inheritSection setPlankton Setting plankton dynamics
-#' @md
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -1033,7 +1030,6 @@ setParams <- function(params, interaction = NULL, ...) {
 #'   object. So to affect the change you call the function in the form
 #'   `params <- setInteraction(params, ...)`.
 #' @export
-#' @md
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
@@ -2188,7 +2184,6 @@ plankton_params <- function(params) {
 #'   object. So to affect the change you call the function in the form
 #'   `params <- setFishing(params, ...)`.
 #' @export
-#' @md
 #' @family functions for setting parameters
 #' @examples
 #' \dontrun{
@@ -2416,7 +2411,7 @@ setColours <- function(params, colours) {
 #' @rdname setColours
 #' @export
 getColours <- function(params) {
-    as.list(params@linecolour)
+    params@linecolour
 }
 
 validColour <- function(colour) {
@@ -2452,20 +2447,59 @@ getLinetypes <- function(params) {
 }
 
 
+#' Size bins
+#' 
+#' This is a good place to explain how mizer discretises the size
+#' 
+#' @param params A MizerParams object
+#' 
+#' @export
+w <- function(params) {
+    params@w
+}
+
+#' @rdname w
+#' @export
+w_full <- function(params) {
+    params@w_full
+}
+
+#' @rdname w
+#' @export
+dw <- function(params) {
+    params@dw
+}
+
+#' @rdname w
+#' @export
+dw_full <- function(params) {
+    params@dw_full
+}
+
+
+
+
 #' Upgrade MizerParams object from earlier mizer versions
 #' 
 #' Occasionally during the development of new features for mizer, the
-#' MizerParams object gains extra slots. MizerParams objects created in older
-#' versions of mizer are then no longer valid in the new version because of
-#' the missing slots. This function adds the missing slots and fills them
-#' with default values. Any object from version 0.4 onwards can be upgraded.
+#' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
+#' created in older versions of mizer are then no longer valid in the new
+#' version because of the missing slots. You need to upgrade them with
+#' ```
+#'params <- upgradeParams(params)
+#' ```
+#' where `params` should be replaced by the name of your MizerParams object.
+#' This function adds the missing slots and fills them with default values. Any
+#' object from version 0.4 onwards can be upgraded. Any old
+#' \linkS4class{MizerSim} objects should be similarly updated with
+#' [upgradeSim()]. This function uses [newMultispeciesParams()] to create a new
+#' MizerParams object using the parameters extracted from the old MizerParams
+#' object.
 #' 
-#' Uses [newMultispeciesParams()] to create a new MizerParams object using the
-#' parameters extracted from the old MizerParams object.
-#' 
+#' @section Backwards compatibility:
 #' The internal numerics in mizer have changed over time, so there may be small
-#' discrepancies between the results obtained with the upgraded params object
-#' in the new version and the original params object in the old version. If it
+#' discrepancies between the results obtained with the upgraded object
+#' in the new version and the original object in the old version. If it
 #' is important for you to reproduce the exact results then you should install
 #' the version of mizer with which you obtained the results. You can do this
 #' with
@@ -2486,7 +2520,6 @@ getLinetypes <- function(params) {
 #' @param params An old MizerParams object to be upgraded
 #' 
 #' @return The upgraded MizerParams object
-#' @md
 #' @export
 upgradeParams <- function(params) {
     
