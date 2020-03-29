@@ -2,7 +2,6 @@
 title: "Get started"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -50,9 +49,37 @@ package once, it will need to be loaded every time you start a new R session.
 ```{r}
 library(mizer)
 ```
-If you still need to install R as well, or if you are interested in
-installing a development version of mizer, see the
-[Installing mizer](installation.html) vignette for further details
+If you still need to install R or Rstudio as well, or if you are interested in
+installing a development version of mizer, click on the triangle below
+to reveal further details:
+<details>
+
+Mizer is compatible with R versions 3.1 and later. You can install R on your
+computer by following the instructions at [https://cran.r-project.org/] for your
+particular platform.
+
+This guide assumes that you will be using RStudio to work with R. There is
+really no reason not to use RStudio and it makes a lot of things much easier.
+RStudio develops rapidly and adds useful features all the time and so it pays 
+to upgrade to the [latest version](https://www.rstudio.com/products/rstudio/download/preview/) 
+frequently. This guide was written with version 1.3.820.
+
+The source code for mizer is hosted on
+[Github.](https://github.com/sizespectrum/mizer) If you are feeling brave and
+wish to try out a development version of mizer you can install the package from
+here using the R package devtools (which was used extensively in putting
+together mizer). If you have not yet installed devtools, do
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+Then you can install the latest version from GitHub using
+```{r, eval=FALSE}
+devtools::install_github("sizespectrum/mizer")
+```
+Using the same `devtools::install_github()` function you can also install code
+from forked mizer repositories or from other branches on the official
+repository.
+</details>
 
 
 ## Setting the model parameters
@@ -74,7 +101,7 @@ params <- newCommunityParams()
 ```
 For a more complicated multi-species model you need to provide a data frame
 with some species parameters and an interaction matrix specifying which species
-how species predate on each other. An example of a North Sea model is provided
+predate on each other. An example of a North Sea model is included
 with the package.
 ```{r}
 params <- newMultispeciesParams(NS_species_params, inter)
@@ -85,7 +112,8 @@ default values for many parameters that were not provided.
 
 
 ## Running a simulation 
-This is done by calling the `project()` function with the model parameters.
+This is done by calling the `project()` function (as in "project forward in
+time") with the model parameters.
 ```{r}
 sim <- project(params, t_max = 10, effort = 0)
 ```
@@ -98,7 +126,8 @@ fully in [the section on running a simulation.](running_a_simulation.html)
 
 ## Exploring the results
 After a simulation has been run, the results can be
-examined using a range of `plotting_functions` and `summary functions`.
+examined using a range of `?plotting_functions`, `?summary functions`
+and `?indicator_functions`.
 The `plot()` function combines several of these plots into one:
 ```{r}
 plot(sim)
@@ -108,7 +137,10 @@ Just as an example: we might be interested in how the proportion of large fish
 varies over time. We can get the proportion of Herrings in terms of biomass that
 have a weight above 50g in each of the 10 years:
 ```{r}
-getProportionOfLargeFish(sim, species = "Herring", threshold_w = 50, biomass_proportion = TRUE)
+getProportionOfLargeFish(sim, 
+                         species = "Herring", 
+                         threshold_w = 50, 
+                         biomass_proportion = TRUE)
 ```
 We can then use the full power of R to work with these results.
 

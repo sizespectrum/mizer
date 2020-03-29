@@ -36,7 +36,6 @@ articles:
 - title: For the user
   contents:
   - mizer
-  - installation
   - model_description
   - community_model
   - trait_model
@@ -69,6 +68,7 @@ reference:
     investigating the impact of changes in parameters.
   contents:
   - species_params
+  - setParams
   - setPredKernel
   - getPredKernel
   - setSearchVolume
@@ -80,7 +80,6 @@ reference:
   - setFishing
   - setPlankton
   - setInitialValues
-  - setParams
   - upgradeParams
   - params
   - summary,MizerParams-method
