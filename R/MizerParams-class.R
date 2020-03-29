@@ -329,7 +329,7 @@ validMizerParams <- function(object) {
 #'   Used to give consistent colours in plots.
 #' @slot linetype A named vector of linetypes, named by species. 
 #'   Used to give consistent line types in plots.
-
+#' 
 #' The \linkS4class{MizerParams} class is fairly complex with a large number of
 #' slots, many of which are multidimensional arrays. The dimensions of these
 #' arrays is strictly enforced so that `MizerParams` objects are consistent
@@ -2173,6 +2173,10 @@ plankton_params <- function(params) {
 #' an effort that varies through time.
 #' 
 #' @param params A MizerParams object
+#' @param selectivity An array (gear x species x w) that holds the selectivity of
+#'   each gear for species and size, \eqn{S_{g,i,w}}.
+#' @param catchability An array (gear x species) that holds the catchability of
+#'   each species by each gear, \eqn{Q_{g,i}}.
 #' @param initial_effort Optional. A number or a named numeric vector specifying
 #'   the fishing effort. If a number, the same effort is used for all gears. If
 #'   a vector, must be named by gear.
@@ -2192,31 +2196,83 @@ plankton_params <- function(params) {
 #' params@species_params$knife_edge_size[1] <- 15
 #' params <- setFishing(params)
 #' }
-setFishing <- function(params, initial_effort = NULL, ...) {
+setFishing <- function(params, catchability = NULL, selectivity = NULL,
+                       initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     no_sp <- nrow(species_params)
     
-    # If no gear specified in species_params, then use `knife_edge_gear`
-    species_params <- set_species_param_default(
-        species_params, "gear", default = "knife_edge_gear")
-    
-    # If no sel_func column in species_params, set to 'knife_edge'
-    species_params <- set_species_param_default(
-        species_params, "sel_func", default = "knife_edge",
-        message = "Note: Setting missing selectivity function to be 'knife_edge'.")
-
-    # Provide default for knife_edge_size if needed
-    if ("knife_edge" %in% species_params$sel_func) {
+    if (!is.null(selectivity)) {
+        params@selectivity <- selectivity
+    } else {
+        # At the moment, each species is only caught by 1 gear so in species_params
+        # there are the columns: gear_name and sel_func.
+        # If no gear specified in species_params, then use `knife_edge_gear`
         species_params <- set_species_param_default(
-            species_params, "knife_edge_size", 
-            default = species_params$w_mat,
-            message = "Note: Setting missing knife edge selectivity equal to w_mat.")
+            species_params, "gear", default = "knife_edge_gear")
+        
+        # If no sel_func column in species_params, set to 'knife_edge'
+        species_params <- set_species_param_default(
+            species_params, "sel_func", default = "knife_edge",
+            message = "Note: Setting missing selectivity function to be 'knife_edge'.")
+        
+        # Provide default for knife_edge_size if needed
+        if ("knife_edge" %in% species_params$sel_func) {
+            species_params <- set_species_param_default(
+                species_params, "knife_edge_size", 
+                default = species_params$w_mat,
+                message = "Note: Setting missing knife edge selectivity equal to w_mat.")
+        }
+        # BEWARE! This routine assumes that each species has only one gear operating on it
+        # So we can just go row by row through the species parameters
+        # However, I really hope we can do something better soon
+        for (g in 1:nrow(species_params)) {
+            # get args
+            # These as.characters are annoying - but factors everywhere
+            arg <- names(formals(as.character(species_params[g, 'sel_func'])))
+            # lop off w as that is always the first argument of the selectivity functions
+            arg <- arg[!(arg %in% "w")]
+            if (!all(arg %in% colnames(species_params))) {
+                stop("Some arguments needed for the selectivity function are ",
+                     "missing in the parameter dataframe.")
+            }
+            # Check that there are no missing values for selectivity parameters
+            if (any(is.na(as.list(species_params[g, arg])))) {
+                stop("Some selectivity parameters are NA.")
+            }
+            # Call selectivity function with selectivity parameters
+            par <- c(w = list(params@w), as.list(species_params[g, arg]))
+            sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
+            if (!is.null(comment(params@selectivity)) &&
+                any(params@selectivity[as.character(species_params[g, 'gear']), g, ] != sel)) {
+                message("The selectivity has been commented and therefore will ",
+                        "not be recalculated from the species parameters.")
+            } else {
+                params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+            }
+        }
     }
     
-    # If no catchability column in species_params, set to 1
-    species_params <- set_species_param_default(species_params,
-                                                "catchability", 1)
+    if (!is.null(catchability)) {
+        params@catchability <- catchability
+    } else {
+        # If no catchability column in species_params, set to 1
+        species_params <- set_species_param_default(species_params,
+                                                    "catchability", 1)
+        
+        for (g in 1:nrow(species_params)) {
+            # Now do catchability
+            if (!is.null(comment(params@catchability)) &&
+                any(params@catchability[as.character(species_params[g,'gear']), g] !=
+                    species_params[g, "catchability"])) {
+                message("The catchability has been commented and therefore will ",
+                        "not be updated from the species parameters.")
+            } else {
+                params@catchability[as.character(species_params[g,'gear']), g] <- 
+                    species_params[g, "catchability"]
+            }
+        }
+    }
     
     if (!is.null(initial_effort)) {
         validate_effort_vector(params, initial_effort)
@@ -2224,47 +2280,6 @@ setFishing <- function(params, initial_effort = NULL, ...) {
         comment(params@initial_effort) <- comment(initial_effort)
     }
     
-    # At the moment, each species is only caught by 1 gear so in species_params
-    # there are the columns: gear_name and sel_func.
-    # BEWARE! This routine assumes that each species has only one gear operating on it
-    # So we can just go row by row through the species parameters
-    # However, I really hope we can do something better soon
-    for (g in 1:nrow(species_params)) {
-        # Do selectivity first
-        # get args
-        # These as.characters are annoying - but factors everywhere
-        arg <- names(formals(as.character(species_params[g, 'sel_func'])))
-        # lop off w as that is always the first argument of the selectivity functions
-        arg <- arg[!(arg %in% "w")]
-        if (!all(arg %in% colnames(species_params))) {
-            stop("Some arguments needed for the selectivity function are ",
-                 "missing in the parameter dataframe.")
-        }
-        # Check that there are no missing values for selectivity parameters
-        if (any(is.na(as.list(species_params[g, arg])))) {
-            stop("Some selectivity parameters are NA.")
-        }
-        # Call selectivity function with selectivity parameters
-        par <- c(w = list(params@w), as.list(species_params[g, arg]))
-        sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
-        if (!is.null(comment(params@selectivity)) &&
-            any(params@selectivity[as.character(species_params[g, 'gear']), g, ] != sel)) {
-            message("The selectivity has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
-        } else {
-            params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
-        }
-        # Now do catchability
-        if (!is.null(comment(params@catchability)) &&
-            any(params@catchability[as.character(species_params[g,'gear']), g] !=
-                       species_params[g, "catchability"])) {
-            message("The catchability has been commented and therefore will ",
-                    "not be updated from the species parameters.")
-        } else {
-            params@catchability[as.character(species_params[g,'gear']), g] <- 
-                species_params[g, "catchability"]
-        }
-    }
     params@species_params <- species_params
     return(params)
 }

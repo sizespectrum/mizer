@@ -4,16 +4,31 @@
 \alias{setFishing}
 \alias{getCatchability}
 \alias{getSelectivity}
+\alias{getInitialEffort}
 \title{Set fishing parameters}
 \usage{
-setFishing(params, initial_effort = NULL, ...)
+setFishing(
+  params,
+  catchability = NULL,
+  selectivity = NULL,
+  initial_effort = NULL,
+  ...
+)
 
 getCatchability(params)
 
 getSelectivity(params)
+
+getInitialEffort(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{catchability}{An array (gear x species) that holds the catchability of
+each species by each gear, \eqn{Q_{g,i}}.}
+
+\item{selectivity}{An array (gear x species x w) that holds the selectivity of
+each gear for species and size, \eqn{S_{g,i,w}}.}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
