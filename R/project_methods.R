@@ -40,18 +40,7 @@ NULL
 #' 
 #' Calls other rate functions in sequence and collects the results in a list.
 #' 
-#' @param params A \linkS4class{MizerParams} object
-#' @param n A matrix of species abundances (species x size).
-#' @param n_pp A vector of the plankton abundance by size
-#' @param n_other A list of abundances for other dynamical components of the
-#'   ecosystem
-#' @param t The current time
-#' @param effort The effort for each fishing gear
-#' @param rates_fns Named list of the functions to call to calculate the rates.
-#'   Note that this list holds the functions themselves, not their names.
-#' @param ... Unused
-#' 
-#' @return A list with the following components:
+#' By default this function returns a list with the following components:
 #'   \itemize{
 #'     \item encounter from [mizerEncounter()]
 #'     \item feeding_level from [mizerFeedingLevel()]
@@ -64,15 +53,25 @@ NULL
 #'     \item e_repro from [mizerERepro()]
 #'     \item e_growth from [mizerEGrowth()]
 #'     \item rdi from [mizerRDI()]
-#'     \item rdd 
+#'     \item rdd from [BervertonHoltRDD()]
 #'   }
+#' However you can replace any of these rate functions by your own rate
+#' function if you wish, see `setRateFunction()` for details.
+#' 
+#' @param params A \linkS4class{MizerParams} object
+#' @param n A matrix of species abundances (species x size).
+#' @param n_pp A vector of the plankton abundance by size
+#' @param n_other A list of abundances for other dynamical components of the
+#'   ecosystem
+#' @param t The current time
+#' @param effort The effort for each fishing gear
+#' @param rates_fns Named list of the functions to call to calculate the rates.
+#'   Note that this list holds the functions themselves, not their names.
+#' @param ... Unused
 #' @export
 #' @family mizer rate functions
 mizerRates <- function(params, n, n_pp, n_other,
-                       t = 0,
-                       effort = params@initial_effort,
-                       rates_fns = lapply(params@rates_funcs, get),
-                       ...) {
+                       t = 0, effort, rates_fns, ...) {
     r <- list()
     
     # Calculate rate E_{e,i}(w) of encountered food
