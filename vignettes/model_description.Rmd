@@ -15,15 +15,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-On this page we will revisit the presentation of the mizer model given
-in chapter 3 of the main [mizer vignette](https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf)
-but taking care to separate the essential features of the model that are
-hard-coded and the various possible specialisations for which mizer provides
-setup functions. We will provide links to the functions that can be used to set
-or change the various model parameters (all collected together in `setParams()`)
-as well as to the functions that calculate the various ecological rates in the
-model (all collected together in `getRates()`) because the help pages of these
-functions will provide useful additional details.
+On this page we present the details of the mizer model, taking care to separate
+the essential features of the model that are hard-coded and the various possible
+specialisations for which mizer provides setup functions. We will provide links
+to the functions that can be used to set or change the various model parameters
+(all collected together in `setParams()`) as well as to the functions that
+calculate the various ecological rates in the model (all collected together in
+`mizerRates()`) because the help pages of these functions will provide useful
+additional details.
 
 We will not go into detail of how this model is 
 realised in code. Such detail will be provided in the [developer guide](developer_vignette.html). However some details are hidden on this page
@@ -32,18 +31,16 @@ and you can see them by clicking on links like the following:
 And clicking again will hide the details again.
 </details>
 
+# Size spectrum dynamics
 
-
-## Consumer size spectra
-The model framework builds on two central assumption and a number of lesser 
-standard assumption.  
-
-The first central assumption is that an individual can be characterized by its 
-weight $w$ and its species number $i$ only. The aim of the model is to calculate 
-the size spectrum $N_i(w)$, which is the *density* of individuals of
-species $i$ such that $\int_w^{w+dw}N_i(w)dw$ is the *number* of individuals of
-species $i$ in the size interval $[w,w+dw]$. In other word: the number of 
-individuals in a size range is the area under the number density $N_i(w)$.
+## Consumer densities
+The model assumes that, to a first approximation, an individual can be
+characterized by its weight $w$ and its species number $i$ only. The aim of the
+model is to calculate the size spectrum $N_i(w)$, which is the *density* of
+individuals of species $i$ such that $\int_w^{w+dw}N_i(w)dw$ is the *number* of
+individuals of species $i$ in the size interval $[w,w+dw]$. In other word: the
+number of individuals in a size range is the area under the number density
+$N_i(w)$.
 
 <details>
 Here is a plot of an example size spectrum for two species with
@@ -60,6 +57,8 @@ providing a grid of sizes spanning the range from the smallest egg size
 to the largest asymptotic size. These grid values divide the full size
 range into a finite number of size bins. The size bins should be chosen
 small enough to avoid the discretisation errors from becoming too big.
+You can fetch this vector with `w()` and the vector of bin sizes with
+`dw()`.
 
 The weight grid is set up to be logarithmically spaced, so that
 `w[j]=w[1]*exp(j*dx)` for some fixed `dx`. 
@@ -68,7 +67,7 @@ This grid is set up automatically when creating a MizerParams object.
 In the code the size spectrum is stored as an array such that `n[i, a]`
 holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
 dependence is included, an array such that `n[i, a, u]`
-holds $N_i(w_a,t_u)$.
+holds $N_i(w_a,t_u)$. See `n()`.
 
 Note that, contrary to what one might have expected,
 `n[i, a]` is not the *number* of individuals in a size bin
@@ -79,8 +78,30 @@ where `dw[a]= w[a+1]-w[a]`.
 
 </details>
 
-The time evolution of the size spectrum is described by the 
-McKendrik-von Foerster equation, which is a continuity equation with loss:
+## Traffic on the road to adulthood
+A good way to think about the time evolution of the number density 
+$N_i(w)$ is to consider the familiar situation of traffic density on the roads.
+A fish's life is a journey along the size axis from egg size to size at death.
+There are many other fish making the same journey. The speed with which the
+fish move along the size axis is their growth rate. This is quite analogous
+to the speed of traffic on a road. Just as the speed of cars depends on the 
+density of other cars on the road, the growth rate of fish depends on the
+density of other fish. When the density of cars on a stretch of road is high,
+their speed decreases, and this leads to a pile-up and can lead to traffic 
+jams. Similarly when the density of fish in a size interval is high, their
+growth rate goes down due to competition for the same food sources, and this
+too can lead to pile-ups and bottlenecks. So one just has to replace the space
+variable in a traffic model by size to get an equation for the fish size spectra.
+
+The additional feature in the
+evolution of fish densities that is not present in road traffic density is
+that fish can die while they are growing up, and this death rate is also
+dependent on the density of other fish. 
+
+The time evolution of the number density $N_i(w)$ is described by the 
+McKendrik-von Foerster equation, which is a transport equation (as one would
+use for traffic density) but with an additional loss term due to fish 
+mortality:
 
 \begin{equation}
   \label{eq:MvF}
@@ -89,73 +110,76 @@ McKendrik-von Foerster equation, which is a continuity equation with loss:
 \end{equation}
 
 where individual growth $g_i(w)$ and mortality $\mu_i(w)$ will be described
-below.
+below. There is no need for you to understand the mathematical notation used in
+this equation to understand its origin: it just says that the rate at which the
+number of fish in a size bracket changes is the rate at which fish grow into the
+size bracket from a smaller size minus the rate at which fish grow out of it to
+a larger size minus the rate at which the fish in the size bracket die. So to
+simulate the size spectrum dynamics we need to specify the growth rates and the
+mortality rates. This we will do below. The important point is that these rates
+depend on the density of other fish of other sizes, making the size-spectrum
+dynamics non-linear and non-local in very interesting ways. The resulting
+effects are too complicated to disentangle by pure thought. This is where
+simulations with the mizer package come in.
 
-<details>
 This McKendrik-von Foerster equation is approximated in mizer by a
-finite-difference method (to be described in section ...). This allows the
+finite-difference method. This allows the
 `project()` function in mizer to project the size
 spectrum forwards in time: Given the spectrum at one time the `project()`
 function calculates it at a set of later times.
 
-</details>
+Of course there also needs to be reproduction into the smallest size class,
+otherwise there would be no small fish any more after a while. So for the
+smallest size class instead of a rate of growth into the size class there is
+a rate of reproduction of new individuals into that size class. This
+reproduction will be described further below.
 
-The McKendrik-von Foerster equation is supplemented by a boundary condition at
-the egg weight $w_0$ where the flux of individuals (numbers per time) 
-$g_i(w_0)N_i(w_0)$ is determined by the rate $R_i$ of production of offspring by
-mature individuals in the population:
-\begin{equation}
-  g_i(w_0)N_i(w_0) = R_i.
-\end{equation}
+## Plankton density
 
-<details>
-
-In the code this boundary condition is actually implemented as an equation for
-the rate of change of the number of individuals in the smallest size bin:
-\begin{equation}
-\frac{d N_i(w_0)}{dt}=...
-\end{equation}
-
-</details>
-
-## Plankton size spectrum
-
-Besides the fish spectrum there is also a plankton spectrum $N_R(w)$,
+Besides the fish spectrum there is also a plankton spectrum $N_pp(w)$,
 representing for example the phytoplankton. This spectrum starts at a smaller
 size than the fish spectrum, in order to provide food also for the smallest
 individuals (larvae) of the fish spectrum.
-
 By default the time evolution of the plankton spectrum is described by a 
-semi-chemostat equation:
+semi-chemostat equation.
+
+<details>
+The semichemostat dynamics are given by
 \begin{equation}
   \label{eq:nb}
-  \frac{\partial N_R(w,t)}{\partial t} 
-  = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
+  \frac{\partial N_p(w,t)}{\partial t} 
+  = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
 \end{equation}
 Here $r_p(w)$ is the plankton regeneration rate and $c_p(w)$ is the carrying
 capacity in the absence of predation. These parameters are changed with
 `setPlankton()`. By default mizer assumes allometric forms
 \[r_p(w)= r_p\, w^{n-1}.\]
 \[c_p(w)=\kappa\, w^{-\lambda}.\]
-It is also possible to implement other plankton dynamics, as
-described in the help page for `setPlankton()`. The death $\mu_p(w)$ is
-described in the subsection [Plankton mortality].
+You can retrieve these with `getPlanktonRate()` and `getPlanktonCapacity()`
+respectively. It is also possible to implement other plankton dynamics, as
+described in the help page for `setPlankton()`. The mortality $\mu_p(w)$ is
+due to predation by consumers and isdescribed in the subsection 
+[Plankton mortality].
 
-<details>
 Because the plankton spectrum spans a different range of sizes these sizes
 are discretized into a different vector of weights
 `w_full`. The last entries of `w_full` have to coincide with the entries
-of `w`. The plankton spectrum is then stored in a vector `n_pp` such that
-`n_pp[c]` =$N_R($`w_full[c]`$)$.
+of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
+gives the vector of bin sizes.
 
-The plankton regeneration rate is stored as a vector
-`params@rr_pp[c]`$=r_p($`w_full[c]`$)$, and the carrying capacity
-is stored as a vector
-`params@cc_pp[c]`$=c_p($`w_full[c]`$)$.
+The plankton spectrum is then represented by a vector `n_pp` such that
+`n_pp[c]` =$N_p($`w_full[c]`$)$.
 
 </details>
 
 
+# Growth
+
+Consumers can grow only by consuming prey. In the next few subsections we will
+build towards determining the growth rate resulting from predation.
+We will discuss how we model the predator-prey encounter rate, the resulting rate
+of consumption, the rate of loss due to metabolism, and the partitioning of the
+remaining energy into reproduction and growth.
 
 ## Predator-prey encounter rate {#sec:pref}
 
@@ -262,36 +286,6 @@ all available energy is used for reproduction. This function is changed with
 `setReproduction()`. Mizer provides a default form for the function which you
 can however overrule.
 
-The total production rate of egg production $R_{p.i}$ (numbers per year) is
-found by integrating the contribution from all individuals of species $i$:
-\begin{equation}
-  \label{eq:Rp}
-  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
-\end{equation}
-where the individual contribution is obtained by multiplying the rate at which the
-individual allocates energy to reproduction by an efficiency factor $\epsilon$ 
-and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
-The result is multiplied by a factor $1/2$ to take into account that only 
-females reproduce.
-
-
-## Density-dependence in reproduction
-In mizer, density dependence is modelled as a compensation on the egg 
-production. This gives an additional contribution to the stock-recruitment 
-relationship. The default functional form of this density dependence is such 
-that the reproduction rate $R_i$ (numbers per time) approaches a maximum as the 
-energy invested in reproduction increases, modelled mathematically analogous to 
-the Holling type II function response as a *Beverton-Holt* type function:
-
-\begin{equation}
-  \label{eq:R}
-  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
-\end{equation}
-where $R_{\max.i}$ is the maximum reproduction rate of each trait class (Figure~\ref{fig:recruitment}). 
-
-The *Beverton-Holt* type is not the only density dependence model that mizer can
-use. Users are able to write their own functions, e.g. fixed reproduction (as
-used in the community-type model) or *hockey-stick*.
 
 
 ## Growth
@@ -309,7 +303,7 @@ The individual should then be subjected to a starvation mortality, but starvatio
 mortality is not implemented in mizer at the moment.
 
 
-## Mortality
+# Mortality
 The mortality rate of an individual $\mu_i(w)$ has three sources: 
 predation mortality $\mu_{p.i}(w)$, background mortality $\mu_{b.i}(w)$ and 
 fishing mortality $\mu_{f.i}(w)$. 
@@ -348,8 +342,14 @@ changed with `setExtMort()`. By default mizer assumes an allometric form
 \[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]
 where $w_{\infty.i}$ is the asymptotic size of species $i$.
 
-Fishing mortality $\mu_{f.i}(w)$ will be discussed in section [Fishing].
 
+## Fishing mortality
+The fishing parameters for the model are set up with `setFishing()`, where
+you can find the details of how to set up gears with different selectivities
+and the catabilities of different species.
+Fishing mortality $\mu_{f.i}(w)$ is calculated with the function `getFMort()`.
+
+## Total mortality
 The total mortality rate
 \[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]
 is calculated with the function `getMort()`.
@@ -367,7 +367,58 @@ This is the only mortality on plankton currently implemented in mizer.
 It is calculated with the function `getPlanktonMort()`.
 
 
-## Fishing
-This section still to be written.
+
+# Reproduction
+
+## Energy invested into reproduction
+
+The total rate of investment into reproduction (gramms/year) is
+found by integrating the contribution from all individuals of species $i$,
+each of which invests a proportion $\psi_i(w)$ of their consumption. This
+total rate of energy investment can then be converted to a total rate of
+egg production $R_{p.i}$ (numbers per year):
+\begin{equation}
+  \label{eq:Rp}
+  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
+\end{equation}
+Here the total rate of investment is multiplied by an efficiency factor $\epsilon$ 
+and then dividing by the egg weight $w_0$ to convert the energy into number of eggs.
+The result is multiplied by a factor $1/2$ to take into account that only 
+females reproduce. This rate of potential egg production is calculated with
+`getRDI()`.
 
 
+## Density-dependence in reproduction
+Two important density-dependent effects that in usual fisheries models are 
+summarised in an imposed stock-recruitment relationship are already included
+automatically in the mizer model:
+
+1. High density of spawners leads to a reduced
+food income of the spawners and consequently reduced per-capity reproduction.
+2. High density of larvae leads to slower growth of larvae due to food 
+competition, exposing the larvae to high mortality for a longer time, thereby
+decreasing the survivorship to recruitment size.
+3. High density of fish leads to more predation on eggs and fish larvae by
+other fish species or by cannibalism.
+
+However there are other sources of density dependence that are not explicitly
+modelled in mizer. An example would be a limited carrying capacity of suitable
+spawning grounds and other spatial effects.
+In mizer, any such density dependence is modelled as a compensation on the egg 
+production. This gives an additional contribution to the stock-recruitment 
+relationship. The default functional form of this density dependence is such 
+that the reproduction rate $R_i$ (numbers per time) approaches a maximum as the 
+energy invested in reproduction increases, modelled mathematically analogous to 
+the Holling type II function response as a *Beverton-Holt* type function:
+
+\begin{equation}
+  \label{eq:R}
+  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
+\end{equation}
+where $R_{\max.i}$ is the maximum reproduction rate of each trait class. 
+This final rate of reproduction is calculated with `getRDD()`.
+
+This default *Beverton-Holt* type is implemented by `BervertonHoldRDD()` but
+mizer also provides alternatives `RickerRDD()`, `SheperdRDD()`, `constantRDD()`
+and `noRDD()`. Also Users are able to write their own functions, e.g.
+*hockey-stick*. See `setReproduction()` for details.
