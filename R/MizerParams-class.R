@@ -307,6 +307,8 @@ validMizerParams <- function(object) {
 #' @slot sc The community abundance of the scaling community
 #' @slot species_params A data.frame to hold the species specific parameters.
 #'   See [newMultispeciesParams()] for details.
+#' @slot gear_params Data frame with parameters for gear selectivity. See 
+#'   [setFishing()] for details.
 #' @slot interaction The species specific interaction matrix, \eqn{\theta_{ij}}.
 #'   Changed with [setInteraction()].
 #' @slot selectivity An array (gear x species x w) that holds the selectivity of
@@ -323,7 +325,7 @@ validMizerParams <- function(object) {
 #'   the initial plankton abundance at each weight.
 #' @slot initial_n_other A list with the initial abundances of all other
 #'   ecosystem components. Has length zero if there are no other components.
-#' @slot plankton_params Parameters for plankton. See [setPlankton()].
+#' @slot plankton_params List with parameters for plankton. See [setPlankton()].
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species.
 #'   Used to give consistent colours in plots.
@@ -376,6 +378,7 @@ setClass(
         initial_n_other = "list",
         species_params = "data.frame",
         interaction = "array",
+        gear_params = "data.frame",
         selectivity = "array",
         catchability = "array",
         initial_effort = "numeric",
@@ -420,6 +423,7 @@ remove(validMizerParams)
 #' `w_inf`, are not modified to lie on grid points.
 #' 
 #' @param species_params A data frame of species-specific parameter values.
+#' @param gear_params A data frame with gear-specific parameter values.
 #' @param no_w The number of size bins in the consumer spectrum.
 #' @param min_w Sets the size of the eggs of all species for which this is not
 #'   given in the `w_min` column of the `species_params` dataframe.
@@ -441,18 +445,22 @@ remove(validMizerParams)
 #'   the slots left empty by this function.
 #' @export
 emptyParams <- function(species_params,
+                        gear_params = data.frame(),
                         no_w = 100,
                         min_w = 0.001,
                         # w_full = NA,
                         max_w = NA,
                         min_w_pp = NA) {
-    assert_that(no_w > 10)
+    assert_that(is.data.frame(species_params),
+                is.data.frame(gear_params),
+                no_w > 10)
     
     ## Set defaults ----
     species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
     species_params <- validSpeciesParams(species_params)
+    gear_params <- validGearParams(gear_params, species_params)
     
     if (is.na(max_w)) {
         max_w <- max(species_params$w_inf)
@@ -538,7 +546,7 @@ emptyParams <- function(species_params,
     # Basic arrays for templates ----
     no_sp <- nrow(species_params)
     species_names <- as.character(species_params$species)
-    gear_names <- unique(species_params$gear)
+    gear_names <- unique(gear_params$gear)
     mat1 <- array(NA, dim = c(no_sp, no_w), 
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
@@ -653,6 +661,7 @@ emptyParams <- function(species_params,
         ft_pred_kernel_e = ft_pred_kernel,
         ft_pred_kernel_p = ft_pred_kernel,
         pred_kernel = array(),
+        gear_params = gear_params,
         selectivity = selectivity,
         catchability = catchability,
         initial_effort = initial_effort,
@@ -792,6 +801,9 @@ newMultispeciesParams <- function(
     w_pp_cutoff = 10,
     plankton_dynamics = "plankton_semichemostat",
     # setFishing
+    gear_params = data.frame(),
+    selectivity = NULL,
+    catchability = NULL,
     initial_effort = NULL) {
     no_sp <- nrow(species_params)
     
@@ -803,6 +815,7 @@ newMultispeciesParams <- function(
     
     ## Create MizerParams object ----
     params <- emptyParams(species_params,
+                          gear_params,
                           no_w = no_w, 
                           min_w = min_w,  
                           max_w = max_w, 
@@ -847,6 +860,9 @@ newMultispeciesParams <- function(
                   w_pp_cutoff = w_pp_cutoff,
                   plankton_dynamics = plankton_dynamics,
                   # setFishing
+                  gear_params = gear_params,
+                  selectivity = selectivity,
+                  catchability = catchability,
                   initial_effort = initial_effort)
     
     params@initial_n <- get_initial_n(params)
@@ -2098,7 +2114,7 @@ plankton_params <- function(params) {
         value$w_pp_cutoff < max(params@w_full)
     )
     params@plankton_params <- value
-    params
+    setPlankton(params)
 }
 
 
@@ -2196,71 +2212,69 @@ plankton_params <- function(params) {
 #' params@species_params$knife_edge_size[1] <- 15
 #' params <- setFishing(params)
 #' }
-setFishing <- function(params, catchability = NULL, selectivity = NULL,
+setFishing <- function(params, selectivity = NULL, catchability = NULL, 
                        initial_effort = NULL, ...) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
+    gear_params <- params@gear_params
     no_sp <- nrow(species_params)
+    no_gears <- length(unique(gear_params$gear))
+    no_w <- length(params@w)
     
     if (!is.null(selectivity)) {
+        assert_that(length(dim(selectivity)) == 3,
+                    dim(selectivity)[[2]] == no_sp,
+                    dim(selectivity)[[3]] == length(params@w))
         params@selectivity <- selectivity
     } else {
-        # At the moment, each species is only caught by 1 gear so in species_params
-        # there are the columns: gear_name and sel_func.
-        # If no gear specified in species_params, then use `knife_edge_gear`
-        species_params <- set_species_param_default(
-            species_params, "gear", default = "knife_edge_gear")
-        
-        # If no sel_func column in species_params, set to 'knife_edge'
-        species_params <- set_species_param_default(
-            species_params, "sel_func", default = "knife_edge",
-            message = "Note: Setting missing selectivity function to be 'knife_edge'.")
-        
-        # Provide default for knife_edge_size if needed
-        if ("knife_edge" %in% species_params$sel_func) {
-            species_params <- set_species_param_default(
-                species_params, "knife_edge_size", 
-                default = species_params$w_mat,
-                message = "Note: Setting missing knife edge selectivity equal to w_mat.")
-        }
-        # BEWARE! This routine assumes that each species has only one gear operating on it
-        # So we can just go row by row through the species parameters
-        # However, I really hope we can do something better soon
-        for (g in 1:nrow(species_params)) {
+        selectivity <- 
+            array(0, dim = c(no_gears, no_sp, no_w),
+                  dimnames = list(gear = as.character(unique(gear_params$gear)), 
+                                  sp = as.character(params@species_params$species),
+                                  w = signif(params@w, 3)
+                                  )
+                  )
+        for (g in seq_len(nrow(gear_params))) {
             # get args
             # These as.characters are annoying - but factors everywhere
-            arg <- names(formals(as.character(species_params[g, 'sel_func'])))
+            arg <- names(formals(as.character(gear_params[g, 'sel_func'])))
             # lop off w as that is always the first argument of the selectivity functions
             arg <- arg[!(arg %in% "w")]
-            if (!all(arg %in% colnames(species_params))) {
+            if (!all(arg %in% colnames(gear_params))) {
                 stop("Some arguments needed for the selectivity function are ",
-                     "missing in the parameter dataframe.")
+                     "missing in the gear_params dataframe.")
             }
             # Check that there are no missing values for selectivity parameters
-            if (any(is.na(as.list(species_params[g, arg])))) {
+            if (any(is.na(as.list(gear_params[g, arg])))) {
                 stop("Some selectivity parameters are NA.")
             }
             # Call selectivity function with selectivity parameters
-            par <- c(w = list(params@w), as.list(species_params[g, arg]))
-            sel <- do.call(as.character(species_params[g, 'sel_func']), args = par)
+            par <- c(w = list(params@w), as.list(gear_params[g, arg]))
+            sel <- do.call(as.character(gear_params[g, 'sel_func']), args = par)
             if (!is.null(comment(params@selectivity)) &&
-                any(params@selectivity[as.character(species_params[g, 'gear']), g, ] != sel)) {
+                any(params@selectivity[as.character(species_params[g, 'gear']),
+                                       as.character(gear_params[g, 'species']),
+                                       ] != sel)) {
                 message("The selectivity has been commented and therefore will ",
                         "not be recalculated from the species parameters.")
             } else {
-                params@selectivity[as.character(species_params[g, 'gear']), g, ] <- sel
+                params@selectivity[as.character(gear_params[g, 'gear']), 
+                                   as.character(gear_params[g, 'species']),
+                                   ] <- sel
             }
         }
     }
     
     if (!is.null(catchability)) {
+        assert_that(length(dim(catchability)) == 2,
+                    dim(selectivity)[[2]] == no_sp)
         params@catchability <- catchability
     } else {
         # If no catchability column in species_params, set to 1
         species_params <- set_species_param_default(species_params,
                                                     "catchability", 1)
         
-        for (g in 1:nrow(species_params)) {
+        for (g in seq_len(no_sp)) {
             # Now do catchability
             if (!is.null(comment(params@catchability)) &&
                 any(params@catchability[as.character(species_params[g,'gear']), g] !=
@@ -2282,6 +2296,21 @@ setFishing <- function(params, catchability = NULL, selectivity = NULL,
     
     params@species_params <- species_params
     return(params)
+}
+
+#' @rdname setFishing
+#' @export
+gear_params <- function(params) {
+    params@gear_params
+}
+
+#' @rdname setFishing
+#' @param value A data frame with the species parameters
+#' @export
+`gear_params<-` <- function(params, value) {
+    value <- validGearParams(value, params@species_params)
+    params@gear_params <- value
+    setFishing(params)
 }
 
 #' @rdname setFishing
@@ -2543,6 +2572,12 @@ dw_full <- function(params) {
 #' @export
 upgradeParams <- function(params) {
     
+    if (!.hasSlot(params, "gear_params")) {
+        gear_params <- validGearParams(data.frame(), params@species_params)
+    } else {
+        gear_params <- params@gear_params
+    }
+    
     if (!.hasSlot(params, "ft_pred_kernel_e")) {
         stop("Objects from versions 0.3 and earlier can not be upgraded.")
     }
@@ -2660,6 +2695,7 @@ upgradeParams <- function(params) {
         maturity = maturity,
         repro_prop = repro_prop,
         RDD = RDD,
+        gear_params = gear_params,
         initial_effort = initial_effort)
     
     pnew@psi <- params@psi
@@ -3100,7 +3136,6 @@ validSpeciesParams <- function(species_params) {
     species_params <- species_params %>% 
         set_species_param_default("w_mat", species_params$w_inf / 4) %>% 
         set_species_param_default("w_min", 0.001) %>% 
-        set_species_param_default("gear", "knife_edge_gear") %>% 
         set_species_param_default("alpha", 0.6) %>% 
         set_species_param_default("interaction_p", 1)
     
@@ -3113,6 +3148,71 @@ validSpeciesParams <- function(species_params) {
     }
     
     species_params
+}
+
+#' Check validity of gear parameters and set defaults for missing but
+#' required parameters or transfer them from species_params if available
+#' 
+#' @param species_params Gear parameter data frame
+#' @param species_params Species parameter data frame
+#' @return A valid gear parameter data frame
+validGearParams <- function(gear_params, species_params) {
+    assert_that(is.data.frame(gear_params),
+                is.data.frame(species_params))
+    
+    no_sp <- nrow(species_params)
+    
+    if (nrow(gear_params) < 1) {
+        if (!is.null(species_params$gear)) {
+            # Try to take parameters from species_params
+            gear_params <- 
+                data.frame(gear = species_params$gear,
+                           species = species_params$species)
+            if (!is.null(species_params$sel_func)) {
+                gear_params$sel_func <- species_params$sel_func
+            } else {
+                gear_params$sel_func <- "knife_edge"
+            }
+            # copy over any selectivity function parameters
+            for (g in seq_len(no_sp)) {
+                args <- names(formals(as.character(gear_params[g, 'sel_func'])))
+                args <- args[!(args %in% "w")]
+                for (arg in args) {
+                    if (!is.null(species_params[[arg]])) {
+                        gear_params[[arg]] <- species_params[[arg]]
+                    } else if (arg == "knife_edge_size") {
+                        gear_params[[arg]] = species_params$w_mat
+                    }
+                }
+            }
+        } else {
+            gear_params <- 
+                data.frame(species = species_params$species,
+                           gear = "knife_edge_gear",
+                           sel_func = "knife_edge",
+                           knife_edge_size = species_params$w_mat)
+        }
+    }
+    
+    # TODO: Check that there are no duplicate gear-species pairs
+    
+    # Check that every row is complete
+    for (g in 1:nrow(gear_params)) {
+        # get args
+        # These as.characters are annoying - but factors everywhere
+        arg <- names(formals(as.character(gear_params[g, 'sel_func'])))
+        # lop off w as that is always the first argument of the selectivity functions
+        arg <- arg[!(arg %in% "w")]
+        if (!all(arg %in% colnames(gear_params))) {
+            stop("Some arguments needed for the selectivity function are ",
+                 "missing in the gear parameter dataframe.")
+        }
+        # Check that there are no missing values for selectivity parameters
+        if (any(is.na(as.list(gear_params[g, arg])))) {
+            stop("Some selectivity parameters are NA.")
+        }
+    }
+    gear_params
 }
 
 #' Get critical feeding level
