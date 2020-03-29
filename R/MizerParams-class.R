@@ -2281,6 +2281,11 @@ getSelectivity <- function(params) {
     params@selectivity
 }
 
+#' @rdname setFishing
+#' @export
+getInitialEffort <- function(params) {
+    params@initial_effort
+}
 
 #' Set initial values to final values of a simulation
 #' 
@@ -2369,7 +2374,7 @@ initial_n_pp <- function(params) {
     params@initial_n_pp
 }
 
-#' Species parameter data frame
+#' Species parameters
 #' 
 #' This is the right place to document the use of species parameters in mizer.
 #' 
