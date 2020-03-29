@@ -138,6 +138,7 @@ plankton_params <- function(params) {
 }
 
 #' @rdname setPlankton
+#' @param value List of plankton parameters
 #' @export
 `plankton_params<-` <- function(params, value) {
     assert_that(

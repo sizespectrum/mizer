@@ -68,14 +68,14 @@ getRateFunction <- function(params, rate = "Rates") {
 #' @param dynamics_fun Name of function to calculate value at the next time step
 #' @param encounter_fun Name of function to calculate contribution to encounter
 #'   rate
-#' @param mortality_fun Name of function to calculate contribution to the
+#' @param pred_mort_fun Name of function to calculate contribution to the
 #'   predation mortality rate.
 #' @param component_params Named list of parameters needed by the component
 #'   functions.
 #' @return For `setComponent`: The updated MizerParams object
 #' @export
 setComponent <- function(params, component, initial_value,
-                         encounter_fun, mortality_fun,  
+                         encounter_fun, pred_mort_fun,  
                          dynamics_fun, component_params) {
     assert_that(is(params, "MizerParams"),
                 is.string(component),
@@ -89,7 +89,7 @@ setComponent <- function(params, component, initial_value,
     params@other_dynamics[[component]] <- dynamics_fun
     params@other_pred_mort[[component]] <- pred_mort_fun
     params@other_encounter[[component]] <- encounter_fun
-    params@other_params[[component]] <- other_params
+    params@other_params[[component]] <- component_params
     initial_n_other(params)[[component]] <- initial_value
 }
 
@@ -144,14 +144,12 @@ initial_n_other <- function(params) {
 #' Fetch the simulation results for other components over time.
 #' 
 #' @param sim A MizerSim object
-#' @return A list array (time x component) that stores the projected
-#'   values for other ecosystem components.
+#' @param component Optional name of desired component
+#' @return A list array (time x component) that stores the projected values for
+#'   other ecosystem components.
 #' @export
-n_other <- function(sim, component) {
-    if (missing(component)) {
-        return(sim@n_other)
-    }
-    
+n_other <- function(sim) {
+    return(sim@n_other)
 }
 
 

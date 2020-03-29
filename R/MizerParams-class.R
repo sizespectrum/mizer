@@ -240,16 +240,13 @@ validMizerParams <- function(object) {
 #' @slot w The size grid for the fish part of the spectrum. An increasing
 #'   vector of weights (in grams) running from the smallest egg size to the
 #'   largest asymptotic size.
-#' @slot dw The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
-#'   the same length as the w_full slot. The last entry is not determined by
-#'   the w slot but represents the size of the last size bin.
+#' @slot dw The widths (in grams) of the size bins
 #' @slot w_full The size grid for the full size range including the plankton
 #'   spectrum. An increasing vector of weights (in grams) running from the
 #'   smallest plankton size to the largest asymptotic size of fish. The
 #'   last entries of the vector have to be equal to the content of the w slot.
-#' @slot dw_full The spacing in the full size grid. 
-#'   So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
-#'   equal to the content of the dw slot.
+#' @slot dw_full The width of the size bins for the full spectrum. The last
+#'   entries have to be equal to the content of the dw slot.
 #' @slot w_min_idx A vector holding the index of the weight of the egg size
 #'   of each species
 #' @slot maturity An array (species x size) that holds the proportion of

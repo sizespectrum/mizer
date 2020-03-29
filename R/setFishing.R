@@ -214,7 +214,7 @@ getInitialEffort <- function(params) {
 #' Check validity of gear parameters and set defaults for missing but
 #' required parameters or transfer them from species_params if available
 #' 
-#' @param species_params Gear parameter data frame
+#' @param gear_params Gear parameter data frame
 #' @param species_params Species parameter data frame
 #' @return A valid gear parameter data frame
 validGearParams <- function(gear_params, species_params) {

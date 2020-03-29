@@ -53,7 +53,7 @@ NULL
 #'     \item e_repro from [mizerERepro()]
 #'     \item e_growth from [mizerEGrowth()]
 #'     \item rdi from [mizerRDI()]
-#'     \item rdd from [BervertonHoltRDD()]
+#'     \item rdd from [BevertonHoltRDD()]
 #'   }
 #' However you can replace any of these rate functions by your own rate
 #' function if you wish, see `setRateFunction()` for details.
