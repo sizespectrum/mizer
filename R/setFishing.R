@@ -14,52 +14,68 @@
 #' where \eqn{S} is the selectivity by species, gear and size, \eqn{Q} is the 
 #' catchability by species and gear and \eqn{E} is the fishing effort by gear.
 #' 
-#' At the moment a species can only be selected by one fishing gear, although 
-#' each gear can select more than one species (this is a limitation with the 
-#' current package that will be developed in future releases). The gear
-#' selecting each species can be specified in the `gear` column in the
-#' species_params data frame. If no gear is specified, the default gear is
-#' "knife_edge_gear".
-#' 
 #' \strong{Selectivity}
 #' 
-#' The selectivity at size of each gear has a range between 0 (not selected at
-#' that size) to 1 (fully selected at that size). It is given by a selectivity
-#' function. The name of the selectivity function is given by the `sel_func`
-#' column in the species parameters data frame. Some selectivity functions are
-#' included in the package: `knife_edge()`, `sigmoid_length()`,
-#' `double_sigmoid_length()`, and `sigmoid_weight()`. New functions can be defined 
-#' by the user. Each
-#' gear has the same selectivity function for all the species it selects, but
-#' the parameter values for each species may be different, e.g. the lengths of
-#' species that a gear selects may be different.
+#' The selectivity at size of each gear for each species is saved as a three
+#' dimensional array (gear x species x size). Each entry has a range between 0 
+#' (that gear is not selecting that species at that size) to 1 (that gear is
+#' selecting all individuals of that species of that size). This three
+#' dimensional array can be specified explicitly via the `selectivity`
+#' argument, but usually mizer calculates it from the `gear_params` slot of
+#' the MizerParams object.
 #' 
-#' Each selectivity function has a range of parameters. Values for these
-#' parameters must be included as columns in the species parameters data.frame.
+#' To allow the calculation of the `selectivity` array, the `gear_params` slot
+#' must be a data frame with one row for each gear-species combination. So if
+#' for example a gear can select three species, then that gear contributes three
+#' rows to the `gear_params` data frame, one for each species it can select. The
+#' data frame must have colunns `gear`, holding the name of the gear, `species`,
+#' holding the name of the species, and `sel_func`, holding the name of the
+#' function that calculates the selectivity curve. Some selectivity functions
+#' are included in the package: `knife_edge()`, `sigmoid_length()`,
+#' `double_sigmoid_length()`, and `sigmoid_weight()`. 
+#' Users are able to write their own size-based selectivity function. The first
+#' argument to the function must be `w` and the function must return a vector of
+#' the selectivity (between 0 and 1) at size.
+#' 
+#' Each selectivity function may have parameters. Values for these
+#' parameters must be included as columns in the gear parameters data.frame.
 #' The names of the columns must exactly match the names of the corresponding
 #' arguments of the selectivity function. For example, the default selectivity
-#' function is `knife_edge()` which has sudden change of selectivity from 0 to 1
+#' function is `knife_edge()` that a has sudden change of selectivity from 0 to 1
 #' at a certain size. In its help page you can see that the `knife_edge()`
-#' function has arguments `w` and `knife_edge_size` The first argument, `w`, is
+#' function has arguments `w` and `knife_edge_size`. The first argument, `w`, is
 #' size (the function calculates selectivity at size). All selectivity functions
 #' must have `w` as the first argument. The values for the other arguments must
-#' be found in the species parameters data.frame. So for the `knife_edge()`
+#' be found in the gear parameters data.frame. So for the `knife_edge()`
 #' function there should be a `knife_edge_size` column. Because `knife_edge()`
 #' is the default selectivity function, the `knife_edge_size` argument has a
 #' default value = `w_mat`.
 #' 
+#' In case each species is only selected by one gear, the columns of the
+#' `gear_params` data frame can alternatively be provided as columns of the
+#' `species_params` data frame, if this is more convenient for the user to set
+#' up. Mizer will then copy these columns over to create the `gear_params` data
+#' frame when it creates the MizerParams object. However changing these columns
+#' in the species parameter data frame later will not update the `gear_params`
+#' data frame.
+
 #' \strong{Catchability}
 #' 
-#' Catchability is used as an additional scalar to make the link between gear 
-#' selectivity, fishing effort and fishing mortality. For example, it can be set 
-#' so that an effort of 1 gives a desired fishing mortality.
-#' In this way effort can then be specified relative to a 'base effort', e.g. 
-#' the effort in a particular year.
+#' Catchability is used as an additional factor to make the link between gear
+#' selectivity, fishing effort and fishing mortality. For example, it can be set
+#' so that an effort of 1 gives a desired fishing mortality. In this way effort
+#' can then be specified relative to a 'base effort', e.g. the effort in a
+#' particular year. 
 #' 
-#' Because currently mizer only allows one gear to select each species, the
-#' catchability matrix \eqn{Q_{g,i}} reduces to a catchability vector 
-#' \eqn{Q_{i}}, and this is given as a column `catchability` in the species
-#' parameter data frame. If it is not specified, it defaults to 1.
+#' Catchability is stored as a two dimensional array (gear x species). This can
+#' either be provided explicitly via the `catchability` argument, or the
+#' information can be provided via a `catchability` column in the `gear_params`
+#' data frame. 
+#' 
+#' In the case where each species is selected by only a single gear, the
+#' `catchability` column can also be provided in the `species_params` data
+#' frame. Mizer will then copy this over to the `gear_params` data frame when
+#' the MizerParams object is created.
 #' 
 #' \strong{Effort}
 #' 
@@ -69,8 +85,8 @@
 #' an effort that varies through time.
 #' 
 #' @param params A MizerParams object
-#' @param selectivity An array (gear x species x w) that holds the selectivity of
-#'   each gear for species and size, \eqn{S_{g,i,w}}.
+#' @param selectivity An array (gear x species x size) that holds the
+#'   selectivity of each gear for species and size, \eqn{S_{g,i,w}}.
 #' @param catchability An array (gear x species) that holds the catchability of
 #'   each species by each gear, \eqn{Q_{g,i}}.
 #' @param initial_effort Optional. A number or a named numeric vector specifying
@@ -115,11 +131,14 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                   )
             )
         for (g in seq_len(nrow(gear_params))) {
-            # get args
             # These as.characters are annoying - but factors everywhere
-            arg <- names(formals(as.character(gear_params[g, 'sel_func'])))
-            # lop off w as that is always the first argument of the selectivity functions
-            arg <- arg[!(arg %in% "w")]
+            species <- as.character(gear_params[g, 'species'])
+            gear <- as.character(gear_params[g, 'gear'])
+            sel_func <- as.character(gear_params[g, 'sel_func'])
+            # get args
+            arg <- names(formals(sel_func))
+            # lop off the arguments that we will supply
+            arg <- arg[!(arg %in% c("w", "species_params", "..."))]
             if (!all(arg %in% colnames(gear_params))) {
                 stop("Some arguments needed for the selectivity function are ",
                      "missing in the gear_params dataframe.")
@@ -129,19 +148,18 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                 stop("Some selectivity parameters are NA.")
             }
             # Call selectivity function with selectivity parameters
-            par <- c(w = list(params@w), as.list(gear_params[g, arg]))
-            sel <- do.call(as.character(gear_params[g, 'sel_func']), args = par)
-            if (!is.null(comment(params@selectivity)) &&
-                any(params@selectivity[as.character(species_params[g, 'gear']),
-                                       as.character(gear_params[g, 'species']),
-                ] != sel)) {
-                message("The selectivity has been commented and therefore will ",
-                        "not be recalculated from the species parameters.")
-            } else {
-                params@selectivity[as.character(gear_params[g, 'gear']), 
-                                   as.character(gear_params[g, 'species']),
-                ] <- sel
-            }
+            par <- c(list(w = params@w, 
+                          species_params = as.list(species_params[species, ])),
+                     as.list(gear_params[g, arg]))
+            sel <- do.call(sel_func, args = par)
+            selectivity[gear, species, ] <- sel
+        }
+        if (!is.null(comment(params@selectivity)) &&
+            !identical(selectivity, params@selectivity)) {
+            message("The selectivity has been commented and therefore will ",
+                    "not be recalculated from the species parameters.")
+        } else {
+            params@selectivity <- selectivity
         }
     }
     
@@ -150,7 +168,12 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                     dim(selectivity)[[2]] == no_sp)
         params@catchability <- catchability
     } else {
-        catchability <- params@catchability
+        catchability <- 
+            array(0, dim = c(no_gears, no_sp),
+                  dimnames = list(gear = as.character(unique(gear_params$gear)), 
+                                  sp = as.character(params@species_params$species)
+                  )
+            )
         for (g in seq_len(nrow(gear_params))) {
             catchability[[as.character(gear_params$gear[[g]]), 
                           as.character(gear_params$species[[g]])]] <-
@@ -182,7 +205,7 @@ gear_params <- function(params) {
 }
 
 #' @rdname setFishing
-#' @param value A data frame with the species parameters
+#' @param value A data frame with the gear parameters
 #' @export
 `gear_params<-` <- function(params, value) {
     value <- validGearParams(value, params@species_params)
@@ -221,11 +244,16 @@ validGearParams <- function(gear_params, species_params) {
     no_sp <- nrow(species_params)
     
     if (nrow(gear_params) < 1) {
-        if (!is.null(species_params$gear)) {
+        if (!is.null(species_params$gear) ||
+            !is.null(species_params$sel_func)) {
             # Try to take parameters from species_params
             gear_params <- 
-                data.frame(gear = species_params$gear,
-                           species = species_params$species)
+                data.frame(species = species_params$species)
+            if (!is.null(species_params$gear)) {
+                gear_params$gear <- species_params$gear
+            } else {
+                gear_params$gear <- species_params$species
+            }
             if (!is.null(species_params$sel_func)) {
                 gear_params$sel_func <- species_params$sel_func
             } else {
@@ -239,7 +267,7 @@ validGearParams <- function(gear_params, species_params) {
             # copy over any selectivity function parameters
             for (g in seq_len(no_sp)) {
                 args <- names(formals(as.character(gear_params[g, 'sel_func'])))
-                args <- args[!(args %in% "w")]
+                args <- args[!(args %in% c("w", "species_params", "..."))]
                 for (arg in args) {
                     if (!is.null(species_params[[arg]])) {
                         gear_params[[arg]] <- species_params[[arg]]
@@ -265,8 +293,7 @@ validGearParams <- function(gear_params, species_params) {
         # get args
         # These as.characters are annoying - but factors everywhere
         arg <- names(formals(as.character(gear_params[g, 'sel_func'])))
-        # lop off w as that is always the first argument of the selectivity functions
-        arg <- arg[!(arg %in% "w")]
+        arg <- arg[!(arg %in% c("w", "species_params", "..."))]
         if (!all(arg %in% colnames(gear_params))) {
             stop("Some arguments needed for the selectivity function are ",
                  "missing in the gear parameter dataframe.")

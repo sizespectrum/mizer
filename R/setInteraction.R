@@ -1,26 +1,36 @@
 #' Set species interaction matrix
 #'
 #' @section Setting interactions:
+#' 
+#' The interaction matrix \eqn{\theta_{ij}} describes the interaction of each
+#' pair of species in the model. This can be viewed as a proxy for spatial
+#' interaction e.g. to model predator-prey interaction that is not size based.
+#' The values in the interaction matrix are used to scale the encountered food
+#' and predation mortality (see on the website
+#' [the section on predator-prey encounter rate](https://sizespectrum.org/mizer/docs/articles/model_description.html#sec:pref)
+#' and on [predation mortality](https://sizespectrum.org/mizer/docs/articles/model_description.html#mortality)).                                                                        and on [predation mortality](model_description.html#mortality)).
 #'
-#'   The species interaction matrix \eqn{\theta_{ij}}, is used when calculating
-#'   the food encounter rate in [getEncounter()] and the predation
-#'   mortality rate in [getPredMort()]. Its entries are dimensionless
-#'   numbers between 0 and 1 that characterise the strength at which predator
-#'   species \eqn{i} predates on prey species \eqn{j}.
+#' It is used when calculating the food encounter rate in [getEncounter()] and
+#' the predation mortality rate in [getPredMort()]. Its entries are
+#' dimensionless numbers.The values are between 0 (species do not overlap and
+#' therefore do not interact with each other) to 1 (species overlap perfectly).
+#' If all the values in the interaction matrix are set to 1 then predator-prey
+#' interactions are determined entirely by size-preference.
+#' 
+#' This function checks that the supplied interaction matrix is valid and then
+#' stores it in the `interaction` slot of the params object before returning
+#' that object.
 #'
-#'   This function checks that the supplied interaction matrix is valid and then
-#'   stores it in the `interaction` slot of the params object before
-#'   returning that object.
+#' The order of the columns and rows of the `interaction` argument should be the
+#' same as the order in the species params data frame in the `params` object. If
+#' you supply a named array then the function will check the order and warn if
+#' it is different. One way of creating your own interaction matrix is to enter
+#' the data using a spreadsheet program and saving it as a .csv file. The data
+#' can be read into R using the command `read.csv()`.
 #'
-#'   The order of the columns and rows of the `interaction` argument should
-#'   be the same as the order in the species params dataframe in the
-#'   `params` object. If you supply a named array then the function will
-#'   check the order and warn if it is different.
-#'
-#'   The interaction of the species with the plankton are set via a column
-#'   `interaction_p` in the `species_params` data frame. Again the
-#'   entries have to be numbers between 0 and 1. By default this column is set
-#'   to all 1s.
+#' The interaction of the species with the plankton are set via a column
+#' `interaction_p` in the `species_params` data frame. Again the entries have to
+#' be numbers between 0 and 1. By default this column is set to all 1s.
 #'
 #' @param params MizerParams object
 #' @param interaction Optional interaction matrix of the species (predator
@@ -46,6 +56,9 @@ setInteraction <- function(params,
     assert_that(is(params, "MizerParams"))
     if (is.null(interaction)) {
         interaction <- params@interaction
+    }
+    if (!is.matrix(interaction)) {
+        interaction <- as.matrix(interaction)
     }
     # Check dims of interaction argument
     if (!identical(dim(params@interaction), dim(interaction))) {

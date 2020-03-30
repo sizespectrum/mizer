@@ -119,6 +119,19 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
 }
 
 
+#' Get critical feeding level
+#' 
+#' The critical feeding level is the feeding level at which the food intake is
+#' just high enough to cover the metabolic costs, with nothing left over for
+#' growth or reproduction. 
+#' 
+#' @param params A MizerParams object
+#' @return A matrix (species x size) with the critical feeding level
+#' @export
+getCriticalFeedingLevel <- function(params) {
+  validObject(params)
+  params@metab/params@intake_max/params@species_params$alpha
+}
 
 #' Get predation rate
 #' 
@@ -149,7 +162,6 @@ getFeedingLevel <- function(object, n, n_pp, n_other, encounter,
 #' n_pp <- sim@@n_pp[21,]
 #' getPredRate(params,n,n_pp)
 #' }
-
 getPredRate <- function(params, n = initial_n(params), 
                         n_pp = initial_n_pp(params),
                         n_other = initial_n_other(params),

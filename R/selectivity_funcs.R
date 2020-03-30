@@ -10,19 +10,25 @@
 #' A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 #' \code{l50} which determine the length at which 25% and 50% of the stock is
 #' selected respectively. As the size-based model is weight based, and this
-#' selectivity function is length based, it is also necessary to supply the
-#' length-weight parameters `a` and `b`.
+#' selectivity function is length based, it uses the
+#' length-weight parameters `a` and `b` to convert between length and weight.
 #'
 #' @param w the size of the individual.
 #' @param l25 the length which gives a selectivity of 25%.
 #' @param l50 the length which gives a selectivity of 50%.
-#' @param a the multiplier of the length-weight function.
-#' @param b the exponent of the length-weight function.
+#' @param species_params A list with the species params for the current species.
+#'   Used to get at the length-weight parameters `a` and `b`
+#' @param ... Unused
 #' @export
-sigmoid_length <- function(w, l25, l50, a, b) {
-    assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50) && 
-        is.numeric(a) && is.numeric(b))
-    assert_that(l25 > 0 && l25 < l50 && a > 0 && b > 0)
+sigmoid_length <- function(w, l25, l50, species_params, ...) {
+    assert_that(is.numeric(w) && is.numeric(l25) && is.numeric(l50))
+    assert_that(l25 > 0 && l25 < l50)
+    a <- species_params[["a"]]
+    b <- species_params[["b"]]
+    if (is.null(a) || is.null(b)) {
+        stop("The selectivity function needs the weight-length parameters ",
+             "`a` and `b` to be provided in the species_params data frame.")
+    }
     l <- (w / a)^(1 / b)
     sr <- l50 - l25
     s1 <- l50 * log(3) / sr
@@ -46,25 +52,31 @@ sigmoid_length <- function(w, l25, l50, a, b) {
 #' respectively.
 #' 
 #' As the size-based model is weight based, and this
-#' selectivity function is length based, it is also necessary to supply the
-#' length-weight parameters `a` and `b`.
+#' selectivity function is length based, it uses the
+#' length-weight parameters `a` and `b` to convert between length and weight.
 #'
 #' @param w the size of the individual.
 #' @param l25 the length which gives a selectivity of 25%.
 #' @param l50 the length which gives a selectivity of 50%.
 #' @param l50_right the length which gives a selectivity of 50%.
 #' @param l25_right the length which gives a selectivity of 25%.
-#' @param a the multiplier of the length-weight function.
-#' @param b the exponent of the length-weight function.
+#' @param species_params A list with the species params for the current species.
+#'   Used to get at the length-weight parameters `a` and `b`
+#' @param ... Unused
 #' @export
-double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right, a, b) {
+double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
+                                  species_params, ...) {
     assert_that(is.numeric(w) && 
                     is.numeric(l25) && is.numeric(l50) &&
-                    is.numeric(l50_right) && is.numeric(l25_right) &&
-                    is.numeric(a) && is.numeric(b))
-    assert_that(l25 > 0 && l25 < l50 && 
-                    l50_right < l25_right && 
-                    a > 0 && b > 0)
+                    is.numeric(l50_right) && is.numeric(l25_right))
+    assert_that(l25 > 0, l25 < l50, l50_right < l25_right)
+    
+    a <- species_params[["a"]]
+    b <- species_params[["b"]]
+    if (is.null(a) || is.null(b)) {
+      stop("The selectivity function needs the weight-length parameters ",
+           "`a` and `b` to be provided in the species_params data frame.")
+    }
     
     l <- (w / a)^(1 / b)
     
@@ -86,8 +98,9 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right, a, b) {
 #'
 #' @param w The size of the individual.
 #' @param knife_edge_size The weight at which the knife-edge operates.
+#' @param ... Unused
 #' @export
-knife_edge <- function(w, knife_edge_size) {
+knife_edge <- function(w, knife_edge_size, ...) {
     sel <- rep(0, length(w))
     sel[w >= knife_edge_size] <- 1
     return(sel)
@@ -101,9 +114,10 @@ knife_edge <- function(w, knife_edge_size) {
 #' @param w The size of the individual.
 #' @param sigmoidal_weight The weight at which the knife-edge operates.
 #' @param sigmoidal_sigma The width of the selection function
+#' @param ... Unused
 #' @export
-sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma=3) {
-  return( (1+(w/sigmoidal_weight)^(-sigmoidal_sigma))^(-1) )
+sigmoid_weight <- function(w, sigmoidal_weight, sigmoidal_sigma, ...) {
+  return((1 + (w / sigmoidal_weight) ^ (-sigmoidal_sigma)) ^ (-1) )
 } 
 
 

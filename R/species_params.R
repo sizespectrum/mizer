@@ -2,13 +2,13 @@
 #' 
 #' This is the right place to document the use of species parameters in mizer.
 #' 
-#' @param params A MizerParams object
+#' @rdname setParams
 #' @export
 species_params <- function(params) {
     params@species_params
 }
 
-#' @rdname species_params
+#' @rdname setParams
 #' @param value A data frame with the species parameters
 #' @export
 `species_params<-` <- function(params, value) {
@@ -259,19 +259,4 @@ validSpeciesParams <- function(species_params) {
     }
     
     species_params
-}
-
-
-#' Get critical feeding level
-#' 
-#' The critical feeding level is the feeding level at which the food intake is
-#' just high enough to cover the metabolic costs, with nothing left over for
-#' growth or reproduction. 
-#' 
-#' @param params A MizerParams object
-#' @return A matrix (species x size) with the critical feeding level
-#' @export
-getCriticalFeedingLevel <- function(params) {
-    validObject(params)
-    params@metab/params@intake_max/params@species_params$alpha
 }
