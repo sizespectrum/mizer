@@ -424,7 +424,7 @@ getFMortGear <- function(object, effort, time_range) {
 #' imposed by each gear, \eqn{\mu_{f.i}(w)=\sum_g F_{g,i,w}}.
 #' 
 #' @param object A `MizerParams` object or a `MizerSim` object
-#' @param effort The effort of each fishing gear. Only needed if the object
+#' @param effort The effort of each fishing gear. Only used if the object
 #'   argument is of class `MizerParams`. See notes below.
 #' @param time_range Subset the returned fishing mortalities by time. The time
 #'   range is either a vector of values, a vector of min and max time, or a
@@ -479,6 +479,9 @@ getFMortGear <- function(object, effort, time_range) {
 getFMort <- function(object, effort, time_range, drop = TRUE){
     if (is(object, "MizerParams")) {
         params <- object
+        if (missing(effort)) {
+          effort <- params@initial_effort
+        }
         no_gears <- dim(params@catchability)[[1]]
         f <- get(params@rates_funcs$FMort)
         if (length(dim(effort)) == 2) {
