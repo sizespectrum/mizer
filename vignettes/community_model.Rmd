@@ -2,7 +2,6 @@
 title: "The Community Model"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -42,8 +41,8 @@ As can be seen in the help page, the function can take many arguments. We can
 ignore most of these for the moment as they almost all come with
 default values.
 
-The arguments that you should pay attention to are: `z0` (the level of
-external mortality), `alpha` (the assimilation efficiency of the community),
+The arguments that you should pay attention to are: `z0` (the external 
+mortality rate), `alpha` (the assimilation efficiency of the community),
 `f0` (the average feeding level of the community, which is used to calculate
 $\gamma$) and `h` (the coefficient of the maximum intake rate).
 
@@ -67,24 +66,6 @@ check this using the `class()` function.
 ```{r label=class_comm_params}
 class(params)
 ```
-
-<!-- If you are going through this vignette for the first time, it is likely that you -->
-<!-- have no idea what a `MizerParams` object actually is. In R-speak it is an *S4* -->
-<!-- object, which means it is an object made up of *slots*. Slots are essentially -->
-<!-- containers that store the object data. The names of these slots can be seen by -->
-<!-- calling the `slotNames()` method on the object: -->
-<!-- ```{r label=slots_MP} -->
-<!-- slotNames(params) -->
-<!-- ``` -->
-
-<!-- As you can see, the `params` object is made up of lots of slots. A quick -->
-<!-- description can be found in the [`MizerParams` help -->
-<!-- page](../reference/MizerParams-class.html). The slots -->
-<!-- of an object are accessed by using the `@` operator. For example, to access the -->
-<!-- `w` slot (which contains a vector of the size bins in the model) you would use -->
-<!-- ```{r label=demo_slot_accessor, results='hide'} -->
-<!-- params@w -->
-<!-- ``` -->
 
 To work with mizer you do not have to worry about how this object is realised
 internally. All you need to know is that it contains all the information needed
@@ -142,13 +123,13 @@ After running the projection, it is possible to explore the results using a
 range of plots and analyses. These are described fully in [the section on
 exploring the simulation results.](exploring_the_simulation_results.html)
 
-To quickly look at the results of the projection you can call the
-`plot()` method. This plots the feeding level, predation mortality, fishing
-mortality and abundance by size in the last time step of the simulation, and the
+To quickly look at the results of the projection you can call the `plot()`
+method. This plots the feeding level, predation mortality, fishing mortality and
+abundance by size in the last time step of the simulation, and the total
 biomass through time. Each of the plots can be shown individually if desired.
 
 ```{r label=print_plot_comm_sim}
-plot(sim, power = 2)
+plot(sim)
 ```
 
 In the above plot there are several things going on that are worth talking
@@ -161,13 +142,15 @@ is clearly a function of size, with the smallest sizes experiencing the
 highest levels of predation. The feeding level describes how satiated an
 individual is, with 0 being unfed, and 1 being full satiated. The feeding level
 at size will be strongly affected by the values of the `f0` and `alpha`
-arguments passed to the `newCommunityParams()` function. The plankton and
+arguments passed to the `newCommunityParams()` function. 
+
+The plankton and
 community spectra are shown in the bottom panel of the plot (the plotted
 plankton spectrum has been truncated to make for a better plot, but really
 extends all the way back to $`r signif(w_full(params)[1], 3)`$ g). You can see
 that the community spectrum forms a continuum with the plankton spectrum. This
 is strongly affected by the level of fixed reproduction rate (the `reproduction`
-argument passed to `newCommunityParams()`).
+argument passed to `newCommunityParams()`)
 
 Note the hump in the biomass at the largest end of the community spectrum. This
 is because the size spectrum model can be broadly described as 'big things
@@ -182,8 +165,8 @@ from the `MizerSim` object, `sim`, that we created above. This is easily done by
 using the `getPredMort()` function (see the help page for more details). There are
 several functions that can be used for extracting information from a `MizerSim`
 object, e.g. `getFeedingLevel()` and `getFMort()`. For more information see 
-[the section on exploring the simulation results](exploring_the_simulation_results.html). Here we just call
-`getPredMort()` using the `sim` object:
+[the section on exploring the simulation results](exploring_the_simulation_results.html). 
+Here we just call `getPredMort()` using the `sim` object:
 
 ```{r label=get_m2_comm}
 pred_mort <- getPredMort(sim)
@@ -194,19 +177,38 @@ time by species by size. Here we only have one species so the species dimension
 is dropped, leaving us with a two dimensional array of time by size. We
 projected the model for $`r dim(pred_mort)[1]-1`$ time steps but the length of the time
 dimension is $`r dim(pred_mort)[1]`$ as the initial population is also included as a
-time step.
+time step. We can get the index of the final time with
+```{r}
+final_idx(sim)
+```
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
-pred_mort[final_idx(sim), ]
+pred_mort_final <- pred_mort[final_idx(sim), ]
 ```
 
 If you plot this predation mortality on a log-log scale you can see how the
 predation mortality declines to almost zero for the largest sizes.
 
 ```{r label=print_plot_comm_m2, warning=FALSE}
-plot(x = w(params), y = pred_mort[final_idx(sim), ], log = "xy", type = "l", 
-     xlab = "Size", ylab = "Predation mortality")
+plot(x = w(params), y = pred_mort_final, log = "xy", type = "l", 
+     xlab = "Size [g]", ylab = "Predation mortality [1/year]")
+```
+
+Note how we used `w(sim)` to get the vector of sizes to plot along the x-axis and
+how we specified that we wanted to have logarithmic axes.
+
+In the long run it is worthwhile to use the ggplot2 package for creating plots,
+so we show also how you would create the above graph with `ggplot()`. For
+more detail see the section on 
+[using ggplot2 and plotly with mizer](plotting.html).
+```{r}
+library(ggplot2)
+sd <- data.frame(x = w(params), y = pred_mort_final)
+ggplot(sd, aes(x = x, y = y)) +
+  geom_line() +
+  scale_x_log10() + scale_y_log10() +
+  xlab("Size [g]") + ylab("Predation mortality [1/year]")
 ```
  
 
@@ -302,6 +304,12 @@ can affect the dynamics of the community.
 
 In the examples above, \(\sigma\) is set in the `newCommunityParams()` function 
 by default to a value of \(`r species_params(params_knife)$sigma[1]`\).
+We can see this by looking at the `sigma` column of the species_params data
+frame that is contained in the MizerParams object:
+```{r}
+species_params(params)$sigma
+```
+
 When projected through time, the community abundances converge to a stable 
 equilibrium. What happens if we reduce the value of $\sigma$, for example by 
 setting it to 1.0? We can do this by passing in the new value of $\sigma$ into 
@@ -316,13 +324,14 @@ Here we project the new parameter object for 50 time steps without fishing and
 save at intervals of 0.1 years (`t_save = 0.1`):
 
 ```{r label=comm_project_sigma1}
-sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, dt = 0.01, t_save = 0.1)
+sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, 
+                      dt = 0.01, t_save = 0.1)
 ```
 Note that we have introduced a new argument: $dt$. This is the step size of the
 solver. It does not have anything to do with the biology in the model. It only
 affects the internal engine of `project()` that performs the projection.
 As you can see in the underlying model equations in [the model description
-section](model_description.html), the model runs in continuous time. Therefore,
+section](model_description.html), the model is formulated in continuous time. Therefore,
 to project it forward, `project()` must solve the system of equations using
 numerical methods. The quality of these methods is strongly affected by $dt$.
 The default value of $dt$ is 0.1, which will be fine for most of the projections

@@ -91,7 +91,10 @@ Setting the model parameters is done by creating an object of `class ?
 MizerParams`. This includes model parameters such as the life history parameters
 of each species, and the fishing gears. It is possible to create a MizerParams
 object directly using the class constructor, but most likely you will want to
-use one of the convenient wrapper functions provided in the package. These make
+use one of the convenient wrapper functions provided in the package: 
+`newCommunityParams()`, `newTraitParams()` and `newMultispeciesParams()`.
+
+These wrapper functions make
 reasonable default choices for many of the model parameters that you do not want
 to specify explicitly. For example to set up a simple model (described
 more in the [Community Model](community_model.html) vignette) you can even let

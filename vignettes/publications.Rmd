@@ -2,7 +2,6 @@
 title: "Publications"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5

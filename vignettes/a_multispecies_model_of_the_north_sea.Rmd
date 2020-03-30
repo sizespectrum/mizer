@@ -2,7 +2,6 @@
 title: "A Multi-Species Model Of The North Sea"
 output:
   html_document:
-    number_sections: yes
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -61,7 +60,7 @@ inter <- as(read.csv("inter.csv", row.names = 1), "matrix")
 ```
 
 The species in the model are: `r paste(params_data[,"species"], collapse=", ")`,
-which account for about 90\% of the total biomass of all species sampled by
+which account for about 90% of the total biomass of all species sampled by
 research trawl surveys in the North Sea. The `params_data` object is a
 data.frame with columns for `species`, `w_inf`, `w_mat`, `beta`, `sigma`,
 `R_max` and `k_vb`.
@@ -86,8 +85,8 @@ is a knife-edge which only takes a single argument, `knife_edge_size`. In this
 model we want the selectivity pattern to be a sigmoid shape which more
 accurately reflects the selectivity pattern of trawlers in the North Sea. The
 sigmoid selectivity function is expressed in terms of length rather than weight
-and uses the parameters `l25` and `l50`, which are the lengths at which 25\% and
-50\% of the stock is selected. The length based sigmoid selectivity looks like:
+and uses the parameters `l25` and `l50`, which are the lengths at which 25% and
+50% of the stock is selected. The length based sigmoid selectivity looks like:
 
 \begin{equation}
 %     {#eq:trawl_sel}
