@@ -70,8 +70,9 @@ described in the "[Working with git and GitHub](working_with_git.html)" tutorial
 The recommended way of working in your fork of the mizer project is to keep the
 master branch of your repository always in sync with the master branch at
 https://github.com/sizespectrum/mizer, and to create a feature branch for any of
-your code changes, as is explained in the "[Creating a
-branch](working_with_git.html#creating-a-branch)" section of the "Working with
+your code changes, as is explained in the 
+"[Creating a branch](working_with_git.html#creating-a-branch)" 
+section of the "Working with
 git and GitHub" tutorial. Note however that having a clean master branch is not
 a prerequisite to making pull requests, see the answer to
 "[How can I prepare a pull request without a clean master branch?](#how-can-i-prepare-a-pull-request-without-a-clean-master-branch)" above.
@@ -116,8 +117,8 @@ git push origin master --force
 Now both your local repository and your GitHub repository have the master branch
 identical to the official master branch. You can now create new feature branches
 by branching off from this master branch in preparation for submitting pull
-requests, as explained in the "[Working with git and
-GitHub](working_with_git.html)" tutorial.
+requests, as explained in the 
+"[Working with git and GitHub](working_with_git.html)" tutorial.
 
 You can of course still get at your modified code by switching to the branch
 you created in the first step above.

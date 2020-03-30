@@ -195,8 +195,9 @@ into your code base.
 This interaction is made possible with git and GitHub. 
 
 It initially takes a bit of effort to get the hang of how this works. Therefore
-we have created a little tutorial "[Working with git and
-GitHub](working_with_git.html)"with an exercise that will take you through all
+we have created a little tutorial 
+"[Working with git and GitHub](working_with_git.html)"
+with an exercise that will take you through all
 the necessary steps. Unless you are already very familiar with git and GitHub,
 it will be worthwhile for you to work through that tutorial now.
 

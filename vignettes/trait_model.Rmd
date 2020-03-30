@@ -59,8 +59,8 @@ calculated using other parameters.
 
 This function returns an object of type `MizerParams` that holds all the model
 information, including species parameters. This object can therefore be
-interrogated in the same way as described in [the section on the community
-model](community_model.html).
+interrogated in the same way as described in 
+[the section on the community model](community_model.html).
 
 ```{r label=summary_comm_params2}
 summary(params)
@@ -75,8 +75,9 @@ logarithmic scale.
 
 The size at maturity (`w_mat`) is linearly related to the asymptotic size. Each
 species has the same preferred predator-prey mass ratio parameter values (`beta`
-and `sigma`, see [the section on predator/prey mass
-ratio](model_description.html#sec:ppmr)). There are $`r length(w(params))`$ size
+and `sigma`, see 
+[the section on predator/prey mass ratio](model_description.html#sec:ppmr)). 
+There are $`r length(w(params))`$ size
 bins in the community and $`r length(w_full(params))`$ size bins including the
 plankton spectrum. Ignore the summary section on fishing gear for the moment.
 This is explained later.
@@ -87,8 +88,8 @@ As with the [community model](community_model.html), we can project the
 trait-based model through time using the `project()` function. Here we project
 the model for 75 years without any fishing (the `effort` argument is set to 0).
 We use the default initial population abundances so there is no need to pass in
-any initial population values (see [the section on setting the initial
-abundances](running_a_simulation.html#sec:setting_initial_abundances)).
+any initial population values (see 
+[the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
 
 
 ```{r label=trait_project_no_fishing}
@@ -153,11 +154,12 @@ sim0 <- project(params_knife, effort = 0, t_max = 75)
 ```
 
 Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in
-[the section on trophic cascades in the community
-model](community_model.html#sec:trophic_cascade_comm_model), the fishing
+[the section on trophic cascades in the community model](community_model.html#sec:trophic_cascade_comm_model), 
+the fishing
 mortality on a species is calculated as the product of effort, catchability and
-selectivity (see [the section on fishing
-gears](multispecies_model.html#sec:fishing_gear) for more details). Selectivity
+selectivity (see 
+[the section on fishing gears](multispecies_model.html#sec:fishing_gear) 
+for more details). Selectivity
 ranges between 0 (not selected) and 1 (fully selected). The default value of
 catchability is 1. Therefore, in this simulation the fishing mortality of a
 fully selected individual is simply equal to the effort. This effort is constant

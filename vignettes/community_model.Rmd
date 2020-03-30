@@ -120,8 +120,8 @@ through time, as well as the original model parameters. It is explained in
 detail in [the section on running a simulation.](running_a_simulation.html)
 
 After running the projection, it is possible to explore the results using a
-range of plots and analyses. These are described fully in [the section on
-exploring the simulation results.](exploring_the_simulation_results.html)
+range of plots and analyses. These are described fully in 
+[the section on exploring the simulation results.](exploring_the_simulation_results.html)
 
 To quickly look at the results of the projection you can call the `plot()`
 method. This plots the feeding level, predation mortality, fishing mortality and
@@ -235,8 +235,9 @@ sim0 <- project(params_knife, effort = 0, t_max = 50)
 
 Now we want to simulate again, this time with fishing. In the simulations,
 fishing mortality is calculated as the product of the fishing selectivity,
-effort and catchability (see [the section on fishing
-gears](multispecies_model.html#sec:fishing_gear) for more details). By default
+effort and catchability (see 
+[the section on fishing gears](multispecies_model.html#sec:fishing_gear) 
+for more details). By default
 catchability is set to 1. This means that a fishing effort of 1 will result in a
 fishing mortality of 1/year for fully selected sizes. Here we run a simulation with
 fishing effort set to 1 for the duration of the simulation:
@@ -330,8 +331,9 @@ sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50,
 Note that we have introduced a new argument: $dt$. This is the step size of the
 solver. It does not have anything to do with the biology in the model. It only
 affects the internal engine of `project()` that performs the projection.
-As you can see in the underlying model equations in [the model description
-section](model_description.html), the model is formulated in continuous time. Therefore,
+As you can see in the underlying model equations in 
+[the model description section](model_description.html), 
+the model is formulated in continuous time. Therefore,
 to project it forward, `project()` must solve the system of equations using
 numerical methods. The quality of these methods is strongly affected by $dt$.
 The default value of $dt$ is 0.1, which will be fine for most of the projections

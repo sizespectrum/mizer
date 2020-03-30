@@ -24,8 +24,8 @@ mizer code. The change that you will be making consists of adding your name to
 the list of people who have set up a fork of mizer.
 
 We assume that you have set up your working environment and checked out your
-mizer fork to your local computer as described in the section [Setting up
-working environment](developer_vignette.html#setting-up-working-environment) in
+mizer fork to your local computer as described in the section 
+[Setting up working environment](developer_vignette.html#setting-up-working-environment) in
 the mizer developer guide. If you have not yet read that section, please do so
 now and follow all the instructions there before continuing with this tutorial.
 
@@ -235,8 +235,9 @@ git merge master
 
 # People with a mizer fork
 
-Here we information about the [people who have made a mizer
-fork](https://github.com/sizespectrum/mizer/network/members). If your name is
+Here we information about the 
+[people who have made a mizer fork](https://github.com/sizespectrum/mizer/network/members). 
+If your name is
 not on the list below, please add it, together with a bit of info about your
 interests. How to make the edit and how to commit it and contribute it back is
 explained in the section [Working with git](#working-wit-git).

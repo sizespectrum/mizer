@@ -14,9 +14,10 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ## Introduction
 
-In this tutorial we will use the [ggplot2
-package](https://ggplot2.tidyverse.org/) and the  [plotly package for
-R](https://plot.ly/r/) to visualise the results from mizer simulations.
+In this tutorial we will use the 
+[ggplot2 package](https://ggplot2.tidyverse.org/) and the  
+[plotly package for R](https://plot.ly/r/) 
+to visualise the results from mizer simulations.
 ```{r}
 library(mizer)
 library(ggplot2)

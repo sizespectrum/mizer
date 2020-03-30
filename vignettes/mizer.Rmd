@@ -148,8 +148,8 @@ getProportionOfLargeFish(sim,
 We can then use the full power of R to work with these results.
 
 The functionality provided by mizer to explore the simulation results is more
-fully described in [the section on exploring the simulation
-results.](exploring_the_simulation_results.html)
+fully described in 
+[the section on exploring the simulation results.](exploring_the_simulation_results.html)
 
 ## Size-spectrum models
 Size spectrum models have emerged as a conceptually simple way to model a large
@@ -281,7 +281,7 @@ diversity in the trait-based and multi-species models.
 ## Online apps
 Perhaps the easiest way for newcomers to get into using mizer is via
 online apps. We are in the process to develop a variety of apps for setting
-up and exploring models. Here is an example of an online app to [explore
-the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/). 
+up and exploring models. Here is an example of an online app to 
+[explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/). 
 
 ## References
