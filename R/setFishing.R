@@ -150,21 +150,18 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
                     dim(selectivity)[[2]] == no_sp)
         params@catchability <- catchability
     } else {
-        # If no catchability column in species_params, set to 1
-        species_params <- set_species_param_default(species_params,
-                                                    "catchability", 1)
-        
-        for (g in seq_len(no_sp)) {
-            # Now do catchability
-            if (!is.null(comment(params@catchability)) &&
-                any(params@catchability[as.character(species_params[g,'gear']), g] !=
-                    species_params[g, "catchability"])) {
-                message("The catchability has been commented and therefore will ",
-                        "not be updated from the species parameters.")
-            } else {
-                params@catchability[as.character(species_params[g,'gear']), g] <- 
-                    species_params[g, "catchability"]
-            }
+        catchability <- params@catchability
+        for (g in seq_len(nrow(gear_params))) {
+            catchability[[as.character(gear_params$gear[[g]]), 
+                          as.character(gear_params$species[[g]])]] <-
+                gear_params$catchability[[g]]
+        }
+        if (!is.null(comment(params@catchability)) &&
+            !identical(catchability, params@catchability)) {
+            message("The catchability has been commented and therefore will ",
+                    "not be updated from the species parameters.")
+        } else {
+            params@catchability <- catchability
         }
     }
     
@@ -234,6 +231,11 @@ validGearParams <- function(gear_params, species_params) {
             } else {
                 gear_params$sel_func <- "knife_edge"
             }
+            if (!is.null(species_params$catchability)) {
+                gear_params$catchability <- species_params$catchability
+            } else {
+                gear_params$catchability <- 1
+            }
             # copy over any selectivity function parameters
             for (g in seq_len(no_sp)) {
                 args <- names(formals(as.character(gear_params[g, 'sel_func'])))
@@ -251,7 +253,8 @@ validGearParams <- function(gear_params, species_params) {
                 data.frame(species = species_params$species,
                            gear = "knife_edge_gear",
                            sel_func = "knife_edge",
-                           knife_edge_size = species_params$w_mat)
+                           knife_edge_size = species_params$w_mat,
+                           catchability = 1)
         }
     }
     
