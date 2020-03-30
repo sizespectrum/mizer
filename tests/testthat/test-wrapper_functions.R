@@ -14,7 +14,7 @@ test_that("Multiple gears work correctly in trait-based model", {
                              min_w_inf = min_w_inf, 
                              max_w_inf = max_w_inf, 
                              knife_edge_size = knife_edges)
-    expect_identical(params@species_params$knife_edge_size, 
+    expect_identical(params@gear_params$knife_edge_size, 
                      knife_edges)
     # All gears fire
     sim1 <- project(params, t_max = 10, effort = 1)

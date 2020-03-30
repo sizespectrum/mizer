@@ -254,8 +254,8 @@ newCommunityParams <- function(max_w = 1e6,
 #'   is the maximum reproduction rate allowed and `R` is the steady-state
 #'   reproduction rate. Thus the larger `rfac` the less the impact of the
 #'   density-dependence.
-#' @param gear_names The names of the fishing gears. A character vector, the
-#'   same length as the number of gears.
+#' @param gear_names The names of the fishing gears for each species. A
+#'   character vector, the same length as the number of species.
 #' @param knife_edge_size The minimum size at which the gear or gears select
 #'   fish. A single value for each gear or a vector with one value for each
 #'   gear.
@@ -275,25 +275,26 @@ newCommunityParams <- function(max_w = 1e6,
 #' }
 newTraitParams <- function(no_sp = 11,
                            min_w_inf = 10,
-                           max_w_inf = 10 ^ 3,
-                           min_w = 10 ^ (-4),
+                           max_w_inf = 10 ^ 4,
+                           min_w = 10 ^ (-3),
                            max_w = max_w_inf,
                            eta = 10^(-0.6),
                            min_w_mat = min_w_inf * eta,
                            no_w = log10(max_w_inf / min_w) * 50 + 1,
                            min_w_pp = 1e-10,
-                           w_pp_cutoff = min_w_inf,
+                           w_pp_cutoff = min_w_mat,
                            n = 2 / 3,
                            p = n,
                            lambda = 2.05,
                            r_pp = 0.1,
                            kappa = 0.005,
                            alpha = 0.4,
-                           ks = 4,
                            h = 30,
                            beta = 100,
                            sigma = 1.3,
                            f0 = 0.6,
+                           fc = 0.25,
+                           ks = NA,
                            gamma = NA,
                            ext_mort_prop = 0,
                            rfac = 4,
@@ -315,9 +316,6 @@ newTraitParams <- function(no_sp = 11,
         rfac <- 1.01
     }
     no_w <- round(no_w)
-    if (no_w < 1) {
-        stop("The number of size bins no_w must be a positive integer")
-    }
     if (no_w < log10(max_w_inf/min_w)*5) {
         no_w <- round(log10(max_w_inf / min_w) * 5 + 1)
         message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
@@ -346,8 +344,8 @@ newTraitParams <- function(no_sp = 11,
     if (no_sp < 2) {
         stop("The number of species must be at least 2.")
     }
-    if (!all(c(n, r_pp, lambda, kappa, alpha, h, beta, sigma, ks, f0) > 0)) {
-        stop("The parameters n, lambda, r_pp, kappa, alpha, h, beta, sigma, ks ",
+    if (!all(c(n, r_pp, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
+        stop("The parameters n, lambda, r_pp, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")
     }    
     # Check gears
@@ -414,14 +412,13 @@ newTraitParams <- function(no_sp = 11,
         w_min_idx = w_min_idx,
         h = h,
         ks = ks,
+        f0 = f0,
+        fc = fc,
         beta = beta,
         sigma = sigma,
         z0 = 0,
         alpha = alpha,
         erepro = erepro,
-        sel_func = "knife_edge",
-        knife_edge_size = knife_edge_size,
-        gear = gear_names,
         stringsAsFactors = FALSE
     )
     params <-
@@ -438,9 +435,12 @@ newTraitParams <- function(no_sp = 11,
             min_w_pp = min_w_pp,
             r_pp = r_pp
         )
+    gear_params(params)$knife_edge_size <- knife_edge_size
+    gear_params(params)$gear <- gear_names
     
     w <- params@w
     dw <- params@dw
+    ks <- params@species_params$ks[[1]]
     
     ## Construct steady state solution ----
     
