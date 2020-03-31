@@ -4,16 +4,7 @@
 \alias{mizerRates}
 \title{Get all rates needed to project standard mizer model}
 \usage{
-mizerRates(
-  params,
-  n,
-  n_pp,
-  n_other,
-  t = 0,
-  effort = params@initial_effort,
-  rates_fns = lapply(params@rates_funcs, get),
-  ...
-)
+mizerRates(params, n, n_pp, n_other, t = 0, effort, rates_fns, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object}
@@ -34,8 +25,11 @@ Note that this list holds the functions themselves, not their names.}
 
 \item{...}{Unused}
 }
-\value{
-A list with the following components:
+\description{
+Calls other rate functions in sequence and collects the results in a list.
+}
+\details{
+By default this function returns a list with the following components:
 \itemize{
 \item encounter from \code{\link[=mizerEncounter]{mizerEncounter()}}
 \item feeding_level from \code{\link[=mizerFeedingLevel]{mizerFeedingLevel()}}
@@ -48,11 +42,10 @@ A list with the following components:
 \item e_repro from \code{\link[=mizerERepro]{mizerERepro()}}
 \item e_growth from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
 \item rdi from \code{\link[=mizerRDI]{mizerRDI()}}
-\item rdd
+\item rdd from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
 }
-}
-\description{
-Calls other rate functions in sequence and collects the results in a list.
+However you can replace any of these rate functions by your own rate
+function if you wish, see \code{setRateFunction()} for details.
 }
 \seealso{
 Other mizer rate functions: 

@@ -18,18 +18,15 @@ directly.
 vector of weights (in grams) running from the smallest egg size to the
 largest asymptotic size.}
 
-\item{\code{dw}}{The spacing in the size grid. So dw\link{i} = w\link{i+1} - w\link{i}. A vector
-the same length as the w_full slot. The last entry is not determined by
-the w slot but represents the size of the last size bin.}
+\item{\code{dw}}{The widths (in grams) of the size bins}
 
 \item{\code{w_full}}{The size grid for the full size range including the plankton
 spectrum. An increasing vector of weights (in grams) running from the
 smallest plankton size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
-\item{\code{dw_full}}{The spacing in the full size grid.
-So dw_full\link{i} = w_full\link{i+1} - w_full\link{i}. The last entries have to be
-equal to the content of the dw slot.}
+\item{\code{dw_full}}{The width of the size bins for the full spectrum. The last
+entries have to be equal to the content of the dw slot.}
 
 \item{\code{w_min_idx}}{A vector holding the index of the weight of the egg size
 of each species}
@@ -108,6 +105,9 @@ set to the names of the built-in rate functions.}
 \item{\code{species_params}}{A data.frame to hold the species specific parameters.
 See \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for details.}
 
+\item{\code{gear_params}}{Data frame with parameters for gear selectivity. See
+\code{\link[=setFishing]{setFishing()}} for details.}
+
 \item{\code{interaction}}{The species specific interaction matrix, \eqn{\theta_{ij}}.
 Changed with \code{\link[=setInteraction]{setInteraction()}}.}
 
@@ -131,7 +131,7 @@ the initial plankton abundance at each weight.}
 \item{\code{initial_n_other}}{A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.}
 
-\item{\code{plankton_params}}{Parameters for plankton. See \code{\link[=setPlankton]{setPlankton()}}.}
+\item{\code{plankton_params}}{List with parameters for plankton. See \code{\link[=setPlankton]{setPlankton()}}.}
 
 \item{\code{A}}{Abundance multipliers.}
 
@@ -140,6 +140,7 @@ Used to give consistent colours in plots.}
 
 \item{\code{linetype}}{A named vector of linetypes, named by species.
 Used to give consistent line types in plots.
+
 The \linkS4class{MizerParams} class is fairly complex with a large number of
 slots, many of which are multidimensional arrays. The dimensions of these
 arrays is strictly enforced so that \code{MizerParams} objects are consistent

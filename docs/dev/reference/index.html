@@ -164,9 +164,9 @@
       <tr>
         
         <td>
-          <p><code><a href="species_params.html">species_params()</a></code> <code><a href="species_params.html">`species_params<-`()</a></code> </p>
+          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params<-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
         </td>
-        <td><p>Species parameter data frame</p></td>
+        <td><p>Species parameters</p></td>
       </tr><tr>
         
         <td>
@@ -218,7 +218,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> </p>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params<-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
         </td>
         <td><p>Set fishing parameters</p></td>
       </tr><tr>
@@ -236,15 +236,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setParams.html">setParams()</a></code> </p>
+          <p><code><a href="params.html">params()</a></code> </p>
         </td>
-        <td><p>Set or change any model parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
-        </td>
-        <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
+        <td><p>Extract the parameter object underlying a simulation</p></td>
       </tr><tr>
         
         <td>
@@ -358,7 +352,7 @@
         <td>
           <p><code><a href="getBiomass.html">getBiomass()</a></code> </p>
         </td>
-        <td><p>Calculate the total biomass of each species within a size range at each time 
+        <td><p>Calculate the total biomass of each species within a size range at each time
 step.</p></td>
       </tr><tr>
         
@@ -664,7 +658,7 @@ and size.</p></td>
         <td>
           <p><code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code> </p>
         </td>
-        <td><p>Lognormal predation kernel</p></td>
+        <td><p>Truncated lognormal predation kernel</p></td>
       </tr><tr>
         
         <td>
@@ -792,7 +786,7 @@ and size.</p></td>
         <td>
           <p><code><a href="mizerERepro.html">mizerERepro()</a></code> </p>
         </td>
-        <td><p>Get energy rate available for reproduction needed to project standard mizer 
+        <td><p>Get energy rate available for reproduction needed to project standard mizer
 model</p></td>
       </tr><tr>
         
@@ -819,7 +813,7 @@ and size needed to project standard mizer model</p></td>
         <td>
           <p><code><a href="mizerFMortGear.html">mizerFMortGear()</a></code> </p>
         </td>
-        <td><p>Get the fishing mortality by time, gear, species and size needed to project 
+        <td><p>Get the fishing mortality by time, gear, species and size needed to project
 standard mizer model</p></td>
       </tr><tr>
         
@@ -838,7 +832,7 @@ standard mizer model</p></td>
         <td>
           <p><code><a href="mizerPlanktonMort.html">mizerPlanktonMort()</a></code> </p>
         </td>
-        <td><p>Get predation mortality rate for plankton needed to project standard mizer 
+        <td><p>Get predation mortality rate for plankton needed to project standard mizer
 model</p></td>
       </tr><tr>
         
@@ -951,9 +945,21 @@ required parameters</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
+        </td>
+        <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="MizerSim-class.html">MizerSim-class</a></code> </p>
         </td>
         <td><p>A class to hold the results of a simulation</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="upgradeSim.html">upgradeSim()</a></code> </p>
+        </td>
+        <td><p>Upgrade MizerSim object from earlier mizer versions</p></td>
       </tr><tr>
         
         <td>
@@ -1013,15 +1019,21 @@ required parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setPlankton.html">setPlankton()</a></code> <code><a href="setPlankton.html">getPlanktonRate()</a></code> <code><a href="setPlankton.html">getPlanktonCapacity()</a></code> <code><a href="setPlankton.html">getPlanktonDynamics()</a></code> <code><a href="setPlankton.html">plankton_params()</a></code> <code><a href="setPlankton.html">`plankton_params<-`()</a></code> </p>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params<-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
         </td>
-        <td><p>Set up plankton</p></td>
+        <td><p>Set fishing parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="species_params.html">species_params()</a></code> <code><a href="species_params.html">`species_params<-`()</a></code> </p>
+          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params<-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
         </td>
-        <td><p>Species parameter data frame</p></td>
+        <td><p>Species parameters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="setPlankton.html">setPlankton()</a></code> <code><a href="setPlankton.html">getPlanktonRate()</a></code> <code><a href="setPlankton.html">getPlanktonCapacity()</a></code> <code><a href="setPlankton.html">getPlanktonDynamics()</a></code> <code><a href="setPlankton.html">plankton_params()</a></code> <code><a href="setPlankton.html">`plankton_params<-`()</a></code> </p>
+        </td>
+        <td><p>Set up plankton</p></td>
       </tr><tr>
         
         <td>

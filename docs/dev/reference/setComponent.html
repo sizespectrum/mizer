@@ -135,7 +135,7 @@ Get information about other ecosystem components" />
   <span class='no'>component</span>,
   <span class='no'>initial_value</span>,
   <span class='no'>encounter_fun</span>,
-  <span class='no'>mortality_fun</span>,
+  <span class='no'>pred_mort_fun</span>,
   <span class='no'>dynamics_fun</span>,
   <span class='no'>component_params</span>
 )
@@ -164,7 +164,7 @@ all components will be returned.</p></td>
 rate</p></td>
     </tr>
     <tr>
-      <th>mortality_fun</th>
+      <th>pred_mort_fun</th>
       <td><p>Name of function to calculate contribution to the
 predation mortality rate.</p></td>
     </tr>
@@ -181,7 +181,7 @@ functions.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For `setComponent`: The updated MizerParams object</p>
+    <p>For <code>setComponent</code>: The updated MizerParams object</p>
 <p>For <code>getComponent</code>: A list with the entries <code>initial_value</code>, <code>dynamics_fun</code>,
 <code>encounter_fun</code>, <code>morality_fun</code>, <code>component_params</code>. If <code>component</code> is
 missing, then a list of lists for all components is returned.</p>

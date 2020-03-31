@@ -10,7 +10,7 @@ setComponent(
   component,
   initial_value,
   encounter_fun,
-  mortality_fun,
+  pred_mort_fun,
   dynamics_fun,
   component_params
 )
@@ -28,7 +28,7 @@ all components will be returned.}
 \item{encounter_fun}{Name of function to calculate contribution to encounter
 rate}
 
-\item{mortality_fun}{Name of function to calculate contribution to the
+\item{pred_mort_fun}{Name of function to calculate contribution to the
 predation mortality rate.}
 
 \item{dynamics_fun}{Name of function to calculate value at the next time step}

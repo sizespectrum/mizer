@@ -40,7 +40,7 @@
 <meta property="og:title" content="Length based double-sigmoid selectivity function — double_sigmoid_length" />
 <meta property="og:description" content="A hump-shaped selectivity function with a sigmoidal rise and an independent
 sigmoidal drop-off. This drop-off is what distinguishes this from the
-function sigmoid_length and it is intended to model the escape
+function sigmoid_length() and it is intended to model the escape
 of large individuals from the fishing gear." />
 <meta name="twitter:card" content="summary" />
 
@@ -130,11 +130,11 @@ of large individuals from the fishing gear." />
     <div class="ref-description">
     <p>A hump-shaped selectivity function with a sigmoidal rise and an independent
 sigmoidal drop-off. This drop-off is what distinguishes this from the
-function <code><a href='sigmoid_length.html'>sigmoid_length</a></code> and it is intended to model the escape
+function <code><a href='sigmoid_length.html'>sigmoid_length()</a></code> and it is intended to model the escape
 of large individuals from the fishing gear.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>double_sigmoid_length</span>(<span class='no'>w</span>, <span class='no'>l25</span>, <span class='no'>l50</span>, <span class='no'>l50_right</span>, <span class='no'>l25_right</span>, <span class='no'>a</span>, <span class='no'>b</span>)</pre>
+    <pre class="usage"><span class='fu'>double_sigmoid_length</span>(<span class='no'>w</span>, <span class='no'>l25</span>, <span class='no'>l50</span>, <span class='no'>l50_right</span>, <span class='no'>l25_right</span>, <span class='no'>species_params</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,12 +160,13 @@ of large individuals from the fishing gear.</p>
       <td><p>the length which gives a selectivity of 25%.</p></td>
     </tr>
     <tr>
-      <th>a</th>
-      <td><p>the multiplier of the length-weight function.</p></td>
+      <th>species_params</th>
+      <td><p>A list with the species params for the current species.
+Used to get at the length-weight parameters <code>a</code> and <code>b</code></p></td>
     </tr>
     <tr>
-      <th>b</th>
-      <td><p>the exponent of the length-weight function.</p></td>
+      <th>...</th>
+      <td><p>Unused</p></td>
     </tr>
     </table>
 
@@ -179,8 +180,8 @@ two parameters <code>l50_right</code> and <code>l25_right</code> which determine
 length at which the selectivity curve has dropped back to 50% and 25%
 respectively.</p>
 <p>As the size-based model is weight based, and this
-selectivity function is length based, it is also necessary to supply the
-length-weight parameters <code>a</code> and <code>b</code>.</p>
+selectivity function is length based, it uses the
+length-weight parameters <code>a</code> and <code>b</code> to convert between length and weight.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

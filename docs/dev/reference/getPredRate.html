@@ -42,7 +42,7 @@
 a given size \(w\) is killed by predators from species \(j\). In formulas
 $${\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
   \gamma_j(w) N_j(w) \, dw.$$
-This potential rate is used in the function getPredMort to
+This potential rate is used in the function getPredMort() to
 calculate the realised predation mortality rate on the prey individual." />
 <meta name="twitter:card" content="summary" />
 
@@ -134,7 +134,7 @@ calculate the realised predation mortality rate on the prey individual." />
 a given size \(w\) is killed by predators from species \(j\). In formulas
 $${\tt pred\_rate}_j(w_p) = \int \phi_j(w,w_p) (1-f_j(w)) 
   \gamma_j(w) N_j(w) \, dw.$$
-This potential rate is used in the function <code><a href='getPredMort.html'>getPredMort</a></code> to
+This potential rate is used in the function <code><a href='getPredMort.html'>getPredMort()</a></code> to
 calculate the realised predation mortality rate on the prey individual.</p>
     </div>
 
@@ -170,14 +170,14 @@ ecosystem</p></td>
       <th>feeding_level</th>
       <td><p>The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> function.</p></td>
+using the <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code> function.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (predator species x prey size), 
-  where the prey size runs over fish community plus plankton spectrum.</p>
+    <p>A two dimensional array (predator species x prey size),
+where the prey size runs over fish community plus plankton spectrum.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other rate functions: 

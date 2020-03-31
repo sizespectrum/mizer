@@ -120,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set species interaction matrix</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setInteraction.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setInteraction.R'><code>R/setInteraction.R</code></a></small>
     <div class="hidden name"><code>setInteraction.Rd</code></div>
     </div>
 
@@ -159,22 +159,31 @@ object. So to affect the change you call the function in the form
     
 
 
-<p>The species interaction matrix \(\theta_{ij}\), is used when calculating
-the food encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the predation
-mortality rate in <code><a href='getPredMort.html'>getPredMort</a></code>. Its entries are dimensionless
-numbers between 0 and 1 that characterise the strength at which predator
-species \(i\) predates on prey species \(j\).</p>
+<p>The interaction matrix \(\theta_{ij}\) describes the interaction of each
+pair of species in the model. This can be viewed as a proxy for spatial
+interaction e.g. to model predator-prey interaction that is not size based.
+The values in the interaction matrix are used to scale the encountered food
+and predation mortality (see on the website
+<a href='https://sizespectrum.org/mizer/docs/articles/model_description.html#sec:pref'>the section on predator-prey encounter rate</a>
+and on <a href='https://sizespectrum.org/mizer/docs/articles/model_description.html#mortality'>predation mortality</a>).                                                                        and on <a href='model_description.html#mortality'>predation mortality</a>).</p>
+<p>It is used when calculating the food encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and
+the predation mortality rate in <code><a href='getPredMort.html'>getPredMort()</a></code>. Its entries are
+dimensionless numbers.The values are between 0 (species do not overlap and
+therefore do not interact with each other) to 1 (species overlap perfectly).
+If all the values in the interaction matrix are set to 1 then predator-prey
+interactions are determined entirely by size-preference.</p>
 <p>This function checks that the supplied interaction matrix is valid and then
-stores it in the <code>interaction</code> slot of the params object before
-returning that object.</p>
-<p>The order of the columns and rows of the <code>interaction</code> argument should
-be the same as the order in the species params dataframe in the
-<code>params</code> object. If you supply a named array then the function will
-check the order and warn if it is different.</p>
+stores it in the <code>interaction</code> slot of the params object before returning
+that object.</p>
+<p>The order of the columns and rows of the <code>interaction</code> argument should be the
+same as the order in the species params data frame in the <code>params</code> object. If
+you supply a named array then the function will check the order and warn if
+it is different. One way of creating your own interaction matrix is to enter
+the data using a spreadsheet program and saving it as a .csv file. The data
+can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
 <p>The interaction of the species with the plankton are set via a column
-<code>interaction_p</code> in the <code>species_params</code> data frame. Again the
-entries have to be numbers between 0 and 1. By default this column is set
-to all 1s.</p>
+<code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries have to
+be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
@@ -183,11 +192,11 @@ to all 1s.</p>
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

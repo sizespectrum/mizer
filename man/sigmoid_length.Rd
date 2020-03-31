@@ -4,7 +4,7 @@
 \alias{sigmoid_length}
 \title{Length based sigmoid selectivity function}
 \usage{
-sigmoid_length(w, l25, l50, a, b)
+sigmoid_length(w, l25, l50, species_params, ...)
 }
 \arguments{
 \item{w}{the size of the individual.}
@@ -13,14 +13,15 @@ sigmoid_length(w, l25, l50, a, b)
 
 \item{l50}{the length which gives a selectivity of 50\%.}
 
-\item{a}{the multiplier of the length-weight function.}
+\item{species_params}{A list with the species params for the current species.
+Used to get at the length-weight parameters \code{a} and \code{b}}
 
-\item{b}{the exponent of the length-weight function.}
+\item{...}{Unused}
 }
 \description{
 A sigmoid shaped selectivity function. Based on two parameters \code{l25} and
 \code{l50} which determine the length at which 25\% and 50\% of the stock is
 selected respectively. As the size-based model is weight based, and this
-selectivity function is length based, it is also necessary to supply the
-length-weight parameters \code{a} and \code{b}.
+selectivity function is length based, it uses the
+length-weight parameters \code{a} and \code{b} to convert between length and weight.
 }

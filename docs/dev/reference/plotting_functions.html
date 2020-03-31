@@ -40,8 +40,8 @@
 <meta property="og:title" content="Description of the plotting functions — plotting_functions" />
 <meta property="og:description" content="Mizer provides a range of plotting functions for visualising the results
 of running a simulation, stored in a MizerSim object, or the initial state
-stored in a MizerParams object. 
-Every plotting function exists in two versions, plotSomething and 
+stored in a MizerParams object.
+Every plotting function exists in two versions, plotSomething and
 plotlySomething. The plotly version is more interactive but not
 suitable for inclusion in documents." />
 <meta name="twitter:card" content="summary" />
@@ -132,8 +132,8 @@ suitable for inclusion in documents." />
     <div class="ref-description">
     <p>Mizer provides a range of plotting functions for visualising the results
 of running a simulation, stored in a MizerSim object, or the initial state
-stored in a MizerParams object. 
-Every plotting function exists in two versions, <code>plotSomething</code> and 
+stored in a MizerParams object.
+Every plotting function exists in two versions, <code>plotSomething</code> and
 <code>plotlySomething</code>. The plotly version is more interactive but not
 suitable for inclusion in documents.</p>
     </div>
@@ -144,29 +144,29 @@ suitable for inclusion in documents.</p>
 
     <p>This table shows the available plotting functions.</p><table class='table'>
 <tr><td>Plot</td><td>Description</td></tr>
-<tr><td><code><a href='plotBiomass.html'>plotBiomass</a></code></td><td>Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for <code><a href='getBiomass.html'>getBiomass</a></code>.</td></tr>
-<tr><td><code><a href='plotSpectra.html'>plotSpectra</a></code></td><td>Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.</td></tr>
-<tr><td><code><a href='plotFeedingLevel.html'>plotFeedingLevel</a></code></td><td>Plots the feeding level of each species against size.</td></tr>
-<tr><td><code><a href='plotPredMort.html'>plotPredMort</a></code></td><td>Plots the predation mortality of each species against size.</td></tr>
-<tr><td><code><a href='plotFMort.html'>plotFMort</a></code></td><td>Plots the total fishing mortality of each species against size.</td></tr>
-<tr><td><code><a href='plotYield.html'>plotYield</a></code></td><td>Plots the total yield of each species across all fishing gears against time.</td></tr>
-<tr><td><code><a href='plotYieldGear.html'>plotYieldGear</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr>
-<tr><td><code><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel</a></code>, <code><a href='plotBiomass.html'>plotBiomass</a></code>, <code><a href='plotPredMort.html'>plotPredMort</a></code>, <code><a href='plotFMort.html'>plotFMort</a></code> and <code><a href='plotSpectra.html'>plotSpectra</a></code>) in the same window as a summary.</td></tr>
+<tr><td><code><a href='plotBiomass.html'>plotBiomass()</a></code></td><td>Plots the total biomass of each species through time. A time range to be plotted can be specified. The size range of the community can be specified in the same way as for <code><a href='getBiomass.html'>getBiomass()</a></code>.</td></tr>
+<tr><td><code><a href='plotSpectra.html'>plotSpectra()</a></code></td><td>Plots the abundance (biomass or numbers) spectra of each species and the background community. It is possible to specify a minimum size which is useful for truncating the plot.</td></tr>
+<tr><td><code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code></td><td>Plots the feeding level of each species against size.</td></tr>
+<tr><td><code><a href='plotPredMort.html'>plotPredMort()</a></code></td><td>Plots the predation mortality of each species against size.</td></tr>
+<tr><td><code><a href='plotFMort.html'>plotFMort()</a></code></td><td>Plots the total fishing mortality of each species against size.</td></tr>
+<tr><td><code><a href='plotYield.html'>plotYield()</a></code></td><td>Plots the total yield of each species across all fishing gears against time.</td></tr>
+<tr><td><code><a href='plotYieldGear.html'>plotYieldGear()</a></code></td><td>Plots the total yield of each species by gear against time.</td></tr>
+<tr><td><code><a href='https://rdrr.io/r/graphics/plot.html'>plot()</a></code></td><td>Produces 5 plots (<code><a href='plotFeedingLevel.html'>plotFeedingLevel()</a></code>, <code><a href='plotBiomass.html'>plotBiomass()</a></code>, <code><a href='plotPredMort.html'>plotPredMort()</a></code>, <code><a href='plotFMort.html'>plotFMort()</a></code> and <code><a href='plotSpectra.html'>plotSpectra()</a></code>) in the same window as a summary.</td></tr>
 </table>
 
 
 <p>These functions use the ggplot2 package and return the plot as a ggplot
-object. This means that you can manipulate the plot further after its 
+object. This means that you can manipulate the plot further after its
 creation using the ggplot grammar of graphics. The corresponding function
 names with <code>plot</code> replaced by <code>plotly</code> produce interactive plots
 with the help of the plotly package.</p>
 <p>While most plot functions take their data from a MizerSim object, some of
 those that make plots representing data at a single time can also take their
 data from the initial values in a MizerParams object.</p>
-<p>Where plots show results for species, the line colour and line type for each 
+<p>Where plots show results for species, the line colour and line type for each
 species are specified by the <code>linecolour</code> and <code>linetype</code> slots in
 the MizerParams object. These were either taken from a default palette
-hard-coded into <code><a href='emptyParams.html'>emptyParams</a></code> or they were specified by the user
+hard-coded into <code><a href='emptyParams.html'>emptyParams()</a></code> or they were specified by the user
 in the species parameters dataframe used to set up the MizerParams object.
 The <code>linecolour</code> and <code>linetype</code> slots hold named vectors, named by
 the species. They can be overwritten by the user at any time.</p>
@@ -176,7 +176,7 @@ specified as a vector in the <code>species</code> argument to the plot function.
 the species parameter data frame.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='summary_functions.html'>summary_functions</a></code>, <code><a href='indicator_functions.html'>indicator_functions</a></code></p>
+    <div class='dont-index'><p><code><a href='summary_functions.html'>summary_functions()</a></code>, <code><a href='indicator_functions.html'>indicator_functions()</a></code></p>
 <p>Other plotting functions: 
 <code><a href='plotMizerSim.html'>plot,MizerSim,missing-method</a></code>,
 <code><a href='plotBiomass.html'>plotBiomass</a>()</code>,

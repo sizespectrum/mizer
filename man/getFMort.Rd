@@ -10,7 +10,7 @@ getFMort(object, effort, time_range, drop = TRUE)
 \arguments{
 \item{object}{A \code{MizerParams} object or a \code{MizerSim} object}
 
-\item{effort}{The effort of each fishing gear. Only needed if the object
+\item{effort}{The effort of each fishing gear. Only used if the object
 argument is of class \code{MizerParams}. See notes below.}
 
 \item{time_range}{Subset the returned fishing mortalities by time. The time

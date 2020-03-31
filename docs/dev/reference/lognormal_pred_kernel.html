@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Lognormal predation kernel — lognormal_pred_kernel • mizer</title>
+<title>Truncated lognormal predation kernel — lognormal_pred_kernel • mizer</title>
 
 
 <!-- jquery -->
@@ -37,9 +37,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Lognormal predation kernel — lognormal_pred_kernel" />
-<meta property="og:description" content="This is the most commonly-used predation kernel. The log of the predator/prey
-mass ratio is normally distributed." />
+<meta property="og:title" content="Truncated lognormal predation kernel — lognormal_pred_kernel" />
+<meta property="og:description" content="This is like the lognormal_pred_kernel but with an imposed
+maximum predator/prey mass ratio" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,14 +120,14 @@ mass ratio is normally distributed." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Lognormal predation kernel</h1>
+    <h1>Truncated lognormal predation kernel</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/pred_kernel_funcs.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/pred_kernel_funcs.R'><code>R/pred_kernel_funcs.R</code></a></small>
     <div class="hidden name"><code>lognormal_pred_kernel.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the most commonly-used predation kernel. The log of the predator/prey
-mass ratio is normally distributed.</p>
+    <p>This is like the <code>lognormal_pred_kernel</code> but with an imposed
+maximum predator/prey mass ratio</p>
     </div>
 
     <pre class="usage"><span class='fu'>lognormal_pred_kernel</span>(<span class='no'>ppmr</span>, <span class='no'>beta</span>, <span class='no'>sigma</span>)</pre>
@@ -166,7 +166,7 @@ Here \(\beta_i\) is the preferred predator-prey mass ratio and \(\sigma_i\)
 determines the width of the kernel.
 These two parameters need to be given in the species parameter dataframe in
 the columns <code>beta</code> and <code>sigma</code>.</p>
-<p>This function is called from <code><a href='setPredKernel.html'>setPredKernel</a></code> to set up the
+<p>This function is called from <code><a href='setPredKernel.html'>setPredKernel()</a></code> to set up the
 predation kernel slots in a <code>MizerParams</code> object.</p>
 
   </div>

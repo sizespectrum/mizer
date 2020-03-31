@@ -157,10 +157,10 @@ single value. Default is the whole time range. Only used if the
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An array. If the effort argument has a time dimension, or a
-  <code>MizerSim</code> is passed in, the output array has four dimensions (time x
-  gear x species x size). If the effort argument does not have a time
-  dimension (i.e. it is a vector or a single numeric), the output array has
-  three dimensions (gear x species x size).</p>
+<code>MizerSim</code> is passed in, the output array has four dimensions (time x
+gear x species x size). If the effort argument does not have a time
+dimension (i.e. it is a vector or a single numeric), the output array has
+three dimensions (gear x species x size).</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>Here: fishing mortality = catchability x selectivity x effort.</p>
@@ -171,7 +171,7 @@ different effort that is constant in time), or a single numeric value (each
 gear has the same effort that is constant in time). The order of gears in the
 <code>effort</code> argument must be the same the same as in the <code>MizerParams</code>
 object. If the <code>effort</code> argument is not supplied, its value is taken
-from the `@initial_effort` slot in the params object.</p>
+from the <code>@initial_effort</code> slot in the params object.</p>
 <p>If the object argument is of class <code>MizerSim</code> then the effort slot of
 the <code>MizerSim</code> object is used and the <code>effort</code> argument is not
 used.</p>

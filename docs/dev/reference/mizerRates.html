@@ -128,16 +128,7 @@
     <p>Calls other rate functions in sequence and collects the results in a list.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerRates</span>(
-  <span class='no'>params</span>,
-  <span class='no'>n</span>,
-  <span class='no'>n_pp</span>,
-  <span class='no'>n_other</span>,
-  <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>effort</span> <span class='kw'>=</span> <span class='no'>params</span>@<span class='kw'>initial_effort</span>,
-  <span class='kw'>rates_fns</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>rates_funcs</span>, <span class='no'>get</span>),
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>mizerRates</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='no'>effort</span>, <span class='no'>rates_fns</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,23 +169,23 @@ Note that this list holds the functions themselves, not their names.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A list with the following components:</p><ul>
-<li><p>encounter from <code><a href='mizerEncounter.html'>mizerEncounter</a></code></p></li>
-<li><p>feeding_level from <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel</a></code></p></li>
-<li><p>pred_rate from <code><a href='mizerPredRate.html'>mizerPredRate</a></code></p></li>
-<li><p>pred_mort from <code><a href='mizerPredMort.html'>mizerPredMort</a></code></p></li>
-<li><p>f_mort from <code><a href='mizerFMort.html'>mizerFMort</a></code></p></li>
-<li><p>mort from <code><a href='mizerMort.html'>mizerMort</a></code></p></li>
-<li><p>plankton_mort from <code><a href='mizerPlanktonMort.html'>mizerPlanktonMort</a></code></p></li>
-<li><p>e from <code><a href='mizerEReproAndGrowth.html'>mizerEReproAndGrowth</a></code></p></li>
-<li><p>e_repro from <code><a href='mizerERepro.html'>mizerERepro</a></code></p></li>
-<li><p>e_growth from <code><a href='mizerEGrowth.html'>mizerEGrowth</a></code></p></li>
-<li><p>rdi from <code><a href='mizerRDI.html'>mizerRDI</a></code></p></li>
-<li><p>rdd</p></li>
-</ul>
-
+    <p>By default this function returns a list with the following components:</p><ul>
+<li><p>encounter from <code><a href='mizerEncounter.html'>mizerEncounter()</a></code></p></li>
+<li><p>feeding_level from <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel()</a></code></p></li>
+<li><p>pred_rate from <code><a href='mizerPredRate.html'>mizerPredRate()</a></code></p></li>
+<li><p>pred_mort from <code><a href='mizerPredMort.html'>mizerPredMort()</a></code></p></li>
+<li><p>f_mort from <code><a href='mizerFMort.html'>mizerFMort()</a></code></p></li>
+<li><p>mort from <code><a href='mizerMort.html'>mizerMort()</a></code></p></li>
+<li><p>plankton_mort from <code><a href='mizerPlanktonMort.html'>mizerPlanktonMort()</a></code></p></li>
+<li><p>e from <code><a href='mizerEReproAndGrowth.html'>mizerEReproAndGrowth()</a></code></p></li>
+<li><p>e_repro from <code><a href='mizerERepro.html'>mizerERepro()</a></code></p></li>
+<li><p>e_growth from <code><a href='mizerEGrowth.html'>mizerEGrowth()</a></code></p></li>
+<li><p>rdi from <code><a href='mizerRDI.html'>mizerRDI()</a></code></p></li>
+<li><p>rdd from <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code></p></li>
+</ul><p>However you can replace any of these rate functions by your own rate
+function if you wish, see <code><a href='setRateFunction.html'>setRateFunction()</a></code> for details.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other mizer rate functions: 
@@ -216,7 +207,7 @@ Note that this list holds the functions themselves, not their names.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

@@ -39,7 +39,7 @@
 
 <meta property="og:title" content="A class to hold the results of a simulation — MizerSim-class" />
 <meta property="og:description" content="A class that holds the results of projecting a MizerParams
-object through time using the project function." />
+object through time using project()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -127,24 +127,40 @@ object through time using the project function." />
 
     <div class="ref-description">
     <p>A class that holds the results of projecting a <a href='MizerParams-class.html'>MizerParams</a>
-object through time using the <code><a href='project.html'>project</a></code> function.</p>
+object through time using <code><a href='project.html'>project()</a></code>.</p>
     </div>
 
 
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A new <code>MizerSim</code> object can be created with the <code><a href='MizerSim.html'>MizerSim</a></code>
+    <p>A new <code>MizerSim</code> object can be created with the <code><a href='MizerSim.html'>MizerSim()</a></code>
 constructor, but you will never have to do that because the object is
-created automatically by the <code><a href='project.html'>project</a></code> function when needed.</p>
-<p>The arrays all have named dimensions. The names of the "time" dimension are
-numeric and denote the time in years. The names of the "sp" dimension are the
+created automatically by <code><a href='project.html'>project()</a></code> when needed.</p>
+<p>As a user you should never have to access the slots of a MizerSim object
+directly. Instead there are a range of functions to extract the information.
+<code><a href='n.html'>n()</a></code> and <code><a href='n_pp.html'>n_pp()</a></code> return arrays with the saved abundances of
+the species and the plankton population at size respectively. <code><a href='effort.html'>effort()</a></code>
+returns the fishing effort of each gear through time.
+<code><a href='times.html'>times()</a></code> returns the vector of times at which simulation results
+were stored and <code><a href='final_n.html'>final_idx()</a></code> returns the index with which to access
+specifically the value at the final time in the arrays returned by the other
+functions. T<code><a href='params.html'>params()</a></code> returns the <code>MizerParams</code> object that was
+passed in to <code><a href='project.html'>project()</a></code>. There are also several
+<a href='summary_functions.html'>summary_functions</a> and <a href='plotting_functions.html'>plotting_functions</a>
+available to explore the contents of a <code>MizerSim</code> object.</p>
+<p>The arrays all have named dimensions. The names of the <code>time</code> dimension
+denote the time in years. The names of the <code>w</code> dimension are weights in grams
+rounded to three significant figures. The names of the <code>sp</code> dimension are the
 same as the species name in the order specified in the species_params data
-frame. The names of the "gear" dimension are the names of the gears, in the
+frame. The names of the <code>gear</code> dimension are the names of the gears, in the
 same order as specified when setting up the <code>MizerParams</code> object.</p>
-<p>There are several <code>link{summary_functions}</code> and
-<code><a href='plotting_functions.html'>plotting_functions</a></code> available to explore the contents of a
-<code>MizerSim</code> object.</p>
+<p>Extensions of mizer can use the <code>n_other</code> slot to store the abundances of
+other ecosystem compoents and these extensions should provide their own
+functions for accessing that information.</p>
+<p>The <code>MizerSim</code> class has changed since previous versions of mizer. To use
+a <code>MizerSim</code> object created by a previous version, you need to upgrade it
+with <code><a href='upgradeSim.html'>upgradeSim()</a></code>.</p>
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
     
@@ -152,7 +168,7 @@ same order as specified when setting up the <code>MizerParams</code> object.</p>
 <dl class='dl-horizontal'>
 <dt><code>params</code></dt><dd><p>An object of type <a href='MizerParams-class.html'>MizerParams</a>.</p></dd>
 
-<dt><code>n</code></dt><dd><p>Three-dimensional array (time x species x size) that stores the 
+<dt><code>n</code></dt><dd><p>Three-dimensional array (time x species x size) that stores the
 projected community number densities.</p></dd>
 
 <dt><code>n_pp</code></dt><dd><p>An array (time x size) that stores the projected plankton number
@@ -161,7 +177,7 @@ densities.</p></dd>
 <dt><code>n_other</code></dt><dd><p>A list array (time x component) that stores the projected
 values for other ecosystem components.</p></dd>
 
-<dt><code>effort</code></dt><dd><p>An array (time x gear) that stores the fishing effort by time and 
+<dt><code>effort</code></dt><dd><p>An array (time x gear) that stores the fishing effort by time and
 gear.</p></dd>
 
 </dl>

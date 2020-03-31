@@ -4,7 +4,7 @@
 \alias{double_sigmoid_length}
 \title{Length based double-sigmoid selectivity function}
 \usage{
-double_sigmoid_length(w, l25, l50, l50_right, l25_right, a, b)
+double_sigmoid_length(w, l25, l50, l50_right, l25_right, species_params, ...)
 }
 \arguments{
 \item{w}{the size of the individual.}
@@ -17,9 +17,10 @@ double_sigmoid_length(w, l25, l50, l50_right, l25_right, a, b)
 
 \item{l25_right}{the length which gives a selectivity of 25\%.}
 
-\item{a}{the multiplier of the length-weight function.}
+\item{species_params}{A list with the species params for the current species.
+Used to get at the length-weight parameters \code{a} and \code{b}}
 
-\item{b}{the exponent of the length-weight function.}
+\item{...}{Unused}
 }
 \description{
 A hump-shaped selectivity function with a sigmoidal rise and an independent
@@ -37,6 +38,6 @@ length at which the selectivity curve has dropped back to 50\% and 25\%
 respectively.
 
 As the size-based model is weight based, and this
-selectivity function is length based, it is also necessary to supply the
-length-weight parameters \code{a} and \code{b}.
+selectivity function is length based, it uses the
+length-weight parameters \code{a} and \code{b} to convert between length and weight.
 }

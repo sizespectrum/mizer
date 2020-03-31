@@ -2,7 +2,7 @@
 % Please edit documentation in R/pred_kernel_funcs.R
 \name{lognormal_pred_kernel}
 \alias{lognormal_pred_kernel}
-\title{Lognormal predation kernel}
+\title{Truncated lognormal predation kernel}
 \usage{
 lognormal_pred_kernel(ppmr, beta, sigma)
 }
@@ -18,8 +18,8 @@ A vector giving the value of the predation kernel at each of the
 predator/prey mass ratios in the \code{ppmr} argument.
 }
 \description{
-This is the most commonly-used predation kernel. The log of the predator/prey
-mass ratio is normally distributed.
+This is like the \link{\code{lognormal_pred_kernel}} but with an imposed
+maximum predator/prey mass ratio
 }
 \details{
 Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p},

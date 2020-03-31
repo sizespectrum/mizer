@@ -136,6 +136,7 @@ function is to be used by other functions to set up full parameter objects.</p>
 
     <pre class="usage"><span class='fu'>emptyParams</span>(
   <span class='no'>species_params</span>,
+  <span class='kw'>gear_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
   <span class='kw'>no_w</span> <span class='kw'>=</span> <span class='fl'>100</span>,
   <span class='kw'>min_w</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
   <span class='kw'>max_w</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
@@ -148,6 +149,10 @@ function is to be used by other functions to set up full parameter objects.</p>
     <tr>
       <th>species_params</th>
       <td><p>A data frame of species-specific parameter values.</p></td>
+    </tr>
+    <tr>
+      <th>gear_params</th>
+      <td><p>A data frame with gear-specific parameter values.</p></td>
     </tr>
     <tr>
       <th>no_w</th>
@@ -196,7 +201,7 @@ following ways:</p><ul>
 <code>w_inf</code>, are not modified to lie on grid points.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for a function that fills
+    <div class='dont-index'><p>See <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> for a function that fills
 the slots left empty by this function.</p></div>
 
   </div>

@@ -121,7 +121,7 @@ as initial values in a MizerParams object." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set initial values to final values of a simulation</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setInitialValues.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setInitialValues.R'><code>R/setInitialValues.R</code></a></small>
     <div class="hidden name"><code>setInitialValues.Rd</code></div>
     </div>
 
@@ -137,7 +137,7 @@ as initial values in a MizerParams object.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>params</th>
-      <td><p>A <code><a href='MizerParams.html'>MizerParams</a></code> object</p></td>
+      <td><p>A <code><a href='MizerParams.html'>MizerParams()</a></code> object</p></td>
     </tr>
     <tr>
       <th>sim</th>
@@ -147,12 +147,12 @@ as initial values in a MizerParams object.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The `params` object with updated initial values, taken from the
-  values at the final time of the simulation in `sim`. Because of the way the
-  R language works, `setInitialValues()` does not make the changes to the
-  params object that you pass to it but instead returns a new params object.
-  So to affect the change you call the function in the form
-  `params &lt;- setInitialValues(params, sim)`.</p>
+    <p>The <code>params</code> object with updated initial values, taken from the
+values at the final time of the simulation in <code>sim</code>. Because of the way the
+R language works, <code>setInitialValues()</code> does not make the changes to the
+params object that you pass to it but instead returns a new params object.
+So to affect the change you call the function in the form
+<code>params &lt;- setInitialValues(params, sim)</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other functions for setting parameters: 
@@ -161,11 +161,11 @@ as initial values in a MizerParams object.</p>
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

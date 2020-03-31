@@ -122,7 +122,7 @@ individual and sets the reproductive efficiency." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set reproduction parameters</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setReproduction.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setReproduction.R'><code>R/setReproduction.R</code></a></small>
     <div class="hidden name"><code>setReproduction.Rd</code></div>
     </div>
 
@@ -160,9 +160,9 @@ described in the section "Setting reproduction".</p></td>
     </tr>
     <tr>
       <th>RDD</th>
-      <td><p>The name of the function calculating the density-dependent 
-reproduction rate from the density-independent rate. Defaults to 
-"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>".</p></td>
+      <td><p>The name of the function calculating the density-dependent
+reproduction rate from the density-independent rate. Defaults to
+"<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>".</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -173,26 +173,26 @@ reproduction rate from the density-independent rate. Defaults to
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The updated MizerParams object. Because of the way the R language
-  works, `setReproduction()` does not make the changes to the params object
-  that you pass to it but instead returns a new params object. So to affect
-  the change you call the function in the form
-  `params &lt;- setReproduction(params, ...)`.</p>
+works, <code>setReproduction()</code> does not make the changes to the params object
+that you pass to it but instead returns a new params object. So to affect
+the change you call the function in the form
+<code>params &lt;- setReproduction(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-reproduction"><a class="anchor" href="#setting-reproduction"></a>Setting reproduction</h2>
 
     
 
 
 <h3>Investment</h3>
-<p>For each species and at each size, the proportion of the available energy 
+<p>For each species and at each size, the proportion of the available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
-<code>repro_prop</code> of the energy available to a mature individual that is 
+<code>repro_prop</code> of the energy available to a mature individual that is
 invested into reproduction.</p>
-<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal 
+<p>If the <code>maturity</code> argument is not supplied, then it is set to a sigmoidal
 maturity ogive that changes from 0 to 1 at around the maturity size:
 $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
 (To avoid clutter, we are not showing the species index in the equations.)
-The maturity weights are taken from the <code>w_mat</code> column of the 
+The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
 asymptotic weight in the <code>w_inf</code> column.
 The exponent \(U\) determines the steepness of the maturity ogive. By
@@ -201,7 +201,7 @@ including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
 \(U = \log(3) / \log(w_{mat} / w_{25}).\)</p>
 <p>The sigmoidal function given above would strictly reach 1 only asymptotically.
-Mizer instead sets the function equal to 1 already at the species' 
+Mizer instead sets the function equal to 1 already at the species'
 maximum size, taken from the compulsory <code>w_inf</code> column in the
 <code>species_params</code> data frame.</p>
 <p>If the <code>repro_prop</code> argument is not supplied, it is set to the
@@ -209,9 +209,9 @@ allometric form
 $${\tt repro\_prop}(w) = \left(\frac{w}{w_{inf}}\right)^{m-n}.$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
-reproduction for mature individuals. By default it is chosen to be 
-\(m = 1\) so that the rate at which energy is invested into reproduction 
-scales linearly with the size. This default can be overridden by including a 
+reproduction for mature individuals. By default it is chosen to be
+\(m = 1\) so that the rate at which energy is invested into reproduction
+scales linearly with the size. This default can be overridden by including a
 column <code>m</code> in the species parameter dataframe. The asymptotic sizes
 are taken from the compulsory <code>w_inf</code> column in the species_params
 data frame.</p>
@@ -222,7 +222,7 @@ reproduction that results in egg biomass, is set from the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
-<code><a href='getRDI.html'>getRDI</a></code>.</p>
+<code><a href='getRDI.html'>getRDI()</a></code>.</p>
 
 <h3>Density dependence</h3>
 <p>The stock-recruitment relationship is an emergent phenomenon in mizer, with
@@ -236,13 +236,13 @@ depends on density of prey.</p>
 relationship that is not already included in the other two sources of density
 dependence, mizer puts the the density-independent rate of egg production
 through a density-dependence function. The result is returned by
-<code><a href='getRDD.html'>getRDD</a></code>. The name of the density-dependence function is
+<code><a href='getRDD.html'>getRDD()</a></code>. The name of the density-dependence function is
 specified by the <code>RDD</code> argument. The default is the Beverton-Holt
-function <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD</a></code>, which requires an <code>R_max</code> column
+function <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>, which requires an <code>R_max</code> column
 in the species_params data frame giving the maximum egg production rate. If
 this column does not exist, it is initialised to <code>Inf</code>, leading to no
 density-dependence. Other functions provided by mizer are
-<code><a href='RickerRDD.html'>RickerRDD</a></code> and <code><a href='SheperdRDD.html'>SheperdRDD</a></code> and you can easily use
+<code><a href='RickerRDD.html'>RickerRDD()</a></code> and <code><a href='SheperdRDD.html'>SheperdRDD()</a></code> and you can easily use
 these as models for writing your own functions.</p>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -254,10 +254,10 @@ these as models for writing your own functions.</p>
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

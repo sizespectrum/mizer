@@ -6,6 +6,7 @@
 \usage{
 emptyParams(
   species_params,
+  gear_params = data.frame(),
   no_w = 100,
   min_w = 0.001,
   max_w = NA,
@@ -14,6 +15,8 @@ emptyParams(
 }
 \arguments{
 \item{species_params}{A data frame of species-specific parameter values.}
+
+\item{gear_params}{A data frame with gear-specific parameter values.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 

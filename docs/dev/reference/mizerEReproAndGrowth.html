@@ -179,14 +179,14 @@ calculated by <code><a href='mizerFeedingLevel.html'>mizerFeedingLevel()</a></co
 $$E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
                            {\tt encounter}_i(w) - {\tt metab}_i(w)).$$
 Due to the form of the feeding level, calculated by
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>, this can also be expressed as
+<code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>, this can also be expressed as
 $$E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
                            h_i(w) - {\tt metab}_i(w))$$
 where \(h_i\) is the maximum intake rate, set with
-<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate()</a></code>.
 The assimilation rate \(\alpha_i\) is taken from the species parameter
 data frame in <code>params</code>. The metabolic rate <code>metab</code> is taken from
-<code>params</code> and set with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p>
+<code>params</code> and set with <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p>
 <p>The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

@@ -120,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set search volume</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setSearchVolume.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setSearchVolume.R'><code>R/setSearchVolume.R</code></a></small>
     <div class="hidden name"><code>setSearchVolume.Rd</code></div>
     </div>
 
@@ -154,18 +154,18 @@ the section "Setting search volume".</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>MizerParams with updated search volume. Because of the way the R
-  language works, `setSearchVolume()` does not make the changes to the params
-  object that you pass to it but instead returns a new params object. So to
-  affect the change you call the function in the form
-  `params &lt;- setSearchVolume(params, ...)`.</p>
+language works, <code>setSearchVolume()</code> does not make the changes to the params
+object that you pass to it but instead returns a new params object. So to
+affect the change you call the function in the form
+<code>params &lt;- setSearchVolume(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-search-volume"><a class="anchor" href="#setting-search-volume"></a>Setting search volume</h2>
 
     
 
 <p>The search volume \(\gamma_i(w)\) of an individual of species \(i\)
 and weight \(w\) multiplies the predation kernel when
-calculating the encounter rate in <code><a href='getEncounter.html'>getEncounter</a></code> and the 
-predation rate in <code><a href='getPredRate.html'>getPredRate</a></code>.</p>
+calculating the encounter rate in <code><a href='getEncounter.html'>getEncounter()</a></code> and the
+predation rate in <code><a href='getPredRate.html'>getPredRate()</a></code>.</p>
 <p>The name "search volume" is a bit misleading, because \(\gamma_i(w)\) does
 not have units of volume. It is simply a parameter that determines the rate
 of predation. Its units depend on your choice, see section "Units in mizer".
@@ -173,14 +173,14 @@ If you have chose to work with total abundances, then it is a rate with units
 1/year. If you have chosen to work with abundances per m^2 then it has units
 of m^2/year. If you have chosen to work with abundances per m^3 then it has
 units of m^3/year.</p>
-<p>If the <code>search_vol</code> argument is not supplied, then the search volume is 
+<p>If the <code>search_vol</code> argument is not supplied, then the search volume is
 set to
-$$\gamma_i(w) = \gamma_i w^q_i.$$ 
+$$\gamma_i(w) = \gamma_i w^q_i.$$
 The values of \(\gamma_i\) (the search volume at 1g) and \(q_i\) (the
 allometric exponent of the search volume) are taken from the <code>gamma</code> and
 <code>q</code> columns in the species parameter dataframe. If the <code>gamma</code>
 column is not supplied in the species parameter dataframe, a default is
-calculated by the <code><a href='get_gamma_default.html'>get_gamma_default</a></code> function. Note that only
+calculated by the <code><a href='get_gamma_default.html'>get_gamma_default()</a></code> function. Note that only
 for predators of size \(w = 1\) gram is the value of the species parameter
 \(\gamma_i\) the same as the value of the search volume \(\gamma_i(w)\).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -192,10 +192,10 @@ for predators of size \(w = 1\) gram is the value of the species parameter
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
-<code><a href='setReproduction.html'>setReproduction</a>()</code></p></div>
+<code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

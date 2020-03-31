@@ -120,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set maximum intake rate</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setMaxIntakeRate.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setMaxIntakeRate.R'><code>R/setMaxIntakeRate.R</code></a></small>
     <div class="hidden name"><code>setMaxIntakeRate.Rd</code></div>
     </div>
 
@@ -154,24 +154,24 @@ described in the section "Setting maximum intake rate".</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>MizerParams</code> object with updated maximum intake rate. Because
-  of the way the R language works, `setMaxIntakeRate()` does not make the
-  changes to the params object that you pass to it but instead returns a new
-  params object. So to affect the change you call the function in the form
-  `params &lt;- setMaxIntakeRate(params, ...)`.</p>
+of the way the R language works, <code>setMaxIntakeRate()</code> does not make the
+changes to the params object that you pass to it but instead returns a new
+params object. So to affect the change you call the function in the form
+<code>params &lt;- setMaxIntakeRate(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-maximum-intake-rate"><a class="anchor" href="#setting-maximum-intake-rate"></a>Setting maximum intake rate</h2>
 
     
 
 <p>The maximum intake rate \(h_i(w)\) of an individual of species \(i\) and
 weight \(w\) determines the feeding level, calculated with
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>. It is measured in grams/year.</p>
+<code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>. It is measured in grams/year.</p>
 <p>If the <code>intake_max</code> argument is not supplied, then the maximum intake
-rate is set to $$h_i(w) = h_i w^n_i.$$ 
+rate is set to $$h_i(w) = h_i w^n_i.$$
 The values of \(h_i\) (the maximum intake rate of an individual of size 1
 gram) and \(n_i\) (the allometric exponent for the intake rate) are taken
 from the <code>h</code> and <code>n</code> columns in the species parameter dataframe. If
 the <code>h</code> column is not supplied in the species parameter dataframe, it is
-calculated by the <code><a href='get_h_default.html'>get_h_default</a></code> function, using <code>f0</code> and
+calculated by the <code><a href='get_h_default.html'>get_h_default()</a></code> function, using <code>f0</code> and
 the <code>k_vb</code> column, if they are supplied.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish will consume all encountered food.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -182,11 +182,11 @@ the <code>k_vb</code> column, if they are supplied.</p>
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

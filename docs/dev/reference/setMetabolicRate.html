@@ -120,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set metabolic rate</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setMetabolicRate.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setMetabolicRate.R'><code>R/setMetabolicRate.R</code></a></small>
     <div class="hidden name"><code>setMetabolicRate.Rd</code></div>
     </div>
 
@@ -160,17 +160,17 @@ column in the <code>species_params</code>.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>MizerParams object with updated metabolic rate. Because of the way
-  the R language works, `setMetabolicRate()` does not make the changes to the
-  params object that you pass to it but instead returns a new params object.
-  So to affect the change you call the function in the form
-  `params &lt;- setMetabolicRate(params, ...)`.</p>
+the R language works, <code>setMetabolicRate()</code> does not make the changes to the
+params object that you pass to it but instead returns a new params object.
+So to affect the change you call the function in the form
+<code>params &lt;- setMetabolicRate(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-metabolic-rate"><a class="anchor" href="#setting-metabolic-rate"></a>Setting metabolic rate</h2>
 
     
 
 <p>The metabolic rate is subtracted from the energy income rate to calculate
 the rate at which energy is available for growth and reproduction, see
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>. It is measured in grams/year.</p>
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>. It is measured in grams/year.</p>
 <p>If the <code>metab</code> argument is not supplied, then for each species the
 metabolic rate \(k(w)\) for an individual of size \(w\) is set to
 $$k(w) = ks w^p + k w,$$
@@ -191,11 +191,11 @@ specified, a default of \(f_c = 0.2\) is used.</p>
 <code><a href='setInitialValues.html'>setInitialValues</a>()</code>,
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

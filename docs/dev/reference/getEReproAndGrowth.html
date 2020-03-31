@@ -166,13 +166,13 @@ ecosystem</p></td>
       <th>encounter</th>
       <td><p>The encounter rate matrix (optional) of dimension no.
 species x no. size bins. If not passed in, it is calculated internally
-using the <code><a href='getEncounter.html'>getEncounter</a></code> function.</p></td>
+using the <code><a href='getEncounter.html'>getEncounter()</a></code> function.</p></td>
     </tr>
     <tr>
       <th>feeding_level</th>
       <td><p>The current feeding level (optional). A matrix of size
 no. species x no. size bins. If not supplied, is calculated internally
-using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> function.</p></td>
+using the <code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code> function.</p></td>
     </tr>
     </table>
 
@@ -182,21 +182,21 @@ using the <code><a href='getFeedingLevel.html'>getFeedingLevel</a></code> functi
 $$E_{r.i}(w) = \max(0, \alpha_i\, (1 - {\tt feeding\_level}_i(w))\, 
                            {\tt encounter}_i(w) - {\tt metab}_i(w)).$$
 Due to the form of the feeding level, calculated by
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a></code>, this can also be expressed as
+<code><a href='getFeedingLevel.html'>getFeedingLevel()</a></code>, this can also be expressed as
 $$E_{r.i}(w) = \max(0, \alpha_i\, {\tt feeding\_level}_i(w)\, 
                            h_i(w) - {\tt metab}_i(w))$$
-where \(h_i\) is the maximum intake rate, set with 
-<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.
+where \(h_i\) is the maximum intake rate, set with
+<code><a href='setMaxIntakeRate.html'>setMaxIntakeRate()</a></code>.
 The assimilation rate \(\alpha_i\) is taken from the species parameter
-data frame in <code>params</code>. The metabolic rate <code>metab</code> is taken from 
-<code>params</code> and set with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p>
+data frame in <code>params</code>. The metabolic rate <code>metab</code> is taken from
+<code>params</code> and set with <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p>
 <p>The return value can be negative, which means that the energy intake does not
 cover the cost of metabolism and movement.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>The parts of this energy rate that is invested into growth is
-  calculated with <code><a href='getERepro.html'>getERepro</a></code> and the part that is invested into
-  reproduction is calculated with <code><a href='getEGrowth.html'>getEGrowth</a></code>.</p>
+calculated with <code><a href='getERepro.html'>getERepro()</a></code> and the part that is invested into
+reproduction is calculated with <code><a href='getEGrowth.html'>getEGrowth()</a></code>.</p>
 <p>Other rate functions: 
 <code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
 <code><a href='getERepro.html'>getERepro</a>()</code>,

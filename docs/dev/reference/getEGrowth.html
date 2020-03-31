@@ -40,7 +40,7 @@
 <meta property="og:title" content="Get energy rate available for growth — getEGrowth" />
 <meta property="og:description" content="Calculates the energy rate \(g_i(w)\) (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
-accounted for. Used by project for performing simulations." />
+accounted for. Used by project() for performing simulations." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -129,7 +129,7 @@ accounted for. Used by project for performing simulations." />
     <div class="ref-description">
     <p>Calculates the energy rate \(g_i(w)\) (grams/year) available by species and
 size for growth after metabolism, movement and reproduction have been
-accounted for. Used by <code><a href='project.html'>project</a></code> for performing simulations.</p>
+accounted for. Used by <code><a href='project.html'>project()</a></code> for performing simulations.</p>
     </div>
 
     <pre class="usage"><span class='fu'>getEGrowth</span>(
@@ -166,14 +166,14 @@ ecosystem</p></td>
       <td><p>The energy available for reproduction (optional, although if
 specified, e must also be specified). A matrix of size no. species x no.
 size bins. If not supplied, is calculated internally using
-<code><a href='getERepro.html'>getERepro</a></code>.</p></td>
+<code><a href='getERepro.html'>getERepro()</a></code>.</p></td>
     </tr>
     <tr>
       <th>e</th>
       <td><p>The energy available for reproduction and growth (optional, although
 if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code>.</p></td>
+<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code>.</p></td>
     </tr>
     </table>
 
@@ -182,7 +182,7 @@ species x no. size bins. If not supplied, is calculated internally using
     <p>A two dimensional array (prey species x prey size)</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='getERepro.html'>getERepro</a></code>, <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a></code></p>
+    <div class='dont-index'><p><code><a href='getERepro.html'>getERepro()</a></code>, <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth()</a></code></p>
 <p>Other rate functions: 
 <code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
 <code><a href='getERepro.html'>getERepro</a>()</code>,

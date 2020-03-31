@@ -4,7 +4,7 @@
 \alias{sigmoid_weight}
 \title{Weight based sigmoidal selectivity function}
 \usage{
-sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma = 3)
+sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma, ...)
 }
 \arguments{
 \item{w}{The size of the individual.}
@@ -12,6 +12,8 @@ sigmoid_weight(w, sigmoidal_weight, sigmoidal_sigma = 3)
 \item{sigmoidal_weight}{The weight at which the knife-edge operates.}
 
 \item{sigmoidal_sigma}{The width of the selection function}
+
+\item{...}{Unused}
 }
 \description{
 A sigmoidal selectivity function with 50\% selectivity at

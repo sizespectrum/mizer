@@ -128,7 +128,7 @@
     <p>Fetch the simulation results for other components over time.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>n_other</span>(<span class='no'>sim</span>, <span class='no'>component</span>)</pre>
+    <pre class="usage"><span class='fu'>n_other</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,12 +137,16 @@
       <th>sim</th>
       <td><p>A MizerSim object</p></td>
     </tr>
+    <tr>
+      <th>component</th>
+      <td><p>Optional name of desired component</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list array (time x component) that stores the projected
-  values for other ecosystem components.</p>
+    <p>A list array (time x component) that stores the projected values for
+other ecosystem components.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

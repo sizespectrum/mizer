@@ -38,7 +38,11 @@
   
 
 <meta property="og:title" content="A class to hold the parameters for a size based model. — MizerParams-class" />
-<meta property="og:description" content="MizerParams objects can be created using a range of constructor functions." />
+<meta property="og:description" content="Although it is possible to build a MizerParams object by hand it is
+not recommended and several constructors are available. Dynamic simulations
+are performed using project() function on objects of this class. As a
+user you should never need to access the slots inside a MizerParams object
+directly." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,15 +129,15 @@
     </div>
 
     <div class="ref-description">
-    <p>MizerParams objects can be created using a range of constructor functions.</p>
+    <p>Although it is possible to build a <code>MizerParams</code> object by hand it is
+not recommended and several constructors are available. Dynamic simulations
+are performed using <code><a href='project.html'>project()</a></code> function on objects of this class. As a
+user you should never need to access the slots inside a <code>MizerParams</code> object
+directly.</p>
     </div>
 
 
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Dynamic simulations are performed using the <code><a href='project.html'>project</a></code> function on
-objects of this class.</p>
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
     
@@ -143,81 +147,78 @@ objects of this class.</p>
 vector of weights (in grams) running from the smallest egg size to the
 largest asymptotic size.</p></dd>
 
-<dt><code>dw</code></dt><dd><p>The spacing in the size grid. So dw[i] = w[i+1] - w[i]. A vector 
-the same length as the w_full slot. The last entry is not determined by
-the w slot but represents the size of the last size bin.</p></dd>
+<dt><code>dw</code></dt><dd><p>The widths (in grams) of the size bins</p></dd>
 
 <dt><code>w_full</code></dt><dd><p>The size grid for the full size range including the plankton
 spectrum. An increasing vector of weights (in grams) running from the
 smallest plankton size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.</p></dd>
 
-<dt><code>dw_full</code></dt><dd><p>The spacing in the full size grid. 
-So dw_full[i] = w_full[i+1] - w_full[i]. The last entries have to be
-equal to the content of the dw slot.</p></dd>
+<dt><code>dw_full</code></dt><dd><p>The width of the size bins for the full spectrum. The last
+entries have to be equal to the content of the dw slot.</p></dd>
 
 <dt><code>w_min_idx</code></dt><dd><p>A vector holding the index of the weight of the egg size
 of each species</p></dd>
 
 <dt><code>maturity</code></dt><dd><p>An array (species x size) that holds the proportion of
 individuals of each species at size that are mature. This enters in the
-calculation of the spawning stock biomass with <code><a href='getSSB.html'>getSSB</a></code>. Set 
-with <code><a href='setReproduction.html'>setReproduction</a></code>.</p></dd>
+calculation of the spawning stock biomass with <code><a href='getSSB.html'>getSSB()</a></code>. Set
+with <code><a href='setReproduction.html'>setReproduction()</a></code>.</p></dd>
 
 <dt><code>psi</code></dt><dd><p>An array (species x size) that holds the allocation to reproduction
-for each species at size, \(\psi_i(w)\). Changed with 
-<code><a href='setReproduction.html'>setReproduction</a></code>.</p></dd>
+for each species at size, \(\psi_i(w)\). Changed with
+<code><a href='setReproduction.html'>setReproduction()</a></code>.</p></dd>
 
 <dt><code>intake_max</code></dt><dd><p>An array (species x size) that holds the maximum intake for
-each species at size. Changed with <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>.</p></dd>
+each species at size. Changed with <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate()</a></code>.</p></dd>
 
 <dt><code>search_vol</code></dt><dd><p>An array (species x size) that holds the search volume for
-each species at size. Changed with <code><a href='setSearchVolume.html'>setSearchVolume</a></code>.</p></dd>
+each species at size. Changed with <code><a href='setSearchVolume.html'>setSearchVolume()</a></code>.</p></dd>
 
 <dt><code>metab</code></dt><dd><p>An array (species x size) that holds the metabolism
-for each species at size. Changed with <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>.</p></dd>
+for each species at size. Changed with <code><a href='setMetabolicRate.html'>setMetabolicRate()</a></code>.</p></dd>
 
 <dt><code>mu_b</code></dt><dd><p>An array (species x size) that holds the external mortality rate
-\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMort.html'>setExtMort</a></code>.</p></dd>
+\(\mu_{b.i}(w)\). Changed with <code><a href='setExtMort.html'>setExtMort()</a></code>.</p></dd>
 
 <dt><code>pred_kernel</code></dt><dd><p>An array (species x predator size x prey size) that holds
 the predation coefficient of each predator at size on each prey size. If
-this is NA then the following two slots will be used. Changed with 
-<code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+this is NA then the following two slots will be used. Changed with
+<code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_e</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the encounter rate integral. If this is NA
-then the <code>pred_kernel</code> will be used to calculate the available 
-energy integral. Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+then the <code>pred_kernel</code> will be used to calculate the available
+energy integral. Changed with <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></dd>
 
 <dt><code>ft_pred_kernel_p</code></dt><dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
-Changed with <code><a href='setPredKernel.html'>setPredKernel</a></code>.</p></dd>
+Changed with <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></dd>
 
 <dt><code>rr_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
+growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
 
 <dt><code>cc_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum. Changed with 
-<code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
+carrying capacity of the plankton spectrum. Changed with
+<code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
 
 <dt><code>plankton_dynamics</code></dt><dd><p>Name of the function for projecting the plankton abundance
-density by one timestep. The default is 
-<code><a href='plankton_semichemostat.html'>plankton_semichemostat</a></code>. 
-Changed with <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
+density by one timestep. The default is
+<code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>.
+Changed with <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
 
 <dt><code>other_dynamics</code></dt><dd><p>A named list of functions for projecting the
 values of other dynamical components of the ecosystem that may be modelled
 by a mizer extensions you have installed. The names of the list entries
 are the names of those components.</p></dd>
 
-<dt><code>other_encounter</code></dt><dd><p>A named list of functions for calculating the 
+<dt><code>other_encounter</code></dt><dd><p>A named list of functions for calculating the
 contribution to the encounter rate from each other dynamical component.</p></dd>
 
-<dt><code>other_mort</code></dt><dd><p>A named list of functions for calculating the 
+<dt><code>other_mort</code></dt><dd><p>A named list of functions for calculating the
 contribution to the mortality rate from each other dynamical components.</p></dd>
 
 <dt><code>other_params</code></dt><dd><p>A list containing the parameters needed by any mizer
@@ -225,27 +226,30 @@ extensions you may have installed to model other dynamical components of
 the ecosystem.</p></dd>
 
 <dt><code>rates_funcs</code></dt><dd><p>A named list with the names of the functions that should be
-used to calculate the rates needed by `project()`. By default this will be
+used to calculate the rates needed by <code><a href='project.html'>project()</a></code>. By default this will be
 set to the names of the built-in rate functions.</p></dd>
 
 <dt><code>sc</code></dt><dd><p>The community abundance of the scaling community</p></dd>
 
 <dt><code>species_params</code></dt><dd><p>A data.frame to hold the species specific parameters.
-See <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code> for details.</p></dd>
+See <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> for details.</p></dd>
+
+<dt><code>gear_params</code></dt><dd><p>Data frame with parameters for gear selectivity. See
+<code><a href='setFishing.html'>setFishing()</a></code> for details.</p></dd>
 
 <dt><code>interaction</code></dt><dd><p>The species specific interaction matrix, \(\theta_{ij}\).
-Changed with <code><a href='setInteraction.html'>setInteraction</a></code>.</p></dd>
+Changed with <code><a href='setInteraction.html'>setInteraction()</a></code>.</p></dd>
 
 <dt><code>selectivity</code></dt><dd><p>An array (gear x species x w) that holds the selectivity of
-each gear for species and size, \(S_{g,i,w}\). Changed with 
-<code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
+each gear for species and size, \(S_{g,i,w}\). Changed with
+<code><a href='setFishing.html'>setFishing()</a></code>.</p></dd>
 
 <dt><code>catchability</code></dt><dd><p>An array (gear x species) that holds the catchability of
-each species by each gear, \(Q_{g,i}\). Changed with 
-<code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
+each species by each gear, \(Q_{g,i}\). Changed with
+<code><a href='setFishing.html'>setFishing()</a></code>.</p></dd>
 
 <dt><code>initial_effort</code></dt><dd><p>A vector containing the initial fishing effort for each
-gear. Changed with <code><a href='setFishing.html'>setFishing</a></code>.</p></dd>
+gear. Changed with <code><a href='setFishing.html'>setFishing()</a></code>.</p></dd>
 
 <dt><code>initial_n</code></dt><dd><p>An array (species x size) that holds the initial abundance of
 each species at each weight.</p></dd>
@@ -256,42 +260,34 @@ the initial plankton abundance at each weight.</p></dd>
 <dt><code>initial_n_other</code></dt><dd><p>A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.</p></dd>
 
-<dt><code>plankton_params</code></dt><dd><p>Parameters for plankton. See <code><a href='setPlankton.html'>setPlankton</a></code>.</p></dd>
+<dt><code>plankton_params</code></dt><dd><p>List with parameters for plankton. See <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
 
 <dt><code>A</code></dt><dd><p>Abundance multipliers.</p></dd>
 
 <dt><code>linecolour</code></dt><dd><p>A named vector of colour values, named by species.
 Used to give consistent colours in plots.</p></dd>
 
-<dt><code>linetype</code></dt><dd><p>A named vector of linetypes, named by species. 
-Used to give consistent line types in plots.</p></dd>
+<dt><code>linetype</code></dt><dd><p>A named vector of linetypes, named by species.
+Used to give consistent line types in plots.The MizerParams class is fairly complex with a large number of
+slots, many of which are multidimensional arrays. The dimensions of these
+arrays is strictly enforced so that <code>MizerParams</code> objects are consistent
+in terms of number of species and number of size classes.The <code>MizerParams</code> class does not hold any dynamic information, e.g.
+abundances or harvest effort through time. These are held in
+<a href='MizerSim-class.html'>MizerSim</a> objects.</p></dd>
 
 </dl>
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>The MizerParams class is fairly complex with a large number of
-  slots, many of which are multidimensional arrays. The dimensions of these
-  arrays is strictly enforced so that <code>MizerParams</code> objects are
-  consistent in terms of number of species and number of size classes.</p>  
-<p>Although it is possible to build a <code>MizerParams</code> object by hand it is
-  not recommended and several constructors are available.</p>  
-<p>The <code>MizerParams</code> class does not hold any dynamic information, e.g.
-  abundances or harvest effort through time. These are held in
-  <a href='MizerSim-class.html'>MizerSim</a> objects.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='project.html'>project</a></code> <code><a href='MizerSim.html'>MizerSim</a></code>
-  <code><a href='emptyParams.html'>emptyParams</a></code> <code><a href='newMultispeciesParams.html'>newMultispeciesParams</a></code>
-  <code><a href='newCommunityParams.html'>newCommunityParams</a></code>
-  <code><a href='newTraitParams.html'>newTraitParams</a></code></p></div>
+    <div class='dont-index'><p><code><a href='project.html'>project()</a></code> <code><a href='MizerSim.html'>MizerSim()</a></code>
+<code><a href='emptyParams.html'>emptyParams()</a></code> <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code>
+<code><a href='newCommunityParams.html'>newCommunityParams()</a></code>
+<code><a href='newTraitParams.html'>newTraitParams()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#details">Details</a></li>
       <li><a href="#slots">Slots</a></li>
-      <li><a href="#note">Note</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

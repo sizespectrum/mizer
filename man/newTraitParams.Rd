@@ -7,31 +7,34 @@
 newTraitParams(
   no_sp = 11,
   min_w_inf = 10,
-  max_w_inf = 10^3,
-  min_w = 10^(-4),
+  max_w_inf = 10^4,
+  min_w = 10^(-3),
   max_w = max_w_inf,
   eta = 10^(-0.6),
   min_w_mat = min_w_inf * eta,
-  no_w = log10(max_w_inf/min_w) * 50 + 1,
+  no_w = log10(max_w_inf/min_w) * 20 + 1,
   min_w_pp = 1e-10,
-  w_pp_cutoff = min_w_inf,
+  w_pp_cutoff = min_w_mat,
   n = 2/3,
   p = n,
   lambda = 2.05,
   r_pp = 0.1,
   kappa = 0.005,
   alpha = 0.4,
-  ks = 4,
-  h = 30,
+  h = 40,
   beta = 100,
   sigma = 1.3,
   f0 = 0.6,
+  fc = 0.25,
+  ks = NA,
   gamma = NA,
   ext_mort_prop = 0,
   rfac = 4,
   gear_names = "knife_edge_gear",
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
+  mortality_scaling = FALSE,
+  plankton_scaling = FALSE,
   perfect_scaling = FALSE
 )
 }
@@ -81,8 +84,6 @@ equal to the exponent \code{n}.}
 
 \item{alpha}{The assimilation efficiency of the community.}
 
-\item{ks}{Standard metabolism coefficient.}
-
 \item{h}{Maximum food intake rate.}
 
 \item{beta}{Preferred predator prey mass ratio.}
@@ -92,6 +93,12 @@ equal to the exponent \code{n}.}
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
+
+\item{fc}{Critical feeding level. Used to determine \code{ks} if it is not given
+explicitly.}
+
+\item{ks}{Standard metabolism coefficient. If not provided, default will be
+calculated from critical feeding level argument \code{fc}.}
 
 \item{gamma}{Volumetric search rate. If not provided, default is determined
 by \code{\link[=get_gamma_default]{get_gamma_default()}} using the value of \code{f0}.}
@@ -105,8 +112,8 @@ is the maximum reproduction rate allowed and \code{R} is the steady-state
 reproduction rate. Thus the larger \code{rfac} the less the impact of the
 density-dependence.}
 
-\item{gear_names}{The names of the fishing gears. A character vector, the
-same length as the number of gears.}
+\item{gear_names}{The names of the fishing gears for each species. A
+character vector, the same length as the number of species.}
 
 \item{knife_edge_size}{The minimum size at which the gear or gears select
 fish. A single value for each gear or a vector with one value for each
@@ -116,8 +123,13 @@ gear.}
 maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 FALSE, all species have the egg size \code{w_min}.}
 
+\item{plankton_scaling}{If TRUE, the carrying capacity for larger plankton
+is reduced to compensate for the fact that fish eggs and larvae are
+present in the same size range.}
+
 \item{perfect_scaling}{If TRUE then parameters are set so that the community
-abundance, growth before reproduction and death are perfect power laws.}
+abundance, growth before reproduction and death are perfect power laws. In
+particular all other scaling corrections are turned on.}
 }
 \value{
 An object of type \code{MizerParams}

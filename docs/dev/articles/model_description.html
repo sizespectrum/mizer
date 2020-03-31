@@ -91,53 +91,61 @@
 
     
     
-<p>On this page we will revisit the presentation of the mizer model given in chapter 3 of the main <a href="https://cran.r-project.org/web/packages/mizer/vignettes/mizer_vignette.pdf">mizer vignette</a> but taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code>getRates()</code>) because the help pages of these functions will provide useful additional details.</p>
+<p>On this page we present the details of the mizer model, taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code><a href="../reference/mizerRates.html">mizerRates()</a></code>) because the help pages of these functions will provide useful additional details.</p>
 We will not go into detail of how this model is realised in code. Such detail will be provided in the <a href="developer_vignette.html">developer guide</a>. However some details are hidden on this page and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.
-</details><div id="consumer-size-spectra" class="section level2">
+</details><div id="size-spectrum-dynamics" class="section level1">
+<h1 class="hasAnchor">
+<a href="#size-spectrum-dynamics" class="anchor"></a>Size spectrum dynamics</h1>
+<div id="consumer-densities" class="section level2">
 <h2 class="hasAnchor">
-<a href="#consumer-size-spectra" class="anchor"></a>Consumer size spectra</h2>
-<p>The model framework builds on two central assumption and a number of lesser standard assumption.</p>
-<p>The first central assumption is that an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
+<a href="#consumer-densities" class="anchor"></a>Consumer densities</h2>
+<p>The model assumes that, to a first approximation, an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</span>
 <span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_w =</span> <span class="fl">1e-3</span>)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</span></code></pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
-<p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big.</p>
+<p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big. You can fetch this vector with <code><a href="../reference/w.html">w()</a></code> and the vector of bin sizes with <code><a href="../reference/w.html">dw()</a></code>.</p>
 <p>The weight grid is set up to be logarithmically spaced, so that <code>w[j]=w[1]*exp(j*dx)</code> for some fixed <code>dx</code>. This grid is set up automatically when creating a MizerParams object.</p>
-<p>In the code the size spectrum is stored as an array such that <code>n[i, a]</code> holds the density <span class="math inline">\(N_i(w_a)\)</span> at weights <span class="math inline">\(w_a=\)</span><code>w[a]</code>, or, if time dependence is included, an array such that <code>n[i, a, u]</code> holds <span class="math inline">\(N_i(w_a,t_u)\)</span>.</p>
+<p>In the code the size spectrum is stored as an array such that <code>n[i, a]</code> holds the density <span class="math inline">\(N_i(w_a)\)</span> at weights <span class="math inline">\(w_a=\)</span><code>w[a]</code>, or, if time dependence is included, an array such that <code>n[i, a, u]</code> holds <span class="math inline">\(N_i(w_a,t_u)\)</span>. See <code><a href="../reference/n.html">n()</a></code>.</p>
 <p>Note that, contrary to what one might have expected, <code>n[i, a]</code> is not the <em>number</em> of individuals in a size bin but the <em>density</em> at a grid point. The number of individuals in the size bin between <code>w[a]</code> and <code>w[a+1]=w[a]+dw[a]</code> is only approximately given as <code>n[i, a]*dw[a]</code>, where <code>dw[a]= w[a+1]-w[a]</code>.</p>
-</details><p>The time evolution of the size spectrum is described by the McKendrik-von Foerster equation, which is a continuity equation with loss:</p>
+</details>
+</div>
+<div id="traffic-on-the-road-to-adulthood" class="section level2">
+<h2 class="hasAnchor">
+<a href="#traffic-on-the-road-to-adulthood" class="anchor"></a>Traffic on the road to adulthood</h2>
+<p>A good way to think about the time evolution of the number density <span class="math inline">\(N_i(w)\)</span> is to consider the familiar situation of traffic density on the roads. A fish’s life is a journey along the size axis from egg size to size at death. There are many other fish making the same journey. The speed with which the fish move along the size axis is their growth rate. This is quite analogous to the speed of traffic on a road. Just as the speed of cars depends on the density of other cars on the road, the growth rate of fish depends on the density of other fish. When the density of cars on a stretch of road is high, their speed decreases, and this leads to a pile-up and can lead to traffic jams. Similarly when the density of fish in a size interval is high, their growth rate goes down due to competition for the same food sources, and this too can lead to pile-ups and bottlenecks. So one just has to replace the space variable in a traffic model by size to get an equation for the fish size spectra.</p>
+<p>The additional feature in the evolution of fish densities that is not present in road traffic density is that fish can die while they are growing up, and this death rate is also dependent on the density of other fish.</p>
+<p>The time evolution of the number density <span class="math inline">\(N_i(w)\)</span> is described by the McKendrik-von Foerster equation, which is a transport equation (as one would use for traffic density) but with an additional loss term due to fish mortality:</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:MvF}
   \frac{\partial N_i(w)}{\partial t} + \frac{\partial g_i(w) N_i(w)}{\partial w} 
   = -\mu_i(w) N_i(w),
 \end{equation}\]</span></p>
-<p>where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> will be described below.</p>
-<details><p>This McKendrik-von Foerster equation is approximated in mizer by a finite-difference method (to be described in section …). This allows the <code><a href="../reference/project.html">project()</a></code> function in mizer to project the size spectrum forwards in time: Given the spectrum at one time the <code><a href="../reference/project.html">project()</a></code> function calculates it at a set of later times.</p>
-</details><p>The McKendrik-von Foerster equation is supplemented by a boundary condition at the egg weight <span class="math inline">\(w_0\)</span> where the flux of individuals (numbers per time) <span class="math inline">\(g_i(w_0)N_i(w_0)\)</span> is determined by the rate <span class="math inline">\(R_i\)</span> of production of offspring by mature individuals in the population: <span class="math display">\[\begin{equation}
-  g_i(w_0)N_i(w_0) = R_i.
-\end{equation}\]</span></p>
-<details><p>In the code this boundary condition is actually implemented as an equation for the rate of change of the number of individuals in the smallest size bin: <span class="math display">\[\begin{equation}
-\frac{d N_i(w_0)}{dt}=...
-\end{equation}\]</span></p>
-</details>
+<p>where individual growth <span class="math inline">\(g_i(w)\)</span> and mortality <span class="math inline">\(\mu_i(w)\)</span> will be described below. There is no need for you to understand the mathematical notation used in this equation to understand its origin: it just says that the rate at which the number of fish in a size bracket changes is the rate at which fish grow into the size bracket from a smaller size minus the rate at which fish grow out of it to a larger size minus the rate at which the fish in the size bracket die. So to simulate the size spectrum dynamics we need to specify the growth rates and the mortality rates. This we will do below. The important point is that these rates depend on the density of other fish of other sizes, making the size-spectrum dynamics non-linear and non-local in very interesting ways. The resulting effects are too complicated to disentangle by pure thought. This is where simulations with the mizer package come in.</p>
+<p>This McKendrik-von Foerster equation is approximated in mizer by a finite-difference method. This allows the <code><a href="../reference/project.html">project()</a></code> function in mizer to project the size spectrum forwards in time: Given the spectrum at one time the <code><a href="../reference/project.html">project()</a></code> function calculates it at a set of later times.</p>
+<p>Of course there also needs to be reproduction into the smallest size class, otherwise there would be no small fish any more after a while. So for the smallest size class instead of a rate of growth into the size class there is a rate of reproduction of new individuals into that size class. This reproduction will be described further below.</p>
 </div>
-<div id="plankton-size-spectrum" class="section level2">
+<div id="plankton-density" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plankton-size-spectrum" class="anchor"></a>Plankton size spectrum</h2>
-<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(N_R(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum.</p>
-<p>By default the time evolution of the plankton spectrum is described by a semi-chemostat equation: <span class="math display">\[\begin{equation}
+<a href="#plankton-density" class="anchor"></a>Plankton density</h2>
+<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(N_pp(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the plankton spectrum is described by a semi-chemostat equation.</p>
+<details><p>The semichemostat dynamics are given by <span class="math display">\[\begin{equation}
   \label{eq:nb}
-  \frac{\partial N_R(w,t)}{\partial t} 
-  = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
-\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
-<details><p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The plankton spectrum is then stored in a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
-<p>The plankton regeneration rate is stored as a vector <code>params@rr_pp[c]</code><span class="math inline">\(=r_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>, and the carrying capacity is stored as a vector <code>params@cc_pp[c]</code><span class="math inline">\(=c_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
+  \frac{\partial N_p(w,t)}{\partial t} 
+  = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
+\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> You can retrieve these with <code><a href="../reference/setPlankton.html">getPlanktonRate()</a></code> and <code><a href="../reference/setPlankton.html">getPlanktonCapacity()</a></code> respectively. It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. The mortality <span class="math inline">\(\mu_p(w)\)</span> is due to predation by consumers and isdescribed in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
+<p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The function <code><a href="../reference/w.html">w_full()</a></code> gives the vector of sizes and <code><a href="../reference/w.html">dw_full()</a></code> gives the vector of bin sizes.</p>
+<p>The plankton spectrum is then represented by a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
 </div>
+</div>
+<div id="growth" class="section level1">
+<h1 class="hasAnchor">
+<a href="#growth" class="anchor"></a>Growth</h1>
+<p>Consumers can grow only by consuming prey. In the next few subsections we will build towards determining the growth rate resulting from predation. We will discuss how we model the predator-prey encounter rate, the resulting rate of consumption, the rate of loss due to metabolism, and the partitioning of the remaining energy into reproduction and growth.</p>
 <div id="sec:pref" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:pref" class="anchor"></a>Predator-prey encounter rate</h2>
@@ -190,33 +198,20 @@ And clicking again will hide the details again.
 <h2 class="hasAnchor">
 <a href="#sec:repro" class="anchor"></a>Investment into reproduction</h2>
 <p>A proportion <span class="math inline">\(\psi_i(w)\)</span> of the energy available for growth and reproduction is used for reproduction. This proportion should change from zero below the weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the asymptotic weight <span class="math inline">\(w_{\infty.i}\)</span>, where all available energy is used for reproduction. This function is changed with <code><a href="../reference/setReproduction.html">setReproduction()</a></code>. Mizer provides a default form for the function which you can however overrule.</p>
-<p>The total production rate of egg production <span class="math inline">\(R_{p.i}\)</span> (numbers per year) is found by integrating the contribution from all individuals of species <span class="math inline">\(i\)</span>: <span class="math display">\[\begin{equation}
-  \label{eq:Rp}
-  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
-\end{equation}\]</span> where the individual contribution is obtained by multiplying the rate at which the individual allocates energy to reproduction by an efficiency factor <span class="math inline">\(\epsilon\)</span> and then dividing by the egg weight <span class="math inline">\(w_0\)</span> to convert the energy into number of eggs. The result is multiplied by a factor <span class="math inline">\(1/2\)</span> to take into account that only females reproduce.</p>
 </div>
-<div id="density-dependence-in-reproduction" class="section level2">
+<div id="growth-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#density-dependence-in-reproduction" class="anchor"></a>Density-dependence in reproduction</h2>
-<p>In mizer, density dependence is modelled as a compensation on the egg production. This gives an additional contribution to the stock-recruitment relationship. The default functional form of this density dependence is such that the reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum as the energy invested in reproduction increases, modelled mathematically analogous to the Holling type II function response as a <em>Beverton-Holt</em> type function:</p>
-<p><span class="math display">\[\begin{equation}
-  \label{eq:R}
-  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
-\end{equation}\]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum reproduction rate of each trait class (Figure~).</p>
-<p>The <em>Beverton-Holt</em> type is not the only density dependence model that mizer can use. Users are able to write their own functions, e.g. fixed reproduction (as used in the community-type model) or <em>hockey-stick</em>.</p>
-</div>
-<div id="growth" class="section level2">
-<h2 class="hasAnchor">
-<a href="#growth" class="anchor"></a>Growth</h2>
+<a href="#growth-1" class="anchor"></a>Growth</h2>
 <p>What is left over after metabolism and reproduction is taken into account is invested in somatic growth. Thus the growth rate is <span class="math display">\[\begin{equation}
   \label{eq:growth}
   g_i(w) = E_{r.i}(w)\left(1-\psi_i(w)\right).
 \end{equation}\]</span> It is calculated by the <code><a href="../reference/getEGrowth.html">getEGrowth()</a></code> function.</p>
 <p>When food supply does not cover the requirements of metabolism and activity, growth and reproduction stops, i.e. there is no negative growth. The individual should then be subjected to a starvation mortality, but starvation mortality is not implemented in mizer at the moment.</p>
 </div>
-<div id="mortality" class="section level2">
-<h2 class="hasAnchor">
-<a href="#mortality" class="anchor"></a>Mortality</h2>
+</div>
+<div id="mortality" class="section level1">
+<h1 class="hasAnchor">
+<a href="#mortality" class="anchor"></a>Mortality</h1>
 <p>The mortality rate of an individual <span class="math inline">\(\mu_i(w)\)</span> has three sources: predation mortality <span class="math inline">\(\mu_{p.i}(w)\)</span>, background mortality <span class="math inline">\(\mu_{b.i}(w)\)</span> and fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span>.</p>
 <p>Predation mortality is calculated such that all that is eaten translates into corresponding predation mortalities on the ingested prey individuals. Recalling that <span class="math inline">\(1-f_j(w)\)</span> is the proportion of the food encountered by a predator of species <span class="math inline">\(j\)</span> and weight <span class="math inline">\(w\)</span> that is actually consumed, the rate at which all predators of species <span class="math inline">\(j\)</span> consume prey of size <span class="math inline">\(w_p\)</span> is <span class="math display">\[\begin{equation}
   \label{eq:pred_rated}
@@ -233,7 +228,14 @@ And clicking again will hide the details again.
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \end{equation}\]</span> This predation mortality rate is calculated by the function <code><a href="../reference/getPredMort.html">getPredMort()</a></code>.</p>
 <p>External mortality <span class="math inline">\(z0_i(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMort.html">setExtMort()</a></code>. By default mizer assumes an allometric form <span class="math display">\[z0_i(w) = z0_{pre} w_{\infty.i}^{1-n},\]</span> where <span class="math inline">\(w_{\infty.i}\)</span> is the asymptotic size of species <span class="math inline">\(i\)</span>.</p>
-<p>Fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span> will be discussed in section <a href="#fishing">Fishing</a>.</p>
+<div id="fishing-mortality" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fishing-mortality" class="anchor"></a>Fishing mortality</h2>
+<p>The fishing parameters for the model are set up with <code><a href="../reference/setFishing.html">setFishing()</a></code>, where you can find the details of how to set up gears with different selectivities and the catabilities of different species. Fishing mortality <span class="math inline">\(\mu_{f.i}(w)\)</span> is calculated with the function <code><a href="../reference/getFMort.html">getFMort()</a></code>.</p>
+</div>
+<div id="total-mortality" class="section level2">
+<h2 class="hasAnchor">
+<a href="#total-mortality" class="anchor"></a>Total mortality</h2>
 <p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
 </div>
 <div id="plankton-mortality" class="section level2">
@@ -244,10 +246,34 @@ And clicking again will hide the details again.
   \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
 \end{equation}\]</span> This is the only mortality on plankton currently implemented in mizer. It is calculated with the function <code><a href="../reference/getPlanktonMort.html">getPlanktonMort()</a></code>.</p>
 </div>
-<div id="fishing" class="section level2">
+</div>
+<div id="reproduction" class="section level1">
+<h1 class="hasAnchor">
+<a href="#reproduction" class="anchor"></a>Reproduction</h1>
+<div id="energy-invested-into-reproduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#fishing" class="anchor"></a>Fishing</h2>
-<p>This section still to be written.</p>
+<a href="#energy-invested-into-reproduction" class="anchor"></a>Energy invested into reproduction</h2>
+<p>The total rate of investment into reproduction (gramms/year) is found by integrating the contribution from all individuals of species <span class="math inline">\(i\)</span>, each of which invests a proportion <span class="math inline">\(\psi_i(w)\)</span> of their consumption. This total rate of energy investment can then be converted to a total rate of egg production <span class="math inline">\(R_{p.i}\)</span> (numbers per year): <span class="math display">\[\begin{equation}
+  \label{eq:Rp}
+  R_{p.i} = \frac{\epsilon}{2 w_0} \int N_i(w)  E_{r.i}(w) \psi_i(w) \, dw,
+\end{equation}\]</span> Here the total rate of investment is multiplied by an efficiency factor <span class="math inline">\(\epsilon\)</span> and then dividing by the egg weight <span class="math inline">\(w_0\)</span> to convert the energy into number of eggs. The result is multiplied by a factor <span class="math inline">\(1/2\)</span> to take into account that only females reproduce. This rate of potential egg production is calculated with <code><a href="../reference/getRDI.html">getRDI()</a></code>.</p>
+</div>
+<div id="density-dependence-in-reproduction" class="section level2">
+<h2 class="hasAnchor">
+<a href="#density-dependence-in-reproduction" class="anchor"></a>Density-dependence in reproduction</h2>
+<p>Two important density-dependent effects that in usual fisheries models are summarised in an imposed stock-recruitment relationship are already included automatically in the mizer model:</p>
+<ol style="list-style-type: decimal">
+<li>High density of spawners leads to a reduced food income of the spawners and consequently reduced per-capity reproduction.</li>
+<li>High density of larvae leads to slower growth of larvae due to food competition, exposing the larvae to high mortality for a longer time, thereby decreasing the survivorship to recruitment size.</li>
+<li>High density of fish leads to more predation on eggs and fish larvae by other fish species or by cannibalism.</li>
+</ol>
+<p>However there are other sources of density dependence that are not explicitly modelled in mizer. An example would be a limited carrying capacity of suitable spawning grounds and other spatial effects. In mizer, any such density dependence is modelled as a compensation on the egg production. This gives an additional contribution to the stock-recruitment relationship. The default functional form of this density dependence is such that the reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum as the energy invested in reproduction increases, modelled mathematically analogous to the Holling type II function response as a <em>Beverton-Holt</em> type function:</p>
+<p><span class="math display">\[\begin{equation}
+  \label{eq:R}
+  R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
+\end{equation}\]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum reproduction rate of each trait class. This final rate of reproduction is calculated with <code><a href="../reference/getRDD.html">getRDD()</a></code>.</p>
+<p>This default <em>Beverton-Holt</em> type is implemented by <code>BervertonHoldRDD()</code> but mizer also provides alternatives <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code>, <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code>, <code><a href="../reference/constantRDD.html">constantRDD()</a></code> and <code><a href="../reference/noRDD.html">noRDD()</a></code>. Also Users are able to write their own functions, e.g. <em>hockey-stick</em>. See <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details.</p>
+</div>
 </div>
   </div>
 
@@ -257,17 +283,35 @@ And clicking again will hide the details again.
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#consumer-size-spectra">Consumer size spectra</a></li>
-      <li><a href="#plankton-size-spectrum">Plankton size spectrum</a></li>
-      <li><a href="#sec:pref">Predator-prey encounter rate</a></li>
+<li>
+<a href="#size-spectrum-dynamics">Size spectrum dynamics</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#consumer-densities">Consumer densities</a></li>
+      <li><a href="#traffic-on-the-road-to-adulthood">Traffic on the road to adulthood</a></li>
+      <li><a href="#plankton-density">Plankton density</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#growth">Growth</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#sec:pref">Predator-prey encounter rate</a></li>
       <li><a href="#consumption">Consumption</a></li>
       <li><a href="#metabolic-losses">Metabolic losses</a></li>
       <li><a href="#sec:repro">Investment into reproduction</a></li>
-      <li><a href="#density-dependence-in-reproduction">Density-dependence in reproduction</a></li>
-      <li><a href="#growth">Growth</a></li>
-      <li><a href="#mortality">Mortality</a></li>
+      <li><a href="#growth-1">Growth</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#mortality">Mortality</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#fishing-mortality">Fishing mortality</a></li>
+      <li><a href="#total-mortality">Total mortality</a></li>
       <li><a href="#plankton-mortality">Plankton Mortality</a></li>
-      <li><a href="#fishing">Fishing</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#reproduction">Reproduction</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#energy-invested-into-reproduction">Energy invested into reproduction</a></li>
+      <li><a href="#density-dependence-in-reproduction">Density-dependence in reproduction</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

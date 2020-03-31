@@ -39,8 +39,8 @@
 
 <meta property="og:title" content="Set predation kernel — setPredKernel" />
 <meta property="og:description" content="The predation kernel determines the distribution of prey sizes that a
-predator feeds on. It is used in getEncounter when calculating
-the rate at which food is encountered and in getPredRate when
+predator feeds on. It is used in getEncounter() when calculating
+the rate at which food is encountered and in getPredRate() when
 calculating the rate at which a prey is predated upon. The predation kernel
 can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
@@ -126,14 +126,14 @@ this function." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set predation kernel</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setPredKernel.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setPredKernel.R'><code>R/setPredKernel.R</code></a></small>
     <div class="hidden name"><code>setPredKernel.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>The predation kernel determines the distribution of prey sizes that a
-predator feeds on. It is used in <code><a href='getEncounter.html'>getEncounter</a></code> when calculating
-the rate at which food is encountered and in <code><a href='getPredRate.html'>getPredRate</a></code> when
+predator feeds on. It is used in <code><a href='getEncounter.html'>getEncounter()</a></code> when calculating
+the rate at which food is encountered and in <code><a href='getPredRate.html'>getPredRate()</a></code> when
 calculating the rate at which a prey is predated upon. The predation kernel
 can be a function of the predator/prey size ratio or it can be a function of
 the predator size and the prey size separately. Both types can be set up with
@@ -165,10 +165,10 @@ predation kernel".</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A MizerParams object with updated predation kernel. Because of the
-  way the R language works, `setPredKernel()` does not make the changes
-  to the params object that you pass to it but instead returns a new params
-  object. So to affect the change you call the function in the form
-  `params &lt;- setPredKernel(params, ...)`.</p>
+way the R language works, <code>setPredKernel()</code> does not make the changes
+to the params object that you pass to it but instead returns a new params
+object. So to affect the change you call the function in the form
+<code>params &lt;- setPredKernel(params, ...)</code>.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
     
@@ -179,10 +179,10 @@ predation kernel that depends only on the ratio of predator mass to prey
 mass, not on the two masses independently. The shape of that kernel is then
 determined by the <code>pred_kernel_type</code> column in species_params.</p>
 <p>The default pred_kernel_type is "lognormal". This will call the function
-<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code> to calculate the predation kernel.
+<code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code> to calculate the predation kernel.
 An alternative pred_kernel type is "box", implemented by the function
-<code><a href='box_pred_kernel.html'>box_pred_kernel</a></code>, and "power_law", implemented by the function
-<code><a href='power_law_pred_kernel.html'>power_law_pred_kernel</a></code>. These functions require certain species
+<code><a href='box_pred_kernel.html'>box_pred_kernel()</a></code>, and "power_law", implemented by the function
+<code><a href='power_law_pred_kernel.html'>power_law_pred_kernel()</a></code>. These functions require certain species
 parameters in the species_params data frame. For the lognormal kernel these
 are <code>beta</code> and <code>sigma</code>, for the box kernel they are <code>ppmr_min</code>
 and <code>ppmr_max</code>. They are explained in the help pages for the kernel
@@ -191,7 +191,7 @@ these parameters. If they are missing from the species_params data frame then
 mizer will issue an error message.</p>
 <p>You can use any other string as the type. If for example you choose "my" then
 you need to define a function <code>my_pred_kernel</code> that you can model on the
-existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel</a></code>.</p>
+existing functions like <code><a href='lognormal_pred_kernel.html'>lognormal_pred_kernel()</a></code>.</p>
 <p>When using a kernel that depends on the predator/prey size ratio only, mizer
 does not need to store the entire three dimensional array in the MizerParams
 object. Such an array can be very big when there is a large number of size
@@ -199,7 +199,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-<code><a href='getPredKernel.html'>getPredKernel</a></code> function.</p>
+<code><a href='getPredKernel.html'>getPredKernel()</a></code> function.</p>
 <p><strong>Kernel dependent on both predator and prey size</strong></p>
 <p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
@@ -209,7 +209,7 @@ predator/prey mass ratio is not appropriate. Using a kernel dependent on
 predator/prey mass ratio only allows mizer to use fast Fourier transform
 methods to significantly reduce the running time of simulations.</p>
 <p>The order of the predator species in <code>pred_kernel</code> should be the same
-as the order in the species params dataframe in the `params` object. If you
+as the order in the species params dataframe in the <code>params</code> object. If you
 supply a named array then the function will check the order and warn if it is
 different.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -221,10 +221,10 @@ different.</p>
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

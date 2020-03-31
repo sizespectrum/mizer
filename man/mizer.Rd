@@ -32,6 +32,7 @@ explored using a range of \code{\link[=plotting_functions]{plotting_functions()}
 \code{\link[=summary_functions]{summary_functions()}}.
 }
 
-See the mizer website and vignettes for full details of the principles behind
-mizer and how the package can be used to perform size-based modelling.
+See the \href{https://sizespectrum.org/mizer}{mizer website} for full details of
+the principles behind mizer and how the package can be used to perform
+size-based modelling.
 }

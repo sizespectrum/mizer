@@ -39,7 +39,7 @@
 
 <meta property="og:title" content="Deprecated function for setting up parameters for a community-type model — set_community_model" />
 <meta property="og:description" content="This function has been deprecated in favour of the function
-newCommunityParams that sets better default values." />
+newCommunityParams() that sets better default values." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -127,7 +127,7 @@ newCommunityParams that sets better default values." />
 
     <div class="ref-description">
     <p>This function has been deprecated in favour of the function
-<code><a href='newCommunityParams.html'>newCommunityParams</a></code> that sets better default values.</p>
+<code><a href='newCommunityParams.html'>newCommunityParams()</a></code> that sets better default values.</p>
     </div>
 
     <pre class="usage"><span class='fu'>set_community_model</span>(
@@ -158,8 +158,8 @@ newCommunityParams that sets better default values." />
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>max_w</th>
-      <td><p>The maximum size of the community. The <code>w_inf</code> of the 
-species used to represent the community is set to this value. The 
+      <td><p>The maximum size of the community. The <code>w_inf</code> of the
+species used to represent the community is set to this value. The
 default value is 1e6.</p></td>
     </tr>
     <tr>
@@ -205,13 +205,14 @@ is 1000.</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>The exponent of the plankton spectrum. Default value is 2 + q
-- n.</p></td>
+      <td><p>The exponent of the plankton spectrum. Default value is 2 + q</p><ul>
+<li><p>n.</p></li>
+</ul></td>
     </tr>
     <tr>
       <th>f0</th>
-      <td><p>The average feeding level of individuals who feed on a power-law 
-spectrum. This value is used to calculate the search rate parameter 
+      <td><p>The average feeding level of individuals who feed on a power-law
+spectrum. This value is used to calculate the search rate parameter
 <code>gamma</code> (see the package vignette). Default value is 0.7.</p></td>
     </tr>
     <tr>
@@ -220,29 +221,29 @@ spectrum. This value is used to calculate the search rate parameter
     </tr>
     <tr>
       <th>gamma</th>
-      <td><p>Volumetric search rate. Estimated using <code>h</code>, <code>f0</code> and 
+      <td><p>Volumetric search rate. Estimated using <code>h</code>, <code>f0</code> and
 <code>kappa</code> if not supplied.</p></td>
     </tr>
     <tr>
       <th>knife_edge_size</th>
-      <td><p>The size at the edge of the knife-selectivity 
+      <td><p>The size at the edge of the knife-selectivity
 function. Default value is 1000.</p></td>
     </tr>
     <tr>
       <th>knife_is_min</th>
-      <td><p>Is the knife-edge selectivity function selecting above 
+      <td><p>Is the knife-edge selectivity function selecting above
 (TRUE) or below (FALSE) the edge. Default is TRUE.</p></td>
     </tr>
     <tr>
       <th>recruitment</th>
       <td><p>The constant recruitment in the smallest size class of the
-community spectrum. This should be set so that the community spectrum 
-continues the plankton spectrum. Default value = <code>kappa</code> * 
+community spectrum. This should be set so that the community spectrum
+continues the plankton spectrum. Default value = <code>kappa</code> *
 <code>min_w</code>^-<code>lambda</code>.</p></td>
     </tr>
     <tr>
       <th>rec_mult</th>
-      <td><p>Additional multiplier for the constant recruitment. Default 
+      <td><p>Additional multiplier for the constant recruitment. Default
 value is 1.</p></td>
     </tr>
     <tr>
@@ -263,29 +264,29 @@ several features that distinguish it from the food-web type models. Only one
 community. The plankton spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
-energy invested in reproduction (the slot <code>psi</code> of the returned 
-<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned 
-off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is 
-now determined solely by the assimilated food (see the package vignette for 
+energy invested in reproduction (the slot <code>psi</code> of the returned
+<code>MizerParams</code> object) is set to 0. Standard metabolism has been turned
+off (the parameter <code>ks</code> is set to 0). Consequently, the growth rate is
+now determined solely by the assimilated food (see the package vignette for
 more details).</p>
-<p>The function has many arguments, all of which have default values. The main 
-arguments that the users should be concerned with are <code>z0</code>, 
+<p>The function has many arguments, all of which have default values. The main
+arguments that the users should be concerned with are <code>z0</code>,
 <code>recruitment</code>, <code>alpha</code> and <code>f0</code> as these determine the average
 growth rate of the community.</p>
-<p>Fishing selectivity is modelled as a knife-edge function with one parameter, 
-<code>knife_edge_size</code>, which determines the size at which species are 
+<p>Fishing selectivity is modelled as a knife-edge function with one parameter,
+<code>knife_edge_size</code>, which determines the size at which species are
 selected.</p>
-<p>The resulting <code>MizerParams</code> object can be projected forward using 
-<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting 
+<p>The resulting <code>MizerParams</code> object can be projected forward using
+<code><a href='project.html'>project()</a></code> like any other <code>MizerParams</code> object. When projecting
 the community model it may be necessary to keep a small time step size
 <code>dt</code> of around 0.1 to avoid any instabilities with the solver. You can
 check for these numerical instabilities by plotting the biomass or abundance
 through time after the projection.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-  individual efficiencies of size-structured communities, Proceedings of the 
-  Royal Society, 276, 109-114</p>
+    <p>K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+individual efficiencies of size-structured communities, Proceedings of the
+Royal Society, 276, 109-114</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other deprecated functions: 

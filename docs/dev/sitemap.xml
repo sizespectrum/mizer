@@ -283,6 +283,9 @@
     <loc>https://sizespectrum.org/mizer/reference/noRDD.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/params.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/plankton_constant.html</loc>
   </url>
   <url>
@@ -406,9 +409,6 @@
     <loc>https://sizespectrum.org/mizer/reference/sigmoid_weight.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/species_params.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/steady.html</loc>
   </url>
   <url>
@@ -430,13 +430,22 @@
     <loc>https://sizespectrum.org/mizer/reference/upgradeSim.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/validGearParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/validSpeciesParams.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/validate_effort_vector.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/w.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/wrapper_functions.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/x_lognormal_pred_kernel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
@@ -455,9 +464,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/installation.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/making_modifications.html</loc>

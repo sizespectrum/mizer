@@ -41,8 +41,8 @@
 <meta property="og:description" content="Runs the size spectrum model simulation.
 The function returns an object of type
 MizerSim that can then be explored with a range of
-summary_functions, indicator_functions and 
-plotting_functions." />
+summary_functions(), indicator_functions() and
+plotting_functions()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -132,8 +132,8 @@ plotting_functions." />
     <p>Runs the size spectrum model simulation.
 The function returns an object of type
 <a href='MizerSim-class.html'>MizerSim</a> that can then be explored with a range of
-<code><a href='summary_functions.html'>summary_functions</a></code>, <code><a href='indicator_functions.html'>indicator_functions</a></code> and 
-<code><a href='plotting_functions.html'>plotting_functions</a></code>.</p>
+<code><a href='summary_functions.html'>summary_functions()</a></code>, <code><a href='indicator_functions.html'>indicator_functions()</a></code> and
+<code><a href='plotting_functions.html'>plotting_functions()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>project</span>(
@@ -156,7 +156,7 @@ The function returns an object of type
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>object</th>
-      <td><p>Either a <a href='MizerParams-class.html'>MizerParams</a> object or a 
+      <td><p>Either a <a href='MizerParams-class.html'>MizerParams</a> object or a
 <a href='MizerSim-class.html'>MizerSim</a> object (which contains a <code>MizerParams</code> object).</p></td>
     </tr>
     <tr>
@@ -187,10 +187,10 @@ argument or a <code>MizerSim</code> for the <code>object</code> argument.</p></t
     </tr>
     <tr>
       <th>initial_n</th>
-      <td><p>The initial abundances of species. A matrix with dimensions 
-species x size. The order of species must be the same as in the 
-<code>MizerParams</code> argument. Ignored if the <code>object</code> argument is a 
-MizerSim object, but overrules the <code>initial_n</code> slot if <code>object</code> 
+      <td><p>The initial abundances of species. A matrix with dimensions
+species x size. The order of species must be the same as in the
+<code>MizerParams</code> argument. Ignored if the <code>object</code> argument is a
+MizerSim object, but overrules the <code>initial_n</code> slot if <code>object</code>
 is a <code>MizerParams</code> object.</p></td>
     </tr>
     <tr>
@@ -217,7 +217,7 @@ are appended to the previous ones. Only relevant if <code>object</code> is a
     <tr>
       <th>progress_bar</th>
       <td><p>Either a boolean value to determine whether a progress
-bar should be shown in the console of a shiny progress object to implement 
+bar should be shown in the console of a shiny progress object to implement
 a progress bar in a shiny app</p></td>
     </tr>
     <tr>
@@ -250,20 +250,20 @@ must be named and the names must correspond to the gear names in the
 is used during the interval from that time to the next time in the array.</p></li>
 </ul>
 
-<p>If effort is specified as an array then the smallest time in the array is 
+<p>If effort is specified as an array then the smallest time in the array is
 used as the initial time for the simulation. Otherwise the initial time is
-set to the final time of the previous simulation if <code>object</code> is a 
+set to the final time of the previous simulation if <code>object</code> is a
 <code>MizerSim</code> object or to <code>t_start</code> otherwise. Also, if the effort is
 an array then the <code>t_max</code> argument is ignored and the maximum simulation
 time is the largest time of the effort array.</p>
 <p>If the <code>object</code> argument is of class <code>MizerSim</code> then the initial
-values for the simulation are taken from the final values in the 
+values for the simulation are taken from the final values in the
 <code>MizerSim</code> object and the corresponding arguments to this function will
 be ignored.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='MizerParams.html'>MizerParams</a></code>, <code><a href='summary_functions.html'>summary_functions</a></code>,
-<code><a href='indicator_functions.html'>indicator_functions</a></code> and <code><a href='plotting_functions.html'>plotting_functions</a></code></p></div>
+    <div class='dont-index'><p><code><a href='MizerParams.html'>MizerParams()</a></code>, <code><a href='summary_functions.html'>summary_functions()</a></code>,
+<code><a href='indicator_functions.html'>indicator_functions()</a></code> and <code><a href='plotting_functions.html'>plotting_functions()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

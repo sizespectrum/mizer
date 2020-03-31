@@ -9,7 +9,7 @@ getZ(
   n = initial_n(params),
   n_pp = initial_n_pp(params),
   n_other = initial_n_other(params),
-  effort = params@initial_effort,
+  effort = getInitialEffort(params),
   f_mort = getFMort(params, effort),
   pred_mort = getPredMort(params, n = n, n_pp = n_pp, n_other = n_other)
 )

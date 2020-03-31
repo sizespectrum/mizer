@@ -120,7 +120,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set fishing parameters</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setFishing.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setFishing.R'><code>R/setFishing.R</code></a></small>
     <div class="hidden name"><code>setFishing.Rd</code></div>
     </div>
 
@@ -128,11 +128,23 @@
     <p>Set fishing parameters</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setFishing</span>(<span class='no'>params</span>, <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>setFishing</span>(
+  <span class='no'>params</span>,
+  <span class='kw'>selectivity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>catchability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>initial_effort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>
+)
+
+<span class='fu'>gear_params</span>(<span class='no'>params</span>)
+
+<span class='fu'>gear_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
 <span class='fu'>getCatchability</span>(<span class='no'>params</span>)
 
-<span class='fu'>getSelectivity</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>getSelectivity</span>(<span class='no'>params</span>)
+
+<span class='fu'>getInitialEffort</span>(<span class='no'>params</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,6 +152,16 @@
     <tr>
       <th>params</th>
       <td><p>A MizerParams object</p></td>
+    </tr>
+    <tr>
+      <th>selectivity</th>
+      <td><p>An array (gear x species x size) that holds the
+selectivity of each gear for species and size, \(S_{g,i,w}\).</p></td>
+    </tr>
+    <tr>
+      <th>catchability</th>
+      <td><p>An array (gear x species) that holds the catchability of
+each species by each gear, \(Q_{g,i}\).</p></td>
     </tr>
     <tr>
       <th>initial_effort</th>
@@ -150,6 +172,10 @@ a vector, must be named by gear.</p></td>
     <tr>
       <th>...</th>
       <td><p>Unused</p></td>
+    </tr>
+    <tr>
+      <th>value</th>
+      <td><p>A data frame with the gear parameters</p></td>
     </tr>
     </table>
 
@@ -175,46 +201,60 @@ species \(i\) at size \(w\) is calculated as:
 $$F_{g,i}(w) = S_{g,i}(w) Q_{g,i} E_{g},$$
 where \(S\) is the selectivity by species, gear and size, \(Q\) is the
 catchability by species and gear and \(E\) is the fishing effort by gear.</p>
-<p>At the moment a species can only be selected by one fishing gear, although
-each gear can select more than one species (this is a limitation with the
-current package that will be developed in future releases). The gear
-selecting each species can be specified in the <code>gear</code> column in the
-species_params data frame. If no gear is specified, the default gear is
-"knife_edge_gear".</p>
 <p><strong>Selectivity</strong></p>
-<p>The selectivity at size of each gear has a range between 0 (not selected at
-that size) to 1 (fully selected at that size). It is given by a selectivity
-function. The name of the selectivity function is given by the <code>sel_func</code>
-column in the species parameters data frame. Some selectivity functions are
-included in the package: <code><a href='knife_edge.html'>knife_edge()</a></code>, <code><a href='sigmoid_length.html'>sigmoid_length()</a></code>,
-<code><a href='double_sigmoid_length.html'>double_sigmoid_length()</a></code>, and <code><a href='sigmoid_weight.html'>sigmoid_weight()</a></code>. New functions can be defined
-by the user. Each
-gear has the same selectivity function for all the species it selects, but
-the parameter values for each species may be different, e.g. the lengths of
-species that a gear selects may be different.</p>
-<p>Each selectivity function has a range of parameters. Values for these
-parameters must be included as columns in the species parameters data.frame.
+<p>The selectivity at size of each gear for each species is saved as a three
+dimensional array (gear x species x size). Each entry has a range between 0
+(that gear is not selecting that species at that size) to 1 (that gear is
+selecting all individuals of that species of that size). This three
+dimensional array can be specified explicitly via the <code>selectivity</code>
+argument, but usually mizer calculates it from the <code>gear_params</code> slot of
+the MizerParams object.</p>
+<p>To allow the calculation of the <code>selectivity</code> array, the <code>gear_params</code> slot
+must be a data frame with one row for each gear-species combination. So if
+for example a gear can select three species, then that gear contributes three
+rows to the <code>gear_params</code> data frame, one for each species it can select. The
+data frame must have colunns <code>gear</code>, holding the name of the gear, <code>species</code>,
+holding the name of the species, and <code>sel_func</code>, holding the name of the
+function that calculates the selectivity curve. Some selectivity functions
+are included in the package: <code><a href='knife_edge.html'>knife_edge()</a></code>, <code><a href='sigmoid_length.html'>sigmoid_length()</a></code>,
+<code><a href='double_sigmoid_length.html'>double_sigmoid_length()</a></code>, and <code><a href='sigmoid_weight.html'>sigmoid_weight()</a></code>.
+Users are able to write their own size-based selectivity function. The first
+argument to the function must be <code>w</code> and the function must return a vector of
+the selectivity (between 0 and 1) at size.</p>
+<p>Each selectivity function may have parameters. Values for these
+parameters must be included as columns in the gear parameters data.frame.
 The names of the columns must exactly match the names of the corresponding
 arguments of the selectivity function. For example, the default selectivity
-function is <code><a href='knife_edge.html'>knife_edge()</a></code> which has sudden change of selectivity from 0 to 1
+function is <code><a href='knife_edge.html'>knife_edge()</a></code> that a has sudden change of selectivity from 0 to 1
 at a certain size. In its help page you can see that the <code><a href='knife_edge.html'>knife_edge()</a></code>
-function has arguments <code>w</code> and <code>knife_edge_size</code> The first argument, <code>w</code>, is
+function has arguments <code>w</code> and <code>knife_edge_size</code>. The first argument, <code>w</code>, is
 size (the function calculates selectivity at size). All selectivity functions
 must have <code>w</code> as the first argument. The values for the other arguments must
-be found in the species parameters data.frame. So for the <code><a href='knife_edge.html'>knife_edge()</a></code>
+be found in the gear parameters data.frame. So for the <code><a href='knife_edge.html'>knife_edge()</a></code>
 function there should be a <code>knife_edge_size</code> column. Because <code><a href='knife_edge.html'>knife_edge()</a></code>
 is the default selectivity function, the <code>knife_edge_size</code> argument has a
 default value = <code>w_mat</code>.</p>
-<p><strong>Catchability</strong></p>
-<p>Catchability is used as an additional scalar to make the link between gear
+<p>In case each species is only selected by one gear, the columns of the
+<code>gear_params</code> data frame can alternatively be provided as columns of the
+<code>species_params</code> data frame, if this is more convenient for the user to set
+up. Mizer will then copy these columns over to create the <code>gear_params</code> data
+frame when it creates the MizerParams object. However changing these columns
+in the species parameter data frame later will not update the <code>gear_params</code>
+data frame.
+<strong>Catchability</strong></p>
+<p>Catchability is used as an additional factor to make the link between gear
 selectivity, fishing effort and fishing mortality. For example, it can be set
-so that an effort of 1 gives a desired fishing mortality.
-In this way effort can then be specified relative to a 'base effort', e.g.
-the effort in a particular year.</p>
-<p>Because currently mizer only allows one gear to select each species, the
-catchability matrix \(Q_{g,i}\) reduces to a catchability vector
-\(Q_{i}\), and this is given as a column <code>catchability</code> in the species
-parameter data frame. If it is not specified, it defaults to 1.</p>
+so that an effort of 1 gives a desired fishing mortality. In this way effort
+can then be specified relative to a 'base effort', e.g. the effort in a
+particular year.</p>
+<p>Catchability is stored as a two dimensional array (gear x species). This can
+either be provided explicitly via the <code>catchability</code> argument, or the
+information can be provided via a <code>catchability</code> column in the <code>gear_params</code>
+data frame.</p>
+<p>In the case where each species is selected by only a single gear, the
+<code>catchability</code> column can also be provided in the <code>species_params</code> data
+frame. Mizer will then copy this over to the <code>gear_params</code> data frame when
+the MizerParams object is created.</p>
 <p><strong>Effort</strong></p>
 <p>The initial fishing effort is stored in the <code>MizerParams</code> object. If it is
 not supplied, it is set to zero. The initial effort can be overruled when
@@ -228,11 +268,11 @@ an effort that varies through time.</p>
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setParams.html'>setParams</a>()</code>,
 <code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
-<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
+<code><a href='setSearchVolume.html'>setSearchVolume</a>()</code>,
+<code><a href='setParams.html'>species_params</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

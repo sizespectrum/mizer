@@ -39,10 +39,18 @@
 
 <meta property="og:title" content="Upgrade MizerParams object from earlier mizer versions — upgradeParams" />
 <meta property="og:description" content="Occasionally during the development of new features for mizer, the
-MizerParams object gains extra slots. MizerParams objects created in older
-versions of mizer are then no longer valid in the new version because of
-the missing slots. This function adds the missing slots and fills them
-with default values. Any object from version 0.4 onwards can be upgraded." />
+MizerParams object gains extra slots. MizerParams objects
+created in older versions of mizer are then no longer valid in the new
+version because of the missing slots. You need to upgrade them withparams &amp;lt;- upgradeParams(params)
+
+
+where params should be replaced by the name of your MizerParams object.
+This function adds the missing slots and fills them with default values. Any
+object from version 0.4 onwards can be upgraded. Any old
+MizerSim objects should be similarly updated with
+upgradeSim(). This function uses newMultispeciesParams() to create a new
+MizerParams object using the parameters extracted from the old MizerParams
+object." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,16 +132,24 @@ with default values. Any object from version 0.4 onwards can be upgraded." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Upgrade MizerParams object from earlier mizer versions</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerParams-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerParams-class.R'><code>R/MizerParams-class.R</code></a></small>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/upgrade.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/upgrade.R'><code>R/upgrade.R</code></a></small>
     <div class="hidden name"><code>upgradeParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Occasionally during the development of new features for mizer, the
-MizerParams object gains extra slots. MizerParams objects created in older
-versions of mizer are then no longer valid in the new version because of
-the missing slots. This function adds the missing slots and fills them
-with default values. Any object from version 0.4 onwards can be upgraded.</p>
+<a href='MizerParams-class.html'>MizerParams</a> object gains extra slots. MizerParams objects
+created in older versions of mizer are then no longer valid in the new
+version because of the missing slots. You need to upgrade them with</p><pre>params &lt;- upgradeParams(params)
+</pre>
+
+<p>where <code>params</code> should be replaced by the name of your MizerParams object.
+This function adds the missing slots and fills them with default values. Any
+object from version 0.4 onwards can be upgraded. Any old
+<a href='MizerSim-class.html'>MizerSim</a> objects should be similarly updated with
+<code><a href='upgradeSim.html'>upgradeSim()</a></code>. This function uses <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> to create a new
+MizerParams object using the parameters extracted from the old MizerParams
+object.</p>
     </div>
 
     <pre class="usage"><span class='fu'>upgradeParams</span>(<span class='no'>params</span>)</pre>
@@ -150,13 +166,13 @@ with default values. Any object from version 0.4 onwards can be upgraded.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The upgraded MizerParams object</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="backwards-compatibility"><a class="anchor" href="#backwards-compatibility"></a>Backwards compatibility</h2>
 
-    <p>Uses <code><a href='newMultispeciesParams.html'>newMultispeciesParams()</a></code> to create a new MizerParams object using the
-parameters extracted from the old MizerParams object.</p>
+    
+
 <p>The internal numerics in mizer have changed over time, so there may be small
-discrepancies between the results obtained with the upgraded params object
-in the new version and the original params object in the old version. If it
+discrepancies between the results obtained with the upgraded object
+in the new version and the original object in the old version. If it
 is important for you to reproduce the exact results then you should install
 the version of mizer with which you obtained the results. You can do this
 with</p><pre>remotes::install_github("sizespectrum/mizer", ref = "v0.2")
@@ -178,7 +194,7 @@ the new version again with <code><a href='https://rdrr.io/r/base/readRDS.html'>s
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#backwards-compatibility">Backwards compatibility</a></li>
     </ul>
 
   </div>

@@ -4,14 +4,16 @@
 \alias{n_other}
 \title{Time series of other components}
 \usage{
-n_other(sim, component)
+n_other(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
+
+\item{component}{Optional name of desired component}
 }
 \value{
-A list array (time x component) that stores the projected
-values for other ecosystem components.
+A list array (time x component) that stores the projected values for
+other ecosystem components.
 }
 \description{
 Fetch the simulation results for other components over time.

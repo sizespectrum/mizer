@@ -67,7 +67,6 @@ reference:
     with the following functions. This is useful while tuning the model and for
     investigating the impact of changes in parameters.
   contents:
-  - species_params
   - setParams
   - setPredKernel
   - getPredKernel
@@ -80,7 +79,6 @@ reference:
   - setFishing
   - setPlankton
   - setInitialValues
-  - upgradeParams
   - params
   - summary,MizerParams-method
   - setRmax
@@ -197,7 +195,9 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
+  - upgradeParams
   - MizerSim-class
+  - upgradeSim
   - MizerSim
 - title: Example parameter sets
   contents:

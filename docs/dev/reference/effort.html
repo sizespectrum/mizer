@@ -38,7 +38,10 @@
   
 
 <meta property="og:title" content="Fishing effort used in simulation — effort" />
-<meta property="og:description" content="Fishing effort used in simulation" />
+<meta property="og:description" content="Note that the array returned may not be exactly the same as the effort
+argument that was passed in to project(). This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+t_save)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,7 +128,10 @@
     </div>
 
     <div class="ref-description">
-    <p>Fishing effort used in simulation</p>
+    <p>Note that the array returned may not be exactly the same as the <code>effort</code>
+argument that was passed in to <code><a href='project.html'>project()</a></code>. This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+<code>t_save</code>).</p>
     </div>
 
     <pre class="usage"><span class='fu'>effort</span>(<span class='no'>sim</span>)</pre>
@@ -141,8 +147,8 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array (time x gear) that stores the fishing effort by time and 
-  gear.</p>
+    <p>An array (time x gear) that stores the fishing effort by time and
+gear.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
