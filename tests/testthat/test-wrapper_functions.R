@@ -57,7 +57,7 @@ test_that("Scaling model is set up correctly", {
     alpha <- p@species_params$alpha[[sp]]
     h <- p@species_params$h[[sp]]
     ks <- p@species_params$ks[[sp]]
-    f0 <-0.6
+    f0 <- 0.6
     n <- p@species_params$n[[sp]]
     mu0 <- (1 - f0) * sqrt(2 * pi) * 
         p@plankton_params$kappa * gamma * sigma *
@@ -87,7 +87,7 @@ test_that("Scaling model is set up correctly", {
     gg <- g  # To set the right names
     gg[] <- hbar * p@w^p@species_params$n[[sp]] * (1 - p@psi[sp, ])
     # TODO: not precise enough yet
-    # expect_equal(g, gg, tolerance = 1e-4)
+    expect_equal(g, gg, tolerance = 1e-4)
     
     # Check that community is perfect power law
     expect_identical(p@sc, colSums(p@initial_n))
@@ -103,7 +103,7 @@ test_that("Scaling model is set up correctly", {
     
     # Check that total biomass changes little (relatively)
     bm <- getBiomass(sim)
-    expect_lt(max(abs(bm[1, ] - bm[6, ])), 4*10^(-5))
+    expect_lt(max(abs(bm[1, ] - bm[6, ])), 1.3e-4)
 })
 
 

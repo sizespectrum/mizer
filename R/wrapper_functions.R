@@ -238,7 +238,10 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param r_pp Growth rate parameter for the plankton spectrum.
 #' @param kappa Coefficient in abundance power law.
 #' @param alpha The assimilation efficiency of the community.
-#' @param ks Standard metabolism coefficient.
+#' @param ks Standard metabolism coefficient. If not provided, default will be
+#'   calculated from critical feeding level argument `fc`.
+#' @param fc Critical feeding level. Used to determine `ks` if it is not given
+#'   explicitly.
 #' @param h Maximum food intake rate.
 #' @param beta Preferred predator prey mass ratio.
 #' @param sigma Width of prey size preference.
@@ -262,8 +265,12 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param egg_size_scaling If TRUE, the egg size is a constant fraction of the
 #'   maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 #'   FALSE, all species have the egg size `w_min`.
+#' @param plankton_scaling If TRUE, the carrying capacity for larger plankton
+#'   is reduced to compensate for the fact that fish eggs and larvae are
+#'   present in the same size range.
 #' @param perfect_scaling If TRUE then parameters are set so that the community
-#'   abundance, growth before reproduction and death are perfect power laws.
+#'   abundance, growth before reproduction and death are perfect power laws. In
+#'   particular all other scaling corrections are turned on. 
 #' @export
 #' @return An object of type `MizerParams`
 #' @family functions for setting up models
@@ -280,7 +287,7 @@ newTraitParams <- function(no_sp = 11,
                            max_w = max_w_inf,
                            eta = 10^(-0.6),
                            min_w_mat = min_w_inf * eta,
-                           no_w = log10(max_w_inf / min_w) * 50 + 1,
+                           no_w = log10(max_w_inf / min_w) * 20 + 1,
                            min_w_pp = 1e-10,
                            w_pp_cutoff = min_w_mat,
                            n = 2 / 3,
@@ -289,7 +296,7 @@ newTraitParams <- function(no_sp = 11,
                            r_pp = 0.1,
                            kappa = 0.005,
                            alpha = 0.4,
-                           h = 30,
+                           h = 40,
                            beta = 100,
                            sigma = 1.3,
                            f0 = 0.6,
@@ -301,18 +308,22 @@ newTraitParams <- function(no_sp = 11,
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
+                           mortality_scaling = FALSE,
+                           plankton_scaling = FALSE,
                            perfect_scaling = FALSE) {
     
     ## Check validity of parameters ----
     assert_that(is.logical(egg_size_scaling),
+                is.logical(mortality_scaling),
+                is.logical(plankton_scaling),
                 is.logical(perfect_scaling))
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
-        stop("ext_mort_prop can not take the value ", ext_mort_prop,
+        stop("ext_mort_prop must be a number between 0 and 1",
              " because it should be the proportion of the total mortality",
              " coming from sources other than predation.")
     }
     if (rfac <= 1) {
-        message("rfac needs to be larger than 1. Setting rfac=1.01")
+        message("rfac needs to be larger than 1. Setting rfac = 1.01")
         rfac <- 1.01
     }
     no_w <- round(no_w)
@@ -347,13 +358,16 @@ newTraitParams <- function(no_sp = 11,
     if (!all(c(n, r_pp, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
         stop("The parameters n, lambda, r_pp, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")
-    }    
+    }
+    if (!is.na(fc) && (fc < 0 || fc > f0)) {
+        stop("The critical feeding level must lie between 0 and f0")
+    }
     # Check gears
     if (length(knife_edge_size) > no_sp) {
-        stop("There cannot be more gears than species in the model")
+        stop("knife_edge_size needs to be no longer than the number of species in the model")
     }
     if ((length(knife_edge_size) > 1) & (length(knife_edge_size) != no_sp)) {
-        warning("Number of gears is less than number of species so gear information is being recycled. Is this what you want?")
+        warning("Length of knife_edge_size is less than number of species so gear information is being recycled. Is this what you want?")
     }
     if ((length(gear_names) != 1) & (length(gear_names) != no_sp)) {
         stop("Length of gear_names argument must equal the number of species.")
@@ -361,6 +375,8 @@ newTraitParams <- function(no_sp = 11,
     
     if (perfect_scaling) {
         egg_size_scaling <- TRUE
+        mortality_scaling <- TRUE
+        plankton_scaling <- TRUE
         w_pp_cutoff <- Inf
         p <- n
     }
@@ -421,9 +437,18 @@ newTraitParams <- function(no_sp = 11,
         erepro = erepro,
         stringsAsFactors = FALSE
     )
+    gear_params <- data.frame(
+        gear = gear_names,
+        species = species_params$species,
+        sel_func = "knife_edge",
+        knife_edge_size = knife_edge_size,
+        catchability = 1,
+        stringsAsFactors = FALSE
+    )
     params <-
         newMultispeciesParams(
             species_params,
+            gear_params = gear_params,
             min_w = min_w,
             no_w = no_w,
             max_w = max_w,
@@ -435,11 +460,10 @@ newTraitParams <- function(no_sp = 11,
             min_w_pp = min_w_pp,
             r_pp = r_pp
         )
-    gear_params(params)$knife_edge_size <- knife_edge_size
-    gear_params(params)$gear <- gear_names
     
     w <- params@w
     dw <- params@dw
+    w_full <- params@w_full
     ks <- params@species_params$ks[[1]]
     
     ## Construct steady state solution ----
@@ -492,24 +516,31 @@ newTraitParams <- function(no_sp = 11,
     params@sc <- sc
     
     ##  Setup plankton ----
-    plankton_vec <- (kappa * w ^ (-lambda)) - sc
-    # Cut off plankton at w_pp_cutoff
-    plankton_vec[w >= w_pp_cutoff] <- 0
-    if (any(plankton_vec < 0)) {
-        message("Note: Negative plankton abundances")
-        if (!perfect_scaling) {
-            # Do not allow negative plankton abundance
-            message("Note: Negative plankton abundance values overwritten with zeros")
-            plankton_vec[plankton_vec < 0] <- 0
+    if (plankton_scaling) {
+        plankton_vec <- (kappa * w ^ (-lambda)) - sc
+        # Cut off plankton at w_pp_cutoff
+        plankton_vec[w >= w_pp_cutoff] <- 0
+        if (any(plankton_vec < 0)) {
+            if (!perfect_scaling) {
+                # Do not allow negative plankton abundance
+                message("Note: Negative plankton abundance values overwritten with zeros")
+                plankton_vec[plankton_vec < 0] <- 0
+            } else {
+                message("Note: Negative plankton abundances")
+            }
         }
+        params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
+            plankton_vec
     }
-    params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
-        plankton_vec
+    if (!perfect_scaling) {
+        params@cc_pp[w_full >= w_pp_cutoff] <- 0
+    }
+    
     initial_n_pp <- params@cc_pp
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
     m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
-    params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp/params@rr_pp
+    params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp / params@rr_pp
     
     ## Setup external death ----
     m2 <- getPredMort(params, initial_n, initial_n_pp)
@@ -523,12 +554,9 @@ newTraitParams <- function(no_sp = 11,
         params@mu_b[i,] <- mu0 * w ^ (n - 1) - m2[i, ]
         if (!perfect_scaling && any(params@mu_b[i,] < 0)) {
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
-            flag <- TRUE
         }
     }
-    if (flag) {
-        message("Note: Negative background mortality rates overwritten with zeros")
-    }
+    
     
     ## Set erepro to meet boundary condition ----
     rdi <- getRDI(params, initial_n, initial_n_pp)
@@ -549,6 +577,7 @@ newTraitParams <- function(no_sp = 11,
         erepro_final <- (rfac / (rfac - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
+    
     # Record abundance of fish and plankton at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
