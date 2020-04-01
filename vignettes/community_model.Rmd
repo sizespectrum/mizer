@@ -179,12 +179,12 @@ projected the model for $`r dim(pred_mort)[1]-1`$ time steps but the length of t
 dimension is $`r dim(pred_mort)[1]`$ as the initial population is also included as a
 time step. We can get the index of the final time with
 ```{r}
-final_idx(sim)
+idxFinalT(sim)
 ```
 
 To pull out the predation mortality at size in the final time step we use:
 ```{r label=m2_comm_final_time_step, results='hide'}
-pred_mort_final <- pred_mort[final_idx(sim), ]
+pred_mort_final <- pred_mort[idxFinalT(sim), ]
 ```
 
 If you plot this predation mortality on a log-log scale you can see how the

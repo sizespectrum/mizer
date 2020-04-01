@@ -125,7 +125,7 @@ valid_MizerSim <- function(object) {
 #' the species and the plankton population at size respectively. [effort()]
 #' returns the fishing effort of each gear through time. 
 #' [times()] returns the vector of times at which simulation results
-#' were stored and [final_idx()] returns the index with which to access
+#' were stored and [idxFinalT()] returns the index with which to access
 #' specifically the value at the final time in the arrays returned by the other
 #' functions. T[params()] returns the `MizerParams` object that was
 #' passed in to `project()`. There are also several
@@ -290,14 +290,14 @@ final_N_pp <- function(sim) {
 #' Time index at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return For `final_idx()`: An integer giving the index for extracting the
+#' @return For `idxFinalT()`: An integer giving the index for extracting the
 #'   results for the final time step
 #' @rdname final_n
 #' @export
 #' @examples
 #' \dontrun{
 #' sim <- project(NS_params, t_max = 12, t_save = 0.5)
-#' idx <- final_idx(sim)
+#' idx <- idxFinalT(sim)
 #' idx
 #' # This coincides with
 #' length(times(sim))
@@ -307,7 +307,7 @@ final_N_pp <- function(sim) {
 #' identical(N(sim)[idx, , ], final_N(sim))
 #' identical(N_pp(sim)[idx, ], final_N_pp(sim))
 #' }
-final_idx <- function(sim) {
+idxFinalT <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     dim(sim@n_pp)[[1]]
 }

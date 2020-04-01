@@ -186,7 +186,7 @@ We can access the abundance spectra of the species via `N(sim)`. This is a
 three-dimensional array (time x species x size). Let us first look at the
 abundance at the final time.
 ```{r}
-final_n <- N(sim)[final_idx(sim), , , drop = FALSE]
+final_n <- N(sim)[idxFinalT(sim), , , drop = FALSE]
 ```
 The `drop = FALSE` means that the result will again be a 3 dimensional array.
 ```{r}
@@ -245,7 +245,7 @@ example, we can include another line for the plankton spectrum. We first
 convert also the plankton abundance at the final time into a data frame and
 filter out the zero values
 ```{r}
-nf_pp <- melt(N_pp(sim)[final_idx(sim), , drop = FALSE]) %>% 
+nf_pp <- melt(N_pp(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
 This data frame only contains three variables, because it does not have the 
