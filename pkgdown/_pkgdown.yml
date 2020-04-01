@@ -201,7 +201,6 @@ reference:
 - title: Example parameter sets
   contents:
   - ends_with("_params")
-  - NS_species_params
   - NS_species_params_gears
   - inter
 - title: Deprecated
