@@ -26,9 +26,9 @@
 #' n_pp <- sim@@n_pp[21, ]
 #' getEncounter(params, n, n_pp)
 #' }
-getEncounter <- function(params, n = initial_n(params), 
-                         n_pp = initial_n_pp(params),
-                         n_other = initial_n_other(params)) {
+getEncounter <- function(params, n = initial_N(params), 
+                         n_pp = initial_N_pp(params),
+                         n_other = initial_N_other(params)) {
 
     f <- get(params@rates_funcs$Encounter)
     f(params, n = n, n_pp = n_pp, n_other = n_other)
@@ -162,9 +162,9 @@ getCriticalFeedingLevel <- function(params) {
 #' n_pp <- sim@@n_pp[21,]
 #' getPredRate(params,n,n_pp)
 #' }
-getPredRate <- function(params, n = initial_n(params), 
-                        n_pp = initial_n_pp(params),
-                        n_other = initial_n_other(params),
+getPredRate <- function(params, n = initial_N(params), 
+                        n_pp = initial_N_pp(params),
+                        n_other = initial_N_other(params),
                         feeding_level = getFeedingLevel(params, n = n,
                                                         n_pp = n_pp, 
                                                         n_other = n_other)
@@ -296,9 +296,9 @@ getM2 <- getPredMort
 #' getPlanktonMort(params,n,n_pp)
 #' }
 getPlanktonMort <- 
-    function(params, n = initial_n(params), 
-             n_pp = initial_n_pp(params),
-             n_other = initial_n_other(params),
+    function(params, n = initial_N(params), 
+             n_pp = initial_N_pp(params),
+             n_other = initial_N_other(params),
              pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                      n_other = n_other)) {
 
@@ -550,9 +550,9 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' getMort(params,sim@@n[21,,],sim@@n_pp[21,],effort=0.5)
 #' }
 getMort <- function(params, 
-                    n = initial_n(params), 
-                    n_pp = initial_n_pp(params),
-                    n_other = initial_n_other(params),
+                    n = initial_N(params), 
+                    n_pp = initial_N_pp(params),
+                    n_other = initial_N_other(params),
                     effort = getInitialEffort(params),
                     f_mort = getFMort(params, effort),
                     pred_mort = getPredMort(params, n = n, n_pp = n_pp, 
@@ -636,9 +636,9 @@ getZ <- getMort
 #' # Get the energy at a particular time step
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEReproAndGrowth <- function(params, n = initial_n(params), 
-                               n_pp = initial_n_pp(params),
-                               n_other = initial_n_other(params),
+getEReproAndGrowth <- function(params, n = initial_N(params), 
+                               n_pp = initial_N_pp(params),
+                               n_other = initial_N_other(params),
                                encounter = getEncounter(params, n = n,
                                                         n_pp = n_pp, 
                                                         n_other = n_other),
@@ -689,9 +689,9 @@ getEReproAndGrowth <- function(params, n = initial_n(params),
 #' # Get the energy at a particular time step
 #' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getERepro <- function(params, n = initial_n(params), 
-                      n_pp = initial_n_pp(params),
-                      n_other = initial_n_other(params),
+getERepro <- function(params, n = initial_N(params), 
+                      n_pp = initial_N_pp(params),
+                      n_other = initial_N_other(params),
                       e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                              n_other = n_other)) {
     if (!all(dim(e) == c(nrow(params@species_params), length(params@w)))) {
@@ -739,9 +739,9 @@ getESpawning <- getERepro
 #' # Get the energy at a particular time step
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getEGrowth <- function(params, n = initial_n(params), 
-                       n_pp = initial_n_pp(params),
-                       n_other = initial_n_other(params),
+getEGrowth <- function(params, n = initial_N(params), 
+                       n_pp = initial_N_pp(params),
+                       n_other = initial_N_other(params),
                        e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                            n_other = n_other),
                        e = getEReproAndGrowth(params, n = n, n_pp = n_pp, 
@@ -785,9 +785,9 @@ getEGrowth <- function(params, n = initial_n(params),
 #' # Get the density-independent reproduction rate at a particular time step
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDI <- function(params, n = initial_n(params), 
-                   n_pp = initial_n_pp(params),
-                   n_other = initial_n_other(params),
+getRDI <- function(params, n = initial_N(params), 
+                   n_pp = initial_N_pp(params),
+                   n_other = initial_N_other(params),
                    e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                        n_other = n_other)) {
     if (!all(dim(e_repro) == c(nrow(params@species_params), length(params@w)))) {
@@ -827,9 +827,9 @@ getRDI <- function(params, n = initial_n(params),
 #' # Get the rate at a particular time step
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
-getRDD <- function(params, n = initial_n(params), 
-                   n_pp = initial_n_pp(params),
-                   n_other = initial_n_other(params),
+getRDD <- function(params, n = initial_N(params), 
+                   n_pp = initial_N_pp(params),
+                   n_other = initial_N_other(params),
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other)) {
     # Avoid getting into infinite loops

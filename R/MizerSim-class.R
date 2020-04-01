@@ -121,7 +121,7 @@ valid_MizerSim <- function(object) {
 #' 
 #' As a user you should never have to access the slots of a MizerSim object
 #' directly. Instead there are a range of functions to extract the information.
-#' [n()] and [n_pp()] return arrays with the saved abundances of
+#' [N()] and [N_pp()] return arrays with the saved abundances of
 #' the species and the plankton population at size respectively. [effort()]
 #' returns the fishing effort of each gear through time. 
 #' [times()] returns the vector of times at which simulation results
@@ -246,7 +246,7 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
 #' @return A three-dimensional array (time x species x size) with the number
 #'   density of consumers
 #' @export
-n <- function(sim) {
+N <- function(sim) {
     sim@n
 }
 
@@ -257,7 +257,7 @@ n <- function(sim) {
 #' @param sim A MizerSim object
 #' @return An array (time x size) with the number density of plankton
 #' @export
-n_pp <- function(sim) {
+N_pp <- function(sim) {
     sim@n_pp
 }
 
@@ -265,10 +265,10 @@ n_pp <- function(sim) {
 #' Consumer size spectra at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return For `final_n()`: An array (species x size) holding the consumer
+#' @return For `final_N()`: An array (species x size) holding the consumer
 #'   number densities at the end of the simulation
 #' @export
-final_n <- function(sim) {
+final_N <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     n <- sim@params@initial_n  # Needed to get the right dimnames
     n[] <- sim@n[dim(sim@n)[[1]], , ]
@@ -278,11 +278,11 @@ final_n <- function(sim) {
 #' Plankton size spectrum at end of simulation
 #' 
 #' @param sim A MizerSim object
-#' @return For `final_n_pp()`: A vector holding the plankton number densities at
+#' @return For `final_N_pp()`: A vector holding the plankton number densities at
 #'   the end of the simulation for all size classes
 #' @rdname final_n
 #' @export
-final_n_pp <- function(sim) {
+final_N_pp <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp[dim(sim@n_pp)[[1]], ]
 }
@@ -304,8 +304,8 @@ final_n_pp <- function(sim) {
 #' # and corresponds to the final time
 #' times(sim)[idx]
 #' # We can use this index to extract the result at the final time
-#' identical(n(sim)[idx, , ], final_n(sim))
-#' identical(n_pp(sim)[idx, ], final_n_pp(sim))
+#' identical(N(sim)[idx, , ], final_N(sim))
+#' identical(N_pp(sim)[idx, ], final_N_pp(sim))
 #' }
 final_idx <- function(sim) {
     assert_that(is(sim, "MizerSim"))

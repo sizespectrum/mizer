@@ -41,7 +41,7 @@ setInitialValues <- function(params, sim) {
 #' @param value A matrix with dimensions species x size holding the initial
 #'   number densities for the fish spectra.
 #' @export
-`initial_n<-` <- function(params, value) {
+`initial_N<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
                 identical(dim(value), dim(params@initial_n)),
                 all(value >= 0))
@@ -53,9 +53,9 @@ setInitialValues <- function(params, sim) {
     params
 }
 
-#' @rdname initial_n-set
+#' @rdname initial_N-set
 #' @export
-initial_n <- function(params) {
+initial_N <- function(params) {
     params@initial_n
 }
 
@@ -67,7 +67,7 @@ initial_n <- function(params) {
 #' @param value A vector with the initial number densities for the plankton
 #'   spectrum
 #' @export
-`initial_n_pp<-` <- function(params, value) {
+`initial_N_pp<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
                 identical(dim(value), dim(params@initial_n_pp)),
                 all(value >= 0))
@@ -79,8 +79,8 @@ initial_n <- function(params) {
     params
 }
 
-#' @rdname initial_n_pp-set
+#' @rdname initial_N_pp-set
 #' @export
-initial_n_pp <- function(params) {
+initial_N_pp <- function(params) {
     params@initial_n_pp
 }

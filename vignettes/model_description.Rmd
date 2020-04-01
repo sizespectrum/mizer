@@ -66,7 +66,7 @@ This grid is set up automatically when creating a MizerParams object.
 In the code the size spectrum is stored as an array such that `n[i, a]`
 holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
 dependence is included, an array such that `n[i, a, u]`
-holds $N_i(w_a,t_u)$. See `n()`.
+holds $N_i(w_a,t_u)$. See `N()`.
 
 Note that, contrary to what one might have expected,
 `n[i, a]` is not the *number* of individuals in a size bin

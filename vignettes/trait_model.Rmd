@@ -180,23 +180,23 @@ plot(sim1)
 
 The trophic cascade can be explored by comparing the total abundances of all
 species at size when the community is fished and unfished. As mentioned above,
-we obtain the abundances with  `n(sim)`, which returns a three dimensional array
+we obtain the abundances with  `N(sim)`, which returns a three dimensional array
 with dimensions time x species x size. Here we have 76 time steps (75 from the
 simulation plus one which stores the initial population), 10 species and 100
 sizes:
 
 ```{r label=trait_dim_n}
-dim(n(sim0))
+dim(N(sim0))
 ```
 
 As with the community model, we are interested in the relative total abundances
-by size in the final time step so we use the `final_n()` function. This gives us
+by size in the final time step so we use the `final_N()` function. This gives us
 a matrix with one row per species and one column per size bin. We sum in each
 coloum to get a vector with the total abundance per size bin:
 
 ```{r label = total_abund_trait}
-total_abund0 <- colSums(final_n(sim0))
-total_abund1 <- colSums(final_n(sim1))
+total_abund0 <- colSums(final_N(sim0))
+total_abund1 <- colSums(final_N(sim1))
 ```
 
 We can then use these vectors to calculate the relative abundances:
@@ -229,8 +229,8 @@ the same for each species. Therefore we only look at the predation mortality of
 the first species.
 
 ```{r label='get_M2_trait'}
-m2_no_fishing <- getPredMort(params, final_n(sim0))[1, ]
-m2_with_fishing <- getPredMort(params, final_n(sim1))[1, ]
+m2_no_fishing <- getPredMort(params, final_N(sim0))[1, ]
+m2_with_fishing <- getPredMort(params, final_N(sim1))[1, ]
 ```
 
 The predation mortalities can then be plotted.
@@ -353,8 +353,8 @@ of the fished (`sim_industrial1`) and unfished (`sim_industrial0`) cases:
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
 sim_industrial1 <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
-total_abund0 <- apply(final_n(sim_industrial0), 2, sum)
-total_abund1 <- apply(final_n(sim_industrial1), 2, sum)
+total_abund0 <- apply(final_N(sim_industrial0), 2, sum)
+total_abund1 <- apply(final_N(sim_industrial1), 2, sum)
 relative_abundance <- total_abund1 / total_abund0
 ```
 

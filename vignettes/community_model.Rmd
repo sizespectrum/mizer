@@ -258,25 +258,25 @@ plot(sim1, power = 2)
 To explore the presence of a trophic cascade, we are interested in looking at
 the relative change in abundance when the community is fished compared to when
 it is not fished. To do this we need to get the abundances at size from the
-simulation objects. This is done with the `n()` function, which returns a three
+simulation objects. This is done with the `N()` function, which returns a three
 dimensional array with dimensions time x species x size. Here we have 51 time
 steps (50 from the simulation plus one which stores the initial population), 1
 species and 100 sizes:
 
 ```{r label='dim_n'}
-dim(n(sim0))
+dim(N(sim0))
 ```
 
 We want the abundances in the final time step, and we can use these to calculate
 the relative abundances:
 
 ```{r label='relative_comm_abundance'}
-relative_abundance <- n(sim1)[51, , ] / n(sim0)[51, , ]
+relative_abundance <- N(sim1)[51, , ] / N(sim0)[51, , ]
 ```
 For convenience, to save you from having to determine the index of the final 
-time, mizer provides the function `final_n()`, so we could have done
+time, mizer provides the function `final_N()`, so we could have done
 ```{r label='relative_comm_abundance_simple'}
-relative_abundance <- final_n(sim1) / final_n(sim0)
+relative_abundance <- final_N(sim1) / final_N(sim0)
 ```
 
 This can then be plotted using basic R plotting commands.

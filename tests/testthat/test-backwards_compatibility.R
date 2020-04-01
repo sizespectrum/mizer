@@ -32,12 +32,12 @@ test_that("MizerParams() works as in version 1", {
     #     scale_x_log10() +
     #     scale_y_log10()
     # max(abs(old - new))
-    expect_known_value(getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params)), 
+    expect_known_value(getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params)), 
                        "values/set_multispecies_model_phi_prey",
                        check.attributes = FALSE,
                        tolerance = 0.0005)
     # The discrepancy is small, see the following graph:
-    # new <- getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params))
+    # new <- getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params))
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_multispecies_model_phi_prey")
     # dimnames(old) <- dimnames(new)
@@ -76,12 +76,12 @@ test_that("set_trait_model() works as in version 1", {
     #     geom_line((aes(x = w_prey, y = value, colour = sp, linetype = type))) +
     #     scale_x_log10() +
     #     scale_y_log10()
-    expect_known_value(getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params)), 
+    expect_known_value(getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params)), 
                        "values/set_trait_phi_prey",
                        check.attributes = FALSE,
                        tolerance = 1e-5)
     # The discrepancy is too small to see in the following graph:
-    # new <- getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params))
+    # new <- getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params))
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_trait_phi_prey")
     # dimnames(old) <- dimnames(new)
@@ -121,12 +121,12 @@ test_that("set_community_model() works as in version 1", {
     #     scale_x_log10() +
     #     scale_y_log10()
     # max(abs(new - old))
-    expect_known_value(getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params)), 
+    expect_known_value(getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params)), 
                        "values/set_community_phi_prey",
                        check.attributes = FALSE,
                        tolerance = 42)
     # The discrepancy is small, see the following graph:
-    # new <- getPhiPrey(params, n = initial_n(params), n_pp = initial_n_pp(params))
+    # new <- getPhiPrey(params, n = initial_N(params), n_pp = initial_N_pp(params))
     # df <- melt(new) %>% mutate(type = "new")
     # old <- readRDS("values/set_community_phi_prey")
     # dimnames(old) <- dimnames(new)

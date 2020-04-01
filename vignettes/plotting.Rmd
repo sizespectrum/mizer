@@ -182,11 +182,11 @@ Again note the American spelling "colors" required by plotly.
 Of course mizer has the `plotSpectra()` function for plotting size spectra.
 Again it is instructional to create such plots by hand.
 
-We can access the abundance spectra of the species via `n(sim)`. This is a
+We can access the abundance spectra of the species via `N(sim)`. This is a
 three-dimensional array (time x species x size). Let us first look at the
 abundance at the final time.
 ```{r}
-final_n <- n(sim)[final_idx(sim), , , drop = FALSE]
+final_n <- N(sim)[final_idx(sim), , , drop = FALSE]
 ```
 The `drop = FALSE` means that the result will again be a 3 dimensional array.
 ```{r}
@@ -197,8 +197,8 @@ We use the `melt()` function to convert this array into a data frame.
 nf <- melt(final_n)
 ```
 This has created a data frame with 4 variables and one observation for each
-of the `r nrow(nf)` entries in the `1` x `r dim(n_final)[2]` x
-`rdim(n_final)[3]` matrix `final_n`.
+of the `r nrow(nf)` entries in the `1` x `r dim(final_n)[2]` x
+`rdim(final_n)[3]` matrix `final_n`.
 ```{r}
 str(nf)
 ```
@@ -245,7 +245,7 @@ example, we can include another line for the plankton spectrum. We first
 convert also the plankton abundance at the final time into a data frame and
 filter out the zero values
 ```{r}
-nf_pp <- melt(n_pp(sim)[final_idx(sim), , drop = FALSE]) %>% 
+nf_pp <- melt(N_pp(sim)[final_idx(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
 This data frame only contains three variables, because it does not have the 
@@ -316,11 +316,11 @@ Note how in plotly the range is specified by giving the logarithm to base 10 of 
 ## Animating spectra
 
 Instead of picking out a specific time we can ask plotly to make an animation
-showing the changing spectra over time. So we melt the entire `n(sim)` array and
+showing the changing spectra over time. So we melt the entire `N(sim)` array and
 use the time variable to specify the frames with the `frame = ~time` argument
 to `add_lines()`:
 ```{r}
-melt(n(sim)) %>% 
+melt(N(sim)) %>% 
     filter(value > 0) %>% 
     plot_ly() %>% 
     add_lines(x = ~w, y = ~value, 

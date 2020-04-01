@@ -85,16 +85,16 @@ reference:
 - title: Running simulations
   contents:
   - project
-  - initial_n
-  - initial_n_pp
+  - initial_N
+  - initial_N_pp
   - setInitialValues
   - steady
 - title: Accessing results
   contents:
-  - "n"
-  - n_pp
-  - final_n
-  - final_n_pp
+  - "N"
+  - N_pp
+  - final_N_pp
+  - final_N_pp
   - final_idx
   - effort
   - times
@@ -143,9 +143,9 @@ reference:
   contents:
   - setRateFunction
   - setComponent
-  - initial_n_other
-  - n_other
-  - final_n_other
+  - initial_N_other
+  - N_other
+  - final_N_other
 - title: Predation kernels
   contents:
   - lognormal_pred_kernel
