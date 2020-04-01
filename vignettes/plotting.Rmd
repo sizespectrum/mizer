@@ -194,7 +194,7 @@ str(final_n)
 ```
 We use the `melt()` function to convert this array into a data frame.
 ```{r}
-nf <- melt(final_n(sim))
+nf <- melt(final_n)
 ```
 This has created a data frame with 4 variables and one observation for each
 of the `r nrow(nf)` entries in the `1` x `r dim(n_final)[2]` x
@@ -245,7 +245,7 @@ example, we can include another line for the plankton spectrum. We first
 convert also the plankton abundance at the final time into a data frame and
 filter out the zero values
 ```{r}
-nf_pp <- melt(n_pp(sim)[final_idx, , drop = FALSE]) %>% 
+nf_pp <- melt(n_pp(sim)[final_idx(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
 This data frame only contains three variables, because it does not have the 
