@@ -73,7 +73,7 @@ The MizerParams object now also contains the initial values for the size
 spectra. This is particularly useful if the model has been tuned to produce
 the observed steady state. The new function `steady()` finds a steady state
 for a model and sets it as the initial value. The initial values can be
-accessed and changed via functions `initial_N()` and `initial_N_pp()`. The
+accessed and changed via functions `initialN()` and `initialNPlankton()`. The
 initial values can be set to the final values of a previous simulation with
 `setInitialValues()`.
 
@@ -141,7 +141,7 @@ written to generalise the mizer model. More documentation to follow.
   them in a list.
 * A convenience function `times()` to extract the times at which simulation 
   results are saved in a MizerSim object.
-* Convenience functions `final_N()`, `final_N_pp()` and `final_N_other` to
+* Convenience functions `finalN()`, `finalNPlankton()` and `finalNOther` to
   access the values at the final time of a simulation.
 * New function `getCriticalFeedingLevel()` returns the critical feeding level
   for each species at each size.

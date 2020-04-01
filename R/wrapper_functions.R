@@ -138,7 +138,7 @@ newCommunityParams <- function(max_w = 1e6,
     
     initial_n <- array(kappa * params@w ^ (-lambda), 
                        dim = c(1, length(params@w)))
-    initial_N(params) <- initial_n
+    initialN(params) <- initial_n
 
     params@rates_funcs$RDD <- "constantRDD"
     if (missing(reproduction)) {

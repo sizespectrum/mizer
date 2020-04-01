@@ -90,7 +90,7 @@ setComponent <- function(params, component, initial_value,
     params@other_pred_mort[[component]] <- pred_mort_fun
     params@other_encounter[[component]] <- encounter_fun
     params@other_params[[component]] <- component_params
-    initial_N_other(params)[[component]] <- initial_value
+    initialNOther(params)[[component]] <- initial_value
 }
 
 #' Get information about other ecosystem components
@@ -109,7 +109,7 @@ getComponent <- function(params, component) {
                function(x) getComponent(params, x))
     }
     comp_list <- list(
-        initial_value = initial_N_other(params)[[component]],
+        initial_value = initialNOther(params)[[component]],
         component_params = params@other_params[[component]],
         dynamics_fun = params@other_dynamics[[component]],
         mortality_fun = params@other_mort[[component]],
@@ -125,16 +125,16 @@ getComponent <- function(params, component) {
 #' @param params A MizerParams object
 #' @param value A named list with the initial values of other ecosystem components
 #' @export
-`initial_N_other<-` <- function(params, value) {
+`initialNOther<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),
                 is.list(value))
     params@initial_n_other <- value
     params
 }
 
-#' @rdname initial_N_other-set
+#' @rdname initialNOther-set
 #' @export
-initial_N_other <- function(params) {
+initialNOther <- function(params) {
     params@initial_n_other
 }
 
@@ -148,7 +148,7 @@ initial_N_other <- function(params) {
 #' @return A list array (time x component) that stores the projected values for
 #'   other ecosystem components.
 #' @export
-N_other <- function(sim) {
+NOther <- function(sim) {
     return(sim@n_other)
 }
 
@@ -159,7 +159,7 @@ N_other <- function(sim) {
 #' @return A named list holding the values of other ecosystem components at the
 #'   end of the simulation
 #' @export
-final_N_other <- function(sim) {
+finalNOther <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_other[dim(sim@n)[[1]], ]
 }

@@ -58,8 +58,8 @@ NULL
 #' @family summary functions
 #' @concept summary_function
 getDiet <- function(params, 
-                    n = initial_N(params), 
-                    n_pp = initial_N_pp(params),
+                    n = initialN(params), 
+                    n_pp = initialNPlankton(params),
                     proportion = TRUE) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),

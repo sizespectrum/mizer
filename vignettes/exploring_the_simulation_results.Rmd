@@ -68,18 +68,18 @@ output is only saved every year.
 Often we are particularly interested in the results at the final time-step.
 These we can access with
 ```{r results='hide'}
-final_N(sim)
+finalN(sim)
 ```
 which is a two dimensional array (species x size).
 
 The projected plankton abundances can be accesses similarly with
 ```{r results='hide'}
-N_pp(sim)
+NPlankton(sim)
 ```
 This returns a two-dimensional array (time x size). And if we are only
 interested in the final time step
 ```{r results='hide'}
-final_N_pp(sim)
+finalNPlankton(sim)
 ```
 returns a vector with one entry for each size class.
 

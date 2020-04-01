@@ -135,7 +135,7 @@ reproduction will be described further below.
 
 ## Plankton density
 
-Besides the fish spectrum there is also a plankton spectrum $N_pp(w)$,
+Besides the fish spectrum there is also a plankton spectrum $NPlankton(w)$,
 representing for example the phytoplankton. This spectrum starts at a smaller
 size than the fish spectrum, in order to provide food also for the smallest
 individuals (larvae) of the fish spectrum.

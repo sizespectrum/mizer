@@ -203,7 +203,7 @@ summary(sim)
 
 If we decrease `t_save` but keep `t_max` the same then we can see that the time
 dimension of the `effort` array changes accordingly. This will also be true of
-the simulation results returned by `N()` and `N_pp()`. Here we reduce `t_save`
+the simulation results returned by `N()` and `NPlankton()`. Here we reduce `t_save`
 to 0.5, meaning that the effort and abundance information is stored at t = 1.0,
 1.5, 2.0 etc.
 

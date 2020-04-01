@@ -245,7 +245,7 @@ example, we can include another line for the plankton spectrum. We first
 convert also the plankton abundance at the final time into a data frame and
 filter out the zero values
 ```{r}
-nf_pp <- melt(N_pp(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
+nf_pp <- melt(NPlankton(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
 This data frame only contains three variables, because it does not have the 

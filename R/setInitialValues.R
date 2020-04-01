@@ -41,9 +41,12 @@ setInitialValues <- function(params, sim) {
 #' @param value A matrix with dimensions species x size holding the initial
 #'   number densities for the fish spectra.
 #' @export
-`initial_N<-` <- function(params, value) {
-    assert_that(is(params, "MizerParams"),
-                identical(dim(value), dim(params@initial_n)),
+`initialN<-` <- function(params, value) {
+    if (!is(params, "MizerParams")) {
+        stop("You can only assign an initial N to a MizerParams object. ",
+             params, " is of class ", class(params), ".")
+    }
+    assert_that(identical(dim(value), dim(params@initial_n)),
                 all(value >= 0))
     if (!is.null(dimnames(value)) &&
         !identical(dimnames(value), dimnames(params@initial_n))) {
@@ -53,10 +56,16 @@ setInitialValues <- function(params, sim) {
     params
 }
 
-#' @rdname initial_N-set
+#' @rdname initialN-set
+#' @param object An object of class MizerParams or MizerSim
 #' @export
-initial_N <- function(params) {
-    params@initial_n
+initialN <- function(object) {
+    if (is(object, "MizerParams")) {
+        return(object@initial_n)
+    }
+    if (is(object, "MizerSim")) {
+        return(object@params@initial_n)
+    }
 }
 
 #' Initial value for plankton spectrum
@@ -67,9 +76,12 @@ initial_N <- function(params) {
 #' @param value A vector with the initial number densities for the plankton
 #'   spectrum
 #' @export
-`initial_N_pp<-` <- function(params, value) {
-    assert_that(is(params, "MizerParams"),
-                identical(dim(value), dim(params@initial_n_pp)),
+`initialNPlankton<-` <- function(params, value) {
+    if (!is(params, "MizerParams")) {
+        stop("You can only assign an initial N to a MizerParams object. ",
+             params, " is of class ", class(params), ".")
+    }
+    assert_that(identical(dim(value), dim(params@initial_n_pp)),
                 all(value >= 0))
     if (!is.null(dimnames(value)) &&
         !identical(dimnames(value), dimnames(params@initial_n_pp))) {
@@ -79,8 +91,14 @@ initial_N <- function(params) {
     params
 }
 
-#' @rdname initial_N_pp-set
+#' @rdname initialNPlankton-set
+#' @param object An object of class MizerParams or MizerSim
 #' @export
-initial_N_pp <- function(params) {
-    params@initial_n_pp
+initialNPlankton <- function(object) {
+    if (is(object, "MizerParams")) {
+        return(object@initial_n_pp)
+    }
+    if (is(object, "MizerSim")) {
+        return(object@params@initial_n_pp)
+    }
 }
