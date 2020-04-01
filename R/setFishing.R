@@ -303,6 +303,11 @@ validGearParams <- function(gear_params, species_params) {
             stop("Some selectivity parameters are NA.")
         }
     }
+    if (!("catchability" %in% colnames(gear_params))) {
+        gear_params$catchability <- 1
+    }
+    gear_params$catchability[is.na(gear_params$catchability)] <- 1
+
     gear_params
 }
 
