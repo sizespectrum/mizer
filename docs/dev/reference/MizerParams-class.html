@@ -268,7 +268,11 @@ ecosystem components. Has length zero if there are no other components.</p></dd>
 Used to give consistent colours in plots.</p></dd>
 
 <dt><code>linetype</code></dt><dd><p>A named vector of linetypes, named by species.
-Used to give consistent line types in plots.The MizerParams class is fairly complex with a large number of
+Used to give consistent line types in plots.</p></dd>
+
+<dt><code>ft_mask</code></dt><dd><p>An array (species x w_full) with zeros for weights larger than
+the asymptotic weight of each species. Used to efficiently minimize
+wrap-around errors in Fourier transform calculations.The MizerParams class is fairly complex with a large number of
 slots, many of which are multidimensional arrays. The dimensions of these
 arrays is strictly enforced so that <code>MizerParams</code> objects are consistent
 in terms of number of species and number of size classes.The <code>MizerParams</code> class does not hold any dynamic information, e.g.

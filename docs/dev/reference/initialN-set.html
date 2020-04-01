@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Initial value for plankton spectrum — initial_n_pp&lt;- • mizer</title>
+<title>Initial values for fish spectra — initialN&lt;- • mizer</title>
 
 
 <!-- jquery -->
@@ -37,8 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Initial value for plankton spectrum — initial_n_pp&lt;-" />
-<meta property="og:description" content="Value used as starting value for simulations with project()." />
+<meta property="og:title" content="Initial values for fish spectra — initialN&lt;-" />
+<meta property="og:description" content="Values used as starting values for simulations with project()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -119,18 +119,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Initial value for plankton spectrum</h1>
+    <h1>Initial values for fish spectra</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setInitialValues.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setInitialValues.R'><code>R/setInitialValues.R</code></a></small>
-    <div class="hidden name"><code>initial_n_pp-set.Rd</code></div>
+    <div class="hidden name"><code>initialN-set.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Value used as starting value for simulations with <code><a href='project.html'>project()</a></code>.</p>
+    <p>Values used as starting values for simulations with <code><a href='project.html'>project()</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>initial_n_pp</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+    <pre class="usage"><span class='fu'>initialN</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
-<span class='fu'>initial_n_pp</span>(<span class='no'>params</span>)</pre>
+<span class='fu'>initialN</span>(<span class='no'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,8 +141,12 @@
     </tr>
     <tr>
       <th>value</th>
-      <td><p>A vector with the initial number densities for the plankton
-spectrum</p></td>
+      <td><p>A matrix with dimensions species x size holding the initial
+number densities for the fish spectra.</p></td>
+    </tr>
+    <tr>
+      <th>object</th>
+      <td><p>An object of class MizerParams or MizerSim</p></td>
     </tr>
     </table>
 

@@ -207,18 +207,18 @@
 ## Cod                 1 0.6666667 0.7 0.7166667        lognormal 74.81794 0
 ## Saithe              1 0.6666667 0.7 0.7166667        lognormal 43.50194 0
 ##               ks         z0        gamma     w_mat25 m erepro
-## Sprat   1.598545 0.18705957 5.777329e-11   11.647460 1      1
-## Sandeel 3.250607 0.18171206 4.274228e-11    3.583834 1      1
-## N.pout  3.318311 0.12926608 9.769939e-11   20.607045 1      1
-## Herring 3.212332 0.08647736 2.818625e-11   88.699888 1      1
-## Dab     3.760307 0.08735805 7.680025e-11   18.815128 1      1
-## Whiting 3.406676 0.05658819 1.043318e-10   67.196884 1      1
-## Sole    2.585095 0.06294752 5.319233e-11   69.884760 1      1
-## Gurnard 2.367448 0.06863713 5.100931e-11   34.942380 1      1
-## Plaice  1.820523 0.04171321 4.783604e-11   94.075638 1      1
-## Haddock 4.111691 0.03957464 7.693180e-11  147.833146 1      1
-## Cod     7.019866 0.01753768 2.554384e-10 1438.909287 1      1
-## Saithe  4.136466 0.02340093 1.800058e-10  964.051303 1      1</code></pre>
+## Sprat   1.598545 0.18705957 5.765885e-11   11.647460 1      1
+## Sandeel 3.250607 0.18171206 4.267142e-11    3.583834 1      1
+## N.pout  3.318311 0.12926608 9.749884e-11   20.607045 1      1
+## Herring 3.212332 0.08647736 2.812559e-11   88.699888 1      1
+## Dab     3.760307 0.08735805 7.663981e-11   18.815128 1      1
+## Whiting 3.406676 0.05658819 1.041177e-10   67.196884 1      1
+## Sole    2.585095 0.06294752 5.308445e-11   69.884760 1      1
+## Gurnard 2.367448 0.06863713 5.091838e-11   34.942380 1      1
+## Plaice  1.820523 0.04171321 4.774060e-11   94.075638 1      1
+## Haddock 4.111691 0.03957464 7.679024e-11  147.833146 1      1
+## Cod     7.019866 0.01753768 2.549664e-10 1438.909287 1      1
+## Saithe  4.136466 0.02340093 1.797143e-10  964.051303 1      1</code></pre>
 <p>We can see that this returns the original species data.frame (with <code>w_inf</code> and so on), plus any default values that may not have been included in the original data.frame. For example, we can see that there are now columns for <code>alpha</code> and <code>h</code> and <code>gamma</code> etc.</p>
 <p>Also note how the default fishing gears have been set up. Even though we did not provide a gear parameter data frame, the MizerParams object has one that we can access with</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw"><a href="../reference/setFishing.html">gear_params</a></span>(params)</span></code></pre></div>
@@ -244,9 +244,9 @@
 ##  maximum size:   40044
 ##  no. size bins:  100
 ## Plankton size spectrum:
-##  minimum size:   1.76705e-13
+##  minimum size:   8.6774e-13
 ##  maximum size:   9.84582
-##  no. size bins:  180 (227 size bins in total)
+##  no. size bins:  171 (218 size bins in total)
 ## Species details:
 ##    species w_inf w_mat   beta sigma
 ## 1    Sprat    33    13  51076   0.8
@@ -352,9 +352,9 @@
 ##  maximum size:   40044
 ##  no. size bins:  100
 ## Plankton size spectrum:
-##  minimum size:   1.76705e-13
+##  minimum size:   8.6774e-13
 ##  maximum size:   9.84582
-##  no. size bins:  180 (227 size bins in total)
+##  no. size bins:  171 (218 size bins in total)
 ## Species details:
 ##    species w_inf w_mat   beta sigma
 ## 1    Sprat    33    13  51076   0.8

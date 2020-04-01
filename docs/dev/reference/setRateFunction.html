@@ -38,24 +38,10 @@
   
 
 <meta property="og:title" content="Set own rate function to replace mizer rate function — setRateFunction" />
-<meta property="og:description" content="At each time step during a simulation with the project() function, mizer
-needs to calculate the instantaneous values of the various rates. By
-default it calls the mizerRates() function which creates a list with the
-following components:
-encounter from mizerEncounter()
-feeding_level from mizerFeedingLevel()
-pred_rate from mizerPredRate()
-pred_mort from mizerPredMort()
-fishing_mort from mizerFMort()
-mort from mizerMort()
-plankton_mort from mizerPlanktonMort()
-e from mizerEReproAndGrowth()
-e_repro from mizerERepro()
-e_growth from mizerEGrowth()
-rdi from mizerRDI()
-rdd from BevertonHoltRDD()
-
-" />
+<meta property="og:description" content="If the way mizer calculates a fundamental rate entering the model is
+not flexible enough for you (for example if you need to introduce time
+dependence) then you can write your own functions for calculating that
+rate and use setRateFunction() to register it with mizer." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -142,6 +128,41 @@ rdd from BevertonHoltRDD()
     </div>
 
     <div class="ref-description">
+    <p>If the way mizer calculates a fundamental rate entering the model is
+not flexible enough for you (for example if you need to introduce time
+dependence) then you can write your own functions for calculating that
+rate and use <code>setRateFunction()</code> to register it with mizer.</p>
+    </div>
+
+    <pre class="usage"><span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>, <span class='no'>fun</span>)
+
+<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>params</th>
+      <td><p>A MizerParams object</p></td>
+    </tr>
+    <tr>
+      <th>rate</th>
+      <td><p>Name of the rate for which a new function is to be set.</p></td>
+    </tr>
+    <tr>
+      <th>fun</th>
+      <td><p>Name of the function to use to calculate the rate.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>For <code>setRateFunction()</code>: An updated MizerParams object</p>
+<p>For <code>getRateFunction()</code>: The name of the registered rate function for
+the requested <code>rate</code>, or the list of all rate functions if called without
+<code>rate</code> argument.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
     <p>At each time step during a simulation with the <code><a href='project.html'>project()</a></code> function, mizer
 needs to calculate the instantaneous values of the various rates. By
 default it calls the <code><a href='mizerRates.html'>mizerRates()</a></code> function which creates a list with the
@@ -160,38 +181,24 @@ following components:</p><ul>
 <li><p><code>rdd</code> from <code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code></p></li>
 </ul>
 
-    </div>
+<p>For each of these you can substitute your own function. So for example if
+you have written your own function for calculating the total mortality
+rate and have called it <code>myMort</code> and have a mizer model stored in a
+MizerParams object called <code>params</code> that you want to run with your new
+mortality rate, then you would call</p><pre>params &lt;- setRateFunction(params, "Mort", "myMort")
+</pre>
 
-    <pre class="usage"><span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='kw'>rate</span> <span class='kw'>=</span> <span class='st'>"Rates"</span>, <span class='no'>fun</span>)
+<p>In some extreme cases you may need to swap out the entire <code><a href='mizerRates.html'>mizerRates()</a></code>
+function for your own function called <code>myRates()</code>. That you can do with</p><pre>params &lt;- setRateFunction(params, "Rates", "myRates")
+</pre>
 
-<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='kw'>rate</span> <span class='kw'>=</span> <span class='st'>"Rates"</span>)</pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>params</th>
-      <td><p>A <code>MizerParams</code> object</p></td>
-    </tr>
-    <tr>
-      <th>rate</th>
-      <td><p>Name of the rate for which a new function is to be set.</p></td>
-    </tr>
-    <tr>
-      <th>fun</th>
-      <td><p>Name of the function to use to calculate the rate.</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>You can modify these in two ways.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
     </ul>
 

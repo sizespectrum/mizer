@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Example MizerParams object for the North Sea with 10 species. — NorthSea_params • mizer</title>
+<title>Time series of size spectra — N • mizer</title>
 
 
 <!-- jquery -->
@@ -37,12 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Example MizerParams object for the North Sea with 10 species. — NorthSea_params" />
-<meta property="og:description" content="Created with purely size-based predation, i.e., no species-specific
-interactions. Set up with three fishing gears targeting small, medium and
-large species. Vulnerabilities are represented by changing the clearance rate
-constant (gamma) between species. Calibrated to efforts
-effort = c(small = 0.6, medium = 0.6, large = 1.25)." />
+<meta property="og:title" content="Time series of size spectra — N" />
+<meta property="og:description" content="Fetch the simulation results for the size spectra over time." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,51 +119,40 @@ effort = c(small = 0.6, medium = 0.6, large = 1.25)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Example MizerParams object for the North Sea with 10 species.</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/data.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>NorthSea_params.Rd</code></div>
+    <h1>Time series of size spectra</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>N.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Created with purely size-based predation, i.e., no species-specific
-interactions. Set up with three fishing gears targeting small, medium and
-large species. Vulnerabilities are represented by changing the clearance rate
-constant (gamma) between species. Calibrated to efforts
-<code>effort = c(small = 0.6, medium = 0.6, large = 1.25)</code>.</p>
+    <p>Fetch the simulation results for the size spectra over time.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>N</span>(<span class='no'>sim</span>)
 
+<span class='fu'>NPlankton</span>(<span class='no'>sim</span>)</pre>
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
+    </tr>
+    </table>
 
-    <p>A MizerParams object</p>
-    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>N.S. Jacobsen, M. Burgess and K.H. Andersen (2017):
-Efficiency of fisheries is increasing at the ecosystem level.
-Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>For <code>N()</code>: A three-dimensional array (time x species x size) with the
+number density of consumers</p>
+<p>For <code>NPlankton()</code>: An array (time x size) with the number density of plankton</p>
 
-    <div class='dont-index'><p>Other example parameter objects: 
-<code><a href='Baltic_params.html'>Baltic_params</a></code>,
-<code><a href='Barents_params.html'>Barents_params</a></code>,
-<code><a href='Benguela_params.html'>Benguela_params</a></code>,
-<code><a href='NEUSCS_params.html'>NEUSCS_params</a></code>,
-<code><a href='NS_params.html'>NS_params</a></code></p></div>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>sim</span> <span class='kw'>=</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>NorthSea_params</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>small</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>medium</span> <span class='kw'>=</span> <span class='fl'>0.6</span>, <span class='kw'>large</span> <span class='kw'>=</span> <span class='fl'>1.25</span>))
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='no'>sim</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#format">Format</a></li>
-      <li><a href="#source">Source</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#value">Value</a></li>
     </ul>
 
   </div>

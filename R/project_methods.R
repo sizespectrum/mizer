@@ -236,7 +236,7 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
         encounter <- encounter + 
             do.call(fun_name, 
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other))
+                         n = n, n_pp = n_pp, n_other = n_other, ...))
     }
     
     return(encounter)
@@ -444,15 +444,15 @@ mizerFMort <- function(params, effort, ...) {
 #' @export
 #' @family mizer rate functions
 mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
-    pred_mort <- pred_mort + params@mu_b + f_mort
+    mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
     for (fun_name in params@other_mort) {
-        pred_mort <- pred_mort + 
+        mort <- mort + 
             do.call(fun_name, 
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other))
+                         n = n, n_pp = n_pp, n_other = n_other, ...))
     }
-    return(pred_mort)
+    return(mort)
 }
 
 

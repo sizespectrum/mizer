@@ -567,15 +567,10 @@ getMort <- function(params,
              nrow(params@species_params), ") x no. size bins (",
              length(params@w), ")")
     }
-    
-    z <- pred_mort + params@mu_b + f_mort
-    # Add contributions from other components
-    for (fun_name in params@other_mort) {
-        z <- z + 
-            do.call(fun_name, 
-                    list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other))
-    }
+  
+    f <- get(params@rates_funcs$Mort)
+    z <- f(params, n = n, n_pp = n_pp, n_other = n_other, 
+           f_mort = f_mort, pred_mort = pred_mort)
     dimnames(z) <- list(prey = dimnames(params@initial_n)$sp,
                         w_prey = dimnames(params@initial_n)$w)
     return(z)

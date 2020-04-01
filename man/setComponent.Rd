@@ -2,49 +2,51 @@
 % Please edit documentation in R/extension.R
 \name{setComponent}
 \alias{setComponent}
-\alias{getComponent}
+\alias{removeComponent}
 \title{Add a dynamical ecosystem component}
 \usage{
 setComponent(
   params,
   component,
   initial_value,
-  encounter_fun,
-  pred_mort_fun,
   dynamics_fun,
+  encounter_fun,
+  mort_fun,
   component_params
 )
 
-getComponent(params, component)
+removeComponent(params, component)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{component}{Name of the component of interest. If missing, a list of
-all components will be returned.}
+\item{component}{Name of the component}
 
 \item{initial_value}{Initial value of the component}
 
-\item{encounter_fun}{Name of function to calculate contribution to encounter
-rate}
-
-\item{pred_mort_fun}{Name of function to calculate contribution to the
-predation mortality rate.}
-
 \item{dynamics_fun}{Name of function to calculate value at the next time step}
 
+\item{encounter_fun}{Name of function to calculate contribution to encounter
+rate. Optional.}
+
+\item{mort_fun}{Name of function to calculate contribution to the
+mortality rate. Optional.}
+
 \item{component_params}{Named list of parameters needed by the component
-functions.}
+functions. Optional.}
 }
 \value{
-For \code{setComponent}: The updated MizerParams object
-
-For \code{getComponent}: A list with the entries \code{initial_value}, \code{dynamics_fun},
-\code{encounter_fun}, \code{morality_fun}, \code{component_params}. If \code{component} is
-missing, then a list of lists for all components is returned.
+The updated MizerParams object
 }
 \description{
-Add a dynamical ecosystem component
-
-Get information about other ecosystem components
+By default, mizer models any number of size-resolved consumer species
+and a single size-resolved plankton spectrum. Your model may require
+additional components, like for example detritus or carrion or multiple
+resources or .... This function allows you to set up such components.
+}
+\details{
+If you set a component with a new name, the new component will be added
+to the existing components. If you set a component with an existing name,
+that component will be overwritten. You can remove a component with
+\code{removeComponent()}.
 }

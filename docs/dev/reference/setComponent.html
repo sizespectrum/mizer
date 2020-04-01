@@ -38,8 +38,10 @@
   
 
 <meta property="og:title" content="Add a dynamical ecosystem component — setComponent" />
-<meta property="og:description" content="Add a dynamical ecosystem component
-Get information about other ecosystem components" />
+<meta property="og:description" content="By default, mizer models any number of size-resolved consumer species
+and a single size-resolved plankton spectrum. Your model may require
+additional components, like for example detritus or carrion or multiple
+resources or .... This function allows you to set up such components." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -126,21 +128,23 @@ Get information about other ecosystem components" />
     </div>
 
     <div class="ref-description">
-    <p>Add a dynamical ecosystem component</p>
-<p>Get information about other ecosystem components</p>
+    <p>By default, mizer models any number of size-resolved consumer species
+and a single size-resolved plankton spectrum. Your model may require
+additional components, like for example detritus or carrion or multiple
+resources or .... This function allows you to set up such components.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setComponent</span>(
   <span class='no'>params</span>,
   <span class='no'>component</span>,
   <span class='no'>initial_value</span>,
-  <span class='no'>encounter_fun</span>,
-  <span class='no'>pred_mort_fun</span>,
   <span class='no'>dynamics_fun</span>,
+  <span class='no'>encounter_fun</span>,
+  <span class='no'>mort_fun</span>,
   <span class='no'>component_params</span>
 )
 
-<span class='fu'>getComponent</span>(<span class='no'>params</span>, <span class='no'>component</span>)</pre>
+<span class='fu'>removeComponent</span>(<span class='no'>params</span>, <span class='no'>component</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,40 +155,42 @@ Get information about other ecosystem components" />
     </tr>
     <tr>
       <th>component</th>
-      <td><p>Name of the component of interest. If missing, a list of
-all components will be returned.</p></td>
+      <td><p>Name of the component</p></td>
     </tr>
     <tr>
       <th>initial_value</th>
       <td><p>Initial value of the component</p></td>
     </tr>
     <tr>
-      <th>encounter_fun</th>
-      <td><p>Name of function to calculate contribution to encounter
-rate</p></td>
-    </tr>
-    <tr>
-      <th>pred_mort_fun</th>
-      <td><p>Name of function to calculate contribution to the
-predation mortality rate.</p></td>
-    </tr>
-    <tr>
       <th>dynamics_fun</th>
       <td><p>Name of function to calculate value at the next time step</p></td>
     </tr>
     <tr>
+      <th>encounter_fun</th>
+      <td><p>Name of function to calculate contribution to encounter
+rate. Optional.</p></td>
+    </tr>
+    <tr>
+      <th>mort_fun</th>
+      <td><p>Name of function to calculate contribution to the
+mortality rate. Optional.</p></td>
+    </tr>
+    <tr>
       <th>component_params</th>
       <td><p>Named list of parameters needed by the component
-functions.</p></td>
+functions. Optional.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For <code>setComponent</code>: The updated MizerParams object</p>
-<p>For <code>getComponent</code>: A list with the entries <code>initial_value</code>, <code>dynamics_fun</code>,
-<code>encounter_fun</code>, <code>morality_fun</code>, <code>component_params</code>. If <code>component</code> is
-missing, then a list of lists for all components is returned.</p>
+    <p>The updated MizerParams object</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If you set a component with a new name, the new component will be added
+to the existing components. If you set a component with an existing name,
+that component will be overwritten. You can remove a component with
+<code>removeComponent()</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -192,6 +198,7 @@ missing, then a list of lists for all components is returned.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

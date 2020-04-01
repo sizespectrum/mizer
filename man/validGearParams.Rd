@@ -19,3 +19,4 @@ A valid gear parameter data frame
 Check validity of gear parameters and set defaults for missing but
 required parameters or transfer them from species_params if available
 }
+\concept{helper}

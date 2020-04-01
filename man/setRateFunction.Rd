@@ -5,18 +5,31 @@
 \alias{getRateFunction}
 \title{Set own rate function to replace mizer rate function}
 \usage{
-setRateFunction(params, rate = "Rates", fun)
+setRateFunction(params, rate, fun)
 
-getRateFunction(params, rate = "Rates")
+getRateFunction(params, rate)
 }
 \arguments{
-\item{params}{A \code{MizerParams} object}
+\item{params}{A MizerParams object}
 
 \item{rate}{Name of the rate for which a new function is to be set.}
 
 \item{fun}{Name of the function to use to calculate the rate.}
 }
+\value{
+For \code{setRateFunction()}: An updated MizerParams object
+
+For \code{getRateFunction()}: The name of the registered rate function for
+the requested \code{rate}, or the list of all rate functions if called without
+\code{rate} argument.
+}
 \description{
+If the way mizer calculates a fundamental rate entering the model is
+not flexible enough for you (for example if you need to introduce time
+dependence) then you can write your own functions for calculating that
+rate and use \code{setRateFunction()} to register it with mizer.
+}
+\details{
 At each time step during a simulation with the \code{\link[=project]{project()}} function, mizer
 needs to calculate the instantaneous values of the various rates. By
 default it calls the \code{\link[=mizerRates]{mizerRates()}} function which creates a list with the
@@ -35,7 +48,15 @@ following components:
 \item \code{rdi} from \code{\link[=mizerRDI]{mizerRDI()}}
 \item \code{rdd} from \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}
 }
+
+For each of these you can substitute your own function. So for example if
+you have written your own function for calculating the total mortality
+rate and have called it \code{myMort} and have a mizer model stored in a
+MizerParams object called \code{params} that you want to run with your new
+mortality rate, then you would call\preformatted{params <- setRateFunction(params, "Mort", "myMort")
 }
-\details{
-You can modify these in two ways.
+
+In some extreme cases you may need to swap out the entire \code{mizerRates()}
+function for your own function called \code{myRates()}. That you can do with\preformatted{params <- setRateFunction(params, "Rates", "myRates")
+}
 }

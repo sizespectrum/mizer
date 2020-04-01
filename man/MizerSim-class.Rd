@@ -15,11 +15,11 @@ created automatically by \code{\link[=project]{project()}} when needed.
 
 As a user you should never have to access the slots of a MizerSim object
 directly. Instead there are a range of functions to extract the information.
-\code{\link[=n]{n()}} and \code{\link[=n_pp]{n_pp()}} return arrays with the saved abundances of
+\code{\link[=N]{N()}} and \code{\link[=NPlankton]{NPlankton()}} return arrays with the saved abundances of
 the species and the plankton population at size respectively. \code{\link[=effort]{effort()}}
 returns the fishing effort of each gear through time.
 \code{\link[=times]{times()}} returns the vector of times at which simulation results
-were stored and \code{\link[=final_idx]{final_idx()}} returns the index with which to access
+were stored and \code{\link[=idxFinalT]{idxFinalT()}} returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
 functions. T\code{\link[=params]{params()}} returns the \code{MizerParams} object that was
 passed in to \code{project()}. There are also several

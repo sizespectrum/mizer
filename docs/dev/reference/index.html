@@ -268,13 +268,13 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="initial_n-set.html">`initial_n<-`()</a></code> <code><a href="initial_n-set.html">initial_n()</a></code> </p>
+          <p><code><a href="initialN-set.html">`initialN<-`()</a></code> <code><a href="initialN-set.html">initialN()</a></code> </p>
         </td>
         <td><p>Initial values for fish spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="initial_n_pp-set.html">`initial_n_pp<-`()</a></code> <code><a href="initial_n_pp-set.html">initial_n_pp()</a></code> </p>
+          <p><code><a href="initialNPlankton-set.html">`initialNPlankton<-`()</a></code> <code><a href="initialNPlankton-set.html">initialNPlankton()</a></code> </p>
         </td>
         <td><p>Initial value for plankton spectrum</p></td>
       </tr><tr>
@@ -300,21 +300,21 @@
       <tr>
         
         <td>
-          <p><code><a href="n.html">n()</a></code> </p>
+          <p><code><a href="N.html">N()</a></code> <code><a href="N.html">NPlankton()</a></code> </p>
         </td>
-        <td><p>Time series of consumer size spectra</p></td>
+        <td><p>Time series of size spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="n_pp.html">n_pp()</a></code> </p>
+          <p><code><a href="finalN.html">finalN()</a></code> <code><a href="finalN.html">finalNPlankton()</a></code> </p>
         </td>
-        <td><p>Time series of plankton size spectrum</p></td>
+        <td><p>Size spectra at end of simulation</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="final_n.html">final_n()</a></code> <code><a href="final_n.html">final_n_pp()</a></code> <code><a href="final_n.html">final_idx()</a></code> </p>
+          <p><code><a href="idxFinalT.html">idxFinalT()</a></code> </p>
         </td>
-        <td><p>Consumer size spectra at end of simulation</p></td>
+        <td><p>Time index at end of simulation</p></td>
       </tr><tr>
         
         <td>
@@ -327,6 +327,12 @@
           <p><code><a href="times.html">times()</a></code> </p>
         </td>
         <td><p>Times for which simulation results are available</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="w.html">w()</a></code> <code><a href="w.html">w_full()</a></code> <code><a href="w.html">dw()</a></code> <code><a href="w.html">dw_full()</a></code> </p>
+        </td>
+        <td><p>Size bins</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -624,25 +630,19 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setComponent.html">setComponent()</a></code> <code><a href="setComponent.html">getComponent()</a></code> </p>
-        </td>
-        <td><p>Add a dynamical ecosystem component</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="initial_n_other-set.html">`initial_n_other<-`()</a></code> <code><a href="initial_n_other-set.html">initial_n_other()</a></code> </p>
+          <p><code><a href="initialNOther-set.html">`initialNOther<-`()</a></code> <code><a href="initialNOther-set.html">initialNOther()</a></code> </p>
         </td>
         <td><p>Initial values for other ecosystem components</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="n_other.html">n_other()</a></code> </p>
+          <p><code><a href="NOther.html">NOther()</a></code> </p>
         </td>
         <td><p>Time series of other components</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="final_n_other.html">final_n_other()</a></code> </p>
+          <p><code><a href="finalNOther.html">finalNOther()</a></code> </p>
         </td>
         <td><p>Values of other ecosystem components at end of simulation</p></td>
       </tr>
@@ -658,7 +658,7 @@ and size.</p></td>
         <td>
           <p><code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code> </p>
         </td>
-        <td><p>Truncated lognormal predation kernel</p></td>
+        <td><p>Lognormal predation kernel</p></td>
       </tr><tr>
         
         <td>
@@ -871,6 +871,13 @@ required parameters</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="validGearParams.html">validGearParams()</a></code> </p>
+        </td>
+        <td><p>Check validity of gear parameters and set defaults for missing but
+required parameters or transfer them from species_params if available</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="set_species_param_default.html">set_species_param_default()</a></code> </p>
         </td>
         <td><p>Set a species parameter to a default value</p></td>
@@ -977,30 +984,6 @@ required parameters</p></td>
       <tr>
         
         <td>
-          <p><code><a href="Baltic_params.html">Baltic_params</a></code> </p>
-        </td>
-        <td><p>Example MizerParams object for the Central Baltic Sea</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="Barents_params.html">Barents_params</a></code> </p>
-        </td>
-        <td><p>Example MizerParams object for the Barents Sea</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="Benguela_params.html">Benguela_params</a></code> </p>
-        </td>
-        <td><p>Example MizerParams object for the Benguela current</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="NEUSCS_params.html">NEUSCS_params</a></code> </p>
-        </td>
-        <td><p>Example MizerParams object for the North East US Continental Shelf (NEUSCS) with 24 species.</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="NS_params.html">NS_params</a></code> </p>
         </td>
         <td><p>Example MizerParams object for the North Sea example</p></td>
@@ -1010,12 +993,6 @@ required parameters</p></td>
           <p><code><a href="NS_species_params.html">NS_species_params</a></code> </p>
         </td>
         <td><p>Example species parameter set based on the North Sea</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="NorthSea_params.html">NorthSea_params</a></code> </p>
-        </td>
-        <td><p>Example MizerParams object for the North Sea with 10 species.</p></td>
       </tr><tr>
         
         <td>

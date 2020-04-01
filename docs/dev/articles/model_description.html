@@ -109,7 +109,7 @@ And clicking again will hide the details again.
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big. You can fetch this vector with <code><a href="../reference/w.html">w()</a></code> and the vector of bin sizes with <code><a href="../reference/w.html">dw()</a></code>.</p>
 <p>The weight grid is set up to be logarithmically spaced, so that <code>w[j]=w[1]*exp(j*dx)</code> for some fixed <code>dx</code>. This grid is set up automatically when creating a MizerParams object.</p>
-<p>In the code the size spectrum is stored as an array such that <code>n[i, a]</code> holds the density <span class="math inline">\(N_i(w_a)\)</span> at weights <span class="math inline">\(w_a=\)</span><code>w[a]</code>, or, if time dependence is included, an array such that <code>n[i, a, u]</code> holds <span class="math inline">\(N_i(w_a,t_u)\)</span>. See <code><a href="../reference/n.html">n()</a></code>.</p>
+<p>In the code the size spectrum is stored as an array such that <code>n[i, a]</code> holds the density <span class="math inline">\(N_i(w_a)\)</span> at weights <span class="math inline">\(w_a=\)</span><code>w[a]</code>, or, if time dependence is included, an array such that <code>n[i, a, u]</code> holds <span class="math inline">\(N_i(w_a,t_u)\)</span>. See <code><a href="../reference/N.html">N()</a></code>.</p>
 <p>Note that, contrary to what one might have expected, <code>n[i, a]</code> is not the <em>number</em> of individuals in a size bin but the <em>density</em> at a grid point. The number of individuals in the size bin between <code>w[a]</code> and <code>w[a+1]=w[a]+dw[a]</code> is only approximately given as <code>n[i, a]*dw[a]</code>, where <code>dw[a]= w[a+1]-w[a]</code>.</p>
 </details>
 </div>
@@ -131,7 +131,7 @@ And clicking again will hide the details again.
 <div id="plankton-density" class="section level2">
 <h2 class="hasAnchor">
 <a href="#plankton-density" class="anchor"></a>Plankton density</h2>
-<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(N_pp(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the plankton spectrum is described by a semi-chemostat equation.</p>
+<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(NPlankton(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the plankton spectrum is described by a semi-chemostat equation.</p>
 <details><p>The semichemostat dynamics are given by <span class="math display">\[\begin{equation}
   \label{eq:nb}
   \frac{\partial N_p(w,t)}{\partial t} 

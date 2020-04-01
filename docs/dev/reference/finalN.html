@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Values of other ecosystem components at end of simulation — final_n_other • mizer</title>
+<title>Size spectra at end of simulation — finalN • mizer</title>
 
 
 <!-- jquery -->
@@ -37,8 +37,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Values of other ecosystem components at end of simulation — final_n_other" />
-<meta property="og:description" content="Values of other ecosystem components at end of simulation" />
+<meta property="og:title" content="Size spectra at end of simulation — finalN" />
+<meta property="og:description" content="Size spectra at end of simulation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -119,16 +119,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Values of other ecosystem components at end of simulation</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/extension.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/extension.R'><code>R/extension.R</code></a></small>
-    <div class="hidden name"><code>final_n_other.Rd</code></div>
+    <h1>Size spectra at end of simulation</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/MizerSim-class.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>finalN.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Values of other ecosystem components at end of simulation</p>
+    <p>Size spectra at end of simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>final_n_other</span>(<span class='no'>sim</span>)</pre>
+    <pre class="usage"><span class='fu'>finalN</span>(<span class='no'>sim</span>)
+
+<span class='fu'>finalNPlankton</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,8 +143,10 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A named list holding the values of other ecosystem components at the
-end of the simulation</p>
+    <p>For <code>finalN()</code>: An array (species x size) holding the consumer
+number densities at the end of the simulation</p>
+<p>For <code>finalNPlankton()</code>: A vector holding the plankton number densities at
+the end of the simulation for all size classes</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

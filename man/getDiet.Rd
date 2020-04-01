@@ -6,8 +6,8 @@
 \usage{
 getDiet(
   params,
-  n = initial_n(params),
-  n_pp = initial_n_pp(params),
+  n = initialN(params),
+  n_pp = initialNPlankton(params),
   proportion = TRUE
 )
 }

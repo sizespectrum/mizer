@@ -33,7 +33,7 @@ navbar:
       href: articles/publications.html
 
 articles:
-- title: For the user
+- title: User Guide
   contents:
   - mizer
   - model_description
@@ -44,7 +44,7 @@ articles:
   - exploring_the_simulation_results
   - a_multispecies_model_of_the_north_sea
   - plotting
-- title: For the developer
+- title: Developer Guide
   contents:
   - developer_vignette
   - working_with_git
@@ -97,6 +97,7 @@ reference:
   - idxFinalT
   - effort
   - times
+  - "w"
 - title: Analysing results
   contents:
   - summary_functions
@@ -141,7 +142,7 @@ reference:
 - title: Extending Mizer
   contents:
   - setRateFunction
-  - setComponent
+  - addComponent
   - initialNOther
   - NOther
   - finalNOther
@@ -150,6 +151,7 @@ reference:
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel
+  - truncated_log_normal
 - title: Fishing selectivity functions
   contents:
   - knife_edge
@@ -181,6 +183,7 @@ reference:
     # but instead lists all functions. A bug in pkgdown?
     #  - has_concept("helper")
   - validSpeciesParams
+  - validGearParams
   - set_species_param_default
   - get_h_default
   - get_gamma_default

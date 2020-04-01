@@ -17,3 +17,4 @@ A valid species parameter data frame
 Check validity of species parameters and set defaults for missing but
 required parameters
 }
+\concept{("helper")}

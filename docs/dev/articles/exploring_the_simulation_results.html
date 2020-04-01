@@ -101,19 +101,19 @@
 <div id="accessing-the-simulation-results" class="section level2">
 <h2 class="hasAnchor">
 <a href="#accessing-the-simulation-results" class="anchor"></a>Accessing the simulation results</h2>
-<p>The projected species abundances at size through time can be obtained with <code><a href="../reference/n.html">n(sim)</a></code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="kw"><a href="../reference/n.html">n</a></span>(sim))</span></code></pre></div>
+<p>The projected species abundances at size through time can be obtained with <code><a href="../reference/N.html">N(sim)</a></code>. This returns a three-dimensional array (time x species x size). Consequently, this array can get very big so inspecting it can be difficult. In the example we have just run, the time dimension of <code>n</code> has 10 rows (one for the initial population and then one for each of the saved time steps). There are also 12 species each with 100 sizes. We can check this by running the <code><a href="https://rdrr.io/r/base/dim.html">dim()</a></code> function and looking at the dimensions of the <code>n</code> array:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="kw"><a href="../reference/N.html">N</a></span>(sim))</span></code></pre></div>
 <pre><code>## [1]  10  12 100</code></pre>
 <p>To pull out the abundances of a particular species through time at size you can subset the array. For example to look at Cod through time you can use:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="../reference/n.html">n</a></span>(sim)[, <span class="st">"Cod"</span>, ]</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw"><a href="../reference/N.html">N</a></span>(sim)[, <span class="st">"Cod"</span>, ]</span></code></pre></div>
 <p>This returns a two-dimensional array: time x size, containing the cod abundances. The time dimension depends on the value of the argument <code>t_save</code> when <code><a href="../reference/project.html">project()</a></code> was run. You can see that even though we specified <code>dt</code> to be 0.1 when we called <code><a href="../reference/project.html">project()</a></code>, the <code>t_save = 1</code> argument has meant that the output is only saved every year.</p>
 <p>Often we are particularly interested in the results at the final time-step. These we can access with</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw"><a href="../reference/final_n.html">final_n</a></span>(sim)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw"><a href="../reference/finalN.html">finalN</a></span>(sim)</span></code></pre></div>
 <p>which is a two dimensional array (species x size).</p>
 <p>The projected plankton abundances can be accesses similarly with</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="../reference/n_pp.html">n_pp</a></span>(sim)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="../reference/N.html">NPlankton</a></span>(sim)</span></code></pre></div>
 <p>This returns a two-dimensional array (time x size). And if we are only interested in the final time step</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="../reference/final_n.html">final_n_pp</a></span>(sim)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="../reference/finalN.html">finalNPlankton</a></span>(sim)</span></code></pre></div>
 <p>returns a vector with one entry for each size class.</p>
 </div>
 <div id="sec:summaries" class="section level2">

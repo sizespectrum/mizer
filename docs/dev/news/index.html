@@ -175,7 +175,7 @@
 <div id="initial-values-and-steady-state" class="section level2">
 <h2 class="hasAnchor">
 <a href="#initial-values-and-steady-state" class="anchor"></a>Initial Values and steady state</h2>
-<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initial_n-set.html">initial_n()</a></code> and <code><a href="../reference/initial_n_pp-set.html">initial_n_pp()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
+<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNPlankton-set.html">initialNPlankton()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
 <p>The MizerParams object now has a slot <code>initial_effort</code> that specifies the initial fishing effort to which the steady state has been calibrated.</p>
 </div>
 <div id="extension-mechanisms" class="section level2">
@@ -225,7 +225,7 @@
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
 <li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
-<li>Convenience functions <code><a href="../reference/final_n.html">final_n()</a></code>, <code><a href="../reference/final_n.html">final_n_pp()</a></code> and <code>final_n_other</code> to access the values at the final time of a simulation.</li>
+<li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNPlankton()</a></code> and <code>finalNOther</code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>
 <li>

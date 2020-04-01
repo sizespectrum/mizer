@@ -223,6 +223,7 @@ get_ks_default <- function(params) {
 #' 
 #' @param species_params The user-supplied species parameter data frame
 #' @return A valid species parameter data frame
+#' @concept("helper")
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
     

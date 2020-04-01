@@ -4,15 +4,6 @@
     <loc>https://sizespectrum.org/mizer/index.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/Baltic_params.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/Barents_params.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/Benguela_params.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/BevertonHoltRDD.html</loc>
   </url>
   <url>
@@ -28,7 +19,10 @@
     <loc>https://sizespectrum.org/mizer/reference/MizerSim.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/NEUSCS_params.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/N.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/NOther.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/NS_params.html</loc>
@@ -38,9 +32,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/NS_species_params_gears.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/NorthSea_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/RickerRDD.html</loc>
@@ -70,10 +61,10 @@
     <loc>https://sizespectrum.org/mizer/reference/emptyParams.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/final_n.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/finalN.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/final_n_other.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/finalNOther.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getBiomass.html</loc>
@@ -83,6 +74,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getCommunitySlope.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getComponent.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.html</loc>
@@ -196,16 +190,19 @@
     <loc>https://sizespectrum.org/mizer/reference/get_time_elements.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/idxFinalT.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/indicator_functions.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/initial_n-set.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/initialN-set.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/initial_n_other-set.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/initialNOther-set.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/initial_n_pp-set.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/initialNPlankton-set.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/inter.html</loc>
@@ -260,15 +257,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/mizerRates.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/n.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/n_other.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/n_pp.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
@@ -424,6 +412,9 @@
     <loc>https://sizespectrum.org/mizer/reference/times.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/upgradeParams.html</loc>
   </url>
   <url>
@@ -443,9 +434,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/wrapper_functions.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/x_lognormal_pred_kernel.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
