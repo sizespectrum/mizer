@@ -139,7 +139,11 @@ ecosystem components. Has length zero if there are no other components.}
 Used to give consistent colours in plots.}
 
 \item{\code{linetype}}{A named vector of linetypes, named by species.
-Used to give consistent line types in plots.
+Used to give consistent line types in plots.}
+
+\item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
+the asymptotic weight of each species. Used to efficiently minimize
+wrap-around errors in Fourier transform calculations.
 
 The \linkS4class{MizerParams} class is fairly complex with a large number of
 slots, many of which are multidimensional arrays. The dimensions of these

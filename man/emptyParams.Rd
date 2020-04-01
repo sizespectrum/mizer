@@ -10,7 +10,7 @@ emptyParams(
   no_w = 100,
   min_w = 0.001,
   max_w = NA,
-  min_w_pp = NA
+  min_w_pp = 1e-12
 )
 }
 \arguments{

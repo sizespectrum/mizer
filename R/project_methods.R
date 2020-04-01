@@ -336,7 +336,7 @@ mizerPredRate <- function(params, n, n_pp, n_other, feeding_level, ...) {
     
     dimnames(pred_rate) <- list(sp = params@species_params$species,
                                 w_prey = names(n_pp))
-    return(pred_rate)
+    return(pred_rate * params@ft_mask)
 }
 
 

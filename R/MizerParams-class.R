@@ -328,6 +328,9 @@ validMizerParams <- function(object) {
 #'   Used to give consistent colours in plots.
 #' @slot linetype A named vector of linetypes, named by species. 
 #'   Used to give consistent line types in plots.
+#' @slot ft_mask An array (species x w_full) with zeros for weights larger than
+#'   the asymptotic weight of each species. Used to efficiently minimize
+#'   wrap-around errors in Fourier transform calculations.
 #' 
 #' The \linkS4class{MizerParams} class is fairly complex with a large number of
 #' slots, many of which are multidimensional arrays. The dimensions of these
@@ -381,7 +384,8 @@ setClass(
         initial_effort = "numeric",
         A = "numeric",
         linecolour = "character",
-        linetype = "character"
+        linetype = "character",
+        ft_mask = "array"
     ),
 )
 
@@ -447,12 +451,13 @@ emptyParams <- function(species_params,
                         min_w = 0.001,
                         # w_full = NA,
                         max_w = NA,
-                        min_w_pp = NA) {
+                        min_w_pp = 1e-12) {
     assert_that(is.data.frame(species_params),
                 is.data.frame(gear_params),
                 no_w > 10)
     
     ## Set defaults ----
+    if (is.na(min_w_pp)) min_w_pp <- 1e-12
     species_params <- set_species_param_default(species_params, "w_min", min_w)
     min_w <- min(species_params$w_min)
     
@@ -481,32 +486,9 @@ emptyParams <- function(species_params,
         w <- 10^(seq(from = log10(min_w), by = dx, length.out = no_w))
         # dw[i] = w[i+1] - w[i]. Following formula works also for last entry dw[no_w]
         dw <- (10^dx - 1) * w
-        # To avoid issues due to numerical imprecission
+        # To avoid issues due to numerical imprecision
         min_w <- w[1]
         
-        # If not provided, set min_w_pp so that all fish have their full feeding
-        # kernel inside plankton spectrum
-        ppmr <- 10^(seq(from = 0, by = dx, length.out = 3 * no_w))
-        phis <- get_phi(species_params, ppmr)
-        max_ppmr <- apply(phis, 1, function(x) ppmr[max(which(x != 0)) + 1])
-        min_w_feeding <- species_params$w_min / max_ppmr
-        if (any(species_params$interaction_p > 0)) {
-            min_w_feeding <- min_w_feeding[species_params$interaction_p > 0]
-        } else {
-            min_w_feeding <- min_w
-        }
-        if (is.na(min_w_pp)) {
-            min_w_pp <- min(min_w_feeding)
-        } else {
-            assert_that(min_w_pp <= min_w)
-            hungry_sp <- species_params$species[min_w_feeding < min_w_pp]
-            if (length(hungry_sp) > 0) {
-                message(paste(
-                    "Note: The following species have feeding kernels that extend",
-                    "below the smallest plankton size specified by min_w_pp:",
-                    toString(hungry_sp)))
-            }
-        }
         # For fft methods we need a constant log bin size throughout. 
         # Therefore we use as many steps as are necessary so that the first size
         # class includes min_w_pp.
@@ -548,6 +530,8 @@ emptyParams <- function(species_params,
                   dimnames = list(sp = species_names, w = signif(w,3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
                             dimnames = list(sp = species_names, k = 1:no_w_full))
+    ft_mask <- plyr::aaply(species_params$w_inf, 1,
+                           function(x) w_full < x, .drop = FALSE)
     
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w), 
                          dimnames = list(gear = gear_names, sp = species_names, 
@@ -690,7 +674,8 @@ emptyParams <- function(species_params,
         initial_n_other = list(),
         A = as.numeric(rep(NA, no_sp)),
         linecolour = linecolour,
-        linetype = linetype
+        linetype = linetype,
+        ft_mask = ft_mask
     )
     
     return(params)

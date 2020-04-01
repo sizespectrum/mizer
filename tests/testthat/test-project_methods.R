@@ -454,12 +454,13 @@ test_that("getEGrowth is working", {
 test_that("Test that fft based integrator gives similar result as old code", {
     # Make it harder by working with kernels that need a lot of cutoff
     species_params <- NS_species_params_gears
+    species_params$pred_kernel_type <- "truncated_lognormal"
     species_params$sigma[3] <- 3
     species_params$beta[4] <- species_params$beta[4] * 100
     species_params$beta[5] <- species_params$beta[5] / 1000
     # and use different egg sizes
     species_params$w_min <- seq(0.001, 1, length.out = no_sp)
-    params <- newMultispeciesParams(species_params, inter, no_w = 30)
+    params <- newMultispeciesParams(species_params, inter, no_w = 30, min_w_pp = 1e-12)
     # create a second params object that does not use fft
     params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
     # Test encounter rate integral

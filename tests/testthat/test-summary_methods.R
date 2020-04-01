@@ -1,10 +1,12 @@
 context("Summary methods")
 
 ## Initialisation ----
-params <- newMultispeciesParams(NS_species_params_gears, inter,
+species_params <- NS_species_params_gears
+species_params$pred_kernel_type <- "truncated_lognormal"
+params <- newMultispeciesParams(species_params, inter, min_w_pp = 1e-12,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 10)
-no_sp <- nrow(NS_species_params_gears)
+no_sp <- nrow(species_params)
 no_w <- length(params@w)
 
 # Random abundances

@@ -8,6 +8,41 @@
 #' \deqn{\phi_i(w, w_p) = 
 #' \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
 #' }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
+#' if \eqn{w/w_p} is larger than 1 and zero otherwise.
+#' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
+#' determines the width of the kernel.
+#' These two parameters need to be given in the species parameter dataframe in
+#' the columns \code{beta} and \code{sigma}.
+#' 
+#' This function is called from \code{\link{setPredationKernel}} to set up the
+#' predation kernel slots in a \code{MizerParams} object. 
+#' 
+#' @param ppmr A vector of predator/prey size ratios
+#' @param beta The preferred predator/prey size ratio
+#' @param sigma The width parameter of the log-normal kernel
+#' 
+#' @return A vector giving the value of the predation kernel at each of the
+#'   predator/prey mass ratios in the \code{ppmr} argument.
+#' @md
+#' @export
+lognormal_pred_kernel <- function(ppmr, beta, sigma) {
+    Beta <- log(beta)
+    phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
+    # Do not allow feeding at own size
+    phi[1] <- 0
+    return(phi)
+}
+
+#' Truncated lognormal predation kernel
+#' 
+#' This is like the \link{\code{lognormal_pred_kernel}} but with an imposed
+#' maximum predator/prey mass ratio
+#' 
+#' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p},
+#' the feeding kernel is given as
+#' \deqn{\phi_i(w, w_p) = 
+#' \exp \left[ \frac{-(\ln(w / w_p / \beta_i))^2}{2\sigma_i^2} \right]
+#' }{\phi_i(w/w_p) = exp(-(ln(w/w_p/\beta_i))^2/(2\sigma_i^2))}
 #' if \eqn{w/w_p} is between 1 and \eqn{\beta_i\exp(3\sigma_i)}{\beta_i exp(3\sigma_i)}
 #' and zero otherwise.
 #' Here \eqn{\beta_i} is the preferred predator-prey mass ratio and \eqn{\sigma_i}
@@ -25,7 +60,7 @@
 #' @return A vector giving the value of the predation kernel at each of the
 #'   predator/prey mass ratios in the `ppmr` argument.
 #' @export
-lognormal_pred_kernel <- function(ppmr, beta, sigma) {
+truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     Beta <- log(beta)
     phi <- exp(-(log(ppmr) - Beta)^2 / (2 * sigma^2))
     # rr is the maximal log predator/prey mass ratio

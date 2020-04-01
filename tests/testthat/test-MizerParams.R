@@ -101,39 +101,6 @@ test_that("w_min_idx is being set correctly", {
                  check.names = FALSE)
 })
 
-# min_w_pp is correct ----
-test_that("min_w_pp is being set correctly", {
-    sp <- params@species_params
-    sp$pred_kernel_type = "box"
-    sp$ppmr_min <- 2
-    sp$ppmr_max <- 4
-    params <- newMultispeciesParams(sp)
-    min_w_feeding <- min(params@species_params$w_min / 4)
-    expect_gte(min_w_feeding, params@w_full[1])
-    expect_lte(min_w_feeding, params@w_full[3])
-    # A single species can make a difference
-    sp$ppmr_max[1] <- 100
-    params <- newMultispeciesParams(sp)
-    expect_gte(params@species_params$w_min[1] / 100, params@w_full[1])
-    expect_lte(params@species_params$w_min[1] / 100, params@w_full[2])
-    # but only if it feeds on plankton
-    sp$interaction_p <- 1
-    sp$interaction_p[1] <- 0
-    params <- newMultispeciesParams(sp)
-    expect_lte(min_w_feeding, params@w_full[3])
-    # respect explicitly set min_w_pp
-    expect_error(newMultispeciesParams(sp, min_w_pp = 1),
-                 "min_w_pp not less than or equal to min_w")
-    expect_message(newMultispeciesParams(sp, min_w_pp = 0.001),
-                   "feeding kernels that extend below")
-    params <- newMultispeciesParams(sp, min_w_pp = 0.001)
-    expect_identical(params@w_full[1], 0.001)
-    # if none of the species feed on plankton, min_w_pp = min_w
-    sp$interaction_p <- 0
-    params <- newMultispeciesParams(sp)
-    expect_identical(params@w[1], params@w_full[1])
-})
-
 # Test default values ----
 test_that("default for gamma is correct", {
     params <- NS_params

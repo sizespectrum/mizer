@@ -1,7 +1,9 @@
 context("Plotting methods")
 
 # Initialisation ----------------
-params <- newMultispeciesParams(NS_species_params_gears, inter, no_w = 30,
+species_params <- NS_species_params_gears
+species_params$pred_kernel_type <- "truncated_lognormal"
+params <- newMultispeciesParams(species_params, inter, no_w = 30,
                                 n = 2/3, p = 0.7, lambda = 2.8 - 2/3)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
