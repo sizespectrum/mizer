@@ -134,8 +134,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
 #'   (TRUE) or not. By default all species are affected
 #' @return A MizerParams object
 #' @export
-retune_erepro <- function(params,
-                                         species = params@species_params$species) {
+retune_erepro <- function(params, species = species_params(params)$species) {
     assert_that(is(params, "MizerParams"))
     
     no_sp <- nrow(params@species_params)
@@ -176,5 +175,5 @@ retune_erepro <- function(params,
 # Helper function to keep other components constant
 constant_other <- function(other_name) {
     force(other_name)
-    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[other_name, ]
+    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[[other_name]]
 }

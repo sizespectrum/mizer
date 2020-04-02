@@ -142,7 +142,7 @@ reference:
 - title: Extending Mizer
   contents:
   - setRateFunction
-  - addComponent
+  - setComponent
   - initialNOther
   - NOther
   - finalNOther
@@ -151,7 +151,7 @@ reference:
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel
-  - truncated_log_normal
+  - truncated_log_normal_kernel
 - title: Fishing selectivity functions
   contents:
   - knife_edge

@@ -50,8 +50,7 @@ setRateFunction <- function(params, rate, fun) {
              toString(names(params@rates_funcs)), ".")
     }
     if (!exists(fun, mode = "function")) {
-        stop("`fun` should be a function, ", 
-             fun, " is of class ", class(fun), ".")
+        stop("`fun` should be a function.")
     }
     # TODO: put some code to test that the function has the right kind of
     # arguments
@@ -67,8 +66,7 @@ setRateFunction <- function(params, rate, fun) {
 #'   `rate` argument.
 #' @export
 getRateFunction <- function(params, rate) {
-    assert_that(is(params, "MizerParams"),
-                is.string(rate))
+    assert_that(is(params, "MizerParams"))
     validObject(params)
     if (missing(rate)) {
         return(params@rates_funcs)
@@ -86,6 +84,9 @@ getRateFunction <- function(params, rate) {
 #' and a single size-resolved plankton spectrum. Your model may require
 #' additional components, like for example detritus or carrion or multiple
 #' resources or .... This function allows you to set up such components.
+#' 
+#' The component can be a number, a vector, an array, a list, or any other
+#' data structure you like. 
 #' 
 #' If you set a component with a new name, the new component will be added
 #' to the existing components. If you set a component with an existing name,
@@ -233,5 +234,12 @@ NOther <- function(sim) {
 #' @export
 finalNOther <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    sim@n_other[dim(sim@n)[[1]], ]
+    n_other <- sim@n_other[dim(sim@n)[[1]], ]
+    names(n_other) <- dimnames(sim@n_other)$component
+    n_other
+}
+
+# The following is only used in test-extension.R
+test_dyn <- function(params, ...) {
+    111
 }

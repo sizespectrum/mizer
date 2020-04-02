@@ -45,6 +45,9 @@ additional components, like for example detritus or carrion or multiple
 resources or .... This function allows you to set up such components.
 }
 \details{
+The component can be a number, a vector, an array, a list, or any other
+data structure you like.
+
 If you set a component with a new name, the new component will be added
 to the existing components. If you set a component with an existing name,
 that component will be overwritten. You can remove a component with
