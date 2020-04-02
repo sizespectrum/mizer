@@ -5,7 +5,10 @@ Description: A set of classes and methods to set up and run multi-species, trait
     based and community size spectrum ecological models, focused on the marine
     environment.
 Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
-Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
+Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
+                    role=c("cre", "aut", "cph"),
+                    comment = c(ORCID = "0000-0003-4092-8228")),
+             person("Finlay", "Scott", email="drfinlayscott@gmail.com", 
                     role=c("aut", "cph")),
              person("Julia", "Blanchard", email="julia.blanchard@utas.edu.au",
                     role=c("aut", "cph"),
@@ -13,9 +16,6 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
              person("Ken", "Andersen", email="kha@aqua.dtu.dk",
                     role=c("aut", "cph"),
                     comment = c(ORCID = "0000-0002-8478-3430")),
-             person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
-                    role=c("ctb", "cre"),
-                    comment = c(ORCID = "0000-0003-4092-8228")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
 Version: 2.0.0

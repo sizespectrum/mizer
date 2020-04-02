@@ -217,7 +217,6 @@ initialNOther <- function(params) {
 #' Fetch the simulation results for other components over time.
 #' 
 #' @param sim A MizerSim object
-#' @param component Optional name of desired component
 #' @return A list array (time x component) that stores the projected values for
 #'   other ecosystem components.
 #' @export
@@ -239,7 +238,11 @@ finalNOther <- function(sim) {
     n_other
 }
 
-# The following is only used in test-extension.R
+#' Dummy function used during testing only
+#' 
+#' @param params A MizerParams object
+#' @param ... Other parameters
+#' @export
 test_dyn <- function(params, ...) {
     111
 }

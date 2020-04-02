@@ -49,7 +49,7 @@ The MizerParams class is used for storing model parameters. We have already
 met the MizerParams class when we looked at community and trait-based models.
 However, to set up a multispecies model we will need to specify many more
 parameters.This is probably the most complicated part of using the mizer
-package, so we will take it solowly.
+package, so we will take it slowly.
 
 A `MizerParams` object stores the:
 

@@ -1,5 +1,5 @@
 ---
-title: "Get started"
+title: "Getting started with mizer"
 output:
   html_document:
     toc: yes
@@ -7,6 +7,10 @@ output:
     fig_height: 5
 bibliography: reflib.bib
 link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## Overview
@@ -97,7 +101,7 @@ use one of the convenient wrapper functions provided in the package:
 These wrapper functions make
 reasonable default choices for many of the model parameters that you do not want
 to specify explicitly. For example to set up a simple model (described
-more in the [Community Model](community_model.html) vignette) you can even let
+more in the [Community Model](community_model.html) section) you can even let
 mizer choose all the parameters for you.
 ```{r}
 params <- newCommunityParams()
@@ -211,12 +215,12 @@ assumptions from ecology and fisheries science about how encounters between
 predators and prey leads to growth $g_i(w)$ and reproduction $R_i$ of the
 predators, and mortality of the prey $\mu_i(w)$.
 
-For a more detailed exposition of the model see the vignette 
+For a more detailed exposition of the model see the section 
 [The mizer size-spectrum model](model_description.html).
 
 It is easiest to learn the basics of mizer through examples. We do this by
 looking at three set-ups of the framework, of increasing complexity. For
-each one there is a vignette that describes how to set up the model,
+each one there is a section that describes how to set up the model,
 run it in different scenarios, and explore the results. We
 recommend that you explore these in the following order:
 

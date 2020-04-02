@@ -14,8 +14,8 @@
 #' These two parameters need to be given in the species parameter dataframe in
 #' the columns \code{beta} and \code{sigma}.
 #' 
-#' This function is called from \code{\link{setPredationKernel}} to set up the
-#' predation kernel slots in a \code{MizerParams} object. 
+#' This function is called from [setPredKernel()] to set up the
+#' predation kernel slots in a MizerParams object. 
 #' 
 #' @param ppmr A vector of predator/prey size ratios
 #' @param beta The preferred predator/prey size ratio
@@ -35,7 +35,7 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 
 #' Truncated lognormal predation kernel
 #' 
-#' This is like the \link{\code{lognormal_pred_kernel}} but with an imposed
+#' This is like the [lognormal_pred_kernel()] but with an imposed
 #' maximum predator/prey mass ratio
 #' 
 #' Writing the predator mass as \eqn{w} and the prey mass as \eqn{w_p},
@@ -51,7 +51,7 @@ lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 #' the columns `beta` and `sigma`.
 #' 
 #' This function is called from [setPredKernel()] to set up the
-#' predation kernel slots in a `MizerParams` object. 
+#' predation kernel slots in a MizerParams object. 
 #' 
 #' @param ppmr A vector of predator/prey size ratios
 #' @param beta The preferred predator/prey size ratio

@@ -82,7 +82,7 @@ also rebuild mizer from that new code by clicking "Install and Restart" on
 the "Build" pane of RStudio to test it, and would in particular run the
 automated unit tests by hitting Ctrl+Shift+T.
 
-# Commiting your changes
+# Committing your changes
 
 So far you have only saved your changes to your local disc, but have not yet
 committed it to your local repository. To do that you click on the "Commit"
@@ -146,7 +146,7 @@ you should pull and push frequently.
 Once a feature is developed and tested, you will want to merge it into the master
 branch of the upstream repository at https://github.com/sizespectrum/mizer. 
 You can however not push your changes directly to that repository. Instead you
-create a HitHub pull request. 
+create a GitHub pull request. 
 This will then get a code review from another mizer developer before one of the
 developers with write access to the main repository merges your changes.
 
@@ -158,7 +158,7 @@ branch and your pull request will automatically get updated.
 
 The pull request is easy to create using the github web interface:
 
-1. Go to the home page of your forked repository on Github
+1. Go to the home page of your forked repository on GitHub
 2. Select the branch via the "Branch" drop-down.
 3. Click the "New pull request" button next to that drop-down.
 
@@ -210,9 +210,9 @@ and then try the above again.
 
 The first time you go through all the above steps, you will think that you will
 never grow to like git. What a lot of fuss. What a circuitous route for your 
-change to make it into the master branch of your GithHub repository:
+change to make it into the master branch of your GitHub repository:
 
-1. from your editor to your harddrive
+1. from your editor to your 
 2. from your harddrive into your development branch in your local repository via Commit
 3. from you local repository to your GitHub repository via Push
 4. from your GitHub repository to the main mizer repository via Pull Request

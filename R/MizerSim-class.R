@@ -140,7 +140,7 @@ valid_MizerSim <- function(object) {
 #' same order as specified when setting up the `MizerParams` object.
 #' 
 #' Extensions of mizer can use the `n_other` slot to store the abundances of
-#' other ecosystem compoents and these extensions should provide their own
+#' other ecosystem components and these extensions should provide their own
 #' functions for accessing that information.
 #' 
 #' The `MizerSim` class has changed since previous versions of mizer. To use

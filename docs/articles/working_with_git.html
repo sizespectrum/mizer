@@ -14,7 +14,6 @@
 <meta property="og:title" content="Working with git and GitHub">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
-<meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -120,9 +119,9 @@ A good way to navigate within files is to use the document outline which will be
 <p>This is an RMarkdown file, so you can compile it by clicking on the “Knit” button on the editor toolbar. This will also save your changes to the disk. After a short while the resulting html file will be displayed in an RStudio viewer which will allow you to check the formatting of your bullet point.</p>
 <p>If you had made changes to the actual R code of mizer, then you would of course also rebuild mizer from that new code by clicking “Install and Restart” on the “Build” pane of RStudio to test it, and would in particular run the automated unit tests by hitting Ctrl+Shift+T.</p>
 </div>
-<div id="commiting-your-changes" class="section level1">
+<div id="committing-your-changes" class="section level1">
 <h1 class="hasAnchor">
-<a href="#commiting-your-changes" class="anchor"></a>Commiting your changes</h1>
+<a href="#committing-your-changes" class="anchor"></a>Committing your changes</h1>
 So far you have only saved your changes to your local disc, but have not yet committed it to your local repository. To do that you click on the “Commit” button on the toolbar in the “Git” pane in RStudio:
 <center>
 <img src="images/commit_button.png" style="width:40.0%">
@@ -148,11 +147,11 @@ After you have pushed your changes, you will be able to see them also on GitHub.
 <div id="making-a-pull-request" class="section level1">
 <h1 class="hasAnchor">
 <a href="#making-a-pull-request" class="anchor"></a>Making a pull request</h1>
-<p>Once a feature is developed and tested, you will want to merge it into the master branch of the upstream repository at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>. You can however not push your changes directly to that repository. Instead you create a HitHub pull request. This will then get a code review from another mizer developer before one of the developers with write access to the main repository merges your changes.</p>
+<p>Once a feature is developed and tested, you will want to merge it into the master branch of the upstream repository at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>. You can however not push your changes directly to that repository. Instead you create a GitHub pull request. This will then get a code review from another mizer developer before one of the developers with write access to the main repository merges your changes.</p>
 <p>Due to this extra code review before any changes are integrated into the core mizer code, you do not have to be hesitant with making pull requests. In case there is anything wrong with your changes, you will get friendly feedback from other developers. You can then make more changes and commit them to the same branch and your pull request will automatically get updated.</p>
 <p>The pull request is easy to create using the github web interface:</p>
 <ol style="list-style-type: decimal">
-<li>Go to the home page of your forked repository on Github</li>
+<li>Go to the home page of your forked repository on GitHub</li>
 <li>Select the branch via the “Branch” drop-down.</li>
 <li>Click the “New pull request” button next to that drop-down.</li>
 </ol>
@@ -176,9 +175,9 @@ git merge upstream/master</code></pre>
 <p>If that does not list an upstream, then execute the command</p>
 <pre><code>git remote add upstream https://github.com/sizespectrum/mizer.git</code></pre>
 <p>and then try the above again.</p>
-<p>The first time you go through all the above steps, you will think that you will never grow to like git. What a lot of fuss. What a circuitous route for your change to make it into the master branch of your GithHub repository:</p>
+<p>The first time you go through all the above steps, you will think that you will never grow to like git. What a lot of fuss. What a circuitous route for your change to make it into the master branch of your GitHub repository:</p>
 <ol style="list-style-type: decimal">
-<li>from your editor to your harddrive</li>
+<li>from your editor to your</li>
 <li>from your harddrive into your development branch in your local repository via Commit</li>
 <li>from you local repository to your GitHub repository via Push</li>
 <li>from your GitHub repository to the main mizer repository via Pull Request</li>
@@ -209,7 +208,7 @@ git merge upstream/master</code></pre>
 <li><a href="#introduction">Introduction</a></li>
       <li><a href="#creating-a-branch">Creating a branch</a></li>
       <li><a href="#editing-a-file">Editing a file</a></li>
-      <li><a href="#commiting-your-changes">Commiting your changes</a></li>
+      <li><a href="#committing-your-changes">Committing your changes</a></li>
       <li><a href="#pushing-and-pulling">Pushing and pulling</a></li>
       <li><a href="#making-a-pull-request">Making a pull request</a></li>
       <li><a href="#merging-from-upstream">Merging from upstream</a></li>

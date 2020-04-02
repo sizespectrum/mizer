@@ -1,32 +1,3 @@
-#' Functions for calculating rates used for projecting
-#'
-#' The functions defined in the file project_methods calculate the various
-#' quantities needed to project the size-spectra forward in time, using the
-#' model described in section 3 of the mizer vignette.
-#'
-#' @section List of functions:
-#' In this list we relate the functions in this file to the quantities named in
-#' the mizer vignette.
-#' \tabular{llll}{
-#'   Function \tab Expression \tab Description \tab Section in vignette\cr
-#'   [mizerEncounter()] \tab \eqn{E_{e.i}(w)} \tab Encounter rate \tab 3.2 \cr
-#'   [mizerFeedingLevel()] \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
-#'   [mizerPredRate()] \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
-#'   [mizerPredMort()] \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
-#'   [mizerResourceMort()] \tab \eqn{\mu_{p}(w)} \tab Mortality on resource \tab 3.8 \cr
-#'   [mizerFMortGear()] \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
-#'   [mizerFMort()] \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
-#'   [mizerMort()] \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
-#'   [mizerEReproAndGrowth()] \tab \eqn{E_{r.i}(w)} \tab Energy put into growth and reproduction \tab 3.4 \cr
-#'   [mizerERepro()] \tab \eqn{\psi_i(w)E_{r.i}(w)} \tab Energy put reproduction\tab 3.5 \cr
-#'   [mizerEGrowth()] \tab \eqn{g_i(w)} \tab Energy put growth \tab 3.4 \cr
-#'   [mizerRDI()] \tab \eqn{R_{p.i}} \tab Density-independent reproduction rate \tab 3.5 \cr
-#'   [BevertonHoltRDD()] \tab \eqn{R_i} \tab Density-dependent reproduction rate \tab 3.6 \cr
-#' }
-#'
-#' @name project_methods
-NULL
-
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
 # Development has received funding from the European Commission's Horizon 2020 

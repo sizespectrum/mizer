@@ -43,7 +43,7 @@ the community model, reproduction is constant and there is no relationship
 between the abundance in the community and egg production. In the trait-based
 model, the egg production is dependent on mature individuals investing part
 of their energy income into reproduction. The relationship between the energy
-invested into reproduction and the actual rate of egg production is modeled 
+invested into reproduction and the actual rate of egg production is modelled 
 using a *Beverton-Holt* type function (the
 default in `mizer`, see [the section on density-dependence in reproduction](model_description.html#recruitment)) where the reproduction rate $R_i$ (numbers per time) approaches a maximum as the energy invested increases.
 
@@ -192,7 +192,7 @@ dim(N(sim0))
 As with the community model, we are interested in the relative total abundances
 by size in the final time step so we use the `finalN()` function. This gives us
 a matrix with one row per species and one column per size bin. We sum in each
-coloum to get a vector with the total abundance per size bin:
+column to get a vector with the total abundance per size bin:
 
 ```{r label = total_abund_trait}
 total_abund0 <- colSums(finalN(sim0))

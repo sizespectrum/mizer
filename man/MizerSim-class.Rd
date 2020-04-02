@@ -34,7 +34,7 @@ frame. The names of the \code{gear} dimension are the names of the gears, in the
 same order as specified when setting up the \code{MizerParams} object.
 
 Extensions of mizer can use the \code{n_other} slot to store the abundances of
-other ecosystem compoents and these extensions should provide their own
+other ecosystem components and these extensions should provide their own
 functions for accessing that information.
 
 The \code{MizerSim} class has changed since previous versions of mizer. To use

@@ -33,7 +33,6 @@ newTraitParams(
   gear_names = "knife_edge_gear",
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
-  mortality_scaling = FALSE,
   resource_scaling = FALSE,
   perfect_scaling = FALSE
 )

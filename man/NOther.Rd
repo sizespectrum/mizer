@@ -8,8 +8,6 @@ NOther(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
-
-\item{component}{Optional name of desired component}
 }
 \value{
 A list array (time x component) that stores the projected values for

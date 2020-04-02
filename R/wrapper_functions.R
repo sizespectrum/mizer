@@ -1,22 +1,3 @@
-#' Functions used for setting up models
-#'
-#' The functions defined in the file wrapper functions set up MizerParams
-#' objects for various kinds of size-spectrum models.
-#'
-#' @section List of Functions:
-#' In this list we relate the functions in this file to the sections in
-#' the mizer vignette where the corresponding model is described.
-#' \tabular{llll}{
-#'   Function name \tab Description \tab Section in vignette\cr
-#'   [newCommunityParams()] \tab Community model \tab 5 \cr
-#'   [newTraitParams()] \tab Trait-based model \tab 6 \cr
-#' }
-#'
-#' The file also contains functions for adding, removing or rescaling species.
-#'
-#' @name wrapper_functions
-NULL
-
 # Copyright 2012 Finlay Scott and Julia Blanchard.
 # Copyright 2018 Gustav Delius and Richard Southwell.
 # Development has received funding from the European Commission's Horizon 2020 
@@ -62,7 +43,7 @@ NULL
 #' @param alpha The assimilation efficiency of the community.
 #' @param f0 The average feeding level of individuals who feed on a power-law 
 #'   spectrum. This value is used to calculate the search rate parameter 
-#'   `gamma` (see the package vignette).
+#'   `gamma`.
 #' @param h The coefficient of the maximum food intake rate.
 #' @param n The allometric growth exponent. Used as allometric exponent for
 #'   the maximum intake rate of the community as well as the intrinsic growth
@@ -308,13 +289,11 @@ newTraitParams <- function(no_sp = 11,
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
-                           mortality_scaling = FALSE,
                            resource_scaling = FALSE,
                            perfect_scaling = FALSE) {
     
     ## Check validity of parameters ----
     assert_that(is.logical(egg_size_scaling),
-                is.logical(mortality_scaling),
                 is.logical(resource_scaling),
                 is.logical(perfect_scaling))
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
@@ -375,7 +354,6 @@ newTraitParams <- function(no_sp = 11,
     
     if (perfect_scaling) {
         egg_size_scaling <- TRUE
-        mortality_scaling <- TRUE
         resource_scaling <- TRUE
         w_pp_cutoff <- Inf
         p <- n

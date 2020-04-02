@@ -114,7 +114,7 @@ pg + labs(title = "Biomass plot",
 ```
 
 
-In plotly we use the `layout()` funcction.
+In plotly we use the `layout()` function.
 ```{r warning=FALSE}
 pp %>% layout(
     title = "Biomass plot",
@@ -213,7 +213,7 @@ so it makes sense to remove them:
 ```{r}
 nf <- filter(nf, value > 0)
 ```
-This leaves a dataframe with only `r nrow(nf)` observations. 
+This leaves a data frame with only `r nrow(nf)` observations. 
 
 We can send this data frame to ggplot and add a line for the spectrum
 for each species, with a different colour for each, and specify that we want
@@ -382,8 +382,8 @@ p2 <- ggplot(yield2) +
 p2
 ```
 
-Comparision will be easier if we combine these two plots.
-For that we add an extra variable to the dataframes that allow us to 
+Comparison will be easier if we combine these two plots.
+For that we add an extra variable to the data frames that allow us to 
 distinguish them and then we merge them together.
 ```{r warning=FALSE}
 yield1$effort = as.factor(2)
@@ -431,7 +431,7 @@ or by sliding across it:
 vdiffr::widget_slide(p1, p2)
 ```
 
-plotly is less good at faceting, but it can put arbitray plots
+plotly is less good at faceting, but it can put arbitrary plots
 side-by-side (or arrange them into a grid) with `subplot()`
 ```{r warning=FALSE}
 subplot(p1, p2, shareX = TRUE, shareY = TRUE)
@@ -441,7 +441,7 @@ Note how the `shareY = TRUE` argument to `suplot()` makes sure the two plots
 use the same scale on the y axis, and similarly for `shareX = TRUE`.
 
 
-Also in plotly we can now tie the `effort` variable to the linetype.
+Also in plotly we can now tie the `effort` variable to the line type.
 ```{r warning=FALSE}
 plot_ly(yield) %>% 
     add_lines(x = ~time, y = ~value, 

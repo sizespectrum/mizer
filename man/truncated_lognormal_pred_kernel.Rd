@@ -18,7 +18,7 @@ A vector giving the value of the predation kernel at each of the
 predator/prey mass ratios in the \code{ppmr} argument.
 }
 \description{
-This is like the \link{\code{lognormal_pred_kernel}} but with an imposed
+This is like the \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} but with an imposed
 maximum predator/prey mass ratio
 }
 \details{
@@ -35,5 +35,5 @@ These two parameters need to be given in the species parameter dataframe in
 the columns \code{beta} and \code{sigma}.
 
 This function is called from \code{\link[=setPredKernel]{setPredKernel()}} to set up the
-predation kernel slots in a \code{MizerParams} object.
+predation kernel slots in a MizerParams object.
 }

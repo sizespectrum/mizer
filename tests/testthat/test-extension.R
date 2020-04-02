@@ -1,4 +1,7 @@
 params <- NS_params
+test_dyn <- function(params, ...) {
+    111
+}
 
 # setRateFunction works ----
 test_that("setRateFunction works", {

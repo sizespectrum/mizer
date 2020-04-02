@@ -98,7 +98,7 @@ that fish can die while they are growing up, and this death rate is also
 dependent on the density of other fish. 
 
 The time evolution of the number density $N_i(w)$ is described by the 
-McKendrik-von Foerster equation, which is a transport equation (as one would
+McKendrick-von Foerster equation, which is a transport equation (as one would
 use for traffic density) but with an additional loss term due to fish 
 mortality:
 
@@ -121,7 +121,7 @@ dynamics non-linear and non-local in very interesting ways. The resulting
 effects are too complicated to disentangle by pure thought. This is where
 simulations with the mizer package come in.
 
-This McKendrik-von Foerster equation is approximated in mizer by a
+This McKendrick-von Foerster equation is approximated in mizer by a
 finite-difference method. This allows the
 `project()` function in mizer to project the size
 spectrum forwards in time: Given the spectrum at one time the `project()`
@@ -157,7 +157,7 @@ capacity in the absence of predation. These parameters are changed with
 You can retrieve these with `getResourceRate()` and `getResourceCapacity()`
 respectively. It is also possible to implement other resource dynamics, as
 described in the help page for `setResource()`. The mortality $\mu_p(w)$ is
-due to predation by consumers and isdescribed in the subsection 
+due to predation by consumers and is described in the subsection 
 [Resource mortality].
 
 Because the resource spectrum spans a different range of sizes these sizes
@@ -345,7 +345,7 @@ where $w_{\infty.i}$ is the asymptotic size of species $i$.
 ## Fishing mortality
 The fishing parameters for the model are set up with `setFishing()`, where
 you can find the details of how to set up gears with different selectivities
-and the catabilities of different species.
+and the capabilities of different species.
 Fishing mortality $\mu_{f.i}(w)$ is calculated with the function `getFMort()`.
 
 ## Total mortality
@@ -371,7 +371,7 @@ It is calculated with the function `getResourceMort()`.
 
 ## Energy invested into reproduction
 
-The total rate of investment into reproduction (gramms/year) is
+The total rate of investment into reproduction (grams/year) is
 found by integrating the contribution from all individuals of species $i$,
 each of which invests a proportion $\psi_i(w)$ of their consumption. This
 total rate of energy investment can then be converted to a total rate of
@@ -393,7 +393,7 @@ summarised in an imposed stock-recruitment relationship are already included
 automatically in the mizer model:
 
 1. High density of spawners leads to a reduced
-food income of the spawners and consequently reduced per-capity reproduction.
+food income of the spawners and consequently reduced per-capita reproduction.
 2. High density of larvae leads to slower growth of larvae due to food 
 competition, exposing the larvae to high mortality for a longer time, thereby
 decreasing the survivorship to recruitment size.

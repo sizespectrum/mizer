@@ -172,7 +172,7 @@ plot(sim)
 ```
 
 The big difference between this multispecies model and the trait-based model can
-be seen in the range of predation moratlity and feeding level values. With the
+be seen in the range of predation mortality and feeding level values. With the
 trait-based model all the *species* had the same predation mortality and feeding
 level patterns. Here the species all have different patterns, driven by their
 differing life history characteristics and the heterogeneous interaction matrix.
