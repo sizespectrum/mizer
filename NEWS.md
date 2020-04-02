@@ -30,6 +30,8 @@ version 1.0 with the exception of bug fixes and the following breaking changes:
   (https://sizespectrum.org/mizerExperimental)
 * During runs of `project()` a progress bar is displayed by default. You can 
   turn this off with the option `progress_bar = FALSE.
+* Throughout mizer the term "plankton" has been replaced by "resource", which
+  affects the labelling of the resource spectrum in plots.
 
 ## Setting up models
 

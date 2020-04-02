@@ -15,7 +15,7 @@ template:
     bootswatch: cerulean
 
 development:
-  mode: devel
+  mode: auto
 
 toc: 
   depth: 3
