@@ -151,7 +151,7 @@ reference:
   - lognormal_pred_kernel
   - box_pred_kernel
   - power_law_pred_kernel
-  - truncated_log_normal_kernel
+  - truncated_lognormal_pred_kernel
 - title: Fishing selectivity functions
   contents:
   - knife_edge
