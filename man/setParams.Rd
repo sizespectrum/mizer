@@ -184,8 +184,8 @@ pair of species in the model. This can be viewed as a proxy for spatial
 interaction e.g. to model predator-prey interaction that is not size based.
 The values in the interaction matrix are used to scale the encountered food
 and predation mortality (see on the website
-\href{https://sizespectrum.org/mizer/docs/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
-and on \href{https://sizespectrum.org/mizer/docs/articles/model_description.html#mortality}{predation mortality}).                                                                        and on \href{model_description.html#mortality}{predation mortality}).
+\href{https://sizespectrum.org/mizer/articles/model_description.html#sec:pref}{the section on predator-prey encounter rate}
+and on \href{https://sizespectrum.org/mizer/articles/model_description.html#mortality}{predation mortality}).                                                                        and on \href{model_description.html#mortality}{predation mortality}).
 
 It is used when calculating the food encounter rate in \code{\link[=getEncounter]{getEncounter()}} and
 the predation mortality rate in \code{\link[=getPredMort]{getPredMort()}}. Its entries are
