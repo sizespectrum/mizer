@@ -1,0 +1,14 @@
+.nav-stacked>li {
+    padding-left: 1em;
+}
+#pkgdown-sidebar .nav>li>a {
+    padding: 8px;
+}
+
+#pkgdown-sidebar {
+    padding-left: 0;
+}
+
+#pkgdown-sidebar h2 {
+    padding-left:1em;
+}
