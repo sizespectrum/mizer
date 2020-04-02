@@ -1,12 +1,19 @@
 
-# mizer 1.0.1.9000 
+# mizer 2.0.0 
+
+
+This is a major new release with many new features, an internal refactoring of
+the code and a new extension mechanism. 
 
 ## Backwards compatibility
 
-This version of mizer introduces a large number of new features but is almost
-fully backwards compatible with version 1.0 with the exception of bug fixes and
-the following breaking changes:
+Nevertheless this version of mizer is almost fully backwards compatible with
+version 1.0 with the exception of bug fixes and the following breaking changes:
 
+* The previous version of mizer inconsistently truncated the lognormal predation
+  kernel when calculating predation but not when calculating encounter. The new
+  version never truncates. That leads to very small differences in simulation
+  results.
 * Removed the `print_it` argument from plot functions.
 * plotFeedingLevel() now only plots the values within the size range of each
   species. If for some reason you want the old plots that show a feeding level
@@ -40,6 +47,9 @@ default values, in particular for metabolic rate and maximum intake rate.
 After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
 
+* `species_params<-()`
+* `plankton_params<-()`
+* `gear_params<-()`
 * `setPredKernel()`
 * `setSearchVolume()`
 * `setInteraction()`
@@ -83,7 +93,9 @@ The MizerParams object now has a slot `initial_effort` that specifies the
 ## Extension mechanisms
 
 Mizer now has an extension mechanism that allows other R packages to be
-written to generalise the mizer model. More documentation to follow.
+written to generalise the mizer model. See `setRateFunction()` and
+`setComponent()`. This mechanism is still experimental and may change as we
+gain experience in writing extensions for mizer.
 
 ## Plotting
 
@@ -125,10 +137,18 @@ written to generalise the mizer model. More documentation to follow.
 * New `getPredKernel()` returns the full 3-dimensional predation kernel array,
   even when this is not stored in MizerParams object.
   
+## New gear setup
+Now it is finally possible to have several gears (or fleets) targeting the same
+species. The information is set up via a new `gear_params()` data frame. See
+`setFishing()` for details.
+  
 ## Other new functions
 
-* New `upgradeParams()` can upgrade MizerParams objects from previous versions 
-  of mizer so they work with the new version.
+* There are now accessor functions for all slots in the MizerParams and
+  MizerSim objects. For example to get at the size grid and its spacing you 
+  would now use `w()`, `w_full()`, `dw()`, `dw_full()`.
+* New `upgradeParams()` and `upgradeSim()` can upgrade objects from 
+  previous versions of mizer so they work with the new version.
 * New `getDiet()` calculates the diet of predators. (#43)
 * Alternative functions `RickerRDD()` and `SheperdRDD()` for density-dependence 
   in reproduction, as well as `noRDD()` and `constantRDD()`.
@@ -141,8 +161,8 @@ written to generalise the mizer model. More documentation to follow.
   them in a list.
 * A convenience function `times()` to extract the times at which simulation 
   results are saved in a MizerSim object.
-* Convenience functions `finalN()`, `finalNPlankton()` and `finalNOther` to
-  access the values at the final time of a simulation.
+* Convenience functions `finalN()`, `finalNPlankton()` and `finalNOther()` as
+  well as `idxFinalT()` to access the values at the final time of a simulation.
 * New function `getCriticalFeedingLevel()` returns the critical feeding level
   for each species at each size.
 * Mizer reexports the `melt()` function from the reshape2 package which allows
@@ -189,6 +209,7 @@ written to generalise the mizer model. More documentation to follow.
 * Comments can be added to MizerParams objects and any of their slots. Slots
   that have comments are protected from being overwritten with allometric
   defaults.
+* Gear selectivity functions now can use the species parameters.
   
 ## Documentation
 
@@ -216,15 +237,7 @@ written to generalise the mizer model. More documentation to follow.
   + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
 * Renamed maximum reproductive rate from `r_max` to `R_max`.
 * Updated list of publications (@Kenhasteandersen)
-
-## Ecosystems
-Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. doi:10.1111/faf.12171:
-* `data(Benguela_params)` with five species: Anchovy, Sardine, Kingklip, 
-  Shallow water hake, and Deep water hake.
-* `data(Baltic_params)` with three species: sprat, herring, and cod.
-* `data(Barents_params)` with six species.
-* `data(NEUSCS_params)` with 24 species.
-* `data(NorthSea_params)` with 10 species.
+* Using Rmarkdown in all roxygen comments
 
 ## Bug fixes
 
@@ -251,7 +264,6 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
   
 ## Under the hood
 
-* Increased regression test coverage from 67% to 86%.
 * Now using vdiffr package to test plots.
 * Converted all S4 methods to functions to decrease the learning curve for
   new developers.
@@ -284,21 +296,25 @@ Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Effici
 * Avoiding use of `hasArg()` and `anyNA()` because they were not available in R 3.1
 * A more robust code for setting up the size grids.
 * Improved consistency of when to issue warnings and when to issue messages.
+* Split large code files into smaller files.
 * Changes to MizerParams class:
-  + Merged `std_metab` and `activity` slots into a single `metab` slot.
-  + Moved `w_min_idx` out of `species_params` into its own slot.
-  + Added slot `maturity` to hold the maturity ogive.
-  + Added slot `pred_kernel` to hold predation kernel if it has variable
+  + Merged `@std_metab` and `@activity` slots into a single `@metab` slot.
+  + Moved `@w_min_idx` out of `@species_params` into its own slot.
+  + Added slot `@maturity` to hold the maturity ogive.
+  + Added slot `@pred_kernel` to hold predation kernel if it has variable
     predator/prey ratio.
-  + Added slot `plankton_dynamics` to allow user to specify alternative
+  + Added slot `@plankton_dynamics` to allow user to specify alternative
     plankton dynamics.
+  + Added slot `@gear_dynamics` to species to be targeted by multiple gears.
+  + Added slot `@ft_mask` that is used when calculating predation rates using
+    the Fourier transform method.
+  + Added slot `@rates_funcs` to allow mizer extensions to replace mizer rate
+    functions with their own rate functions.
   + Instead of the function in the slot `@srr` we now have the name of the 
     function in `@rate_funcs$RDD`, see #91.
   + Added slots `@other_dynamics`, `@other_params`, `@other_encounter`,
-    `@other_mort` and `initial_n_other` to allow mizer extensions to add more 
+    `@other_mort` and `@initial_n_other` to allow mizer extensions to add more 
     ecosystem components.
-  + Added slot `@rates_funcs` to allow mizer extensions to replace mizer rate
-    functions with their own rate functions.
 
 
 

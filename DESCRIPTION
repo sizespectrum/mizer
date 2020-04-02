@@ -18,7 +18,7 @@ Authors@R: c(person("Finlay", "Scott", email="drfinlayscott@gmail.com",
                     comment = c(ORCID = "0000-0003-4092-8228")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb")))
-Version: 1.0.1.9001
+Version: 2.0.0
 License: GPL-3
 Imports:
     assertthat,

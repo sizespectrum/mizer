@@ -121,15 +121,17 @@
       <small><a href='https://github.com/sizespectrum/mizer/edit/master/NEWS.md'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-1019000" class="section level1">
+    <div id="mizer-200" class="section level1">
 <h1 class="page-header">
-<a href="#mizer-1019000" class="anchor"></a>mizer 1.0.1.9000<small> Unreleased </small>
+<a href="#mizer-200" class="anchor"></a>mizer 2.0.0<small> Unreleased </small>
 </h1>
+<p>This is a major new release with many new features, an internal refactoring of the code and a new extension mechanism.</p>
 <div id="backwards-compatibility" class="section level2">
 <h2 class="hasAnchor">
 <a href="#backwards-compatibility" class="anchor"></a>Backwards compatibility</h2>
-<p>This version of mizer introduces a large number of new features but is almost fully backwards compatible with version 1.0 with the exception of bug fixes and the following breaking changes:</p>
+<p>Nevertheless this version of mizer is almost fully backwards compatible with version 1.0 with the exception of bug fixes and the following breaking changes:</p>
 <ul>
+<li>The previous version of mizer inconsistently truncated the lognormal predation kernel when calculating predation but not when calculating encounter. The new version never truncates. That leads to very small differences in simulation results.</li>
 <li>Removed the <code>print_it</code> argument from plot functions.</li>
 <li>plotFeedingLevel() now only plots the values within the size range of each species. If for some reason you want the old plots that show a feeding level also for sizes that the fish can never have, you need to supply an argument <code>all.sizes = TRUE</code>.</li>
 <li>The way the density-dependence in the reproduction rate is set has changed, see <code>RDD</code> argument in <code><a href="../reference/setReproduction.html">setReproduction()</a></code>.</li>
@@ -155,6 +157,9 @@
 <a href="#setting-model-parameters" class="anchor"></a>Setting model parameters</h2>
 <p>After setting up a mizer model, it is possible to change specific model parameters with the new functions</p>
 <ul>
+<li><code>species_params&lt;-()</code></li>
+<li><code>plankton_params&lt;-()</code></li>
+<li><code>gear_params&lt;-()</code></li>
 <li><code><a href="../reference/setPredKernel.html">setPredKernel()</a></code></li>
 <li><code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code></li>
 <li><code><a href="../reference/setInteraction.html">setInteraction()</a></code></li>
@@ -181,7 +186,7 @@
 <div id="extension-mechanisms" class="section level2">
 <h2 class="hasAnchor">
 <a href="#extension-mechanisms" class="anchor"></a>Extension mechanisms</h2>
-<p>Mizer now has an extension mechanism that allows other R packages to be written to generalise the mizer model. More documentation to follow.</p>
+<p>Mizer now has an extension mechanism that allows other R packages to be written to generalise the mizer model. See <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> and <code><a href="../reference/setComponent.html">setComponent()</a></code>. This mechanism is still experimental and may change as we gain experience in writing extensions for mizer.</p>
 </div>
 <div id="plotting" class="section level2">
 <h2 class="hasAnchor">
@@ -213,11 +218,17 @@
 <li>New <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code> returns the full 3-dimensional predation kernel array, even when this is not stored in MizerParams object.</li>
 </ul>
 </div>
+<div id="new-gear-setup" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-gear-setup" class="anchor"></a>New gear setup</h2>
+<p>Now it is finally possible to have several gears (or fleets) targeting the same species. The information is set up via a new <code><a href="../reference/setFishing.html">gear_params()</a></code> data frame. See <code><a href="../reference/setFishing.html">setFishing()</a></code> for details.</p>
+</div>
 <div id="other-new-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#other-new-functions" class="anchor"></a>Other new functions</h2>
 <ul>
-<li>New <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> can upgrade MizerParams objects from previous versions of mizer so they work with the new version.</li>
+<li>There are now accessor functions for all slots in the MizerParams and MizerSim objects. For example to get at the size grid and its spacing you would now use <code><a href="../reference/w.html">w()</a></code>, <code><a href="../reference/w.html">w_full()</a></code>, <code><a href="../reference/w.html">dw()</a></code>, <code><a href="../reference/w.html">dw_full()</a></code>.</li>
+<li>New <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> and <code><a href="../reference/upgradeSim.html">upgradeSim()</a></code> can upgrade objects from previous versions of mizer so they work with the new version.</li>
 <li>New <code><a href="../reference/getDiet.html">getDiet()</a></code> calculates the diet of predators. (<a href='https://github.com/sizespectrum/mizer/issues/43'>#43</a>)</li>
 <li>Alternative functions <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code> and <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code> for density-dependence in reproduction, as well as <code><a href="../reference/noRDD.html">noRDD()</a></code> and <code><a href="../reference/constantRDD.html">constantRDD()</a></code>.</li>
 <li>New gear selectivity function <code><a href="../reference/double_sigmoid_length.html">double_sigmoid_length()</a></code> allows modelling of escape of large individuals.</li>
@@ -225,7 +236,7 @@
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
 <li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
-<li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNPlankton()</a></code> and <code>finalNOther</code> to access the values at the final time of a simulation.</li>
+<li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNPlankton()</a></code> and <code><a href="../reference/finalNOther.html">finalNOther()</a></code> as well as <code><a href="../reference/idxFinalT.html">idxFinalT()</a></code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>
 <li>
@@ -254,6 +265,7 @@
 <li>A new <code>ext_mort_prop</code> argument in <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> allows the inclusion of external mortality.</li>
 <li>Added a data file<code>NS_params</code> with the North Sea model MizerParams object.</li>
 <li>Comments can be added to MizerParams objects and any of their slots. Slots that have comments are protected from being overwritten with allometric defaults.</li>
+<li>Gear selectivity functions now can use the species parameters.</li>
 </ul>
 </div>
 <div id="documentation" class="section level2">
@@ -293,23 +305,7 @@
 </li>
 <li>Renamed maximum reproductive rate from <code>r_max</code> to <code>R_max</code>.</li>
 <li>Updated list of publications (<a href='https://github.com/Kenhasteandersen'>@Kenhasteandersen</a>)</li>
-</ul>
-</div>
-<div id="ecosystems" class="section level2">
-<h2 class="hasAnchor">
-<a href="#ecosystems" class="anchor"></a>Ecosystems</h2>
-<p>Added ecosystems from N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199- 211. <a href="doi:10.1111/faf.12171" class="uri">doi:10.1111/faf.12171</a>:</p>
-<ul>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Benguela_params)</a></code> with five species: Anchovy, Sardine, Kingklip, Shallow water hake, and Deep water hake.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Baltic_params)</a></code> with three species: sprat, herring, and cod.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(Barents_params)</a></code> with six species.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(NEUSCS_params)</a></code> with 24 species.</li>
-<li>
-<code><a href="https://rdrr.io/r/utils/data.html">data(NorthSea_params)</a></code> with 10 species.</li>
+<li>Using Rmarkdown in all roxygen comments</li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">
@@ -338,7 +334,6 @@
 <h2 class="hasAnchor">
 <a href="#under-the-hood" class="anchor"></a>Under the hood</h2>
 <ul>
-<li>Increased regression test coverage from 67% to 86%.</li>
 <li>Now using vdiffr package to test plots.</li>
 <li>Converted all S4 methods to functions to decrease the learning curve for new developers.</li>
 <li>The calculation of defaults is now handled by new <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>, <code><a href="../reference/get_h_default.html">get_h_default()</a></code> and <code><a href="../reference/get_ks_default.html">get_ks_default()</a></code>, making it easier to change or extend these in the future.</li>
@@ -360,16 +355,19 @@
 <li>Avoiding use of <code>hasArg()</code> and <code><a href="https://rdrr.io/r/base/NA.html">anyNA()</a></code> because they were not available in R 3.1</li>
 <li>A more robust code for setting up the size grids.</li>
 <li>Improved consistency of when to issue warnings and when to issue messages.</li>
+<li>Split large code files into smaller files.</li>
 <li>Changes to MizerParams class:
 <ul>
-<li>Merged <code>std_metab</code> and <code>activity</code> slots into a single <code>metab</code> slot.</li>
-<li>Moved <code>w_min_idx</code> out of <code>species_params</code> into its own slot.</li>
-<li>Added slot <code>maturity</code> to hold the maturity ogive.</li>
-<li>Added slot <code>pred_kernel</code> to hold predation kernel if it has variable predator/prey ratio.</li>
-<li>Added slot <code>plankton_dynamics</code> to allow user to specify alternative plankton dynamics.</li>
-<li>Instead of the function in the slot <code>@srr</code> we now have the name of the function in <code>@rate_funcs$RDD</code>, see <a href='https://github.com/sizespectrum/mizer/issues/91'>#91</a>.</li>
-<li>Added slots <code>@other_dynamics</code>, <code>@other_params</code>, <code>@other_encounter</code>, <code>@other_mort</code> and <code>initial_n_other</code> to allow mizer extensions to add more ecosystem components.</li>
+<li>Merged <code>@std_metab</code> and <code>@activity</code> slots into a single <code>@metab</code> slot.</li>
+<li>Moved <code>@w_min_idx</code> out of <code>@species_params</code> into its own slot.</li>
+<li>Added slot <code>@maturity</code> to hold the maturity ogive.</li>
+<li>Added slot <code>@pred_kernel</code> to hold predation kernel if it has variable predator/prey ratio.</li>
+<li>Added slot <code>@plankton_dynamics</code> to allow user to specify alternative plankton dynamics.</li>
+<li>Added slot <code>@gear_dynamics</code> to species to be targeted by multiple gears.</li>
+<li>Added slot <code>@ft_mask</code> that is used when calculating predation rates using the Fourier transform method.</li>
 <li>Added slot <code>@rates_funcs</code> to allow mizer extensions to replace mizer rate functions with their own rate functions.</li>
+<li>Instead of the function in the slot <code>@srr</code> we now have the name of the function in <code>@rate_funcs$RDD</code>, see <a href='https://github.com/sizespectrum/mizer/issues/91'>#91</a>.</li>
+<li>Added slots <code>@other_dynamics</code>, <code>@other_params</code>, <code>@other_encounter</code>, <code>@other_mort</code> and <code>@initial_n_other</code> to allow mizer extensions to add more ecosystem components.</li>
 </ul>
 </li>
 </ul>
@@ -455,7 +453,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#mizer-1019000">1.0.1.9000</a></li>
+        <li><a href="#mizer-200">2.0.0</a></li>
         <li><a href="#mizer-101">1.0.1</a></li>
         <li><a href="#mizer-10">1.0</a></li>
         <li><a href="#mizer-04">0.4</a></li>
