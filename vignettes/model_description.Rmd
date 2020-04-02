@@ -63,16 +63,16 @@ The weight grid is set up to be logarithmically spaced, so that
 `w[j]=w[1]*exp(j*dx)` for some fixed `dx`. 
 This grid is set up automatically when creating a MizerParams object.
 
-In the code the size spectrum is stored as an array such that `n[i, a]`
+In the code the size spectrum is stored as an array `N` such that `N[i, a]`
 holds the density $N_i(w_a)$ at weights $w_a=$`w[a]`, or, if time
-dependence is included, an array such that `n[i, a, u]`
+dependence is included, an array such that `N[i, a, u]`
 holds $N_i(w_a,t_u)$. See `N()`.
 
 Note that, contrary to what one might have expected,
-`n[i, a]` is not the *number* of individuals in a size bin
+`N[i, a]` is not the *number* of individuals in a size bin
 but the *density* at a grid point.
 The number of individuals in the size bin between `w[a]` and
-`w[a+1]=w[a]+dw[a]` is only approximately given as `n[i, a]*dw[a]`,
+`w[a+1]=w[a]+dw[a]` is only approximately given as `N[i, a]*dw[a]`,
 where `dw[a]= w[a+1]-w[a]`.
 
 </details>
@@ -166,8 +166,8 @@ are discretized into a different vector of weights
 of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
 gives the vector of bin sizes.
 
-The plankton spectrum is then represented by a vector `n_pp` such that
-`n_pp[c]` =$N_p($`w_full[c]`$)$.
+The plankton spectrum is then represented by a vector `NPlankton` such that
+`NPlankton[c]` =$N_p($`w_full[c]`$)$.
 
 </details>
 

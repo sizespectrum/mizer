@@ -145,7 +145,6 @@ The function returns an object of type
   <span class='kw'>t_start</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='no'>initial_n</span>,
   <span class='no'>initial_n_pp</span>,
-  <span class='no'>initial_n_other</span>,
   <span class='kw'>append</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>progress_bar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
@@ -187,26 +186,14 @@ argument or a <code>MizerSim</code> for the <code>object</code> argument.</p></t
     </tr>
     <tr>
       <th>initial_n</th>
-      <td><p>The initial abundances of species. A matrix with dimensions
-species x size. The order of species must be the same as in the
-<code>MizerParams</code> argument. Ignored if the <code>object</code> argument is a
-MizerSim object, but overrules the <code>initial_n</code> slot if <code>object</code>
-is a <code>MizerParams</code> object.</p></td>
+      <td><p>Deprecated. The initial abundances of species. Instead of
+using this argument you should set <code><a href='initialN-set.html'>initialN(params)</a></code> to the desired value.</p></td>
     </tr>
     <tr>
       <th>initial_n_pp</th>
-      <td><p>The initial abundances of plankton. A numeric vector.
-Ignored if the <code>object</code> argument is a MizerSim object, but overrules
-the <code>initial_n_pp</code> slot if <code>object</code> is a <code>MizerParams</code>
-object.</p></td>
-    </tr>
-    <tr>
-      <th>initial_n_other</th>
-      <td><p>The initial abundances of the other dynamical
-ecosystem components. It should be a named list with one entry for each
-component. Ignored if the <code>object</code> argument is a MizerSim object, but
-overrules the <code>initial_n_other</code> slot if <code>object</code> is a
-<code>MizerParams</code> object.</p></td>
+      <td><p>Deprecated. The initial abundances of plankton. Instead
+of using this argument you should set <code><a href='initialNPlankton-set.html'>initialNPlankton(params)</a></code> to the
+desired value.</p></td>
     </tr>
     <tr>
       <th>append</th>

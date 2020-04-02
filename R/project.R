@@ -34,20 +34,11 @@ NULL
 #'   will cover the period from `t_start` to \code{t_start + t_max}.
 #'   Defaults to 0. Ignored if an array is used for the `effort`
 #'   argument or a `MizerSim` for the `object` argument.
-#' @param initial_n The initial abundances of species. A matrix with dimensions 
-#'   species x size. The order of species must be the same as in the 
-#'   `MizerParams` argument. Ignored if the `object` argument is a 
-#'   MizerSim object, but overrules the `initial_n` slot if `object` 
-#'   is a `MizerParams` object.
-#' @param initial_n_pp The initial abundances of plankton. A numeric vector.
-#'   Ignored if the `object` argument is a MizerSim object, but overrules
-#'   the `initial_n_pp` slot if `object` is a `MizerParams`
-#'   object.
-#' @param initial_n_other The initial abundances of the other dynamical
-#'   ecosystem components. It should be a named list with one entry for each
-#'   component. Ignored if the `object` argument is a MizerSim object, but
-#'   overrules the `initial_n_other` slot if `object` is a
-#'   `MizerParams` object.
+#' @param initial_n Deprecated. The initial abundances of species. Instead of
+#'   using this argument you should set `initialN(params)` to the desired value.
+#' @param initial_n_pp Deprecated. The initial abundances of plankton. Instead
+#'   of using this argument you should set `initialNPlankton(params)` to the
+#'   desired value.
 #' @param append A boolean that determines whether the new simulation results
 #'   are appended to the previous ones. Only relevant if `object` is a
 #'   `MizerSim` object. Default = TRUE.
@@ -115,7 +106,7 @@ NULL
 #' }
 project <- function(object, effort,
                     t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
-                    initial_n, initial_n_pp, initial_n_other,
+                    initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE, ...) {
     validObject(object)
@@ -132,7 +123,7 @@ project <- function(object, effort,
         params <- object
         if (missing(initial_n))       initial_n <- params@initial_n
         if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
-        if (missing(initial_n_other)) initial_n_other <- params@initial_n_other
+        initial_n_other <- params@initial_n_other
     }
     params@initial_n[] <- initial_n
     params@initial_n_pp[] <- initial_n_pp
@@ -152,7 +143,8 @@ project <- function(object, effort,
             stop("The initial_n_other needs to be a named list")
         }
         if (!setequal(names(initial_n_other), other_names)) {
-            stop("The names of the entries in initial_n_other do not match the names of the other components of the model.")
+            stop("The names of the entries in initial_n_other do not match ",
+                 "the names of the other components of the model.")
         }
     }
     

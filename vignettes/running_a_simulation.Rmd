@@ -109,16 +109,14 @@ names. If a value for `t_max` is also supplied it is ignored.
 ## Setting the initial population abundance {#sec:setting_initial_abundances}
 
 When running a simulation with the `project()` function, the initial populations
-of the species and the plankton spectrum need to be specified. These are passed
-to `project()` as the arguments `initial_n` and `initial_n_pp` respectively.
-`initial_n` is a matrix (with dimensions species x size) that contains the
-initial abundances of each species at size (the sizes must match those in the
-species size spectrum). `initial_n_pp` is a vector of the same length as the the
-length of the full spectrum.
+of the species and the plankton spectrum need to be specified. Default values
+for the initial values are automatically set when creating a MizerParams object.
+However you can change these by assigning new values to `initialN()` and
+`initialNPlankton()`. `initialN()` should be set to a matrix (with dimensions
+species x size) that contains the initial abundances of each species at size
+(the sizes must match those in the species size spectrum). `initialNPlankton` to
+a vector of the same length as the the length of the full spectrum.
 
-Default values for the initial values are automatically set when creating a
-MizerParams object. So you can call `project()` without specifying these
-arguments.
 
 ## Projection examples {#sec:projection_examples}
 
