@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get started • mizer</title>
+<title>Getting started with mizer • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Get started">
+<meta property="og:title" content="Getting started with mizer">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -80,7 +80,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Get started</h1>
+      <h1>Getting started with mizer</h1>
             
       
       <small class="dont-index"><a href="https://github.com/sizespectrum/mizer/edit/master/vignettes/mizer.Rmd">Edit this page.  </a> Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/mizer.Rmd"><code>vignettes/mizer.Rmd</code></a></small>
@@ -126,7 +126,7 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <a href="#setting-the-model-parameters" class="anchor"></a>Setting the model parameters</h2>
 <p>With mizer it is possible to implement many different types of size-spectrum models using the same basic tools and methods.</p>
 <p>Setting the model parameters is done by creating an object of <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as the life history parameters of each species, and the fishing gears. It is possible to create a MizerParams object directly using the class constructor, but most likely you will want to use one of the convenient wrapper functions provided in the package: <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> and <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p>
-<p>These wrapper functions make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> vignette) you can even let mizer choose all the parameters for you.</p>
+<p>These wrapper functions make reasonable default choices for many of the model parameters that you do not want to specify explicitly. For example to set up a simple model (described more in the <a href="community_model.html">Community Model</a> section) you can even let mizer choose all the parameters for you.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span>()</span></code></pre></div>
 <pre><code>## Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 <p>For a more complicated multi-species model you need to provide a data frame with some species parameters and an interaction matrix specifying which species predate on each other. An example of a North Sea model is included with the package.</p>
@@ -176,8 +176,8 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
   g_i(w_0)N_i(w_0) = R_i.
 \end{equation}\]</span></p>
 <p>The rest of the formulation of the model rests on a number of ``standard’’ assumptions from ecology and fisheries science about how encounters between predators and prey leads to growth <span class="math inline">\(g_i(w)\)</span> and reproduction <span class="math inline">\(R_i\)</span> of the predators, and mortality of the prey <span class="math inline">\(\mu_i(w)\)</span>.</p>
-<p>For a more detailed exposition of the model see the vignette <a href="model_description.html">The mizer size-spectrum model</a>.</p>
-<p>It is easiest to learn the basics of mizer through examples. We do this by looking at three set-ups of the framework, of increasing complexity. For each one there is a vignette that describes how to set up the model, run it in different scenarios, and explore the results. We recommend that you explore these in the following order:</p>
+<p>For a more detailed exposition of the model see the section <a href="model_description.html">The mizer size-spectrum model</a>.</p>
+<p>It is easiest to learn the basics of mizer through examples. We do this by looking at three set-ups of the framework, of increasing complexity. For each one there is a section that describes how to set up the model, run it in different scenarios, and explore the results. We recommend that you explore these in the following order:</p>
 <div id="community-model" class="section level3">
 <h3 class="hasAnchor">
 <a href="#community-model" class="anchor"></a>Community model</h3>
@@ -199,12 +199,12 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 <p>All three models predict abundance, biomass and yield as well as predation and mortality rates at size. They are useful for establishing baselines of abundance of unexploited communities, for understanding how fishing impacts aquatic communities and for testing indicators that are being developed to support an ecosystem approach to fisheries management.</p>
 <p>Which model to use in a specific case depends on needs and on the amount of information available to calibrate the model. The multi-species model could be set up for most systems where calibration parameters can be estimated. This requires a lot of insight and data. If the parameters are just guesstimates the results of the multi-species model will be no more accurate than the results from the trait-based model. In such situations we therefore recommend the use of the trait-based model, even though it only provides general information about the asymptotic size distribution and not about specific species.</p>
 <p>The community model is useful for large-scale community-level questions where only the average spectrum is needed. Care should be taken when the community model is used to infer the dynamical properties of marine ecosystems, since it is prone to unrealistically strong oscillations due to the lack of dampening effects provided by the life-history diversity in the trait-based and multi-species models.</p>
+<!-- ## Online apps -->
+<!-- Perhaps the easiest way for newcomers to get into using mizer is via -->
+<!-- online apps. We are in the process to develop a variety of apps for setting -->
+<!-- up and exploring models. Here is an example of an online app to  -->
+<!-- [explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/).  -->
 </div>
-</div>
-<div id="online-apps" class="section level2">
-<h2 class="hasAnchor">
-<a href="#online-apps" class="anchor"></a>Online apps</h2>
-<p>Perhaps the easiest way for newcomers to get into using mizer is via online apps. We are in the process to develop a variety of apps for setting up and exploring models. Here is an example of an online app to <a href="https://mizer.shinyapps.io/selectivity/">explore the effect of increased gear selectivity</a>.</p>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
@@ -275,7 +275,6 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
       <li><a href="#which-model-to-use">Which model to use</a></li>
       </ul>
 </li>
-      <li><a href="#online-apps">Online apps</a></li>
       <li><a href="#references">References</a></li>
       </ul>
 </div>
@@ -286,7 +285,7 @@ Using the same <code><a href="https://devtools.r-lib.org//reference/remote-reexp
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">

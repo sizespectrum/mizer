@@ -282,10 +282,10 @@ properties of marine ecosystems, since it is prone to unrealistically strong
 oscillations due to the lack of dampening effects provided by the life-history
 diversity in the trait-based and multi-species models. 
 
-## Online apps
-Perhaps the easiest way for newcomers to get into using mizer is via
-online apps. We are in the process to develop a variety of apps for setting
-up and exploring models. Here is an example of an online app to 
-[explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/). 
+<!-- ## Online apps -->
+<!-- Perhaps the easiest way for newcomers to get into using mizer is via -->
+<!-- online apps. We are in the process to develop a variety of apps for setting -->
+<!-- up and exploring models. Here is an example of an online app to  -->
+<!-- [explore the effect of increased gear selectivity](https://mizer.shinyapps.io/selectivity/).  -->
 
 ## References

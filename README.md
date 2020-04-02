@@ -26,11 +26,15 @@ slope of the size spectrum. Size-based models can be complicated so
 mizer contains many default options that can be easily changed by the
 user.
 
-Mizer can also be used to create web apps that allow users to explore
-models without the need to install R. An [example of such an
-app](https://mizer.shinyapps.io/selectivity/) investigates the effect of
-switching to a gear with a T90 extension net to reduce the catches of
-undersize hake and red mullet
+<!-- Mizer can also be used to create web apps that allow users to explore models -->
+
+<!-- without the need to install R. An [example of such an -->
+
+<!-- app](https://mizer.shinyapps.io/selectivity/) investigates the effect of -->
+
+<!-- switching to a gear with a T90 extension net to reduce the catches of undersize -->
+
+<!-- hake and red mullet -->
 
 Mizer is still under active development, currently funded by the
 European Commission Horizon 2020 Research and Innovation Programme under
