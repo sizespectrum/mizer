@@ -266,10 +266,11 @@ test_that("getDiet works with proportion = FALSE", {
 })
 
 test_that("getDiet works with proportion = TRUE", {
-    diet <- getDiet(params, n, n_pp)
+    diet <- getDiet(params)
     total <- rowSums(diet, dims = 2)
     ones <- total
-    ones[] <- 1
+    # Only check at sizes where there are actually fish
+    ones[] <- as.numeric(params@initial_n > 0)
     expect_equal(total, ones)
 })
 
