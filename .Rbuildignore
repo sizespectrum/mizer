@@ -8,5 +8,4 @@
 ^README\.Rmd$
 ^dev_scripts\.R$
 
-^vignettes\/.*\.Rmd$
-^vignettes\/(?!mizer\.Rmd).*$
+^vignettes$

@@ -29,7 +29,7 @@
 #' the principles behind mizer and how the package can be used to perform
 #' size-based modelling.
 #'
-#' @import ggplot2 methods assertthat shiny dplyr
+#' @import ggplot2 methods assertthat dplyr
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases
 #' @importFrom grDevices col2rgb
