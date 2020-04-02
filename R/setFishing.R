@@ -28,7 +28,7 @@
 #' must be a data frame with one row for each gear-species combination. So if
 #' for example a gear can select three species, then that gear contributes three
 #' rows to the `gear_params` data frame, one for each species it can select. The
-#' data frame must have colunns `gear`, holding the name of the gear, `species`,
+#' data frame must have columns `gear`, holding the name of the gear, `species`,
 #' holding the name of the species, and `sel_func`, holding the name of the
 #' function that calculates the selectivity curve. Some selectivity functions
 #' are included in the package: `knife_edge()`, `sigmoid_length()`,

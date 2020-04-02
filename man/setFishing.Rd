@@ -83,7 +83,7 @@ To allow the calculation of the \code{selectivity} array, the \code{gear_params}
 must be a data frame with one row for each gear-species combination. So if
 for example a gear can select three species, then that gear contributes three
 rows to the \code{gear_params} data frame, one for each species it can select. The
-data frame must have colunns \code{gear}, holding the name of the gear, \code{species},
+data frame must have columns \code{gear}, holding the name of the gear, \code{species},
 holding the name of the species, and \code{sel_func}, holding the name of the
 function that calculates the selectivity curve. Some selectivity functions
 are included in the package: \code{knife_edge()}, \code{sigmoid_length()},
