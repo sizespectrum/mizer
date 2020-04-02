@@ -153,8 +153,8 @@ get_gamma_default <- function(params) {
     }
     missing <- is.na(species_params$gamma)
     if (any(missing)) {
-        assert_that(is.number(params@plankton_params$lambda),
-                    is.number(params@plankton_params$kappa),
+        assert_that(is.number(params@resource_params$lambda),
+                    is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
         message("Note: Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) || 
@@ -168,11 +168,11 @@ get_gamma_default <- function(params) {
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
         params@species_params$interaction_p <- 1
-        params@initial_n_pp[] <- params@plankton_params$kappa * 
-            params@w_full^(-params@plankton_params$lambda)
+        params@initial_n_pp[] <- params@resource_params$kappa * 
+            params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
             params@w[length(params@w)] ^ 
-            (2 + params@species_params$q - params@plankton_params$lambda)
+            (2 + params@species_params$q - params@resource_params$lambda)
         # Now set gamma so that this available energy leads to f0
         gamma_default <- (species_params$h / avail_energy) * 
             (species_params$f0 / (1 - species_params$f0))

@@ -49,7 +49,7 @@ class MizerParams, which has many slots holding the various rate functions
 and other parameters. In this notebook we will always use the name `params`
 for the variable holding our MizerParams object. This object now has slots
 `params@initial_n`, `params@initial_n_pp` and `params@initial_n_other` holding the
-initial values for the fish abundances, the plankton abundances and the
+initial values for the fish abundances, the resource abundances and the
 unstructured resource biomasses, respectively. (The unstructured resources are
 another new feature, very much in the experimental stage, that we will discuss
 later.)
@@ -83,13 +83,13 @@ the abundance density multiplied by size to the power 2.
 plotSpectra(params, power = 2)
 ```
 
-If you are wondering what motivates the drop-off in the plankton abundance and
+If you are wondering what motivates the drop-off in the resource abundance and
 then the low abundance of the species: let's plot also the total abundance.
 ```{r}
 plotSpectra(params, power = 2, total = TRUE)
 ```
 
-We see that the abundances were chosen so that the sum of plankton and fish
+We see that the abundances were chosen so that the sum of resource and fish
 abundances produce the Sheldon power-law spectrum, at least initially. If
 there were an infinite number of species continuing to the right, then they
 would sum up to the power law everywhere. As it is, the total abundance drops

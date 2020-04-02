@@ -49,7 +49,7 @@ setMetabolicRate()
 setExtMort()
 setReproduction()
 setFishing()
-setPlankton()
+setResource()
 See the Details section below for a discussion of how to use this function." />
 <meta name="twitter:card" content="summary" />
 
@@ -83,7 +83,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -148,7 +148,7 @@ functions</p><ul>
 <li><p><code><a href='setExtMort.html'>setExtMort()</a></code></p></li>
 <li><p><code><a href='setReproduction.html'>setReproduction()</a></code></p></li>
 <li><p><code><a href='setFishing.html'>setFishing()</a></code></p></li>
-<li><p><code><a href='setPlankton.html'>setPlankton()</a></code></p></li>
+<li><p><code><a href='setResource.html'>setResource()</a></code></p></li>
 </ul><p>See the Details section below for a discussion of how to use this function.</p>
     </div>
 
@@ -177,7 +177,7 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setPlankton.html'>setPlankton</a></code></p><dl class='dl-horizontal'>
+      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setResource.html'>setResource</a></code></p><dl class='dl-horizontal'>
     <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
@@ -219,16 +219,16 @@ each species by each gear, \(Q_{g,i}\).</p></dd>
     <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></dd>
-    <dt><code>r_plankton</code></dt><dd><p>Optional. Vector of plankton intrinsic birth rates</p></dd>
-    <dt><code>K_plankton</code></dt><dd><p>Optional. Vector of plankton intrinsic carrying capacity</p></dd>
-    <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic plankton birth rate</p></dd>
-    <dt><code>n</code></dt><dd><p>Allometric growth exponent for plankton</p></dd>
-    <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic plankton carrying capacity</p></dd>
-    <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic plankton carrying capacity</p></dd>
-    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the plankton spectrum.
+    <dt><code>r_resource</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
+    <dt><code>K_resource</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
+    <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic resource birth rate</p></dd>
+    <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
+    <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>
+    <dt><code>lambda</code></dt><dd><p>Scaling exponent of the intrinsic resource carrying capacity</p></dd>
+    <dt><code>w_pp_cutoff</code></dt><dd><p>The upper cut off size of the resource spectrum.
 Default is 10 g.</p></dd>
-    <dt><code>plankton_dynamics</code></dt><dd><p>Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+    <dt><code>resource_dynamics</code></dt><dd><p>Function that determines resource dynamics by
+calculating the resource spectrum at the next time step from the current
 state.</p></dd>
   
 </dl></td>
@@ -335,7 +335,7 @@ you supply a named array then the function will check the order and warn if
 it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
-<p>The interaction of the species with the plankton are set via a column
+<p>The interaction of the species with the resource are set via a column
 <code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
@@ -602,23 +602,23 @@ the MizerParams object is created.</p>
 not supplied, it is set to zero. The initial effort can be overruled when
 the simulation is run with <code><a href='project.html'>project()</a></code>, where it is also possible to specify
 an effort that varies through time.</p>
-    <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
+    <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     
 
-<p>By default, mizer uses a semichemostat model to describe the plankton
+<p>By default, mizer uses a semichemostat model to describe the resource
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function <code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>. You can change the
-plankton dynamics by writing your own function, modelled on
-<code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>, and then passing the name of your
-function in the <code>plankton_dynamics</code> argument.</p>
-<p>The <code>r_plankton</code> argument is a vector specifying the intrinsic plankton
+by the function <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>. You can change the
+resource dynamics by writing your own function, modelled on
+<code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>, and then passing the name of your
+function in the <code>resource_dynamics</code> argument.</p>
+<p>The <code>r_resource</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_plankton</code>
+The values of \(r_p\) and \(n\) are taken from the <code>r_resource</code>
 and <code>n</code> arguments.</p>
-<p>The <code>K_plankton</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>K_resource</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -634,9 +634,9 @@ and <code>lambda</code> arguments.</p>
 <code><a href='setInteraction.html'>setInteraction</a>()</code>,
 <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a>()</code>,
 <code><a href='setMetabolicRate.html'>setMetabolicRate</a>()</code>,
-<code><a href='setPlankton.html'>setPlankton</a>()</code>,
 <code><a href='setPredKernel.html'>setPredKernel</a>()</code>,
 <code><a href='setReproduction.html'>setReproduction</a>()</code>,
+<code><a href='setResource.html'>setResource</a>()</code>,
 <code><a href='setSearchVolume.html'>setSearchVolume</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -661,7 +661,7 @@ and <code>lambda</code> arguments.</p>
       <li><a href="#setting-external-mortality-rate">Setting external mortality rate</a></li>
       <li><a href="#setting-reproduction">Setting reproduction</a></li>
       <li><a href="#setting-fishing">Setting fishing</a></li>
-      <li><a href="#setting-plankton-dynamics">Setting plankton dynamics</a></li>
+      <li><a href="#setting-resource-dynamics">Setting resource dynamics</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

@@ -77,10 +77,10 @@ Other rate functions:
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
-\code{\link{getPlanktonMort}()},
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getResourceMort}()}
 }
 \concept{rate functions}

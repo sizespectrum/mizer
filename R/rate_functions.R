@@ -27,7 +27,7 @@
 #' getEncounter(params, n, n_pp)
 #' }
 getEncounter <- function(params, n = initialN(params), 
-                         n_pp = initialNPlankton(params),
+                         n_pp = initialNResource(params),
                          n_other = initialNOther(params)) {
 
     f <- get(params@rates_funcs$Encounter)
@@ -149,7 +149,7 @@ getCriticalFeedingLevel <- function(params) {
 #'   using the [getFeedingLevel()] function.
 #'   
 #' @return A two dimensional array (predator species x prey size), 
-#'   where the prey size runs over fish community plus plankton spectrum.
+#'   where the prey size runs over fish community plus resource spectrum.
 #' @export
 #' @family rate functions
 #' @examples
@@ -163,7 +163,7 @@ getCriticalFeedingLevel <- function(params) {
 #' getPredRate(params,n,n_pp)
 #' }
 getPredRate <- function(params, n = initialN(params), 
-                        n_pp = initialNPlankton(params),
+                        n_pp = initialNResource(params),
                         n_other = initialNOther(params),
                         feeding_level = getFeedingLevel(params, n = n,
                                                         n_pp = n_pp, 
@@ -195,7 +195,7 @@ getPredRate <- function(params, n = initialN(params),
 #' @inheritParams getFeedingLevel
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   plankton, the w_full slot). The array is optional. If it is not provided
+#'   resource, the w_full slot). The array is optional. If it is not provided
 #'   it is calculated by the [getPredRate()] function.
 #'
 #' @return
@@ -269,20 +269,20 @@ getPredMort <- function(object, n, n_pp, n_other,
 getM2 <- getPredMort
 
 
-#' Get predation mortality rate for plankton
+#' Get predation mortality rate for resource
 #' 
-#' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
-#' spectrum by plankton size (in units 1/year).
+#' Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
+#' spectrum by resource size (in units 1/year).
 #' 
 #' Used by the `project` function for running size based simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate An array of predation rates of dimension no. sp x no.
 #'   community size bins x no. of size bins in whole spectra (i.e. community +
-#'   plankton, the w_full slot). The array is optional. If it is not provided
+#'   resource, the w_full slot). The array is optional. If it is not provided
 #'   it is calculated by the [getPredRate()] function.
 #'
-#' @return A vector of mortality rate by plankton size.
+#' @return A vector of mortality rate by resource size.
 #' @family rate functions
 #' @export
 #' @examples
@@ -290,14 +290,14 @@ getM2 <- getPredMort
 #' params <- newMultispeciesParams(NS_species_params_gears, inter)
 #' # With constant fishing effort for all gears for 20 time steps
 #' sim <- project(params, t_max = 20, effort = 0.5)
-#' # Get plankton mortality at one time step
+#' # Get resource mortality at one time step
 #' n <- sim@@n[21,,]
 #' n_pp <- sim@@n_pp[21,]
-#' getPlanktonMort(params,n,n_pp)
+#' getResourceMort(params,n,n_pp)
 #' }
-getPlanktonMort <- 
+getResourceMort <- 
     function(params, n = initialN(params), 
-             n_pp = initialNPlankton(params),
+             n_pp = initialNResource(params),
              n_other = initialNOther(params),
              pred_rate = getPredRate(params, n = n, n_pp = n_pp, 
                                      n_other = n_other)) {
@@ -307,20 +307,20 @@ getPlanktonMort <-
          (length(dim(pred_rate)) != 2)) {
         stop("pred_rate argument must have 2 dimensions: no. species (",
              nrow(params@species_params),
-             ") x no. size bins in community + plankton (",
+             ") x no. size bins in community + resource (",
              length(params@w_full), ")")
     }
     
-    f <- get(params@rates_funcs$PlanktonMort)
+    f <- get(params@rates_funcs$ResourceMort)
     f(params, n = n, n_pp = n_pp, n_other = n_other, pred_rate = pred_rate)
 }
 
-#' Alias for getPlanktonMort
+#' Alias for getResourceMort
 #' 
 #' An alias provided for backward compatibility with mizer version <= 1.0
-#' @inherit getPlanktonMort
+#' @inherit getResourceMort
 #' @export
-getM2Background <- getPlanktonMort
+getM2Background <- getResourceMort
 
 
 #' Get the fishing mortality by time, gear, species and size
@@ -551,7 +551,7 @@ getFMort <- function(object, effort, time_range, drop = TRUE){
 #' }
 getMort <- function(params, 
                     n = initialN(params), 
-                    n_pp = initialNPlankton(params),
+                    n_pp = initialNResource(params),
                     n_other = initialNOther(params),
                     effort = getInitialEffort(params),
                     f_mort = getFMort(params, effort),
@@ -632,7 +632,7 @@ getZ <- getMort
 #' getEReproAndGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEReproAndGrowth <- function(params, n = initialN(params), 
-                               n_pp = initialNPlankton(params),
+                               n_pp = initialNResource(params),
                                n_other = initialNOther(params),
                                encounter = getEncounter(params, n = n,
                                                         n_pp = n_pp, 
@@ -685,7 +685,7 @@ getEReproAndGrowth <- function(params, n = initialN(params),
 #' getERepro(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getERepro <- function(params, n = initialN(params), 
-                      n_pp = initialNPlankton(params),
+                      n_pp = initialNResource(params),
                       n_other = initialNOther(params),
                       e = getEReproAndGrowth(params, n = n, n_pp = n_pp,
                                              n_other = n_other)) {
@@ -735,7 +735,7 @@ getESpawning <- getERepro
 #' getEGrowth(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getEGrowth <- function(params, n = initialN(params), 
-                       n_pp = initialNPlankton(params),
+                       n_pp = initialNResource(params),
                        n_other = initialNOther(params),
                        e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                            n_other = n_other),
@@ -781,7 +781,7 @@ getEGrowth <- function(params, n = initialN(params),
 #' getRDI(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDI <- function(params, n = initialN(params), 
-                   n_pp = initialNPlankton(params),
+                   n_pp = initialNResource(params),
                    n_other = initialNOther(params),
                    e_repro = getERepro(params, n = n, n_pp = n_pp, 
                                        n_other = n_other)) {
@@ -823,7 +823,7 @@ getRDI <- function(params, n = initialN(params),
 #' getRDD(params,sim@@n[21,,],sim@@n_pp[21,])
 #' }
 getRDD <- function(params, n = initialN(params), 
-                   n_pp = initialNPlankton(params),
+                   n_pp = initialNResource(params),
                    n_other = initialNOther(params),
                    rdi = getRDI(params, n = n, n_pp = n_pp, 
                                 n_other = n_other)) {

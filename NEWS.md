@@ -48,7 +48,7 @@ After setting up a mizer model, it is possible to change specific model
 parameters with the new functions
 
 * `species_params<-()`
-* `plankton_params<-()`
+* `resource_params<-()`
 * `gear_params<-()`
 * `setPredKernel()`
 * `setSearchVolume()`
@@ -58,7 +58,7 @@ parameters with the new functions
 * `setExtMort()`
 * `setReproduction()`
 * `setFishing()`
-* `setPlankton()`
+* `setResource()`
 
 The new function `setParams()` is a wrapper for all of the above functions
 and is also used when setting up a new model with `newMultispeciesParams()`.
@@ -71,8 +71,8 @@ Along with these setter functions there are accessor functions for getting the
 parameter arrays: `getPredKernel()`, `getSearchVolume()`, 
 `getInteraction()`, `getMaxIntakeRate()`, `getMetabolicRate()`, 
 `getExtMort()`, `getMaturityProportion()`, `getReproductionProportion()`,
-`getCatchability()`, `getSelectivity()`, `getPlanktonBirthRate()`,
-`getPlanktonCarryingCapacity()`, `getPlanktonParams()`, `getPlanktonDynamics()`,
+`getCatchability()`, `getSelectivity()`, `getResourceRate()`,
+`getResourceCapacity()`, `getResourceParams()`, `getResourceDynamics()`,
 
 * Setting of the maximum reproduction rate has been separated out into new
   function `setRmax()`.
@@ -83,7 +83,7 @@ The MizerParams object now also contains the initial values for the size
 spectra. This is particularly useful if the model has been tuned to produce
 the observed steady state. The new function `steady()` finds a steady state
 for a model and sets it as the initial value. The initial values can be
-accessed and changed via functions `initialN()` and `initialNPlankton()`. The
+accessed and changed via functions `initialN()` and `initialNResource()`. The
 initial values can be set to the final values of a previous simulation with
 `setInitialValues()`.
 
@@ -161,7 +161,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   them in a list.
 * A convenience function `times()` to extract the times at which simulation 
   results are saved in a MizerSim object.
-* Convenience functions `finalN()`, `finalNPlankton()` and `finalNOther()` as
+* Convenience functions `finalN()`, `finalNResource()` and `finalNOther()` as
   well as `idxFinalT()` to access the values at the final time of a simulation.
 * New function `getCriticalFeedingLevel()` returns the critical feeding level
   for each species at each size.
@@ -181,20 +181,20 @@ species. The information is set up via a new `gear_params()` data frame. See
 * `project()` now shows a progress bar while a simulation is running. Can be
   turned off with `progress_bar = FALSE` argument.
 * Satiation can be switched off by setting the maximum intake rate to `Inf`.
-* Users can now set their own plankton dynamics instead of the default
-  `plankton_semichemostat()`.
-* Different species can interact with plankton with different strengths, or not
-  feed on plankton at all, controlled by an `interaction_p` column in the
+* Users can now set their own resource dynamics instead of the default
+  `resource_semichemostat()`.
+* Different species can interact with resource with different strengths, or not
+  feed on resource at all, controlled by an `interaction_p` column in the
   species parameter data frame.
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which
   25% of the individuals of a species are mature.
-* The scaling exponent for the allocation of resources into reproduction can
+* The scaling exponent for the allocation of energy into reproduction can
   now be set via the `m` column in the species parameter data frame.
 * `project()` can now continue projection from last time step of a previous
   simulation if the first argument is a MizerSim object. The new `append` 
   argument then controls whether the new results are appended to the old.
-* Values for minimum plankton size, and minimum and maximum consumer sizes are
+* Values for minimum resource size, and minimum and maximum consumer sizes are
   set automatically if not provided in `newMultispeciesParams()`.
 * Default values for species parameters are used for missing values within a 
   column in the species parameter data frame, not only if the column is missing 
@@ -231,7 +231,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   but kept old names as aliases for backwards compatibility:
   + `getmM2()` -> `getPredMort()`
   + `plotM2` -> `plotPredMort()`
-  + `getM2background()` -> `getPlanktonMort()`
+  + `getM2background()` -> `getResourceMort()`
   + `getZ()` -> `getMort()`
   + `getESpawning()` -> `getERepro()`
   + `MizerParams()` -> `emptyParams()` or `set_multispecies_model()`
@@ -247,7 +247,7 @@ species. The information is set up via a new `gear_params()` data frame. See
 * The fast FFT method and the old method for calculating integrals now give 
   the same numerical results. (#39)
 * `getEncounter()` and `getPredRate()` now set names on the returned arrays.
-* Plankton carrying capacity for scale-invariant model is calculated in a way 
+* Resource carrying capacity for scale-invariant model is calculated in a way 
   that reduces rounding errors.
 * Avoids potential problems with negative numbers due to numerical errors.
 * Consistently cutting off predation kernel at 0 and beta + 3 sigma.
@@ -259,7 +259,7 @@ species. The information is set up via a new `gear_params()` data frame. See
 * times are not truncated at 3 significant figures, because that would not allow
   something like 2019.
 * get_initial_n() gets values for n and q from params object
-* `summary()` of MizerParams object reflects the number of non-empty plankton 
+* `summary()` of MizerParams object reflects the number of non-empty resource 
   bins. (@patricksykes)
   
 ## Under the hood
@@ -291,7 +291,7 @@ species. The information is set up via a new `gear_params()` data frame. See
 * Using assert_that to check arguments to functions more often.
 * Argument `shiny_progress` renamed to `progress_bar` because they control
   any type of progress bar.
-* In documentation renamed "background" to "plankton".
+* In documentation renamed "background" and "plankton" consistently to "resource".
 * Using `outer()` instead of `tapply()` where possible to improve readability.
 * Avoiding use of `hasArg()` and `anyNA()` because they were not available in R 3.1
 * A more robust code for setting up the size grids.
@@ -303,8 +303,8 @@ species. The information is set up via a new `gear_params()` data frame. See
   + Added slot `@maturity` to hold the maturity ogive.
   + Added slot `@pred_kernel` to hold predation kernel if it has variable
     predator/prey ratio.
-  + Added slot `@plankton_dynamics` to allow user to specify alternative
-    plankton dynamics.
+  + Added slot `@resource_dynamics` to allow user to specify alternative
+    resource dynamics.
   + Added slot `@gear_dynamics` to species to be targeted by multiple gears.
   + Added slot `@ft_mask` that is used when calculating predation rates using
     the Fourier transform method.
@@ -344,7 +344,7 @@ species. The information is set up via a new `gear_params()` data frame. See
   + `PlotYield()` no longer fails when species names are numbers or when a 
      species abundance is zero
   + Added a `total` parameter to several plot functions to add the curve for the 
-     total community (sum over all species and plankton)
+     total community (sum over all species and resource)
   + Added a `species` parameter to all plot functions to allow for only a 
       selection of species to be plotted
   + Allow the number of ticks on y-axis in biomass plot to be controlled

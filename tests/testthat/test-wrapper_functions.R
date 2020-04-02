@@ -60,14 +60,14 @@ test_that("Scaling model is set up correctly", {
     f0 <- 0.6
     n <- p@species_params$n[[sp]]
     mu0 <- (1 - f0) * sqrt(2 * pi) * 
-        p@plankton_params$kappa * gamma * sigma *
+        p@resource_params$kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)
     hbar <- alpha * h * f0 - ks
     # Check encounter rate
-    lm2 <- p@plankton_params$lambda - 2
+    lm2 <- p@resource_params$lambda - 2
     q <- p@species_params$q[[sp]]
     e <- getEncounter(p, p@initial_n, p@initial_n_pp)[sp, ] * p@w^(lm2 - q)
-    ae <- gamma * p@plankton_params$kappa * exp(lm2^2 * sigma^2 / 2) *
+    ae <- gamma * p@resource_params$kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * 
         # The following factor takes into account the cutoff in the integral
         (pnorm(3 - lm2 * sigma) + pnorm(log(beta)/sigma + lm2 * sigma) - 1)
@@ -94,8 +94,8 @@ test_that("Scaling model is set up correctly", {
     total <- p@initial_n_pp
     fish_idx <- (length(p@w_full) - length(p@w) + 1):length(p@w_full)
     total[fish_idx] <- total[fish_idx] + p@sc
-    total <- total * p@w_full^p@plankton_params$lambda
-    expected <- rep(p@plankton_params$kappa, length(p@w_full))
+    total <- total * p@w_full^p@resource_params$lambda
+    expected <- rep(p@resource_params$kappa, length(p@w_full))
     expect_equivalent(total, expected, tolerance = 1e-15, check.names = FALSE)
     
     # All erepros should be equal

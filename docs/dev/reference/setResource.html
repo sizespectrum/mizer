@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set up plankton — setPlankton • mizer</title>
+<title>Set up resource — setResource • mizer</title>
 
 
 <!-- jquery -->
@@ -37,9 +37,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Set up plankton — setPlankton" />
-<meta property="og:description" content="Sets the intrinsic plankton growth rate and the intrinsic plankton carrying
-capacity as well as the name of the function used to simulate the plankton
+<meta property="og:title" content="Set up resource — setResource" />
+<meta property="og:description" content="Sets the intrinsic resource growth rate and the intrinsic resource carrying
+capacity as well as the name of the function used to simulate the resource
 dynamics" />
 <meta name="twitter:card" content="summary" />
 
@@ -73,7 +73,7 @@ dynamics" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -121,39 +121,39 @@ dynamics" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set up plankton</h1>
-    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setPlankton.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setPlankton.R'><code>R/setPlankton.R</code></a></small>
-    <div class="hidden name"><code>setPlankton.Rd</code></div>
+    <h1>Set up resource</h1>
+    <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/setResource.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/setResource.R'><code>R/setResource.R</code></a></small>
+    <div class="hidden name"><code>setResource.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Sets the intrinsic plankton growth rate and the intrinsic plankton carrying
-capacity as well as the name of the function used to simulate the plankton
+    <p>Sets the intrinsic resource growth rate and the intrinsic resource carrying
+capacity as well as the name of the function used to simulate the resource
 dynamics</p>
     </div>
 
-    <pre class="usage"><span class='fu'>setPlankton</span>(
+    <pre class="usage"><span class='fu'>setResource</span>(
   <span class='no'>params</span>,
-  <span class='kw'>r_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>K_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
-  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"kappa"</span>]],
-  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"lambda"</span>]],
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"n"</span>]],
-  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fu'>plankton_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
-  <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>r_resource</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>K_resource</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"r_pp"</span>]],
+  <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"kappa"</span>]],
+  <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"lambda"</span>]],
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"n"</span>]],
+  <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fu'>resource_params</span>(<span class='no'>params</span>)<span class='kw'>[[</span><span class='st'>"w_pp_cutoff"</span>]],
+  <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='no'>...</span>
 )
 
-<span class='fu'>getPlanktonRate</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceRate</span>(<span class='no'>params</span>)
 
-<span class='fu'>getPlanktonCapacity</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceCapacity</span>(<span class='no'>params</span>)
 
-<span class='fu'>getPlanktonDynamics</span>(<span class='no'>params</span>)
+<span class='fu'>getResourceDynamics</span>(<span class='no'>params</span>)
 
-<span class='fu'>plankton_params</span>(<span class='no'>params</span>)
+<span class='fu'>resource_params</span>(<span class='no'>params</span>)
 
-<span class='fu'>plankton_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<span class='fu'>resource_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,38 +163,38 @@ dynamics</p>
       <td><p>A MizerParams object</p></td>
     </tr>
     <tr>
-      <th>r_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic birth rates</p></td>
+      <th>r_resource</th>
+      <td><p>Optional. Vector of resource intrinsic birth rates</p></td>
     </tr>
     <tr>
-      <th>K_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
+      <th>K_resource</th>
+      <td><p>Optional. Vector of resource intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Coefficient of the intrinsic plankton birth rate</p></td>
+      <td><p>Coefficient of the intrinsic resource birth rate</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Coefficient of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Scaling exponent of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>Allometric growth exponent for plankton</p></td>
+      <td><p>Allometric growth exponent for resource</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
-      <td><p>The upper cut off size of the plankton spectrum.
+      <td><p>The upper cut off size of the resource spectrum.
 Default is 10 g.</p></td>
     </tr>
     <tr>
-      <th>plankton_dynamics</th>
-      <td><p>Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+      <th>resource_dynamics</th>
+      <td><p>Function that determines resource dynamics by
+calculating the resource spectrum at the next time step from the current
 state.</p></td>
     </tr>
     <tr>
@@ -203,34 +203,34 @@ state.</p></td>
     </tr>
     <tr>
       <th>value</th>
-      <td><p>List of plankton parameters</p></td>
+      <td><p>List of resource parameters</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A MizerParams object with updated plankton parameters. Because of the
-way the R language works, <code>setPlankton()</code> does not make the changes to the
+    <p>A MizerParams object with updated resource parameters. Because of the
+way the R language works, <code>setResource()</code> does not make the changes to the
 params object that you pass to it but instead returns a new params object.
 So to affect the change you call the function in the form
-<code>params &lt;- setPlankton(params, ...)</code>.</p>
-    <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
+<code>params &lt;- setResource(params, ...)</code>.</p>
+    <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     
 
-<p>By default, mizer uses a semichemostat model to describe the plankton
+<p>By default, mizer uses a semichemostat model to describe the resource
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function <code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>. You can change the
-plankton dynamics by writing your own function, modelled on
-<code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>, and then passing the name of your
-function in the <code>plankton_dynamics</code> argument.</p>
-<p>The <code>r_plankton</code> argument is a vector specifying the intrinsic plankton
+by the function <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>. You can change the
+resource dynamics by writing your own function, modelled on
+<code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>, and then passing the name of your
+function in the <code>resource_dynamics</code> argument.</p>
+<p>The <code>r_resource</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_plankton</code>
+The values of \(r_p\) and \(n\) are taken from the <code>r_resource</code>
 and <code>n</code> arguments.</p>
-<p>The <code>K_plankton</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>K_resource</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -257,7 +257,7 @@ and <code>lambda</code> arguments.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#setting-plankton-dynamics">Setting plankton dynamics</a></li>
+      <li><a href="#setting-resource-dynamics">Setting resource dynamics</a></li>
       <li><a href="#see-also">See also</a></li>
     </ul>
 

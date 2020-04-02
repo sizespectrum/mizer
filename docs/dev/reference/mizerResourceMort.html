@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get predation mortality rate for plankton needed to project standard mizer
-model — mizerPlanktonMort • mizer</title>
+<title>Get predation mortality rate for resource needed to project standard mizer
+model — mizerResourceMort • mizer</title>
 
 
 <!-- jquery -->
@@ -38,10 +38,10 @@ model — mizerPlanktonMort • mizer</title>
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Get predation mortality rate for plankton needed to project standard mizer
-model — mizerPlanktonMort" />
-<meta property="og:description" content="Calculates the predation mortality rate \(\mu_p(w)\) on the plankton
-spectrum by plankton size (in units 1/year)." />
+<meta property="og:title" content="Get predation mortality rate for resource needed to project standard mizer
+model — mizerResourceMort" />
+<meta property="og:description" content="Calculates the predation mortality rate \(\mu_p(w)\) on the resource
+spectrum by resource size (in units 1/year)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -74,7 +74,7 @@ spectrum by plankton size (in units 1/year)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -122,18 +122,18 @@ spectrum by plankton size (in units 1/year)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get predation mortality rate for plankton needed to project standard mizer
+    <h1>Get predation mortality rate for resource needed to project standard mizer
 model</h1>
     <small class="dont-index"><a href='https://github.com/sizespectrum/mizer/edit/master/R/project_methods.R'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/project_methods.R'><code>R/project_methods.R</code></a></small>
-    <div class="hidden name"><code>mizerPlanktonMort.Rd</code></div>
+    <div class="hidden name"><code>mizerResourceMort.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the predation mortality rate \(\mu_p(w)\) on the plankton
-spectrum by plankton size (in units 1/year).</p>
+    <p>Calculates the predation mortality rate \(\mu_p(w)\) on the resource
+spectrum by resource size (in units 1/year).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mizerPlanktonMort</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>pred_rate</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>mizerResourceMort</span>(<span class='no'>params</span>, <span class='no'>n</span>, <span class='no'>n_pp</span>, <span class='no'>n_other</span>, <span class='no'>pred_rate</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,7 +148,7 @@ spectrum by plankton size (in units 1/year).</p>
     </tr>
     <tr>
       <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
+      <td><p>A vector of the resource abundance by size</p></td>
     </tr>
     <tr>
       <th>n_other</th>
@@ -159,7 +159,7 @@ ecosystem</p></td>
       <th>pred_rate</th>
       <td><p>A two dimensional array (predator species x prey size) with
 the predation rate, where the prey size runs over fish community plus
-plankton spectrum.</p></td>
+resource spectrum.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -169,7 +169,7 @@ plankton spectrum.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A vector of mortality rate by plankton size.</p>
+    <p>A vector of mortality rate by resource size.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Used by the <code>project</code> function for running size based simulations.</p>

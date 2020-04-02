@@ -39,7 +39,7 @@ Running a projection with `project()` requires various arguments:
 	and how frequently the output is stored.
 
 * Initial population - The initial abundances of the stocks and the
-	plankton spectrum;
+	resource spectrum;
 
 The help page for `project()` describes the arguments in more detail.
 
@@ -109,12 +109,12 @@ names. If a value for `t_max` is also supplied it is ignored.
 ## Setting the initial population abundance {#sec:setting_initial_abundances}
 
 When running a simulation with the `project()` function, the initial populations
-of the species and the plankton spectrum need to be specified. Default values
+of the species and the resource spectrum need to be specified. Default values
 for the initial values are automatically set when creating a MizerParams object.
 However you can change these by assigning new values to `initialN()` and
-`initialNPlankton()`. `initialN()` should be set to a matrix (with dimensions
+`initialNResource()`. `initialN()` should be set to a matrix (with dimensions
 species x size) that contains the initial abundances of each species at size
-(the sizes must match those in the species size spectrum). `initialNPlankton` to
+(the sizes must match those in the species size spectrum). `initialNResource` to
 a vector of the same length as the the length of the full spectrum.
 
 
@@ -201,7 +201,7 @@ summary(sim)
 
 If we decrease `t_save` but keep `t_max` the same then we can see that the time
 dimension of the `effort` array changes accordingly. This will also be true of
-the simulation results returned by `N()` and `NPlankton()`. Here we reduce `t_save`
+the simulation results returned by `N()` and `NResource()`. Here we reduce `t_save`
 to 0.5, meaning that the effort and abundance information is stored at t = 1.0,
 1.5, 2.0 etc.
 

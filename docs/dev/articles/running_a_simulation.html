@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -101,7 +101,7 @@
 <li><p>A <code>MizerParams</code> object - The model parameters (see previous section);</p></li>
 <li><p>Fishing effort - The fishing effort of each gear through time;</p></li>
 <li><p>Time arguments - Arguments to control the time of the simulation, including the simulation time step, the length of the simulation and how frequently the output is stored.</p></li>
-<li><p>Initial population - The initial abundances of the stocks and the plankton spectrum;</p></li>
+<li><p>Initial population - The initial abundances of the stocks and the resource spectrum;</p></li>
 </ul>
 <p>The help page for <code><a href="../reference/project.html">project()</a></code> describes the arguments in more detail.</p>
 <p>The <code>MizerParams</code> class was explored in the previous section. In this section we will look at the other arguments and use examples to perform some simple projections.</p>
@@ -134,7 +134,7 @@
 <div id="sec:setting_initial_abundances" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:setting_initial_abundances" class="anchor"></a>Setting the initial population abundance</h2>
-<p>When running a simulation with the <code><a href="../reference/project.html">project()</a></code> function, the initial populations of the species and the plankton spectrum need to be specified. Default values for the initial values are automatically set when creating a MizerParams object. However you can change these by assigning new values to <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNPlankton-set.html">initialNPlankton()</a></code>. <code><a href="../reference/initialN-set.html">initialN()</a></code> should be set to a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). <code>initialNPlankton</code> to a vector of the same length as the the length of the full spectrum.</p>
+<p>When running a simulation with the <code><a href="../reference/project.html">project()</a></code> function, the initial populations of the species and the resource spectrum need to be specified. Default values for the initial values are automatically set when creating a MizerParams object. However you can change these by assigning new values to <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNResource-set.html">initialNResource()</a></code>. <code><a href="../reference/initialN-set.html">initialN()</a></code> should be set to a matrix (with dimensions species x size) that contains the initial abundances of each species at size (the sizes must match those in the species size spectrum). <code>initialNResource</code> to a vector of the same length as the the length of the full spectrum.</p>
 </div>
 <div id="sec:projection_examples" class="section level2">
 <h2 class="hasAnchor">
@@ -153,7 +153,7 @@
 ##  minimum size:   0.001
 ##  maximum size:   39851.3
 ##  no. size bins:  100
-## Plankton size spectrum:
+## Resource size spectrum:
 ##  minimum size:   2.12182e-13
 ##  maximum size:   9.82091
 ##  no. size bins:  179 (226 size bins in total)
@@ -197,7 +197,7 @@
 <p>The <code>effort</code> slot shows the effort by time and gear. In this example, we specified the <code>effort</code> argument as a single numeric of value 1. As you can see this results in the same effort being used for all gears for all time steps.</p>
 <p>A <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> method is also available for objects of type <code>MizerSim</code>. This is essentially the same as the summary for <code>MizerParams</code> objects, but includes information on the simulation time parameters.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(sim)</span></code></pre></div>
-<p>If we decrease <code>t_save</code> but keep <code>t_max</code> the same then we can see that the time dimension of the <code>effort</code> array changes accordingly. This will also be true of the simulation results returned by <code><a href="../reference/N.html">N()</a></code> and <code><a href="../reference/N.html">NPlankton()</a></code>. Here we reduce <code>t_save</code> to 0.5, meaning that the effort and abundance information is stored at t = 1.0, 1.5, 2.0 etc.</p>
+<p>If we decrease <code>t_save</code> but keep <code>t_max</code> the same then we can see that the time dimension of the <code>effort</code> array changes accordingly. This will also be true of the simulation results returned by <code><a href="../reference/N.html">N()</a></code> and <code><a href="../reference/N.html">NResource()</a></code>. Here we reduce <code>t_save</code> to 0.5, meaning that the effort and abundance information is stored at t = 1.0, 1.5, 2.0 etc.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>sim &lt;-<span class="st"> </span><span class="kw"><a href="../reference/project.html">project</a></span>(NS_params, <span class="dt">effort =</span> <span class="dv">1</span>, <span class="dt">t_max =</span> <span class="dv">10</span>, <span class="dt">dt =</span> <span class="fl">0.1</span>, <span class="dt">t_save =</span> <span class="fl">0.5</span>)</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="kw"><a href="../reference/effort.html">effort</a></span>(sim))</span></code></pre></div>
 <pre><code>##      gear

@@ -50,10 +50,10 @@ community.}
 \item{max_w}{Obsolete argument because the maximum size of the consumer
 spectrum is set to max_w_inf.}
 
-\item{min_w_pp}{Obsolete argument because the smallest plankton size is set
+\item{min_w_pp}{Obsolete argument because the smallest resource size is set
 to the smallest size at which the consumers feed.}
 
-\item{w_pp_cutoff}{The cut off size of the plankton spectrum. Default value
+\item{w_pp_cutoff}{The cut off size of the resource spectrum. Default value
 is 1.}
 
 \item{k0}{Multiplier for the maximum recruitment. Default value is 50.}
@@ -66,7 +66,7 @@ is 1.}
 
 \item{eta}{Factor to calculate \code{w_mat} from asymptotic size.}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 4.}
+\item{r_pp}{Growth rate parameter for the resource spectrum. Default value is 4.}
 
 \item{kappa}{Coefficient in abundance power law. Default value is
 0.005.}

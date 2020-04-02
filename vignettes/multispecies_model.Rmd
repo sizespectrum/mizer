@@ -58,7 +58,7 @@ A `MizerParams` object stores the:
 * size-based biological parameters for the species, such as the search volume;
 * density-dependent reproduction functions and parameters of each species;
 * an interaction matrix to describe the spatial overlap of pairs of species;
-* parameters relating to the growth and dynamics of the plankton spectrum;
+* parameters relating to the growth and dynamics of the resource spectrum;
 * fishing gear parameters: selectivity and catchability.
 
 Note that the `MizerParams` class does not store any parameters that can vary

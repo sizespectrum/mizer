@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -224,9 +224,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setPlankton.html">setPlankton()</a></code> <code><a href="setPlankton.html">getPlanktonRate()</a></code> <code><a href="setPlankton.html">getPlanktonCapacity()</a></code> <code><a href="setPlankton.html">getPlanktonDynamics()</a></code> <code><a href="setPlankton.html">plankton_params()</a></code> <code><a href="setPlankton.html">`plankton_params<-`()</a></code> </p>
+          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_params()</a></code> <code><a href="setResource.html">`resource_params<-`()</a></code> </p>
         </td>
-        <td><p>Set up plankton</p></td>
+        <td><p>Set up resource</p></td>
       </tr><tr>
         
         <td>
@@ -274,9 +274,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="initialNPlankton-set.html">`initialNPlankton<-`()</a></code> <code><a href="initialNPlankton-set.html">initialNPlankton()</a></code> </p>
+          <p><code><a href="initialNResource-set.html">`initialNResource<-`()</a></code> <code><a href="initialNResource-set.html">initialNResource()</a></code> </p>
         </td>
-        <td><p>Initial value for plankton spectrum</p></td>
+        <td><p>Initial value for resource spectrum</p></td>
       </tr><tr>
         
         <td>
@@ -300,13 +300,13 @@
       <tr>
         
         <td>
-          <p><code><a href="N.html">N()</a></code> <code><a href="N.html">NPlankton()</a></code> </p>
+          <p><code><a href="N.html">N()</a></code> <code><a href="N.html">NResource()</a></code> </p>
         </td>
         <td><p>Time series of size spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="finalN.html">finalN()</a></code> <code><a href="finalN.html">finalNPlankton()</a></code> </p>
+          <p><code><a href="finalN.html">finalN()</a></code> <code><a href="finalN.html">finalNResource()</a></code> </p>
         </td>
         <td><p>Size spectra at end of simulation</p></td>
       </tr><tr>
@@ -586,9 +586,9 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="getPlanktonMort.html">getPlanktonMort()</a></code> </p>
+          <p><code><a href="getResourceMort.html">getResourceMort()</a></code> </p>
         </td>
-        <td><p>Get predation mortality rate for plankton</p></td>
+        <td><p>Get predation mortality rate for resource</p></td>
       </tr><tr>
         
         <td>
@@ -719,22 +719,22 @@ and size.</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-plankton-dynamics" class="hasAnchor"><a href="#section-plankton-dynamics" class="anchor"></a>Plankton dynamics</h2>
+          <h2 id="section-resource-dynamics" class="hasAnchor"><a href="#section-resource-dynamics" class="anchor"></a>Resource dynamics</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
       <tr>
         
         <td>
-          <p><code><a href="plankton_semichemostat.html">plankton_semichemostat()</a></code> </p>
+          <p><code><a href="resource_semichemostat.html">resource_semichemostat()</a></code> </p>
         </td>
-        <td><p>Project plankton using semichemostat model</p></td>
+        <td><p>Project resource using semichemostat model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plankton_constant.html">plankton_constant()</a></code> </p>
+          <p><code><a href="resource_constant.html">resource_constant()</a></code> </p>
         </td>
-        <td><p>Keep plankton abundance constant</p></td>
+        <td><p>Keep resource abundance constant</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -842,13 +842,6 @@ standard mizer model</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="mizerPlanktonMort.html">mizerPlanktonMort()</a></code> </p>
-        </td>
-        <td><p>Get predation mortality rate for plankton needed to project standard mizer
-model</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="mizerPredMort.html">mizerPredMort()</a></code> </p>
         </td>
         <td><p>Get total predation mortality rate needed to project standard mizer model</p></td>
@@ -865,6 +858,13 @@ model</p></td>
         </td>
         <td><p>Get density-independent rate of reproduction needed to project standard
 mizer model</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="mizerResourceMort.html">mizerResourceMort()</a></code> </p>
+        </td>
+        <td><p>Get predation mortality rate for resource needed to project standard mizer
+model</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1008,24 +1008,6 @@ required parameters or transfer them from species_params if available</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params<-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
-        </td>
-        <td><p>Set fishing parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params<-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
-        </td>
-        <td><p>Species parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="setPlankton.html">setPlankton()</a></code> <code><a href="setPlankton.html">getPlanktonRate()</a></code> <code><a href="setPlankton.html">getPlanktonCapacity()</a></code> <code><a href="setPlankton.html">getPlanktonDynamics()</a></code> <code><a href="setPlankton.html">plankton_params()</a></code> <code><a href="setPlankton.html">`plankton_params<-`()</a></code> </p>
-        </td>
-        <td><p>Set up plankton</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="NS_species_params_gears.html">NS_species_params_gears</a></code> </p>
         </td>
         <td><p>Example species parameter set based on the North Sea with different gears</p></td>
@@ -1084,7 +1066,7 @@ required parameters or transfer them from species_params if available</p></td>
         <td>
           <p><code><a href="getM2Background.html">getM2Background()</a></code> </p>
         </td>
-        <td><p>Alias for getPlanktonMort</p></td>
+        <td><p>Alias for getResourceMort</p></td>
       </tr><tr>
         
         <td>
@@ -1116,7 +1098,7 @@ required parameters or transfer them from species_params if available</p></td>
       <li><a href="#section-extending-mizer">Extending Mizer</a></li>
       <li><a href="#section-predation-kernels">Predation kernels</a></li>
       <li><a href="#section-fishing-selectivity-functions">Fishing selectivity functions</a></li>
-      <li><a href="#section-plankton-dynamics">Plankton dynamics</a></li>
+      <li><a href="#section-resource-dynamics">Resource dynamics</a></li>
       <li><a href="#section-density-dependent-reproduction">Density-dependent reproduction</a></li>
       <li><a href="#section-internal-rate-functions">Internal rate functions</a></li>
       <li><a href="#section-internal-helper-functions">Internal helper functions</a></li>

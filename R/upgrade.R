@@ -155,8 +155,8 @@ upgradeParams <- function(params) {
         max_w = params@w[length(params@w)],
         min_w_pp = params@w_full[1] + 1e-16, # To make
         # sure that we don't add an extra bracket.
-        r_plankton = params@rr_pp,
-        K_plankton = params@cc_pp,
+        r_resource = params@rr_pp,
+        K_resource = params@cc_pp,
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,
@@ -171,6 +171,8 @@ upgradeParams <- function(params) {
     pnew@psi <- params@psi
     
     if (.hasSlot(params, "linecolour")) {
+        names(params@linecolour)[names(params@linecolour) == "Plankton"] <- "Resource"
+        names(params@linetype)[names(params@linetype) == "Plankton"] <- "Resource"
         pnew@linecolour <- params@linecolour
         pnew@linetype <- params@linetype
     }
@@ -197,39 +199,48 @@ upgradeParams <- function(params) {
     }
     if (.hasSlot(params, "plankton_dynamics")) {
         if (is.function(params@plankton_dynamics)) {
-            pnew@plankton_dynamics <- "plankton_semichemostat"
-            message('The plankton dynamics function has been set to "plankton_semichemostat".')
+            pnew@resource_dynamics <- "resource_semichemostat"
+            message('The resource dynamics function has been set to "resource_semichemostat".')
         } else {
-            pnew@plankton_dynamics <- params@plankton_dynamics
+            if (params@plankton_dynamics == "plankton_semichemostat") {
+                pnew@resource_dynamics <- "resource_semichemostat"
+            } else if (params@plankton_dynamics == "plankton_constant") {
+                pnew@resource_dynamics <- "resource_constant"
+            } else {
+                pnew@resource_dynamics <- params@plankton_dynamics
+            }
         }
     }
     if (.hasSlot(params, "plankton_params")) {
-        pnew@plankton_params <- params@plankton_params
+        pnew@resource_params <- params@plankton_params
+    }
+    if (.hasSlot(params, "resource_params")) {
+        pnew@resource_params <- params@resource_params
     } else if (.hasSlot(params, "lambda")) {
         # r_pp was not stored in params object, so has to be reconstructed
-        maxidx <- max(which(pnew@cc_pp > 0))  # The largest plankton index
+        maxidx <- max(which(pnew@cc_pp > 0))  # The largest resource index
         r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (params@n - 1)
-        pnew@plankton_params[["r_pp"]] <- r_pp
-        pnew@plankton_params[["lambda"]] <- params@lambda
-        pnew@plankton_params[["kappa"]] <- params@kappa
-        pnew@plankton_params[["n"]] <- params@n
-        pnew@plankton_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
+        pnew@resource_params[["r_pp"]] <- r_pp
+        pnew@resource_params[["lambda"]] <- params@lambda
+        pnew@resource_params[["kappa"]] <- params@kappa
+        pnew@resource_params[["n"]] <- params@n
+        pnew@resource_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
     } else {
-        # No plankton parameters saved in params object, so need to
+        # No resource parameters saved in params object, so need to
         # reconstruct from cc_pp and rr_pp
-        minidx <- min(which(pnew@cc_pp > 0))  # The smallest plankton index
-        maxidx <- max(which(pnew@cc_pp > 0))  # The largest plankton index
+        minidx <- min(which(pnew@cc_pp > 0))  # The smallest resource index
+        maxidx <- max(which(pnew@cc_pp > 0))  # The largest resource index
         lambda <- -log(params@cc_pp[[maxidx]] / params@cc_pp[[minidx]]) / 
             log(params@w_full[[maxidx]] / params@w_full[[minidx]])
         kappa <- params@cc_pp[[maxidx]] * params@w_full[[maxidx]] ^ lambda
         n <- 1 + log(params@rr_pp[[maxidx]] / params@rr_pp[[minidx]]) / 
             log(params@w_full[[maxidx]] / params@w_full[[minidx]])
         r_pp <- params@rr_pp[[maxidx]] / params@w_full[[maxidx]] ^ (n - 1)
-        pnew@plankton_params[["r_pp"]] <- r_pp
-        pnew@plankton_params[["lambda"]] <- lambda
-        pnew@plankton_params[["kappa"]] <- kappa
-        pnew@plankton_params[["n"]] <- n
-        pnew@plankton_params[["w_pp_cutoff"]] <- pnew@w_full[[maxidx]]
+        pnew@resource_params[["r_pp"]] <- r_pp
+        pnew@resource_params[["lambda"]] <- lambda
+        pnew@resource_params[["kappa"]] <- kappa
+        pnew@resource_params[["n"]] <- n
+        pnew@resource_params[["w_pp_cutoff"]] <- pnew@w_full[[maxidx]]
     }
     
     if (.hasSlot(params, "A")) {

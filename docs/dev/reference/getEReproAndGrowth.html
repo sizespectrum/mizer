@@ -73,7 +73,7 @@ for." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@ for.</p>
     <pre class="usage"><span class='fu'>getEReproAndGrowth</span>(
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNPlankton-set.html'>initialNPlankton</a></span>(<span class='no'>params</span>),
+  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
   <span class='kw'>encounter</span> <span class='kw'>=</span> <span class='fu'><a href='getEncounter.html'>getEncounter</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>),
   <span class='kw'>feeding_level</span> <span class='kw'>=</span> <span class='fu'><a href='getFeedingLevel.html'>getFeedingLevel</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>,
@@ -155,7 +155,7 @@ for.</p>
     </tr>
     <tr>
       <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
+      <td><p>A vector of the resource abundance by size</p></td>
     </tr>
     <tr>
       <th>n_other</th>
@@ -205,11 +205,11 @@ reproduction is calculated with <code><a href='getEGrowth.html'>getEGrowth()</a>
 <code><a href='getFMort.html'>getFMort</a>()</code>,
 <code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
 <code><a href='getMort.html'>getMort</a>()</code>,
-<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

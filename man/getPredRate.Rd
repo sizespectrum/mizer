@@ -7,7 +7,7 @@
 getPredRate(
   params,
   n = initialN(params),
-  n_pp = initialNPlankton(params),
+  n_pp = initialNResource(params),
   n_other = initialNOther(params),
   feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other)
 )
@@ -17,7 +17,7 @@ getPredRate(
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -28,7 +28,7 @@ using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
 }
 \value{
 A two dimensional array (predator species x prey size),
-where the prey size runs over fish community plus plankton spectrum.
+where the prey size runs over fish community plus resource spectrum.
 }
 \description{
 Calculates the potential rate (in units 1/year) at which a prey individual of
@@ -60,9 +60,9 @@ Other rate functions:
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
-\code{\link{getPlanktonMort}()},
 \code{\link{getPredMort}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getResourceMort}()}
 }
 \concept{rate functions}

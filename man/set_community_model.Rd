@@ -34,7 +34,7 @@ default value is 1e6.}
 
 \item{min_w}{The minimum size of the community. Default value is 1e-3.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum.}
+\item{min_w_pp}{The smallest size of the resource spectrum.}
 
 \item{z0}{The background mortality of the community. Default value is 0.1.}
 
@@ -50,10 +50,10 @@ default value is 1e6.}
 
 \item{n}{The scaling of the intake. Default value is 2/3.}
 
-\item{kappa}{The carrying capacity of the plankton spectrum. Default value
+\item{kappa}{The carrying capacity of the resource spectrum. Default value
 is 1000.}
 
-\item{lambda}{The exponent of the plankton spectrum. Default value is 2 + q
+\item{lambda}{The exponent of the resource spectrum. Default value is 2 + q
 \itemize{
 \item n.
 }}
@@ -62,7 +62,7 @@ is 1000.}
 spectrum. This value is used to calculate the search rate parameter
 \code{gamma} (see the package vignette). Default value is 0.7.}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum. Default value is 10.}
+\item{r_pp}{Growth rate parameter for the resource spectrum. Default value is 10.}
 
 \item{gamma}{Volumetric search rate. Estimated using \code{h}, \code{f0} and
 \code{kappa} if not supplied.}
@@ -75,7 +75,7 @@ function. Default value is 1000.}
 
 \item{recruitment}{The constant recruitment in the smallest size class of the
 community spectrum. This should be set so that the community spectrum
-continues the plankton spectrum. Default value = \code{kappa} *
+continues the resource spectrum. Default value = \code{kappa} *
 \code{min_w}^-\code{lambda}.}
 
 \item{rec_mult}{Additional multiplier for the constant recruitment. Default
@@ -95,7 +95,7 @@ This functions creates a \code{\linkS4class{MizerParams}} object so that
 community-type models can be easily set up and run. A community model has
 several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
+community. The resource spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
 energy invested in reproduction (the slot \code{psi} of the returned

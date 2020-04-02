@@ -72,7 +72,7 @@ object through time using project()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -139,8 +139,8 @@ constructor, but you will never have to do that because the object is
 created automatically by <code><a href='project.html'>project()</a></code> when needed.</p>
 <p>As a user you should never have to access the slots of a MizerSim object
 directly. Instead there are a range of functions to extract the information.
-<code><a href='N.html'>N()</a></code> and <code><a href='N.html'>NPlankton()</a></code> return arrays with the saved abundances of
-the species and the plankton population at size respectively. <code><a href='effort.html'>effort()</a></code>
+<code><a href='N.html'>N()</a></code> and <code><a href='N.html'>NResource()</a></code> return arrays with the saved abundances of
+the species and the resource population at size respectively. <code><a href='effort.html'>effort()</a></code>
 returns the fishing effort of each gear through time.
 <code><a href='times.html'>times()</a></code> returns the vector of times at which simulation results
 were stored and <code><a href='idxFinalT.html'>idxFinalT()</a></code> returns the index with which to access
@@ -171,7 +171,7 @@ with <code><a href='upgradeSim.html'>upgradeSim()</a></code>.</p>
 <dt><code>n</code></dt><dd><p>Three-dimensional array (time x species x size) that stores the
 projected community number densities.</p></dd>
 
-<dt><code>n_pp</code></dt><dd><p>An array (time x size) that stores the projected plankton number
+<dt><code>n_pp</code></dt><dd><p>An array (time x size) that stores the projected resource number
 densities.</p></dd>
 
 <dt><code>n_other</code></dt><dd><p>A list array (time x component) that stores the projected

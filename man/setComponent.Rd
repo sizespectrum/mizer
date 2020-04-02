@@ -40,7 +40,7 @@ The updated MizerParams object
 }
 \description{
 By default, mizer models any number of size-resolved consumer species
-and a single size-resolved plankton spectrum. Your model may require
+and a single size-resolved resource spectrum. Your model may require
 additional components, like for example detritus or carrion or multiple
 resources or .... This function allows you to set up such components.
 }

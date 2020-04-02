@@ -11,7 +11,7 @@ mizerRates(params, n, n_pp, n_other, t = 0, effort, rates_fns, ...)
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -37,7 +37,7 @@ By default this function returns a list with the following components:
 \item pred_mort from \code{\link[=mizerPredMort]{mizerPredMort()}}
 \item f_mort from \code{\link[=mizerFMort]{mizerFMort()}}
 \item mort from \code{\link[=mizerMort]{mizerMort()}}
-\item plankton_mort from \code{\link[=mizerPlanktonMort]{mizerPlanktonMort()}}
+\item resource_mort from \code{\link[=mizerResourceMort]{mizerResourceMort()}}
 \item e from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
 \item e_repro from \code{\link[=mizerERepro]{mizerERepro()}}
 \item e_growth from \code{\link[=mizerEGrowth]{mizerEGrowth()}}
@@ -57,9 +57,9 @@ Other mizer rate functions:
 \code{\link{mizerFMort}()},
 \code{\link{mizerFeedingLevel}()},
 \code{\link{mizerMort}()},
-\code{\link{mizerPlanktonMort}()},
 \code{\link{mizerPredMort}()},
 \code{\link{mizerPredRate}()},
-\code{\link{mizerRDI}()}
+\code{\link{mizerRDI}()},
+\code{\link{mizerResourceMort}()}
 }
 \concept{mizer rate functions}

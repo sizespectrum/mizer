@@ -41,7 +41,7 @@ following components:
 \item \code{pred_mort} from \code{\link[=mizerPredMort]{mizerPredMort()}}
 \item \code{fishing_mort} from \code{\link[=mizerFMort]{mizerFMort()}}
 \item \code{mort} from \code{\link[=mizerMort]{mizerMort()}}
-\item \code{plankton_mort} from \code{\link[=mizerPlanktonMort]{mizerPlanktonMort()}}
+\item \code{resource_mort} from \code{\link[=mizerResourceMort]{mizerResourceMort()}}
 \item \code{e} from \code{\link[=mizerEReproAndGrowth]{mizerEReproAndGrowth()}}
 \item \code{e_repro} from \code{\link[=mizerERepro]{mizerERepro()}}
 \item \code{e_growth} from \code{\link[=mizerEGrowth]{mizerEGrowth()}}

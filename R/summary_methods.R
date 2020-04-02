@@ -38,7 +38,7 @@ NULL
 #' Get diet of predator at size, resolved by prey species
 #'
 #' Calculates the rate at which a predator of a particular species and size
-#' consumes biomass of each prey species and plankton.
+#' consumes biomass of each prey species and resource.
 #' 
 #' This function performs the same integration as
 #' [getEncounter()] but does not aggregate over prey species, and
@@ -53,13 +53,13 @@ NULL
 #'   consumption rate in grams.
 #' 
 #' @return An array (predator species  x predator size x 
-#'   (prey species + plankton) )
+#'   (prey species + resource) )
 #' @export
 #' @family summary functions
 #' @concept summary_function
 getDiet <- function(params, 
                     n = initialN(params), 
-                    n_pp = initialNPlankton(params),
+                    n_pp = initialNResource(params),
                     proportion = TRUE) {
     # The code is based on that for getEncounter()
     assert_that(is(params, "MizerParams"),
@@ -76,7 +76,7 @@ getDiet <- function(params,
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
                                   "prey" = c(as.character(species), 
-                                             "Plankton")))
+                                             "Resource")))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -92,7 +92,7 @@ getDiet <- function(params,
                      ncol = no_w) %*%
             t(sweep(n, 2, params@w * params@dw, "*"))
         diet[, , 1:no_sp] <- ae
-        # Eating the plankton
+        # Eating the resource
         diet[, , no_sp + 1] <- rowSums(sweep(
             params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"), 
             dims = 2)
@@ -115,7 +115,7 @@ getDiet <- function(params,
         ae[ae < 1e-18] <- 0
         diet[, , 1:(no_sp + 1)] <- ae
     }
-    # Multiply by interaction matrix, including plankton, and then by 
+    # Multiply by interaction matrix, including resource, and then by 
     # search volume
     inter <- cbind(params@interaction, params@species_params$interaction_p)
     diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
@@ -421,7 +421,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat("\tmaximum size:\t", signif(max(object@w)), "\n", sep = "")
     cat("\tno. size bins:\t", length(object@w), "\n", sep = "")
     # Length of background? 
-    cat("Plankton size spectrum:\n")
+    cat("Resource size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
     cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), 
         "\n", sep = "")

@@ -2,12 +2,12 @@
 % Please edit documentation in R/MizerSim-class.R
 \name{N}
 \alias{N}
-\alias{NPlankton}
+\alias{NResource}
 \title{Time series of size spectra}
 \usage{
 N(sim)
 
-NPlankton(sim)
+NResource(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
@@ -16,7 +16,7 @@ NPlankton(sim)
 For \code{N()}: A three-dimensional array (time x species x size) with the
 number density of consumers
 
-For \code{NPlankton()}: An array (time x size) with the number density of plankton
+For \code{NResource()}: An array (time x size) with the number density of resource
 }
 \description{
 Fetch the simulation results for the size spectra over time.

@@ -77,7 +77,7 @@ reference:
   - setExtMort
   - setReproduction
   - setFishing
-  - setPlankton
+  - setResource
   - setInitialValues
   - params
   - summary,MizerParams-method
@@ -86,13 +86,13 @@ reference:
   contents:
   - project
   - initialN
-  - initialNPlankton
+  - initialNResource
   - setInitialValues
   - steady
 - title: Accessing results
   contents:
   - "N"
-  - NPlankton
+  - NResource
   - finalN
   - idxFinalT
   - effort
@@ -134,7 +134,7 @@ reference:
   - getFeedingLevel
   - getCriticalFeedingLevel
   - getMort
-  - getPlanktonMort
+  - getResourceMort
   - getPredMort
   - getPredRate
   - getRDD
@@ -158,10 +158,10 @@ reference:
   - sigmoid_length
   - sigmoid_weight
   - double_sigmoid_length
-- title: Plankton dynamics
+- title: Resource dynamics
   contents:
-  - plankton_semichemostat
-  - plankton_constant
+  - resource_semichemostat
+  - resource_constant
 - title: Density-dependent reproduction
   contents:
   - BevertonHoltRDD

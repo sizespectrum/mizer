@@ -471,7 +471,7 @@ ui <- fluidPage(
                     p("This unpacks a bit of the underlying mizer model of 
                       multispecies dynamics.  The grey lines are background 
                       species, each with its own dynamics;  the green line is a 
-                      plankton resource spectrum without which the whole fish 
+                      resource resource spectrum without which the whole fish 
                       assemblage would go to extinction.  The target species 
                       both eat, and are eaten by, the background species."),
                     p("In 2018, the system is at the steady state under 

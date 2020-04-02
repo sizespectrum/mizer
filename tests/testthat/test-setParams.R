@@ -61,7 +61,7 @@ test_that("setInteraction works", {
                    "Dimnames of interaction matrix do not match")
     params@species_params$interaction_p <- -1
     expect_error(setInteraction(params),
-                 "Values in the plankton interaction vector should be between 0 and 1")
+                 "Values in the resource interaction vector should be between 0 and 1")
 })
 
 ## setPredKernel ----

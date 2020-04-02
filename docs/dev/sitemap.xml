@@ -133,9 +133,6 @@
     <loc>https://sizespectrum.org/mizer/reference/getPhiPrey.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/getPlanktonMort.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/getPredKernel.html</loc>
   </url>
   <url>
@@ -152,6 +149,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getRDI.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getResourceMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getSSB.html</loc>
@@ -202,7 +202,7 @@
     <loc>https://sizespectrum.org/mizer/reference/initialNOther-set.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/initialNPlankton-set.html</loc>
+    <loc>https://sizespectrum.org/mizer/reference/initialNResource-set.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/inter.html</loc>
@@ -244,9 +244,6 @@
     <loc>https://sizespectrum.org/mizer/reference/mizerMort.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/mizerPlanktonMort.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/mizerPredMort.html</loc>
   </url>
   <url>
@@ -257,6 +254,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/mizerRates.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/mizerResourceMort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/newCommunityParams.html</loc>
@@ -272,12 +272,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/params.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plankton_constant.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/plankton_semichemostat.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/plotBiomass.html</loc>
@@ -328,6 +322,12 @@
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/resource_semichemostat.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/retune_erepro.html</loc>
   </url>
   <url>
@@ -361,9 +361,6 @@
     <loc>https://sizespectrum.org/mizer/reference/setParams.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/setPlankton.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/setPredKernel.html</loc>
   </url>
   <url>
@@ -371,6 +368,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setReproduction.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/setResource.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setRmax.html</loc>

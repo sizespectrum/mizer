@@ -7,7 +7,7 @@
 getEReproAndGrowth(
   params,
   n = initialN(params),
-  n_pp = initialNPlankton(params),
+  n_pp = initialNResource(params),
   n_other = initialNOther(params),
   encounter = getEncounter(params, n = n, n_pp = n_pp, n_other = n_other),
   feeding_level = getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other,
@@ -19,7 +19,7 @@ getEReproAndGrowth(
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -80,10 +80,10 @@ Other rate functions:
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
-\code{\link{getPlanktonMort}()},
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getResourceMort}()}
 }
 \concept{rate functions}

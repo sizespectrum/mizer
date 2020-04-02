@@ -72,7 +72,7 @@ community-type model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -168,7 +168,7 @@ species used to represent the community is set to this value.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
-      <td><p>The smallest size of the plankton spectrum. By default this
+      <td><p>The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.</p></td>
     </tr>
     <tr>
@@ -206,19 +206,19 @@ spectrum. This value is used to calculate the search rate parameter
       <th>n</th>
       <td><p>The allometric growth exponent. Used as allometric exponent for
 the maximum intake rate of the community as well as the intrinsic growth
-rate of the plankton.</p></td>
+rate of the resource.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Coefficient of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Scaling exponent of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Coefficient of the intrinsic plankton birth rate</p></td>
+      <td><p>Coefficient of the intrinsic resource birth rate</p></td>
     </tr>
     <tr>
       <th>knife_edge_size</th>
@@ -229,7 +229,7 @@ function.</p></td>
       <th>reproduction</th>
       <td><p>The constant reproduction in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum
-is continuous with the plankton spectrum.</p></td>
+is continuous with the resource spectrum.</p></td>
     </tr>
     </table>
 
@@ -242,7 +242,7 @@ is continuous with the plankton spectrum.</p></td>
 model:</p><ul>
 <li><p>Species identities of individuals are ignored. All are aggregated into a
 single community.</p></li>
-<li><p>The plankton spectrum only extends to the start of the community spectrum.</p></li>
+<li><p>The resource spectrum only extends to the start of the community spectrum.</p></li>
 <li><p>Reproductive rate is constant, independent of the energy invested in
 reproduction, which is set to 0.</p></li>
 <li><p>Standard metabolism is turned off (the parameter <code>ks</code> is set to 0).

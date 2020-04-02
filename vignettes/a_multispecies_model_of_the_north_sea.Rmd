@@ -167,8 +167,8 @@ gear_params$catchability <- as.numeric(f_history["1990",])
 ```
 
 Considering the other model parameters, we will use default values for all of
-the other parameters apart from `kappa`, the carrying capacity of the plankton
-spectrum (see [see the section on plankton density](model_description.html#plankton-density)). 
+the other parameters apart from `kappa`, the carrying capacity of the resource
+spectrum (see [see the section on resource density](model_description.html#resource-density)). 
 This was estimated along with the values `R_max` as part of the calibration
 process.
 

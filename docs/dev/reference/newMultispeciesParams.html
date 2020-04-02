@@ -77,7 +77,7 @@ details in the sections below the list." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -158,14 +158,14 @@ details in the sections below the list.</p>
   <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='st'>"BevertonHoltRDD"</span>,
-  <span class='kw'>r_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>K_plankton</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>r_resource</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>K_resource</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>2</span>/<span class='fl'>3</span>,
   <span class='kw'>r_pp</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>kappa</span> <span class='kw'>=</span> <span class='fl'>1e+11</span>,
   <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>2.05</span>,
   <span class='kw'>w_pp_cutoff</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>plankton_dynamics</span> <span class='kw'>=</span> <span class='st'>"plankton_semichemostat"</span>,
+  <span class='kw'>resource_dynamics</span> <span class='kw'>=</span> <span class='st'>"resource_semichemostat"</span>,
   <span class='kw'>gear_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(),
   <span class='kw'>selectivity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>catchability</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -202,7 +202,7 @@ frame.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
-      <td><p>The smallest size of the plankton spectrum. By default this
+      <td><p>The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.</p></td>
     </tr>
     <tr>
@@ -273,12 +273,12 @@ reproduction rate from the density-independent rate. Defaults to
 "<code><a href='BevertonHoltRDD.html'>BevertonHoltRDD()</a></code>".</p></td>
     </tr>
     <tr>
-      <th>r_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic birth rates</p></td>
+      <th>r_resource</th>
+      <td><p>Optional. Vector of resource intrinsic birth rates</p></td>
     </tr>
     <tr>
-      <th>K_plankton</th>
-      <td><p>Optional. Vector of plankton intrinsic carrying capacity</p></td>
+      <th>K_resource</th>
+      <td><p>Optional. Vector of resource intrinsic carrying capacity</p></td>
     </tr>
     <tr>
       <th>n</th>
@@ -287,25 +287,25 @@ species by including a <code>n</code> column in the <code>species_params</code>.
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Coefficient of the intrinsic plankton birth rate</p></td>
+      <td><p>Coefficient of the intrinsic resource birth rate</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>Coefficient of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Coefficient of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Scaling exponent of the intrinsic plankton carrying capacity</p></td>
+      <td><p>Scaling exponent of the intrinsic resource carrying capacity</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
-      <td><p>The upper cut off size of the plankton spectrum.
+      <td><p>The upper cut off size of the resource spectrum.
 Default is 10 g.</p></td>
     </tr>
     <tr>
-      <th>plankton_dynamics</th>
-      <td><p>Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+      <th>resource_dynamics</th>
+      <td><p>Function that determines resource dynamics by
+calculating the resource spectrum at the next time step from the current
 state.</p></td>
     </tr>
     <tr>
@@ -431,7 +431,7 @@ you supply a named array then the function will check the order and warn if
 it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
-<p>The interaction of the species with the plankton are set via a column
+<p>The interaction of the species with the resource are set via a column
 <code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
@@ -698,23 +698,23 @@ the MizerParams object is created.</p>
 not supplied, it is set to zero. The initial effort can be overruled when
 the simulation is run with <code><a href='project.html'>project()</a></code>, where it is also possible to specify
 an effort that varies through time.</p>
-    <h2 class="hasAnchor" id="setting-plankton-dynamics"><a class="anchor" href="#setting-plankton-dynamics"></a>Setting plankton dynamics</h2>
+    <h2 class="hasAnchor" id="setting-resource-dynamics"><a class="anchor" href="#setting-resource-dynamics"></a>Setting resource dynamics</h2>
 
     
 
-<p>By default, mizer uses a semichemostat model to describe the plankton
+<p>By default, mizer uses a semichemostat model to describe the resource
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function <code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>. You can change the
-plankton dynamics by writing your own function, modelled on
-<code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>, and then passing the name of your
-function in the <code>plankton_dynamics</code> argument.</p>
-<p>The <code>r_plankton</code> argument is a vector specifying the intrinsic plankton
+by the function <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>. You can change the
+resource dynamics by writing your own function, modelled on
+<code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>, and then passing the name of your
+function in the <code>resource_dynamics</code> argument.</p>
+<p>The <code>r_resource</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_plankton</code>
+The values of \(r_p\) and \(n\) are taken from the <code>r_resource</code>
 and <code>n</code> arguments.</p>
-<p>The <code>K_plankton</code> argument is a vector specifying the intrinsic plankton
+<p>The <code>K_resource</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -749,7 +749,7 @@ and <code>lambda</code> arguments.</p>
       <li><a href="#setting-external-mortality-rate">Setting external mortality rate</a></li>
       <li><a href="#setting-reproduction">Setting reproduction</a></li>
       <li><a href="#setting-fishing">Setting fishing</a></li>
-      <li><a href="#setting-plankton-dynamics">Setting plankton dynamics</a></li>
+      <li><a href="#setting-resource-dynamics">Setting resource dynamics</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

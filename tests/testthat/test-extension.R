@@ -12,7 +12,7 @@ test_that("setRateFunction works", {
     p <- setRateFunction(params, rate = "EGrowth", fun = "test_dyn")
     expect_identical(p@rates_funcs[["EGrowth"]], "test_dyn")
     r <- mizerRates(p, n = initialN(p), 
-                    n_pp = initialNPlankton(p), 
+                    n_pp = initialNResource(p), 
                     n_other = initialNOther(p),
                     effort = 0,
                     rates_fns = lapply(p@rates_funcs, get))

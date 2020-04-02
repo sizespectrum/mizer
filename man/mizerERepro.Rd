@@ -12,7 +12,7 @@ mizerERepro(params, n, n_pp, n_other, e, ...)
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -44,10 +44,10 @@ Other mizer rate functions:
 \code{\link{mizerFMort}()},
 \code{\link{mizerFeedingLevel}()},
 \code{\link{mizerMort}()},
-\code{\link{mizerPlanktonMort}()},
 \code{\link{mizerPredMort}()},
 \code{\link{mizerPredRate}()},
 \code{\link{mizerRDI}()},
-\code{\link{mizerRates}()}
+\code{\link{mizerRates}()},
+\code{\link{mizerResourceMort}()}
 }
 \concept{mizer rate functions}

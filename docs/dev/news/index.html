@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -158,7 +158,7 @@
 <p>After setting up a mizer model, it is possible to change specific model parameters with the new functions</p>
 <ul>
 <li><code>species_params&lt;-()</code></li>
-<li><code>plankton_params&lt;-()</code></li>
+<li><code>resource_params&lt;-()</code></li>
 <li><code>gear_params&lt;-()</code></li>
 <li><code><a href="../reference/setPredKernel.html">setPredKernel()</a></code></li>
 <li><code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code></li>
@@ -168,11 +168,11 @@
 <li><code><a href="../reference/setExtMort.html">setExtMort()</a></code></li>
 <li><code><a href="../reference/setReproduction.html">setReproduction()</a></code></li>
 <li><code><a href="../reference/setFishing.html">setFishing()</a></code></li>
-<li><code><a href="../reference/setPlankton.html">setPlankton()</a></code></li>
+<li><code><a href="../reference/setResource.html">setResource()</a></code></li>
 </ul>
 <p>The new function <code><a href="../reference/setParams.html">setParams()</a></code> is a wrapper for all of the above functions and is also used when setting up a new model with <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>. (<a href='https://github.com/sizespectrum/mizer/issues/51'>#51</a>)</p>
 <p>The documentation for these functions serves to explain the details of the mizer model.</p>
-<p>Along with these setter functions there are accessor functions for getting the parameter arrays: <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code>, <code><a href="../reference/setSearchVolume.html">getSearchVolume()</a></code>, <code><a href="../reference/setInteraction.html">getInteraction()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">getMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">getMetabolicRate()</a></code>, <code><a href="../reference/setExtMort.html">getExtMort()</a></code>, <code><a href="../reference/setReproduction.html">getMaturityProportion()</a></code>, <code><a href="../reference/setReproduction.html">getReproductionProportion()</a></code>, <code><a href="../reference/setFishing.html">getCatchability()</a></code>, <code><a href="../reference/setFishing.html">getSelectivity()</a></code>, <code>getPlanktonBirthRate()</code>, <code>getPlanktonCarryingCapacity()</code>, <code>getPlanktonParams()</code>, <code><a href="../reference/setPlankton.html">getPlanktonDynamics()</a></code>,</p>
+<p>Along with these setter functions there are accessor functions for getting the parameter arrays: <code><a href="../reference/getPredKernel.html">getPredKernel()</a></code>, <code><a href="../reference/setSearchVolume.html">getSearchVolume()</a></code>, <code><a href="../reference/setInteraction.html">getInteraction()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">getMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">getMetabolicRate()</a></code>, <code><a href="../reference/setExtMort.html">getExtMort()</a></code>, <code><a href="../reference/setReproduction.html">getMaturityProportion()</a></code>, <code><a href="../reference/setReproduction.html">getReproductionProportion()</a></code>, <code><a href="../reference/setFishing.html">getCatchability()</a></code>, <code><a href="../reference/setFishing.html">getSelectivity()</a></code>, <code><a href="../reference/setResource.html">getResourceRate()</a></code>, <code><a href="../reference/setResource.html">getResourceCapacity()</a></code>, <code>getResourceParams()</code>, <code><a href="../reference/setResource.html">getResourceDynamics()</a></code>,</p>
 <ul>
 <li>Setting of the maximum reproduction rate has been separated out into new function <code><a href="../reference/setRmax.html">setRmax()</a></code>.</li>
 </ul>
@@ -180,7 +180,7 @@
 <div id="initial-values-and-steady-state" class="section level2">
 <h2 class="hasAnchor">
 <a href="#initial-values-and-steady-state" class="anchor"></a>Initial Values and steady state</h2>
-<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNPlankton-set.html">initialNPlankton()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
+<p>The MizerParams object now also contains the initial values for the size spectra. This is particularly useful if the model has been tuned to produce the observed steady state. The new function <code><a href="../reference/steady.html">steady()</a></code> finds a steady state for a model and sets it as the initial value. The initial values can be accessed and changed via functions <code><a href="../reference/initialN-set.html">initialN()</a></code> and <code><a href="../reference/initialNResource-set.html">initialNResource()</a></code>. The initial values can be set to the final values of a previous simulation with <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code>.</p>
 <p>The MizerParams object now has a slot <code>initial_effort</code> that specifies the initial fishing effort to which the steady state has been calibrated.</p>
 </div>
 <div id="extension-mechanisms" class="section level2">
@@ -236,7 +236,7 @@
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
 <li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
-<li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNPlankton()</a></code> and <code><a href="../reference/finalNOther.html">finalNOther()</a></code> as well as <code><a href="../reference/idxFinalT.html">idxFinalT()</a></code> to access the values at the final time of a simulation.</li>
+<li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNResource()</a></code> and <code><a href="../reference/finalNOther.html">finalNOther()</a></code> as well as <code><a href="../reference/idxFinalT.html">idxFinalT()</a></code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>
 <li>
@@ -252,13 +252,13 @@
 <li>
 <code><a href="../reference/project.html">project()</a></code> now shows a progress bar while a simulation is running. Can be turned off with <code>progress_bar = FALSE</code> argument.</li>
 <li>Satiation can be switched off by setting the maximum intake rate to <code>Inf</code>.</li>
-<li>Users can now set their own plankton dynamics instead of the default <code><a href="../reference/plankton_semichemostat.html">plankton_semichemostat()</a></code>.</li>
-<li>Different species can interact with plankton with different strengths, or not feed on plankton at all, controlled by an <code>interaction_p</code> column in the species parameter data frame.</li>
+<li>Users can now set their own resource dynamics instead of the default <code><a href="../reference/resource_semichemostat.html">resource_semichemostat()</a></code>.</li>
+<li>Different species can interact with resource with different strengths, or not feed on resource at all, controlled by an <code>interaction_p</code> column in the species parameter data frame.</li>
 <li>The steepness of the maturity ogive can now be controlled via a <code>w_mat25</code> column in the species parameter dataframe, which gives the size at which 25% of the individuals of a species are mature.</li>
-<li>The scaling exponent for the allocation of resources into reproduction can now be set via the <code>m</code> column in the species parameter data frame.</li>
+<li>The scaling exponent for the allocation of energy into reproduction can now be set via the <code>m</code> column in the species parameter data frame.</li>
 <li>
 <code><a href="../reference/project.html">project()</a></code> can now continue projection from last time step of a previous simulation if the first argument is a MizerSim object. The new <code>append</code> argument then controls whether the new results are appended to the old.</li>
-<li>Values for minimum plankton size, and minimum and maximum consumer sizes are set automatically if not provided in <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</li>
+<li>Values for minimum resource size, and minimum and maximum consumer sizes are set automatically if not provided in <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</li>
 <li>Default values for species parameters are used for missing values within a column in the species parameter data frame, not only if the column is missing entirely.</li>
 <li>Rate functions take defaults for their <code>n</code>, <code>n_pp</code> and <code>n_other</code> arguments from the initial values in the <code>params</code> argument.</li>
 <li>New <code>perfect_scaling</code> argument allows <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> to produce a perfectly scale-invariant model.</li>
@@ -290,7 +290,7 @@
 <code>plotM2</code> -&gt; <code><a href="../reference/plotPredMort.html">plotPredMort()</a></code>
 </li>
 <li>
-<code>getM2background()</code> -&gt; <code><a href="../reference/getPlanktonMort.html">getPlanktonMort()</a></code>
+<code>getM2background()</code> -&gt; <code><a href="../reference/getResourceMort.html">getResourceMort()</a></code>
 </li>
 <li>
 <code><a href="../reference/getZ.html">getZ()</a></code> -&gt; <code><a href="../reference/getMort.html">getMort()</a></code>
@@ -316,7 +316,7 @@
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
 <li>
 <code><a href="../reference/getEncounter.html">getEncounter()</a></code> and <code><a href="../reference/getPredRate.html">getPredRate()</a></code> now set names on the returned arrays.</li>
-<li>Plankton carrying capacity for scale-invariant model is calculated in a way that reduces rounding errors.</li>
+<li>Resource carrying capacity for scale-invariant model is calculated in a way that reduces rounding errors.</li>
 <li>Avoids potential problems with negative numbers due to numerical errors.</li>
 <li>Consistently cutting off predation kernel at 0 and beta + 3 sigma.</li>
 <li>The <code>ylim</code> argument is not handled correctly in plots.</li>
@@ -327,7 +327,7 @@
 <li>times are not truncated at 3 significant figures, because that would not allow something like 2019.</li>
 <li>get_initial_n() gets values for n and q from params object</li>
 <li>
-<code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> of MizerParams object reflects the number of non-empty plankton bins. (<a href='https://github.com/patricksykes'>@patricksykes</a>)</li>
+<code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> of MizerParams object reflects the number of non-empty resource bins. (<a href='https://github.com/patricksykes'>@patricksykes</a>)</li>
 </ul>
 </div>
 <div id="under-the-hood" class="section level2">
@@ -350,7 +350,7 @@
 <li>Added numerical tests.</li>
 <li>Using assert_that to check arguments to functions more often.</li>
 <li>Argument <code>shiny_progress</code> renamed to <code>progress_bar</code> because they control any type of progress bar.</li>
-<li>In documentation renamed “background” to “plankton”.</li>
+<li>In documentation renamed “background” and “plankton” consistently to “resource”.</li>
 <li>Using <code><a href="https://rdrr.io/r/base/outer.html">outer()</a></code> instead of <code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code> where possible to improve readability.</li>
 <li>Avoiding use of <code>hasArg()</code> and <code><a href="https://rdrr.io/r/base/NA.html">anyNA()</a></code> because they were not available in R 3.1</li>
 <li>A more robust code for setting up the size grids.</li>
@@ -362,7 +362,7 @@
 <li>Moved <code>@w_min_idx</code> out of <code>@species_params</code> into its own slot.</li>
 <li>Added slot <code>@maturity</code> to hold the maturity ogive.</li>
 <li>Added slot <code>@pred_kernel</code> to hold predation kernel if it has variable predator/prey ratio.</li>
-<li>Added slot <code>@plankton_dynamics</code> to allow user to specify alternative plankton dynamics.</li>
+<li>Added slot <code>@resource_dynamics</code> to allow user to specify alternative resource dynamics.</li>
 <li>Added slot <code>@gear_dynamics</code> to species to be targeted by multiple gears.</li>
 <li>Added slot <code>@ft_mask</code> that is used when calculating predation rates using the Fourier transform method.</li>
 <li>Added slot <code>@rates_funcs</code> to allow mizer extensions to replace mizer rate functions with their own rate functions.</li>
@@ -398,7 +398,7 @@
 <li>Added function for plotting growth curves</li>
 <li>
 <code>PlotYield()</code> no longer fails when species names are numbers or when a species abundance is zero</li>
-<li>Added a <code>total</code> parameter to several plot functions to add the curve for the total community (sum over all species and plankton)</li>
+<li>Added a <code>total</code> parameter to several plot functions to add the curve for the total community (sum over all species and resource)</li>
 <li>Added a <code>species</code> parameter to all plot functions to allow for only a selection of species to be plotted</li>
 <li>Allow the number of ticks on y-axis in biomass plot to be controlled</li>
 </ul>

@@ -75,7 +75,7 @@ directly." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -149,9 +149,9 @@ largest asymptotic size.</p></dd>
 
 <dt><code>dw</code></dt><dd><p>The widths (in grams) of the size bins</p></dd>
 
-<dt><code>w_full</code></dt><dd><p>The size grid for the full size range including the plankton
+<dt><code>w_full</code></dt><dd><p>The size grid for the full size range including the resource
 spectrum. An increasing vector of weights (in grams) running from the
-smallest plankton size to the largest asymptotic size of fish. The
+smallest resource size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.</p></dd>
 
 <dt><code>dw_full</code></dt><dd><p>The width of the size bins for the full spectrum. The last
@@ -199,16 +199,16 @@ then the <code>pred_kernel</code> will be used to calculate the integral.
 Changed with <code><a href='setPredKernel.html'>setPredKernel()</a></code>.</p></dd>
 
 <dt><code>rr_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum. Changed with <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
+growth rate of the resource spectrum. Changed with <code><a href='setResource.html'>setResource()</a></code>.</p></dd>
 
 <dt><code>cc_pp</code></dt><dd><p>A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum. Changed with
-<code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
+carrying capacity of the resource spectrum. Changed with
+<code><a href='setResource.html'>setResource()</a></code>.</p></dd>
 
-<dt><code>plankton_dynamics</code></dt><dd><p>Name of the function for projecting the plankton abundance
+<dt><code>resource_dynamics</code></dt><dd><p>Name of the function for projecting the resource abundance
 density by one timestep. The default is
-<code><a href='plankton_semichemostat.html'>plankton_semichemostat()</a></code>.
-Changed with <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
+<code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>.
+Changed with <code><a href='setResource.html'>setResource()</a></code>.</p></dd>
 
 <dt><code>other_dynamics</code></dt><dd><p>A named list of functions for projecting the
 values of other dynamical components of the ecosystem that may be modelled
@@ -255,12 +255,12 @@ gear. Changed with <code><a href='setFishing.html'>setFishing()</a></code>.</p><
 each species at each weight.</p></dd>
 
 <dt><code>initial_n_pp</code></dt><dd><p>A vector the same length as the w_full slot that describes
-the initial plankton abundance at each weight.</p></dd>
+the initial resource abundance at each weight.</p></dd>
 
 <dt><code>initial_n_other</code></dt><dd><p>A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.</p></dd>
 
-<dt><code>plankton_params</code></dt><dd><p>List with parameters for plankton. See <code><a href='setPlankton.html'>setPlankton()</a></code>.</p></dd>
+<dt><code>resource_params</code></dt><dd><p>List with parameters for resource. See <code><a href='setResource.html'>setResource()</a></code>.</p></dd>
 
 <dt><code>A</code></dt><dd><p>Abundance multipliers.</p></dd>
 

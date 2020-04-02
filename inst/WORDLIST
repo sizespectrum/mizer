@@ -55,7 +55,7 @@ getERepro
 getFeedingLevel
 getM
 getMort
-getPlanktonMort
+getResourceMort
 getPredMort
 ggplot
 github

@@ -7,7 +7,7 @@
 getEncounter(
   params,
   n = initialN(params),
-  n_pp = initialNPlankton(params),
+  n_pp = initialNResource(params),
   n_other = initialNOther(params)
 )
 }
@@ -16,7 +16,7 @@ getEncounter(
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -35,8 +35,8 @@ the encounter rate, but this can be overruled via \code{\link[=setRateFunction]{
 
 The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
 and weight \eqn{w} encounters food has contributions from the encounter of
-fish prey and of plankton. This is determined by summing over all prey
-species and the plankton spectrum and then integrating over all prey sizes
+fish prey and of resource. This is determined by summing over all prey
+species and the resource spectrum and then integrating over all prey sizes
 \eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 \deqn{
 E_i(w) = \gamma_i(w) \int 
@@ -46,13 +46,13 @@ E_i(w) = \gamma_i(w) \int
 ( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) ) 
 \phi_i(w,w_p) w_p dw_p.}
 Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
-\eqn{N_R(w)} is the abundance density of plankton.
+\eqn{N_R(w)} is the abundance density of resource.
 The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
 \code{\link[=setSearchVolume]{setSearchVolume()}} function. The predation kernel
 \eqn{\phi(w,w_p)} is set with the \code{\link[=setPredKernel]{setPredKernel()}} function. The
 species interaction matrix \eqn{\theta_{ij}} is set with \code{\link[=setInteraction]{setInteraction()}}
-and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
+and the resource interaction vector \eqn{\theta_{ip}} is taken from the
 \code{interaction_p} column in \code{params@species_params}.
 }
 
@@ -85,10 +85,10 @@ Other rate functions:
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
-\code{\link{getPlanktonMort}()},
 \code{\link{getPredMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getResourceMort}()}
 }
 \concept{rate functions}

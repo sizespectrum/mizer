@@ -15,7 +15,7 @@
 #' * `pred_mort` from [mizerPredMort()]
 #' * `fishing_mort` from [mizerFMort()]
 #' * `mort` from [mizerMort()]
-#' * `plankton_mort` from [mizerPlanktonMort()]
+#' * `resource_mort` from [mizerResourceMort()]
 #' * `e` from [mizerEReproAndGrowth()]
 #' * `e_repro` from [mizerERepro()]
 #' * `e_growth` from [mizerEGrowth()]
@@ -81,7 +81,7 @@ getRateFunction <- function(params, rate) {
 #' Add a dynamical ecosystem component
 #' 
 #' By default, mizer models any number of size-resolved consumer species
-#' and a single size-resolved plankton spectrum. Your model may require
+#' and a single size-resolved resource spectrum. Your model may require
 #' additional components, like for example detritus or carrion or multiple
 #' resources or .... This function allows you to set up such components.
 #' 

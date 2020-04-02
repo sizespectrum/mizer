@@ -126,7 +126,7 @@ And clicking again will hide the details again.
   \label{eq:nb}
   \frac{\partial N_R(w,t)}{\partial t} 
   = r_p(w) \Big[ c_p (w) - N_R(w,t) \Big] - \mu_p(w) N_R(w,t).
-\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code>changePlankton()</code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code>changePlankton()</code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
+\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code>changeResource()</code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> It is also possible to implement other plankton dynamics, as described in the help page for <code>changeResource()</code>. The death <span class="math inline">\(\mu_p(w)\)</span> is described in the subsection <a href="#plankton-mortality">Resource mortality</a>.</p>
 <details><p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The resource spectrum is then stored in a vector <code>n_pp</code> such that <code>n_pp[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 <p>The plankton regeneration rate is stored as a vector <code>params@rr_pp[c]</code><span class="math inline">\(=r_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>, and the carrying capacity is stored as a vector <code>params@cc_pp[c]</code><span class="math inline">\(=c_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
@@ -231,7 +231,7 @@ And clicking again will hide the details again.
 </div>
 <div id="plankton-mortality" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plankton-mortality" class="anchor"></a>Plankton Mortality</h2>
+<a href="#plankton-mortality" class="anchor"></a>Resource Mortality</h2>
 <p>The predation mortality rate on plankton is given by a similar expression as the predation mortality on fish: <span class="math display">\[\begin{equation}
   \label{eq:mupp}
   \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
@@ -258,7 +258,7 @@ And clicking again will hide the details again.
       <li><a href="#recruitment">Recruitment</a></li>
       <li><a href="#growth">Growth</a></li>
       <li><a href="#mortality">Mortality</a></li>
-      <li><a href="#plankton-mortality">Plankton Mortality</a></li>
+      <li><a href="#plankton-mortality">Resource Mortality</a></li>
       <li><a href="#fishing">Fishing</a></li>
       </ul>
 </div>

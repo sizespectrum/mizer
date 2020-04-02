@@ -31,7 +31,7 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(test_params@w[no_w], max_w)
     expect_equal(test_params@dw[1], test_params@w[2] - test_params@w[1])
     expect_equal(test_params@w_full[1], min_w_pp)
-    # Test that first weight entry after plankton spectrum equals smallest 
+    # Test that first weight entry after resource spectrum equals smallest 
     # fish weight 
     expect_equal(test_params@w_full[1 + no_w_full - no_w], test_params@w[1])
     # Dimensions of array slots
@@ -108,7 +108,7 @@ test_that("default for gamma is correct", {
     species_params <- params@species_params
     gamma_default <- get_gamma_default(params)
     # Compare to the analytic result
-    lm2 <- params@plankton_params$lambda - 2
+    lm2 <- params@resource_params$lambda - 2
     ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
         exp(lm2^2 * species_params$sigma^2 / 2) *
         # The factor on the following lines takes into account the cutoff
@@ -120,7 +120,7 @@ test_that("default for gamma is correct", {
         any(is.na(species_params$h))) {
         species_params$h <- get_h_default(params)
     }
-    gamma_analytic <- (species_params$h / (params@plankton_params$kappa * ae)) * 
+    gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) * 
         (species_params$f0 / (1 - species_params$f0))
     # TODO: reduce the tolerance below
     expect_equal(gamma_default/ gamma_analytic, 

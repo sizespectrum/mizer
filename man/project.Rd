@@ -41,8 +41,8 @@ argument or a \code{MizerSim} for the \code{object} argument.}
 \item{initial_n}{Deprecated. The initial abundances of species. Instead of
 using this argument you should set \code{initialN(params)} to the desired value.}
 
-\item{initial_n_pp}{Deprecated. The initial abundances of plankton. Instead
-of using this argument you should set \code{initialNPlankton(params)} to the
+\item{initial_n_pp}{Deprecated. The initial abundances of resource. Instead
+of using this argument you should set \code{initialNResource(params)} to the
 desired value.}
 
 \item{append}{A boolean that determines whether the new simulation results

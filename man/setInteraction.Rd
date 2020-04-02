@@ -55,7 +55,7 @@ it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command \code{read.csv()}.
 
-The interaction of the species with the plankton are set via a column
+The interaction of the species with the resource are set via a column
 \code{interaction_p} in the \code{species_params} data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.
 }
@@ -75,9 +75,9 @@ Other functions for setting parameters:
 \code{\link{setInitialValues}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
-\code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
+\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

@@ -121,8 +121,8 @@ valid_MizerSim <- function(object) {
 #' 
 #' As a user you should never have to access the slots of a MizerSim object
 #' directly. Instead there are a range of functions to extract the information.
-#' [N()] and [NPlankton()] return arrays with the saved abundances of
-#' the species and the plankton population at size respectively. [effort()]
+#' [N()] and [NResource()] return arrays with the saved abundances of
+#' the species and the resource population at size respectively. [effort()]
 #' returns the fishing effort of each gear through time. 
 #' [times()] returns the vector of times at which simulation results
 #' were stored and [idxFinalT()] returns the index with which to access
@@ -150,7 +150,7 @@ valid_MizerSim <- function(object) {
 #' @slot params An object of type \linkS4class{MizerParams}.
 #' @slot n Three-dimensional array (time x species x size) that stores the 
 #'   projected community number densities.
-#' @slot n_pp An array (time x size) that stores the projected plankton number
+#' @slot n_pp An array (time x size) that stores the projected resource number
 #'   densities.
 #' @slot n_other A list array (time x component) that stores the projected
 #'   values for other ecosystem components.
@@ -251,9 +251,9 @@ N <- function(sim) {
 }
 
 #' @rdname N
-#' @return For `NPlankton()`: An array (time x size) with the number density of plankton
+#' @return For `NResource()`: An array (time x size) with the number density of resource
 #' @export
-NPlankton <- function(sim) {
+NResource <- function(sim) {
     sim@n_pp
 }
 
@@ -272,10 +272,10 @@ finalN <- function(sim) {
 }
 
 #' @rdname finalN
-#' @return For `finalNPlankton()`: A vector holding the plankton number densities at
+#' @return For `finalNResource()`: A vector holding the resource number densities at
 #'   the end of the simulation for all size classes
 #' @export
-finalNPlankton <- function(sim) {
+finalNResource <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     sim@n_pp[dim(sim@n_pp)[[1]], ]
 }
@@ -297,7 +297,7 @@ finalNPlankton <- function(sim) {
 #' times(sim)[idx]
 #' # We can use this index to extract the result at the final time
 #' identical(N(sim)[idx, , ], finalN(sim))
-#' identical(NPlankton(sim)[idx, ], finalNPlankton(sim))
+#' identical(NResource(sim)[idx, ], finalNResource(sim))
 #' }
 idxFinalT <- function(sim) {
     assert_that(is(sim, "MizerSim"))

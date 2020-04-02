@@ -2,12 +2,12 @@
 % Please edit documentation in R/MizerSim-class.R
 \name{finalN}
 \alias{finalN}
-\alias{finalNPlankton}
+\alias{finalNResource}
 \title{Size spectra at end of simulation}
 \usage{
 finalN(sim)
 
-finalNPlankton(sim)
+finalNResource(sim)
 }
 \arguments{
 \item{sim}{A MizerSim object}
@@ -16,7 +16,7 @@ finalNPlankton(sim)
 For \code{finalN()}: An array (species x size) holding the consumer
 number densities at the end of the simulation
 
-For \code{finalNPlankton()}: A vector holding the plankton number densities at
+For \code{finalNResource()}: A vector holding the resource number densities at
 the end of the simulation for all size classes
 }
 \description{

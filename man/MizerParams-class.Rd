@@ -20,9 +20,9 @@ largest asymptotic size.}
 
 \item{\code{dw}}{The widths (in grams) of the size bins}
 
-\item{\code{w_full}}{The size grid for the full size range including the plankton
+\item{\code{w_full}}{The size grid for the full size range including the resource
 spectrum. An increasing vector of weights (in grams) running from the
-smallest plankton size to the largest asymptotic size of fish. The
+smallest resource size to the largest asymptotic size of fish. The
 last entries of the vector have to be equal to the content of the w slot.}
 
 \item{\code{dw_full}}{The width of the size bins for the full spectrum. The last
@@ -70,16 +70,16 @@ then the \code{pred_kernel} will be used to calculate the integral.
 Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
-growth rate of the plankton spectrum. Changed with \code{\link[=setPlankton]{setPlankton()}}.}
+growth rate of the resource spectrum. Changed with \code{\link[=setResource]{setResource()}}.}
 
 \item{\code{cc_pp}}{A vector the same length as the w_full slot. The size specific
-carrying capacity of the plankton spectrum. Changed with
-\code{\link[=setPlankton]{setPlankton()}}.}
+carrying capacity of the resource spectrum. Changed with
+\code{\link[=setResource]{setResource()}}.}
 
-\item{\code{plankton_dynamics}}{Name of the function for projecting the plankton abundance
+\item{\code{resource_dynamics}}{Name of the function for projecting the resource abundance
 density by one timestep. The default is
-\code{\link[=plankton_semichemostat]{plankton_semichemostat()}}.
-Changed with \code{\link[=setPlankton]{setPlankton()}}.}
+\code{\link[=resource_semichemostat]{resource_semichemostat()}}.
+Changed with \code{\link[=setResource]{setResource()}}.}
 
 \item{\code{other_dynamics}}{A named list of functions for projecting the
 values of other dynamical components of the ecosystem that may be modelled
@@ -126,12 +126,12 @@ gear. Changed with \code{\link[=setFishing]{setFishing()}}.}
 each species at each weight.}
 
 \item{\code{initial_n_pp}}{A vector the same length as the w_full slot that describes
-the initial plankton abundance at each weight.}
+the initial resource abundance at each weight.}
 
 \item{\code{initial_n_other}}{A list with the initial abundances of all other
 ecosystem components. Has length zero if there are no other components.}
 
-\item{\code{plankton_params}}{List with parameters for plankton. See \code{\link[=setPlankton]{setPlankton()}}.}
+\item{\code{resource_params}}{List with parameters for resource. See \code{\link[=setResource]{setResource()}}.}
 
 \item{\code{A}}{Abundance multipliers.}
 

@@ -72,14 +72,14 @@ finalN(sim)
 ```
 which is a two dimensional array (species x size).
 
-The projected plankton abundances can be accesses similarly with
+The projected resource abundances can be accesses similarly with
 ```{r results='hide'}
-NPlankton(sim)
+NResource(sim)
 ```
 This returns a two-dimensional array (time x size). And if we are only
 interested in the final time step
 ```{r results='hide'}
-finalNPlankton(sim)
+finalNResource(sim)
 ```
 returns a vector with one entry for each size class.
 

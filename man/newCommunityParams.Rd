@@ -32,7 +32,7 @@ species used to represent the community is set to this value.}
 
 \item{no_w}{The number of size bins in the consumer spectrum.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+\item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{z0}{The background mortality of the community.}
@@ -54,20 +54,20 @@ spectrum. This value is used to calculate the search rate parameter
 
 \item{n}{The allometric growth exponent. Used as allometric exponent for
 the maximum intake rate of the community as well as the intrinsic growth
-rate of the plankton.}
+rate of the resource.}
 
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+\item{r_pp}{Coefficient of the intrinsic resource birth rate}
 
 \item{knife_edge_size}{The size at the edge of the knife-edge-selectivity
 function.}
 
 \item{reproduction}{The constant reproduction in the smallest size class of the
 community spectrum. By default this is set so that the community spectrum
-is continuous with the plankton spectrum.}
+is continuous with the resource spectrum.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
@@ -82,7 +82,7 @@ model:
 \itemize{
 \item Species identities of individuals are ignored. All are aggregated into a
 single community.
-\item The plankton spectrum only extends to the start of the community spectrum.
+\item The resource spectrum only extends to the start of the community spectrum.
 \item Reproductive rate is constant, independent of the energy invested in
 reproduction, which is set to 0.
 \item Standard metabolism is turned off (the parameter \code{ks} is set to 0).

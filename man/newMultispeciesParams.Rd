@@ -22,14 +22,14 @@ newMultispeciesParams(
   maturity = NULL,
   repro_prop = NULL,
   RDD = "BevertonHoltRDD",
-  r_plankton = NULL,
-  K_plankton = NULL,
+  r_resource = NULL,
+  K_resource = NULL,
   n = 2/3,
   r_pp = 10,
   kappa = 1e+11,
   lambda = 2.05,
   w_pp_cutoff = 10,
-  plankton_dynamics = "plankton_semichemostat",
+  resource_dynamics = "resource_semichemostat",
   gear_params = data.frame(),
   selectivity = NULL,
   catchability = NULL,
@@ -52,7 +52,7 @@ given in the \code{w_min} column of the \code{species_params} dataframe.}
 set to the largest \code{w_inf} specified in the \code{species_params} data
 frame.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+\item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{pred_kernel}{Optional. An array (species x predator size x prey size)
@@ -100,24 +100,24 @@ described in the section "Setting reproduction".}
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
-\item{r_plankton}{Optional. Vector of plankton intrinsic birth rates}
+\item{r_resource}{Optional. Vector of resource intrinsic birth rates}
 
-\item{K_plankton}{Optional. Vector of plankton intrinsic carrying capacity}
+\item{K_resource}{Optional. Vector of resource intrinsic carrying capacity}
 
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}
 
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+\item{r_pp}{Coefficient of the intrinsic resource birth rate}
 
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
 
-\item{w_pp_cutoff}{The upper cut off size of the plankton spectrum.
+\item{w_pp_cutoff}{The upper cut off size of the resource spectrum.
 Default is 10 g.}
 
-\item{plankton_dynamics}{Function that determines plankton dynamics by
-calculating the plankton spectrum at the next time step from the current
+\item{resource_dynamics}{Function that determines resource dynamics by
+calculating the resource spectrum at the next time step from the current
 state.}
 
 \item{gear_params}{A data frame with gear-specific parameter values.}
@@ -254,7 +254,7 @@ it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command \code{read.csv()}.
 
-The interaction of the species with the plankton are set via a column
+The interaction of the species with the resource are set via a column
 \code{interaction_p} in the \code{species_params} data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.
 }
@@ -557,23 +557,23 @@ the simulation is run with \code{project()}, where it is also possible to specif
 an effort that varies through time.
 }
 
-\section{Setting plankton dynamics}{
+\section{Setting resource dynamics}{
 
-By default, mizer uses a semichemostat model to describe the plankton
+By default, mizer uses a semichemostat model to describe the resource
 dynamics in each size class independently. This semichemostat dynamics is implemented
-by the function \code{\link[=plankton_semichemostat]{plankton_semichemostat()}}. You can change the
-plankton dynamics by writing your own function, modelled on
-\code{\link[=plankton_semichemostat]{plankton_semichemostat()}}, and then passing the name of your
-function in the \code{plankton_dynamics} argument.
+by the function \code{\link[=resource_semichemostat]{resource_semichemostat()}}. You can change the
+resource dynamics by writing your own function, modelled on
+\code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
+function in the \code{resource_dynamics} argument.
 
-The \code{r_plankton} argument is a vector specifying the intrinsic plankton
+The \code{r_resource} argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \eqn{r_p(w)} at size \eqn{w}
 is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_plankton}
+The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_resource}
 and \code{n} arguments.
 
-The \code{K_plankton} argument is a vector specifying the intrinsic plankton
+The \code{K_resource} argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}

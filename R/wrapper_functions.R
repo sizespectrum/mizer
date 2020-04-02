@@ -35,7 +35,7 @@ NULL
 #' 
 #' * Species identities of individuals are ignored. All are aggregated into a
 #'   single community.
-#' * The plankton spectrum only extends to the start of the community spectrum. 
+#' * The resource spectrum only extends to the start of the community spectrum. 
 #' * Reproductive rate is constant, independent of the energy invested in 
 #'   reproduction, which is set to 0. 
 #' * Standard metabolism is turned off (the parameter `ks` is set to 0).
@@ -66,14 +66,14 @@ NULL
 #' @param h The coefficient of the maximum food intake rate.
 #' @param n The allometric growth exponent. Used as allometric exponent for
 #'   the maximum intake rate of the community as well as the intrinsic growth
-#'   rate of the plankton.
+#'   rate of the resource.
 #' @param beta The preferred predator prey mass ratio.
 #' @param sigma The width of the prey preference.
 #' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
 #'   `kappa` if not supplied.
 #' @param reproduction The constant reproduction in the smallest size class of the
 #'   community spectrum. By default this is set so that the community spectrum 
-#'   is continuous with the plankton spectrum.
+#'   is continuous with the resource spectrum.
 #' @param knife_edge_size The size at the edge of the knife-edge-selectivity
 #'   function.
 #' @inheritParams newMultispeciesParams
@@ -227,15 +227,15 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param no_w The number of size bins in the community spectrum. These bins
 #'   will be equally spaced on a logarithmic scale. Default value is such that
 #'   there are 50 bins for each factor of 10 in weight.
-#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
-#' @param w_pp_cutoff The largest size of the plankton spectrum. Default value
+#' @param w_pp_cutoff The largest size of the resource spectrum. Default value
 #'   is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.
 #' @param n Scaling exponent of the maximum intake rate.
 #' @param p Scaling exponent of the standard metabolic rate. By default this is
 #'   equal to the exponent `n`.
 #' @param lambda Exponent of the abundance power law.
-#' @param r_pp Growth rate parameter for the plankton spectrum.
+#' @param r_pp Growth rate parameter for the resource spectrum.
 #' @param kappa Coefficient in abundance power law.
 #' @param alpha The assimilation efficiency of the community.
 #' @param ks Standard metabolism coefficient. If not provided, default will be
@@ -265,7 +265,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param egg_size_scaling If TRUE, the egg size is a constant fraction of the
 #'   maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 #'   FALSE, all species have the egg size `w_min`.
-#' @param plankton_scaling If TRUE, the carrying capacity for larger plankton
+#' @param resource_scaling If TRUE, the carrying capacity for larger resource
 #'   is reduced to compensate for the fact that fish eggs and larvae are
 #'   present in the same size range.
 #' @param perfect_scaling If TRUE then parameters are set so that the community
@@ -309,13 +309,13 @@ newTraitParams <- function(no_sp = 11,
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
                            mortality_scaling = FALSE,
-                           plankton_scaling = FALSE,
+                           resource_scaling = FALSE,
                            perfect_scaling = FALSE) {
     
     ## Check validity of parameters ----
     assert_that(is.logical(egg_size_scaling),
                 is.logical(mortality_scaling),
-                is.logical(plankton_scaling),
+                is.logical(resource_scaling),
                 is.logical(perfect_scaling))
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
         stop("ext_mort_prop must be a number between 0 and 1",
@@ -376,7 +376,7 @@ newTraitParams <- function(no_sp = 11,
     if (perfect_scaling) {
         egg_size_scaling <- TRUE
         mortality_scaling <- TRUE
-        plankton_scaling <- TRUE
+        resource_scaling <- TRUE
         w_pp_cutoff <- Inf
         p <- n
     }
@@ -515,22 +515,22 @@ newTraitParams <- function(no_sp = 11,
     sc <- colSums(initial_n)
     params@sc <- sc
     
-    ##  Setup plankton ----
-    if (plankton_scaling) {
-        plankton_vec <- (kappa * w ^ (-lambda)) - sc
-        # Cut off plankton at w_pp_cutoff
-        plankton_vec[w >= w_pp_cutoff] <- 0
-        if (any(plankton_vec < 0)) {
+    ##  Setup resource ----
+    if (resource_scaling) {
+        resource_vec <- (kappa * w ^ (-lambda)) - sc
+        # Cut off resource at w_pp_cutoff
+        resource_vec[w >= w_pp_cutoff] <- 0
+        if (any(resource_vec < 0)) {
             if (!perfect_scaling) {
-                # Do not allow negative plankton abundance
-                message("Note: Negative plankton abundance values overwritten with zeros")
-                plankton_vec[plankton_vec < 0] <- 0
+                # Do not allow negative resource abundance
+                message("Note: Negative resource abundance values overwritten with zeros")
+                resource_vec[resource_vec < 0] <- 0
             } else {
-                message("Note: Negative plankton abundances")
+                message("Note: Negative resource abundances")
             }
         }
         params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
-            plankton_vec
+            resource_vec
     }
     if (!perfect_scaling) {
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
@@ -539,7 +539,7 @@ newTraitParams <- function(no_sp = 11,
     initial_n_pp <- params@cc_pp
     # The cc_pp factor needs to be higher than the desired steady state in
     # order to compensate for predation mortality
-    m2_background <- getPlanktonMort(params, initial_n, initial_n_pp)
+    m2_background <- getResourceMort(params, initial_n, initial_n_pp)
     params@cc_pp <- (params@rr_pp + m2_background ) * initial_n_pp / params@rr_pp
     
     ## Setup external death ----
@@ -578,7 +578,7 @@ newTraitParams <- function(no_sp = 11,
     }
     params@species_params$erepro <- erepro_final
     
-    # Record abundance of fish and plankton at steady state, as slots.
+    # Record abundance of fish and resource at steady state, as slots.
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
     # set rmax=fac*RDD
@@ -631,11 +631,11 @@ setRmax <- function(params, rfac) {
 get_power_law_mort <- function(params) {
     params@interaction[] <- 0
     params@interaction[1, 1] <- 1
-    params@initial_n[1, ] <- params@plankton_params$kappa * 
-        params@w^(-params@plankton_params$lambda)
+    params@initial_n[1, ] <- params@resource_params$kappa * 
+        params@w^(-params@resource_params$lambda)
     return(getPredMort(params)[1, 1] / 
                params@w[[1]] ^ (1 + params@species_params$q[[1]] - 
-                                    params@plankton_params$lambda))
+                                    params@resource_params$lambda))
 }
 
 #' Determine reproduction rate needed for initial egg abundance

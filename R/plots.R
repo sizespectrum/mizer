@@ -217,7 +217,7 @@ getBiomassFrame <- function(sim,
     # Force Species column to be a factor (otherwise if numeric labels are
     # used they may be interpreted as integer and hence continuous).
     # Need to keep species in order for legend.
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     bm$Species <- factor(bm$Species, levels = species_levels)
     
     # Select species
@@ -346,7 +346,7 @@ plotYield <- function(sim, sim2,
                       highlight = NULL, ...){
     if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     if (missing(sim2)) {
         y <- getYield(sim, ...)
         y_total <- rowSums(y)
@@ -462,7 +462,7 @@ plotYieldGear <- function(sim,
                           highlight = NULL, ...){
     if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
-    species_levels <- c(dimnames(sim@n)$sp, "Background", "Plankton", "Total")
+    species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
     
     y <- getYieldGear(sim, ...)
     y_total <- rowSums(y, dims = 2)
@@ -529,7 +529,7 @@ plotlyYieldGear <- function(sim, species,
 #'   \code{biomass = FALSE} is equivalent to \code{power=0}
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Default is FALSE
-#' @param plankton A boolean value that determines whether plankton is included.
+#' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
@@ -555,7 +555,7 @@ plotSpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
-                        total = FALSE, plankton = TRUE, 
+                        total = FALSE, resource = TRUE, 
                         background = TRUE,
                         highlight = NULL, ...) {
     # to deal with old-type biomass argument
@@ -572,7 +572,7 @@ plotSpectra <- function(object, species = NULL,
         ps <- plot_spectra(object@params, n = n, n_pp = n_pp,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power,
-                           total = total, plankton = plankton,
+                           total = total, resource = resource,
                            background = background, highlight = highlight)
         return(ps)
     } else {
@@ -580,7 +580,7 @@ plotSpectra <- function(object, species = NULL,
                            n_pp = object@initial_n_pp,
                            species = species, wlim = wlim, ylim = ylim,
                            power = power,
-                           total = total, plankton = plankton,
+                           total = total, resource = resource,
                            background = background, highlight = highlight)
         return(ps)
     }
@@ -589,7 +589,7 @@ plotSpectra <- function(object, species = NULL,
 
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, ylim, power,
-                         total, plankton, background, highlight) {
+                         total, resource, background, highlight) {
     if (is.na(wlim[1])) {
         wlim[1] <- min(params@w) / 100
     }
@@ -598,7 +598,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     # Need to keep species in order for legend
     species_levels <- c(dimnames(params@initial_n)$sp,
-                        "Background", "Plankton", "Total")
+                        "Background", "Resource", "Total")
     if (total) {
         # Calculate total community abundance
         fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
@@ -634,17 +634,17 @@ plot_spectra <- function(params, n, n_pp,
                                             levels = species_levels),
                            w = rep(params@w,
                                    each = dim(spec_n)[[1]]))
-    if (plankton) {
-        plankton_sel <- (params@w_full >= wlim[1]) & 
+    if (resource) {
+        resource_sel <- (params@w_full >= wlim[1]) & 
                         (params@w_full <= wlim[2])
-        # Do we have any plankton to plot?
-        if (sum(plankton_sel) > 0) {
-            w_plankton <- params@w_full[plankton_sel]
-            plank_n <- n_pp[plankton_sel] * w_plankton^power
+        # Do we have any resource to plot?
+        if (sum(resource_sel) > 0) {
+            w_resource <- params@w_full[resource_sel]
+            plank_n <- n_pp[resource_sel] * w_resource^power
             plot_dat <- rbind(plot_dat,
                               data.frame(value = c(plank_n),
-                                         Species = "Plankton",
-                                         w = w_plankton))
+                                         Species = "Resource",
+                                         w = w_resource))
         }
     }
     if (total) {
@@ -711,7 +711,7 @@ plotlySpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
                         power = 1, biomass = TRUE,
-                        total = FALSE, plankton = TRUE, 
+                        total = FALSE, resource = TRUE, 
                         background = TRUE,
                         highlight = NULL, ...) {
     argg <- as.list(environment())
@@ -896,7 +896,7 @@ plotPredMort <- function(object, species = NULL,
     }
     # Need to keep species in order for legend
     species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Plankton", "Total")
+                        "Background", "Resource", "Total")
     pred_mort <- pred_mort[as.character(dimnames(pred_mort)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(pred_mort),
                            Species = factor(dimnames(pred_mort)[[1]],
@@ -979,7 +979,7 @@ plotFMort <- function(object, species = NULL,
     }
     # Need to keep species in order for legend
     species_levels <- c(as.character(params@species_params$species), 
-                        "Background", "Plankton", "Total")
+                        "Background", "Resource", "Total")
     f <- f[as.character(dimnames(f)[[1]]) %in% species, , drop = FALSE]
     plot_dat <- data.frame(value = c(f),
                            Species = factor(dimnames(f)[[1]],

@@ -14,7 +14,7 @@ The simplest version of the size spectrum model is the community model. In the
 community model, individuals are only characterized by their size and are
 represented by a single group representing an across-species aggregate.
 Reproduction is not considered; the reproduction rate $R$ is
-set to be constant. The plankton spectrum only extends to the start of the
+set to be constant. The resource spectrum only extends to the start of the
 community spectrum. Metabolism is turned off.
 
 In this section we describe how a community model can be set up and projected
@@ -29,7 +29,7 @@ mizer.
 The first stage in implementing a model using `mizer` is to create an object of
 class `MizerParams`. This class contains the model parameters including the
 life-history parameters of the species in the model, the fishing selectivity
-functions and the parameters of the plankton spectrum.
+functions and the parameters of the resource spectrum.
 
 To avoid having to make a `MizerParams` object directly, the
 `newCommunityParams()` wrapper function, has been provided that conveniently
@@ -82,7 +82,7 @@ summary(params)
 In the summary you can see that the size range of the community spectrum has
 been set from $`r min(w(params))`$ to $`r max(w(params))`$ and this is divided
 into $`r length(w(params))`$ size bins. Similar information is available for the
-plankton spectrum. Additionally, the community is made up of only one species,
+resource spectrum. Additionally, the community is made up of only one species,
 called *Community*, which has an asymptotic size of 
 $`r species_params(params)$w_inf[1]`$ and a preferred predator prey mass ratio of 
 $`r species_params(params)$beta[1]`$. The `w_mat` parameter has been set to `NA` as
@@ -115,7 +115,7 @@ class(sim)
 ```
 
 This class holds the results
-of the simulation, including the community and plankton abundances at size
+of the simulation, including the community and resource abundances at size
 through time, as well as the original model parameters. It is explained in
 detail in [the section on running a simulation.](running_a_simulation.html)
 
@@ -144,11 +144,11 @@ individual is, with 0 being unfed, and 1 being full satiated. The feeding level
 at size will be strongly affected by the values of the `f0` and `alpha`
 arguments passed to the `newCommunityParams()` function. 
 
-The plankton and
+The resource and
 community spectra are shown in the bottom panel of the plot (the plotted
-plankton spectrum has been truncated to make for a better plot, but really
+resource spectrum has been truncated to make for a better plot, but really
 extends all the way back to $`r signif(w_full(params)[1], 3)`$ g). You can see
-that the community spectrum forms a continuum with the plankton spectrum. This
+that the community spectrum forms a continuum with the resource spectrum. This
 is strongly affected by the level of fixed reproduction rate (the `reproduction`
 argument passed to `newCommunityParams()`)
 

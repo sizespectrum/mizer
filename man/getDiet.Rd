@@ -7,7 +7,7 @@
 getDiet(
   params,
   n = initialN(params),
-  n_pp = initialNPlankton(params),
+  n_pp = initialNResource(params),
   proportion = TRUE
 )
 }
@@ -16,7 +16,7 @@ getDiet(
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
 proportion of the total consumption rate. If FALSE it returns the
@@ -24,11 +24,11 @@ consumption rate in grams.}
 }
 \value{
 An array (predator species  x predator size x
-(prey species + plankton) )
+(prey species + resource) )
 }
 \description{
 Calculates the rate at which a predator of a particular species and size
-consumes biomass of each prey species and plankton.
+consumes biomass of each prey species and resource.
 }
 \details{
 This function performs the same integration as

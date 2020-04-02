@@ -79,7 +79,7 @@ and `sigma`, see
 [the section on predator/prey mass ratio](model_description.html#sec:ppmr)). 
 There are $`r length(w(params))`$ size
 bins in the community and $`r length(w_full(params))`$ size bins including the
-plankton spectrum. Ignore the summary section on fishing gear for the moment.
+resource spectrum. Ignore the summary section on fishing gear for the moment.
 This is explained later.
 
 ## Running the trait-based model {#sec:running_trait_model}
@@ -97,7 +97,7 @@ sim <- project(params, t_max = 75, effort = 0)
 ```
 
 This results in a `MizerSim` object that contains the abundances of the
-community and plankton spectra through time, as well as the original
+community and resource spectra through time, as well as the original
 `MizerParams` object. As with the community model, we can get a quick overview
 of the results of the simulation by calling the `plot()` method:
 

@@ -74,7 +74,7 @@ the encounter rate, but this can be overruled via setRateFunction()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -137,7 +137,7 @@ the encounter rate, but this can be overruled via <code><a href='setRateFunction
     <pre class="usage"><span class='fu'>getEncounter</span>(
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNPlankton-set.html'>initialNPlankton</a></span>(<span class='no'>params</span>),
+  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>)
 )</pre>
 
@@ -154,7 +154,7 @@ the encounter rate, but this can be overruled via <code><a href='setRateFunction
     </tr>
     <tr>
       <th>n_pp</th>
-      <td><p>A vector of the plankton abundance by size</p></td>
+      <td><p>A vector of the resource abundance by size</p></td>
     </tr>
     <tr>
       <th>n_other</th>
@@ -173,8 +173,8 @@ encounter rates.</p>
 
 <p>The encounter rate \(E_i(w)\) at which a predator of species \(i\)
 and weight \(w\) encounters food has contributions from the encounter of
-fish prey and of plankton. This is determined by summing over all prey
-species and the plankton spectrum and then integrating over all prey sizes
+fish prey and of resource. This is determined by summing over all prey
+species and the resource spectrum and then integrating over all prey sizes
 \(w_p\), weighted by predation kernel \(\phi(w,w_p)\):
 $$
 E_i(w) = \gamma_i(w) \int 
@@ -182,13 +182,13 @@ E_i(w) = \gamma_i(w) \int
 \phi_i(w,w_p) w_p \, dw_p.
 $$
 Here \(N_j(w)\) is the abundance density of species \(j\) and
-\(N_R(w)\) is the abundance density of plankton.
+\(N_R(w)\) is the abundance density of resource.
 The overall prefactor \(\gamma_i(w)\) determines the predation power of the
 predator. It could be interpreted as a search volume and is set with the
 <code><a href='setSearchVolume.html'>setSearchVolume()</a></code> function. The predation kernel
 \(\phi(w,w_p)\) is set with the <code><a href='setPredKernel.html'>setPredKernel()</a></code> function. The
 species interaction matrix \(\theta_{ij}\) is set with <code><a href='setInteraction.html'>setInteraction()</a></code>
-and the plankton interaction vector \(\theta_{ip}\) is taken from the
+and the resource interaction vector \(\theta_{ip}\) is taken from the
 <code>interaction_p</code> column in <code>params@species_params</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -209,11 +209,11 @@ species. These values should not be used, as they are meaningless.</p>
 <code><a href='getFMort.html'>getFMort</a>()</code>,
 <code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
 <code><a href='getMort.html'>getMort</a>()</code>,
-<code><a href='getPlanktonMort.html'>getPlanktonMort</a>()</code>,
 <code><a href='getPredMort.html'>getPredMort</a>()</code>,
 <code><a href='getPredRate.html'>getPredRate</a>()</code>,
 <code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code></p></div>
+<code><a href='getRDI.html'>getRDI</a>()</code>,
+<code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {

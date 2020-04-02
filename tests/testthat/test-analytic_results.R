@@ -8,24 +8,24 @@ p@species_params$pred_kernel_type <- "truncated_lognormal"
 n0 <- p@initial_n
 n0[] <- 0
 n_pp <- p@initial_n_pp
-n_pp[] <- p@plankton_params$kappa * p@w_full^(-p@plankton_params$lambda)
+n_pp[] <- p@resource_params$kappa * p@w_full^(-p@resource_params$lambda)
 sp <- 1  # check first species
 sigma <- p@species_params$sigma[sp]
 beta <- p@species_params$beta[sp]
 gamma <- p@species_params$gamma[sp]
 q <- p@species_params$q[sp]
 n <- p@species_params$n[sp]
-lm2 <- p@plankton_params$lambda - 2
+lm2 <- p@resource_params$lambda - 2
 
 # getEncounter ----
-test_that("getEncounter approximates analytic result when feeding on plankton only", {
+test_that("getEncounter approximates analytic result when feeding on resource only", {
     e <- getEncounter(p, n0, n_pp)[sp, ] * p@w^(lm2 - q)
     # Check that this is constant
     expect_equivalent(e, rep(e[1], length(e)))
     # Check that it agrees with analytic result
     Dx <- p@w[2] / p@w[1] - 1
     dx <- log(p@w[2] / p@w[1])
-    encounter_analytic <- p@plankton_params$kappa * exp(lm2^2 * sigma^2 / 2) *
+    encounter_analytic <- p@resource_params$kappa * exp(lm2^2 * sigma^2 / 2) *
         beta^lm2 * sqrt(2 * pi) * sigma * gamma *
         # The following factor takes into account the discretisation scheme
         Dx / dx #*
@@ -43,26 +43,26 @@ test_that("getEncounter approximates analytic result when feeding on plankton on
     ear <- 0
     # Calculate left Riemann sum
     for (j in 1:(i - 1)) {
-        ear <- ear + p@w_full[j]^(2 - p@plankton_params$lambda) * 
+        ear <- ear + p@w_full[j]^(2 - p@resource_params$lambda) * 
             exp(-(x_full[i] - x_full[j] - Beta)^2 / (2 * sigma^2))
     }
-    ear <- ear * p@plankton_params$kappa * p@w_full[i]^(p@plankton_params$lambda - 2) * dx * gamma
+    ear <- ear * p@resource_params$kappa * p@w_full[i]^(p@resource_params$lambda - 2) * dx * gamma
     expect_equivalent(e[1], ear * Dx / dx)
 })
 
 # getDiet ----
-test_that("getDiet approximates analytic result when feeding on plankton only", {
+test_that("getDiet approximates analytic result when feeding on resource only", {
     # n and n_pp are power laws
     n <- p@initial_n
-    n[] <- rep(p@plankton_params$kappa * p@w^(-p@plankton_params$lambda), each = 2)
+    n[] <- rep(p@resource_params$kappa * p@w^(-p@resource_params$lambda), each = 2)
     n_pp <- p@initial_n_pp
-    n_pp[] <- p@plankton_params$kappa * p@w_full^(-p@plankton_params$lambda)
+    n_pp[] <- p@resource_params$kappa * p@w_full^(-p@resource_params$lambda)
     # switch of interaction between species
     p0 <- setInteraction(p, interaction = matrix(0, nrow = no_sp, ncol = no_sp))
     diet <- getDiet(p0, n, n_pp, proportion = FALSE)[sp, , ]
     # None of the diet should come from fish
     expect_true(all(diet[, 1:2] == 0))
-    # Check that diet from plankton is power law
+    # Check that diet from resource is power law
     diet_coeff <- diet[, 3] * p@w^(lm2 - q)
     expect_equivalent(diet_coeff, rep(diet_coeff[1], no_w))
     # and agrees with result from getEncounter
@@ -85,7 +85,7 @@ test_that("getFeedingLevel approximates analytic result", {
 # TODO: fix this
 # test_that("getPredRate approximates analytic result", {
 #     # We use a power law for the species spectrum
-#     p@initial_n[sp, ] <- p@plankton_params$kappa * p@w^(-p@plankton_params$lambda)
+#     p@initial_n[sp, ] <- p@resource_params$kappa * p@w^(-p@resource_params$lambda)
 #     # and constant feeding level
 #     f0 <- 0.6
 #     f <- matrix(f0, nrow = 2, ncol = no_w)
@@ -103,7 +103,7 @@ test_that("getFeedingLevel approximates analytic result", {
 #     n1 <- n - 1
 #     Dx <- p@w[2] / p@w[1] - 1
 #     dx <- log(p@w[2] / p@w[1])
-#     pred_rate_analytic <- p@plankton_params$kappa * gamma * (1 - f0) *
+#     pred_rate_analytic <- p@resource_params$kappa * gamma * (1 - f0) *
 #         exp(n1^2 * sigma^2 / 2) *
 #         beta^n1 * sqrt(2 * pi) * sigma * 
 #         # The following factor takes into account the discretisation scheme
@@ -128,7 +128,7 @@ test_that("getFeedingLevel approximates analytic result", {
 #         pra <- pra + p@w_full[j]^(n - 1) * 
 #             exp(-(x_full[j] - x_full[i] - Beta)^2 / (2 * sigma^2))
 #     }
-#     pra <- pra * (1 - f0) * p@plankton_params$kappa * gamma * p@w_full[i]^(1 - n) * dx
+#     pra <- pra * (1 - f0) * p@resource_params$kappa * gamma * p@w_full[i]^(1 - n) * dx
 #     # TODO: Still need to understand this
 #     # expect_equal(unname(pr[1]), pra, tolerance = 1e-14)
 # })
@@ -139,7 +139,7 @@ test_that("Analytic steady-state solution is well approximated", {
     # Choose some parameters
     f0 <- 0.6
     alpha <- 0.4
-    r_pp <- 10^18  # Choosing a high value because we want the plankton to stay
+    r_pp <- 10^18  # Choosing a high value because we want the resource to stay
     # at its power-law steady state
     n <- 2/3
     p <- n
@@ -187,7 +187,7 @@ test_that("Analytic steady-state solution is well approximated", {
     w <- params@w
     
     # mu0 w^(n-1) is the death rate that is produced by predation if the predators
-    # follow the same power law as the plankton. 
+    # follow the same power law as the resource. 
     # We could equally well have chosen any other constant
     mu0 <- (1 - f0) * sqrt(2 * pi) * kappa * gamma * sigma *
         (beta ^ (n - 1)) * exp(sigma ^ 2 * (n - 1) ^ 2 / 2)

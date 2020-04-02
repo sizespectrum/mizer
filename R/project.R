@@ -36,8 +36,8 @@ NULL
 #'   argument or a `MizerSim` for the `object` argument.
 #' @param initial_n Deprecated. The initial abundances of species. Instead of
 #'   using this argument you should set `initialN(params)` to the desired value.
-#' @param initial_n_pp Deprecated. The initial abundances of plankton. Instead
-#'   of using this argument you should set `initialNPlankton(params)` to the
+#' @param initial_n_pp Deprecated. The initial abundances of resource. Instead
+#'   of using this argument you should set `initialNResource(params)` to the
 #'   desired value.
 #' @param append A boolean that determines whether the new simulation results
 #'   are appended to the previous ones. Only relevant if `object` is a
@@ -241,7 +241,7 @@ project <- function(object, effort,
     no_sp <- nrow(sim@params@species_params) # number of species
     no_w <- length(sim@params@w) # number of fish size bins
     idx <- 2:no_w
-    plankton_dynamics_fn <- get(sim@params@plankton_dynamics)
+    resource_dynamics_fn <- get(sim@params@resource_dynamics)
     other_dynamics_fns <- lapply(sim@params@other_dynamics, get)
     rates_fns <- lapply(sim@params@rates_funcs, get)
     # Hacky shortcut to access the correct element of a 2D array using 1D notation
@@ -284,7 +284,7 @@ project <- function(object, effort,
         # Update time
         t <- t + dt
         # Update other components
-        n_other_current <- n_other  # So that the plankton dynamics can still 
+        n_other_current <- n_other  # So that the resource dynamics can still 
                                     # use the current value
         for (res in other_names) {
             n_other[[res]] <-
@@ -299,8 +299,8 @@ project <- function(object, effort,
                 )
         }
         
-        # Update plankton
-        n_pp <- plankton_dynamics_fn(params, n = n, n_pp = n_pp,
+        # Update resource
+        n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
                                      n_other = n_other_current, rates = r,
                                      t = t, dt = dt)
         

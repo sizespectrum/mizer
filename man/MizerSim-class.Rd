@@ -15,8 +15,8 @@ created automatically by \code{\link[=project]{project()}} when needed.
 
 As a user you should never have to access the slots of a MizerSim object
 directly. Instead there are a range of functions to extract the information.
-\code{\link[=N]{N()}} and \code{\link[=NPlankton]{NPlankton()}} return arrays with the saved abundances of
-the species and the plankton population at size respectively. \code{\link[=effort]{effort()}}
+\code{\link[=N]{N()}} and \code{\link[=NResource]{NResource()}} return arrays with the saved abundances of
+the species and the resource population at size respectively. \code{\link[=effort]{effort()}}
 returns the fishing effort of each gear through time.
 \code{\link[=times]{times()}} returns the vector of times at which simulation results
 were stored and \code{\link[=idxFinalT]{idxFinalT()}} returns the index with which to access
@@ -49,7 +49,7 @@ with \code{\link[=upgradeSim]{upgradeSim()}}.
 \item{\code{n}}{Three-dimensional array (time x species x size) that stores the
 projected community number densities.}
 
-\item{\code{n_pp}}{An array (time x size) that stores the projected plankton number
+\item{\code{n_pp}}{An array (time x size) that stores the projected resource number
 densities.}
 
 \item{\code{n_other}}{A list array (time x component) that stores the projected

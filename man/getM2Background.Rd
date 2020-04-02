@@ -2,12 +2,12 @@
 % Please edit documentation in R/rate_functions.R
 \name{getM2Background}
 \alias{getM2Background}
-\title{Alias for getPlanktonMort}
+\title{Alias for getResourceMort}
 \usage{
 getM2Background(
   params,
   n = initialN(params),
-  n_pp = initialNPlankton(params),
+  n_pp = initialNResource(params),
   n_other = initialNOther(params),
   pred_rate = getPredRate(params, n = n, n_pp = n_pp, n_other = n_other)
 )
@@ -17,18 +17,18 @@ getM2Background(
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
-plankton, the w_full slot). The array is optional. If it is not provided
+resource, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{\link[=getPredRate]{getPredRate()}} function.}
 }
 \value{
-A vector of mortality rate by plankton size.
+A vector of mortality rate by resource size.
 }
 \description{
 An alias provided for backward compatibility with mizer version <= 1.0
@@ -41,10 +41,10 @@ Used by the \code{project} function for running size based simulations.
 params <- newMultispeciesParams(NS_species_params_gears, inter)
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-# Get plankton mortality at one time step
+# Get resource mortality at one time step
 n <- sim@n[21,,]
 n_pp <- sim@n_pp[21,]
-getPlanktonMort(params,n,n_pp)
+getResourceMort(params,n,n_pp)
 }
 }
 \seealso{

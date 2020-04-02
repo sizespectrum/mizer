@@ -27,7 +27,7 @@ given in the \code{w_min} column of the \code{species_params} dataframe.}
 set to the largest \code{w_inf} specified in the \code{species_params} data
 frame.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum.}
+\item{min_w_pp}{The smallest size of the resource spectrum.}
 }
 \value{
 An empty but valid MizerParams object

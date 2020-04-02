@@ -68,15 +68,15 @@ initialN <- function(object) {
     }
 }
 
-#' Initial value for plankton spectrum
+#' Initial value for resource spectrum
 #' 
 #' Value used as starting value for simulations with `project()`.
 #' 
 #' @param params A MizerParams object
-#' @param value A vector with the initial number densities for the plankton
+#' @param value A vector with the initial number densities for the resource
 #'   spectrum
 #' @export
-`initialNPlankton<-` <- function(params, value) {
+`initialNResource<-` <- function(params, value) {
     if (!is(params, "MizerParams")) {
         stop("You can only assign an initial N to a MizerParams object. ",
              params, " is of class ", class(params), ".")
@@ -91,10 +91,10 @@ initialN <- function(object) {
     params
 }
 
-#' @rdname initialNPlankton-set
+#' @rdname initialNResource-set
 #' @param object An object of class MizerParams or MizerSim
 #' @export
-initialNPlankton <- function(object) {
+initialNResource <- function(object) {
     if (is(object, "MizerParams")) {
         return(object@initial_n_pp)
     }

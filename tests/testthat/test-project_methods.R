@@ -183,10 +183,10 @@ test_that("getPredMort is independent of volume", {
 })
 
 
-# getPlanktonMort ---------------------------------------------------------
+# getResourceMort ---------------------------------------------------------
 
-test_that("getPlanktonMort", {
-    m2 <- getPlanktonMort(params, n, n_full)
+test_that("getResourceMort", {
+    m2 <- getResourceMort(params, n, n_full)
     # test dim
     expect_length(m2, no_w_full)
     # Check number in final prey size group
@@ -194,16 +194,16 @@ test_that("getPlanktonMort", {
     expect_equal(m22, m2, check.attributes = FALSE)
     # Passing in pred_rate gives the same
     pr <- getPredRate(params, n, n_full)
-    m2b1 <- getPlanktonMort(params, n, n_full)
-    m2b2 <- getPlanktonMort(params, n, n_full, pred_rate = pr)
+    m2b1 <- getResourceMort(params, n, n_full)
+    m2b2 <- getResourceMort(params, n, n_full, pred_rate = pr)
     expect_identical(m2b1, m2b2)
     # test value
-    expect_known_value(m2b1, "values/getPlanktonMort")
+    expect_known_value(m2b1, "values/getResourceMort")
 })
 
-test_that("getPlanktonMort is independent of volume", {
-    pm <- getPlanktonMort(params)
-    pm_r <- getPlanktonMort(params_r)
+test_that("getResourceMort is independent of volume", {
+    pm <- getResourceMort(params)
+    pm_r <- getResourceMort(params_r)
     expect_equal(pm, pm_r)
 })
 
@@ -490,7 +490,7 @@ test_that("project function returns objects of correct dimension when community 
     expect_equal(dim(getFeedingLevel(params, n, n_pp)), c(1, no_w))
     expect_equal(dim(getPredRate(params, n, n_pp)), c(1, no_w_full))
     expect_equal(dim(getPredMort(params, n, n_pp)), c(1, no_w))
-    expect_length(getPlanktonMort(params, n, n_pp), no_w_full)
+    expect_length(getResourceMort(params, n, n_pp), no_w_full)
     expect_equal(dim(getFMortGear(params, 0)), c(1, 1, no_w)) # 3D time x species x size
     expect_equal(dim(getFMortGear(params, matrix(c(0, 0), nrow = 2))), 
                      c(2, 1, 1, no_w)) # 4D time x gear x species x size

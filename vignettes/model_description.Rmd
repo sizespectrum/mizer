@@ -47,7 +47,7 @@ $N_i(w)$ on the vertical axis for $i=1,2$ and $w$ on the horizontal axis.
 ```{r, message=FALSE}
 library(mizer)
 params <- newTraitParams(no_sp = 2, min_w = 1e-3)
-plotSpectra(params, plankton = FALSE, power = 0)
+plotSpectra(params, resource = FALSE, power = 0)
 ```
 
 To represent this continuous size spectrum in the computer, the size
@@ -133,13 +133,13 @@ smallest size class instead of a rate of growth into the size class there is
 a rate of reproduction of new individuals into that size class. This
 reproduction will be described further below.
 
-## Plankton density
+## Resource density
 
-Besides the fish spectrum there is also a plankton spectrum $NPlankton(w)$,
+Besides the fish spectrum there is also a resource spectrum $NResource(w)$,
 representing for example the phytoplankton. This spectrum starts at a smaller
 size than the fish spectrum, in order to provide food also for the smallest
 individuals (larvae) of the fish spectrum.
-By default the time evolution of the plankton spectrum is described by a 
+By default the time evolution of the resource spectrum is described by a 
 semi-chemostat equation.
 
 <details>
@@ -149,25 +149,25 @@ The semichemostat dynamics are given by
   \frac{\partial N_p(w,t)}{\partial t} 
   = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
 \end{equation}
-Here $r_p(w)$ is the plankton regeneration rate and $c_p(w)$ is the carrying
+Here $r_p(w)$ is the resource regeneration rate and $c_p(w)$ is the carrying
 capacity in the absence of predation. These parameters are changed with
-`setPlankton()`. By default mizer assumes allometric forms
+`setResource()`. By default mizer assumes allometric forms
 \[r_p(w)= r_p\, w^{n-1}.\]
 \[c_p(w)=\kappa\, w^{-\lambda}.\]
-You can retrieve these with `getPlanktonRate()` and `getPlanktonCapacity()`
-respectively. It is also possible to implement other plankton dynamics, as
-described in the help page for `setPlankton()`. The mortality $\mu_p(w)$ is
+You can retrieve these with `getResourceRate()` and `getResourceCapacity()`
+respectively. It is also possible to implement other resource dynamics, as
+described in the help page for `setResource()`. The mortality $\mu_p(w)$ is
 due to predation by consumers and isdescribed in the subsection 
-[Plankton mortality].
+[Resource mortality].
 
-Because the plankton spectrum spans a different range of sizes these sizes
+Because the resource spectrum spans a different range of sizes these sizes
 are discretized into a different vector of weights
 `w_full`. The last entries of `w_full` have to coincide with the entries
 of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
 gives the vector of bin sizes.
 
-The plankton spectrum is then represented by a vector `NPlankton` such that
-`NPlankton[c]` =$N_p($`w_full[c]`$)$.
+The resource spectrum is then represented by a vector `NResource` such that
+`NResource[c]` =$N_p($`w_full[c]`$)$.
 
 </details>
 
@@ -184,7 +184,7 @@ remaining energy into reproduction and growth.
 
 The rate at which a predator of species $i$ and weight $w$ encounters food 
 (mass per time) is
-determined by summing over all prey species and the plankton spectrum and
+determined by summing over all prey species and the resource spectrum and
 integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 \begin{equation}
   \label{eq:1}
@@ -199,7 +199,7 @@ default it is assumed to scale allometrically as
 $\gamma_i(w) = \gamma_i\, w^q.$
 
 The $\theta$ matrix sets the interaction strength between predators and the
-various prey species and plankton. It is changed with `setInteraction()`.
+various prey species and resource. It is changed with `setInteraction()`.
 
 The size selectivity is encoded in the predation kernel $\phi_i(w,w_p)$. This is
 changed with `setPredKernel()`.
@@ -354,16 +354,16 @@ The total mortality rate
 is calculated with the function `getMort()`.
 
 
-## Plankton Mortality
+## Resource Mortality
 
-The predation mortality rate on plankton is given by a similar expression
+The predation mortality rate on resource is given by a similar expression
 as the predation mortality on fish:
 \begin{equation}
   \label{eq:mupp}
   \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
 \end{equation}
-This is the only mortality on plankton currently implemented in mizer.
-It is calculated with the function `getPlanktonMort()`.
+This is the only mortality on resource currently implemented in mizer.
+It is calculated with the function `getResourceMort()`.
 
 
 

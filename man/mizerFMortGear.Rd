@@ -35,10 +35,10 @@ Other mizer rate functions:
 \code{\link{mizerFMort}()},
 \code{\link{mizerFeedingLevel}()},
 \code{\link{mizerMort}()},
-\code{\link{mizerPlanktonMort}()},
 \code{\link{mizerPredMort}()},
 \code{\link{mizerPredRate}()},
 \code{\link{mizerRDI}()},
-\code{\link{mizerRates}()}
+\code{\link{mizerRates}()},
+\code{\link{mizerResourceMort}()}
 }
 \concept{mizer rate functions}

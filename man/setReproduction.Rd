@@ -134,8 +134,8 @@ Other functions for setting parameters:
 \code{\link{setInteraction}()},
 \code{\link{setMaxIntakeRate}()},
 \code{\link{setMetabolicRate}()},
-\code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
+\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

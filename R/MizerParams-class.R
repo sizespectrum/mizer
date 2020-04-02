@@ -241,9 +241,9 @@ validMizerParams <- function(object) {
 #'   vector of weights (in grams) running from the smallest egg size to the
 #'   largest asymptotic size.
 #' @slot dw The widths (in grams) of the size bins
-#' @slot w_full The size grid for the full size range including the plankton
+#' @slot w_full The size grid for the full size range including the resource
 #'   spectrum. An increasing vector of weights (in grams) running from the
-#'   smallest plankton size to the largest asymptotic size of fish. The
+#'   smallest resource size to the largest asymptotic size of fish. The
 #'   last entries of the vector have to be equal to the content of the w slot.
 #' @slot dw_full The width of the size bins for the full spectrum. The last
 #'   entries have to be equal to the content of the dw slot.
@@ -279,14 +279,14 @@ validMizerParams <- function(object) {
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
-#'   growth rate of the plankton spectrum. Changed with [setPlankton()].
+#'   growth rate of the resource spectrum. Changed with [setResource()].
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
-#'   carrying capacity of the plankton spectrum. Changed with 
-#'   [setPlankton()].
-#' @slot plankton_dynamics Name of the function for projecting the plankton abundance
+#'   carrying capacity of the resource spectrum. Changed with 
+#'   [setResource()].
+#' @slot resource_dynamics Name of the function for projecting the resource abundance
 #'   density by one timestep. The default is 
-#'   [plankton_semichemostat()]. 
-#'   Changed with [setPlankton()].
+#'   [resource_semichemostat()]. 
+#'   Changed with [setResource()].
 #' @slot other_dynamics A named list of functions for projecting the
 #'   values of other dynamical components of the ecosystem that may be modelled
 #'   by a mizer extensions you have installed. The names of the list entries
@@ -319,10 +319,10 @@ validMizerParams <- function(object) {
 #' @slot initial_n An array (species x size) that holds the initial abundance of
 #'   each species at each weight.
 #' @slot initial_n_pp A vector the same length as the w_full slot that describes
-#'   the initial plankton abundance at each weight.
+#'   the initial resource abundance at each weight.
 #' @slot initial_n_other A list with the initial abundances of all other
 #'   ecosystem components. Has length zero if there are no other components.
-#' @slot plankton_params List with parameters for plankton. See [setPlankton()].
+#' @slot resource_params List with parameters for resource. See [setResource()].
 #' @slot A Abundance multipliers.
 #' @slot linecolour A named vector of colour values, named by species.
 #'   Used to give consistent colours in plots.
@@ -366,8 +366,8 @@ setClass(
         mu_b = "array",
         rr_pp = "numeric",
         cc_pp = "numeric",
-        plankton_dynamics = "character",
-        plankton_params = "list",
+        resource_dynamics = "character",
+        resource_params = "list",
         other_dynamics = "list",
         other_params = "list",
         other_encounter = "list",
@@ -438,7 +438,7 @@ remove(validMizerParams)
 #' @param max_w The largest size of the consumer spectrum. By default this is
 #'   set to the largest `w_inf` specified in the `species_params` data
 #'   frame.
-#' @param min_w_pp The smallest size of the plankton spectrum.
+#' @param min_w_pp The smallest size of the resource spectrum.
 # #'   Ignored if w_full is specified.
 #' 
 #' @return An empty but valid MizerParams object
@@ -610,7 +610,7 @@ emptyParams <- function(species_params,
         linecolour <- rep(colour_palette, length.out = no_sp)
     }
     names(linecolour) <- as.character(species_names)
-    linecolour <- c(linecolour, "Total" = "black", "Plankton" = "green",
+    linecolour <- c(linecolour, "Total" = "black", "Resource" = "green",
                     "Background" = "grey", "Fishing" = "red")
     
     if ("linetype" %in% names(species_params)) {
@@ -620,7 +620,7 @@ emptyParams <- function(species_params,
         linetype <- rep(type_palette, length.out = no_sp)
     }
     names(linetype) <- as.character(species_names)
-    linetype <- c(linetype, "Total" = "solid", "Plankton" = "solid",
+    linetype <- c(linetype, "Total" = "solid", "Resource" = "solid",
                   "Background" = "solid", "Fishing" = "solid")
     
     # Make object ----
@@ -666,10 +666,10 @@ emptyParams <- function(species_params,
             Mort = "mizerMort",
             ERepro = "mizerERepro",
             EGrowth = "mizerEGrowth",
-            PlanktonMort = "mizerPlanktonMort",
+            ResourceMort = "mizerResourceMort",
             RDI = "mizerRDI",
             RDD = "BevertonHoltRDD"),
-        plankton_dynamics = "plankton_semichemostat",
+        resource_dynamics = "resource_semichemostat",
         other_params = list(),
         initial_n_other = list(),
         A = as.numeric(rep(NA, no_sp)),

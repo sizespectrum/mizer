@@ -60,9 +60,9 @@ Other functions for setting parameters:
 \code{\link{setInitialValues}()},
 \code{\link{setInteraction}()},
 \code{\link{setMetabolicRate}()},
-\code{\link{setPlankton}()},
 \code{\link{setPredKernel}()},
 \code{\link{setReproduction}()},
+\code{\link{setResource}()},
 \code{\link{setSearchVolume}()},
 \code{\link{species_params}()}
 }

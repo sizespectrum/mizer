@@ -27,7 +27,7 @@ MizerParams(
 species x prey species). Entries should be numbers between 0 and 1. By
 default all entries are 1. See "Setting interactions" section below.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+\item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
 \item{min_w}{Sets the size of the eggs of all species for which this is not
@@ -48,11 +48,11 @@ species by including a \code{n} column in the \code{species_params}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
-\item{kappa}{Coefficient of the intrinsic plankton carrying capacity}
+\item{kappa}{Coefficient of the intrinsic resource carrying capacity}
 
-\item{lambda}{Scaling exponent of the intrinsic plankton carrying capacity}
+\item{lambda}{Scaling exponent of the intrinsic resource carrying capacity}
 
-\item{r_pp}{Coefficient of the intrinsic plankton birth rate}
+\item{r_pp}{Coefficient of the intrinsic resource birth rate}
 
 \item{...}{Unused}
 }

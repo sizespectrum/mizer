@@ -17,8 +17,8 @@
 #' @inheritParams setExtMort
 #' @inheritParams setReproduction
 #' @inheritParams setFishing
-#' @inheritParams setPlankton
-#' @param min_w_pp The smallest size of the plankton spectrum. By default this
+#' @inheritParams setResource
+#' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`. 
@@ -58,7 +58,7 @@
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
-#' @inheritSection setPlankton Setting plankton dynamics
+#' @inheritSection setResource Setting resource dynamics
 #' 
 #' @export
 #' @family functions for setting up models
@@ -90,15 +90,15 @@ newMultispeciesParams <- function(
     maturity = NULL,
     repro_prop = NULL,
     RDD = "BevertonHoltRDD",
-    # setPlankton
-    r_plankton = NULL,
-    K_plankton = NULL,
+    # setResource
+    r_resource = NULL,
+    K_resource = NULL,
     n = 2 / 3,
     r_pp = 10,
     kappa = 1e11,
     lambda = 2.05,
     w_pp_cutoff = 10,
-    plankton_dynamics = "plankton_semichemostat",
+    resource_dynamics = "resource_semichemostat",
     # setFishing
     gear_params = data.frame(),
     selectivity = NULL,
@@ -149,15 +149,15 @@ newMultispeciesParams <- function(
                   maturity = maturity,
                   repro_prop = repro_prop,
                   RDD = RDD,
-                  # setPlankton
-                  r_plankton = r_plankton,
-                  K_plankton = K_plankton,
+                  # setResource
+                  r_resource = r_resource,
+                  K_resource = K_resource,
                   r_pp = r_pp,
                   kappa = kappa,
                   lambda = lambda,
                   n = n,
                   w_pp_cutoff = w_pp_cutoff,
-                  plankton_dynamics = plankton_dynamics,
+                  resource_dynamics = resource_dynamics,
                   # setFishing
                   gear_params = gear_params,
                   selectivity = selectivity,
@@ -184,7 +184,7 @@ newMultispeciesParams <- function(
 #' \item [setExtMort()]
 #' \item [setReproduction()]
 #' \item [setFishing()]
-#' \item [setPlankton()]
+#' \item [setResource()]
 #' }
 #' See the Details section below for a discussion of how to use this function.
 #' 
@@ -197,7 +197,7 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setExtMort
 #' @inheritDotParams setReproduction
 #' @inheritDotParams setFishing
-#' @inheritDotParams setPlankton
+#' @inheritDotParams setResource
 #' 
 #' @return A \linkS4class{MizerParams} object
 #' 
@@ -284,7 +284,7 @@ newMultispeciesParams <- function(
 #' @inheritSection setExtMort Setting external mortality rate
 #' @inheritSection setReproduction Setting reproduction
 #' @inheritSection setFishing Setting fishing
-#' @inheritSection setPlankton Setting plankton dynamics
+#' @inheritSection setResource Setting resource dynamics
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -295,7 +295,7 @@ newMultispeciesParams <- function(
 #' }
 setParams <- function(params, interaction = NULL, ...) {
     validObject(params)
-    params <- setPlankton(params, ...)
+    params <- setResource(params, ...)
     params <- setInteraction(params, interaction)
     params <- setPredKernel(params, ...)
     params <- setMaxIntakeRate(params, ...)

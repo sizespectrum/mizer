@@ -11,7 +11,7 @@ mizerPredRate(params, n, n_pp, n_other, feeding_level, ...)
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
@@ -24,7 +24,7 @@ using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
 }
 \value{
 A two dimensional array (predator species x prey size) with the
-predation rate, where the prey size runs over fish community plus plankton
+predation rate, where the prey size runs over fish community plus resource
 spectrum.
 }
 \description{
@@ -46,9 +46,9 @@ Other mizer rate functions:
 \code{\link{mizerFMort}()},
 \code{\link{mizerFeedingLevel}()},
 \code{\link{mizerMort}()},
-\code{\link{mizerPlanktonMort}()},
 \code{\link{mizerPredMort}()},
 \code{\link{mizerRDI}()},
-\code{\link{mizerRates}()}
+\code{\link{mizerRates}()},
+\code{\link{mizerResourceMort}()}
 }
 \concept{mizer rate functions}

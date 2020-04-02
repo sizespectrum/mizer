@@ -254,7 +254,7 @@ test_that("getCommunitySlope works",{
 test_that("getDiet works with proportion = FALSE", {
     diet <- getDiet(params, n, n_pp, proportion = FALSE)
     expect_known_value(diet, "values/getDiet")
-    # Check that summing over all species and plankton gives 
+    # Check that summing over all species and resource gives 
     # total consumption
     consumption <- rowSums(diet, dims = 2)
     encounter <- getEncounter(params, n, n_pp)

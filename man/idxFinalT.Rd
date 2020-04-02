@@ -27,6 +27,6 @@ length(times(sim))
 times(sim)[idx]
 # We can use this index to extract the result at the final time
 identical(N(sim)[idx, , ], finalN(sim))
-identical(NPlankton(sim)[idx, ], finalNPlankton(sim))
+identical(NResource(sim)[idx, ], finalNResource(sim))
 }
 }

@@ -34,7 +34,7 @@ newTraitParams(
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
   mortality_scaling = FALSE,
-  plankton_scaling = FALSE,
+  resource_scaling = FALSE,
   perfect_scaling = FALSE
 )
 }
@@ -65,10 +65,10 @@ approximately 1/4.}
 will be equally spaced on a logarithmic scale. Default value is such that
 there are 50 bins for each factor of 10 in weight.}
 
-\item{min_w_pp}{The smallest size of the plankton spectrum. By default this
+\item{min_w_pp}{The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.}
 
-\item{w_pp_cutoff}{The largest size of the plankton spectrum. Default value
+\item{w_pp_cutoff}{The largest size of the resource spectrum. Default value
 is max_w_inf unless \code{perfect_scaling = TRUE} when it is Inf.}
 
 \item{n}{Scaling exponent of the maximum intake rate.}
@@ -78,7 +78,7 @@ equal to the exponent \code{n}.}
 
 \item{lambda}{Exponent of the abundance power law.}
 
-\item{r_pp}{Growth rate parameter for the plankton spectrum.}
+\item{r_pp}{Growth rate parameter for the resource spectrum.}
 
 \item{kappa}{Coefficient in abundance power law.}
 
@@ -123,7 +123,7 @@ gear.}
 maximum size of each species. This fraction is \code{min_w / min_w_inf}. If
 FALSE, all species have the egg size \code{w_min}.}
 
-\item{plankton_scaling}{If TRUE, the carrying capacity for larger plankton
+\item{resource_scaling}{If TRUE, the carrying capacity for larger resource
 is reduced to compensate for the fact that fish eggs and larvae are
 present in the same size range.}
 

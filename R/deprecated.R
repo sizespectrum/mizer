@@ -170,16 +170,16 @@ MizerParams <- set_multispecies_model
 #' @param min_w The smallest size of the community spectrum.
 #' @param max_w Obsolete argument because the maximum size of the consumer
 #'   spectrum is set to max_w_inf.
-#' @param min_w_pp Obsolete argument because the smallest plankton size is set
+#' @param min_w_pp Obsolete argument because the smallest resource size is set
 #'   to the smallest size at which the consumers feed.
-#' @param w_pp_cutoff The cut off size of the plankton spectrum. Default value
+#' @param w_pp_cutoff The cut off size of the resource spectrum. Default value
 #'    is 1.
 #' @param k0 Multiplier for the maximum recruitment. Default value is 50.
 #' @param n Scaling of the intake. Default value is 2/3.
 #' @param p Scaling of the standard metabolism. Default value is 0.75.
 #' @param q Exponent of the search volume. Default value is 0.9.
 #' @param eta Factor to calculate `w_mat` from asymptotic size.
-#' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 4.
+#' @param r_pp Growth rate parameter for the resource spectrum. Default value is 4.
 #' @param kappa Coefficient in abundance power law. Default value is
 #'   0.005.
 #' @param lambda Exponent of the abundance power law. Default value is (2+q-n).
@@ -329,7 +329,7 @@ set_trait_model <- function(no_sp = 10,
 #' community-type models can be easily set up and run. A community model has
 #' several features that distinguish it from the food-web type models. Only one
 #' 'species' is resolved, i.e. one 'species' is used to represent the whole
-#' community. The plankton spectrum only extends to the start of the community
+#' community. The resource spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
 #' constant and set by the user. As recruitment is constant, the proportion of
 #' energy invested in reproduction (the slot `psi` of the returned 
@@ -364,16 +364,16 @@ set_trait_model <- function(no_sp = 10,
 #' @param sigma The width of the prey preference. Default value is 2.0.
 #' @param q The search volume exponent. Default value is 0.8.
 #' @param n The scaling of the intake. Default value is 2/3.
-#' @param kappa The carrying capacity of the plankton spectrum. Default value
+#' @param kappa The carrying capacity of the resource spectrum. Default value
 #'   is 1000.
-#' @param lambda The exponent of the plankton spectrum. Default value is 2 + q
+#' @param lambda The exponent of the resource spectrum. Default value is 2 + q
 #'   - n.
-#' @param r_pp Growth rate parameter for the plankton spectrum. Default value is 10.
+#' @param r_pp Growth rate parameter for the resource spectrum. Default value is 10.
 #' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
 #'   `kappa` if not supplied.
 #' @param recruitment The constant recruitment in the smallest size class of the
 #'   community spectrum. This should be set so that the community spectrum 
-#'   continues the plankton spectrum. Default value = `kappa` * 
+#'   continues the resource spectrum. Default value = `kappa` * 
 #'   `min_w`^-`lambda`.
 #' @param rec_mult Additional multiplier for the constant recruitment. Default 
 #'   value is 1.
@@ -385,7 +385,7 @@ set_trait_model <- function(no_sp = 10,
 #'   species used to represent the community is set to this value. The 
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
-#' @param min_w_pp The smallest size of the plankton spectrum. 
+#' @param min_w_pp The smallest size of the resource spectrum. 
 #' @param ... Other arguments to pass to the `MizerParams` constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}

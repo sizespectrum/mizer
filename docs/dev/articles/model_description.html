@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -105,7 +105,7 @@ And clicking again will hide the details again.
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</span>
 <span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_w =</span> <span class="fl">1e-3</span>)</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">plankton =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw"><a href="../reference/plotSpectra.html">plotSpectra</a></span>(params, <span class="dt">resource =</span> <span class="ot">FALSE</span>, <span class="dt">power =</span> <span class="dv">0</span>)</span></code></pre></div>
 <p><img src="model_description_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <p>To represent this continuous size spectrum in the computer, the size variable <span class="math inline">\(w\)</span> is discretized into a vector <code>w</code> of discrete weights, providing a grid of sizes spanning the range from the smallest egg size to the largest asymptotic size. These grid values divide the full size range into a finite number of size bins. The size bins should be chosen small enough to avoid the discretisation errors from becoming too big. You can fetch this vector with <code><a href="../reference/w.html">w()</a></code> and the vector of bin sizes with <code><a href="../reference/w.html">dw()</a></code>.</p>
 <p>The weight grid is set up to be logarithmically spaced, so that <code>w[j]=w[1]*exp(j*dx)</code> for some fixed <code>dx</code>. This grid is set up automatically when creating a MizerParams object.</p>
@@ -128,17 +128,17 @@ And clicking again will hide the details again.
 <p>This McKendrik-von Foerster equation is approximated in mizer by a finite-difference method. This allows the <code><a href="../reference/project.html">project()</a></code> function in mizer to project the size spectrum forwards in time: Given the spectrum at one time the <code><a href="../reference/project.html">project()</a></code> function calculates it at a set of later times.</p>
 <p>Of course there also needs to be reproduction into the smallest size class, otherwise there would be no small fish any more after a while. So for the smallest size class instead of a rate of growth into the size class there is a rate of reproduction of new individuals into that size class. This reproduction will be described further below.</p>
 </div>
-<div id="plankton-density" class="section level2">
+<div id="resource-density" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plankton-density" class="anchor"></a>Plankton density</h2>
-<p>Besides the fish spectrum there is also a plankton spectrum <span class="math inline">\(NPlankton(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the plankton spectrum is described by a semi-chemostat equation.</p>
+<a href="#resource-density" class="anchor"></a>Resource density</h2>
+<p>Besides the fish spectrum there is also a resource spectrum <span class="math inline">\(NResource(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the resource spectrum is described by a semi-chemostat equation.</p>
 <details><p>The semichemostat dynamics are given by <span class="math display">\[\begin{equation}
   \label{eq:nb}
   \frac{\partial N_p(w,t)}{\partial t} 
   = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
-\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the plankton regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> You can retrieve these with <code><a href="../reference/setPlankton.html">getPlanktonRate()</a></code> and <code><a href="../reference/setPlankton.html">getPlanktonCapacity()</a></code> respectively. It is also possible to implement other plankton dynamics, as described in the help page for <code><a href="../reference/setPlankton.html">setPlankton()</a></code>. The mortality <span class="math inline">\(\mu_p(w)\)</span> is due to predation by consumers and isdescribed in the subsection <a href="#plankton-mortality">Plankton mortality</a>.</p>
-<p>Because the plankton spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The function <code><a href="../reference/w.html">w_full()</a></code> gives the vector of sizes and <code><a href="../reference/w.html">dw_full()</a></code> gives the vector of bin sizes.</p>
-<p>The plankton spectrum is then represented by a vector <code>NPlankton</code> such that <code>NPlankton[c]</code> =<span class="math inline">\(N_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
+\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the resource regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setResource.html">setResource()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> You can retrieve these with <code><a href="../reference/setResource.html">getResourceRate()</a></code> and <code><a href="../reference/setResource.html">getResourceCapacity()</a></code> respectively. It is also possible to implement other resource dynamics, as described in the help page for <code><a href="../reference/setResource.html">setResource()</a></code>. The mortality <span class="math inline">\(\mu_p(w)\)</span> is due to predation by consumers and isdescribed in the subsection <a href="#resource-mortality">Resource mortality</a>.</p>
+<p>Because the resource spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The function <code><a href="../reference/w.html">w_full()</a></code> gives the vector of sizes and <code><a href="../reference/w.html">dw_full()</a></code> gives the vector of bin sizes.</p>
+<p>The resource spectrum is then represented by a vector <code>NResource</code> such that <code>NResource[c]</code> =<span class="math inline">\(N_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
 </div>
 </div>
@@ -149,13 +149,13 @@ And clicking again will hide the details again.
 <div id="sec:pref" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:pref" class="anchor"></a>Predator-prey encounter rate</h2>
-<p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the plankton spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
+<p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the resource spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
    \theta_{ip} N_R(w_p) + \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
-<p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and plankton. It is changed with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>
+<p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and resource. It is changed with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>
 <p>The size selectivity is encoded in the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span>. This is changed with <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code>.</p>
 <details><p>An important simplification occurs when the predation kernel <span class="math inline">\(\phi_i(w,w_p)\)</span> depends on the size of the prey <strong>only</strong> through the predator/prey size ratio <span class="math inline">\(w_p/w\)</span>, <span class="math display">\[\phi_i(w, w_p)=\tilde{\phi}_i(w/w_p).\]</span> This is assumed by default but can be overruled. The default for the predation kernel is the truncated log-normal function <span class="math display">\[
   \label{eq:4}
@@ -238,13 +238,13 @@ And clicking again will hide the details again.
 <a href="#total-mortality" class="anchor"></a>Total mortality</h2>
 <p>The total mortality rate <span class="math display">\[\mu_i(w)=\mu_{p.i}(w)+z0_i(w)+\mu_{f.i}(w)\]</span> is calculated with the function <code><a href="../reference/getMort.html">getMort()</a></code>.</p>
 </div>
-<div id="plankton-mortality" class="section level2">
+<div id="resource-mortality" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plankton-mortality" class="anchor"></a>Plankton Mortality</h2>
-<p>The predation mortality rate on plankton is given by a similar expression as the predation mortality on fish: <span class="math display">\[\begin{equation}
+<a href="#resource-mortality" class="anchor"></a>Resource Mortality</h2>
+<p>The predation mortality rate on resource is given by a similar expression as the predation mortality on fish: <span class="math display">\[\begin{equation}
   \label{eq:mupp}
   \mu_{p}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{jp}.
-\end{equation}\]</span> This is the only mortality on plankton currently implemented in mizer. It is calculated with the function <code><a href="../reference/getPlanktonMort.html">getPlanktonMort()</a></code>.</p>
+\end{equation}\]</span> This is the only mortality on resource currently implemented in mizer. It is calculated with the function <code><a href="../reference/getResourceMort.html">getResourceMort()</a></code>.</p>
 </div>
 </div>
 <div id="reproduction" class="section level1">
@@ -287,7 +287,7 @@ And clicking again will hide the details again.
 <a href="#size-spectrum-dynamics">Size spectrum dynamics</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#consumer-densities">Consumer densities</a></li>
       <li><a href="#traffic-on-the-road-to-adulthood">Traffic on the road to adulthood</a></li>
-      <li><a href="#plankton-density">Plankton density</a></li>
+      <li><a href="#resource-density">Resource density</a></li>
       </ul>
 </li>
       <li>
@@ -303,7 +303,7 @@ And clicking again will hide the details again.
 <a href="#mortality">Mortality</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#fishing-mortality">Fishing mortality</a></li>
       <li><a href="#total-mortality">Total mortality</a></li>
-      <li><a href="#plankton-mortality">Plankton Mortality</a></li>
+      <li><a href="#resource-mortality">Resource Mortality</a></li>
       </ul>
 </li>
       <li>

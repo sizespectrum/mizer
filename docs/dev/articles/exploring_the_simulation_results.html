@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -110,10 +110,10 @@
 <p>Often we are particularly interested in the results at the final time-step. These we can access with</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw"><a href="../reference/finalN.html">finalN</a></span>(sim)</span></code></pre></div>
 <p>which is a two dimensional array (species x size).</p>
-<p>The projected plankton abundances can be accesses similarly with</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="../reference/N.html">NPlankton</a></span>(sim)</span></code></pre></div>
+<p>The projected resource abundances can be accesses similarly with</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw"><a href="../reference/N.html">NResource</a></span>(sim)</span></code></pre></div>
 <p>This returns a two-dimensional array (time x size). And if we are only interested in the final time step</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="../reference/finalN.html">finalNPlankton</a></span>(sim)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="../reference/finalN.html">finalNResource</a></span>(sim)</span></code></pre></div>
 <p>returns a vector with one entry for each size class.</p>
 </div>
 <div id="sec:summaries" class="section level2">
@@ -133,54 +133,54 @@
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring        Dab
 ##    1 210810187944 5.378411e+12 183159668810 442644004328 6885675637
-##    2 156932488004 3.493764e+12 152230982859 494654091559 5246379037
-##    3 138299651327 2.507969e+12 135262489045 595226390889 5022831933
-##    4 118900122522 1.996146e+12 110107899230 563227596930 4848206900
-##    5 114054941294 1.788411e+12 111479135534 417591372258 5190388215
-##    6 125565150424 1.734381e+12 123813823519 346974700476 6101101285
+##    2 157421300845 3.498137e+12 153386837908 499200353610 5278650741
+##    3 138701220840 2.510551e+12 135619248074 603931625748 5065030019
+##    4 118875574059 1.997337e+12 110306292389 569167018733 4877123532
+##    5 114060666506 1.790051e+12 112246876632 420615453015 5224602753
+##    6 125640651556 1.736155e+12 124869964910 351468531568 6147959411
 ##     sp
 ## time      Whiting        Sole    Gurnard       Plaice      Haddock          Cod
 ##    1 113572753271 63630241794 9102232936 303365911495 151965178081 531536722966
-##    2  87610185076 46567333565 7337189881 231975574536 117118972874 345611082736
-##    3  91072578524 45079746469 7457904449 239586033500 134187252928 289032158706
-##    4  84699035276 48968874045 6807595296 262872829619 156922235460 306463947360
-##    5  76896713834 53010884725 5559194265 277541693141 144665540981 333802232778
-##    6  81936403881 55867927582 5311170619 275927839989 122564896135 350226263668
+##    2  87964359911 46775076920 7385280744 232689238422 117830524021 345850203288
+##    3  91749455076 45443905474 7528148464 240988454970 135946957309 290183064994
+##    4  85038348900 49465062878 6855105130 264670808489 158905104574 308445205959
+##    5  77139941442 53555703133 5600934589 279557468485 145778058626 335438386351
+##    6  82462061714 56441766048 5398238503 278206590989 123593721332 351386199485
 ##     sp
 ## time       Saithe
 ##    1 327578246235
-##    2 218095242053
-##    3 196262308663
-##    4 225923260034
-##    5 269222630226
-##    6 285988131188</code></pre>
+##    2 218500695565
+##    3 197610219903
+##    4 228220656991
+##    5 271860341050
+##    6 287805766597</code></pre>
 <p>As mentioned above, we can specify the size range for the <code>getsummaryBiomass()</code> and <code><a href="../reference/getN.html">getN()</a></code> functions. For example, here we calculate the total biomass of each species but only include individuals that are larger than 10 g and smaller than 1000 g.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>biomass &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getBiomass.html">getBiomass</a></span>(sim, <span class="dt">min_w =</span> <span class="dv">10</span>, <span class="dt">max_w =</span> <span class="dv">1000</span>)</span>
 <span id="cb12-2"><a href="#cb12-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(biomass)</span></code></pre></div>
 <pre><code>##     sp
 ## time        Sprat      Sandeel       N.pout      Herring        Dab
 ##    1 244119195586 4.589606e+12 238847649463 1.273446e+12 8373096367
-##    2 188880088527 2.885094e+12 213058605764 1.402821e+12 6795673464
-##    3 169174980758 1.928185e+12 185365480186 1.523138e+12 6492436223
-##    4 146580764459 1.407346e+12 166275452596 1.353671e+12 6256995880
-##    5 144146231991 1.169506e+12 177383188141 1.168714e+12 6811141448
-##    6 159924531772 1.099438e+12 191096154870 1.167862e+12 7858439264
+##    2 189464604815 2.888858e+12 214678099511 1.413601e+12 6837801607
+##    3 169593586264 1.931520e+12 185655249222 1.536104e+12 6536986610
+##    4 146468867032 1.409300e+12 166879189177 1.360238e+12 6286073743
+##    5 144115814637 1.171670e+12 178630603486 1.175016e+12 6849215326
+##    6 159924185764 1.102235e+12 192414189513 1.177930e+12 7904848053
 ##     sp
 ## time      Whiting         Sole     Gurnard       Plaice      Haddock
 ##    1 161515844306 127400523235 24759887586 766087469917 333172493301
-##    2 140197214128 111892434382 23947413801 720086423818 332832082958
-##    3 139019544073 113533591309 23701143522 738858070957 369651748297
-##    4 126686485846 115115946089 20246510677 707829101640 354257032281
-##    5 126023728505 115701211797 18888004862 657619933333 321686180709
-##    6 136463035723 120931199142 21029930096 662463662096 322502406784
+##    2 140923805316 112319321362 24087806245 722705573486 335440217758
+##    3 139784785116 114244854055 23828541236 743105121850 372682335524
+##    4 127051769913 115827036000 20324716182 711903001302 356182595539
+##    5 126548669324 116366841984 19072116403 661973266288 323469227916
+##    6 137220141169 121684387867 21334281018 668659838373 325245994091
 ##     sp
 ## time         Cod       Saithe
 ##    1 45159646196 158969500338
-##    2 51787452748 182296310048
-##    3 62533124437 215183314678
-##    4 59131338576 213550678900
-##    5 52065365061 175071954991
-##    6 49424148341 138896092989</code></pre>
+##    2 52110333051 183496280550
+##    3 62885974096 216448253254
+##    4 59073484684 214031942490
+##    5 51993520692 174593364183
+##    6 49544506288 138713867304</code></pre>
 </div>
 </div>
 <div id="functions-for-calculating-indicators" class="section level2">
@@ -197,11 +197,11 @@
 <span id="cb14-2"><a href="#cb14-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(slope)</span></code></pre></div>
 <pre><code>##        slope intercept        r2
 ## 1 -0.7822250  25.40779 0.8722251
-## 2 -0.7971794  25.24768 0.8667732
-## 3 -0.8068909  25.21258 0.8666091
-## 4 -0.8154026  25.23430 0.8678455
-## 5 -0.8230990  25.24143 0.8685542
-## 6 -0.8274029  25.22733 0.8672705</code></pre>
+## 2 -0.7970084  25.24922 0.8666363
+## 3 -0.8066332  25.21573 0.8665750
+## 4 -0.8151679  25.23791 0.8678893
+## 5 -0.8229285  25.24489 0.8686275
+## 6 -0.8272602  25.23104 0.8673588</code></pre>
 <p>This gives the slope, intercept and <span class="math inline">\(R^2\)</span> value through time (see the help file for <code>getCommunitySlope</code> for more details).</p>
 <p>We can include only the species we want with the <code>species</code> argument. Below we only include demersal species. We also restrict the size range of the community that is used in the calculation to between 10 g and 5 kg. The <code>species</code> argument is a character vector of the names of the species that we want to include in the calculation.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>dem_species &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Dab"</span>, <span class="st">"Whiting"</span>, <span class="st">"Sole"</span>, <span class="st">"Gurnard"</span>, <span class="st">"Plaice"</span>, <span class="st">"Haddock"</span>,</span>
@@ -211,11 +211,11 @@
 <span id="cb16-5"><a href="#cb16-5"></a><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(slope)</span></code></pre></div>
 <pre><code>##       slope intercept        r2
 ## 1 -1.096584  26.88942 0.9749307
-## 2 -1.177019  27.21209 0.9796174
-## 3 -1.149421  27.13085 0.9755690
-## 4 -1.062345  26.70235 0.9748982
-## 5 -1.026893  26.49950 0.9820535
-## 6 -1.060272  26.67425 0.9810134</code></pre>
+## 2 -1.177678  27.21999 0.9796408
+## 3 -1.148456  27.13231 0.9754412
+## 4 -1.060903  26.70050 0.9748899
+## 5 -1.026889  26.50463 0.9820432
+## 6 -1.061542  26.68677 0.9807863</code></pre>
 </div>
 </div>
 <div id="plotting-the-results" class="section level2">

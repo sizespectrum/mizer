@@ -72,7 +72,7 @@ newCommunityParams() that sets better default values." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -168,7 +168,7 @@ default value is 1e6.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
-      <td><p>The smallest size of the plankton spectrum.</p></td>
+      <td><p>The smallest size of the resource spectrum.</p></td>
     </tr>
     <tr>
       <th>z0</th>
@@ -200,12 +200,12 @@ default value is 1e6.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
-      <td><p>The carrying capacity of the plankton spectrum. Default value
+      <td><p>The carrying capacity of the resource spectrum. Default value
 is 1000.</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>The exponent of the plankton spectrum. Default value is 2 + q</p><ul>
+      <td><p>The exponent of the resource spectrum. Default value is 2 + q</p><ul>
 <li><p>n.</p></li>
 </ul></td>
     </tr>
@@ -217,7 +217,7 @@ spectrum. This value is used to calculate the search rate parameter
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Growth rate parameter for the plankton spectrum. Default value is 10.</p></td>
+      <td><p>Growth rate parameter for the resource spectrum. Default value is 10.</p></td>
     </tr>
     <tr>
       <th>gamma</th>
@@ -238,7 +238,7 @@ function. Default value is 1000.</p></td>
       <th>recruitment</th>
       <td><p>The constant recruitment in the smallest size class of the
 community spectrum. This should be set so that the community spectrum
-continues the plankton spectrum. Default value = <code>kappa</code> *
+continues the resource spectrum. Default value = <code>kappa</code> *
 <code>min_w</code>^-<code>lambda</code>.</p></td>
     </tr>
     <tr>
@@ -261,7 +261,7 @@ value is 1.</p></td>
 community-type models can be easily set up and run. A community model has
 several features that distinguish it from the food-web type models. Only one
 'species' is resolved, i.e. one 'species' is used to represent the whole
-community. The plankton spectrum only extends to the start of the community
+community. The resource spectrum only extends to the start of the community
 spectrum. Recruitment to the smallest size in the community spectrum is
 constant and set by the user. As recruitment is constant, the proportion of
 energy invested in reproduction (the slot <code>psi</code> of the returned

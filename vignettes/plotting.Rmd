@@ -238,20 +238,20 @@ In the above we used the pipe operator `%>%` which feeds the return value of one
 function into the first argument of the next function. 
 
 
-## Including plankton spectrum
+## Including resource spectrum
 
 We can include additional lines in the plot by merging several data frames. For
-example, we can include another line for the plankton spectrum. We first
-convert also the plankton abundance at the final time into a data frame and
+example, we can include another line for the resource spectrum. We first
+convert also the resource abundance at the final time into a data frame and
 filter out the zero values
 ```{r}
-nf_pp <- melt(NPlankton(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
+nf_pp <- melt(NResource(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
 This data frame only contains three variables, because it does not have the 
-`sp` column specifying the species. We add this column with the value "Plankton"
+`sp` column specifying the species. We add this column with the value "Resource"
 ```{r}
-nf_pp$sp <- "Plankton"
+nf_pp$sp <- "Resource"
 ```
 Now this new data frame has the same columns as the data frame `nf` and the two
 can be bound together

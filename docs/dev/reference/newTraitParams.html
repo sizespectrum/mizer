@@ -80,7 +80,7 @@ details and examples of the trait-based model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -176,7 +176,7 @@ details and examples of the trait-based model.</p>
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>egg_size_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>mortality_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>plankton_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>resource_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>perfect_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -227,12 +227,12 @@ there are 50 bins for each factor of 10 in weight.</p></td>
     </tr>
     <tr>
       <th>min_w_pp</th>
-      <td><p>The smallest size of the plankton spectrum. By default this
+      <td><p>The smallest size of the resource spectrum. By default this
 is set to the smallest value at which any of the consumers can feed.</p></td>
     </tr>
     <tr>
       <th>w_pp_cutoff</th>
-      <td><p>The largest size of the plankton spectrum. Default value
+      <td><p>The largest size of the resource spectrum. Default value
 is max_w_inf unless <code>perfect_scaling = TRUE</code> when it is Inf.</p></td>
     </tr>
     <tr>
@@ -250,7 +250,7 @@ equal to the exponent <code>n</code>.</p></td>
     </tr>
     <tr>
       <th>r_pp</th>
-      <td><p>Growth rate parameter for the plankton spectrum.</p></td>
+      <td><p>Growth rate parameter for the resource spectrum.</p></td>
     </tr>
     <tr>
       <th>kappa</th>
@@ -324,8 +324,8 @@ maximum size of each species. This fraction is <code>min_w / min_w_inf</code>. I
 FALSE, all species have the egg size <code>w_min</code>.</p></td>
     </tr>
     <tr>
-      <th>plankton_scaling</th>
-      <td><p>If TRUE, the carrying capacity for larger plankton
+      <th>resource_scaling</th>
+      <td><p>If TRUE, the carrying capacity for larger resource
 is reduced to compensate for the fact that fish eggs and larvae are
 present in the same size range.</p></td>
     </tr>

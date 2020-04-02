@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.0.1.9001</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
       </span>
     </div>
 
@@ -91,12 +91,12 @@
 
     
     
-<p>The simplest version of the size spectrum model is the community model. In the community model, individuals are only characterized by their size and are represented by a single group representing an across-species aggregate. Reproduction is not considered; the reproduction rate <span class="math inline">\(R\)</span> is set to be constant. The plankton spectrum only extends to the start of the community spectrum. Metabolism is turned off.</p>
+<p>The simplest version of the size spectrum model is the community model. In the community model, individuals are only characterized by their size and are represented by a single group representing an across-species aggregate. Reproduction is not considered; the reproduction rate <span class="math inline">\(R\)</span> is set to be constant. The resource spectrum only extends to the start of the community spectrum. Metabolism is turned off.</p>
 <p>In this section we describe how a community model can be set up and projected through time. We then use a community model to illustrate the idea of a trophic cascade. Due to the relative simplicity of this type of model, it is useful for gently introducing some of the concepts behind the mizer package. Consequently, this section should hopefully serve as an introduction to using mizer.</p>
 <div id="sec:set_up_comm_model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sec:set_up_comm_model" class="anchor"></a>Setting up a community model</h2>
-<p>The first stage in implementing a model using <code>mizer</code> is to create an object of class <code>MizerParams</code>. This class contains the model parameters including the life-history parameters of the species in the model, the fishing selectivity functions and the parameters of the plankton spectrum.</p>
+<p>The first stage in implementing a model using <code>mizer</code> is to create an object of class <code>MizerParams</code>. This class contains the model parameters including the life-history parameters of the species in the model, the fishing selectivity functions and the parameters of the resource spectrum.</p>
 <p>To avoid having to make a <code>MizerParams</code> object directly, the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> wrapper function, has been provided that conveniently creates a <code>MizerParams</code> object specifically for a community model. The documentation for the function can be seen by clicking on the function name anywhere it appears on this page: <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>.</p>
 <p>As can be seen in the help page, the function can take many arguments. We can ignore most of these for the moment as they almost all come with default values.</p>
 <p>The arguments that you should pay attention to are: <code>z0</code> (the external mortality rate), <code>alpha</code> (the assimilation efficiency of the community), <code>f0</code> (the average feeding level of the community, which is used to calculate <span class="math inline">\(\gamma\)</span>) and <code>h</code> (the coefficient of the maximum intake rate).</p>
@@ -117,7 +117,7 @@
 ##  minimum size:   0.001
 ##  maximum size:   1e+06
 ##  no. size bins:  100
-## Plankton size spectrum:
+## Resource size spectrum:
 ##  minimum size:   8.11131e-11
 ##  maximum size:   0.001
 ##  no. size bins:  79  (178 size bins in total)
@@ -127,7 +127,7 @@
 ## Fishing gear details:
 ##  Gear            Target species
 ##   Community       Community</code></pre>
-<p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and this is divided into <span class="math inline">\(100\)</span> size bins. Similar information is available for the plankton spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(10^{6}\)</span> and a preferred predator prey mass ratio of <span class="math inline">\(100\)</span>. The <code>w_mat</code> parameter has been set to <code>NA</code> as it is not used when running a community model. These values have all been set by default using the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function.</p>
+<p>In the summary you can see that the size range of the community spectrum has been set from <span class="math inline">\(0.001\)</span> to <span class="math inline">\(10^{6}\)</span> and this is divided into <span class="math inline">\(100\)</span> size bins. Similar information is available for the resource spectrum. Additionally, the community is made up of only one species, called <em>Community</em>, which has an asymptotic size of <span class="math inline">\(10^{6}\)</span> and a preferred predator prey mass ratio of <span class="math inline">\(100\)</span>. The <code>w_mat</code> parameter has been set to <code>NA</code> as it is not used when running a community model. These values have all been set by default using the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function.</p>
 </div>
 <div id="sec:running_comm_model" class="section level2">
 <h2 class="hasAnchor">
@@ -140,13 +140,13 @@
 <pre><code>## [1] "MizerSim"
 ## attr(,"package")
 ## [1] "mizer"</code></pre>
-<p>This class holds the results of the simulation, including the community and plankton abundances at size through time, as well as the original model parameters. It is explained in detail in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
+<p>This class holds the results of the simulation, including the community and resource abundances at size through time, as well as the original model parameters. It is explained in detail in <a href="running_a_simulation.html">the section on running a simulation.</a></p>
 <p>After running the projection, it is possible to explore the results using a range of plots and analyses. These are described fully in <a href="exploring_the_simulation_results.html">the section on exploring the simulation results.</a></p>
 <p>To quickly look at the results of the projection you can call the <code><a href="https://rdrr.io/r/graphics/plot.html">plot()</a></code> method. This plots the feeding level, predation mortality, fishing mortality and abundance by size in the last time step of the simulation, and the total biomass through time. Each of the plots can be shown individually if desired.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(sim)</span></code></pre></div>
 <p><img src="community_model_files/figure-html/print_plot_comm_sim-1.png" width="700"></p>
 <p>In the above plot there are several things going on that are worth talking about. Looking at the total biomass of the community against time, you can see that the biomass quickly reaches a stable equilibrium. The other panels show what is happening at the last time step in the simulation, which in this case is when the community is at equilibrium. Fishing mortality is 0 because we set the <code>effort</code> argument to 0 when running the simulation. The predation mortality rate is clearly a function of size, with the smallest sizes experiencing the highest levels of predation. The feeding level describes how satiated an individual is, with 0 being unfed, and 1 being full satiated. The feeding level at size will be strongly affected by the values of the <code>f0</code> and <code>alpha</code> arguments passed to the <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code> function.</p>
-<p>The plankton and community spectra are shown in the bottom panel of the plot (the plotted plankton spectrum has been truncated to make for a better plot, but really extends all the way back to <span class="math inline">\(8.11\times 10^{-11}\)</span> g). You can see that the community spectrum forms a continuum with the plankton spectrum. This is strongly affected by the level of fixed reproduction rate (the <code>reproduction</code> argument passed to <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>)</p>
+<p>The resource and community spectra are shown in the bottom panel of the plot (the plotted resource spectrum has been truncated to make for a better plot, but really extends all the way back to <span class="math inline">\(8.11\times 10^{-11}\)</span> g). You can see that the community spectrum forms a continuum with the resource spectrum. This is strongly affected by the level of fixed reproduction rate (the <code>reproduction</code> argument passed to <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>)</p>
 <p>Note the hump in the biomass at the largest end of the community spectrum. This is because the size spectrum model can be broadly described as ‘big things eating little things’. Given this, what is eating the very biggest things? Without fishing pressure, the mortality of the largest individuals is only from the external mortality (determined by the <code>z0</code> argument) and the mortality from predation is almost 0. This is difficult to see in the plot due to the predation mortality being so high for the smaller individuals.</p>
 <p>We can see this more clearly by extracting the predation mortality information from the <code>MizerSim</code> object, <code>sim</code>, that we created above. This is easily done by using the <code><a href="../reference/getPredMort.html">getPredMort()</a></code> function (see the help page for more details). There are several functions that can be used for extracting information from a <code>MizerSim</code> object, e.g. <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code> and <code><a href="../reference/getFMort.html">getFMort()</a></code>. For more information see <a href="exploring_the_simulation_results.html">the section on exploring the simulation results</a>. Here we just call <code><a href="../reference/getPredMort.html">getPredMort()</a></code> using the <code>sim</code> object:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>pred_mort &lt;-<span class="st"> </span><span class="kw"><a href="../reference/getPredMort.html">getPredMort</a></span>(sim)</span></code></pre></div>

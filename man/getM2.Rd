@@ -11,14 +11,14 @@ getM2(object, n, n_pp, n_other, pred_rate, time_range, drop = TRUE)
 
 \item{n}{A matrix of species abundances (species x size).}
 
-\item{n_pp}{A vector of the plankton abundance by size}
+\item{n_pp}{A vector of the resource abundance by size}
 
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
 \item{pred_rate}{An array of predation rates of dimension no. sp x no.
 community size bins x no. of size bins in whole spectra (i.e. community +
-plankton, the w_full slot). The array is optional. If it is not provided
+resource, the w_full slot). The array is optional. If it is not provided
 it is calculated by the \code{\link[=getPredRate]{getPredRate()}} function.}
 
 \item{time_range}{The time_range can be character or numeric.}
@@ -62,8 +62,8 @@ Other rate functions:
 \code{\link{getFMort}()},
 \code{\link{getFeedingLevel}()},
 \code{\link{getMort}()},
-\code{\link{getPlanktonMort}()},
 \code{\link{getPredRate}()},
 \code{\link{getRDD}()},
-\code{\link{getRDI}()}
+\code{\link{getRDI}()},
+\code{\link{getResourceMort}()}
 }

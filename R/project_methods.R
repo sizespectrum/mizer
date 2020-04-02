@@ -13,7 +13,7 @@
 #'   [mizerFeedingLevel()] \tab \eqn{f_i(w)} \tab Feeding level \tab 3.3 \cr
 #'   [mizerPredRate()] \tab \eqn{\phi_i(w_p/w) (1-f_i(w)) \gamma_i w^q N_i(w) dw} \tab Predation \tab 3.7 \cr
 #'   [mizerPredMort()] \tab \eqn{\mu_{p.i}(w)} \tab Predation mortality \tab 3.7 \cr
-#'   [mizerPlanktonMort()] \tab \eqn{\mu_{p}(w)} \tab Mortality on plankton \tab 3.8 \cr
+#'   [mizerResourceMort()] \tab \eqn{\mu_{p}(w)} \tab Mortality on resource \tab 3.8 \cr
 #'   [mizerFMortGear()] \tab \eqn{F_{g,i}(w)} \tab Fishing mortality by gear \tab 8.3 \cr
 #'   [mizerFMort()] \tab \eqn{\mu_{f.i}(w)} \tab Total fishing mortality \tab 8.3 \cr
 #'   [mizerMort()] \tab \eqn{\mu_{i}(w)} \tab Total mortality \tab 3.7 \cr
@@ -48,7 +48,7 @@ NULL
 #'     \item pred_mort from [mizerPredMort()]
 #'     \item f_mort from [mizerFMort()]
 #'     \item mort from [mizerMort()]
-#'     \item plankton_mort from [mizerPlanktonMort()]
+#'     \item resource_mort from [mizerResourceMort()]
 #'     \item e from [mizerEReproAndGrowth()]
 #'     \item e_repro from [mizerERepro()]
 #'     \item e_growth from [mizerEGrowth()]
@@ -60,7 +60,7 @@ NULL
 #' 
 #' @param params A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size).
-#' @param n_pp A vector of the plankton abundance by size
+#' @param n_pp A vector of the resource abundance by size
 #' @param n_other A list of abundances for other dynamical components of the
 #'   ecosystem
 #' @param t The current time
@@ -116,8 +116,8 @@ mizerRates <- function(params, n, n_pp, n_other,
         e_repro = r$e_repro, e = r$e, t = t)
     
 
-    # Calculate mortality on the plankton spectrum
-    r$plankton_mort <- rates_fns$PlanktonMort(
+    # Calculate mortality on the resource spectrum
+    r$resource_mort <- rates_fns$ResourceMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
         pred_rate = r$pred_rate, t = t)
     
@@ -140,8 +140,8 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' @section Predation encounter:
 #' The encounter rate \eqn{E_i(w)} at which a predator of species \eqn{i}
 #' and weight \eqn{w} encounters food has contributions from the encounter of
-#' fish prey and of plankton. This is determined by summing over all prey
-#' species and the plankton spectrum and then integrating over all prey sizes
+#' fish prey and of resource. This is determined by summing over all prey
+#' species and the resource spectrum and then integrating over all prey sizes
 #' \eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 #' \deqn{
 #' E_i(w) = \gamma_i(w) \int 
@@ -151,13 +151,13 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' ( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) ) 
 #' \phi_i(w,w_p) w_p dw_p.}
 #' Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
-#' \eqn{N_R(w)} is the abundance density of plankton.
+#' \eqn{N_R(w)} is the abundance density of resource.
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
 #' predator. It could be interpreted as a search volume and is set with the
 #' [setSearchVolume()] function. The predation kernel
 #' \eqn{\phi(w,w_p)} is set with the [setPredKernel()] function. The
 #' species interaction matrix \eqn{\theta_{ij}} is set with [setInteraction()]
-#' and the plankton interaction vector \eqn{\theta_{ip}} is taken from the
+#' and the resource interaction vector \eqn{\theta_{ip}} is taken from the
 #' `interaction_p` column in `params@species_params`.
 #' 
 #' @section Details:
@@ -292,7 +292,7 @@ mizerFeedingLevel <- function(params, encounter, ...) {
 #'   using the [getFeedingLevel()] function.
 #'   
 #' @return A two dimensional array (predator species x prey size) with the
-#'   predation rate, where the prey size runs over fish community plus plankton
+#'   predation rate, where the prey size runs over fish community plus resource
 #'   spectrum.
 #' @export
 #' @family mizer rate functions
@@ -361,23 +361,23 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
     return((t(params@interaction) %*% pred_rate)[, idx_sp, drop = FALSE])
 }
 
-#' Get predation mortality rate for plankton needed to project standard mizer 
+#' Get predation mortality rate for resource needed to project standard mizer 
 #' model
 #' 
-#' Calculates the predation mortality rate \eqn{\mu_p(w)} on the plankton
-#' spectrum by plankton size (in units 1/year).
+#' Calculates the predation mortality rate \eqn{\mu_p(w)} on the resource
+#' spectrum by resource size (in units 1/year).
 #' 
 #' Used by the `project` function for running size based simulations.
 #' 
 #' @inheritParams mizerRates
 #' @param pred_rate A two dimensional array (predator species x prey size) with
 #'   the predation rate, where the prey size runs over fish community plus
-#'   plankton spectrum.
+#'   resource spectrum.
 #'
-#' @return A vector of mortality rate by plankton size.
+#' @return A vector of mortality rate by resource size.
 #' @family mizer rate functions
 #' @export
-mizerPlanktonMort <- 
+mizerResourceMort <- 
     function(params, n, n_pp, n_other, pred_rate, ...) {
 
     return(as.vector(params@species_params$interaction_p %*% pred_rate))
