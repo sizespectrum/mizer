@@ -14,7 +14,6 @@
 <meta property="og:title" content="The General Mizer Size-spectrum Model">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
-<meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -261,7 +260,7 @@ And clicking again will hide the details again.
 <div id="density-dependence-in-reproduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#density-dependence-in-reproduction" class="anchor"></a>Density-dependence in reproduction</h2>
-<p>Two important density-dependent effects that in usual fisheries models are summarised in an imposed stock-recruitment relationship are already included automatically in the mizer model:</p>
+<p>Three important density-dependent effects that in usual fisheries models are summarised in an imposed stock-recruitment relationship are already included automatically in the mizer model:</p>
 <ol style="list-style-type: decimal">
 <li>High density of spawners leads to a reduced food income of the spawners and consequently reduced per-capity reproduction.</li>
 <li>High density of larvae leads to slower growth of larvae due to food competition, exposing the larvae to high mortality for a longer time, thereby decreasing the survivorship to recruitment size.</li>
@@ -272,7 +271,7 @@ And clicking again will hide the details again.
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
 \end{equation}\]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum reproduction rate of each trait class. This final rate of reproduction is calculated with <code><a href="../reference/getRDD.html">getRDD()</a></code>.</p>
-<p>This default <em>Beverton-Holt</em> type is implemented by <code>BervertonHoldRDD()</code> but mizer also provides alternatives <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code>, <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code>, <code><a href="../reference/constantRDD.html">constantRDD()</a></code> and <code><a href="../reference/noRDD.html">noRDD()</a></code>. Also Users are able to write their own functions, e.g. <em>hockey-stick</em>. See <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details.</p>
+<p>This default <em>Beverton-Holt</em> type is implemented by <code>BervertonHoldRDD()</code> but mizer also provides alternatives <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code>, <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code>, <code><a href="../reference/constantRDD.html">constantRDD()</a></code> and <code><a href="../reference/noRDD.html">noRDD()</a></code>. Also, users are able to write their own functions, e.g. <em>hockey-stick</em>. See <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details.</p>
 </div>
 </div>
   </div>

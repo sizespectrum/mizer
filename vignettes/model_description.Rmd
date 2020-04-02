@@ -388,7 +388,7 @@ females reproduce. This rate of potential egg production is calculated with
 
 
 ## Density-dependence in reproduction
-Two important density-dependent effects that in usual fisheries models are 
+Three important density-dependent effects that in usual fisheries models are 
 summarised in an imposed stock-recruitment relationship are already included
 automatically in the mizer model:
 
@@ -419,5 +419,5 @@ This final rate of reproduction is calculated with `getRDD()`.
 
 This default *Beverton-Holt* type is implemented by `BervertonHoldRDD()` but
 mizer also provides alternatives `RickerRDD()`, `SheperdRDD()`, `constantRDD()`
-and `noRDD()`. Also Users are able to write their own functions, e.g.
+and `noRDD()`. Also, users are able to write their own functions, e.g.
 *hockey-stick*. See `setReproduction()` for details.
