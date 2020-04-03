@@ -4,7 +4,9 @@
 \name{NS_params}
 \alias{NS_params}
 \title{Example MizerParams object for the North Sea example}
-\format{A MizerParams object}
+\format{
+A MizerParams object
+}
 \source{
 {Blanchard et al.}
 }

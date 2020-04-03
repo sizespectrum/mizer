@@ -76,7 +76,7 @@ Collate:
     'data.R'
     'RcppExports.R'
     'deprecated.R'
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 LazyData: true

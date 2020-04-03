@@ -4,7 +4,9 @@
 \name{inter}
 \alias{inter}
 \title{Example interaction matrix for the North Sea example}
-\format{A 12 x 12 matrix.}
+\format{
+A 12 x 12 matrix.
+}
 \source{
 {Blanchard et al.}
 }

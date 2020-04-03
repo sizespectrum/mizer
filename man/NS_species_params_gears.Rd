@@ -4,7 +4,8 @@
 \name{NS_species_params_gears}
 \alias{NS_species_params_gears}
 \title{Example species parameter set based on the North Sea with different gears}
-\format{A data frame with 12 rows and 8 columns. Each row is a species.
+\format{
+A data frame with 12 rows and 8 columns. Each row is a species.
 \describe{
 \item{species}{Name of the species}
 \item{w_inf}{The von Bertalanffy W_infinity parameter}
@@ -14,7 +15,8 @@
 \item{R_max}{Maximum reproduction rate}
 \item{k_vb}{The von Bertalanffy k parameter}
 \item{gear}{Name of the fishing gear}
-}}
+}
+}
 \source{
 {Blanchard et al.}
 }
