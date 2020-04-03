@@ -12,7 +12,6 @@ test_that("upgradeParams preserves comments", {
     }
     expect_identical(upgradeParams(params), params)
 })
-# TODO: add tests that upgrade objects saved from previous versions.
 
 ## upgradeSim ----
 test_that("upgradeSim leaves new sim unchanged", {
@@ -24,4 +23,15 @@ test_that("upgradeSim preserves comments", {
         comment(slot(sim, slot)) <- slot
     }
     expect_identical(upgradeSim(sim), sim)
+})
+
+test_that("Object from version 0.4 can be upgraded", {
+    simc.0.4 <- readRDS("assets/simc.0.4.rds")
+    sim <- upgradeSim(simc.0.4)
+    expect_true(validObject(sim))
+})
+test_that("Object from version 1.0 can be upgraded", {
+    simc.1.0 <- readRDS("assets/simc.1.0.rds")
+    sim <- upgradeSim(simc.1.0)
+    expect_true(validObject(sim))
 })
