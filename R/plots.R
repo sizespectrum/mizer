@@ -110,66 +110,11 @@ log_breaks <- function(n = 6){
 }
 
 
-#' Display frames
-#' 
-#' Takes two data frames with plotting data and displays them side-by-side,
-#' using the same axes and legend.
-#' 
-#' The two data frames each need to have the same three variables. The first
-#' variable will go on the x-axis, the third on the y-axis with a logarithmic
-#' scale. The second variable should be the species and will be used to group
-#' the data and display with the linetype and linecolour specified by the
-#' `linetype` and `linecolour` slots of the `params` object.
-#' 
-#' @param f1 Data frame for left plot
-#' @param f2 Data frame for right plot
-#' @param params A MizerParams object
-#' @param xlab Label for x-axis. Defaults to first variable name.
-#' @param ylab Label for y-axis. Defaults to third variable name.
-#' @param y_ticks The approximate number of ticks desired on the y axis
-#' 
-#' @return A plot
-#' @family frame functions
-displayFrames <- function(f1, f2, params, 
-                           xlab = NA, ylab = NA,
-                           y_ticks = 6) {
-    var_names <- names(f1)
-    if (!(length(var_names) == 3)) {
-        stop("A frame needs to have three variables.")
-    }
-    if (!all(names(f2) == var_names)) {
-        stop("Both frames need to have the same variable names.")
-    }
-    f <- rbind(cbind(f1, Simulation = 1), cbind(f2, Simulation = 2))
-    
-    if (is.na(xlab)) {
-        xlab <- var_names[1]
-    }
-    if (is.na(ylab)) {
-        ylab <- var_names[3]
-    }
-    ytrans <- "log10"
-    breaks <- log_breaks(n = y_ticks)
-    
-    p <- ggplot(f, aes_string(x = names(f)[1], y = names(f)[3],
-                              colour = names(f)[2], linetype = names(f)[2])) +
-        scale_y_continuous(trans = ytrans, breaks = breaks,
-                           labels = prettyNum, name = ylab) +
-        scale_x_continuous(name = xlab) +
-        geom_line() +
-        facet_wrap(~ Simulation) +
-        scale_colour_manual(values = params@linecolour) +
-        scale_linetype_manual(values = params@linetype)
-    return(p)
-}
-
 #' Get data frame of biomass of species through time, ready for ggplot2
 #'
 #' After running a projection, the biomass of each species can be plotted
 #' against time. The biomass is calculated within user defined size limits 
-#' (min_w, max_w, min_l, max_l, see [getBiomass()]). This function
-#' returns a dataframe that can be displayed with 
-#' [displayFrames()].
+#' (min_w, max_w, min_l, max_l, see [getBiomass()]). 
 #' 
 #' @param sim An object of class \linkS4class{MizerSim}
 #' @param species Name or vector of names of the species to be plotted. By
