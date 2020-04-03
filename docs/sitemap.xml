@@ -316,9 +316,6 @@
     <loc>https://sizespectrum.org/mizer/reference/project.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/project_methods.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
   </url>
   <url>
@@ -409,6 +406,9 @@
     <loc>https://sizespectrum.org/mizer/reference/summary_functions.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/test_dyn.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/times.html</loc>
   </url>
   <url>
@@ -433,9 +433,6 @@
     <loc>https://sizespectrum.org/mizer/reference/w.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/wrapper_functions.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/articles/a_multispecies_model_of_the_north_sea.html</loc>
   </url>
   <url>
@@ -452,9 +449,6 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/articles/making_modifications.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>

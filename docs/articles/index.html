@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -55,7 +59,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-article-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -99,7 +103,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/sizespectrum/mizer">
+  <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -124,28 +128,41 @@
       <h3>User Guide</h3>
       <p class="section-desc"></p>
 
-      <ul>
-        <li><a href="mizer.html">Get started</a></li>
-        <li><a href="model_description.html">The General Mizer Size-spectrum Model</a></li>
-        <li><a href="community_model.html">The Community Model</a></li>
-        <li><a href="trait_model.html">The Trait-Based Model</a></li>
-        <li><a href="multispecies_model.html">The Multi Species Model</a></li>
-        <li><a href="running_a_simulation.html">Running a Simulation</a></li>
-        <li><a href="exploring_the_simulation_results.html">Exploring the Simulation Results</a></li>
-        <li><a href="a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a></li>
-        <li><a href="plotting.html">Using ggplot2 and plotly with mizer</a></li>
-      </ul>
+      <dl>
+        <dt><a href="mizer.html">Getting started with mizer</a></dt>
+        <dd></dt>
+        <dt><a href="model_description.html">The General Mizer Size-spectrum Model</a></dt>
+        <dd></dt>
+        <dt><a href="community_model.html">The Community Model</a></dt>
+        <dd></dt>
+        <dt><a href="trait_model.html">The Trait-Based Model</a></dt>
+        <dd></dt>
+        <dt><a href="multispecies_model.html">The Multi Species Model</a></dt>
+        <dd></dt>
+        <dt><a href="running_a_simulation.html">Running a Simulation</a></dt>
+        <dd></dt>
+        <dt><a href="exploring_the_simulation_results.html">Exploring the Simulation Results</a></dt>
+        <dd></dt>
+        <dt><a href="a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a></dt>
+        <dd></dt>
+        <dt><a href="plotting.html">Using ggplot2 and plotly with mizer</a></dt>
+        <dd></dt>
+      </dl>
     </div>
     <div class="section ">
       <h3>Developer Guide</h3>
       <p class="section-desc"></p>
 
-      <ul>
-        <li><a href="developer_vignette.html">Developer Guide</a></li>
-        <li><a href="working_with_git.html">Working with git and GitHub</a></li>
-        <li><a href="developer_FAQ.html">Developer FAQ</a></li>
-        <li><a href="editing_website.html">Editing the Mizer Website</a></li>
-      </ul>
+      <dl>
+        <dt><a href="developer_vignette.html">Developer Guide</a></dt>
+        <dd></dt>
+        <dt><a href="working_with_git.html">Working with git and GitHub</a></dt>
+        <dd></dt>
+        <dt><a href="developer_FAQ.html">Developer FAQ</a></dt>
+        <dd></dt>
+        <dt><a href="editing_website.html">Editing the Mizer Website</a></dt>
+        <dd></dt>
+      </dl>
     </div>
   </div>
 </div>
@@ -153,11 +170,11 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>, <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>.</p>
+  <p>Developed by <a href='https://www.york.ac.uk/maths/staff/gustav-delius/'>Gustav Delius</a>, Finlay Scott, <a href='http://www.utas.edu.au/profiles/staff/imas/julia-blanchard'>Julia Blanchard</a>, <a href='https://ken.haste.dk/'>Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
 </div>
 
       </footer>

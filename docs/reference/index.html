@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -55,7 +59,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -99,7 +103,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/sizespectrum/mizer">
+  <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -135,6 +139,11 @@
           <p class="section-desc"><p>Mizer allows the easy set-up of three different types of models, of increasing levels of complexity. See <a href="https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/dev/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -161,10 +170,15 @@
           <p class="section-desc"><p>Even after you have created a model, you can still make changes with the following functions. This is useful while tuning the model and for investigating the impact of changes in parameters.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
-          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params<-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
+          <p><code><a href="setParams.html">species_params()</a></code> <code><a href="setParams.html">`species_params&lt;-`()</a></code> <code><a href="setParams.html">setParams()</a></code> </p>
         </td>
         <td><p>Species parameters</p></td>
       </tr><tr>
@@ -218,13 +232,13 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params<-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
+          <p><code><a href="setFishing.html">setFishing()</a></code> <code><a href="setFishing.html">gear_params()</a></code> <code><a href="setFishing.html">`gear_params&lt;-`()</a></code> <code><a href="setFishing.html">getCatchability()</a></code> <code><a href="setFishing.html">getSelectivity()</a></code> <code><a href="setFishing.html">getInitialEffort()</a></code> </p>
         </td>
         <td><p>Set fishing parameters</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_params()</a></code> <code><a href="setResource.html">`resource_params<-`()</a></code> </p>
+          <p><code><a href="setResource.html">setResource()</a></code> <code><a href="setResource.html">getResourceRate()</a></code> <code><a href="setResource.html">getResourceCapacity()</a></code> <code><a href="setResource.html">getResourceDynamics()</a></code> <code><a href="setResource.html">resource_params()</a></code> <code><a href="setResource.html">`resource_params&lt;-`()</a></code> </p>
         </td>
         <td><p>Set up resource</p></td>
       </tr><tr>
@@ -259,6 +273,11 @@
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -268,13 +287,13 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="initialN-set.html">`initialN<-`()</a></code> <code><a href="initialN-set.html">initialN()</a></code> </p>
+          <p><code><a href="initialN-set.html">`initialN&lt;-`()</a></code> <code><a href="initialN-set.html">initialN()</a></code> </p>
         </td>
         <td><p>Initial values for fish spectra</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="initialNResource-set.html">`initialNResource<-`()</a></code> <code><a href="initialNResource-set.html">initialNResource()</a></code> </p>
+          <p><code><a href="initialNResource-set.html">`initialNResource&lt;-`()</a></code> <code><a href="initialNResource-set.html">initialNResource()</a></code> </p>
         </td>
         <td><p>Initial value for resource spectrum</p></td>
       </tr><tr>
@@ -297,6 +316,11 @@
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -341,6 +365,11 @@
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -404,6 +433,11 @@ step.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -442,6 +476,11 @@ step.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -528,6 +567,11 @@ step.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -621,6 +665,11 @@ and size.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -636,7 +685,13 @@ and size.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="initialNOther-set.html">`initialNOther<-`()</a></code> <code><a href="initialNOther-set.html">initialNOther()</a></code> </p>
+          <p><code><a href="getComponent.html">getComponent()</a></code> </p>
+        </td>
+        <td><p>Get information about other ecosystem components</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="initialNOther-set.html">`initialNOther&lt;-`()</a></code> <code><a href="initialNOther-set.html">initialNOther()</a></code> </p>
         </td>
         <td><p>Initial values for other ecosystem components</p></td>
       </tr><tr>
@@ -659,6 +714,11 @@ and size.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -691,6 +751,11 @@ and size.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -723,6 +788,11 @@ and size.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -743,6 +813,11 @@ and size.</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -778,9 +853,14 @@ and size.</p></td>
       <tr>
         <th colspan="2">
           <h2 id="section-internal-rate-functions" class="hasAnchor"><a href="#section-internal-rate-functions" class="anchor"></a>Internal rate functions</h2>
-          <p class="section-desc"><p>These functions are used by project() to calculate instantaneous rates at each time step. You should use the get…() functions instead of the mizer…() functions.</p></p>
+          <p class="section-desc"><p>These functions are used by project() to calculate instantaneous rates at each time step. You should use the getâ¦() functions instead of the mizerâ¦() functions.</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -873,6 +953,11 @@ model</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -955,6 +1040,11 @@ required parameters or transfer them from species_params if available</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -993,6 +1083,11 @@ required parameters or transfer them from species_params if available</p></td>
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -1025,6 +1120,11 @@ required parameters or transfer them from species_params if available</p></td>
           <p class="section-desc"><p>These functions are available for backwards compatibility with earlier versions of mizer</p></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
         
         <td>
@@ -1084,28 +1184,10 @@ required parameters or transfer them from species_params if available</p></td>
     </table>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-creating-a-new-model">Creating a new model</a></li>
-      <li><a href="#section-model-parameters">Model parameters</a></li>
-      <li><a href="#section-running-simulations">Running simulations</a></li>
-      <li><a href="#section-accessing-results">Accessing results</a></li>
-      <li><a href="#section-analysing-results">Analysing results</a></li>
-      <li><a href="#section-calculating-indicators">Calculating indicators</a></li>
-      <li><a href="#section-plotting-results">Plotting results</a></li>
-      <li><a href="#section-calculating-rates">Calculating rates</a></li>
-      <li><a href="#section-extending-mizer">Extending Mizer</a></li>
-      <li><a href="#section-predation-kernels">Predation kernels</a></li>
-      <li><a href="#section-fishing-selectivity-functions">Fishing selectivity functions</a></li>
-      <li><a href="#section-resource-dynamics">Resource dynamics</a></li>
-      <li><a href="#section-density-dependent-reproduction">Density-dependent reproduction</a></li>
-      <li><a href="#section-internal-rate-functions">Internal rate functions</a></li>
-      <li><a href="#section-internal-helper-functions">Internal helper functions</a></li>
-      <li><a href="#section-classes">Classes</a></li>
-      <li><a href="#section-example-parameter-sets">Example parameter sets</a></li>
-      <li><a href="#section-deprecated">Deprecated</a></li>
-    </ul>
+  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -1116,7 +1198,7 @@ required parameters or transfer them from species_params if available</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
 </div>
 
       </footer>

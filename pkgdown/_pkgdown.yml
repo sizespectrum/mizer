@@ -143,6 +143,7 @@ reference:
   contents:
   - setRateFunction
   - setComponent
+  - getComponent
   - initialNOther
   - NOther
   - finalNOther

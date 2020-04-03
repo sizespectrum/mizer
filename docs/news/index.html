@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/all.min.css" integrity="sha256-PbSmjxuVAzJ6FPvNYsrXygfGhNJYyZ2GktDbkMBqQZg=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.1/css/v4-shims.min.css" integrity="sha256-A6jcAdwFD48VMjlI3GDxUd+eCQa7/KWy6G9oe/ovaPA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -34,8 +38,6 @@
 
 
 
-  <link href="../extra.css" rel="stylesheet">
-  
 
 <meta property="og:title" content="Changelog" />
 
@@ -55,7 +57,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -99,7 +101,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/sizespectrum/mizer">
+  <a href="https://github.com/sizespectrum/mizer/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -117,12 +119,12 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Changelog <small></small></h1>
-      <small><a href='https://github.com/sizespectrum/mizer/edit/master/NEWS.md'>Edit this page. &nbsp;</a> Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
     <div id="mizer-200" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="2.0.0">
 <a href="#mizer-200" class="anchor"></a>mizer 2.0.0<small> Unreleased </small>
 </h1>
 <p>This is a major new release with many new features, an internal refactoring of the code and a new extension mechanism.</p>
@@ -137,9 +139,9 @@
 <li>The way the density-dependence in the reproduction rate is set has changed, see <code>RDD</code> argument in <code><a href="../reference/setReproduction.html">setReproduction()</a></code>.</li>
 <li>The <code>sex_ratio</code> argument has been removed from <code><a href="../reference/getRDI.html">getRDI()</a></code> and <code><a href="../reference/getRDD.html">getRDD()</a></code>.</li>
 <li>The <code>set_scaling_model()</code> function has been removed because such models can now be set up with <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> with the options <code>perfect_scaling = TRUE</code> and <code>egg_size_scaling = TRUE</code>.</li>
-<li>The functions <code>display_frames()</code>, <code>addSpecies()</code>, <code>setBackground()</code> and <code>retuneAbundance()</code> have been removed to the “mizerExperimental” package (<a href="https://sizespectrum.org/mizerExperimental" class="uri">https://sizespectrum.org/mizerExperimental</a>)</li>
+<li>The functions <code>display_frames()</code>, <code>addSpecies()</code>, <code>setBackground()</code> and <code>retuneAbundance()</code> have been removed to the âmizerExperimentalâ package (<a href="https://sizespectrum.org/mizerExperimental" class="uri">https://sizespectrum.org/mizerExperimental</a>)</li>
 <li>During runs of <code><a href="../reference/project.html">project()</a></code> a progress bar is displayed by default. You can turn this off with the option `progress_bar = FALSE.</li>
-<li>Throughout mizer the term “plankton” has been replaced by “resource”, which affects the labelling of the resource spectrum in plots.</li>
+<li>Throughout mizer the term âplanktonâ has been replaced by âresourceâ, which affects the labelling of the resource spectrum in plots.</li>
 </ul>
 </div>
 <div id="setting-up-models" class="section level2">
@@ -341,7 +343,7 @@
 <li>Helper function <code><a href="../reference/set_species_param_default.html">set_species_param_default()</a></code> makes it easier to set default values for species parameters.</li>
 <li>Simplified FFT calculations are more readable.</li>
 <li>Using <code>@inherit</code> functionality of roxygen2 to reduce duplication in roxygen documentation.</li>
-<li>Using `@family’ to group function documentation pages.</li>
+<li>Using `@familyâ to group function documentation pages.</li>
 <li>The helper functions are now documented and exported.</li>
 <li>
 <code><a href="../reference/getPhiPrey.html">getPhiPrey()</a></code> is replaced by <code><a href="../reference/getEncounter.html">getEncounter()</a></code> which now returns the full encounter rate, including the contribution from other components. Even in the absence of other components, <code><a href="../reference/getEncounter.html">getEncounter()</a></code> differs from the old <code><a href="../reference/getPhiPrey.html">getPhiPrey()</a></code> because it includes the search volume factor.</li>
@@ -351,7 +353,7 @@
 <li>Added numerical tests.</li>
 <li>Using assert_that to check arguments to functions more often.</li>
 <li>Argument <code>shiny_progress</code> renamed to <code>progress_bar</code> because they control any type of progress bar.</li>
-<li>In documentation renamed “background” and “plankton” consistently to “resource”.</li>
+<li>In documentation renamed âbackgroundâ and âplanktonâ consistently to âresourceâ.</li>
 <li>Using <code><a href="https://rdrr.io/r/base/outer.html">outer()</a></code> instead of <code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code> where possible to improve readability.</li>
 <li>Avoiding use of <code>hasArg()</code> and <code><a href="https://rdrr.io/r/base/NA.html">anyNA()</a></code> because they were not available in R 3.1</li>
 <li>A more robust code for setting up the size grids.</li>
@@ -375,7 +377,7 @@
 </div>
 </div>
     <div id="mizer-101" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="1.0.1">
 <a href="#mizer-101" class="anchor"></a>mizer 1.0.1<small> 2019-01-27 </small>
 </h1>
 <ul>
@@ -385,7 +387,7 @@
 </ul>
 </div>
     <div id="mizer-10" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="1.0">
 <a href="#mizer-10" class="anchor"></a>mizer 1.0<small> 2018-05-01 </small>
 </h1>
 <ul>
@@ -413,7 +415,7 @@
 </ul>
 </div>
     <div id="mizer-04" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="0.4">
 <a href="#mizer-04" class="anchor"></a>mizer 0.4<small> 2017-12-14 </small>
 </h1>
 <ul>
@@ -423,7 +425,7 @@
 </ul>
 </div>
     <div id="mizer-03" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="0.3">
 <a href="#mizer-03" class="anchor"></a>mizer 0.3<small> Unreleased </small>
 </h1>
 <ul>
@@ -433,7 +435,7 @@
 </ul>
 </div>
     <div id="mizer-02" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="0.2">
 <a href="#mizer-02" class="anchor"></a>mizer 0.2<small> 2014-04-16 </small>
 </h1>
 <ul>
@@ -441,28 +443,19 @@
 </ul>
 </div>
     <div id="mizer-01" class="section level1">
-<h1 class="page-header">
+<h1 class="page-header" data-toc-text="0.1">
 <a href="#mizer-01" class="anchor"></a>mizer 0.1<small> 2013-10-08 </small>
 </h1>
 <ul>
-<li>Beta release - just about works but still some gremlins to sort out. There are a number of features I’d like to add in the coming releases.</li>
+<li>Beta release - just about works but still some gremlins to sort out. There are a number of features Iâd like to add in the coming releases.</li>
 </ul>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#mizer-200">2.0.0</a></li>
-        <li><a href="#mizer-101">1.0.1</a></li>
-        <li><a href="#mizer-10">1.0</a></li>
-        <li><a href="#mizer-04">0.4</a></li>
-        <li><a href="#mizer-03">0.3</a></li>
-        <li><a href="#mizer-02">0.2</a></li>
-        <li><a href="#mizer-01">0.1</a></li>
-      </ul>
-    </div>
+  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 
 </div>
@@ -474,7 +467,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
 </div>
 
       </footer>

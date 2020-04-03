@@ -37,8 +37,8 @@ user.
 <!-- hake and red mullet -->
 
 Mizer has been supporting research in marine ecology and fisheries
-science since 2014 ([see publications](publications.html)). It is still
-under active development. The new version 2.0 has increased the
+science since 2014 ([see publications](articles/publications.html)). It
+is still under active development. The new version 2.0 has increased the
 user-friendliness and the flexibility of the framework. Contributions
 from the user community are very welcome. There is a sister package
 called [mizerExperimental](https://sizespectrum.org/mizerExperimental)
@@ -46,15 +46,15 @@ where user contributions can be checked out and receive feedback from
 the community. Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples).
 
-Does your project or publication use mizer? If so, we’d love to know.
-You can also join our Google Discussion group here:
+Does your project or publication use mizer? If so, we would love to
+know. You can also join our Google Discussion group here:
 <https://groups.google.com/forum/#!forum/size-spectrum-models>
 
 Recent work on mizer was funded by the European Commission Horizon 2020
-Research and Innovation Programme under Grant Agreement No. 634495 for
+Research and Innovation Programme under Grant Agreement No 634495 for
 the project MINOUW (<http://minouw-project.eu/>) and the Australian
-Research Council Discovery Project (“[Rewiring Marine Food
-Webs](http://marinesocioecology.org/rewiring-marine-food-webs/)”).
+Research Council Discovery Project [Rewiring Marine Food
+Webs](http://marinesocioecology.org/rewiring-marine-food-webs/).
 
 ## Installation
 

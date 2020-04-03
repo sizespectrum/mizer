@@ -9,3 +9,4 @@
 ^dev_scripts\.R$
 
 ^vignettes$
+^CRAN-RELEASE$
