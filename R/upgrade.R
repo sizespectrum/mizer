@@ -303,5 +303,6 @@ upgradeSim <- function(sim) {
         new_sim@n_other <- sim@n_other
     }
     comment(new_sim) <- comment(sim)
+    comment(new_sim@effort) <- comment(sim@effort)
     new_sim
 }
