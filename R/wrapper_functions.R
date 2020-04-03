@@ -574,7 +574,9 @@ newTraitParams <- function(no_sp = 11,
 #' Takes a MizerParams object with density-independent reproduction rate and
 #' sets a Beverton-Holt density-dependence with a maximum reproduction rate that
 #' is a chosen factor `rfac` higher than the initial-state reproduction
-#' rate.
+#' rate. At the same time it adjust the reproductive efficiency `erepro`
+#' (see [setReproduction()]) to keep the same density-dependent reproduction at
+#' the initial state.
 #' 
 #' @param params A MizerParams object
 #' @param rfac The factor by which the maximum reproduction rate should be higher than
@@ -590,14 +592,14 @@ setRmax <- function(params, rfac) {
     if (params@rates_funcs$RDD != "noRDD") {
         stop("setRmax can only be applied to params objects using 'noRDD'.")
     }
+    
+    params@species_params$R_max <- rfac * getRDI(params)
+    
     # erepro needs to be divided by a factor of 1-1/rfac to
     # compensate for using a Beverton Holt relationship
     # because RDD = (1-1/rfac) RDI
     params@species_params$erepro <- 
         params@species_params$erepro / (1 - 1/rfac)
-    
-    params@species_params$R_max <- params@species_params$w_inf
-    params@species_params$R_max <- (rfac - 1) * getRDI(params)
     
     return(setReproduction(params, RDD = "BevertonHoltRDD"))
 }
