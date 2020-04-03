@@ -37,7 +37,9 @@ changed by the user.
 <!-- hake and red mullet -->
 
 Mizer has been supporting research in marine ecology and fisheries science 
-since 2014 ([see publications](articles/publications.html)). It is still under active
+since 2014 
+([see publications](https://sizespectrum.org/mizer/articles/publications.html). 
+It is still under active
 development. The new version 2.0 has increased the user-friendliness and the
 flexibility of the framework. Contributions from the user community are very
 welcome. There is a sister package called 

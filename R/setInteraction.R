@@ -8,7 +8,7 @@
 #' The values in the interaction matrix are used to scale the encountered food
 #' and predation mortality (see on the website
 #' [the section on predator-prey encounter rate](https://sizespectrum.org/mizer/articles/model_description.html#sec:pref)
-#' and on [predation mortality](https://sizespectrum.org/mizer/articles/model_description.html#mortality)).                                                                        and on [predation mortality](model_description.html#mortality)).
+#' and on [predation mortality](https://sizespectrum.org/mizer/articles/model_description.html#mortality)).
 #'
 #' It is used when calculating the food encounter rate in [getEncounter()] and
 #' the predation mortality rate in [getPredMort()]. Its entries are
