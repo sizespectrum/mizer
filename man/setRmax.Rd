@@ -19,5 +19,7 @@ A MizerParams object
 Takes a MizerParams object with density-independent reproduction rate and
 sets a Beverton-Holt density-dependence with a maximum reproduction rate that
 is a chosen factor \code{rfac} higher than the initial-state reproduction
-rate.
+rate. At the same time it adjust the reproductive efficiency \code{erepro}
+(see \code{\link[=setReproduction]{setReproduction()}}) to keep the same density-dependent reproduction at
+the initial state.
 }
