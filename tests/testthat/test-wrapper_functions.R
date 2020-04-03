@@ -107,3 +107,13 @@ test_that("Scaling model is set up correctly", {
 })
 
 
+# setRmax works ----
+test_that("setRmax works", {
+    params <- NS_params
+    params@rates_funcs$RDD <- "noRDD"
+    rdd <- getRDD(params)
+    rfac = 5
+    params <- setRmax(params, rfac)
+    expect_equivalent(params@species_params$R_max, rdd * rfac)
+    expect_equal(getRDD(params), rdd)
+})

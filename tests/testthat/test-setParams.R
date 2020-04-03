@@ -215,15 +215,3 @@ test_that("Comment works on psi", {
 test_that("setParams can leave params unchanged", {
     expect_equal(setParams(params), params)
 })
-
-## upgradeParams ----
-test_that("upgradeParams leaves new params unchanged", {
-    expect_identical(upgradeParams(params), params)
-})
-test_that("upgradeParams preserves comments", {
-    comment(params) <- "test"
-    for (slot in (slotNames(params))) {
-        comment(slot(params, slot)) <- slot
-    }
-    expect_identical(upgradeParams(params), params)
-})
