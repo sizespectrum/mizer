@@ -100,7 +100,7 @@ And clicking again will hide the details again.
 <div id="consumer-densities" class="section level2">
 <h2 class="hasAnchor">
 <a href="#consumer-densities" class="anchor"></a>Consumer densities</h2>
-<p>The model assumes that, to a first approximation, an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other word: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
+<p>The model assumes that, to a first approximation, an individual can be characterized by its weight <span class="math inline">\(w\)</span> and its species number <span class="math inline">\(i\)</span> only. The aim of the model is to calculate the size spectrum <span class="math inline">\(N_i(w)\)</span>, which is the <em>density</em> of individuals of species <span class="math inline">\(i\)</span> such that <span class="math inline">\(\int_w^{w+dw}N_i(w)dw\)</span> is the <em>number</em> of individuals of species <span class="math inline">\(i\)</span> in the size interval <span class="math inline">\([w,w+dw]\)</span>. In other words: the number of individuals in a size range is the area under the number density <span class="math inline">\(N_i(w)\)</span>.</p>
 <details><p>Here is a plot of an example size spectrum for two species with <span class="math inline">\(N_i(w)\)</span> on the vertical axis for <span class="math inline">\(i=1,2\)</span> and <span class="math inline">\(w\)</span> on the horizontal axis.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(mizer)</span>
 <span id="cb1-2"><a href="#cb1-2"></a>params &lt;-<span class="st"> </span><span class="kw"><a href="../reference/newTraitParams.html">newTraitParams</a></span>(<span class="dt">no_sp =</span> <span class="dv">2</span>, <span class="dt">min_w =</span> <span class="fl">1e-3</span>)</span>
@@ -260,13 +260,14 @@ And clicking again will hide the details again.
 <div id="density-dependence-in-reproduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#density-dependence-in-reproduction" class="anchor"></a>Density-dependence in reproduction</h2>
-<p>Three important density-dependent effects that in usual fisheries models are summarised in an imposed stock-recruitment relationship are already included automatically in the mizer model:</p>
+<p>Three important density-dependent mechanisms widely assumed in fisheries models are automatically captured in the mizer model that lead to an emergent stock-recruitment relationship:</p>
 <ol style="list-style-type: decimal">
 <li>High density of spawners leads to a reduced food income of the spawners and consequently reduced per-capita reproduction.</li>
 <li>High density of larvae leads to slower growth of larvae due to food competition, exposing the larvae to high mortality for a longer time, thereby decreasing the survivorship to recruitment size.</li>
 <li>High density of fish leads to more predation on eggs and fish larvae by other fish species or by cannibalism.</li>
 </ol>
-<p>However there are other sources of density dependence that are not explicitly modelled in mizer. An example would be a limited carrying capacity of suitable spawning grounds and other spatial effects. In mizer, any such density dependence is modelled as a compensation on the egg production. This gives an additional contribution to the stock-recruitment relationship. The default functional form of this density dependence is such that the reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) approaches a maximum as the energy invested in reproduction increases, modelled mathematically analogous to the Holling type II function response as a <em>Beverton-Holt</em> type function:</p>
+<p>However there are other sources of density dependence that are not explicitly modelled mechanistically in mizer. An example would be a limited carrying capacity of suitable spawning grounds and other spatial effects.</p>
+<p>This requires additional phenomenological density dependent contributions to the stock-recruitment. In mizer this type of density dependence is modelled through constraints on egg production and survival. The default functional form of this density dependence is represented by a reproduction rate <span class="math inline">\(R_i\)</span> (numbers per time) that approaches a maximum as the energy invested in reproduction increases, modelled mathematically it is analogous to a <em>Beverton-Holt</em> type function:</p>
 <p><span class="math display">\[\begin{equation}
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
@@ -320,7 +321,7 @@ And clicking again will hide the details again.
 
 
       <footer><div class="copyright">
-  <p>Developed by Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>, <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard">Julia Blanchard</a>, <a href="https://ken.haste.dk/">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown">
