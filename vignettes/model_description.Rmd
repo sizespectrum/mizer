@@ -37,7 +37,7 @@ The model assumes that, to a first approximation, an individual can be
 characterized by its weight $w$ and its species number $i$ only. The aim of the
 model is to calculate the size spectrum $N_i(w)$, which is the *density* of
 individuals of species $i$ such that $\int_w^{w+dw}N_i(w)dw$ is the *number* of
-individuals of species $i$ in the size interval $[w,w+dw]$. In other word: the
+individuals of species $i$ in the size interval $[w,w+dw]$. In other words: the
 number of individuals in a size range is the area under the number density
 $N_i(w)$.
 
@@ -388,9 +388,9 @@ females reproduce. This rate of potential egg production is calculated with
 
 
 ## Density-dependence in reproduction
-Three important density-dependent effects that in usual fisheries models are 
-summarised in an imposed stock-recruitment relationship are already included
-automatically in the mizer model:
+
+Three important density-dependent mechanisms widely assumed in fisheries models are 
+automatically captured in the mizer model that lead to an emergent stock-recruitment relationship:
 
 1. High density of spawners leads to a reduced
 food income of the spawners and consequently reduced per-capita reproduction.
@@ -401,14 +401,14 @@ decreasing the survivorship to recruitment size.
 other fish species or by cannibalism.
 
 However there are other sources of density dependence that are not explicitly
-modelled in mizer. An example would be a limited carrying capacity of suitable
+modelled mechanistically in mizer. An example would be a limited carrying capacity of suitable
 spawning grounds and other spatial effects.
-In mizer, any such density dependence is modelled as a compensation on the egg 
-production. This gives an additional contribution to the stock-recruitment 
-relationship. The default functional form of this density dependence is such 
-that the reproduction rate $R_i$ (numbers per time) approaches a maximum as the 
-energy invested in reproduction increases, modelled mathematically analogous to 
-the Holling type II function response as a *Beverton-Holt* type function:
+
+This requires additional phenomenological density dependent contributions to the stock-recruitment. In mizer this type of density dependence is modelled through constraints on egg production and survival. 
+The default functional form of this density dependence is represented by
+a reproduction rate $R_i$ (numbers per time) that approaches a maximum as the 
+energy invested in reproduction increases, modelled mathematically it is analogous to 
+a *Beverton-Holt* type function:
 
 \begin{equation}
   \label{eq:R}
