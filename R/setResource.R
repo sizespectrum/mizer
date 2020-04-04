@@ -143,7 +143,7 @@ resource_params <- function(params) {
 `resource_params<-` <- function(params, value) {
     assert_that(
         is(params, "MizerParams"),
-        setequal(names(value) == names(params@resource_params)),
+        setequal(names(value), names(params@resource_params)),
         is.number(value$lambda),
         value$lambda >= 0,
         is.number(value$kappa),
