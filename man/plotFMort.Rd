@@ -34,12 +34,12 @@ range (a single value for the time range can be used to plot a single time
 step).
 }
 \examples{
-
+\donttest{
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotFMort(sim)
 plotFMort(sim, highlight = c("Cod", "Haddock"))
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getFMort]{getFMort()}}

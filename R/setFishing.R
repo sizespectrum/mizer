@@ -273,7 +273,7 @@ validGearParams <- function(gear_params, species_params) {
                     if (!is.null(species_params[[arg]])) {
                         gear_params[[arg]] <- species_params[[arg]]
                     } else if (arg == "knife_edge_size") {
-                        gear_params[[arg]] = species_params$w_mat
+                        gear_params[[arg]] <- species_params$w_mat
                     }
                 }
             }
@@ -290,7 +290,7 @@ validGearParams <- function(gear_params, species_params) {
     # TODO: Check that there are no duplicate gear-species pairs
     
     # Check that every row is complete
-    for (g in 1:nrow(gear_params)) {
+    for (g in seq_len(nrow(gear_params))) {
         # get args
         # These as.characters are annoying - but factors everywhere
         arg <- names(formals(as.character(gear_params[g, 'sel_func'])))

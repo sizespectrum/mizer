@@ -80,6 +80,7 @@ against time. The biomass is calculated within user defined size limits
 (min_w, max_w, min_l, max_l, see \code{\link[=getBiomass]{getBiomass()}}).
 }
 \examples{
+\donttest{
 # Set up example MizerParams and MizerSim objects
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
@@ -89,7 +90,7 @@ plotBiomass(sim, species = c("Cod", "Haddock"), total = TRUE)
 plotBiomass(sim, min_w = 10, max_w = 1000)
 plotBiomass(sim, start_time = 10, end_time = 15)
 plotBiomass(sim, y_ticks = 3)
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}}, \code{\link[=getBiomass]{getBiomass()}}

@@ -555,7 +555,7 @@ emptyParams <- function(species_params,
                function(w_min, wx) max(which(wx <= w_min)), wx = w)))
     # Due to rounding errors this might happen:
     w_min_idx[w_min_idx == -Inf] <- 1
-    names(w_min_idx) = species_names
+    names(w_min_idx) <- species_names
     species_params$w_min <- w[w_min_idx]
     
     # Colour and linetype scales ----

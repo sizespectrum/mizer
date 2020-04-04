@@ -6,7 +6,7 @@
 \usage{
 getMeanMaxWeight(
   sim,
-  species = 1:nrow(sim@params@species_params),
+  species = seq_len(nrow(species_params(params(sim)))),
   measure = "both",
   ...
 )

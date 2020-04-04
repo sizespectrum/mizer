@@ -52,7 +52,8 @@ NULL
 #' @examples 
 #' \dontrun{
 #' params <- MizerParams(NS_species_params_gears)
-#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+#' sim = project(params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                  Beam = 0.5, Otter = 0.5))
 #' plot(sim)
 #' }
 NULL
@@ -82,7 +83,8 @@ NULL
 #' @family example parameter objects
 #' @examples 
 #' \dontrun{
-#' sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+#' sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
+#'                                     Beam = 0.5, Otter = 0.5))
 #' plot(sim)
 #' }
 NULL

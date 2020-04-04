@@ -143,7 +143,7 @@ You can also specify the species to be used in the calculation.</p>
 
     <pre class="usage"><span class='fu'>getMeanMaxWeight</span>(
   <span class='no'>sim</span>,
-  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>sim</span>@<span class='kw'>params</span>@<span class='kw'>species_params</span>),
+  <span class='kw'>species</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='fu'><a href='setParams.html'>species_params</a></span>(<span class='fu'><a href='params.html'>params</a></span>(<span class='no'>sim</span>)))),
   <span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"both"</span>,
   <span class='no'>...</span>
 )</pre>

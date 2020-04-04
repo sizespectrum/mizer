@@ -1,7 +1,7 @@
 context("Analytic results")
 
 # Initialise power law ----
-no_w = 100
+no_w <- 100
 no_sp <- 2
 p <- newTraitParams(no_sp = no_sp, perfect_scaling = TRUE, no_w = no_w)
 p@species_params$pred_kernel_type <- "truncated_lognormal"

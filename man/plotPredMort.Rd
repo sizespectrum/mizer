@@ -33,12 +33,12 @@ by size. The mortality rate is averaged over the specified time range (a
 single value for the time range can be used to plot a single time step).
 }
 \examples{
-
+\donttest{
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotPredMort(sim)
 plotPredMort(sim, time_range = 10:20)
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getPredMort]{getPredMort()}}

@@ -47,7 +47,7 @@ over \code{max_w}.}
   }}
 }
 \value{
-A data frame that can be used in \code{\link[=displayFrames]{displayFrames()}}
+A data frame
 }
 \description{
 After running a projection, the biomass of each species can be plotted

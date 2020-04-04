@@ -156,7 +156,7 @@ getDiet <- function(params,
 #' }
 getSSB <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    ssb <- apply(sweep(sweep(sim@n, c(2,3), sim@params@maturity,"*"), 3, 
+    ssb <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3, 
                        sim@params@w * sim@params@dw, "*"), c(1, 2), sum) 
     return(ssb)
 }
@@ -326,10 +326,10 @@ getGrowthCurves <- function(object,
     ws <- array(dim = c(length(species), length(age)),
                 dimnames = list(Species = species, Age = age))
     g <- getEGrowth(params, n, n_pp)
-    for (j in 1:length(species)) {
+    for (j in seq_along(species)) {
         i <- idx[j]
         g_fn <- stats::approxfun(params@w, g[i, ])
-        myodefun <- function(t, state, parameters){
+        myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
         }
         ws[j, ] <- deSolve::ode(y = params@w[params@w_min_idx[i]], 
@@ -379,23 +379,25 @@ get_size_range_array <- function(params, min_w = min(params@w),
                                  min_l = NULL, max_l = NULL, ...) {
     no_sp <- nrow(params@species_params)
     if (!is.null(min_l) | !is.null(max_l))
-        if (any(!c("a","b") %in% names(params@species_params)))
-            stop("species_params slot must have columns 'a' and 'b' for length-weight conversion")
+        if (any(!c("a", "b") %in% names(params@species_params)))
+            stop("species_params slot must have columns 'a' and 'b' for ",
+                 "length-weight conversion")
     if (!is.null(min_l))
         min_w <- params@species_params[["a"]] * 
             min_l ^ params@species_params[["b"]]
-    else min_w <- rep(min_w,no_sp)
+    else min_w <- rep(min_w, no_sp)
     if (!is.null(max_l))
         max_w <- params@species_params[["a"]] *
             max_l ^ params@species_params[["b"]]
-    else max_w <- rep(max_w,no_sp)
+    else max_w <- rep(max_w, no_sp)
     if (!all(min_w < max_w))
         stop("min_w must be less than max_w")
     min_n <- plyr::aaply(min_w, 1, function(x) params@w >= x, .drop = FALSE)
     max_n <- plyr::aaply(max_w, 1, function(x) params@w <= x, .drop = FALSE)
     size_n <- min_n & max_n
     # Add dimnames?
-    dimnames(size_n) <- list(sp = params@species_params$species, w = signif(params@w,3)) 
+    dimnames(size_n) <- list(sp = params@species_params$species, 
+                             w = signif(params@w, 3)) 
     return(size_n)
 }
 
@@ -423,9 +425,9 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     # Length of background? 
     cat("Resource size spectrum:\n")
     cat("\tminimum size:\t", signif(min(object@w_full)), "\n", sep = "")
-    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp>0])), 
+    cat("\tmaximum size:\t", signif(max(object@w_full[object@initial_n_pp > 0])), 
         "\n", sep = "")
-    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp>0]), 
+    cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp > 0]), 
         "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
     sp <- object@species_params[,c("species","w_inf","w_mat","beta","sigma")]
@@ -527,10 +529,10 @@ NULL
 #'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
 getProportionOfLargeFish <- function(sim, 
-                                     species = 1:nrow(sim@params@species_params), 
+                                     species = seq_len(nrow(species_params(params(sim)))), 
                                      threshold_w = 100, threshold_l = NULL, 
                                      biomass_proportion=TRUE, ...) {
-    check_species(sim,species)
+    check_species(sim, species)
     # This args stuff is pretty ugly - couldn't work out another way of using ...
     args <- list(...)
     args[["params"]] <- sim@params
@@ -575,7 +577,7 @@ getProportionOfLargeFish <- function(sim,
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...){
+getMeanWeight <- function(sim, species = seq_len(nrow(species_params(params(sim)))), ...){
     check_species(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
@@ -615,7 +617,7 @@ getMeanWeight <- function(sim, species = 1:nrow(sim@params@species_params), ...)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params), 
+getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(params(sim)))), 
                              measure = "both", ...) {
     if (!(measure %in% c("both","numbers","biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
@@ -670,7 +672,7 @@ getMeanMaxWeight <- function(sim, species = 1:nrow(sim@params@species_params),
 #' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 #' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 #' }
-getCommunitySlope <- function(sim, species = 1:nrow(sim@params@species_params),
+getCommunitySlope <- function(sim, species = seq_len(nrow(species_params(params(sim)))),
                               biomass = TRUE, ...) {
     check_species(sim, species)
     size_range <- get_size_range_array(sim@params, ...)

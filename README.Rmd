@@ -86,5 +86,5 @@ plot(sim)
 ```
 
 See the accompanying
-[Get started](articles/mizer.html) page
+[Get started](https://sizespectrum.org/mizer/articles/mizer.html) page
 for more details on how the package works, including detailed examples.

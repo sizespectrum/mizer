@@ -58,6 +58,7 @@
 #' @family plotting functions
 #' @name plotting_functions
 #' @examples
+#' \donttest{
 #' # Set up example MizerParams and MizerSim objects
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
@@ -79,6 +80,7 @@
 #' p <- p + geom_hline(aes(yintercept = 0.7))
 #' p <- p + theme_bw()
 #' p
+#' }
 NULL
 
 # Hackiness to get past the 'no visible binding ... ' warning when running check
@@ -101,7 +103,7 @@ utils::globalVariables(c("time", "value", "Species", "w", "gear", "Age",
 #' @export
 #' @keywords internal
 #' @family helper
-log_breaks <- function(n = 6){
+log_breaks <- function(n = 6) {
     n <- max(1, n)  # Because n=0 could lead to R crash
     function(x) {
         grDevices::axisTicks(log10(range(x, na.rm = TRUE)),
@@ -130,7 +132,7 @@ log_breaks <- function(n = 6){
 #'   all species is plotted as well. Default is FALSE.
 #' @inheritDotParams get_size_range_array -params
 #'   
-#' @return A data frame that can be used in [displayFrames()]
+#' @return A data frame
 #' @family frame functions
 getBiomassFrame <- function(sim,
             species = dimnames(sim@n)$sp[!is.na(sim@params@A)],
@@ -188,6 +190,7 @@ getBiomassFrame <- function(sim,
 #' @family plotting functions
 #' @seealso [plotting_functions()], [getBiomass()]
 #' @examples
+#' \donttest{
 #' # Set up example MizerParams and MizerSim objects
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
@@ -197,7 +200,7 @@ getBiomassFrame <- function(sim,
 #' plotBiomass(sim, min_w = 10, max_w = 1000)
 #' plotBiomass(sim, start_time = 10, end_time = 15)
 #' plotBiomass(sim, y_ticks = 3)
-#' 
+#' }
 plotBiomass <- function(sim, species, start_time, end_time, y_ticks = 6,
             ylim = c(NA, NA), total = FALSE, background = TRUE, 
             highlight = NULL, ...) {
@@ -275,7 +278,7 @@ plotlyBiomass <- function(sim,
 #' @family plotting functions
 #' @seealso [plotting_functions()],  [getYield()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim)
@@ -284,11 +287,11 @@ plotlyBiomass <- function(sim,
 #' # Comparing with yield from twice the effort
 #' sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
-#' 
+#' }
 plotYield <- function(sim, sim2,
                       species,
                       total = FALSE, log = TRUE,
-                      highlight = NULL, ...){
+                      highlight = NULL, ...) {
     if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
@@ -395,16 +398,16 @@ plotlyYield <- function(sim, sim2,
 #' @family plotting functions
 #' @seealso [plotting_functions()],  [getYieldGear()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 #' plotYieldGear(sim)
 #' plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)
-#' 
+#' }
 plotYieldGear <- function(sim,
                           species,
                           total = FALSE,
-                          highlight = NULL, ...){
+                          highlight = NULL, ...) {
     if (missing(species)) species <- dimnames(sim@n)$sp[!is.na(sim@params@A)]
     # Need to keep species in order for legend
     species_levels <- c(dimnames(sim@n)$sp, "Background", "Resource", "Total")
@@ -487,7 +490,7 @@ plotlyYieldGear <- function(sim, species,
 #' @family plotting functions
 #' @seealso [plotting_functions()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotSpectra(sim)
@@ -495,7 +498,7 @@ plotlyYieldGear <- function(sim, species,
 #' plotSpectra(sim, time_range = 10:20)
 #' plotSpectra(sim, time_range = 10:20, power = 0)
 #' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
-#' 
+#' }
 plotSpectra <- function(object, species = NULL,
                         time_range,
                         wlim = c(NA, NA), ylim = c(NA, NA),
@@ -691,12 +694,12 @@ plotlySpectra <- function(object, species = NULL,
 #' @family plotting functions
 #' @seealso [plotting_functions()], [getFeedingLevel()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFeedingLevel(sim)
 #' plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"))
-#' 
+#' }
 plotFeedingLevel <- function(object,
             species = NULL,
             time_range,
@@ -810,12 +813,12 @@ plotlyFeedingLevel <- function(object,
 #' @family plotting functions
 #' @seealso [plotting_functions()],  [getPredMort()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotPredMort(sim)
 #' plotPredMort(sim, time_range = 10:20)
-#' 
+#' }
 plotPredMort <- function(object, species = NULL,
                          time_range,
                          highlight = NULL, ...) {
@@ -894,12 +897,12 @@ plotlyPredMort <- function(object, species = NULL,
 #' @family plotting functions
 #' @seealso [plotting_functions()], [getFMort()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotFMort(sim)
 #' plotFMort(sim, highlight = c("Cod", "Haddock"))
-#' 
+#' }
 plotFMort <- function(object, species = NULL,
                       time_range,
                       highlight = NULL, ...) {
@@ -975,12 +978,12 @@ plotlyFMort <- function(object, species = NULL,
 #' @family plotting functions
 #' @seealso [plotting_functions()]
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plotGrowthCurves(sim, percentage = TRUE)
 #' plotGrowthCurves(sim, species = "Cod", max_age = 24)
-#' 
+#' }
 plotGrowthCurves <- function(object, 
                              species,
                              max_age = 20,
@@ -1035,8 +1038,8 @@ plotGrowthCurves <- function(object,
             b <- params@species_params[["b"]][idx]
             k_vb <- params@species_params$k_vb[idx]
             t0 <- params@species_params$t0[idx]
-            if (is.null(t0)) {t0 <- 0}
-            L_inf <- (w_inf/a)^(1/b)
+            if (is.null(t0)) t0 <- 0
+            L_inf <- (w_inf / a) ^ (1 / b)
             vb <- a * (L_inf * (1 - exp(-k_vb * (age - t0))))^b
             dat <- data.frame(x = age, y = vb)
             p <- p + geom_line(data = dat, aes(x = x, y = y))
@@ -1104,13 +1107,13 @@ plotDiet <- function(object, species) {
 #' @seealso [plotting_functions()]
 #' @rdname plotMizerSim
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 #' plot(sim)
 #' plot(sim, time_range = 10:20) # change time period for size-based plots
 #' plot(sim, min_w = 10, max_w = 1000) # change size range for biomass plot
-#' 
+#' }
 setMethod("plot", signature(x = "MizerSim", y = "missing"),
           function(x, ...) {
               p1 <- plotFeedingLevel(x, ...)
@@ -1146,11 +1149,11 @@ setMethod("plot", signature(x = "MizerSim", y = "missing"),
 #' @seealso [plotting_functions()]
 #' @rdname plotMizerSim
 #' @examples
-#' 
+#' \donttest{
 #' params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 #' plot(params)
 #' plot(params, min_w = 10, max_w = 1000) # change size range for biomass plot
-#' 
+#' }
 setMethod("plot", signature(x = "MizerParams", y = "missing"),
           function(x, ...) {
               p11 <- plotFeedingLevel(x, ...)

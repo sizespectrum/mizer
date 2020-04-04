@@ -30,7 +30,7 @@ test_that("Multiple gears work correctly in trait-based model", {
                              knife_edge_size = knife_edges, 
                              gear_names = 1:no_sp)
     effort <- c(0,0,0,1,0,0,0,0,0,0)
-    names(effort) = 1:no_sp
+    names(effort) <- 1:no_sp
     sim2 <- project(params, t_max = 10, effort = effort)
     fmg <- getFMortGear(sim2)
     expect_true(all(fmg[10, c(1:3,5:10),c(1:3,5:10),] == 0))
@@ -112,8 +112,8 @@ test_that("setRmax works", {
     params <- NS_params
     params@rates_funcs$RDD <- "noRDD"
     rdd <- getRDD(params)
-    rfac = 5
-    params <- setRmax(params, rfac)
-    expect_equivalent(params@species_params$R_max, rdd * rfac)
+    R_factor <- 5
+    params <- setRmax(params, R_factor)
+    expect_equivalent(params@species_params$R_max, rdd * R_factor)
     expect_equal(getRDD(params), rdd)
 })

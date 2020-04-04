@@ -169,14 +169,14 @@ newCommunityParams <- function(max_w = 1e6,
 #' imposing additional density-dependence, the function can set a Beverton-Holt
 #' type density-dependence that imposes a maximum for the reproduction rate that
 #' is a multiple of the reproduction rate at steady state. That multiple is set
-#' by the argument `rfac`.
+#' by the argument `R_factor`.
 #'
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
 #' The option of including fishing is given, but the steady state may lose its
 #' natural stability if too much fishing is included. In such a case the user
-#' may wish to include stabilising effects (like `rfac`) to ensure the
+#' may wish to include stabilising effects (like `R_factor`) to ensure the
 #' steady state is stable. Fishing selectivity is modelled as a knife-edge
 #' function with one parameter, `knife_edge_size`, which is the size at
 #' which species are selected. Each species can either be fished by the same
@@ -234,9 +234,9 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param ext_mort_prop The proportion of the total mortality that comes from
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
-#' @param rfac The factor such that \code{R_max = rfac * R}, where `R_max`
+#' @param R_factor The factor such that \code{R_max = R_factor * R}, where `R_max`
 #'   is the maximum reproduction rate allowed and `R` is the steady-state
-#'   reproduction rate. Thus the larger `rfac` the less the impact of the
+#'   reproduction rate. Thus the larger `R_factor` the less the impact of the
 #'   density-dependence.
 #' @param gear_names The names of the fishing gears for each species. A
 #'   character vector, the same length as the number of species.
@@ -285,7 +285,7 @@ newTraitParams <- function(no_sp = 11,
                            ks = NA,
                            gamma = NA,
                            ext_mort_prop = 0,
-                           rfac = 4,
+                           R_factor = 4,
                            gear_names = "knife_edge_gear",
                            knife_edge_size = 1000,
                            egg_size_scaling = FALSE,
@@ -301,9 +301,9 @@ newTraitParams <- function(no_sp = 11,
              " because it should be the proportion of the total mortality",
              " coming from sources other than predation.")
     }
-    if (rfac <= 1) {
-        message("rfac needs to be larger than 1. Setting rfac = 1.01")
-        rfac <- 1.01
+    if (R_factor <= 1) {
+        message("R_factor needs to be larger than 1. Setting R_factor = 1.01")
+        R_factor <- 1.01
     }
     no_w <- round(no_w)
     if (no_w < log10(max_w_inf/min_w)*5) {
@@ -549,10 +549,10 @@ newTraitParams <- function(no_sp = 11,
             (initial_n[i, params@w_min_idx[i]] *
                  (gg0 + DW * mumu0)) / rdi[i]
     }
-    if (is.finite(rfac)) {
-        # erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+    if (is.finite(R_factor)) {
+        # erepro has been multiplied by a factor of (R_factor/(R_factor-1)) to
         # compensate for using Beverton Holt function.
-        erepro_final <- (rfac / (rfac - 1)) * erepro_final
+        erepro_final <- (R_factor / (R_factor - 1)) * erepro_final
     }
     params@species_params$erepro <- erepro_final
     
@@ -560,10 +560,10 @@ newTraitParams <- function(no_sp = 11,
     params@initial_n <- initial_n
     params@initial_n_pp <- initial_n_pp
     # set rmax=fac*RDD
-    # note that erepro has been multiplied by a factor of (rfac/(rfac-1)) to
+    # note that erepro has been multiplied by a factor of (R_factor/(R_factor-1)) to
     # compensate for using a Beverton Holt function
     params@species_params$R_max <-
-        (rfac - 1) * getRDI(params, initial_n, initial_n_pp)
+        (R_factor - 1) * getRDI(params, initial_n, initial_n_pp)
 
     return(params)
 }
@@ -573,33 +573,33 @@ newTraitParams <- function(no_sp = 11,
 #' 
 #' Takes a MizerParams object with density-independent reproduction rate and
 #' sets a Beverton-Holt density-dependence with a maximum reproduction rate that
-#' is a chosen factor `rfac` higher than the initial-state reproduction
+#' is a chosen factor `R_factor` higher than the initial-state reproduction
 #' rate. At the same time it adjust the reproductive efficiency `erepro`
 #' (see [setReproduction()]) to keep the same density-dependent reproduction at
 #' the initial state.
 #' 
 #' @param params A MizerParams object
-#' @param rfac The factor by which the maximum reproduction rate should be higher than
+#' @param R_factor The factor by which the maximum reproduction rate should be higher than
 #'   the initial-state reproduction rate
 #' 
 #' @return A MizerParams object
 #' @export
-setRmax <- function(params, rfac) {
+setRmax <- function(params, R_factor) {
     assert_that(is(params, "MizerParams"),
-                is.numeric(rfac),
-                length(rfac) %in% c(1, nrow(params@species_params)),
-                all(rfac > 1))
+                is.numeric(R_factor),
+                length(R_factor) %in% c(1, nrow(params@species_params)),
+                all(R_factor > 1))
     if (params@rates_funcs$RDD != "noRDD") {
         stop("setRmax can only be applied to params objects using 'noRDD'.")
     }
     
-    params@species_params$R_max <- rfac * getRDI(params)
+    params@species_params$R_max <- R_factor * getRDI(params)
     
-    # erepro needs to be divided by a factor of 1-1/rfac to
+    # erepro needs to be divided by a factor of 1-1/R_factor to
     # compensate for using a Beverton Holt relationship
-    # because RDD = (1-1/rfac) RDI
+    # because RDD = (1-1/R_factor) RDI
     params@species_params$erepro <- 
-        params@species_params$erepro / (1 - 1/rfac)
+        params@species_params$erepro / (1 - 1 / R_factor)
     
     return(setReproduction(params, RDD = "BevertonHoltRDD"))
 }

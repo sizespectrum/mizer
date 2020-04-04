@@ -19,7 +19,8 @@ effort
 }
 \examples{
 \dontrun{
-sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5))
+sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
+                                    Beam = 0.5, Otter = 0.5))
 plot(sim)
 }
 }

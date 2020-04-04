@@ -49,12 +49,12 @@ k_vb (and optionally t0), then the von Bertalanffy growth curve is
 superimposed in black.
 }
 \examples{
-
+\donttest{
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotGrowthCurves(sim, percentage = TRUE)
 plotGrowthCurves(sim, species = "Cod", max_age = 24)
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}}

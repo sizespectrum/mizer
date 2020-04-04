@@ -183,11 +183,12 @@ getComponent <- function(params, component) {
 
 
 #' Initial values for other ecosystem components
-#' 
+#'
 #' Values used as starting values for simulations with `project()`.
-#' 
+#'
 #' @param params A MizerParams object
-#' @param value A named list with the initial values of other ecosystem components
+#' @param value A named list with the initial values of other ecosystem
+#'   components
 #' @export
 `initialNOther<-` <- function(params, value) {
     assert_that(is(params, "MizerParams"),

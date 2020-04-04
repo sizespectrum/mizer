@@ -62,7 +62,7 @@ test_that("getFeedingLevel for MizerParams", {
     # test value
     expect_known_value(fl, "values/getFeedingLevel")
     # calling with encounter of wrong dimension gives error
-    encounter = matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
+    encounter <- matrix(rnorm(10 * (no_sp - 1)), ncol = 10, nrow = no_sp - 1)
     expect_error(getFeedingLevel(params, n, n_full, encounter = encounter),
                  'encounter argument must have dimensions: no\\. species \\(12\\) x no. size bins \\(100\\)'
     )

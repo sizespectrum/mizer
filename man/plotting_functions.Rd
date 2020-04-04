@@ -50,6 +50,7 @@ The ordering of the species in the legend is the same as the ordering in
 the species parameter data frame.
 }
 \examples{
+\donttest{
 # Set up example MizerParams and MizerSim objects
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
@@ -71,6 +72,7 @@ p <- plotFeedingLevel(sim)
 p <- p + geom_hline(aes(yintercept = 0.7))
 p <- p + theme_bw()
 p
+}
 }
 \seealso{
 \code{\link[=summary_functions]{summary_functions()}}, \code{\link[=indicator_functions]{indicator_functions()}}

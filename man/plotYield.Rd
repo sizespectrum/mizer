@@ -45,7 +45,7 @@ fishing gears can be plotted against time. The yield is obtained with
 \code{\link[=getYield]{getYield()}}.
 }
 \examples{
-
+\donttest{
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYield(sim)
@@ -54,7 +54,7 @@ plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 # Comparing with yield from twice the effort
 sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}},  \code{\link[=getYield]{getYield()}}

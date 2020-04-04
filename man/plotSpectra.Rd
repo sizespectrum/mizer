@@ -90,7 +90,7 @@ to plot a single time step). When called with a \linkS4class{MizerParams}
 object the initial abundance is plotted.
 }
 \examples{
-
+\donttest{
 params <- suppressMessages(newMultispeciesParams(NS_species_params_gears, inter))
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotSpectra(sim)
@@ -98,7 +98,7 @@ plotSpectra(sim, wlim = c(1e-6, NA))
 plotSpectra(sim, time_range = 10:20)
 plotSpectra(sim, time_range = 10:20, power = 0)
 plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
-
+}
 }
 \seealso{
 \code{\link[=plotting_functions]{plotting_functions()}}

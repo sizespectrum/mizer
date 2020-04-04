@@ -19,6 +19,7 @@ Conseil
 cran
 csv
 cutoff
+cutoffs
 cW
 Datta
 Deepfishman
@@ -30,6 +31,7 @@ detritivores
 detritivorous
 devtools
 discretisation
+discretises
 DK
 DP
 Docsearch
@@ -53,6 +55,7 @@ frac
 func
 getERepro
 getFeedingLevel
+getGrowthCurves
 getM
 getMort
 getResourceMort
@@ -93,9 +96,9 @@ metab
 minouw
 MINOUW
 mizer's
-mizerparams
+mizerExamples
+mizerExperimental
 MizerParams
-mizersim
 MizerSim
 modeled
 modeling
@@ -122,7 +125,9 @@ Piet
 pkgdown
 PLoS
 plotBiomass
+plotFeedingLevel
 plotFMort
+plotGrowthCurves
 plotly
 Plotly
 plotPredMort
@@ -136,10 +141,11 @@ rdd
 rdi
 RDI
 Rdoc
+reexports
 Ren
 repro
 res
-rfac
+Ricker
 rmarkdown
 Rmarkdown
 Rmax
@@ -154,6 +160,8 @@ Sci
 sel
 selectivities
 semichemostat
+setparams
+Sheperd
 shinytest
 sigmoidal
 sim
@@ -161,12 +169,14 @@ Sinica
 sIZE
 sizespectrum
 sp
+spawners
 srr
 SRR
 SRRs
 SSB
 stackoverflow
 std
+subfunctions
 Szuwalski
 testthat
 th
@@ -179,6 +189,7 @@ u
 unfished
 Ursin
 vb
+vdiffr
 vol
 WMAT
 www

@@ -12,7 +12,8 @@ initialNOther(params)
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{value}{A named list with the initial values of other ecosystem components}
+\item{value}{A named list with the initial values of other ecosystem
+components}
 }
 \description{
 Values used as starting values for simulations with \code{project()}.

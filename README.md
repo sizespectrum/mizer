@@ -93,5 +93,6 @@ plot(sim)
 
 ![](man/figures/unnamed-chunk-4-1.png)<!-- -->
 
-See the accompanying [Get started](articles/mizer.html) page for more
-details on how the package works, including detailed examples.
+See the accompanying [Get
+started](https://sizespectrum.org/mizer/articles/mizer.html) page for
+more details on how the package works, including detailed examples.

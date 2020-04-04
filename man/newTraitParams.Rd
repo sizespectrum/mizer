@@ -29,7 +29,7 @@ newTraitParams(
   ks = NA,
   gamma = NA,
   ext_mort_prop = 0,
-  rfac = 4,
+  R_factor = 4,
   gear_names = "knife_edge_gear",
   knife_edge_size = 1000,
   egg_size_scaling = FALSE,
@@ -106,9 +106,9 @@ by \code{\link[=get_gamma_default]{get_gamma_default()}} using the value of \cod
 external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
-\item{rfac}{The factor such that \code{R_max = rfac * R}, where \code{R_max}
+\item{R_factor}{The factor such that \code{R_max = R_factor * R}, where \code{R_max}
 is the maximum reproduction rate allowed and \code{R} is the steady-state
-reproduction rate. Thus the larger \code{rfac} the less the impact of the
+reproduction rate. Thus the larger \code{R_factor} the less the impact of the
 density-dependence.}
 
 \item{gear_names}{The names of the fishing gears for each species. A
@@ -169,14 +169,14 @@ Although the trait based model's steady state is often stable without
 imposing additional density-dependence, the function can set a Beverton-Holt
 type density-dependence that imposes a maximum for the reproduction rate that
 is a multiple of the reproduction rate at steady state. That multiple is set
-by the argument \code{rfac}.
+by the argument \code{R_factor}.
 
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.
 
 The option of including fishing is given, but the steady state may lose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stabilising effects (like \code{rfac}) to ensure the
+may wish to include stabilising effects (like \code{R_factor}) to ensure the
 steady state is stable. Fishing selectivity is modelled as a knife-edge
 function with one parameter, \code{knife_edge_size}, which is the size at
 which species are selected. Each species can either be fished by the same

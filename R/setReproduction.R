@@ -157,11 +157,13 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         
         # Set defaults for w_mat25
         if (!("w_mat25" %in% colnames(species_params))) {
-            species_params$w_mat25 <- species_params$w_mat/(3^(1/10))
+            species_params$w_mat25 <- 
+                species_params$w_mat / (3 ^ (1 / 10))
         }
         missing <- is.na(species_params$w_mat25)
         if (any(missing)) {
-            species_params$w_mat25[missing] <- species_params$w_mat[missing]/(3^(1/10))
+            species_params$w_mat25[missing] <- 
+                species_params$w_mat[missing] / (3 ^ (1 / 10))
         }
         # Check w_mat25
         assert_that(all(species_params$w_mat25 > species_params$w_min))
@@ -170,7 +172,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         
         maturity <- 
             unlist(
-                tapply(params@w, 1:length(params@w),
+                tapply(params@w, seq_along(params@w),
                        function(wx, w_inf, w_mat, w_mat25) {
                            U <- log(3) / log(w_mat / w_mat25)
                            return((1 + (wx / w_mat)^-U)^-1)
@@ -205,7 +207,7 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
         
         repro_prop <- array(
             unlist(
-                tapply(params@w, 1:length(params@w),
+                tapply(params@w, seq_along(params@w),
                        function(wx, w_inf, mn) (wx / w_inf)^(mn),
                        w_inf = params@species_params$w_inf,
                        mn = params@species_params$m - params@species_params$n
@@ -237,7 +239,6 @@ setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
     assert_that(all(params@species_params$erepro > 0))
     
     # RDD function is currently called only with three arguments
-    RDD_fn <- get(RDD)
     if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "t", "..."))) {
         stop("Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     }
