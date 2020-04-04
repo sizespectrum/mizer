@@ -121,6 +121,11 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
         assert_that(length(dim(selectivity)) == 3,
                     dim(selectivity)[[2]] == no_sp,
                     dim(selectivity)[[3]] == length(params@w))
+        if (!is.null(catchability)) {
+            assert_that(dim(selectivity)[[1]] == dim(catchability)[[1]])
+        } else {
+            assert_that(dim(selectivity)[[1]] == no_gears)
+        }
         params@selectivity <- selectivity
     } else {
         selectivity <- 
@@ -165,7 +170,8 @@ setFishing <- function(params, selectivity = NULL, catchability = NULL,
     
     if (!is.null(catchability)) {
         assert_that(length(dim(catchability)) == 2,
-                    dim(selectivity)[[2]] == no_sp)
+                    dim(catchability)[[1]] == dim(selectivity)[[1]],
+                    dim(catchability)[[2]] == no_sp)
         params@catchability <- catchability
     } else {
         catchability <- 

@@ -292,3 +292,18 @@ test_that("getN works", {
     N <- getN(sim)
     expect_known_value(N, "values/getN")
 })
+
+# getGrowthCurves ----
+test_that("getGrowthCurves works with MizerSim", {
+    ps <- setInitialValues(params, sim)
+    expect_identical(getGrowthCurves(sim),
+                     getGrowthCurves(ps))
+})
+
+# summary ----
+test_that("summary works", {
+    expect_output(summary(params),
+                  'An object of class "MizerParams"')
+    expect_output(summary(sim),
+                  'An object of class "MizerSim"')
+})
