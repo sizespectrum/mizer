@@ -20,7 +20,7 @@ getYieldVsFcurve(params, ixSpecies, nSteps = 10, Fmax = 3, bPlot = FALSE)
 \item{Frange}{The range of fishing mortalities to run over}
 }
 \value{
-An array containing the total yield
+An list with yields and fishing mortalities
 }
 \description{
 Calculates the yield of a species for a range of fishing mortalitiesfor species of each species across all gears at each

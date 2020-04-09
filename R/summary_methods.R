@@ -313,11 +313,13 @@ getYieldVsFcurve <- function(params,
     levels(gear$gear) = c(levels(gear$gear), 'tmp')
     gear[ixSpecies, 'gear'] = 'tmp'
     gear_params(params) <- gear
-    # Loop over fishing mortalities:
+    # First run with zero fishing mortality for 150 years
+    s = project(params, t_max=150, c(getInitialEffort(params), tmp=0))
     yield = 0*Frange
-    for (i in 1:length(Frange)) {
-        efforts = c(params@initial_effort, tmp=Frange[i])
-        s = project(params, effort=efforts)
+    # Loop over fishing mortalities:
+    for (i in 2:length(Frange)) {
+        efforts = c(getInitialEffort(params), tmp=Frange[i])
+        s = project(params, t_max=40, effort=efforts)
         y = getYield(s)
         yield[i] = y[ dim(y)[1], ixSpecies ]
     }
