@@ -251,12 +251,16 @@ validSpeciesParams <- function(species_params) {
         set_species_param_default("alpha", 0.6) %>% 
         set_species_param_default("interaction_p", 1)
     
-    if (any(species_params$w_mat25 >= species_params$w_mat)) {
-        idx <- which(species_params$w_mat25 >= species_params$w_mat)
-        message("For the species ", species_params$species[idx],
+    # For w_mat25 it is o.k. if it is NA, but if given it must be 
+    #  smaller than w_mat
+    wrong <- !is.na(species_params$w_mat25) &
+        species_params$w_mat25 >= species_params$w_mat
+    if (any(wrong)) {
+        message("For the species ", 
+                paste(species_params$species[wrong], collapse = ", "),
                 " the value for `w_mat25` is not smaller than that of `w_mat`.",
                 " I have corrected that by setting it to about 90% of `w_mat.")
-        species_params$w_mat25[idx] <- species_params$w_mat[idx]/(3^(1/10))
+        species_params$w_mat25[wrong] <- species_params$w_mat[wrong]/(3^(1/10))
     }
     
     species_params

@@ -101,32 +101,6 @@ test_that("w_min_idx is being set correctly", {
                  check.names = FALSE)
 })
 
-# Test default values ----
-test_that("default for gamma is correct", {
-    params <- NS_params
-    params@species_params$alpha <- 0.1
-    species_params <- params@species_params
-    gamma_default <- get_gamma_default(params)
-    # Compare to the analytic result
-    lm2 <- params@resource_params$lambda - 2
-    ae <- sqrt(2 * pi) * species_params$sigma * species_params$beta^lm2 *
-        exp(lm2^2 * species_params$sigma^2 / 2) *
-        # The factor on the following lines takes into account the cutoff
-        # of the integral at 0 and at beta + 3 sigma
-        (pnorm(3 - lm2 * species_params$sigma) + 
-             pnorm(log(species_params$beta)/species_params$sigma + 
-                       lm2 * species_params$sigma) - 1)
-    if (!"h" %in% names(params@species_params) || 
-        any(is.na(species_params$h))) {
-        species_params$h <- get_h_default(params)
-    }
-    gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) * 
-        (species_params$f0 / (1 - species_params$f0))
-    # TODO: reduce the tolerance below
-    expect_equal(gamma_default/ gamma_analytic, 
-                 rep(1, length(gamma_default)),
-                 tolerance = 0.1)
-})
 
 test_that("Slots are allowed to have comments", {
     params <- NS_params
