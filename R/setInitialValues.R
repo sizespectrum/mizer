@@ -24,7 +24,7 @@ setInitialValues <- function(params, sim) {
     assert_that(is(params, "MizerParams"),
                 is(sim, "MizerSim"))
     no_t <- dim(sim@n)[1]
-    if (!identical(dim(sim@n[no_t, , ]), dim(params@initial_n))) {
+    if (!identical(dim(sim@n)[2:3], dim(params@initial_n))) {
         stop("The consumer size spectrum of the simulation in `sim` has a ",
              "different size from that in `params`.")
     }
