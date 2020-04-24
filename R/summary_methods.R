@@ -484,7 +484,10 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
     cat("\tno. size bins:\t", length(object@w_full[object@initial_n_pp > 0]), 
         "\t(", length(object@w_full)," size bins in total)\n", sep = "")
     cat("Species details:\n")
-    sp <- object@species_params[,c("species","w_inf","w_mat","beta","sigma")]
+    sel_params <- intersect(c("species","w_inf","w_mat", "w_min", "f0", "fc", 
+                              "k_vb", "beta", "sigma"),
+                            names(object@species_params))
+    sp <- object@species_params[, sel_params]
     rownames(sp) <- NULL
     print(sp)
     cat("Fishing gear details:\n")

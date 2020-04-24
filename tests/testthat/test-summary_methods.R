@@ -302,8 +302,15 @@ test_that("getGrowthCurves works with MizerSim", {
 
 # summary ----
 test_that("summary works", {
+    # Check that it works also with nonstandard kernel
+    params@species_params$ppmr_min = 100
+    params@species_params$ppmr_max = 10000
+    params@species_params$beta <- NULL
+    params@species_params$sigma <- NULL
+    species_params(params)$pred_kernel_type <- "box"
     expect_output(summary(params),
                   'An object of class "MizerParams"')
+    sim <- project(params, t_max = 0.1)
     expect_output(summary(sim),
                   'An object of class "MizerSim"')
 })
