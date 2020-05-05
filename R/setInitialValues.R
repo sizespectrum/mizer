@@ -6,7 +6,8 @@
 #' @param params A [MizerParams()] object
 #' @param sim A `MizerSim` object.
 #'   
-#' @return The `params` object with updated initial values, taken from the
+#' @return The `params` object with updated initial values and initial effort, 
+#'   taken from the
 #'   values at the final time of the simulation in `sim`. Because of the way the
 #'   R language works, `setInitialValues()` does not make the changes to the
 #'   params object that you pass to it but instead returns a new params object.
@@ -34,11 +35,20 @@ setInitialValues <- function(params, sim) {
     }
     if (!identical(length(sim@n_pp[no_t, ]), length(params@initial_n_pp))) {
         stop("The number of other components in the simulation in `sim` is ",
-             "different size from that in `params`.")
+             "different from that in `params`.")
+    }
+    if (!identical(length(sim@effort[no_t, ]), length(params@initial_effort))) {
+        stop("The number of gears in the simulation in `sim` is ",
+             "different from that in `params`.")
+    }
+    if (!identical(dimnames(sim@effort)[[2]], names(params@initial_effort))) {
+        stop("The gears in the simulation in `sim` have different names ",
+             "from those in `params`.")
     }
     params@initial_n[] <- sim@n[no_t, , ]
     params@initial_n_pp[] <- sim@n_pp[no_t, ]
     params@initial_n_other <- sim@n_other[no_t, ]
+    params@initial_effort <- sim@effort[no_t, ]
     params
 }
 

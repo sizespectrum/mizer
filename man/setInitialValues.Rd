@@ -12,7 +12,8 @@ setInitialValues(params, sim)
 \item{sim}{A \code{MizerSim} object.}
 }
 \value{
-The \code{params} object with updated initial values, taken from the
+The \code{params} object with updated initial values and initial effort,
+taken from the
 values at the final time of the simulation in \code{sim}. Because of the way the
 R language works, \code{setInitialValues()} does not make the changes to the
 params object that you pass to it but instead returns a new params object.
