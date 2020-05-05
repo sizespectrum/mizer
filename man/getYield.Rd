@@ -32,8 +32,7 @@ Other summary functions:
 \code{\link{getGrowthCurves}()},
 \code{\link{getN}()},
 \code{\link{getSSB}()},
-\code{\link{getYieldGear}()},
-\code{\link{getYieldVsFcurve}()}
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}
 \concept{summary_function}

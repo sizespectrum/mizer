@@ -41,7 +41,6 @@ Other summary functions:
 \code{\link{getN}()},
 \code{\link{getSSB}()},
 \code{\link{getYieldGear}()},
-\code{\link{getYieldVsFcurve}()},
 \code{\link{getYield}()}
 }
 \concept{summary functions}
