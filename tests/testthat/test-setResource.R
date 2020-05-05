@@ -5,12 +5,12 @@ test_that("We can set and get resource parameters", {
   # Check that when called without parameters it leaves the params untouched
   expect_identical(params, setResource(params))
   # Create example parameters
-  r_resource <- params@w_full
-  comment(r_resource) <- "r_resource"
-  names(r_resource) <- names(params@rr_pp)
-  K_resource <- 2 * params@w_full
-  comment(K_resource) <- "K_resource"
-  names(K_resource) <- names(params@cc_pp)
+  resource_rate <- params@w_full
+  comment(resource_rate) <- "resource_rate"
+  names(resource_rate) <- names(params@rr_pp)
+  resource_capacity <- 2 * params@w_full
+  comment(resource_capacity) <- "resource_capacity"
+  names(resource_capacity) <- names(params@cc_pp)
   r_pp <- 12
   comment(r_pp) <- "r_pp"
   kappa <- 13
@@ -23,8 +23,8 @@ test_that("We can set and get resource parameters", {
   comment(w_pp_cutoff) <- "w_pp_cutoff"
   resource_dynamics <- "resource_constant"
   comment(resource_dynamics) <- "resource_dynamics"
-  params <- setResource(params, r_resource = r_resource, 
-                        K_resource = K_resource,
+  params <- setResource(params, resource_rate = resource_rate, 
+                        resource_capacity = resource_capacity,
                         r_pp = r_pp, kappa = kappa, lambda = lambda, n = n,
                         w_pp_cutoff = w_pp_cutoff, 
                         resource_dynamics = resource_dynamics)
@@ -34,8 +34,8 @@ test_that("We can set and get resource parameters", {
   expect_identical(resource_params(params)$n, n)
   expect_identical(resource_params(params)$w_pp_cutoff, w_pp_cutoff)
   expect_identical(getResourceDynamics(params), resource_dynamics)
-  expect_identical(getResourceRate(params), r_resource)
-  expect_identical(getResourceCapacity(params), K_resource)
+  expect_identical(getResourceRate(params), resource_rate)
+  expect_identical(getResourceCapacity(params), resource_capacity)
   # Check that comments protect
   expect_message(params <- setResource(params, r_pp = r_pp, kappa = kappa,
                                        lambda = lambda, n = n,
@@ -52,10 +52,10 @@ test_that("We can set and get resource parameters", {
                         w_pp_cutoff = w_pp_cutoff)
   expect_identical(unname(getResourceRate(params)),
                    r_pp * params@w_full^(n - 1))
-  K_resource <- getResourceCapacity(params)
+  resource_capacity <- getResourceCapacity(params)
   cc_pp <- kappa*params@w_full^(-lambda)
   expect_equivalent(cc_pp[params@w_full <= w_pp_cutoff],
-                   K_resource[params@w_full <= w_pp_cutoff])
+                   resource_capacity[params@w_full <= w_pp_cutoff])
   # resource_params<- sets rates correctly
   resource_params(NS_params) <- resource_params(params)
   expect_identical(NS_params, params)

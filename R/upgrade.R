@@ -155,8 +155,8 @@ upgradeParams <- function(params) {
         max_w = params@w[length(params@w)],
         min_w_pp = params@w_full[1] + 1e-16, # To make
         # sure that we don't add an extra bracket.
-        r_resource = params@rr_pp,
-        K_resource = params@cc_pp,
+        resource_rate = params@rr_pp,
+        resource_capacity = params@cc_pp,
         pred_kernel = pred_kernel,
         search_vol = params@search_vol,
         intake_max = params@intake_max,

@@ -12,14 +12,14 @@
 #' [resource_semichemostat()], and then passing the name of your
 #' function in the `resource_dynamics` argument.
 #' 
-#' The `r_resource` argument is a vector specifying the intrinsic resource
+#' The `resource_rate` argument is a vector specifying the intrinsic resource
 #' growth rate for each size class. If it is not supplied, then the intrinsic growth
 #' rate \eqn{r_p(w)} at size \eqn{w}
 #' is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-#' The values of \eqn{r_p} and \eqn{n} are taken from the `r_resource`
+#' The values of \eqn{r_p} and \eqn{n} are taken from the `resource_rate`
 #' and `n` arguments.
 #' 
-#' The `K_resource` argument is a vector specifying the intrinsic resource
+#' The `resource_capacity` argument is a vector specifying the intrinsic resource
 #' carrying capacity for each size class. If it is not supplied, then the 
 #' intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 #' is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
@@ -28,8 +28,8 @@
 #' and `lambda` arguments.
 #' 
 #' @param params A MizerParams object
-#' @param r_resource Optional. Vector of resource intrinsic birth rates
-#' @param K_resource Optional. Vector of resource intrinsic carrying capacity
+#' @param resource_rate Optional. Vector of resource intrinsic birth rates
+#' @param resource_capacity Optional. Vector of resource intrinsic carrying capacity
 #' @param r_pp Coefficient of the intrinsic resource birth rate
 #' @param n Allometric growth exponent for resource
 #' @param kappa Coefficient of the intrinsic resource carrying capacity
@@ -49,8 +49,8 @@
 #' @export
 #' @family functions for setting parameters
 setResource <- function(params,
-                        r_resource = NULL,
-                        K_resource = NULL,
+                        resource_rate = NULL,
+                        resource_capacity = NULL,
                         r_pp = resource_params(params)[["r_pp"]],
                         kappa = resource_params(params)[["kappa"]],
                         lambda = resource_params(params)[["lambda"]],
@@ -70,11 +70,11 @@ setResource <- function(params,
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
     # weight specific resource growth rate
-    if (!is.null(r_resource)) {
-        assert_that(is.numeric(r_resource),
-                    identical(length(r_resource), length(params@rr_pp)))
-        params@rr_pp[] <- r_resource
-        comment(params@rr_pp) <- comment(r_resource)
+    if (!is.null(resource_rate)) {
+        assert_that(is.numeric(resource_rate),
+                    identical(length(resource_rate), length(params@rr_pp)))
+        params@rr_pp[] <- resource_rate
+        comment(params@rr_pp) <- comment(resource_rate)
     } else {
         rr_pp <- r_pp * params@w_full^(n - 1)
         if (!is.null(comment(params@rr_pp)) &&
@@ -86,11 +86,11 @@ setResource <- function(params,
         }
     }
     # the resource carrying capacity
-    if (!is.null(K_resource)) {
-        assert_that(is.numeric(K_resource),
-                    identical(length(K_resource), length(params@cc_pp)))
-        params@cc_pp[] <- K_resource
-        comment(params@cc_pp) <- comment(K_resource)
+    if (!is.null(resource_capacity)) {
+        assert_that(is.numeric(resource_capacity),
+                    identical(length(resource_capacity), length(params@cc_pp)))
+        params@cc_pp[] <- resource_capacity
+        comment(params@cc_pp) <- comment(resource_capacity)
     } else {
         cc_pp <- kappa*params@w_full^(-lambda)
         cc_pp[params@w_full > w_pp_cutoff] <- 0

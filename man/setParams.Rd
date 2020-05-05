@@ -65,8 +65,8 @@ each species by each gear, \eqn{Q_{g,i}}.}
     \item{\code{initial_effort}}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
-    \item{\code{r_resource}}{Optional. Vector of resource intrinsic birth rates}
-    \item{\code{K_resource}}{Optional. Vector of resource intrinsic carrying capacity}
+    \item{\code{resource_rate}}{Optional. Vector of resource intrinsic birth rates}
+    \item{\code{resource_capacity}}{Optional. Vector of resource intrinsic carrying capacity}
     \item{\code{r_pp}}{Coefficient of the intrinsic resource birth rate}
     \item{\code{n}}{Allometric growth exponent for resource}
     \item{\code{kappa}}{Coefficient of the intrinsic resource carrying capacity}
@@ -517,14 +517,14 @@ resource dynamics by writing your own function, modelled on
 \code{\link[=resource_semichemostat]{resource_semichemostat()}}, and then passing the name of your
 function in the \code{resource_dynamics} argument.
 
-The \code{r_resource} argument is a vector specifying the intrinsic resource
+The \code{resource_rate} argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \eqn{r_p(w)} at size \eqn{w}
 is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-The values of \eqn{r_p} and \eqn{n} are taken from the \code{r_resource}
+The values of \eqn{r_p} and \eqn{n} are taken from the \code{resource_rate}
 and \code{n} arguments.
 
-The \code{K_resource} argument is a vector specifying the intrinsic resource
+The \code{resource_capacity} argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
 is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}

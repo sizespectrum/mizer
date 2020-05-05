@@ -91,8 +91,8 @@ newMultispeciesParams <- function(
     repro_prop = NULL,
     RDD = "BevertonHoltRDD",
     # setResource
-    r_resource = NULL,
-    K_resource = NULL,
+    resource_rate = NULL,
+    resource_capacity = NULL,
     n = 2 / 3,
     r_pp = 10,
     kappa = 1e11,
@@ -150,8 +150,8 @@ newMultispeciesParams <- function(
                   repro_prop = repro_prop,
                   RDD = RDD,
                   # setResource
-                  r_resource = r_resource,
-                  K_resource = K_resource,
+                  resource_rate = resource_rate,
+                  resource_capacity = resource_capacity,
                   r_pp = r_pp,
                   kappa = kappa,
                   lambda = lambda,
