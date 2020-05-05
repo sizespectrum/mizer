@@ -36,6 +36,12 @@
 #' params <- setRateFunction(params, "Rates", "myRates")
 #' ```
 #' 
+#' Your new rate functions may need their own model parameters. These you 
+#' can store in `other_params(params)`. For example
+#' ```
+#' other_params(params)$my_param <- 42
+#' ```
+#' 
 #' @param params A MizerParams object
 #' @param rate Name of the rate for which a new function is to be set.
 #' @param fun Name of the function to use to calculate the rate.
@@ -76,6 +82,29 @@ getRateFunction <- function(params, rate) {
              toString(names(params@rates_funcs)), ".")
     }
     params@rates_funcs[[rate]]
+}
+
+#' @rdname setRateFunction
+#' @return For `other_params()`: A named list with all the parameters for which
+#'   you have set values.
+#' @export
+other_params <- function(params) {
+    assert_that(is(params, "MizerParams"))
+    params@other_params$other
+}
+
+#' @rdname setRateFunction
+#' @param value Values for other parameters
+#' @export
+`other_params<-` <- function(params, value) {
+    assert_that(is(params, "MizerParams"))
+    if (!is.list(value) || is.null(names(value))) {
+        stop("other_params should be a named list.")
+    }
+    # We save the value in the $other slot in order to make it impossible for
+    # the user to overwrite component parameters by mistake.
+    params@other_params$other <- value
+    params
 }
 
 #' Add a dynamical ecosystem component
