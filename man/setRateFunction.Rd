@@ -3,11 +3,17 @@
 \name{setRateFunction}
 \alias{setRateFunction}
 \alias{getRateFunction}
+\alias{other_params}
+\alias{other_params<-}
 \title{Set own rate function to replace mizer rate function}
 \usage{
 setRateFunction(params, rate, fun)
 
 getRateFunction(params, rate)
+
+other_params(params)
+
+other_params(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -15,6 +21,8 @@ getRateFunction(params, rate)
 \item{rate}{Name of the rate for which a new function is to be set.}
 
 \item{fun}{Name of the function to use to calculate the rate.}
+
+\item{value}{Values for other parameters}
 }
 \value{
 For \code{setRateFunction()}: An updated MizerParams object
@@ -22,6 +30,9 @@ For \code{setRateFunction()}: An updated MizerParams object
 For \code{getRateFunction()}: The name of the registered rate function for
 the requested \code{rate}, or the list of all rate functions if called without
 \code{rate} argument.
+
+For \code{other_params()}: A named list with all the parameters for which
+you have set values.
 }
 \description{
 If the way mizer calculates a fundamental rate entering the model is
@@ -58,5 +69,9 @@ mortality rate, then you would call\preformatted{params <- setRateFunction(param
 
 In some extreme cases you may need to swap out the entire \code{mizerRates()}
 function for your own function called \code{myRates()}. That you can do with\preformatted{params <- setRateFunction(params, "Rates", "myRates")
+}
+
+Your new rate functions may need their own model parameters. These you
+can store in \code{other_params(params)}. For example\preformatted{other_params(params)$my_param <- 42
 }
 }

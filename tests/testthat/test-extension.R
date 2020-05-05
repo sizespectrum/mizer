@@ -33,6 +33,20 @@ test_that("getRateFunction works", {
     expect_identical(getRateFunction(params, rate = "Mort"), "mizerMort")
 })
 
+# other_params ----
+test_that("We can set and get other params", {
+    expect_length(other_params(params), 0)
+    expect_error(other_params(params) <- 5,
+                 "other_params should be a named list")
+    expect_error(other_params(params) <- list(5),
+                 "other_params should be a named list")
+    other_params(params)$test <- 5
+    expect_identical(other_params(params)$test, 5)
+    other_params(params)$test <- NULL
+    expect_length(other_params(params), 0)
+    expect_null(other_params(params)$test)
+})
+
 # components ----
 test_that("We can set, get and remove components", {
     expect_error(setComponent(params, "test", 1),
