@@ -417,7 +417,7 @@ remove(validMizerParams)
 #' slightly from the data frame supplied as argument to this function in the
 #' following ways:
 #' \itemize{
-#'   \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+#'   \item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_resource}.
 #'   \item The egg sizes in `w_min` are rounded down to lie on a grid point.
 #' }
 #' Note that the other characteristic sizes of the species, like `w_mat` and

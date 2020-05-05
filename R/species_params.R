@@ -167,7 +167,7 @@ get_gamma_default <- function(params) {
         params <- setSearchVolume(params)
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
-        params@species_params$interaction_p <- 1
+        params@species_params$interaction_resource <- 1
         params@initial_n_pp[] <- params@resource_params$kappa * 
             params@w_full^(-params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
@@ -249,7 +249,7 @@ validSpeciesParams <- function(species_params) {
         set_species_param_default("w_mat", species_params$w_inf / 4) %>% 
         set_species_param_default("w_min", 0.001) %>% 
         set_species_param_default("alpha", 0.6) %>% 
-        set_species_param_default("interaction_p", 1)
+        set_species_param_default("interaction_resource", 1)
     
     # For w_mat25 it is o.k. if it is NA, but if given it must be 
     #  smaller than w_mat

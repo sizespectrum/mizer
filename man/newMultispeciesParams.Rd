@@ -175,7 +175,7 @@ The \code{species_params} slot of the returned MizerParams object may differ
 slightly from the data frame supplied as argument to this function in the
 following ways:
 \itemize{
-\item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_p}.
+\item Default values are set for \code{w_min, w_inf, alpha, gear, interaction_resource}.
 \item The egg sizes in \code{w_min} are rounded down to lie on a grid point.
 }
 Note that the other characteristic sizes of the species, like \code{w_mat} and
@@ -255,7 +255,7 @@ the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
-\code{interaction_p} in the \code{species_params} data frame. Again the entries have to
+\code{interaction_resource} in the \code{species_params} data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.
 }
 

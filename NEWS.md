@@ -9,14 +9,19 @@
 
 ## Naming changes
 
+Some inconsistencies in the choice of names for parameters was removed by
+renaming
 
+* `interaction_p` -> `interaction_resource`
+* `r_resource` -> `resource_rate`
+* `K_resource` -> `resource_capacity`
 
 ## New functionality
 
 * New functions `other_params()<-` and `other_params()` for setting and 
   getting other parameters, for example to be used in user-defined rate
   functions.
-
+* `setInitialValues()` also sets `initial_effort`. #157
 
 # mizer 2.0.0 
 
@@ -205,7 +210,7 @@ species. The information is set up via a new `gear_params()` data frame. See
 * Users can now set their own resource dynamics instead of the default
   `resource_semichemostat()`.
 * Different species can interact with resource with different strengths, or not
-  feed on resource at all, controlled by an `interaction_p` column in the
+  feed on resource at all, controlled by an `interaction_resource` column in the
   species parameter data frame.
 * The steepness of the maturity ogive can now be controlled via a `w_mat25`
   column in the species parameter dataframe, which gives the size at which

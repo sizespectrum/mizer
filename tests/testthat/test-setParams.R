@@ -38,7 +38,7 @@ test_that("setInteraction works", {
                             prey = params@species_params$species)
     expect_message(setInteraction(params, inter),
                    "Dimnames of interaction matrix do not match")
-    params@species_params$interaction_p <- -1
+    params@species_params$interaction_resource <- -1
     expect_error(setInteraction(params),
                  "Values in the resource interaction vector should be between 0 and 1")
 })

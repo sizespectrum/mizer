@@ -117,7 +117,7 @@ getDiet <- function(params,
     }
     # Multiply by interaction matrix, including resource, and then by 
     # search volume
-    inter <- cbind(params@interaction, params@species_params$interaction_p)
+    inter <- cbind(params@interaction, params@species_params$interaction_resource)
     diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
                                            c(1, 3), inter, "*"), 
                                      c(1, 2), params@search_vol, "*")

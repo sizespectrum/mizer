@@ -42,6 +42,13 @@
 #' @export
 upgradeParams <- function(params) {
     
+    if ("interaction_p" %in% names(params@species_params)) {
+        params@species_params$interaction_resource <- 
+            params@species_params$interaction_p
+        params@species_params$interaction_p <- NULL
+        message("The 'interaction_p' column has been renamed to 'interaction_resource'.")
+    }
+    
     if (!.hasSlot(params, "gear_params")) {
         gear_params <- validGearParams(data.frame(), params@species_params)
     } else {

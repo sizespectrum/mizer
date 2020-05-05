@@ -56,7 +56,7 @@ the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command \code{read.csv()}.
 
 The interaction of the species with the resource are set via a column
-\code{interaction_p} in the \code{species_params} data frame. Again the entries have to
+\code{interaction_resource} in the \code{species_params} data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.
 }
 

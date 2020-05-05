@@ -29,7 +29,7 @@
 #' can be read into R using the command `read.csv()`.
 #'
 #' The interaction of the species with the resource are set via a column
-#' `interaction_p` in the `species_params` data frame. Again the entries have to
+#' `interaction_resource` in the `species_params` data frame. Again the entries have to
 #' be numbers between 0 and 1. By default this column is set to all 1s.
 #'
 #' @param params MizerParams object
@@ -91,17 +91,17 @@ setInteraction <- function(params,
     }
     params@interaction[] <- interaction
     
-    # Check the interaction_p column in species_params
-    message <- "Note: No interaction_p column in species data frame so assuming all species feed on resource."
+    # Check the interaction_resource column in species_params
+    message <- "Note: No interaction_resource column in species data frame so assuming all species feed on resource."
     species_params <- set_species_param_default(params@species_params,
-                                                "interaction_p", 1,
+                                                "interaction_resource", 1,
                                                 message = message)
     # Check that all values of interaction vector are 0 - 1.
-    if (!all((species_params$interaction_p >= 0) & 
-             (species_params$interaction_p <= 1))) {
+    if (!all((species_params$interaction_resource >= 0) & 
+             (species_params$interaction_resource <= 1))) {
         stop("Values in the resource interaction vector should be between 0 and 1")
     }
-    params@species_params$interaction_p <- species_params$interaction_p
+    params@species_params$interaction_resource <- species_params$interaction_resource
     
     return(params)
 }

@@ -129,7 +129,7 @@ mizerRates <- function(params, n, n_pp, n_other,
 #' \eqn{\phi(w,w_p)} is set with the [setPredKernel()] function. The
 #' species interaction matrix \eqn{\theta_{ij}} is set with [setInteraction()]
 #' and the resource interaction vector \eqn{\theta_{ip}} is taken from the
-#' `interaction_p` column in `params@species_params`.
+#' `interaction_resource` column in `params@species_params`.
 #' 
 #' @section Details:
 #' The encounter rate is multiplied by \eqn{1-f_0} to obtain the consumption rate,
@@ -172,13 +172,13 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
             c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
         # Eating the background
         # This line is a bottle neck
-        phi_prey_background <- params@species_params$interaction_p *
+        phi_prey_background <- params@species_params$interaction_resource *
             rowSums(sweep(
             params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
             "*", check.margin = FALSE), dims = 2)
         encounter <- params@search_vol * (phi_prey_species + phi_prey_background)
     } else {
-        prey <- outer(params@species_params$interaction_p, n_pp)
+        prey <- outer(params@species_params$interaction_resource, n_pp)
         prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% n
         # The vector prey equals everything inside integral (3.4) except the feeding
         # kernel phi_i(w_p/w).
@@ -351,7 +351,7 @@ mizerPredMort <- function(params, n, n_pp, n_other, pred_rate, ...) {
 mizerResourceMort <- 
     function(params, n, n_pp, n_other, pred_rate, ...) {
 
-    return(as.vector(params@species_params$interaction_p %*% pred_rate))
+    return(as.vector(params@species_params$interaction_resource %*% pred_rate))
 }
 
 

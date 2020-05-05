@@ -48,7 +48,7 @@ predator. It could be interpreted as a search volume and is set with the
 \eqn{\phi(w,w_p)} is set with the \code{\link[=setPredKernel]{setPredKernel()}} function. The
 species interaction matrix \eqn{\theta_{ij}} is set with \code{\link[=setInteraction]{setInteraction()}}
 and the resource interaction vector \eqn{\theta_{ip}} is taken from the
-\code{interaction_p} column in \code{params@species_params}.
+\code{interaction_resource} column in \code{params@species_params}.
 }
 
 \section{Details}{
