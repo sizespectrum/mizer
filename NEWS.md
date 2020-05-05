@@ -1,4 +1,4 @@
-# mizer 2.0.0.9001
+# mizer 2.0.1
 
 ## Bug fixes
 
@@ -23,8 +23,8 @@ renaming
   functions.
 * `setInitialValues()` also sets `initial_effort`. #157
 
-# mizer 2.0.0 
 
+# mizer 2.0.0 
 
 This is a major new release with many new features, an internal refactoring of
 the code and a new extension mechanism. 
