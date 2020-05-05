@@ -1,3 +1,22 @@
+# mizer 2.0.0.9001
+
+## Bug fixes
+
+* `summary()` now also works with non-default feeding kernels. #159
+* `validSpeciesParams()` no longer fails when `w_mat25` is not specified. #160
+* `setInitialValues()` also works in a model with only a single species. #161
+* `resource_params()<-` now works and has unit tests.
+
+## Naming changes
+
+
+
+## New functionality
+
+* New functions `other_params()<-` and `other_params()` for setting and 
+  getting other parameters, for example to be used in user-defined rate
+  functions.
+
 
 # mizer 2.0.0 
 
