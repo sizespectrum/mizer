@@ -75,7 +75,7 @@ rate and use setRateFunction() to register it with mizer." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
@@ -137,7 +137,11 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
 
     <pre class="usage"><span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>, <span class='no'>fun</span>)
 
-<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>)</pre>
+<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>)
+
+<span class='fu'>other_params</span>(<span class='no'>params</span>)
+
+<span class='fu'>other_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,6 +158,10 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
       <th>fun</th>
       <td><p>Name of the function to use to calculate the rate.</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>Values for other parameters</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -162,6 +170,8 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
 <p>For <code>getRateFunction()</code>: The name of the registered rate function for
 the requested <code>rate</code>, or the list of all rate functions if called without
 <code>rate</code> argument.</p>
+<p>For <code>other_params()</code>: A named list with all the parameters for which
+you have set values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>At each time step during a simulation with the <code><a href='project.html'>project()</a></code> function, mizer
@@ -191,9 +201,12 @@ mortality rate, then you would call</p><pre><span class='no'>params</span> <span
 <p>In some extreme cases you may need to swap out the entire <code><a href='mizerRates.html'>mizerRates()</a></code>
 function for your own function called <code>myRates()</code>. That you can do with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"Rates"</span>, <span class='st'>"myRates"</span>)</pre>
 
+<p>Your new rate functions may need their own model parameters. These you
+can store in <code>other_params(params)</code>. For example</p><pre><span class='fu'>other_params</span>(<span class='no'>params</span>)$<span class='no'>my_param</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fl'>42</span></pre>
+
 
   </div>
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
@@ -207,7 +220,7 @@ function for your own function called <code>myRates()</code>. That you can do wi
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

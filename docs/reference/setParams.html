@@ -84,7 +84,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
@@ -220,8 +220,8 @@ each species by each gear, \(Q_{g,i}\).</p></dd>
     <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></dd>
-    <dt><code>r_resource</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
-    <dt><code>K_resource</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
+    <dt><code>resource_rate</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
+    <dt><code>resource_capacity</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
     <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic resource birth rate</p></dd>
     <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
     <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>
@@ -335,7 +335,7 @@ it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
 <p>The interaction of the species with the resource are set via a column
-<code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries have to
+<code>interaction_resource</code> in the <code>species_params</code> data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
@@ -611,13 +611,13 @@ by the function <code><a href='resource_semichemostat.html'>resource_semichemost
 resource dynamics by writing your own function, modelled on
 <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>, and then passing the name of your
 function in the <code>resource_dynamics</code> argument.</p>
-<p>The <code>r_resource</code> argument is a vector specifying the intrinsic resource
+<p>The <code>resource_rate</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_resource</code>
+The values of \(r_p\) and \(n\) are taken from the <code>resource_rate</code>
 and <code>n</code> arguments.</p>
-<p>The <code>K_resource</code> argument is a vector specifying the intrinsic resource
+<p>The <code>resource_capacity</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -645,7 +645,7 @@ and <code>lambda</code> arguments.</p>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
@@ -659,7 +659,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

@@ -81,7 +81,7 @@ details and examples of the trait-based model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
       </span>
     </div>
 
@@ -172,7 +172,7 @@ details and examples of the trait-based model.</p>
   <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>ext_mort_prop</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>rfac</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>R_factor</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>gear_names</span> <span class='kw'>=</span> <span class='st'>"knife_edge_gear"</span>,
   <span class='kw'>knife_edge_size</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
   <span class='kw'>egg_size_scaling</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
@@ -300,10 +300,10 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).</p></td>
     </tr>
     <tr>
-      <th>rfac</th>
-      <td><p>The factor such that <code>R_max = rfac * R</code>, where <code>R_max</code>
+      <th>R_factor</th>
+      <td><p>The factor such that <code>R_max = R_factor * R</code>, where <code>R_max</code>
 is the maximum reproduction rate allowed and <code>R</code> is the steady-state
-reproduction rate. Thus the larger <code>rfac</code> the less the impact of the
+reproduction rate. Thus the larger <code>R_factor</code> the less the impact of the
 density-dependence.</p></td>
     </tr>
     <tr>
@@ -362,12 +362,12 @@ initial condition that is close to steady state.</p>
 imposing additional density-dependence, the function can set a Beverton-Holt
 type density-dependence that imposes a maximum for the reproduction rate that
 is a multiple of the reproduction rate at steady state. That multiple is set
-by the argument <code>rfac</code>.</p>
+by the argument <code>R_factor</code>.</p>
 <p>The search rate coefficient <code>gamma</code> is calculated using the expected
 feeding level, <code>f0</code>.</p>
 <p>The option of including fishing is given, but the steady state may lose its
 natural stability if too much fishing is included. In such a case the user
-may wish to include stabilising effects (like <code>rfac</code>) to ensure the
+may wish to include stabilising effects (like <code>R_factor</code>) to ensure the
 steady state is stable. Fishing selectivity is modelled as a knife-edge
 function with one parameter, <code>knife_edge_size</code>, which is the size at
 which species are selected. Each species can either be fished by the same
@@ -392,7 +392,7 @@ abundance through time after the projection.</p>
 <span class='fu'><a href='plotSpectra.html'>plotSpectra</a></span>(<span class='no'>sim</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
@@ -406,7 +406,7 @@ abundance through time after the projection.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
