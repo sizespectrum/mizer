@@ -254,10 +254,6 @@ upgradeParams <- function(params) {
         pnew@A <- params@A
     }
     
-    if (.hasSlot(params, "rates_func")) {
-        pnew@rates_funcs$getRates <- params@rates_func
-    }
-    
     # Copy over all comments
     comment(pnew) <- comment(params)
     for (slot in slotNames(pnew)) {

@@ -1,3 +1,12 @@
+# mizer 2.0.1.9000
+
+## Bug fixes
+
+* `upgradeParams()` works also on params objects that were created with a
+  development version of mizer
+
+
+
 # mizer 2.0.1
 
 ## Bug fixes
