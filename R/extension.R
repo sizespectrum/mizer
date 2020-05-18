@@ -30,6 +30,12 @@
 #' ```
 #' params <- setRateFunction(params, "Mort", "myMort")
 #' ```
+#' In general if you want to replace a function `mizerSomeRateFunc()` with
+#' a function `myVersionOfThis()` you would call
+#' ```
+#' params <- setRateFunction(params, "SomeRateFunc", "myVersionOfThis")
+#' ```
+#' 
 #' In some extreme cases you may need to swap out the entire `mizerRates()`
 #' function for your own function called `myRates()`. That you can do with
 #' ```
