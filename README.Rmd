@@ -38,7 +38,7 @@ changed by the user.
 
 Mizer has been supporting research in marine ecology and fisheries science 
 since 2014 
-([see publications](https://sizespectrum.org/mizer/articles/publications.html). 
+([see publications](https://sizespectrum.org/mizer/articles/publications.html)). 
 It is still under active
 development. The new version 2.0 has increased the user-friendliness and the
 flexibility of the framework. Contributions from the user community are very
@@ -58,6 +58,38 @@ No 634495 for the project MINOUW (http://minouw-project.eu/) and the Australian
 Research Council Discovery Project [Rewiring Marine Food Webs](http://marinesocioecology.org/rewiring-marine-food-webs/).
 
 
+## Smooth traffic on the biomass highway
+To understand what mizer has to contribute to fisheries management, it
+is best to think of the marine ecosystem as a transport system that
+moves biomass from the size of primary producers (mostly unicellular
+plankton) up to the sizes of fish that humans like to consume.
+Each fish that grows up from egg size to maturity by eating smaller
+individuals is like a car on this biomass highway. The yield of our
+fisheries depend on this traffic flowing smoothly and without traffic jams.
+
+In road traffic, if traffic density gets too high in a section of the highway,
+drivers slow down, which leads to a pile-up producing even higher traffic
+density, leading to further slow-down in a potentially vicious cycle known as a
+traffic jam. Traffic management that ignores how the traffic density affects
+traffic speed fails. Luckily our mathematical understanding of transport
+equations has made practical contributions to managing traffic in ways that
+produce smoother traffic flow and hence higher throughput.
+
+Mizer implements the transport equations for marine ecosystems. The
+potential for traffic jams is the same: if for example there is a high density
+of predators of a particular size, which all have preference for prey of a
+particular smaller size, then due to competition for that prey the growth of
+those predators slows down, leading to a pile-up which leads to further 
+depletion of prey, leading to further slow-down, in a potentially vicious cycle.
+
+Luckily the natural ecosystem has evolved to facilitate extremely smooth traffic
+on the biomass highway with resultant high productivity. This state is
+characterised by an approximate power-law shape of the biomass size spectrum.
+The purpose of mizer is to allow us to understand how various stressors, like
+fishing or climate change, affect the size spectrum and hence  flow of biomass
+and the productivity and resilience of the marine ecosystem. Mizer allows us to
+investigate how size-based fisheries management strategies can be used to keep
+the ecosystem close to its natural productive state.
 
 ## Installation
 
