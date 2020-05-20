@@ -135,7 +135,7 @@ reproduction will be described further below.
 
 ## Resource density
 
-Besides the fish spectrum there is also a resource spectrum $NResource(w)$,
+Besides the fish spectrum there is also a resource spectrum $N_R(w)$,
 representing for example the phytoplankton. This spectrum starts at a smaller
 size than the fish spectrum, in order to provide food also for the smallest
 individuals (larvae) of the fish spectrum.
@@ -146,17 +146,17 @@ semi-chemostat equation.
 The semichemostat dynamics are given by
 \begin{equation}
   \label{eq:nb}
-  \frac{\partial N_p(w,t)}{\partial t} 
-  = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
+  \frac{\partial N_R(w,t)}{\partial t} 
+  = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w) N_R(w,t).
 \end{equation}
-Here $r_p(w)$ is the resource regeneration rate and $c_p(w)$ is the carrying
+Here $r_R(w)$ is the resource regeneration rate and $c_R(w)$ is the carrying
 capacity in the absence of predation. These parameters are changed with
 `setResource()`. By default mizer assumes allometric forms
-\[r_p(w)= r_p\, w^{n-1}.\]
-\[c_p(w)=\kappa\, w^{-\lambda}.\]
+\[r_R(w)= r_R\, w^{n-1}.\]
+\[c_R(w)=\kappa\, w^{-\lambda}.\]
 You can retrieve these with `getResourceRate()` and `getResourceCapacity()`
 respectively. It is also possible to implement other resource dynamics, as
-described in the help page for `setResource()`. The mortality $\mu_p(w)$ is
+described in the help page for `setResource()`. The mortality $\mu_R(w)$ is
 due to predation by consumers and is described in the subsection 
 [Resource mortality].
 
@@ -167,7 +167,7 @@ of `w`. The function `w_full()` gives the vector of sizes and `dw_full()`
 gives the vector of bin sizes.
 
 The resource spectrum is then represented by a vector `NResource` such that
-`NResource[c]` =$N_p($`w_full[c]`$)$.
+`NResource[c]` =$N_R($`w_full[c]`$)$.
 
 </details>
 
@@ -189,7 +189,7 @@ integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 \begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
-   \theta_{ip} N_R(w_p) + \right) 
+   \theta_{iR} N_R(w_p) + \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}
 This is calculated by `getEncounter()`.
@@ -226,7 +226,7 @@ The integral in the expression for the encounter rate is approximated by a
 Riemann sum over all weight brackets:
 \[
 {\tt encounter}[i,a] = {\tt search\_vol}[i,a]\sum_{k}
-\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
+\left( n_{R}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
   \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 \]
 In the case of a predation kernel that depends on $w/w_p$ only, this becomes
