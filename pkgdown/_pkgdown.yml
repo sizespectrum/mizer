@@ -216,6 +216,7 @@ reference:
   - set_trait_model
   - MizerParams
   - getESpawning
+  - getPhiPrey
   - getM2
   - getM2Background
   - getZ
