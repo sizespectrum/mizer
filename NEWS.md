@@ -3,7 +3,9 @@
 ## Bug fixes
 
 * `upgradeParams()` works also on params objects that were created with a
-  development version of mizer
+  development version of mizer.
+* `getFeedingLevel()` and `getPredMort()` now works also when model has extra 
+  components.
 
 
 
