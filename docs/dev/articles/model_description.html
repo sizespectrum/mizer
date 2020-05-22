@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9000</span>
       </span>
     </div>
 
@@ -50,8 +50,52 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/index.html">Guides</a>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">For developers</li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
+    </li>
+    <li>
+      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -130,14 +174,14 @@ And clicking again will hide the details again.
 <div id="resource-density" class="section level2">
 <h2 class="hasAnchor">
 <a href="#resource-density" class="anchor"></a>Resource density</h2>
-<p>Besides the fish spectrum there is also a resource spectrum <span class="math inline">\(NResource(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the resource spectrum is described by a semi-chemostat equation.</p>
+<p>Besides the fish spectrum there is also a resource spectrum <span class="math inline">\(N_R(w)\)</span>, representing for example the phytoplankton. This spectrum starts at a smaller size than the fish spectrum, in order to provide food also for the smallest individuals (larvae) of the fish spectrum. By default the time evolution of the resource spectrum is described by a semi-chemostat equation.</p>
 <details><p>The semichemostat dynamics are given by <span class="math display">\[\begin{equation}
   \label{eq:nb}
-  \frac{\partial N_p(w,t)}{\partial t} 
-  = r_p(w) \Big[ c_p (w) - N_p(w,t) \Big] - \mu_p(w) N_p(w,t).
-\end{equation}\]</span> Here <span class="math inline">\(r_p(w)\)</span> is the resource regeneration rate and <span class="math inline">\(c_p(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setResource.html">setResource()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_p(w)= r_p\, w^{n-1}.\]</span> <span class="math display">\[c_p(w)=\kappa\, w^{-\lambda}.\]</span> You can retrieve these with <code><a href="../reference/setResource.html">getResourceRate()</a></code> and <code><a href="../reference/setResource.html">getResourceCapacity()</a></code> respectively. It is also possible to implement other resource dynamics, as described in the help page for <code><a href="../reference/setResource.html">setResource()</a></code>. The mortality <span class="math inline">\(\mu_p(w)\)</span> is due to predation by consumers and is described in the subsection <a href="#resource-mortality">Resource mortality</a>.</p>
+  \frac{\partial N_R(w,t)}{\partial t} 
+  = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w) N_R(w,t).
+\end{equation}\]</span> Here <span class="math inline">\(r_R(w)\)</span> is the resource regeneration rate and <span class="math inline">\(c_R(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setResource.html">setResource()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_R(w)= r_R\, w^{n-1}.\]</span> <span class="math display">\[c_R(w)=\kappa\, w^{-\lambda}.\]</span> You can retrieve these with <code><a href="../reference/setResource.html">getResourceRate()</a></code> and <code><a href="../reference/setResource.html">getResourceCapacity()</a></code> respectively. It is also possible to implement other resource dynamics, as described in the help page for <code><a href="../reference/setResource.html">setResource()</a></code>. The mortality <span class="math inline">\(\mu_R(w)\)</span> is due to predation by consumers and is described in the subsection <a href="#resource-mortality">Resource mortality</a>.</p>
 <p>Because the resource spectrum spans a different range of sizes these sizes are discretized into a different vector of weights <code>w_full</code>. The last entries of <code>w_full</code> have to coincide with the entries of <code>w</code>. The function <code><a href="../reference/w.html">w_full()</a></code> gives the vector of sizes and <code><a href="../reference/w.html">dw_full()</a></code> gives the vector of bin sizes.</p>
-<p>The resource spectrum is then represented by a vector <code>NResource</code> such that <code>NResource[c]</code> =<span class="math inline">\(N_p(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
+<p>The resource spectrum is then represented by a vector <code>NResource</code> such that <code>NResource[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details>
 </div>
 </div>
@@ -151,7 +195,7 @@ And clicking again will hide the details again.
 <p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the resource spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
-   \theta_{ip} N_R(w_p) + \right) 
+   \theta_{iR} N_R(w_p) + \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
 <p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and resource. It is changed with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>
@@ -166,7 +210,7 @@ And clicking again will hide the details again.
 \]</span> where <span class="math inline">\(\beta_i\)</span> is the preferred predator-prey mass ratio and <span class="math inline">\(\sigma_i\)</span> sets the width of the predation kernel.</p>
 <p>The integral in the expression for the encounter rate is approximated by a Riemann sum over all weight brackets: <span class="math display">\[
 {\tt encounter}[i,a] = {\tt search\_vol}[i,a]\sum_{k}
-\left( n_{pp}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
+\left( n_{R}[k] + \sum_{j} \theta[i,j] n[j,k] \right) 
   \phi_i\left(w[a],w[k]\right) w[k]\, dw[k].
 \]</span> In the case of a predation kernel that depends on <span class="math inline">\(w/w_p\)</span> only, this becomes a convolution sum and can be evaluated efficiently via fast Fourier transform.</p>
 </details>
@@ -277,7 +321,7 @@ And clicking again will hide the details again.
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
         <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
     </nav>
@@ -292,7 +336,7 @@ And clicking again will hide the details again.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

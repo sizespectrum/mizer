@@ -75,7 +75,7 @@ rate and use setRateFunction() to register it with mizer." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9000</span>
       </span>
     </div>
 
@@ -93,8 +93,52 @@ rate and use setRateFunction() to register it with mizer." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="../articles/index.html">Guides</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">For developers</li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
+    </li>
+    <li>
+      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -137,7 +181,11 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
 
     <pre class="usage"><span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>, <span class='no'>fun</span>)
 
-<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>)</pre>
+<span class='fu'>getRateFunction</span>(<span class='no'>params</span>, <span class='no'>rate</span>)
+
+<span class='fu'>other_params</span>(<span class='no'>params</span>)
+
+<span class='fu'>other_params</span>(<span class='no'>params</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,6 +202,10 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
       <th>fun</th>
       <td><p>Name of the function to use to calculate the rate.</p></td>
     </tr>
+    <tr>
+      <th>value</th>
+      <td><p>Values for other parameters</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -162,6 +214,8 @@ rate and use <code>setRateFunction()</code> to register it with mizer.</p>
 <p>For <code>getRateFunction()</code>: The name of the registered rate function for
 the requested <code>rate</code>, or the list of all rate functions if called without
 <code>rate</code> argument.</p>
+<p>For <code>other_params()</code>: A named list with all the parameters for which
+you have set values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>At each time step during a simulation with the <code><a href='project.html'>project()</a></code> function, mizer
@@ -186,14 +240,20 @@ following components:</p><ul>
 you have written your own function for calculating the total mortality
 rate and have called it <code>myMort</code> and have a mizer model stored in a
 MizerParams object called <code>params</code> that you want to run with your new
-mortality rate, then you would call</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span>)</pre>
+mortality rate, then you would call</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"Mort"</span>, <span class='st'>"myMort"</span>)</pre>
+
+<p>In general if you want to replace a function <code>mizerSomeRateFunc()</code> with
+a function <code>myVersionOfThis()</code> you would call</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"SomeRateFunc"</span>, <span class='st'>"myVersionOfThis"</span>)</pre>
 
 <p>In some extreme cases you may need to swap out the entire <code><a href='mizerRates.html'>mizerRates()</a></code>
-function for your own function called <code>myRates()</code>. That you can do with</p><pre><span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"Rates"</span>, <span class='st'>"myRates"</span>)</pre>
+function for your own function called <code>myRates()</code>. That you can do with</p><pre><span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setRateFunction</span>(<span class='no'>params</span>, <span class='st'>"Rates"</span>, <span class='st'>"myRates"</span>)</pre>
+
+<p>Your new rate functions may need their own model parameters. These you
+can store in <code>other_params(params)</code>. For example</p><pre><span class='fu'>other_params</span>(<span class='no'>params</span>)$<span class='no'>my_param</span> <span class='kw'>&lt;-</span> <span class='fl'>42</span></pre>
 
 
   </div>
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
@@ -207,7 +267,7 @@ function for your own function called <code>myRates()</code>. That you can do wi
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

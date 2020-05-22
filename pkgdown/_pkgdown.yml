@@ -25,15 +25,13 @@ navbar:
     left: [home, intro, reference, articles, publications, news]
     right: [github]
   components:
-    articles:
-      text: Guides
-      href: articles/index.html
     publications:
       text: Publications
       href: articles/publications.html
 
 articles:
 - title: User Guide
+  navbar: ~
   contents:
   - mizer
   - model_description
@@ -45,6 +43,7 @@ articles:
   - a_multispecies_model_of_the_north_sea
   - plotting
 - title: Developer Guide
+  navbar: For developers
   contents:
   - developer_vignette
   - working_with_git

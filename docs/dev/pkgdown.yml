@@ -1,6 +1,6 @@
 pandoc: 2.7.3
-pkgdown: 1.5.0.9000
-pkgdown_sha: ~
+pkgdown: 1.5.1.9000
+pkgdown_sha: 3b74d8860686ed6d63e536d7ec4971fbbde5faff
 articles:
   _build_model_1: Lysekil/_build_model_1.html
   _build_model_2: Lysekil/_build_model_2.html
@@ -12,6 +12,7 @@ articles:
   developer_vignette: developer_vignette.html
   editing_website: editing_website.html
   exploring_the_simulation_results: exploring_the_simulation_results.html
+  making_modifications: making_modifications.html
   mizer: mizer.html
   model_description: model_description.html
   multispecies_model: multispecies_model.html
@@ -20,7 +21,7 @@ articles:
   running_a_simulation: running_a_simulation.html
   trait_model: trait_model.html
   working_with_git: working_with_git.html
-last_built: 2020-04-04T12:27Z
+last_built: 2020-05-22T11:25Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

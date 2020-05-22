@@ -84,7 +84,7 @@ See the Details section below for a discussion of how to use this function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9000</span>
       </span>
     </div>
 
@@ -102,8 +102,52 @@ See the Details section below for a discussion of how to use this function." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="../articles/index.html">Guides</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">For developers</li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
+    </li>
+    <li>
+      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -178,7 +222,7 @@ default all entries are 1. See "Setting interactions" section below.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setResource.html'>setResource</a></code></p><dl'>
+      <td><p>Arguments passed on to <code><a href='setPredKernel.html'>setPredKernel</a></code>, <code><a href='setSearchVolume.html'>setSearchVolume</a></code>, <code><a href='setMaxIntakeRate.html'>setMaxIntakeRate</a></code>, <code><a href='setMetabolicRate.html'>setMetabolicRate</a></code>, <code><a href='setExtMort.html'>setExtMort</a></code>, <code><a href='setReproduction.html'>setReproduction</a></code>, <code><a href='setFishing.html'>setFishing</a></code>, <code><a href='setResource.html'>setResource</a></code></p><dl>
     <dt><code>pred_kernel</code></dt><dd><p>Optional. An array (species x predator size x prey size)
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
@@ -220,8 +264,8 @@ each species by each gear, \(Q_{g,i}\).</p></dd>
     <dt><code>initial_effort</code></dt><dd><p>Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></dd>
-    <dt><code>r_resource</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
-    <dt><code>K_resource</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
+    <dt><code>resource_rate</code></dt><dd><p>Optional. Vector of resource intrinsic birth rates</p></dd>
+    <dt><code>resource_capacity</code></dt><dd><p>Optional. Vector of resource intrinsic carrying capacity</p></dd>
     <dt><code>r_pp</code></dt><dd><p>Coefficient of the intrinsic resource birth rate</p></dd>
     <dt><code>n</code></dt><dd><p>Allometric growth exponent for resource</p></dd>
     <dt><code>kappa</code></dt><dd><p>Coefficient of the intrinsic resource carrying capacity</p></dd>
@@ -249,8 +293,8 @@ function to effect the change. Note that just changing the species parameters
 by themselves is not changing the model until you call <code>setParams()</code> or the
 appropriate one of its sub-functions. Here is an example which assumes that
 you have have a MizerParams object <code>params</code> in which you just want to change
-one parameter of the third species:</p><pre><span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span><span class='kw'>[[</span><span class='fl'>3</span>]] <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fl'>1000</span>
-<span class='no'>params</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>setParams</span>(<span class='no'>params</span>)</pre>
+one parameter of the third species:</p><pre><span class='no'>params</span>@<span class='kw'>species_params</span>$<span class='no'>gamma</span><span class='kw'>[[</span><span class='fl'>3</span>]] <span class='kw'>&lt;-</span> <span class='fl'>1000</span>
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)</pre>
 
 <p>Because of the way the R language works, <code>setParams</code> does not make the
 changes to the <code>params</code> object that you pass to it but instead returns a new
@@ -271,8 +315,8 @@ above example you would have used <code>params &lt;- setSearchVolume(params)</co
 instead of <code>params &lt;- setParams(params)</code>.</p>
 <p>If you have added a comment to a slot of the params object, then setParams()
 and its subfunctions will not recalculate the value for that slot from the
-species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='no'>params</span>@<span class='kw'>search_vol</span>) <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='st'>"This should not change"</span>
-<span class='fu'>species_params</span>(<span class='no'>params</span>)$<span class='no'>gamma</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fl'>10</span></pre>
+species parameters. For example</p><pre><span class='fu'><a href='https://rdrr.io/r/base/comment.html'>comment</a></span>(<span class='no'>params</span>@<span class='kw'>search_vol</span>) <span class='kw'>&lt;-</span> <span class='st'>"This should not change"</span>
+<span class='fu'>species_params</span>(<span class='no'>params</span>)$<span class='no'>gamma</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span></pre>
 
 <p>will just issue a warning "The search volume has been commented and therefore
 will not be recalculated from the species parameters". You can remove the
@@ -335,7 +379,7 @@ it is different. One way of creating your own interaction matrix is to enter
 the data using a spreadsheet program and saving it as a .csv file. The data
 can be read into R using the command <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv()</a></code>.</p>
 <p>The interaction of the species with the resource are set via a column
-<code>interaction_p</code> in the <code>species_params</code> data frame. Again the entries have to
+<code>interaction_resource</code> in the <code>species_params</code> data frame. Again the entries have to
 be numbers between 0 and 1. By default this column is set to all 1s.</p>
     <h2 class="hasAnchor" id="setting-predation-kernel"><a class="anchor" href="#setting-predation-kernel"></a>Setting predation kernel</h2>
 
@@ -611,13 +655,13 @@ by the function <code><a href='resource_semichemostat.html'>resource_semichemost
 resource dynamics by writing your own function, modelled on
 <code><a href='resource_semichemostat.html'>resource_semichemostat()</a></code>, and then passing the name of your
 function in the <code>resource_dynamics</code> argument.</p>
-<p>The <code>r_resource</code> argument is a vector specifying the intrinsic resource
+<p>The <code>resource_rate</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
 rate \(r_p(w)\) at size \(w\)
 is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>r_resource</code>
+The values of \(r_p\) and \(n\) are taken from the <code>resource_rate</code>
 and <code>n</code> arguments.</p>
-<p>The <code>K_resource</code> argument is a vector specifying the intrinsic resource
+<p>The <code>resource_capacity</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
 intrinsic carrying capacity \(c_p(w)\) at size \(w\)
 is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
@@ -645,7 +689,7 @@ and <code>lambda</code> arguments.</p>
 <span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>setParams</span>(<span class='no'>params</span>)
 }</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs" id="pkgdown-sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
@@ -659,7 +703,7 @@ and <code>lambda</code> arguments.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

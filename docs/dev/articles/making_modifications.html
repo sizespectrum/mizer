@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Developer FAQ • mizer</title>
+<title>Making modifications to the standard multispecies mizer model • mizer</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Developer FAQ">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Making modifications to the standard multispecies mizer model">
 <meta property="og:description" content="mizer">
 <meta name="robots" content="noindex">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -124,63 +124,18 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Developer FAQ</h1>
+      <h1 data-toc-skip>Making modifications to the standard multispecies mizer model</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/developer_FAQ.Rmd"><code>vignettes/developer_FAQ.Rmd</code></a></small>
-      <div class="hidden name"><code>developer_FAQ.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/master/vignettes/making_modifications.Rmd"><code>vignettes/making_modifications.Rmd</code></a></small>
+      <div class="hidden name"><code>making_modifications.Rmd</code></div>
 
     </div>
 
     
     
-<p>Clicking on a question will reveal the answer.</p>
-<details><p><summary>How can I prepare a pull request without a clean master branch?</summary> If you want to contribute some of your code to the official mizer code at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a> you need to first create a branch in your repository that differs from the master branch of sizespectrum/mizer only by the code that you want to contribute, not by any other changes that you may have made in your fork. This answer explains how.</p>
-<p>We assume that you have not followed the recommendation of keeping your master branch identical with that at sizespectrum/master, because if you had you could simply follow the procedure described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial. Given that your master branch differs from that at sizespectrum/mizer, you need to create a new branch not from your master branch but directly from that at sizespectrum/master. Follow the following steps:</p>
-<ol style="list-style-type: decimal">
-<li><p>Go to the “Terminal” tab in Rstudio. This should be the tab next to the “Console” tab. If it is not there and you don’t know why not, then you are possibly running an old version of RStudio and you will want to update to a newer version, which is easy from the Help menu under “Check for Updates”.</p></li>
-<li><p>Make sure you have set the upstream repository correctly. You can check this with the command in the terminal</p></li>
-</ol>
-<pre><code>git remote -v</code></pre>
-<p>If that does not list sizespectrum/mizer as the upstream repository for both fetch and push, then you should execute the command</p>
-<pre><code>git remote add upstream https://github.com/sizespectrum/mizer.git</code></pre>
-<ol start="3" style="list-style-type: decimal">
-<li>Choose a name for your branch. It should be something that indicates the feature you want to implement with the pull request. Then issue the commands</li>
-</ol>
-<pre><code>git fetch upstream
-git checkout -b name_of_your_branch upstream/master
-git push --set-upstream origin name_of_your_branch</code></pre>
-<p>where you should replace both <code>name_of_your_branch</code> with the actual name that you<br>
-have chosen for you branch.</p>
-You now have a new branch that is identical to sizespectrum/master. You can now commit the relevant new code to this branch and create a pull request, as described in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial
-</details><details><p><summary>How can I get a clean master branch?</summary> The recommended way of working in your fork of the mizer project is to keep the master branch of your repository always in sync with the master branch at <a href="https://github.com/sizespectrum/mizer" class="uri">https://github.com/sizespectrum/mizer</a>, and to create a feature branch for any of your code changes, as is explained in the “<a href="working_with_git.html#creating-a-branch">Creating a branch</a>” section of the “Working with git and GitHub” tutorial. Note however that having a clean master branch is not a prerequisite to making pull requests, see the answer to “<a href="#how-can-i-prepare-a-pull-request-without-a-clean-master-branch">How can I prepare a pull request without a clean master branch?</a>” above.</p>
-<p>However if you would like to have a clean master branch, you can follow these steps:</p>
-<ol style="list-style-type: decimal">
-<li>Create a new branch for the content of your current master branch, so that you can still switch to it in the future. To create this new branch, first make sure you have selected the master branch on the “Switch branch” dropdown in RStudio Git panel and then click the button to the left of that dropdown.
-<center>
-<img src="images/new_branch_button.png" style="width:30.0%">
-</center>
-</li>
-</ol>
-<p>In the dialog box enter a name for your new branch and click “Create”.</p>
-<ol start="2" style="list-style-type: decimal">
-<li><p>Go to the “Terminal” tab in Rstudio. This should be the tab next to the “Console” tab. If it is not there and you don’t know why not, then you are possibly running a very old version of RStudio and you will want to update to a newer version, which is easy from the Help menu under “Check for Updates”.</p></li>
-<li><p>Make sure you have set the upstream repository correctly. You can check this with the command in the terminal</p></li>
-</ol>
-<pre><code>git remote -v</code></pre>
-<p>If that does not list sizespectrum/mizer as the upstream repository for both fetch and push, then you should execute the command</p>
-<pre><code>git remote add upstream https://github.com/sizespectrum/mizer.git</code></pre>
-<ol start="4" style="list-style-type: decimal">
-<li>Now issue the following commands in the terminal:</li>
-</ol>
-<pre><code>git checkout master
-git pull upstream master
-git reset --hard upstream/master
-git push origin master --force</code></pre>
-<p>Now both your local repository and your GitHub repository have the master branch identical to the official master branch. You can now create new feature branches by branching off from this master branch in preparation for submitting pull requests, as explained in the “<a href="working_with_git.html">Working with git and GitHub</a>” tutorial.</p>
-You can of course still get at your modified code by switching to the branch you created in the first step above.
-</details>
-</div>
+<p>Mizer allows you to set up a multispecies model with only a very minimal of required information. All you need is a data frame that for each species specifies its maximum size <code>w_inf</code>,</p>
+  </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
