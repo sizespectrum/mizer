@@ -21,8 +21,8 @@ returns the fishing effort of each gear through time.
 \code{\link[=times]{times()}} returns the vector of times at which simulation results
 were stored and \code{\link[=idxFinalT]{idxFinalT()}} returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
-functions. T\code{\link[=params]{params()}} returns the \code{MizerParams} object that was
-passed in to \code{project()}. There are also several
+functions. \code{\link[=params]{params()}} returns the \code{MizerParams} object that was
+passed to \code{project()}. There are also several
 \link{summary_functions} and \link{plotting_functions}
 available to explore the contents of a \code{MizerSim} object.
 

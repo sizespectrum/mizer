@@ -67,6 +67,10 @@ MizerParams object called \code{params} that you want to run with your new
 mortality rate, then you would call\preformatted{params <- setRateFunction(params, "Mort", "myMort")
 }
 
+In general if you want to replace a function \code{mizerSomeRateFunc()} with
+a function \code{myVersionOfThis()} you would call\preformatted{params <- setRateFunction(params, "SomeRateFunc", "myVersionOfThis")
+}
+
 In some extreme cases you may need to swap out the entire \code{mizerRates()}
 function for your own function called \code{myRates()}. That you can do with\preformatted{params <- setRateFunction(params, "Rates", "myRates")
 }

@@ -127,8 +127,8 @@ valid_MizerSim <- function(object) {
 #' [times()] returns the vector of times at which simulation results
 #' were stored and [idxFinalT()] returns the index with which to access
 #' specifically the value at the final time in the arrays returned by the other
-#' functions. T[params()] returns the `MizerParams` object that was
-#' passed in to `project()`. There are also several
+#' functions. [params()] returns the `MizerParams` object that was
+#' passed to `project()`. There are also several
 #' [summary_functions] and [plotting_functions]
 #' available to explore the contents of a `MizerSim` object.
 #' 
