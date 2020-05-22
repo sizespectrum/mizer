@@ -50,7 +50,7 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     # Force other componens to stay at current level
     old_other_dynamics <- p@other_dynamics
     for (res in names(p@other_dynamics)) {
-        p@other_dynamics[[res]] <- constant_other(res)
+        p@other_dynamics[[res]] <- "constant_other"
     }
     
     n <- p@initial_n
@@ -173,7 +173,6 @@ retune_erepro <- function(params, species = species_params(params)$species) {
 
 
 # Helper function to keep other components constant
-constant_other <- function(other_name) {
-    force(other_name)
-    function(params, n, n_pp, n_other, rates, t, dt, ...) n_other[[other_name]]
+constant_other <- function(params, n_other, component, ...) {
+    n_other[[component]]
 }
