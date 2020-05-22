@@ -62,6 +62,10 @@ test_that("We can set, get and remove components", {
                       encounter_fun = "test_dyn",
                       mort_fun = "test_dyn",
                       component_params = list(a = 2))
+    expect_identical(p@other_dynamics, list(test = "test_dyn"))
+    expect_identical(p@other_encounter, list(test = "test_dyn"))
+    expect_identical(p@other_mort, list(test = "test_dyn"))
+    expect_identical(p@other_params, list(test = list(a = 2)))
     comp <- getComponent(p, "test")
     expect_mapequal(comp, list(initial_value = 1,
                                encounter_fun = "test_dyn",
@@ -135,4 +139,22 @@ test_that("We can access simulation results", {
     expect_identical(finalNOther(sim), list("test" = test_dyn(p)))
     expect_identical(NOther(sim)[2, ], list(test_dyn(p)))
     expect_identical(NOther(sim)[1, ], list(1))
+})
+
+test_that("component can mimic resource", {
+    params <- NS_params
+    initialNResource(params) <- initialNResource(params) / 10
+    component_params <- list(capacity = params@cc_pp,
+                             rate = params@rr_pp)
+    params2 <- params %>% 
+        setComponent("resource",
+                     initial_value = initialNResource(params),
+                     dynamics_fun = "semichemostat",
+                     component_params = component_params) %>% 
+        setRateFunction("Encounter", "resource_encounter")
+    sim <- project(params, t_max = 0.1, t_save = 0.1, effort = 0)
+    sim2 <- project(params2, t_max = 0.1, t_save = 0.1, effort = 0)
+    expect_identical(finalNResource(sim2), finalNOther(sim2)$resource)
+    expect_identical(finalNResource(sim), finalNResource(sim2))
+    expect_identical(finalN(sim), finalN(sim2))
 })

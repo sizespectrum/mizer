@@ -2,7 +2,7 @@
 % Please edit documentation in R/extension.R
 \name{test_dyn}
 \alias{test_dyn}
-\title{Dummy function used during testing only}
+\title{Dummy functions used during testing only}
 \usage{
 test_dyn(params, ...)
 }
@@ -12,5 +12,5 @@ test_dyn(params, ...)
 \item{...}{Other parameters}
 }
 \description{
-Dummy function used during testing only
+Dummy functions used during testing only
 }

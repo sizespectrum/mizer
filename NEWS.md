@@ -7,6 +7,12 @@
 * `getFeedingLevel()` and `getPredMort()` now works also when model has extra 
   components.
 
+## Minor enhancements
+
+* Some improvements to documentation.
+* More unit tests.
+* In extension mechanism, now the name of a component is also passed to the
+  functions implementing dynamics, encounter and mortality.
 
 
 # mizer 2.0.1

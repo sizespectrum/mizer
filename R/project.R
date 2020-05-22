@@ -295,7 +295,8 @@ project <- function(object, effort,
                     n_other = n_other_current,
                     rates = r,
                     t = t,
-                    dt = dt
+                    dt = dt,
+                    component = res
                 )
         }
         

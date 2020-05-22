@@ -203,11 +203,12 @@ mizerEncounter <- function(params, n, n_pp, n_other, ...) {
     dimnames(encounter) <- dimnames(params@metab)
     
     # Add contributions from other components
-    for (fun_name in params@other_encounter) {
+    for (i in seq_along(params@other_encounter)) {
         encounter <- encounter + 
-            do.call(fun_name, 
+            do.call(params@other_encounter[[i]], 
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other, ...))
+                         n = n, n_pp = n_pp, n_other = n_other,
+                         component = names(params@other_encounter)[[i]], ...))
     }
     
     return(encounter)
@@ -417,11 +418,12 @@ mizerFMort <- function(params, effort, ...) {
 mizerMort <- function(params, n, n_pp, n_other, f_mort, pred_mort, ...){
     mort <- pred_mort + params@mu_b + f_mort
     # Add contributions from other components
-    for (fun_name in params@other_mort) {
+    for (i in seq_along(params@other_mort)) {
         mort <- mort + 
-            do.call(fun_name, 
+            do.call(params@other_mort[[i]], 
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other, ...))
+                         n = n, n_pp = n_pp, n_other = n_other,
+                         component = names(params@other_mort)[[i]], ...))
     }
     return(mort)
 }

@@ -274,11 +274,20 @@ finalNOther <- function(sim) {
     n_other
 }
 
-#' Dummy function used during testing only
+#' Dummy functions used during testing only
 #' 
 #' @param params A MizerParams object
 #' @param ... Other parameters
-#' @export
 test_dyn <- function(params, ...) {
     111
+}
+semichemostat <- function(params, n_other, rates, dt, component, ...) {
+    c <- params@other_params[[component]]
+    interaction <- params@species_params$interaction_resource
+    mort <- as.vector(interaction  %*% rates$pred_rate)
+    tmp <- c$rate * c$capacity / (c$rate + mort)
+    return(tmp - (tmp - n_other[[component]]) * exp(-(c$rate + mort) * dt))
+}
+resource_encounter <- function(params, n, n_pp, n_other, ...) {
+    mizerEncounter(params, n = n, n_pp = n_other$resource, ...)
 }
