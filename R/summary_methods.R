@@ -47,36 +47,36 @@ NULL
 #' returned rate is zero.
 #'
 #' @param params A MizerParams object
-#' @inheritParams getFeedingLevel
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the 
 #'   consumption rate in grams.
 #' 
 #' @return An array (predator species  x predator size x 
-#'   (prey species + resource) )
+#'   (prey species + resource + other components) )
 #' @export
 #' @family summary functions
 #' @concept summary_function
-getDiet <- function(params, 
+getDiet <- function(params,
                     n = initialN(params), 
                     n_pp = initialNResource(params),
+                    n_other = initialNOther(params),
                     proportion = TRUE) {
     # The code is based on that for getEncounter()
-    assert_that(is(params, "MizerParams"),
-                is.array(n),
-                is.numeric(n),
-                is.numeric(n_pp))
+    assert_that(is(params, "MizerParams"))
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
+    no_other <- length(params@other_encounter)
+    other_names <- names(params@other_encounter)
     assert_that(identical(dim(n), c(no_sp, no_w)),
                 length(n_pp) == no_w_full)
-    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1),
+    diet <- array(0, dim = c(no_sp, no_w, no_sp + 1 + no_other),
                   dimnames = list("predator" = species,
                                   "w" = dimnames(params@initial_n)$w,
                                   "prey" = c(as.character(species), 
-                                             "Resource")))
+                                             "Resource",
+                                             other_names)))
     # idx_sp are the index values of object@w_full such that
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
@@ -121,7 +121,15 @@ getDiet <- function(params,
     diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
                                            c(1, 3), inter, "*"), 
                                      c(1, 2), params@search_vol, "*")
-
+    # Add diet from other components
+    for (i in seq_along(params@other_encounter)) {
+        diet[, , no_sp + 1 + i] <-
+            do.call(params@other_encounter[[i]], 
+                    list(params = params,
+                         n = n, n_pp = n_pp, n_other = n_other,
+                         component = names(params@other_encounter)[[i]]))
+    }
+    
     # Correct for satiation and keep only entries corresponding to fish sizes
     f <- getFeedingLevel(params, n, n_pp)
     fish_mask <- n > 0

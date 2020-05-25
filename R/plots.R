@@ -27,7 +27,9 @@
 #'   [plotFMort()] \tab Plots the total fishing mortality of each species against size. \cr
 #'   [plotYield()] \tab Plots the total yield of each species across all fishing gears against time. \cr
 #'   [plotYieldGear()] \tab Plots the total yield of each species by gear against time. \cr
-#'   [plot()] \tab Produces 5 plots ([plotFeedingLevel()], [plotBiomass()], [plotPredMort()], [plotFMort()] and [plotSpectra()]) in the same window as a summary. \cr
+#'   [plotDiet()] \tab Plots the diet composition at size for a given predator species. \cr
+#'   [plotGrowthCurves()] \tab Plots the size as a function of age. \cr
+#'   [plot()] \tab Produces 5 plots ([plotFeedingLevel()], [plotBiomass()], [plotPredMort()], [plotFMort()] and [plotSpectra()]) in the same window. \cr
 #' }
 #' 
 #' These functions use the ggplot2 package and return the plot as a ggplot
@@ -1062,6 +1064,7 @@ plotlyGrowthCurves <- function(object, species,
 #' Plot diet
 #' 
 #' @inheritParams plotSpectra
+#' @param species The name of the species whose diet should be plotted
 #'
 #' @return A plot
 #' @export

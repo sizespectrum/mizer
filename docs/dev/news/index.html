@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9001</span>
       </span>
     </div>
 
@@ -178,7 +178,7 @@
 <li>
 <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> works also on params objects that were created with a development version of mizer.</li>
 <li>
-<code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code> and <code><a href="../reference/getPredMort.html">getPredMort()</a></code> now works also when model has extra components.</li>
+<code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>, <code><a href="../reference/getPredMort.html">getPredMort()</a></code> and <code><a href="../reference/steady.html">steady()</a></code> now works also when model has extra components.</li>
 </ul>
 </div>
 <div id="minor-enhancements" class="section level2">
@@ -187,6 +187,8 @@
 <ul>
 <li>Some improvements to documentation.</li>
 <li>More unit tests.</li>
+<li>
+<code><a href="../reference/getDiet.html">getDiet()</a></code> also takes into account possible contributions by user-defined other components.</li>
 <li>In extension mechanism, now the name of a component is also passed to the functions implementing dynamics, encounter and mortality.</li>
 </ul>
 </div>

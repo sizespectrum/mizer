@@ -9,8 +9,7 @@ plotDiet(object, species)
 \arguments{
 \item{object}{An object of class \linkS4class{MizerSim} or \linkS4class{MizerParams}.}
 
-\item{species}{Name or vector of names of the species to be plotted. By
-default all species are plotted.}
+\item{species}{The name of the species whose diet should be plotted}
 }
 \value{
 A plot

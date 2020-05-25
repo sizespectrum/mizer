@@ -22,7 +22,9 @@ Plot \tab Description \cr
 \code{\link[=plotFMort]{plotFMort()}} \tab Plots the total fishing mortality of each species against size. \cr
 \code{\link[=plotYield]{plotYield()}} \tab Plots the total yield of each species across all fishing gears against time. \cr
 \code{\link[=plotYieldGear]{plotYieldGear()}} \tab Plots the total yield of each species by gear against time. \cr
-\code{\link[=plot]{plot()}} \tab Produces 5 plots (\code{\link[=plotFeedingLevel]{plotFeedingLevel()}}, \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotPredMort]{plotPredMort()}}, \code{\link[=plotFMort]{plotFMort()}} and \code{\link[=plotSpectra]{plotSpectra()}}) in the same window as a summary. \cr
+\code{\link[=plotDiet]{plotDiet()}} \tab Plots the diet composition at size for a given predator species. \cr
+\code{\link[=plotGrowthCurves]{plotGrowthCurves()}} \tab Plots the size as a function of age. \cr
+\code{\link[=plot]{plot()}} \tab Produces 5 plots (\code{\link[=plotFeedingLevel]{plotFeedingLevel()}}, \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotPredMort]{plotPredMort()}}, \code{\link[=plotFMort]{plotFMort()}} and \code{\link[=plotSpectra]{plotSpectra()}}) in the same window. \cr
 }
 
 These functions use the ggplot2 package and return the plot as a ggplot

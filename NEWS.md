@@ -11,6 +11,8 @@
 
 * Some improvements to documentation.
 * More unit tests.
+* `getDiet()` also takes into account possible contributions by user-defined
+  other components.
 * In extension mechanism, now the name of a component is also passed to the
   functions implementing dynamics, encounter and mortality.
 

@@ -73,7 +73,7 @@ consumes biomass of each prey species and resource." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">2.0.1.9001</span>
       </span>
     </div>
 
@@ -179,6 +179,7 @@ consumes biomass of each prey species and resource.</p>
   <span class='no'>params</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
   <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
+  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
   <span class='kw'>proportion</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -188,14 +189,6 @@ consumes biomass of each prey species and resource.</p>
     <tr>
       <th>params</th>
       <td><p>A MizerParams object</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size).</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the resource abundance by size</p></td>
     </tr>
     <tr>
       <th>proportion</th>
@@ -208,7 +201,7 @@ consumption rate in grams.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An array (predator species  x predator size x
-(prey species + resource) )</p>
+(prey species + resource + other components) )</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function performs the same integration as

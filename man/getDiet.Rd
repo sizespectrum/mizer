@@ -8,15 +8,12 @@ getDiet(
   params,
   n = initialN(params),
   n_pp = initialNResource(params),
+  n_other = initialNOther(params),
   proportion = TRUE
 )
 }
 \arguments{
 \item{params}{A MizerParams object}
-
-\item{n}{A matrix of species abundances (species x size).}
-
-\item{n_pp}{A vector of the resource abundance by size}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
 proportion of the total consumption rate. If FALSE it returns the
@@ -24,7 +21,7 @@ consumption rate in grams.}
 }
 \value{
 An array (predator species  x predator size x
-(prey species + resource) )
+(prey species + resource + other components) )
 }
 \description{
 Calculates the rate at which a predator of a particular species and size
