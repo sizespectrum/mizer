@@ -4,8 +4,8 @@
 
 * `upgradeParams()` works also on params objects that were created with a
   development version of mizer.
-* `getFeedingLevel()`, `getPredMort()` and `steady()` now works also when model
-  has extra components.
+* `getFeedingLevel()`, `getPredMort()`, `setInitialValues()` and `steady()` now
+  works also when model has extra components.
 
 ## Minor enhancements
 
