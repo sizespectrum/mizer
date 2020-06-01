@@ -1,7 +1,4 @@
 params <- NS_params
-test_dyn <- function(params, ...) {
-    111
-}
 
 # setRateFunction works ----
 test_that("setRateFunction works", {
@@ -19,7 +16,7 @@ test_that("setRateFunction works", {
                     n_other = initialNOther(p),
                     effort = 0,
                     rates_fns = lapply(p@rates_funcs, get))
-    expect_identical(r$e_growth, test_dyn(params))
+    expect_identical(r$e_growth, 111)
 })
 
 # getRateFunction works ----
@@ -123,11 +120,11 @@ test_that("encounter and mortality functions are called", {
                       dynamics_fun = "test_dyn",
                       encounter_fun = "test_dyn",
                       mort_fun = "test_dyn")
-    expect_identical(getEncounter(p), e + test_dyn(params))
+    expect_identical(getEncounter(p), e + 111)
     p <- setComponent(params, "test", 1, 
                       dynamics_fun = "test_dyn",
                       mort_fun = "test_dyn")
-    expect_identical(getMort(p), m + test_dyn(params))
+    expect_identical(getMort(p), m + 111)
 })
 
 test_that("We can access simulation results", {
@@ -136,8 +133,8 @@ test_that("We can access simulation results", {
                       encounter_fun = "test_dyn",
                       mort_fun = "test_dyn")
     sim <- project(p, t_max = 0.2, t_save = 0.1)
-    expect_identical(finalNOther(sim), list("test" = test_dyn(p)))
-    expect_identical(NOther(sim)[2, ], list(test_dyn(p)))
+    expect_identical(finalNOther(sim), list("test" = 111))
+    expect_identical(NOther(sim)[2, ], list(111))
     expect_identical(NOther(sim)[1, ], list(1))
 })
 

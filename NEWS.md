@@ -22,6 +22,8 @@
 * If `project()` is called with `t_max < t_save` then `t_save` is automatically
   reduced so that the result at `t_max` will get saved.
 * Start showing progress bar earlier during `project()`.
+* New helper function `project_simple()` that projects a given number of
+  time steps. This might be useful to extension writers.
 
 
 # mizer 2.0.1

@@ -221,27 +221,10 @@ project <- function(object, effort,
     sim <- MizerSim(params, t_dimnames = t_dimnames)
     
     ## Initialise ----
-    
-    # Handy things
-    no_sp <- nrow(params@species_params) # number of species
-    no_w <- length(params@w) # number of fish size bins
-    idx <- 2:no_w
+    # get functions
     resource_dynamics_fn <- get(params@resource_dynamics)
     other_dynamics_fns <- lapply(params@other_dynamics, get)
     rates_fns <- lapply(params@rates_funcs, get)
-    # Hacky shortcut to access the correct element of a 2D array using 1D notation
-    # This references the egg size bracket for all species, so for example
-    # n[w_minidx_array_ref] = n[,w_min_idx]
-    w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
-    
-    # Matrices for solver
-    a <- matrix(0, nrow = no_sp, ncol = no_w)
-    b <- matrix(0, nrow = no_sp, ncol = no_w)
-    S <- matrix(0, nrow = no_sp, ncol = no_w)
-    
-    n <- initial_n
-    n_pp <- initial_n_pp
-    n_other <- initial_n_other
     
     # Set up progress bar
     if (progress_bar == TRUE) {
@@ -265,70 +248,30 @@ project <- function(object, effort,
     t_next_effort <- time_effort[[2]] - 1e-8  # to avoid rounding problems
     
     # Set initial population and effort
+    n_list <- list(n = initial_n, n_pp = initial_n_pp, n_other = initial_n_other)
     sim@n[1, , ] <- initial_n 
     sim@n_pp[1, ] <- initial_n_pp
     sim@n_other[1, ] <- initial_n_other
     sim@effort[1, ] <- current_effort
     
     ## Loop over time ----
-    for (i_time in 1:(round(t_max / dt))) {
-        r <- rates_fns$Rates(
-            params, n = n, n_pp = n_pp, n_other = n_other,
-            t = t, effort = current_effort, rates_fns = rates_fns)
+    for (i in 2:length(t_dimnames)) {
         
-        # Update time
-        t <- t + dt
+        n_list <- project_simple(
+            params, n = n_list$n, n_pp = n_list$n_pp, n_other = n_list$n_other,
+            t = t, dt = dt, steps = skip, effort = current_effort,
+            resource_dynamics_fn = resource_dynamics_fn,
+            other_dynamics_fns = other_dynamics_fns,
+            rates_fns = rates_fns)
+        t <- t + t_save
         
-        # Update other components
-        n_other_current <- n_other  # So that the resource dynamics can still 
-                                    # use the current value
-        for (res in other_names) {
-            n_other[[res]] <-
-                other_dynamics_fns[[res]](
-                    params,
-                    n = n,
-                    n_pp = n_pp,
-                    n_other = n_other_current,
-                    rates = r,
-                    t = t,
-                    dt = dt,
-                    component = res
-                )
+        # Advance progress bar
+        if (is(progress_bar, "Progress")) {
+            progress_bar$inc(amount = proginc)
         }
-        
-        # Update resource
-        n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
-                                     n_other = n_other_current, rates = r,
-                                     t = t, dt = dt)
-        
-        # Iterate species one time step forward:
-        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
-        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
-                          sim@params@dw[idx], "/")
-        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
-        b[, idx] <- 1 + sweep(r$e_growth[, idx, drop = FALSE] * dt, 2, 
-                              sim@params@dw[idx], "/") +
-                        r$mort[, idx, drop = FALSE] * dt
-        # S_{ij} <- N_i(w_j)
-        S[,idx] <- n[, idx, drop = FALSE]
-        # Boundary condition upstream end (reproduction)
-        b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
-                                        sim@params@dw[sim@params@w_min_idx] +
-                                    r$mort[w_min_idx_array_ref] * dt
-        # Update first size group of n
-        n[w_min_idx_array_ref] <-
-            (n[w_min_idx_array_ref] + r$rdd * dt / 
-                 sim@params@dw[sim@params@w_min_idx]) /
-            b[w_min_idx_array_ref]
-        # Update n
-        # for (i in 1:no_sp) # number of species assumed small, so no need to 
-        #                      vectorize this loop over species
-        #     for (j in (sim@params@w_min_idx[i]+1):no_w)
-        #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
-        # This is implemented via Rcpp
-        n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
-                                A = a, B = b, S = S,
-                                w_min_idx = sim@params@w_min_idx)
+        if (progress_bar == TRUE) {
+            pb$tick()
+        }
         
         # Do we need new effort?
         if (t >= t_next_effort) {
@@ -340,22 +283,11 @@ project <- function(object, effort,
                                     t_max + 100)
         }
         
-        # Do we need to store results?
-        if (i_time %% skip == 0) {
-            # Advance progress bar
-            if (is(progress_bar, "Progress")) {
-                progress_bar$inc(amount = proginc)
-            }
-            if (progress_bar == TRUE) {
-                pb$tick()
-            }
-            # Store result
-            sim@n[i_save_time, , ] <- n
-            sim@n_pp[i_save_time, ] <- n_pp
-            sim@n_other[i_save_time, ] <- n_other
-            sim@effort[i_save_time, ] <- current_effort
-            i_save_time <- i_save_time + 1
-        }
+        # Store result
+        sim@n[i, , ] <- n_list$n
+        sim@n_pp[i, ] <- n_list$n_pp
+        sim@n_other[i, ] <- n_list$n_other
+        sim@effort[i, ] <- current_effort
     }
     
     # append to previous simulation ----
@@ -378,6 +310,105 @@ project <- function(object, effort,
         return(new_sim)
     }
     return(sim)
+}
+
+#' Project abundances by a given number of time steps into the future
+#' 
+#' This is an internal function used by the user-facing `project()` function.
+#' Of interest only potentially to mizer extension authors.
+#' 
+#' @param params A MizerParams object.
+#' @param n Number density at start of simulation.
+#' @param n_pp Resource number density at start of simulation.
+#' @param n_other Abundances of other components at start of simulation.
+#' @param t Time at the start of the simulation.
+#' @param dt Size of time step.
+#' @param steps The number of time steps by which to project.
+#' @param effort The fishing effort to be used throughout the simulation.
+#' @param resource_dynamics_fn The function (not its name) for the resource
+#'   dynamics.
+#' @param other_dynamics_fns List with the functions (not their names) for the
+#'   dynamics of the other components.
+#' @param rates_fns List with the functions (not their names) for calculating
+#'   the rates.
+#' @return List with the final values of `n`, `n_pp` and `n_other`.
+#' @export
+project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
+                           effort, resource_dynamics_fn, other_dynamics_fns,
+                           rates_fns) {    
+    # Handy things
+    no_sp <- nrow(params@species_params) # number of species
+    no_w <- length(params@w) # number of fish size bins
+    idx <- 2:no_w
+    # Hacky shortcut to access the correct element of a 2D array using 1D notation
+    # This references the egg size bracket for all species, so for example
+    # n[w_minidx_array_ref] = n[,w_min_idx]
+    w_min_idx_array_ref <- (params@w_min_idx - 1) * no_sp + (1:no_sp)
+    # Matrices for solver
+    a <- matrix(0, nrow = no_sp, ncol = no_w)
+    b <- matrix(0, nrow = no_sp, ncol = no_w)
+    S <- matrix(0, nrow = no_sp, ncol = no_w)
+    
+    for (i_time in 1:steps) {
+        r <- rates_fns$Rates(
+            params, n = n, n_pp = n_pp, n_other = n_other,
+            t = t, effort = effort, rates_fns = rates_fns)
+        
+        # Update time
+        t <- t + dt
+        
+        # Update other components
+        n_other_current <- n_other  # So that the resource dynamics can still 
+        # use the current value
+        for (component in names(params@other_dynamics)) {
+            n_other[[component]] <-
+                other_dynamics_fns[[component]](
+                    params,
+                    n = n,
+                    n_pp = n_pp,
+                    n_other = n_other_current,
+                    rates = r,
+                    t = t,
+                    dt = dt,
+                    component = component
+                )
+        }
+        
+        # Update resource
+        n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
+                                     n_other = n_other_current, rates = r,
+                                     t = t, dt = dt)
+        
+        # Iterate species one time step forward:
+        # a_{ij} = - g_i(w_{j-1}) / dw_j dt
+        a[, idx] <- sweep(-r$e_growth[, idx - 1, drop = FALSE] * dt, 2,
+                          params@dw[idx], "/")
+        # b_{ij} = 1 + g_i(w_j) / dw_j dt + \mu_i(w_j) dt
+        b[, idx] <- 1 + sweep(r$e_growth[, idx, drop = FALSE] * dt, 2, 
+                              params@dw[idx], "/") +
+            r$mort[, idx, drop = FALSE] * dt
+        # S_{ij} <- N_i(w_j)
+        S[,idx] <- n[, idx, drop = FALSE]
+        # Boundary condition upstream end (reproduction)
+        b[w_min_idx_array_ref] <- 1 + r$e_growth[w_min_idx_array_ref] * dt /
+            params@dw[params@w_min_idx] +
+            r$mort[w_min_idx_array_ref] * dt
+        # Update first size group of n
+        n[w_min_idx_array_ref] <-
+            (n[w_min_idx_array_ref] + r$rdd * dt / 
+                 params@dw[params@w_min_idx]) /
+            b[w_min_idx_array_ref]
+        # Update n
+        # for (i in 1:no_sp) # number of species assumed small, so no need to 
+        #                      vectorize this loop over species
+        #     for (j in (params@w_min_idx[i]+1):no_w)
+        #         n[i,j] <- (S[i,j] - A[i,j]*n[i,j-1]) / B[i,j]
+        # This is implemented via Rcpp
+        n <- inner_project_loop(no_sp = no_sp, no_w = no_w, n = n,
+                                A = a, B = b, S = S,
+                                w_min_idx = params@w_min_idx)
+    }
+    return(list(n = n, n_pp = n_pp, n_other = n_other))
 }
 
 

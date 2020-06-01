@@ -194,6 +194,7 @@ reference:
   - retune_erepro
   - get_required_reproduction
   - emptyParams
+  - project_simple
 - title: Classes
   contents:
   - MizerParams-class
