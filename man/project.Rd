@@ -80,7 +80,7 @@ constant fishing effort of each of the fishing gears, i.e. the effort is
 constant through time but each gear may have a different fishing effort.
 \item A numerical array with dimensions time x gear. This specifies the
 fishing effort of each gear at each time step.  The first dimension, time,
-must be named numerically and contiguously. The second dimension of the array
+must be named numerically and increasing. The second dimension of the array
 must be named and the names must correspond to the gear names in the
 \code{MizerParams} argument. The value for the effort for a particular time
 is used during the interval from that time to the next time in the array.
@@ -118,8 +118,4 @@ effort_array[,"Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[,"Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
 }
-}
-\seealso{
-\code{\link[=MizerParams]{MizerParams()}}, \code{\link[=summary_functions]{summary_functions()}},
-\code{\link[=indicator_functions]{indicator_functions()}} and \code{\link[=plotting_functions]{plotting_functions()}}
 }

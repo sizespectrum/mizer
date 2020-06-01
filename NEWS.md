@@ -1,7 +1,9 @@
-# mizer 2.0.1.9000
+# mizer 2.0.1.9002
 
 ## Bug fixes
 
+* Time passed to rate functions is now the actual time, not the time elapsed
+  since start of simulation.
 * `upgradeParams()` works also on params objects that were created with a
   development version of mizer.
 * `getFeedingLevel()`, `getPredMort()`, `setInitialValues()` and `steady()` now
@@ -11,10 +13,15 @@
 
 * Some improvements to documentation.
 * More unit tests.
+* Uses less memory when time step is very small by not creating array with
+  effort values at each time step.
 * `getDiet()` also takes into account possible contributions by user-defined
   other components.
 * In extension mechanism, now the name of a component is also passed to the
   functions implementing dynamics, encounter and mortality.
+* If `project()` is called with `t_max < t_save` then `t_save` is automatically
+  reduced so that the result at `t_max` will get saved.
+* Start showing progress bar earlier during `project()`.
 
 
 # mizer 2.0.1
