@@ -231,7 +231,8 @@ upgradeParams <- function(params) {
         pnew@resource_params[["lambda"]] <- params@lambda
         pnew@resource_params[["kappa"]] <- params@kappa
         pnew@resource_params[["n"]] <- params@n
-        pnew@resource_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0])
+        pnew@resource_params[["w_pp_cutoff"]] <- max(pnew@w_full[pnew@cc_pp > 0]) +
+            1e-10 # to make sure we don't remove a bucket by mistake
     } else {
         # No resource parameters saved in params object, so need to
         # reconstruct from cc_pp and rr_pp

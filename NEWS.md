@@ -6,6 +6,8 @@
   since start of simulation.
 * `upgradeParams()` works also on params objects that were created with a
   development version of mizer.
+* When upgrading an older params object, `upgradeParams()` does a better job at 
+  guessing the value for `w_pp_cutoff`.
 * `getFeedingLevel()`, `getPredMort()`, `setInitialValues()` and `steady()` now
   works also when model has extra components.
 

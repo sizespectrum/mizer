@@ -178,6 +178,7 @@
 <li>Time passed to rate functions is now the actual time, not the time elapsed since start of simulation.</li>
 <li>
 <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> works also on params objects that were created with a development version of mizer.</li>
+<li>When upgrading an older params object, <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> does a better job at guessing the value for <code>w_pp_cutoff</code>.</li>
 <li>
 <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>, <code><a href="../reference/getPredMort.html">getPredMort()</a></code>, <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code> and <code><a href="../reference/steady.html">steady()</a></code> now works also when model has extra components.</li>
 </ul>
@@ -194,6 +195,10 @@
 <li>In extension mechanism, now the name of a component is also passed to the functions implementing dynamics, encounter and mortality.</li>
 <li>If <code><a href="../reference/project.html">project()</a></code> is called with <code>t_max &lt; t_save</code> then <code>t_save</code> is automatically reduced so that the result at <code>t_max</code> will get saved.</li>
 <li>Start showing progress bar earlier during <code><a href="../reference/project.html">project()</a></code>.</li>
+<li>New helper function <code><a href="../reference/project_simple.html">project_simple()</a></code> that projects a given number of time steps. This might be useful to extension writers.</li>
+<li>The <code>...</code> argument to <code><a href="../reference/project.html">project()</a></code> is passed on to the dynamics and rate functions.</li>
+<li>
+<code><a href="../reference/steady.html">steady()</a></code> runs faster using <code><a href="../reference/project_simple.html">project_simple()</a></code>.</li>
 </ul>
 </div>
 </div>
