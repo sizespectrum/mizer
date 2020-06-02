@@ -12,7 +12,7 @@ mizerFMortGear(params, effort, ...)
 
 \item{effort}{A vector with the effort for each fishing gear.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 An three dimensional array (gear x species x size) with the

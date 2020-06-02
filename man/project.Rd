@@ -50,10 +50,11 @@ are appended to the previous ones. Only relevant if \code{object} is a
 \code{MizerSim} object. Default = TRUE.}
 
 \item{progress_bar}{Either a boolean value to determine whether a progress
-bar should be shown in the console of a shiny progress object to implement
-a progress bar in a shiny app}
+bar should be shown in the console, or a shiny progress object to implement
+a progress bar in a shiny app.}
 
-\item{...}{Currently unused.}
+\item{...}{Other arguments will be passed to rate functions and stopping
+function.}
 }
 \value{
 An object of class \linkS4class{MizerSim}.

@@ -16,7 +16,7 @@ mizerEncounter(params, n, n_pp, n_other, ...)
 \item{n_other}{A list of abundances for other dynamical components of the
 ecosystem}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (predator species x predator size) with the

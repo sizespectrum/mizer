@@ -12,7 +12,7 @@ mizerFMort(params, effort, ...)
 
 \item{effort}{A vector with the effort for each fishing gear.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 An array (species x size) with the fishing mortality.

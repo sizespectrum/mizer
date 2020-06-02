@@ -43,9 +43,10 @@ NULL
 #'   are appended to the previous ones. Only relevant if `object` is a
 #'   `MizerSim` object. Default = TRUE.
 #' @param progress_bar Either a boolean value to determine whether a progress
-#'   bar should be shown in the console of a shiny progress object to implement 
-#'   a progress bar in a shiny app
-#' @param ... Currently unused.
+#'   bar should be shown in the console, or a shiny progress object to implement 
+#'   a progress bar in a shiny app.
+#' @param ... Other arguments will be passed to rate functions and stopping
+#'   function.
 #' 
 #' @note The `effort` argument specifies the level of fishing effort during
 #' the simulation. If it is not supplied, the initial effort stored in the params
@@ -295,7 +296,7 @@ project <- function(object, effort,
         no_t_old <- dim(object@n)[1]
         no_t <- length(t_dimnames)
         new_t_dimnames <- c(as.numeric(dimnames(object@n)[[1]]),
-                            t_dimnames[2:length(t_dimnames)])
+                            t_dimnames[2:no_t])
         new_sim <- MizerSim(params, t_dimnames = new_t_dimnames)
         old_indices <- 1:no_t_old
         new_indices <- seq(from = no_t_old + 1, length.out = no_t - 1)
@@ -315,27 +316,59 @@ project <- function(object, effort,
 #' Project abundances by a given number of time steps into the future
 #' 
 #' This is an internal function used by the user-facing `project()` function.
-#' Of interest only potentially to mizer extension authors.
+#' It is of potential interest only to mizer extension authors.
+#' 
+#' The function does not check its arguments because it is mean to be as fast
+#' as possible to allow it to be used in a loop. For example it is called in
+#' `project()` once for every saved value. The function also does not save its
+#' intermediate results but only returns the result at time `t + dt * steps`.
+#' During this time it uses the constant fishing effort `effort`.
+#' 
+#' The functional arguments can be calculated from slots in the `params` object
+#' with
+#' ```
+#' resource_dynamics_fn <- get(params@resource_dynamics)
+#' other_dynamics_fns <- lapply(params@other_dynamics, get)
+#' rates_fns <- lapply(params@rates_funcs, get)
+#' ```
+#' The reason the function does not do that itself is to shave 20 microseconds
+#' of its running time, which pays when the function is called hundreds of
+#' times in a row.
+#' 
+#' This function is also used in `steady()`. In between calls to 
+#' `project_simple()` the `steady()` function checks whether the values are
+#' still changing significantly, so that it can stop when a steady state has
+#' been approached. Mizer extension packages might have a similar need to run
+#' a simulation repeatedly for short periods to run some other code in
+#' between. Because this code may want to use the values of the rates at the
+#' final time step, these too are included in the returned list.
 #' 
 #' @param params A MizerParams object.
-#' @param n Number density at start of simulation.
-#' @param n_pp Resource number density at start of simulation.
-#' @param n_other Abundances of other components at start of simulation.
+#' @param n An array (species x size) with the number density at start of
+#'   simulation.
+#' @param n_pp A vector (size) with the resource number density at start of
+#'   simulation.
+#' @param n_other A named list with the abundances of other components at start
+#'   of simulation.
 #' @param t Time at the start of the simulation.
 #' @param dt Size of time step.
 #' @param steps The number of time steps by which to project.
-#' @param effort The fishing effort to be used throughout the simulation.
-#' @param resource_dynamics_fn The function (not its name) for the resource
-#'   dynamics.
-#' @param other_dynamics_fns List with the functions (not their names) for the
-#'   dynamics of the other components.
-#' @param rates_fns List with the functions (not their names) for calculating
-#'   the rates.
-#' @return List with the final values of `n`, `n_pp` and `n_other`.
+#' @param effort The fishing effort to be used throughout the simulation. This
+#'   must be a vector or list with one named entry per fishing gear.
+#' @param resource_dynamics_fn The function for the resource
+#'   dynamics. See Details.
+#' @param other_dynamics_fns List with the functions for the
+#'   dynamics of the other components. See Details.
+#' @param rates_fns List with the functions for calculating
+#'   the rates. See Details.
+#' @param ... Other arguments that are passed on to the rate functions.
+#' @return List with the final values of `n`, `n_pp` and `n_other`, `rates`.
+#' 
+#' @md
 #' @export
 project_simple <- function(params, n, n_pp, n_other, t, dt, steps, 
                            effort, resource_dynamics_fn, other_dynamics_fns,
-                           rates_fns) {    
+                           rates_fns, ...) {    
     # Handy things
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
@@ -352,7 +385,7 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
     for (i_time in 1:steps) {
         r <- rates_fns$Rates(
             params, n = n, n_pp = n_pp, n_other = n_other,
-            t = t, effort = effort, rates_fns = rates_fns)
+            t = t, effort = effort, rates_fns = rates_fns, ...)
         
         # Update time
         t <- t + dt
@@ -370,14 +403,15 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
                     rates = r,
                     t = t,
                     dt = dt,
-                    component = component
+                    component = component,
+                    ...
                 )
         }
         
         # Update resource
         n_pp <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
                                      n_other = n_other_current, rates = r,
-                                     t = t, dt = dt)
+                                     t = t, dt = dt, ...)
         
         # Iterate species one time step forward:
         # a_{ij} = - g_i(w_{j-1}) / dw_j dt
@@ -408,9 +442,8 @@ project_simple <- function(params, n, n_pp, n_other, t, dt, steps,
                                 A = a, B = b, S = S,
                                 w_min_idx = params@w_min_idx)
     }
-    return(list(n = n, n_pp = n_pp, n_other = n_other))
+    return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
 }
-
 
 #' Calculate initial population abundances for the community populations
 #' 

@@ -21,7 +21,7 @@ ecosystem}
 the predation rate, where the prey size runs over fish community plus
 resource spectrum.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A vector of mortality rate by resource size.

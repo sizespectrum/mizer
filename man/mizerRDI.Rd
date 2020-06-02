@@ -20,7 +20,7 @@ ecosystem}
 \item{e_repro}{An array (species x size) with the energy available for
 reproduction as calculated by \code{getERepro()}.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A numeric vector with the rate of egg production for each species.

@@ -20,7 +20,7 @@ ecosystem}
 no. species x no. size bins. If not supplied, is calculated internally
 using the \code{\link[=getFeedingLevel]{getFeedingLevel()}} function.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (predator species x prey size) with the

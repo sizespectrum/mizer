@@ -38,7 +38,7 @@
 #' @param effort The effort for each fishing gear
 #' @param rates_fns Named list of the functions to call to calculate the rates.
 #'   Note that this list holds the functions themselves, not their names.
-#' @param ... Unused
+#' @param ... Optional arguments for rate functions.
 #' @export
 #' @family mizer rate functions
 mizerRates <- function(params, n, n_pp, n_other,
@@ -47,58 +47,58 @@ mizerRates <- function(params, n, n_pp, n_other,
     
     # Calculate rate E_{e,i}(w) of encountered food
     r$encounter <- rates_fns$Encounter(
-        params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+        params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
     # Calculate feeding level f_i(w)
     r$feeding_level <- rates_fns$FeedingLevel(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        encounter = r$encounter, t = t)
+        encounter = r$encounter, t = t, ...)
     # Calculate the energy available for reproduction and growth
     r$e <- rates_fns$EReproAndGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        encounter = r$encounter, feeding_level = r$feeding_level, t = t)
+        encounter = r$encounter, feeding_level = r$feeding_level, t = t, ...)
     
     ## Calculate all mortalities, before negative e values are turned into zero
     #  in getERepro() and getEGrowth() functions
     # Calculate the predation rate
     r$pred_rate <- rates_fns$PredRate(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        feeding_level = r$feeding_level, t = t)
+        feeding_level = r$feeding_level, t = t, ...)
     # Calculate predation mortality on fish \mu_{p,i}(w)
     r$pred_mort <- rates_fns$PredMort(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        pred_rate = r$pred_rate, t = t)
+        pred_rate = r$pred_rate, t = t, ...)
     # Calculate fishing mortality
     r$f_mort <- rates_fns$FMort(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        effort = effort, t = t)
+        effort = effort, t = t, ...)
     # Calculate total mortality \mu_i(w)
     r$mort <- rates_fns$Mort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        f_mort = r$f_mort, pred_mort = r$pred_mort, t = t)
+        f_mort = r$f_mort, pred_mort = r$pred_mort, t = t, ...)
     
     ##Now calculate energy for growth and reproduction
     # Calculate the energy for reproduction
     r$e_repro <- rates_fns$ERepro(
         params, n = n, n_pp = n_pp, n_other = n_other, 
-        e = r$e, t = t)
+        e = r$e, t = t, ...elt())
     # Calculate the growth rate g_i(w)
     r$e_growth <- rates_fns$EGrowth(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        e_repro = r$e_repro, e = r$e, t = t)
+        e_repro = r$e_repro, e = r$e, t = t, ...)
     
 
     # Calculate mortality on the resource spectrum
     r$resource_mort <- rates_fns$ResourceMort(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        pred_rate = r$pred_rate, t = t)
+        pred_rate = r$pred_rate, t = t, ...)
     
     # R_{p,i}
     r$rdi <- rates_fns$RDI(
         params, n = n, n_pp = n_pp, n_other = n_other,
-        e_repro = r$e_repro, t = t)
+        e_repro = r$e_repro, t = t, ...)
     # R_i
     r$rdd <- rates_fns$RDD(
-        rdi = r$rdi, species_params = params@species_params, t = t)
+        rdi = r$rdi, species_params = params@species_params, t = t, ...)
     
     return(r)
 }

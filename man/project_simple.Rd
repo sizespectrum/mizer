@@ -15,17 +15,21 @@ project_simple(
   effort,
   resource_dynamics_fn,
   other_dynamics_fns,
-  rates_fns
+  rates_fns,
+  ...
 )
 }
 \arguments{
 \item{params}{A MizerParams object.}
 
-\item{n}{Number density at start of simulation.}
+\item{n}{An array (species x size) with the number density at start of
+simulation.}
 
-\item{n_pp}{Resource number density at start of simulation.}
+\item{n_pp}{A vector (size) with the resource number density at start of
+simulation.}
 
-\item{n_other}{Abundances of other components at start of simulation.}
+\item{n_other}{A named list with the abundances of other components at start
+of simulation.}
 
 \item{t}{Time at the start of the simulation.}
 
@@ -33,21 +37,49 @@ project_simple(
 
 \item{steps}{The number of time steps by which to project.}
 
-\item{effort}{The fishing effort to be used throughout the simulation.}
+\item{effort}{The fishing effort to be used throughout the simulation. This
+must be a vector or list with one named entry per fishing gear.}
 
-\item{resource_dynamics_fn}{The function (not its name) for the resource
-dynamics.}
+\item{resource_dynamics_fn}{The function for the resource
+dynamics. See Details.}
 
-\item{other_dynamics_fns}{List with the functions (not their names) for the
-dynamics of the other components.}
+\item{other_dynamics_fns}{List with the functions for the
+dynamics of the other components. See Details.}
 
-\item{rates_fns}{List with the functions (not their names) for calculating
-the rates.}
+\item{rates_fns}{List with the functions for calculating
+the rates. See Details.}
+
+\item{...}{Other arguments that are passed on to the rate functions.}
 }
 \value{
-List with the final values of \code{n}, \code{n_pp} and \code{n_other}.
+List with the final values of \code{n}, \code{n_pp} and \code{n_other}, \code{rates}.
 }
 \description{
 This is an internal function used by the user-facing \code{project()} function.
-Of interest only potentially to mizer extension authors.
+It is of potential interest only to mizer extension authors.
+}
+\details{
+The function does not check its arguments because it is mean to be as fast
+as possible to allow it to be used in a loop. For example it is called in
+\code{project()} once for every saved value. The function also does not save its
+intermediate results but only returns the result at time \code{t + dt * steps}.
+During this time it uses the constant fishing effort \code{effort}.
+
+The functional arguments can be calculated from slots in the \code{params} object
+with\preformatted{resource_dynamics_fn <- get(params@resource_dynamics)
+other_dynamics_fns <- lapply(params@other_dynamics, get)
+rates_fns <- lapply(params@rates_funcs, get)
+}
+
+The reason the function does not do that itself is to shave 20 microseconds
+of its running time, which pays when the function is called hundreds of
+times in a row.
+
+This function is also used in \code{steady()}. In between calls to
+\code{project_simple()} the \code{steady()} function checks whether the values are
+still changing significantly, so that it can stop when a steady state has
+been approached. Mizer extension packages might have a similar need to run
+a simulation repeatedly for short periods to run some other code in
+between. Because this code may want to use the values of the rates at the
+final time step, these too are included in the returned list.
 }

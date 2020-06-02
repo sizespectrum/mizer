@@ -9,7 +9,7 @@
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of `t_per` years,
-#'   after each of which we check for convergence. Default value is 7.5. This
+#'   after each of which we check for convergence. Default value is 1.5. This
 #'   should be chosen as an odd multiple of the timestep `dt` in order to be
 #'   able to detect period 2 cycles.
 #' @param tol The simulation stops when the relative change in the egg
@@ -30,11 +30,14 @@
 #' params <- steady(params)
 #' plotSpectra(params)
 #' }
-steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
+steady <- function(params, t_max = 100, t_per = 1.5, tol = 10^(-2),
                    dt = 0.1, return_sim = FALSE, progress_bar = TRUE) {
     assert_that(is(params, "MizerParams"),
                 noNA(getRDD(params)))
-    p <- params
+    if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
+        stop("t_per must be a positive multiple of dt")
+    }
+    t_dimnames <-  seq(0, t_max, by = t_per)
     
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
@@ -42,47 +45,60 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
         proginc <- 1/ceiling(t_max/t_per)
     }
     
-    # Force the reproduction to stay at the current level
-    p@species_params$constant_reproduction <- getRDD(p)
-    p@rates_funcs$RDD <- "constantRDD"
-    old_rdi <- getRDI(p)
-    rdi_limit <- old_rdi / 1e7
-    # Force other componens to stay at current level
-    old_other_dynamics <- p@other_dynamics
-    for (res in names(p@other_dynamics)) {
-        p@other_dynamics[[res]] <- "constant_other"
+    if (return_sim) {
+        # create MizerSim object
+        sim <- MizerSim(params, t_dimnames =  t_dimnames)
     }
     
-    n <- p@initial_n
-    n_pp <- p@initial_n_pp
-    n_other <- p@initial_n_other
-    sim <- p
-    for (ti in (1:ceiling(t_max/t_per))) {
+    # Force the reproduction to stay at the current level
+    params@species_params$constant_reproduction <- getRDD(params)
+    old_rdd_fun <- params@rates_funcs$RDD
+    params@rates_funcs$RDD <- "constantRDD"
+    old_rdi <- getRDI(params)
+    rdi_limit <- old_rdi / 1e7
+    # Force other componens to stay at current level
+    old_other_dynamics <- params@other_dynamics
+    for (res in names(params@other_dynamics)) {
+        params@other_dynamics[[res]] <- "constant_other"
+    }
+    
+    # get functions
+    resource_dynamics_fn <- get(params@resource_dynamics)
+    other_dynamics_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+    
+    n_list <- list(n = params@initial_n,
+                   n_pp = params@initial_n_pp,
+                   n_other = params@initial_n_other)
+    
+    for (i in seq_along(t_dimnames)) {
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
         }
+        n_list <- project_simple(params, n = n_list$n, n_pp = n_list$n_pp,
+                                 n_other = n_list$n_other, t = 0,
+                                 dt = dt, steps = round(t_per / dt),
+                                 effort = params@initial_effort,
+                                 resource_dynamics_fn = resource_dynamics_fn,
+                                 other_dynamics_fns = other_dynamics_fns,
+                                 rates_fns = rates_fns)
         if (return_sim) {
-            sim <- project(sim, dt = dt, t_max = t_per, t_save = t_per,
-                           initial_n = n, initial_n_pp = n_pp, 
-                           initial_n_other = n_other)
-        } else {
-            sim <- project(p, dt = dt, t_max = t_per, t_save = t_per,
-                           initial_n = n, initial_n_pp = n_pp, 
-                           initial_n_other = n_other)
+            # Store result
+            sim@n[i, , ] <- n_list$n
+            sim@n_pp[i, ] <- n_list$n_pp
+            sim@n_other[i, ] <- n_list$n_other
+            sim@effort[i, ] <- params@initial_effort
         }
-        no_t <- dim(sim@n)[1]
-        n[] <- sim@n[no_t, , ]
-        n_pp[] <- sim@n_pp[no_t, ]
-        n_other <- sim@n_other[no_t, ]
-        new_rdi <- getRDI(p, n, n_pp, n_other)
+        
+        new_rdi <- n_list$rates$rdi
         deviation <- max(abs((new_rdi - old_rdi)/old_rdi))
         if (any(new_rdi < rdi_limit)) {
             if (return_sim) {
                 message("One of the species is going extinct.")
                 break
             }
-            extinct <- p@species_params$species[new_rdi < rdi_limit]
+            extinct <- params@species_params$species[new_rdi < rdi_limit]
             stop(paste(extinct, collapse = ", "),
                  " are going extinct.")
         }
@@ -93,30 +109,29 @@ steady <- function(params, t_max = 100, t_per = 7.5, tol = 10^(-2),
     }
     if (deviation >= tol) {
         warning("Simulation run in steady() did not converge after ", 
-                ti * t_per,
+                i * t_per,
                 " years. Residual relative rate of change = ", deviation)
     } else {
-        message("Steady state was reached before ", ti * t_per, " years.")
+        message("Steady state was reached before ", i * t_per, " years.")
     }
     
     # Restore original RDD and other dynamics
-    p@rates_funcs$RDD <- params@rates_funcs$RDD
-    p@other_dynamics <- old_other_dynamics
+    params@rates_funcs$RDD <- old_rdd_fun
+    params@other_dynamics <- old_other_dynamics
     
-    no_sp <- length(p@species_params$species)
-    p@initial_n[] <- n
-    p@initial_n_pp[] <- n_pp
-    p@initial_n_other[] <- n_other
+    params@initial_n[] <- n_list$n
+    params@initial_n_pp[] <- n_list$n_pp
+    params@initial_n_other[] <- n_list$n_other
     
     # Retune the values of erepro so that we get the correct level of
     # reproduction
-    p <- retune_erepro(p)
+    params <- retune_erepro(params)
     
     if (return_sim) {
-        sim@params <- p
+        sim@params <- params
         return(sim)
     } else {
-        return(p)
+        return(params)
     }
 }
 

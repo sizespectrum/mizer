@@ -24,6 +24,9 @@
 * Start showing progress bar earlier during `project()`.
 * New helper function `project_simple()` that projects a given number of
   time steps. This might be useful to extension writers.
+* The `...` argument to `project()` is passed on to the dynamics and rate
+  functions.
+* `steady()` runs faster using `project_simple()`.
 
 
 # mizer 2.0.1

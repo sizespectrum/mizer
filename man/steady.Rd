@@ -7,7 +7,7 @@
 steady(
   params,
   t_max = 100,
-  t_per = 7.5,
+  t_per = 1.5,
   tol = 10^(-2),
   dt = 0.1,
   return_sim = FALSE,
@@ -20,7 +20,7 @@ steady(
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
 \item{t_per}{The simulation is broken up into shorter runs of \code{t_per} years,
-after each of which we check for convergence. Default value is 7.5. This
+after each of which we check for convergence. Default value is 1.5. This
 should be chosen as an odd multiple of the timestep \code{dt} in order to be
 able to detect period 2 cycles.}
 

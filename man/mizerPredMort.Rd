@@ -19,7 +19,7 @@ ecosystem}
 \item{pred_rate}{A two dimensional array (predator species x predator size)
 with the feeding level.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (prey species x prey size) with the predation

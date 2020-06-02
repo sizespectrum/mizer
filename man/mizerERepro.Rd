@@ -20,7 +20,7 @@ ecosystem}
 \item{e}{A two dimensional array (species x size) holding the energy available
 for reproduction and growth as calculated by \code{mizerEReproAndGrowth()}.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (species x size) holding

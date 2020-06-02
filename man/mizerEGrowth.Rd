@@ -26,7 +26,7 @@ if specified, e_repro must also be specified). A matrix of size no.
 species x no. size bins. If not supplied, is calculated internally using
 \code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}}.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (species x size) with the growth rates.

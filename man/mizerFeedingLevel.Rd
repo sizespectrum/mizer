@@ -12,7 +12,7 @@ mizerFeedingLevel(params, encounter, ...)
 \item{encounter}{A two dimensional array (predator species x predator size)
 with the encounter rate.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (predator species x predator size) with the

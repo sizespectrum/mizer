@@ -22,7 +22,7 @@ mortality}
 \item{pred_mort}{A two dimensional array (species x size) with the predation
 mortality}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (species x size) with the total mortality

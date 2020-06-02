@@ -23,7 +23,7 @@ ecosystem}
 \item{rates_fns}{Named list of the functions to call to calculate the rates.
 Note that this list holds the functions themselves, not their names.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \description{
 Calls other rate functions in sequence and collects the results in a list.

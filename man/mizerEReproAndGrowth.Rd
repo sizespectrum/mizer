@@ -23,7 +23,7 @@ calculated by \code{mizerEncounter()}.}
 \item{feeding_level}{An array (species x size) with the feeding level as
 calculated by \code{mizerFeedingLevel()}.}
 
-\item{...}{Unused}
+\item{...}{Optional arguments for rate functions.}
 }
 \value{
 A two dimensional array (species x size) holding
