@@ -45,8 +45,7 @@ NULL
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console, or a shiny progress object to implement 
 #'   a progress bar in a shiny app.
-#' @param ... Other arguments will be passed to rate functions and stopping
-#'   function.
+#' @param ... Other arguments will be passed to rate functions.
 #' 
 #' @note The `effort` argument specifies the level of fishing effort during
 #' the simulation. If it is not supplied, the initial effort stored in the params

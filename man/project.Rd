@@ -53,8 +53,7 @@ are appended to the previous ones. Only relevant if \code{object} is a
 bar should be shown in the console, or a shiny progress object to implement
 a progress bar in a shiny app.}
 
-\item{...}{Other arguments will be passed to rate functions and stopping
-function.}
+\item{...}{Other arguments will be passed to rate functions.}
 }
 \value{
 An object of class \linkS4class{MizerSim}.
