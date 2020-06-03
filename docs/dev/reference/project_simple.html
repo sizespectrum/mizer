@@ -37,11 +37,17 @@
 <script src="../pkgdown.js"></script>
 
 
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
 
 
 <meta property="og:title" content="Project abundances by a given number of time steps into the future — project_simple" />
 <meta property="og:description" content="This is an internal function used by the user-facing project() function.
-Of interest only potentially to mizer extension authors." />
+It is of potential interest only to mizer extension authors." />
 
 
 <meta name="robots" content="noindex">
@@ -154,6 +160,12 @@ Of interest only potentially to mizer extension authors." />
 </li>
       </ul>
       
+      <form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -172,7 +184,7 @@ Of interest only potentially to mizer extension authors." />
 
     <div class="ref-description">
     <p>This is an internal function used by the user-facing <code><a href='project.html'>project()</a></code> function.
-Of interest only potentially to mizer extension authors.</p>
+It is of potential interest only to mizer extension authors.</p>
     </div>
 
     <pre class="usage"><span class='fu'>project_simple</span>(
@@ -186,7 +198,8 @@ Of interest only potentially to mizer extension authors.</p>
   <span class='no'>effort</span>,
   <span class='no'>resource_dynamics_fn</span>,
   <span class='no'>other_dynamics_fns</span>,
-  <span class='no'>rates_fns</span>
+  <span class='no'>rates_fns</span>,
+  <span class='no'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -198,15 +211,18 @@ Of interest only potentially to mizer extension authors.</p>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>Number density at start of simulation.</p></td>
+      <td><p>An array (species x size) with the number density at start of
+simulation.</p></td>
     </tr>
     <tr>
       <th>n_pp</th>
-      <td><p>Resource number density at start of simulation.</p></td>
+      <td><p>A vector (size) with the resource number density at start of
+simulation.</p></td>
     </tr>
     <tr>
       <th>n_other</th>
-      <td><p>Abundances of other components at start of simulation.</p></td>
+      <td><p>A named list with the abundances of other components at start
+of simulation.</p></td>
     </tr>
     <tr>
       <th>t</th>
@@ -222,28 +238,55 @@ Of interest only potentially to mizer extension authors.</p>
     </tr>
     <tr>
       <th>effort</th>
-      <td><p>The fishing effort to be used throughout the simulation.</p></td>
+      <td><p>The fishing effort to be used throughout the simulation. This
+must be a vector or list with one named entry per fishing gear.</p></td>
     </tr>
     <tr>
       <th>resource_dynamics_fn</th>
-      <td><p>The function (not its name) for the resource
-dynamics.</p></td>
+      <td><p>The function for the resource
+dynamics. See Details.</p></td>
     </tr>
     <tr>
       <th>other_dynamics_fns</th>
-      <td><p>List with the functions (not their names) for the
-dynamics of the other components.</p></td>
+      <td><p>List with the functions for the
+dynamics of the other components. See Details.</p></td>
     </tr>
     <tr>
       <th>rates_fns</th>
-      <td><p>List with the functions (not their names) for calculating
-the rates.</p></td>
+      <td><p>List with the functions for calculating
+the rates. See Details.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Other arguments that are passed on to the rate functions.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>List with the final values of <code>n</code>, <code>n_pp</code> and <code>n_other</code>.</p>
+    <p>List with the final values of <code>n</code>, <code>n_pp</code> and <code>n_other</code>, <code>rates</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The function does not check its arguments because it is mean to be as fast
+as possible to allow it to be used in a loop. For example it is called in
+<code><a href='project.html'>project()</a></code> once for every saved value. The function also does not save its
+intermediate results but only returns the result at time <code>t + dt * steps</code>.
+During this time it uses the constant fishing effort <code>effort</code>.</p>
+<p>The functional arguments can be calculated from slots in the <code>params</code> object
+with</p><pre><span class='no'>resource_dynamics_fn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/get.html'>get</a></span>(<span class='no'>params</span>@<span class='kw'>resource_dynamics</span>)
+<span class='no'>other_dynamics_fns</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>other_dynamics</span>, <span class='no'>get</span>)
+<span class='no'>rates_fns</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>params</span>@<span class='kw'>rates_funcs</span>, <span class='no'>get</span>)</pre>
+
+<p>The reason the function does not do that itself is to shave 20 microseconds
+of its running time, which pays when the function is called hundreds of
+times in a row.</p>
+<p>This function is also used in <code><a href='steady.html'>steady()</a></code>. In between calls to
+<code>project_simple()</code> the <code><a href='steady.html'>steady()</a></code> function checks whether the values are
+still changing significantly, so that it can stop when a steady state has
+been approached. Mizer extension packages might have a similar need to run
+a simulation repeatedly for short periods to run some other code in
+between. Because this code may want to use the values of the rates at the
+final time step, these too are included in the returned list.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -267,6 +310,23 @@ the rates.</p></td>
    </div>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
+    indexName: 'sizespectrum_mizer',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
 
 
   </body>

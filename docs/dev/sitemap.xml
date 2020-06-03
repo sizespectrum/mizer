@@ -46,6 +46,9 @@
     <loc>https://sizespectrum.org/mizer/reference/constantRDD.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/constant_other.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
   </url>
   <url>
@@ -311,6 +314,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/project.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/project_simple.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>

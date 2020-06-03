@@ -13,6 +13,9 @@ authors:
 template:
   params:
     bootswatch: cerulean
+    docsearch:
+      api_key: 96e9641255d3fff35a4fd16d1a1bf70c
+      index_name: sizespectrum_mizer
 
 development:
   mode: auto

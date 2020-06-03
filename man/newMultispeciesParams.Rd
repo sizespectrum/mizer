@@ -531,6 +531,7 @@ up. Mizer will then copy these columns over to create the \code{gear_params} dat
 frame when it creates the MizerParams object. However changing these columns
 in the species parameter data frame later will not update the \code{gear_params}
 data frame.
+
 \strong{Catchability}
 
 Catchability is used as an additional factor to make the link between gear
