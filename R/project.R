@@ -119,11 +119,13 @@ project <- function(object, effort,
         initial_n_pp[] <- object@n_pp[no_t, ]
         initial_n_other <- object@n_other[no_t, ]
         t_start <- as.numeric(dimnames(object@n)[[1]][[no_t]])
-    } else {
+    } else if (is(object, "MizerParams")) {
         params <- object
         if (missing(initial_n))       initial_n <- params@initial_n
         if (missing(initial_n_pp)) initial_n_pp <- params@initial_n_pp
         initial_n_other <- params@initial_n_other
+    } else {
+        stop("The `object` argument must be either a MizerParams or a MizerSim object.")
     }
     params@initial_n[] <- initial_n
     params@initial_n_pp[] <- initial_n_pp
