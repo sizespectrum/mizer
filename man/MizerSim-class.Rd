@@ -16,12 +16,12 @@ created automatically by \code{\link[=project]{project()}} when needed.
 As a user you should never have to access the slots of a MizerSim object
 directly. Instead there are a range of functions to extract the information.
 \code{\link[=N]{N()}} and \code{\link[=NResource]{NResource()}} return arrays with the saved abundances of
-the species and the resource population at size respectively. \code{\link[=effort]{effort()}}
+the species and the resource population at size respectively. \code{\link[=getEffort]{getEffort()}}
 returns the fishing effort of each gear through time.
-\code{\link[=times]{times()}} returns the vector of times at which simulation results
+\code{\link[=getTimes]{getTimes()}} returns the vector of times at which simulation results
 were stored and \code{\link[=idxFinalT]{idxFinalT()}} returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
-functions. \code{\link[=params]{params()}} returns the \code{MizerParams} object that was
+functions. \code{\link[=getParams]{getParams()}} returns the \code{MizerParams} object that was
 passed to \code{project()}. There are also several
 \link{summary_functions} and \link{plotting_functions}
 available to explore the contents of a \code{MizerSim} object.

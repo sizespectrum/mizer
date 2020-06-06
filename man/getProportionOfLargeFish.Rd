@@ -6,7 +6,7 @@
 \usage{
 getProportionOfLargeFish(
   sim,
-  species = seq_len(nrow(species_params(params(sim)))),
+  species = seq_len(nrow(species_params(getParams(sim)))),
   threshold_w = 100,
   threshold_l = NULL,
   biomass_proportion = TRUE,

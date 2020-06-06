@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Times for which simulation results are available — times • mizer</title>
+<title>Fishing effort used in simulation — getEffort • mizer</title>
 
 
 <!-- jquery -->
@@ -45,8 +45,11 @@
 
 
 
-<meta property="og:title" content="Times for which simulation results are available — times" />
-<meta property="og:description" content="Times for which simulation results are available" />
+<meta property="og:title" content="Fishing effort used in simulation — getEffort" />
+<meta property="og:description" content="Note that the array returned may not be exactly the same as the effort
+argument that was passed in to project(). This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+t_save)." />
 
 
 <meta name="robots" content="noindex">
@@ -176,16 +179,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Times for which simulation results are available</h1>
+    <h1>Fishing effort used in simulation</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
-    <div class="hidden name"><code>times.Rd</code></div>
+    <div class="hidden name"><code>getEffort.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Times for which simulation results are available</p>
+    <p>Note that the array returned may not be exactly the same as the <code>effort</code>
+argument that was passed in to <code><a href='project.html'>project()</a></code>. This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+<code>t_save</code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>times</span>(<span class='no'>sim</span>)</pre>
+    <pre class="usage"><span class='fu'>getEffort</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -198,8 +204,8 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A numeric vectors of the times (in years) at which simulation results
-have been stored in the MizerSim object.</p>
+    <p>An array (time x gear) that stores the fishing effort by time and
+gear.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

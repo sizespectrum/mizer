@@ -6,7 +6,7 @@
 \usage{
 getCommunitySlope(
   sim,
-  species = seq_len(nrow(species_params(params(sim)))),
+  species = seq_len(nrow(species_params(getParams(sim)))),
   biomass = TRUE,
   ...
 )

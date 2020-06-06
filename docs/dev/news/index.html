@@ -196,6 +196,13 @@
 <li>The critical feeding level lines are now mentioned in the legend of <code>plotFeedinglevel()</code> when called with <code>include_critical = TRUE</code>, see <a href='https://github.com/sizespectrum/mizer/issues/162'>#162</a>.</li>
 </ul>
 </div>
+<div id="name-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#name-changes" class="anchor"></a>Name changes</h2>
+<ul>
+<li>Renamed the functions <code>params()</code>, <code>effort()</code> and <code>times()</code> to <code><a href="../reference/getParams.html">getParams()</a></code>, <code><a href="../reference/getEffort.html">getEffort()</a></code> and <code><a href="../reference/getTimes.html">getTimes()</a></code> to avoid conflicts.</li>
+</ul>
+</div>
 <div id="minor-enhancements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#minor-enhancements" class="anchor"></a>Minor enhancements</h2>
@@ -233,9 +240,9 @@
 <code>resource_params()&lt;-</code> now works and has unit tests.</li>
 </ul>
 </div>
-<div id="naming-changes" class="section level2">
+<div id="name-changes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#naming-changes" class="anchor"></a>Naming changes</h2>
+<a href="#name-changes-1" class="anchor"></a>Name changes</h2>
 <p>Some inconsistencies in the choice of names for parameters was removed by renaming</p>
 <ul>
 <li>
@@ -374,7 +381,7 @@
 <li>New gear selectivity function <code>sigmoidal_weight()</code> is weight-based trawl selectivity function. (Ken H Andersen)</li>
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
-<li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
+<li>A convenience function <code>times()</code> to extract the times at which simulation results are saved in a MizerSim object.</li>
 <li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNResource()</a></code> and <code><a href="../reference/finalNOther.html">finalNOther()</a></code> as well as <code><a href="../reference/idxFinalT.html">idxFinalT()</a></code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>

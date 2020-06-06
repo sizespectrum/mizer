@@ -122,12 +122,12 @@ valid_MizerSim <- function(object) {
 #' As a user you should never have to access the slots of a MizerSim object
 #' directly. Instead there are a range of functions to extract the information.
 #' [N()] and [NResource()] return arrays with the saved abundances of
-#' the species and the resource population at size respectively. [effort()]
+#' the species and the resource population at size respectively. [getEffort()]
 #' returns the fishing effort of each gear through time. 
-#' [times()] returns the vector of times at which simulation results
+#' [getTimes()] returns the vector of times at which simulation results
 #' were stored and [idxFinalT()] returns the index with which to access
 #' specifically the value at the final time in the arrays returned by the other
-#' functions. [params()] returns the `MizerParams` object that was
+#' functions. [getParams()] returns the `MizerParams` object that was
 #' passed to `project()`. There are also several
 #' [summary_functions] and [plotting_functions]
 #' available to explore the contents of a `MizerSim` object.
@@ -311,7 +311,7 @@ idxFinalT <- function(sim) {
 #' @return A numeric vectors of the times (in years) at which simulation results
 #'   have been stored in the MizerSim object.
 #' @export
-times <- function(sim) {
+getTimes <- function(sim) {
     as.numeric(dimnames(sim@n)$t)
 }
 
@@ -326,7 +326,7 @@ times <- function(sim) {
 #' @return An array (time x gear) that stores the fishing effort by time and 
 #'   gear.
 #' @export
-effort <- function(sim) {
+getEffort <- function(sim) {
     sim@effort
 }
 
@@ -335,6 +335,6 @@ effort <- function(sim) {
 #' @param sim A MizerSim object
 #' @return The MizerParams object that was used to run the simulation
 #' @export
-params <- function(sim) {
+getParams <- function(sim) {
     sim@params
 }

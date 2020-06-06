@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fishing effort used in simulation — effort • mizer</title>
+<title>Extract the parameter object underlying a simulation — getParams • mizer</title>
 
 
 <!-- jquery -->
@@ -45,11 +45,8 @@
 
 
 
-<meta property="og:title" content="Fishing effort used in simulation — effort" />
-<meta property="og:description" content="Note that the array returned may not be exactly the same as the effort
-argument that was passed in to project(). This is because only the saved
-effort is stored (the frequency of saving is determined by the argument
-t_save)." />
+<meta property="og:title" content="Extract the parameter object underlying a simulation — getParams" />
+<meta property="og:description" content="Extract the parameter object underlying a simulation" />
 
 
 <meta name="robots" content="noindex">
@@ -179,19 +176,16 @@ t_save)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fishing effort used in simulation</h1>
+    <h1>Extract the parameter object underlying a simulation</h1>
     <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
-    <div class="hidden name"><code>effort.Rd</code></div>
+    <div class="hidden name"><code>getParams.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Note that the array returned may not be exactly the same as the <code>effort</code>
-argument that was passed in to <code><a href='project.html'>project()</a></code>. This is because only the saved
-effort is stored (the frequency of saving is determined by the argument
-<code>t_save</code>).</p>
+    <p>Extract the parameter object underlying a simulation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>effort</span>(<span class='no'>sim</span>)</pre>
+    <pre class="usage"><span class='fu'>getParams</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -204,8 +198,7 @@ effort is stored (the frequency of saving is determined by the argument
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An array (time x gear) that stores the fishing effort by time and
-gear.</p>
+    <p>The MizerParams object that was used to run the simulation</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

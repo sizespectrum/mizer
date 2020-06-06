@@ -452,7 +452,7 @@ setMethod("summary", signature(object = "MizerParams"), function(object, ...) {
             dimnames(object@catchability)$sp[object@catchability[i,]>0], 
             "\n", sep=" ") 
     }
-    invisible(params)
+    invisible(object)
 })
 
 
@@ -482,7 +482,7 @@ setMethod("summary", signature(object = "MizerSim"), function(object, ...){
     cat("\tOutput stored every ", 
         as.numeric(dimnames(object@n)$time)[2] - 
             as.numeric(dimnames(object@n)$time)[1], " time units\n", sep = "")
-    return()
+    invisible(object)
 })
 
 # Indicator functions ####
@@ -541,7 +541,7 @@ NULL
 #'     threshold_w = 500, biomass_proportion=FALSE)
 #' }
 getProportionOfLargeFish <- function(sim, 
-                                     species = seq_len(nrow(species_params(params(sim)))), 
+                                     species = seq_len(nrow(species_params(getParams(sim)))), 
                                      threshold_w = 100, threshold_l = NULL, 
                                      biomass_proportion=TRUE, ...) {
     check_species(sim, species)
@@ -589,7 +589,7 @@ getProportionOfLargeFish <- function(sim,
 #' getMeanWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanWeight <- function(sim, species = seq_len(nrow(species_params(params(sim)))), ...){
+getMeanWeight <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))), ...){
     check_species(sim, species)
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
@@ -629,7 +629,7 @@ getMeanWeight <- function(sim, species = seq_len(nrow(species_params(params(sim)
 #' getMeanMaxWeight(sim, species=c("Herring","Sprat","N.pout"))
 #' getMeanMaxWeight(sim, min_w = 10, max_w = 5000)
 #' }
-getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(params(sim)))), 
+getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))), 
                              measure = "both", ...) {
     if (!(measure %in% c("both","numbers","biomass"))) {
         stop("measure must be one of 'both', 'numbers' or 'biomass'")
@@ -684,7 +684,7 @@ getMeanMaxWeight <- function(sim, species = seq_len(nrow(species_params(params(s
 #' dem_species <- c("Dab","Whiting","Sole","Gurnard","Plaice","Haddock", "Cod","Saithe")
 #' slope_biomass <- getCommunitySlope(sim, species = dem_species, min_w = 10, max_w = 1000)
 #' }
-getCommunitySlope <- function(sim, species = seq_len(nrow(species_params(params(sim)))),
+getCommunitySlope <- function(sim, species = seq_len(nrow(species_params(getParams(sim)))),
                               biomass = TRUE, ...) {
     check_species(sim, species)
     size_range <- get_size_range_array(sim@params, ...)

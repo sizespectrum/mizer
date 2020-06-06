@@ -197,12 +197,12 @@ created automatically by <code><a href='project.html'>project()</a></code> when 
 <p>As a user you should never have to access the slots of a MizerSim object
 directly. Instead there are a range of functions to extract the information.
 <code><a href='N.html'>N()</a></code> and <code><a href='N.html'>NResource()</a></code> return arrays with the saved abundances of
-the species and the resource population at size respectively. <code><a href='effort.html'>effort()</a></code>
+the species and the resource population at size respectively. <code><a href='getEffort.html'>getEffort()</a></code>
 returns the fishing effort of each gear through time.
-<code><a href='times.html'>times()</a></code> returns the vector of times at which simulation results
+<code><a href='getTimes.html'>getTimes()</a></code> returns the vector of times at which simulation results
 were stored and <code><a href='idxFinalT.html'>idxFinalT()</a></code> returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
-functions. <code><a href='params.html'>params()</a></code> returns the <code>MizerParams</code> object that was
+functions. <code><a href='getParams.html'>getParams()</a></code> returns the <code>MizerParams</code> object that was
 passed to <code><a href='project.html'>project()</a></code>. There are also several
 <a href='summary_functions.html'>summary_functions</a> and <a href='plotting_functions.html'>plotting_functions</a>
 available to explore the contents of a <code>MizerSim</code> object.</p>

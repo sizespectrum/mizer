@@ -13,6 +13,11 @@
 * The critical feeding level lines are now mentioned in the legend of
   `plotFeedinglevel()` when called with `include_critical = TRUE`, see #162.
 
+## Name changes
+
+* Renamed the functions `params()`, `effort()` and `times()` to `getParams()`,
+  `getEffort()` and `getTimes()` to avoid conflicts.
+
 ## Minor enhancements
 
 * Some improvements to documentation.
@@ -42,7 +47,7 @@
 * `setInitialValues()` also works in a model with only a single species. #161
 * `resource_params()<-` now works and has unit tests.
 
-## Naming changes
+## Name changes
 
 Some inconsistencies in the choice of names for parameters was removed by
 renaming

@@ -81,8 +81,6 @@ reference:
   - setFishing
   - setResource
   - setInitialValues
-  - params
-  - summary,MizerParams-method
   - setRmax
 - title: Running simulations
   contents:
@@ -97,9 +95,8 @@ reference:
   - NResource
   - finalN
   - idxFinalT
-  - effort
-  - times
-  - "w"
+  - getEffort
+  - getTimes
 - title: Analysing results
   contents:
   - summary_functions
@@ -110,7 +107,6 @@ reference:
   - getYield
   - getYieldGear
   - getGrowthCurves
-  - summary,MizerSim-method
 - title: Calculating indicators
   contents:
   - indicator_functions
@@ -201,10 +197,14 @@ reference:
 - title: Classes
   contents:
   - MizerParams-class
+  - summary,MizerParams-method
+  - "w"
   - upgradeParams
   - MizerSim-class
+  - summary,MizerSim-method
   - upgradeSim
   - MizerSim
+  - getParams
 - title: Example parameter sets
   contents:
   - NS_params
