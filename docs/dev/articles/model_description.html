@@ -203,7 +203,7 @@ And clicking again will hide the details again.
 <p>The rate at which a predator of species <span class="math inline">\(i\)</span> and weight <span class="math inline">\(w\)</span> encounters food (mass per time) is determined by summing over all prey species and the resource spectrum and integrating over all prey sizes <span class="math inline">\(w_p\)</span>, weighted by the selectivity factors: <span class="math display">\[\begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
-   \theta_{iR} N_R(w_p) + \right) 
+   \theta_{iR} N_R(w_p) \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}\]</span> This is calculated by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>. The overall prefactor <span class="math inline">\(\gamma_i(w)\)</span> sets the predation power of the predator. It could be interpreted as a search volume. It is set by <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>. By default it is assumed to scale allometrically as <span class="math inline">\(\gamma_i(w) = \gamma_i\, w^q.\)</span></p>
 <p>The <span class="math inline">\(\theta\)</span> matrix sets the interaction strength between predators and the various prey species and resource. It is changed with <code><a href="../reference/setInteraction.html">setInteraction()</a></code>.</p>

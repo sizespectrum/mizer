@@ -189,7 +189,7 @@ integrating over all prey sizes $w_p$, weighted by the selectivity factors:
 \begin{equation}
   \label{eq:1}
   E_{i}(w) = \gamma_i(w) \int \left(\sum_{j} \theta_{ij} N_j(w_p) +
-   \theta_{iR} N_R(w_p) + \right) 
+   \theta_{iR} N_R(w_p) \right) 
   \phi_i(w,w_p) w_p \, dw_p.
 \end{equation}
 This is calculated by `getEncounter()`.
