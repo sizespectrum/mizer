@@ -48,7 +48,7 @@
 <meta property="og:title" content="Set reproduction parameters — setReproduction" />
 <meta property="og:description" content="Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
-individual and sets the reproductive efficiency." />
+individual and sets additional density dependence." />
 
 
 <meta name="robots" content="noindex">
@@ -186,7 +186,7 @@ individual and sets the reproductive efficiency." />
     <div class="ref-description">
     <p>Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
-individual and sets the reproductive efficiency.</p>
+individual and sets additional density dependence.</p>
     </div>
 
     <pre class="usage"><span class='fu'>setReproduction</span>(<span class='no'>params</span>, <span class='kw'>maturity</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repro_prop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>RDD</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
@@ -240,7 +240,7 @@ the change you call the function in the form
 
 
 <h3>Investment</h3>
-<p>For each species and at each size, the proportion of the available energy
+<p>For each species and at each size, the proportion \(\psi\) of the available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
@@ -272,10 +272,12 @@ scales linearly with the size. This default can be overridden by including a
 column <code>m</code> in the species parameter dataframe. The asymptotic sizes
 are taken from the compulsory <code>w_inf</code> column in the species_params
 data frame.</p>
+<p>So finally we have
+$$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$</p>
 
 <h3>Efficiency</h3>
 <p>The reproductive efficiency, i.e., the proportion of energy allocated to
-reproduction that results in egg biomass, is set from the <code>erepro</code>
+reproduction that results in egg biomass, is set through the <code>erepro</code>
 column in the species_params data frame. If that is not provided, the default
 is set to 1 (which you will want to override). The offspring biomass divided
 by the egg biomass gives the rate of egg production, returned by
