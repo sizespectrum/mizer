@@ -10,6 +10,8 @@
   guessing the value for `w_pp_cutoff`.
 * `getFeedingLevel()`, `getPredMort()`, `setInitialValues()` and `steady()` now
   works also when model has extra components.
+* The critical feeding level lines are now mentioned in the legend of
+  `plotFeedinglevel()` when called with `include_critical = TRUE`, see #162.
 
 ## Minor enhancements
 
