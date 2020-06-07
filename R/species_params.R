@@ -226,7 +226,7 @@ get_ks_default <- function(params) {
 #' @concept("helper")
 validSpeciesParams <- function(species_params) {
     assert_that(is.data.frame(species_params))
-    
+    species_params <- as.data.frame(species_params)
     if (!("species" %in% colnames(species_params))) {
         stop("The species params dataframe needs a column 'species' with the species names")
     }

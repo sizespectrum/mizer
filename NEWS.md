@@ -12,6 +12,7 @@
   works also when model has extra components.
 * The critical feeding level lines are now mentioned in the legend of
   `plotFeedinglevel()` when called with `include_critical = TRUE`, see #162.
+* Avoid annoying warnings from dplyr package when `species_params` is a tibble.
 
 ## Name changes
 
