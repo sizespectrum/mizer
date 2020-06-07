@@ -283,14 +283,14 @@ resource dynamics by writing your own function, modelled on
 function in the <code>resource_dynamics</code> argument.</p>
 <p>The <code>resource_rate</code> argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
-rate \(r_p(w)\) at size \(w\)
-is set to $$r_p(w) = r_p\, w^{n-1}.$$
-The values of \(r_p\) and \(n\) are taken from the <code>resource_rate</code>
+rate \(r(w)\) at size \(w\)
+is set to $$r(w) = r_{pp}\, w^{n-1}.$$
+The values of \(r_{pp}\) and \(n\) are taken from the <code>r_pp</code>
 and <code>n</code> arguments.</p>
 <p>The <code>resource_capacity</code> argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
-intrinsic carrying capacity \(c_p(w)\) at size \(w\)
-is set to $$c_p(w) = \kappa\, w^{-\lambda}$$
+intrinsic carrying capacity \(c(w)\) at size \(w\)
+is set to $$c(w) = \kappa\, w^{-\lambda}$$
 for all \(w\) less than <code>w_pp_cutoff</code> and zero for larger sizes.
 The values of \(\kappa\) and \(\lambda\) are taken from the <code>kappa</code>
 and <code>lambda</code> arguments.</p>

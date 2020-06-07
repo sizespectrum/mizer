@@ -523,15 +523,15 @@ function in the \code{resource_dynamics} argument.
 
 The \code{resource_rate} argument is a vector specifying the intrinsic resource
 growth rate for each size class. If it is not supplied, then the intrinsic growth
-rate \eqn{r_p(w)} at size \eqn{w}
-is set to \deqn{r_p(w) = r_p\, w^{n-1}.}{r_p(w) = r_p w^{n-1}}
-The values of \eqn{r_p} and \eqn{n} are taken from the \code{resource_rate}
+rate \eqn{r(w)} at size \eqn{w}
+is set to \deqn{r(w) = r_{pp}\, w^{n-1}.}{r(w) = r_pp w^{n-1}}
+The values of \eqn{r_{pp}} and \eqn{n} are taken from the \code{r_pp}
 and \code{n} arguments.
 
 The \code{resource_capacity} argument is a vector specifying the intrinsic resource
 carrying capacity for each size class. If it is not supplied, then the
-intrinsic carrying capacity \eqn{c_p(w)} at size \eqn{w}
-is set to \deqn{c_p(w) = \kappa\, w^{-\lambda}}{c_p(w) = \kappa w^{-\lambda}}
+intrinsic carrying capacity \eqn{c(w)} at size \eqn{w}
+is set to \deqn{c(w) = \kappa\, w^{-\lambda}}{c(w) = \kappa w^{-\lambda}}
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes.
 The values of \eqn{\kappa} and \eqn{\lambda} are taken from the \code{kappa}
 and \code{lambda} arguments.
