@@ -188,6 +188,11 @@ retune_erepro <- function(params, species = species_params(params)$species) {
 
 
 #' Helper function to keep other components constant
+#' 
+#' @param params MizerParams object
+#' @param n_other Abundances of other components
+#' @param component Name of the component that is being updated
+#' @param ... Unused
 #' @export
 constant_other <- function(params, n_other, component, ...) {
     n_other[[component]]

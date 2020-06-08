@@ -46,7 +46,7 @@ NULL
 #' available biomass. Outside the range of sizes for a predator species the
 #' returned rate is zero.
 #'
-#' @param params A MizerParams object
+#' @inheritParams getEncounter
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the 
 #'   consumption rate in grams.

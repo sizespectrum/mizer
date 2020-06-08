@@ -13,7 +13,14 @@ getDiet(
 )
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{params}{A \linkS4class{MizerParams} object}
+
+\item{n}{A matrix of species abundances (species x size).}
+
+\item{n_pp}{A vector of the resource abundance by size}
+
+\item{n_other}{A list of abundances for other dynamical components of the
+ecosystem}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
 proportion of the total consumption rate. If FALSE it returns the

@@ -6,6 +6,15 @@
 \usage{
 constant_other(params, n_other, component, ...)
 }
+\arguments{
+\item{params}{MizerParams object}
+
+\item{n_other}{Abundances of other components}
+
+\item{component}{Name of the component that is being updated}
+
+\item{...}{Unused}
+}
 \description{
 Helper function to keep other components constant
 }
