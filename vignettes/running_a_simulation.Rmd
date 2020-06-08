@@ -182,10 +182,10 @@ selectivity (see the fishing mortality panel). Remember that the default setting
 for the fishing gears is a knife-edge gear where the knife-edge is positioned at
 the species `w_mat` parameter.
 
-The effort through time can be inspected with `effort()` (we use the `head()`
+The effort through time can be inspected with `getEffort()` (we use the `head()`
 function to just show the first few lines).
 ```{r label=show_effort}
-head(effort(sim))
+head(getEffort(sim))
 ```
 The `effort` slot shows the effort by time and gear. In this example, we
 specified the `effort` argument as a single numeric of value 1. As you can see
@@ -207,7 +207,7 @@ to 0.5, meaning that the effort and abundance information is stored at t = 1.0,
 
 ```{r label=simple_proj_tsave05}
 sim <- project(NS_params, effort = 1, t_max = 10, dt = 0.1, t_save = 0.5)
-head(effort(sim))
+head(getEffort(sim))
 ```
 
 ### Setting constant effort for different gears {#sec:proj_diff_gears_constant_effort}
@@ -230,7 +230,7 @@ matrix (again we use the `head()` function to just show the first few lines):
 
 ```{r label=project_effort_vector}
 sim <- project(NS_params, effort = effort, t_max = 10, dt = 1, t_save = 1)
-head(effort(sim))
+head(getEffort(sim))
 ```
 
 You can see that the effort for each gear is constant but each gear has the

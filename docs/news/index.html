@@ -37,6 +37,12 @@
 <script src="../pkgdown.js"></script>
 
 
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
 
 
 <meta property="og:title" content="Changelog" />
@@ -71,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
       </span>
     </div>
 
@@ -89,8 +95,52 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="../articles/index.html">Guides</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">For developers</li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
+    </li>
+    <li>
+      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -108,6 +158,12 @@
 </li>
       </ul>
       
+      <form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -123,13 +179,58 @@
       <small>Source: <a href='https://github.com/sizespectrum/mizer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="mizer-201" class="section level1">
-<h1 class="page-header" data-toc-text="2.0.1">
-<a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> Unreleased </small>
+    <div id="mizer-202" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.2">
+<a href="#mizer-202" class="anchor"></a>mizer 2.0.2<small> Unreleased </small>
 </h1>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Time passed to rate functions is now the actual simulation time, not the time elapsed since start of simulation.</li>
+<li>
+<code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> works also on params objects that were created with a development version of mizer.</li>
+<li>When upgrading an older params object, <code><a href="../reference/upgradeParams.html">upgradeParams()</a></code> does a better job at guessing the value for <code>w_pp_cutoff</code>.</li>
+<li>
+<code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code>, <code><a href="../reference/getPredMort.html">getPredMort()</a></code>, <code><a href="../reference/setInitialValues.html">setInitialValues()</a></code> and <code><a href="../reference/steady.html">steady()</a></code> now work also when model has extra components.</li>
+<li>The critical feeding level lines are now mentioned in the legend of <code>plotFeedinglevel()</code> when called with <code>include_critical = TRUE</code>, see <a href='https://github.com/sizespectrum/mizer/issues/162'>#162</a>.</li>
+<li>Avoid annoying warnings from dplyr package when <code>species_params</code> is a tibble.</li>
+</ul>
+</div>
+<div id="name-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#name-changes" class="anchor"></a>Name changes</h2>
+<ul>
+<li>Renamed the functions <code>params()</code>, <code>effort()</code> and <code>times()</code> to <code><a href="../reference/getParams.html">getParams()</a></code>, <code><a href="../reference/getEffort.html">getEffort()</a></code> and <code><a href="../reference/getTimes.html">getTimes()</a></code> to avoid conflicts.</li>
+</ul>
+</div>
+<div id="minor-enhancements" class="section level2">
+<h2 class="hasAnchor">
+<a href="#minor-enhancements" class="anchor"></a>Minor enhancements</h2>
+<ul>
+<li>Some improvements to documentation.</li>
+<li>More unit tests.</li>
+<li>Uses less memory when time step is very small by not creating array with effort values at each time step.</li>
+<li>
+<code><a href="../reference/getDiet.html">getDiet()</a></code> also takes into account possible contributions by user-defined other components.</li>
+<li>In extension mechanism, now the name of a component is also passed to the functions implementing dynamics, encounter and mortality.</li>
+<li>If <code><a href="../reference/project.html">project()</a></code> is called with <code>t_max &lt; t_save</code> then <code>t_save</code> is automatically reduced so that the result at <code>t_max</code> will get saved.</li>
+<li>Start showing progress bar earlier during <code><a href="../reference/project.html">project()</a></code>.</li>
+<li>New helper function <code><a href="../reference/project_simple.html">project_simple()</a></code> that projects a given number of time steps. This might be useful to extension writers.</li>
+<li>The <code>...</code> argument to <code><a href="../reference/project.html">project()</a></code> is passed on to the dynamics and rate functions.</li>
+<li>
+<code><a href="../reference/steady.html">steady()</a></code> runs faster by using <code><a href="../reference/project_simple.html">project_simple()</a></code>.</li>
+<li>Documentation on mizer website now has a search bar.</li>
+</ul>
+</div>
+</div>
+    <div id="mizer-201" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.1">
+<a href="#mizer-201" class="anchor"></a>mizer 2.0.1<small> 2020-05-05 </small>
+</h1>
+<div id="bug-fixes-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> now also works with non-default feeding kernels. <a href='https://github.com/sizespectrum/mizer/issues/159'>#159</a></li>
@@ -141,9 +242,9 @@
 <code>resource_params()&lt;-</code> now works and has unit tests.</li>
 </ul>
 </div>
-<div id="naming-changes" class="section level2">
+<div id="name-changes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#naming-changes" class="anchor"></a>Naming changes</h2>
+<a href="#name-changes-1" class="anchor"></a>Name changes</h2>
 <p>Some inconsistencies in the choice of names for parameters was removed by renaming</p>
 <ul>
 <li>
@@ -157,9 +258,9 @@
 </li>
 </ul>
 </div>
-<div id="new-functionality" class="section level2">
+<div id="minor-enhancements-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-functionality" class="anchor"></a>New functionality</h2>
+<a href="#minor-enhancements-1" class="anchor"></a>Minor enhancements</h2>
 <ul>
 <li>New functions <code>other_params()&lt;-</code> and <code><a href="../reference/setRateFunction.html">other_params()</a></code> for setting and getting other parameters, for example to be used in user-defined rate functions.</li>
 <li>
@@ -282,7 +383,7 @@
 <li>New gear selectivity function <code>sigmoidal_weight()</code> is weight-based trawl selectivity function. (Ken H Andersen)</li>
 <li>New <code><a href="../reference/getGrowthCurves.html">getGrowthCurves()</a></code> calculates the growth curves (size at age).</li>
 <li>New <code><a href="../reference/mizerRates.html">mizerRates()</a></code> calculates all the rates needed in the model and collects them in a list.</li>
-<li>A convenience function <code><a href="../reference/times.html">times()</a></code> to extract the times at which simulation results are saved in a MizerSim object.</li>
+<li>A convenience function <code>times()</code> to extract the times at which simulation results are saved in a MizerSim object.</li>
 <li>Convenience functions <code><a href="../reference/finalN.html">finalN()</a></code>, <code><a href="../reference/finalN.html">finalNResource()</a></code> and <code><a href="../reference/finalNOther.html">finalNOther()</a></code> as well as <code><a href="../reference/idxFinalT.html">idxFinalT()</a></code> to access the values at the final time of a simulation.</li>
 <li>New function <code><a href="../reference/getCriticalFeedingLevel.html">getCriticalFeedingLevel()</a></code> returns the critical feeding level for each species at each size.</li>
 <li>Mizer reexports the <code><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt()</a></code> function from the reshape2 package which allows users to convert the arrays returned by mizer functions into data frames that can be used for example in ggplot2 and plotly.</li>
@@ -355,9 +456,9 @@
 <li>Using Rmarkdown in all roxygen comments</li>
 </ul>
 </div>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>In <code><a href="../reference/getSSB.html">getSSB()</a></code>, the calculation of the spawning stock biomass is done correctly using the maturity ogive instead of the proportion of energy allocated to reproduction. (<a href='https://github.com/sizespectrum/mizer/issues/47'>#47</a>)</li>
 <li>The fast FFT method and the old method for calculating integrals now give the same numerical results. (<a href='https://github.com/sizespectrum/mizer/issues/39'>#39</a>)</li>
@@ -511,13 +612,30 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
    </div>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
+    indexName: 'sizespectrum_mizer',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
 
 
   </body>

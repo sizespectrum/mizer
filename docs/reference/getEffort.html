@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get total mortality rate — getMort • mizer</title>
+<title>Fishing effort used in simulation — getEffort • mizer</title>
 
 
 <!-- jquery -->
@@ -45,10 +45,11 @@
 
 
 
-<meta property="og:title" content="Get total mortality rate — getMort" />
-<meta property="og:description" content="Calculates the total mortality rate \(\mu_i(w)\)  (in units 1/year) on each
-species by size from predation mortality, background mortality and fishing
-mortality for a single time step." />
+<meta property="og:title" content="Fishing effort used in simulation — getEffort" />
+<meta property="og:description" content="Note that the array returned may not be exactly the same as the effort
+argument that was passed in to project(). This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+t_save)." />
 
 
 
@@ -178,94 +179,34 @@ mortality for a single time step." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get total mortality rate</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/rate_functions.R'><code>R/rate_functions.R</code></a></small>
-    <div class="hidden name"><code>getMort.Rd</code></div>
+    <h1>Fishing effort used in simulation</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sizespectrum/mizer/blob/master/R/MizerSim-class.R'><code>R/MizerSim-class.R</code></a></small>
+    <div class="hidden name"><code>getEffort.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculates the total mortality rate \(\mu_i(w)\)  (in units 1/year) on each
-species by size from predation mortality, background mortality and fishing
-mortality for a single time step.</p>
+    <p>Note that the array returned may not be exactly the same as the <code>effort</code>
+argument that was passed in to <code><a href='project.html'>project()</a></code>. This is because only the saved
+effort is stored (the frequency of saving is determined by the argument
+<code>t_save</code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getMort</span>(
-  <span class='no'>params</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='initialN-set.html'>initialN</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='fu'><a href='initialNResource-set.html'>initialNResource</a></span>(<span class='no'>params</span>),
-  <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='fu'><a href='initialNOther-set.html'>initialNOther</a></span>(<span class='no'>params</span>),
-  <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fu'><a href='setFishing.html'>getInitialEffort</a></span>(<span class='no'>params</span>),
-  <span class='kw'>f_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getFMort.html'>getFMort</a></span>(<span class='no'>params</span>, <span class='no'>effort</span>),
-  <span class='kw'>pred_mort</span> <span class='kw'>=</span> <span class='fu'><a href='getPredMort.html'>getPredMort</a></span>(<span class='no'>params</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>n_pp</span> <span class='kw'>=</span> <span class='no'>n_pp</span>, <span class='kw'>n_other</span> <span class='kw'>=</span> <span class='no'>n_other</span>)
-)</pre>
+    <pre class="usage"><span class='fu'>getEffort</span>(<span class='no'>sim</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>params</th>
-      <td><p>A <a href='MizerParams-class.html'>MizerParams</a> object</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>A matrix of species abundances (species x size).</p></td>
-    </tr>
-    <tr>
-      <th>n_pp</th>
-      <td><p>A vector of the resource abundance by size</p></td>
-    </tr>
-    <tr>
-      <th>n_other</th>
-      <td><p>A list of abundances for other dynamical components of the
-ecosystem</p></td>
-    </tr>
-    <tr>
-      <th>effort</th>
-      <td><p>A numeric vector of the effort by gear or a single numeric
-effort value which is used for all gears.</p></td>
-    </tr>
-    <tr>
-      <th>f_mort</th>
-      <td><p>A two dimensional array (species x size) of fishing mortality
-(optional).If not supplied is calculated using the <code><a href='getFMort.html'>getFMort()</a></code>
-function.</p></td>
-    </tr>
-    <tr>
-      <th>pred_mort</th>
-      <td><p>A two dimensional array of predation mortality (optional). Has
-dimensions no. sp x no. size bins in the community. If not supplied is
-calculated using the <code><a href='getPredMort.html'>getPredMort()</a></code> function.</p></td>
+      <th>sim</th>
+      <td><p>A MizerSim object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A two dimensional array (prey species x prey size).</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>An array (time x gear) that stores the fishing effort by time and
+gear.</p>
 
-    <div class='dont-index'><p><code><a href='getPredMort.html'>getPredMort()</a></code>, <code><a href='getFMort.html'>getFMort()</a></code></p>
-<p>Other rate functions: 
-<code><a href='getEGrowth.html'>getEGrowth</a>()</code>,
-<code><a href='getEReproAndGrowth.html'>getEReproAndGrowth</a>()</code>,
-<code><a href='getERepro.html'>getERepro</a>()</code>,
-<code><a href='getEncounter.html'>getEncounter</a>()</code>,
-<code><a href='getFMortGear.html'>getFMortGear</a>()</code>,
-<code><a href='getFMort.html'>getFMort</a>()</code>,
-<code><a href='getFeedingLevel.html'>getFeedingLevel</a>()</code>,
-<code><a href='getPredMort.html'>getPredMort</a>()</code>,
-<code><a href='getPredRate.html'>getPredRate</a>()</code>,
-<code><a href='getRDD.html'>getRDD</a>()</code>,
-<code><a href='getRDI.html'>getRDI</a>()</code>,
-<code><a href='getResourceMort.html'>getResourceMort</a>()</code></p></div>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='newMultispeciesParams.html'>newMultispeciesParams</a></span>(<span class='no'>NS_species_params_gears</span>, <span class='no'>inter</span>)
-<span class='co'># Project with constant fishing effort for all gears for 20 time steps</span>
-<span class='no'>sim</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='project.html'>project</a></span>(<span class='no'>params</span>, <span class='kw'>t_max</span> <span class='kw'>=</span> <span class='fl'>20</span>, <span class='kw'>effort</span> <span class='kw'>=</span> <span class='fl'>0.5</span>)
-<span class='co'># Get the total mortality at a particular time step</span>
-<span class='fu'>getMort</span>(<span class='no'>params</span>,<span class='no'>sim</span>@<span class='kw'>n</span>[<span class='fl'>21</span>,,],<span class='no'>sim</span>@<span class='kw'>n_pp</span>[<span class='fl'>21</span>,],<span class='kw'>effort</span><span class='kw'>=</span><span class='fl'>0.5</span>)
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

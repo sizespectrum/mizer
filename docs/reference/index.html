@@ -37,6 +37,12 @@
 <script src="../pkgdown.js"></script>
 
 
+<!-- docsearch -->
+<script src="../docsearch.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous" />
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+
 
 
 <meta property="og:title" content="Function reference" />
@@ -71,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mizer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.2</span>
       </span>
     </div>
 
@@ -89,8 +95,52 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="../articles/index.html">Guides</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/model_description.html">The General Mizer Size-spectrum Model</a>
+    </li>
+    <li>
+      <a href="../articles/community_model.html">The Community Model</a>
+    </li>
+    <li>
+      <a href="../articles/trait_model.html">The Trait-Based Model</a>
+    </li>
+    <li>
+      <a href="../articles/multispecies_model.html">The Multi Species Model</a>
+    </li>
+    <li>
+      <a href="../articles/running_a_simulation.html">Running a Simulation</a>
+    </li>
+    <li>
+      <a href="../articles/exploring_the_simulation_results.html">Exploring the Simulation Results</a>
+    </li>
+    <li>
+      <a href="../articles/a_multispecies_model_of_the_north_sea.html">A Multi-Species Model Of The North Sea</a>
+    </li>
+    <li>
+      <a href="../articles/plotting.html">Using ggplot2 and plotly with mizer</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">For developers</li>
+    <li>
+      <a href="../articles/developer_vignette.html">Developer Guide</a>
+    </li>
+    <li>
+      <a href="../articles/working_with_git.html">Working with git and GitHub</a>
+    </li>
+    <li>
+      <a href="../articles/developer_FAQ.html">Developer FAQ</a>
+    </li>
+    <li>
+      <a href="../articles/editing_website.html">Editing the Mizer Website</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/publications.html">Publications</a>
@@ -107,6 +157,12 @@
   </a>
 </li>
       </ul>
+      
+      <form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
+        </div>
+      </form>
       
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -248,18 +304,6 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="params.html">params()</a></code> </p>
-        </td>
-        <td><p>Extract the parameter object underlying a simulation</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="summary-MizerParams-method.html">summary(<i>&lt;MizerParams&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Summarize MizerParams object</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="setRmax.html">setRmax()</a></code> </p>
         </td>
         <td><p>Set maximum reproduction rate</p></td>
@@ -340,21 +384,15 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="effort.html">effort()</a></code> </p>
+          <p><code><a href="getEffort.html">getEffort()</a></code> </p>
         </td>
         <td><p>Fishing effort used in simulation</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="times.html">times()</a></code> </p>
+          <p><code><a href="getTimes.html">getTimes()</a></code> </p>
         </td>
         <td><p>Times for which simulation results are available</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="w.html">w()</a></code> <code><a href="w.html">w_full()</a></code> <code><a href="w.html">dw()</a></code> <code><a href="w.html">dw_full()</a></code> </p>
-        </td>
-        <td><p>Size bins</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -417,12 +455,6 @@ step.</p></td>
           <p><code><a href="getGrowthCurves.html">getGrowthCurves()</a></code> </p>
         </td>
         <td><p>Get growth curves giving weight as a function of age</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="summary-MizerSim-method.html">summary(<i>&lt;MizerSim&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Summarize MizerSim object</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1030,6 +1062,12 @@ required parameters or transfer them from species_params if available</p></td>
           <p><code><a href="emptyParams.html">emptyParams()</a></code> </p>
         </td>
         <td><p>Create empty MizerParams object of the right size</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="project_simple.html">project_simple()</a></code> </p>
+        </td>
+        <td><p>Project abundances by a given number of time steps into the future</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1052,6 +1090,18 @@ required parameters or transfer them from species_params if available</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="summary-MizerParams-method.html">summary(<i>&lt;MizerParams&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summarize MizerParams object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="w.html">w()</a></code> <code><a href="w.html">w_full()</a></code> <code><a href="w.html">dw()</a></code> <code><a href="w.html">dw_full()</a></code> </p>
+        </td>
+        <td><p>Size bins</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="upgradeParams.html">upgradeParams()</a></code> </p>
         </td>
         <td><p>Upgrade MizerParams object from earlier mizer versions</p></td>
@@ -1064,6 +1114,12 @@ required parameters or transfer them from species_params if available</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="summary-MizerSim-method.html">summary(<i>&lt;MizerSim&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summarize MizerSim object</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="upgradeSim.html">upgradeSim()</a></code> </p>
         </td>
         <td><p>Upgrade MizerSim object from earlier mizer versions</p></td>
@@ -1073,6 +1129,12 @@ required parameters or transfer them from species_params if available</p></td>
           <p><code><a href="MizerSim.html">MizerSim()</a></code> </p>
         </td>
         <td><p>Constructor for the <code>MizerSim</code> class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getParams.html">getParams()</a></code> </p>
+        </td>
+        <td><p>Extract the parameter object underlying a simulation</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -1156,6 +1218,12 @@ required parameters or transfer them from species_params if available</p></td>
       </tr><tr>
         
         <td>
+          <p><code><a href="getPhiPrey.html">getPhiPrey()</a></code> </p>
+        </td>
+        <td><p>Get available energy</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getM2.html">getM2()</a></code> </p>
         </td>
         <td><p>Alias for getPredMort</p></td>
@@ -1196,13 +1264,30 @@ required parameters or transfer them from species_params if available</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
    </div>
 
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script>
+<script>
+  docsearch({
+    
+    
+    apiKey: '96e9641255d3fff35a4fd16d1a1bf70c',
+    indexName: 'sizespectrum_mizer',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+
 
 
   </body>

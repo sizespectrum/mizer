@@ -292,9 +292,9 @@ finalNResource <- function(sim) {
 #' idx <- idxFinalT(sim)
 #' idx
 #' # This coincides with
-#' length(times(sim))
+#' length(getTimes(sim))
 #' # and corresponds to the final time
-#' times(sim)[idx]
+#' getTimes(sim)[idx]
 #' # We can use this index to extract the result at the final time
 #' identical(N(sim)[idx, , ], finalN(sim))
 #' identical(NResource(sim)[idx, ], finalNResource(sim))

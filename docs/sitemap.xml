@@ -46,13 +46,13 @@
     <loc>https://sizespectrum.org/mizer/reference/constantRDD.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/constant_other.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/default_pred_kernel_params.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/double_sigmoid_length.html</loc>
-  </url>
-  <url>
-    <loc>https://sizespectrum.org/mizer/reference/effort.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/emptyParams.html</loc>
@@ -94,6 +94,9 @@
     <loc>https://sizespectrum.org/mizer/reference/getESpawning.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/getEffort.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/getEncounter.html</loc>
   </url>
   <url>
@@ -127,6 +130,9 @@
     <loc>https://sizespectrum.org/mizer/reference/getN.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/getParams.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/getPhiPrey.html</loc>
   </url>
   <url>
@@ -152,6 +158,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getSSB.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/getTimes.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/getYield.html</loc>
@@ -268,9 +277,6 @@
     <loc>https://sizespectrum.org/mizer/reference/noRDD.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/params.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/plotBiomass.html</loc>
   </url>
   <url>
@@ -313,16 +319,25 @@
     <loc>https://sizespectrum.org/mizer/reference/project.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/project_simple.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/reexports.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_constant.html</loc>
   </url>
   <url>
+    <loc>https://sizespectrum.org/mizer/reference/resource_encounter.html</loc>
+  </url>
+  <url>
     <loc>https://sizespectrum.org/mizer/reference/resource_semichemostat.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/retune_erepro.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/reference/semichemostat.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/reference/setColours.html</loc>
@@ -406,9 +421,6 @@
     <loc>https://sizespectrum.org/mizer/reference/test_dyn.html</loc>
   </url>
   <url>
-    <loc>https://sizespectrum.org/mizer/reference/times.html</loc>
-  </url>
-  <url>
     <loc>https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.html</loc>
   </url>
   <url>
@@ -446,6 +458,9 @@
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html</loc>
+  </url>
+  <url>
+    <loc>https://sizespectrum.org/mizer/articles/making_modifications.html</loc>
   </url>
   <url>
     <loc>https://sizespectrum.org/mizer/articles/mizer.html</loc>
